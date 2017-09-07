@@ -32,14 +32,14 @@ class Product extends BaseClient
         return $category;
     }
 
-    public function products($id = null, $limit = 20, $page = 1)
+    public function products($id = null)
     {
         $path = 'V1/products';
         if (!empty($id)) {
             $this->putQuery('searchCriteria[filterGroups][0][filters][0][field]', 'category_id')
                 ->putQuery('searchCriteria[filterGroups][0][filters][0][value]', $id);
         }
-        $response = $this->putQuery('searchCriteria[pageSize]', $limit)
+        $response = $this->putQuery('searchCriteria[pageSize]', 63353)
             ->request('GET', $path);
         $body = $response->getBody();
         $data = [];
