@@ -27,7 +27,7 @@ trait EnvHelper
         }
     }
 
-    public function env($key)
+    public function env($key, $default = '')
     {
 
         if(function_exists('env')) {

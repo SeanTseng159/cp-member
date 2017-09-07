@@ -9,11 +9,14 @@
 namespace Ksd\Mediation\Magento;
 
 
+use Ksd\Mediation\Helper\EnvHelper;
 use Ksd\Mediation\Result\ProductCategoryResult;
 use Ksd\Mediation\Result\ProductResult;
 
 class Product extends BaseClient
 {
+    use EnvHelper;
+
     public function categories($id = 1)
     {
         $path = "V1/categories/$id";
@@ -39,7 +42,7 @@ class Product extends BaseClient
             $this->putQuery('searchCriteria[filterGroups][0][filters][0][field]', 'category_id')
                 ->putQuery('searchCriteria[filterGroups][0][filters][0][value]', $id);
         }
-        $response = $this->putQuery('searchCriteria[pageSize]', 63353)
+        $response = $this->putQuery('searchCriteria[pageSize]', $this->env('API_DATA_LIMIT', 500))
             ->request('GET', $path);
         $body = $response->getBody();
         $data = [];

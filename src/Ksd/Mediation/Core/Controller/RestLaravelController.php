@@ -13,6 +13,8 @@ use App\Http\Controllers\Controller;
 
 class RestLaravelController extends Controller
 {
+    protected $result = [];
+
     public function success($data = NULL)
     {
         return $this->responseFormat($data);
@@ -29,13 +31,24 @@ class RestLaravelController extends Controller
             'code' => $code,
             'message' => $message,
         ];
+
+        foreach ($this->result as $key => $value) {
+            $result[$key] = $value;
+        }
+
         if (!empty($data)) {
             $result['data'] = $data;
         }
-        return response()->json($data, $httpCode , [
+        return response()->json($result, $httpCode , [
             'Access-Control-Allow-Origin' => '*',
             'Access-Control-Allow-Methods' => 'GET, POST, PUT, DELETE, OPTIONS',
             'Access-Control-Allow-Headers' => 'X-Requested-With, Authorization, Content-Type, Accept'
         ]);
+    }
+
+    public function putResult($key, $value)
+    {
+        $this->result[$key] = $value;
+        return $this;
     }
 }
