@@ -29,11 +29,10 @@ trait EnvHelper
 
     public function env($key, $default = '')
     {
-
         if(function_exists('env')) {
-            return env($key);
+            return empty(env($key)) ? $default : env($key);
         }
         $this->all();
-        return getenv($key);
+        return empty(getenv($key)) ? $default : getenv($key);
     }
 }
