@@ -42,7 +42,7 @@ class ProductService
                 $categoryIds = array_merge($categoryIds, $this->filterCategory($categoryResult, $category));
             }
         }
-        return $this->repository->products($categoryIds, $parameter)->pagination()->sort()->all();
+        return $this->repository->products($categoryIds, $parameter)->pagination()->sort();
     }
 
 

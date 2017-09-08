@@ -24,7 +24,10 @@ class ProductController extends RestLaravelController
         $parameter = new AllParameter();
         $parameter->laravelRequest($request);
         $result = $this->productService->products($parameter);
-        return $this->putResult('total',count($result))->success($result);
+        return $this->success([
+            'total' => $result->total,
+            'result' => $result->result
+        ]);
     }
 
     public function tags(Request $request)
@@ -32,7 +35,10 @@ class ProductController extends RestLaravelController
         $parameter = new TagsParameter();
         $parameter->laravelRequest($request);
         $result = $this->productService->products($parameter);
-        return $this->putResult('total',count($result))->success($result);
+        return $this->success([
+            'total' => $result->total,
+            'result' => $result->result
+        ]);
     }
 
     public function query(Request $request, $id)

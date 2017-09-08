@@ -8,15 +8,14 @@
 
 namespace Ksd\Mediation\Result;
 
-
-use function Sodium\compare;
-
 class Collection
 {
+    public $total;
 
-    public function __construct($input = [], $parameter)
+    public function __construct($result = [], $parameter)
     {
-        $this->result = $input;
+        $this->result = $result;
+        $this->total = count($result);
         $this->parameter = $parameter;
     }
 
