@@ -12,7 +12,7 @@ namespace Ksd\Mediation\Helper;
 trait MemberHelper
 {
 
-    public function userToken()
+    protected function userToken()
     {
         ////        $token = 'gw83u0093jo5g6n7cv22rdnx13n569e5';
 //        $token = 'draeedfcm6nue7saxgj8pjxj2b9mqyji';

@@ -39,6 +39,7 @@ class BaseClient
 
     public function authorization($token)
     {
+        $this->token = $token;
         $this->putHeader('Authorization', 'Bearer ' . $token);
         return $this;
     }

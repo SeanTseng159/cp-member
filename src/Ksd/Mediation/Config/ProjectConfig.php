@@ -12,6 +12,6 @@ namespace Ksd\Mediation\Config;
 class ProjectConfig
 {
     const MAGENTO = 'magento';
-    const TPASS = 'tpass';
+    const TPASS = 'ct_pass';
 
 }
