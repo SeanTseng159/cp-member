@@ -9,6 +9,7 @@
 namespace Ksd\Mediation\Magento;
 
 
+use GuzzleHttp\Exception\ClientException;
 use Ksd\Mediation\Result\CartResult;
 use Ksd\Mediation\Result\ProductResult;
 
@@ -25,11 +26,17 @@ class Cart extends BaseClient
 
     public function detail()
     {
-        $response = $this->request('GET', 'V1/carts/mine');
+        $result = [];
+        try {
+            $response = $this->request('GET', 'V1/carts/mine');
+            $result = json_decode($response->getBody(), true);
+        } catch (ClientException $e) {
+            // TODO:處理抓取不到購物車資料
+        }
 
-        $result = json_decode($response->getBody(), true);
         $cart = new CartResult();
         $cart->magento($result);
+
         return $cart;
     }
 
@@ -37,9 +44,11 @@ class Cart extends BaseClient
     {
         $cart = $this->detail();
         $data = ['quote' => [
-            'id' => $cart->id,
             'items' => []
         ]];
+        if (!empty($cart->id)) {
+            $data['quote']['id'] = $cart->id;
+        }
         foreach ($parameters as $item) {
             $row = new \stdClass();
             $row->sku = $item['id'];

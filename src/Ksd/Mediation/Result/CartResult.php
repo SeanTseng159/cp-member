@@ -18,7 +18,7 @@ class CartResult
     public function magento($result)
     {
         $totalAmount = 0;
-        $this->id = $result['id'];
+        $this->id = $this->arrayDefault($result, 'id');
         $this->items = [];
         foreach ($this->arrayDefault($result, 'items', []) as $item) {
             $row = new ProductResult();
@@ -32,7 +32,7 @@ class CartResult
             $totalAmount += intval($row->price) * intval($row->qty);
         }
         $this->useCoupon = new \stdClass();
-        $this->itemTotal = $this->arrayDefault($result, 'items_count');
+        $this->itemTotal = $this->arrayDefault($result, 'items_count', 0);
         $this->totalAmount = $totalAmount;
         $this->discountAmount = 0;
         $this->payAmount = $totalAmount;

@@ -13,6 +13,9 @@ trait ObjectHelper
 {
     public function arrayDefault($result, $key , $default = '')
     {
+        if (empty($result)) {
+            return $default;
+        }
         return array_key_exists($key, $result) ? $result[$key] : $default;
     }
 
