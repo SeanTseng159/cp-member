@@ -15,7 +15,7 @@ class BaseRepository
 {
     protected $redis;
     protected $magento;
-    protected $tpass;
+    protected $cityPass;
     protected $token;
 
     public function __construct()
