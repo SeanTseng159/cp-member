@@ -51,4 +51,9 @@ class AllParameter extends BaseParameter
             return $a->price < $b->price ? -1 : 1;
         }
     }
+
+    public function categories()
+    {
+        return $this->tags;
+    }
 }

@@ -8,9 +8,6 @@
 
 namespace Ksd\Mediation\Services;
 
-
-use Ksd\Mediation\Parameter\Product\AllParameter;
-use Ksd\Mediation\Parameter\Product\TagsParameter;
 use Ksd\Mediation\Repositories\ProductRepository;
 
 class ProductService
@@ -29,12 +26,8 @@ class ProductService
 
     public function products($parameter)
     {
-        $categories = [];
-        if ($parameter instanceof AllParameter) {
-            $categories = $parameter->tags;
-        } else if($parameter instanceof TagsParameter) {
-            $categories = $parameter->names;
-        }
+        $categories = $parameter->categories();
+
         $categoryIds = [];
         if(!empty($categories)) {
             $categoryResult = $this->categories();
