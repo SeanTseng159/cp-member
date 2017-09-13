@@ -29,7 +29,7 @@ class SalesRuleRepository extends BaseRepository
             if($this->magento->authorization($this->token)->addCoupon($parameters->code)) {
                 return $this->magento->authorization($this->env('MAGENTO_ADMIN_TOKEN'))->couponDetail($parameters->code);
             }
-        } else if ($parameters->source === ProjectConfig::TPASS) {
+        } else if ($parameters->source === ProjectConfig::CITY_PASS) {
 
         }
     }
@@ -38,7 +38,7 @@ class SalesRuleRepository extends BaseRepository
     {
         if($parameters->source === ProjectConfig::MAGENTO) {
             $this->magento->authorization($this->token)->deleteCoupon($parameters->code);
-        } else if ($parameters->source === ProjectConfig::TPASS) {
+        } else if ($parameters->source === ProjectConfig::CITY_PASS) {
 
         }
     }

@@ -32,7 +32,7 @@ class CheckoutRepository extends BaseRepository
     {
         if($parameters->checkSource(ProjectConfig::MAGENTO)) {
             $this->magento->authorization($this->userToken())->confirm($parameters);
-        } else if ($parameters->checkSource(ProjectConfig::TPASS)) {
+        } else if ($parameters->checkSource(ProjectConfig::CITY_PASS)) {
 
         }
 

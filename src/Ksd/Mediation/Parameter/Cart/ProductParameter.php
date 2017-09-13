@@ -37,7 +37,7 @@ class ProductParameter extends BaseParameter
             foreach ($parameters as $parameter) {
                 if ($parameter['source'] === ProjectConfig::MAGENTO) {
                     array_push($this->magento, $parameter);
-                } else if ($parameter['source'] === ProjectConfig::TPASS) {
+                } else if ($parameter['source'] === ProjectConfig::CITY_PASS) {
                     array_push($this->tpass, $parameter);
                 }
             }
