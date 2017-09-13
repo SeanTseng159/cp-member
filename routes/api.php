@@ -36,9 +36,11 @@ Route::namespace('Api')->group(function () {
 
     Route::prefix('checkout')->group(function () {
         Route::get('info', 'CheckoutController@info');
-//        Route::get('detail', 'CartController@detail');
         Route::post('confirm', 'CheckoutController@confirm');
-//        Route::post('update', 'CartController@update');
-//        Route::post('delete', 'CartController@delete');
+    });
+
+    Route::prefix('coupon')->group(function () {
+        Route::post('add', 'SalesRuleController@addCoupon');
+        Route::post('remove', 'SalesRuleController@deleteCoupon');
     });
 });

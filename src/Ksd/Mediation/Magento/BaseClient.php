@@ -50,12 +50,26 @@ class BaseClient
         return $this;
     }
 
+    public function clear()
+    {
+        $this->query = [];
+        $this->parameters = [];
+    }
+
     protected function putQuery($key, $value)
     {
         if (empty($this->query)) {
             $this->query = [];
         }
         $this->query[$key] = $value;
+        return $this;
+    }
+
+    protected function putQueries($parameters = [])
+    {
+        foreach ($parameters as $key => $value) {
+            $this->putQuery($key, $value);
+        }
         return $this;
     }
 
@@ -85,10 +99,12 @@ class BaseClient
             $option['query'] = $this->query;
         }
 
-        if (!empty($this->parameters) && $this->json) {
-            $option['json'] = $this->parameters;
-        } else {
-            $option['body'] = $this->parameters;
+        if (!empty($this->parameters)) {
+            if ($this->json) {
+                $option['json'] = $this->parameters;
+            } else {
+                $option['body'] = $this->parameters;
+            }
         }
 
         return $option;
