@@ -9,6 +9,7 @@
 namespace Ksd\Mediation\Result;
 
 
+use Ksd\Mediation\Config\ProjectConfig;
 use Ksd\Mediation\Helper\EnvHelper;
 use Ksd\Mediation\Helper\ObjectHelper;
 
@@ -19,7 +20,7 @@ class ProductResult
 
     public function magento($result, $isDetail = false)
     {
-        $this->source = 'magento';
+        $this->source = ProjectConfig::MAGENTO;
         $this->id = $this->arrayDefault($result, 'sku');
         $this->name = $this->arrayDefault($result, 'name');
         $this->price = $this->arrayDefault($result, 'price');
@@ -50,6 +51,35 @@ class ProductResult
                     ];
                 }
             }
+        }
+    }
+
+
+    public function cityPass($result, $isDetail = false)
+    {
+        $this->source = ProjectConfig::CITY_PASS;
+        $this->id = $this->arrayDefault($result, 'id');
+        $this->name = $this->arrayDefault($result, 'name');
+        $this->price = $this->arrayDefault($result, 'price');
+        $this->salePrice = $this->arrayDefault($result, 'salePrice');
+        $this->characteristic = $this->arrayDefault($result, 'characteristic');
+        $this->category = null;
+        $this->storeName = $this->arrayDefault($result, 'storeName');
+        $this->place = $this->arrayDefault($result, 'place');
+        $this->tags = $this->arrayDefault($result, 'tags');
+        $this->description = $this->arrayDefault($result, 'description');
+        $this->imageUrl = $this->arrayDefault($result, 'imageUrl');
+        $this->createdAt = $this->arrayDefault($result, 'createdAt');
+
+        if ($isDetail) {
+            $this->canUseCoupon = $this->arrayDefault($result, 'canUseCoupon');
+            $this->storeTelephone = $this->arrayDefault($result, 'storeTelephone');
+            $this->storeAddress = $this->arrayDefault($result, 'storeAddress');
+            $this->quantity = $this->arrayDefault($result, 'quantity');
+            $this->contents = $this->arrayDefault($result, 'contents');
+            $this->additionals = $this->arrayDefault($result, 'additionals');
+            $this->purchase = $this->arrayDefault($result, 'purchase');
+            $this->imageUrls = $this->arrayDefault($result, 'imageUrls');
         }
     }
 
