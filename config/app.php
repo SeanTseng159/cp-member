@@ -167,7 +167,7 @@ return [
         /*
          * Package Service Providers...
          */
-
+         Ksd\SMS\Providers\SMSServiceProvider::class,
         /*
          * Application Service Providers...
          */
