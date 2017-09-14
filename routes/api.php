@@ -63,4 +63,11 @@ Route::namespace('Api')->group(function () {
         Route::post('add', 'SalesRuleController@addCoupon');
         Route::post('remove', 'SalesRuleController@deleteCoupon');
     });
+
+    Route::prefix('orders')->group(function () {
+        Route::get('info',   'OrderController@info');
+        Route::get('items/{itemId}', 'OrderController@items');
+        Route::get('search', 'OrderController@search');
+
+    });
 });
