@@ -17,11 +17,21 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
 
+// 需 token 認證的 route
 Route::middleware('auth.jwt')->group(function () {
-    Route::prefix('member')->group(function () {
-        Route::get('query', function () {
-            return 'test';
-        });
+    Route::namespace('Api')->prefix('member')->group(function () {
+        //取所有會員
+        Route::get('all', 'MemberController@allMember');
+        //會員資料查詢
+        Route::get('query', 'MemberController@queryMember');
+        //更新會員資料
+        Route::put('update/{id}', 'MemberController@updateMember');
+        //刪除會員
+        Route::delete('delete/{id}', 'MemberController@deleteMember');
+        //會員密碼修改
+        Route::get('password', 'MemberController@changePassword');
+        //更新會員憑證
+        Route::put('token', 'MemberController@refreshToken');
     });
 });
 
@@ -29,15 +39,13 @@ Route::namespace('Api')->group(function () {
 
     Route::prefix('member')->group(function () {
         //新增會員
-        Route::post('new', 'MemberController@createMember');
-        //更新會員資料
-        Route::put('update/{id}', 'MemberController@updateMember');
-        //刪除會員
-        Route::delete('delete/{id}', 'MemberController@deleteMember');
+        Route::post('create', 'MemberController@createMember');
+        //驗證-手機驗證碼
+        Route::post('validate/cellphone', 'MemberController@validateCellphone');
+        //註冊-更新會員資料
+        Route::post('register/{id}', 'MemberController@registerMember');
         //新增會員憑證
         Route::post('token', 'MemberController@generateToken');
-        //更新會員憑證
-        Route::put('token', 'MemberController@refreshToken');
     });
 
     Route::prefix('product')->group(function () {

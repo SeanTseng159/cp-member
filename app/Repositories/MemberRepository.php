@@ -5,6 +5,7 @@ namespace App\Repositories;
 use Illuminate\Database\QueryException;
 
 use App\Models\Member;
+use Crypt;
 use Hash;
 
 class MemberRepository
@@ -26,7 +27,8 @@ class MemberRepository
         try {
             $member = new Member();
             $member->fill($data);
-            $member->password = Hash::make($member->password);
+            $member->active_code = mt_rand(100000, 999999);
+            $member->email_active_code = Crypt::encrypt($data['cellphone']);
             $member->save();
             return $member;
         } catch (QueryException $e) {
@@ -47,10 +49,10 @@ class MemberRepository
 
             if ($member) {
                 $member->fill($data);
+                if (isset($data['password'])) $member->password = Hash::make($member->password);
                 $member->save();
                 return $member;
-            }
-            else {
+            } else {
                 return false;
             }
         } catch (QueryException $e) {
@@ -63,22 +65,51 @@ class MemberRepository
      * @param $id
      * @return mixed
      */
-     public function delete($id)
-     {
-         try {
-             $member = $this->model->find($id);
+    public function delete($id)
+    {
+        try {
+            $member = $this->model->find($id);
  
-             if ($member) {
+            if ($member) {
                 $member->delete();
                 return $id;
-             }
-             else {
-                 return false;
-             }
-         } catch (QueryException $e) {
-             return false;
-         }
+            } else {
+                return false;
+            }
+        } catch (QueryException $e) {
+            return false;
+        }
+    }
+
+    /**
+     * 找所有會員
+     * @param $data
+     * @return mixed
+     */
+     public function query($data)
+     {
+         return $this->model->where($data)->get();
      }
+
+     /**
+     * 找所有會員
+     * @param $email
+     * @return mixed
+     */
+     public function all()
+     {
+         return $this->model->all();
+     }
+
+    /**
+     * 依據帳號,查詢使用者認証
+     * @param $email
+     * @return mixed
+     */
+    public function find($id)
+    {
+        return $this->model->find($id);
+    }
 
     /**
      * 依據帳號,查詢使用者認証
@@ -91,12 +122,13 @@ class MemberRepository
     }
 
     /**
-     * 根據token取得使用者認證
-     * @param $token
+     * 依據手機,查詢使用者
+     * @param $countryCode
+     * @param $cellphone
      * @return mixed
      */
-    public function findByToken($token)
+    public function findByPhone($countryCode, $cellphone)
     {
-        return $this->model->whereToken($token)->first();
+        return $this->model->where(['countryCode' => $countryCode, 'cellphone' => $cellphone])->first();
     }
 }
