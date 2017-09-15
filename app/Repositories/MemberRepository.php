@@ -69,7 +69,7 @@ class MemberRepository
     {
         try {
             $member = $this->model->find($id);
- 
+
             if ($member) {
                 $member->delete();
                 return $id;
@@ -112,13 +112,23 @@ class MemberRepository
     }
 
     /**
-     * 依據帳號,查詢使用者認証
+     * 依據帳號,查詢使用者
      * @param $email
      * @return mixed
      */
     public function findByEmail($email)
     {
         return $this->model->whereEmail($email)->first();
+    }
+
+    /**
+     * 依據Token,查詢使用者
+     * @param $token
+     * @return mixed
+     */
+    public function findByToken($token)
+    {
+        return $this->model->whereToken($token)->first();
     }
 
     /**
