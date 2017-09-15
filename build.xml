@@ -32,7 +32,7 @@
         <delete dir="${basedir}/build/api"/>
         <delete dir="${basedir}/build/coverage"/>
         <delete dir="${basedir}/build/logs"/>
-        <delete file="${basedir}/build/composer.lock"/>
+        <delete file="${basedir}/composer.lock"/>
         <property name="clean.done" value="true"/>
     </target>
 
