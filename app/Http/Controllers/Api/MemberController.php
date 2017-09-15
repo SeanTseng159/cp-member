@@ -55,7 +55,7 @@ class MemberController extends Controller
         if ($this->memberService->checkPhoneIsUse($data['countryCode'], $data['cellphone'])) {
             return $this->apiRespFail('1111', '該手機號碼已使用');
         }
-        
+
         $member = $this->memberService->create($data);
         //新增成功
         if ($member) {
@@ -78,16 +78,18 @@ class MemberController extends Controller
      * @param Int $id
      * @return \Illuminate\Http\JsonResponse
      */
-     public function registerMember(Request $request, $id)
-     {
-         $data = $request->except([
+    public function registerMember(Request $request, $id)
+    {
+        $data = $request->except([
                     'id'
                 ]);
-         $data['status'] = $data['is_registered'] = 1;
-         $member = $this->memberService->update($id, $data);
- 
-         return ($member) ? $this->apiRespSuccess($member) : $this->apiRespFail('1111', '註冊失敗');
-     }
+        $data['status'] = $data['is_registered'] = 1;
+        $member = $this->memberService->update($id, $data);
+
+        return ($member) ? $this->apiRespSuccess([
+                            'id' => $member->id
+                        ]) : $this->apiRespFail('1111', '註冊失敗');
+    }
 
     /**
      * 更新會員資料
@@ -102,7 +104,7 @@ class MemberController extends Controller
                     'password'
                 ]);
          $member = $this->memberService->update($id, $data);
- 
+
          return ($member) ? $this->apiRespSuccess($member) : $this->apiRespFail('1111', '更新失敗');
      }
 
@@ -114,10 +116,10 @@ class MemberController extends Controller
     public function deleteMember($id)
     {
         $member = $this->memberService->delete($id);
- 
+
         return ($member) ? $this->apiRespSuccess([
-        'id' => $id
-        ]) : $this->apiRespFail('1111', 'SQL ERROR');
+                            'id' => $id
+                        ]) : $this->apiRespFail('1111', 'SQL ERROR');
     }
 
     /**
@@ -131,10 +133,10 @@ class MemberController extends Controller
         $active_code = $request->input('active_code');
 
         $result = $this->memberService->validateCellphone($id, $active_code);
- 
+
         return ($result) ? $this->apiRespSuccess([
-        'id' => $id
-        ]) : $this->apiRespFail('1111', '驗證碼錯誤');
+                            'id' => $id
+                        ]) : $this->apiRespFail('1111', '驗證碼錯誤');
     }
 
     /**
@@ -145,7 +147,7 @@ class MemberController extends Controller
     public function allMember(Request $request)
     {
         $members = $this->memberService->all();
- 
+
         return $this->apiRespSuccess($members);
     }
 
@@ -158,7 +160,7 @@ class MemberController extends Controller
     {
         $data = $request->all();
         $member = $this->memberService->query($data);
- 
+
         return $this->apiRespSuccess($member);
     }
 
@@ -176,7 +178,7 @@ class MemberController extends Controller
         ]);
 
         $result = $this->memberService->changePassword($data);
- 
+
         return ($result) ? $this->apiRespSuccess([]) : $this->apiRespFail('A01005','密碼修改失敗');
     }
 
@@ -191,7 +193,7 @@ class MemberController extends Controller
         $password = $request->input('password');
 
         $member = $this->memberService->findOnly($email, $password);
-        if (!$member) {
+        if (!$member || $member->status == 0 || $member->is_registered == 0) {
             return $this->apiRespFail('A01006','會員驗證失效');
         }
 
@@ -215,7 +217,7 @@ class MemberController extends Controller
         $token = $request->bearerToken();
 
         $member = $this->memberService->findByToken($token);
-        if (!$member) {
+        if (!$member || $member->status == 0 || $member->is_registered == 0) {
             return $this->apiRespFail('A01004', '無法驗證金鑰');
         }
 

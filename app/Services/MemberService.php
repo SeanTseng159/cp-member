@@ -67,7 +67,7 @@ class MemberService
         return $this->repository->query($data);
     }
 
-     
+
     /**
      * 依據email,查詢使用者認証
      * @param $email
@@ -104,17 +104,15 @@ class MemberService
         $jwtTokenService = new JWTTokenService;
         $token = $jwtTokenService->refreshToken($member);
 
-        //檢查錯誤
-        $errorList = $jwtTokenService->getErrorList();
-        if (!in_array($token, $errorList)) {
+        if ($token) {
             $result = $this->update($member->id, [
                 'token' => $token
-           ]);
-    
-           return ($result) ? $token : null;
+            ]);
+
+            return ($result) ? $token : null;
         }
- 
-        return $token;
+
+        return null;
      }
 
     /**
@@ -225,7 +223,7 @@ class MemberService
 
             return ($result);
         }
- 
+
         return false;
      }
 }
