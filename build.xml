@@ -14,7 +14,7 @@
     <property name="phpunit" value="${user.home}/.config/composer/vendor/bin//phpunit"/>
 
     <target name="full-build"
-            depends="prepare,git-submodule,composer,phpunit"
+            depends="prepare,composer,phpunit"
             description="Performs static analysis, runs the tests, and generates project documentation"/>
 
     <target name="full-build-parallel"
@@ -87,12 +87,4 @@
         <property name="phpunit.done" value="true"/>
     </target>
 
-
-    <target name="git-submodule" description="Git submodule process">
-        <exec executable="git">
-            <arg value="submodule"/>
-            <arg value="update"/>
-            <arg value="--init"/>
-        </exec>
-    </target>
 </project>
