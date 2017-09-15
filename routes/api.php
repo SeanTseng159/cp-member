@@ -78,4 +78,11 @@ Route::namespace('Api')->group(function () {
         Route::get('search', 'OrderController@search');
 
     });
+
+    Route::prefix('wishlist')->group(function () {
+        Route::get('items',   'WishlistController@items');
+        Route::post('add/{id}', 'WishlistController@add');
+        Route::post('delete/{id}', 'WishlistController@delete');
+
+    });
 });
