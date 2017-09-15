@@ -33,7 +33,7 @@ class ProductResult
         $this->description = $this->customAttributes($result['custom_attributes'], 'description');
         $this->imageUrl = $this->magentoImageUrl($this->customAttributes($result['custom_attributes'], 'image'));
         $this->createdAt = $this->arrayDefault($result, 'created_at');
-
+        $this->productId = $this->arrayDefault($result, 'id');
         if ($isDetail) {
             $this->canUseCoupon = null;
             $this->storeTelephone = null;
