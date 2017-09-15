@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Repositories\MemberRepository;
 use App\Services\JWTTokenService;
 use Illuminate\Support\Facades\Hash;
+use Carbon;
 
 class MemberService
 {
@@ -46,10 +47,30 @@ class MemberService
          return $this->repository->delete($id);
      }
 
-     
+     /**
+     * 取得所有會員
+     * @return mixed
+     */
+    public function all()
+    {
+        return $this->repository->all();
+    }
+
+    /**
+    * 會員資料查詢
+    * @param $data
+    * @return mixed
+    */
+    public function queryMember($data)
+    {
+        $data = $request->all();
+        return $this->repository->query($data);
+    }
+
+
     /**
      * 依據email,查詢使用者認証
-     * @param $uuid
+     * @param $email
      * @return mixed
      */
     public function findByEmail($email)
@@ -83,17 +104,15 @@ class MemberService
         $jwtTokenService = new JWTTokenService;
         $token = $jwtTokenService->refreshToken($member);
 
-        //檢查錯誤
-        $errorList = $jwtTokenService->getErrorList();
-        if (!in_array($token, $errorList)) {
+        if ($token) {
             $result = $this->update($member->id, [
                 'token' => $token
-           ]);
-    
-           return ($result) ? $token : null;
+            ]);
+
+            return ($result) ? $token : null;
         }
- 
-        return $token;
+
+        return null;
      }
 
     /**
@@ -132,4 +151,79 @@ class MemberService
     {
         return $this->repository->findByToken($token);
     }
+
+    /**
+     * 確認手機號碼是否被是否被使用
+     * @param $countryCode
+     * @param $cellphone
+     * @return bool
+     */
+    public function checkPhoneIsUse($countryCode, $cellphone)
+    {
+        $member = $this->repository->findByPhone($countryCode, $cellphone);
+        if ($member) {
+            return ($member->is_registered == 1);
+        }
+        return false;
+    }
+
+    /**
+     * 確認是否可重新註冊
+     * @param $countryCode
+     * @param $cellphone
+     * @return bool
+     */
+    public function canReRegister($countryCode, $cellphone)
+    {
+        $member = $this->repository->findByPhone($countryCode, $cellphone);
+
+        if ($member) {
+            $now = Carbon\Carbon::now()->timestamp;
+            $updated_at = strtotime($member->updated_at);
+            $minutes = round(abs($updated_at - $now) / 60);
+
+            return ($minutes > 15 && $member->is_registered == 0);
+        }
+
+        return true;
+    }
+
+    /**
+     * 驗證-手機驗證碼
+     * @param $id
+     * @param $active_code
+     * @return bool
+     */
+    public function validateCellphone($id, $active_code)
+    {
+        $member = $this->repository->find($id);
+        if ($member) {
+            $now = Carbon\Carbon::now()->timestamp;
+            $updated_at = strtotime($member->updated_at);
+            $minutes = round(abs($updated_at - $now) / 60);
+
+            return ($minutes < 10 && $member->active_code == $active_code);
+        }
+
+        return false;
+    }
+
+    /**
+     * 會員密碼修改
+     * @param $data
+     * @return bool
+     */
+     public function changePassword($data)
+     {
+        $member = $this->repository->find($data['id']);
+        if ($member && Hash::check($data['oldpassword'], $member->password)) {
+            $result = $this->update($member->id, [
+                'password' => $data['password']
+            ]);
+
+            return ($result);
+        }
+
+        return false;
+     }
 }

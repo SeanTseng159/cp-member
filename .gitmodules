@@ -1,0 +1,7 @@
+[submodule "src/Ksd/SMS"]
+	path = src/Ksd/SMS
+	url = git@github.com:DCViewInc/ksd-sms.git
+[submodule "tpassMemberDevpos"]
+	path = tpassMemberDevpos
+	url = http://192.168.0.203:880/ksduser/devops.git
+	ignore = dirty
