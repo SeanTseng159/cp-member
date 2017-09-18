@@ -159,7 +159,7 @@ class MemberController extends Controller
     public function queryMember(Request $request)
     {
         $data = $request->all();
-        $member = $this->memberService->queryMember($data);
+        $member = $this->memberService->query($data);
 
         return $this->apiRespSuccess($member);
     }
