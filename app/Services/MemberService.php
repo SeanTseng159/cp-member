@@ -63,7 +63,7 @@ class MemberService
     */
     public function queryMember($data)
     {
-        $data = $request->all();
+        //$data = $request->all();
         return $this->repository->query($data);
     }
 
