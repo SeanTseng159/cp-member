@@ -11,6 +11,9 @@ namespace Ksd\Mediation\Helper;
 
 trait EnvHelper
 {
+    /**
+     * 設定所有環境變數
+     */
     private function all()
     {
         $root = empty($_ENV['FCPATH']) ? './' : FCPATH ;
@@ -27,6 +30,12 @@ trait EnvHelper
         }
     }
 
+    /**
+     * 取得環境變數
+     * @param $key
+     * @param string $default
+     * @return array|false|mixed|string
+     */
     public function env($key, $default = '')
     {
         if(function_exists('env')) {

@@ -27,21 +27,44 @@ class Redis
         ]);
     }
 
+    /**
+     * 檢查 key 是否被使用
+     * @param $key
+     * @return int
+     */
     public function exists($key)
     {
         return $this->client->exists($key);
     }
 
+    /**
+     * 設定快取
+     * @param $key
+     * @param $value
+     * @param int $expire
+     */
     public function set($key, $value, $expire = 3600)
     {
         $this->client->setex($key, $expire, serialize($value));
     }
 
+    /**
+     * 根據 key 取得快取資料
+     * @param $key
+     * @return mixed
+     */
     public function get($key)
     {
         return unserialize($this->client->get($key));
     }
 
+    /**
+     * 根據 key 取得快取資料, 若無法取得執行 call function
+     * @param $key
+     * @param $expire
+     * @param $callFunction
+     * @return mixed
+     */
     public function remember($key, $expire, $callFunction)
     {
         if ($this->exists($key)) {
@@ -52,6 +75,10 @@ class Redis
         return $result;
     }
 
+    /**
+     * 根據 key 刪除快取
+     * @param $key
+     */
     public function delete($key)
     {
         $this->client->del($key);

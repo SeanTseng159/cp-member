@@ -14,7 +14,7 @@ use Ksd\Mediation\Helper\StringHelper;
 use Ksd\Mediation\Result\Checkout\PaymentInfoResult;
 use Ksd\Mediation\Result\Checkout\ShippingInfoResult;
 
-class Checkout extends BaseClient
+class Checkout extends Client
 {
     use MemberHelper;
     use StringHelper;

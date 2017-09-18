@@ -6,13 +6,15 @@
  * Time: 上午 10:40
  */
 
-namespace Ksd\Mediation\Magento;
+namespace Ksd\Mediation\CityPass;
 
 
-use GuzzleHttp\Client;
+use GuzzleHttp\Client as GuzzleHttpClient;
+use Ksd\Mediation\Core\Client\BaseClient;
 use Ksd\Mediation\Helper\EnvHelper;
 
-class BaseClient
+
+class Client extends BaseClient
 {
     use EnvHelper;
 
@@ -26,15 +28,10 @@ class BaseClient
 
     public function __construct()
     {
-        $this->token = $this->env('MAGENTO_ADMIN_TOKEN');
-        $this->baseUrl = $this->env('MAGENTO_API_PATH');
-        $this->client = new Client([
+        $this->baseUrl = $this->env('CITY_PASS_API_PATH');
+        $this->client = new GuzzleHttpClient([
             'base_uri' => $this->baseUrl
         ]);
-        $this->headers = [
-            'Authorization' => 'Bearer ' . $this->token
-        ];
-
     }
 
     public function authorization($token)

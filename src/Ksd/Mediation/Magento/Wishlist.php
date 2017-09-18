@@ -14,7 +14,7 @@ use Ksd\Mediation\Result\WishlistResult;
 use Ksd\Mediation\Magento\Product;
 use Ksd\Mediation\Repositories\BaseRepository;
 
-class Wishlist extends BaseClient
+class Wishlist extends Client
 {
 
     public function items()

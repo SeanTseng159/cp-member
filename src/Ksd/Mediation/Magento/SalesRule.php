@@ -12,7 +12,7 @@ namespace Ksd\Mediation\Magento;
 use Ksd\Mediation\Result\SalesRule\CouponResult;
 use Ksd\Mediation\Result\SalesRule\SalesRuleResult;
 
-class SalesRule extends BaseClient
+class SalesRule extends Client
 {
     public function find($id)
     {

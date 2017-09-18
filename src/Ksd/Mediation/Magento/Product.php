@@ -13,7 +13,7 @@ use Ksd\Mediation\Helper\EnvHelper;
 use Ksd\Mediation\Result\ProductCategoryResult;
 use Ksd\Mediation\Result\ProductResult;
 
-class Product extends BaseClient
+class Product extends Client
 {
     use EnvHelper;
 

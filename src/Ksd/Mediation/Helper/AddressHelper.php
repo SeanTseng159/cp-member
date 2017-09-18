@@ -11,6 +11,11 @@ namespace Ksd\Mediation\Helper;
 
 trait AddressHelper
 {
+    /**
+     * 取得地址
+     * @param $address
+     * @return \stdClass
+     */
     public function address($address)
     {
         $processAddress = $address;
@@ -38,6 +43,12 @@ trait AddressHelper
         return $result;
     }
 
+    /**
+     * 利用正則取得對應地址資料
+     * @param $regex
+     * @param $processAddress
+     * @return array
+     */
     public function addressRegex($regex, $processAddress)
     {
         $result = [

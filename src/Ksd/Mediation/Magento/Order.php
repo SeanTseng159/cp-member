@@ -11,14 +11,14 @@ namespace Ksd\Mediation\Magento;
 use GuzzleHttp\Exception\ClientException;
 use Ksd\Mediation\Result\OrderResult;
 
-class Order extends BaseClient
+class Order extends Client
 {
 
     public function info()
     {
 
         $email = $this->getEmail();
-        $admintoken = new BaseClient();
+        $admintoken = new Client();
         $this->authorization($admintoken->token);
 
         $response =[];
@@ -64,7 +64,7 @@ class Order extends BaseClient
     public function search($parameters)
     {
         $email = $this->getEmail();
-        $admintoken = new BaseClient();
+        $admintoken = new Client();
         $this->authorization($admintoken->token);
 
         $status = $parameters->status;

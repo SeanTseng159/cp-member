@@ -11,7 +11,10 @@ namespace Ksd\Mediation\Config;
 
 class ProjectConfig
 {
+    // Magento 代碼
     const MAGENTO = 'magento';
+
+    // city pass 代碼
     const CITY_PASS = 'ct_pass';
 
 }

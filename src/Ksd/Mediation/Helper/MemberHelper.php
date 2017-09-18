@@ -11,7 +11,10 @@ namespace Ksd\Mediation\Helper;
 
 trait MemberHelper
 {
-
+    /**
+     * 取得使用者 token
+     * @return string
+     */
     protected function userToken()
     {
         ////        $token = 'gw83u0093jo5g6n7cv22rdnx13n569e5';

@@ -11,6 +11,12 @@ namespace Ksd\Mediation\Helper;
 
 trait StringHelper
 {
+    /**
+     * 字數擷取
+     * @param $str
+     * @param int $l
+     * @return array
+     */
     protected function str_split_unicode($str, $l = 0) {
         if ($l > 0) {
             $ret = array();

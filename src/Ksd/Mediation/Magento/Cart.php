@@ -13,7 +13,7 @@ use GuzzleHttp\Exception\ClientException;
 use Ksd\Mediation\Result\CartResult;
 use Ksd\Mediation\Result\ProductResult;
 
-class Cart extends BaseClient
+class Cart extends Client
 {
     public function info()
     {

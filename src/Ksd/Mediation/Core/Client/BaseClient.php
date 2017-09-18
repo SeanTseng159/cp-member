@@ -6,7 +6,7 @@
  * Time: 上午 10:40
  */
 
-namespace Ksd\Mediation\CityPass;
+namespace Ksd\Mediation\Core\Client;
 
 
 use GuzzleHttp\Client;
@@ -24,14 +24,11 @@ class BaseClient
     protected $parameters;
     protected $json = true;
 
-    public function __construct()
-    {
-        $this->baseUrl = $this->env('CITY_PASS_API_PATH');
-        $this->client = new Client([
-            'base_uri' => $this->baseUrl
-        ]);
-    }
-
+    /**
+     * 設定 Authorization 金鑰
+     * @param $token
+     * @return $this
+     */
     public function authorization($token)
     {
         $this->token = $token;
@@ -39,18 +36,33 @@ class BaseClient
         return $this;
     }
 
+    /**
+     * 設置 header
+     * @param $key
+     * @param $value
+     * @return $this
+     */
     protected function putHeader($key, $value)
     {
         $this->headers[$key] = $value;
         return $this;
     }
 
+    /**
+     * 清除參數
+     */
     public function clear()
     {
         $this->query = [];
         $this->parameters = [];
     }
 
+    /**
+     * 設置 query 參數
+     * @param $key
+     * @param $value
+     * @return $this
+     */
     protected function putQuery($key, $value)
     {
         if (empty($this->query)) {
@@ -60,6 +72,11 @@ class BaseClient
         return $this;
     }
 
+    /**
+     * 設置 queries 參數
+     * @param array $parameters
+     * @return $this
+     */
     protected function putQueries($parameters = [])
     {
         foreach ($parameters as $key => $value) {
@@ -68,6 +85,12 @@ class BaseClient
         return $this;
     }
 
+    /**
+     * 設置參數
+     * @param $key
+     * @param $value
+     * @return $this
+     */
     protected function putParameter($key, $value)
     {
         if (empty($this->parameters)) {
@@ -77,6 +100,11 @@ class BaseClient
         return $this;
     }
 
+    /**
+     * 設置多筆參數
+     * @param array $parameters
+     * @return $this
+     */
     protected function putParameters($parameters = [])
     {
         foreach ($parameters as $key => $value) {
@@ -85,6 +113,10 @@ class BaseClient
         return $this;
     }
 
+    /**
+     * 建置傳送設定
+     * @return array
+     */
     protected function buildOption()
     {
         $option = [];
@@ -105,6 +137,12 @@ class BaseClient
         return $option;
     }
 
+    /**
+     * 發送 request
+     * @param $method
+     * @param $path
+     * @return mixed|\Psr\Http\Message\ResponseInterface
+     */
     protected function request($method, $path)
     {
         return $this->client->request($method, $path, $this->buildOption());
