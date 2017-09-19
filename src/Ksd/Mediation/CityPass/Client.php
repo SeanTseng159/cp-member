@@ -18,14 +18,6 @@ class Client extends BaseClient
 {
     use EnvHelper;
 
-    protected $token;
-    protected $baseUrl;
-    protected $client;
-    protected $headers;
-    protected $query;
-    protected $parameters;
-    protected $json = true;
-
     public function __construct()
     {
         $this->baseUrl = $this->env('CITY_PASS_API_PATH');
