@@ -44,6 +44,11 @@ class ProductService
         return $this->repository->product($parameter);
     }
 
+    public function search($parameter)
+    {
+        return $this->repository->search($parameter);
+    }
+
     private function filterCategory($categoryResult, $name)
     {
         $ids = [];

@@ -66,4 +66,32 @@ class Product extends Client
         $product->magento($result, true);
         return $product;
     }
+
+    public function search($key)
+    {
+
+        $keyword = $key->search;
+
+        $path = 'V1/products';
+
+        if (!empty($key)) {
+            $response =$this->putQuery('searchCriteria[filterGroups][0][filters][0][field]', 'name')
+                ->putQuery('searchCriteria[filterGroups][0][filters][0][value]', '%' . $keyword . '%')
+                ->putQuery('searchCriteria[filterGroups][0][filters][0][condition_type]', 'like')
+                ->putQuery('searchCriteria[filterGroups][0][filters][1][field]', 'description')
+                ->putQuery('searchCriteria[filterGroups][0][filters][1][value]', '%' . $keyword . '%')
+                ->putQuery('searchCriteria[filterGroups][0][filters][1][condition_type]', 'like')
+                ->request('GET', $path);
+            $body = $response->getBody();
+            $result = json_decode($body, true);
+            $data = [];
+            foreach ($result['items'] as $item) {
+                $product = new ProductResult();
+                $product->magento($item);
+                $data[] = $product;
+            }
+
+            return $data;
+        }
+    }
 }

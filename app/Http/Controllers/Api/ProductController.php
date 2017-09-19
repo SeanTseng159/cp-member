@@ -8,6 +8,7 @@ use Ksd\Mediation\Core\Controller\RestLaravelController;
 use Ksd\Mediation\Parameter\Product\AllParameter;
 use Ksd\Mediation\Parameter\Product\QueryParameter;
 use Ksd\Mediation\Parameter\Product\TagsParameter;
+use Ksd\Mediation\Parameter\Product\SearchParameter;
 use Ksd\Mediation\Services\ProductService;
 
 class ProductController extends RestLaravelController
@@ -47,4 +48,13 @@ class ProductController extends RestLaravelController
         $parameter->laravelRequest($id, $request);
         return $this->success($this->productService->product($parameter));
     }
+
+    public function search(Request $request)
+    {
+        $parameter = new SearchParameter();
+        $parameter->laravelRequest($request);
+        return $this->success($this->productService->search($parameter));
+    }
+
+
 }

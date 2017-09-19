@@ -21,7 +21,7 @@ class ProductRepository extends BaseRepository
     public function __construct()
     {
         $this->redis = new Redis();
-        $this->magento = new MagentoProduct();
+        $this->magento = new MagentoProduct(true);
         $this->cityPass = new CityPassProduct();
     }
 
@@ -77,5 +77,17 @@ class ProductRepository extends BaseRepository
             }
             return $product;
         });
+    }
+
+    public function search($parameter)
+    {
+
+        $magento = $this->magento->search($parameter);
+        $tpass = [];
+        return [
+            'magento' => $magento,
+            'tpass' => $tpass
+        ];
+
     }
 }

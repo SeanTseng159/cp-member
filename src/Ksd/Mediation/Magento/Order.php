@@ -48,8 +48,6 @@ class Order extends Client
 
     public function order($itemId)
     {
-        $admintoken = new Client();
-        $this->authorization($admintoken->token);
 
         $path = "V1/orders/items/$itemId";
 

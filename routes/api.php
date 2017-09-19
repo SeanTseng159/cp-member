@@ -52,6 +52,7 @@ Route::namespace('Api')->group(function () {
         Route::get('all', 'ProductController@all');
         Route::get('tags', 'ProductController@tags');
         Route::get('query/{id}', 'ProductController@query');
+        Route::get('search', 'ProductController@search');
     });
 
     Route::prefix('cart')->group(function () {
