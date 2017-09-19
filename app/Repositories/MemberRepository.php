@@ -50,6 +50,7 @@ class MemberRepository
             if ($member) {
                 $member->fill($data);
                 if (isset($data['password'])) $member->password = Hash::make($member->password);
+                $member->validPhoneCode = mt_rand(100000, 999999);
                 $member->save();
                 return $member;
             } else {

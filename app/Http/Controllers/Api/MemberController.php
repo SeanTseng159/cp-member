@@ -44,18 +44,24 @@ class MemberController extends RestLaravelController
             return $this->failure('E0001', '傳送參數錯誤');
         }
 
+        //確認手機是否使用
+        if ($this->memberService->checkPhoneIsUse($data['countryCode'], $data['cellphone'])) {
+            return $this->failure('A0031', '該手機號碼已使用');
+        }
+
         //驗證可否註冊
         if (!$this->memberService->canReRegister($data['countryCode'], $data['cellphone'])) {
             return $this->failure('A0030', '請15分鐘後再註冊');
         }
 
-        if ($this->memberService->checkPhoneIsUse($data['countryCode'], $data['cellphone'])) {
-            return $this->failure('A0031', '該手機號碼已使用');
-        }
+        $member = $this->memberService->checkHasPhoneAndNotRegistered($data['countryCode'], $data['cellphone']);
 
-        $member = $this->memberService->create($data);
+        $member = ($member) ? $this->memberService->update($member->id, $data) : $this->memberService->create($data);
 
-        if ($member && env('APP_ENV') === 'production') {
+        if (env('APP_ENV') === 'production') {
+            //傳送簡訊認證
+            $this->memberService->sendSMS($member);
+
             return ($member) ? $this->success(['id' => $member->id]) : $this->failure('E0011', '建立會員失敗');
         }
         else {
@@ -138,6 +144,20 @@ class MemberController extends RestLaravelController
         $result = $this->memberService->validateCellphone($id, $validPhoneCode);
 
         return ($result) ? $this->success(['id' => $id]) : $this->failure('E0013', '電話驗證碼錯誤');
+    }
+
+    /**
+    * 驗證-手機驗證碼
+    * @paramRequest $request
+    * @return \Illuminate\Http\JsonResponse
+    */
+    public function checkEmail(Request $request)
+    {
+        $email = $request->input('email');
+
+        $result = $this->memberService->checkEmailIsUse($email);
+
+        return ($result) ? $this->success() : $this->failure('A0032', '該Email已使用');
     }
 
     /**
