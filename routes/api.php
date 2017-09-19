@@ -48,6 +48,8 @@ Route::namespace('Api')->group(function () {
         Route::post('register/{id}', 'MemberController@registerMember');
         //新增會員憑證
         Route::post('token', 'MemberController@generateToken');
+        //驗證-Email驗證碼
+        Route::post('validate/email/{id}', 'MemberController@validateEmail');
     });
 
     Route::prefix('product')->group(function () {

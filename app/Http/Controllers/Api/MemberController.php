@@ -197,6 +197,20 @@ class MemberController extends RestLaravelController
     }
 
     /**
+    * 驗證-Email驗證碼
+    * @paramRequest $request
+    * @return \Illuminate\Http\JsonResponse
+    */
+    public function validateEmail(Request $request, $id)
+    {
+        $validEmailCode = $request->input('validEmailCode');
+
+        $result = $this->memberService->validateEmail($id, $validEmailCode);
+
+        return ($result) ? $this->success() : $this->failure('E0014', 'Email驗證碼錯誤');
+    }
+
+    /**
      * 建立金鑰
      * @param Request $request
      * @return \Illuminate\Http\JsonResponse
