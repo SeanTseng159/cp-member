@@ -26,15 +26,6 @@ class MemberService
     {
         $member = $this->repository->create($data);
 
-        if ($member && env('APP_ENV') === 'production') {
-            //發送簡訊
-            $easyGoService = new EasyGoService;
-            $phoneNumber = $data['countryCode'] . $data['cellphone'];
-            $message = 'CityPass驗證碼： ' . $member->validPhoneCode;
-
-            $easyGoService->send($phoneNumber, $message);
-        }
-
         return $member;
     }
 
@@ -165,6 +156,17 @@ class MemberService
     }
 
     /**
+     * 確認Email是否被是否被使用
+     * @param $email
+     * @return bool
+     */
+    public function checkEmailIsUse($email)
+    {
+        $member = $this->repository->findByEmail($email);
+        return ($member);
+    }
+
+    /**
      * 確認手機號碼是否被是否被使用
      * @param $countryCode
      * @param $cellphone
@@ -177,6 +179,21 @@ class MemberService
             return ($member->isRegistered == 1);
         }
         return false;
+    }
+
+    /**
+     * 確認手機號碼是否在資料庫,但未註冊完成
+     * @param $countryCode
+     * @param $cellphone
+     * @return mixed
+     */
+    public function checkHasPhoneAndNotRegistered($countryCode, $cellphone)
+    {
+        return $this->repository->query([
+            'countryCode' => $countryCode,
+            'cellphone' => $cellphone,
+            'isRegistered' => 0
+        ]);
     }
 
     /**
@@ -284,6 +301,26 @@ class MemberService
             } catch (DecryptException $e) {
                 return false;
             }
+        }
+
+        return false;
+    }
+
+    /**
+     * 發送手機驗證簡訊
+     * @param $id
+     * @param $member
+     * @return mixed
+     */
+    public function sendSMS($member)
+    {
+        if ($member && env('APP_ENV') === 'production') {
+            //發送簡訊
+            $easyGoService = new EasyGoService;
+            $phoneNumber = $member->countryCode . $member->cellphone;
+            $message = 'CityPass驗證碼： ' . $member->validPhoneCode;
+
+            return $easyGoService->send($phoneNumber, $message);
         }
 
         return false;

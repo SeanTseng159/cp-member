@@ -42,12 +42,19 @@ class AuthJWT
                 return $this->apiRespFail('E0022', '無法驗證token');
             }
 
+            var_dump($result);
+
+            /*$member = $this->memberTokenService->findByToken($token);
+            if ($member->status == 0) {
+                return $this->apiRespFail('E0022', '無法驗證token');
+            }*/
+
             //來源為app, 需檢查DB裡的token
             $platform = $request->header('platform');
             if ($platform === 'app') {
                 $member = $this->memberTokenService->findByToken($token);
-                if(empty($member)) {
-                    return $this->apiRespFail('E0022', '無法驗證token');
+                if(empty($member) || $member->status == 0) {
+                    return $this->apiRespFail('E0022', '會員驗證失效');
                 }
             }
         } catch (Exception $e) {
