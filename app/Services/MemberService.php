@@ -30,7 +30,7 @@ class MemberService
             //發送簡訊
             $easyGoService = new EasyGoService;
             $phoneNumber = $data['countryCode'] . $data['cellphone'];
-            $message = 'CityPass驗證碼： ' . $member->active_code;
+            $message = 'CityPass驗證碼： ' . $member->validPhoneCode;
 
             $easyGoService->send($phoneNumber, $message);
         }
@@ -174,7 +174,7 @@ class MemberService
     {
         $member = $this->repository->findByPhone($countryCode, $cellphone);
         if ($member) {
-            return ($member->is_registered == 1);
+            return ($member->isRegistered == 1);
         }
         return false;
     }
@@ -194,7 +194,7 @@ class MemberService
             $updated_at = strtotime($member->updated_at);
             $minutes = round(abs($updated_at - $now) / 60);
 
-            return ($minutes > 15 && $member->is_registered == 0);
+            return ($minutes > 15 && $member->isRegistered == 0);
         }
 
         return true;
@@ -250,11 +250,40 @@ class MemberService
     {
         $member = $this->repository->find($id);
 
-        if ($member && !$member->isValidEmail) {
+        if ($member && $member->isValidEmail == 0) {
             //未實作寄信
             //記得要做
 
             return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * 驗證-Email驗證碼
+     * @param $id
+     * @param $validEmailCode
+     * @return bool
+     */
+    public function validateEmail($id, $validEmailCode)
+    {
+        $member = $this->repository->find($id);
+
+        if ($member) {
+            try {
+                $cellphone = Crypt::decrypt($validEmailCode);
+                if ($member->cellphone == $cellphone) {
+                    $result = $this->update($member->id, [
+                        'isValidEmail' => 1
+                    ]);
+
+                    return ($result);
+                }
+
+            } catch (DecryptException $e) {
+                return false;
+            }
         }
 
         return false;
