@@ -25,7 +25,7 @@ class Client extends BaseClient
     protected $parameters;
     protected $json = true;
 
-    public function __construct($defaultAuthorization = false)
+    public function __construct($defaultAuthorization = true)
     {
         $this->token = $this->env('MAGENTO_ADMIN_TOKEN');
         $this->baseUrl = $this->env('MAGENTO_API_PATH');
