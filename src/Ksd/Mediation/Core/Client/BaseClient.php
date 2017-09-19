@@ -14,8 +14,6 @@ use Ksd\Mediation\Helper\EnvHelper;
 
 class BaseClient
 {
-    use EnvHelper;
-
     protected $token;
     protected $baseUrl;
     protected $client;

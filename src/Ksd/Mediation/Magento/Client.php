@@ -17,14 +17,6 @@ class Client extends BaseClient
 {
     use EnvHelper;
 
-    protected $token;
-    protected $baseUrl;
-    protected $client;
-    protected $headers;
-    protected $query;
-    protected $parameters;
-    protected $json = true;
-
     public function __construct($defaultAuthorization = true)
     {
         $this->token = $this->env('MAGENTO_ADMIN_TOKEN');
