@@ -6,7 +6,7 @@ use Log;
 
 trait ApiResponseHelper
 {
-    private $successCode = '0000';
+    private $successCode = '00000';
 
     public function apiRespSuccess($data = [])
     {

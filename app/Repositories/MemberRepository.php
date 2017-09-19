@@ -27,8 +27,8 @@ class MemberRepository
         try {
             $member = new Member();
             $member->fill($data);
-            $member->active_code = mt_rand(100000, 999999);
-            $member->email_active_code = Crypt::encrypt($data['cellphone']);
+            $member->validPhoneCode = mt_rand(100000, 999999);
+            $member->validEmailCode = Crypt::encrypt($data['cellphone']);
             $member->save();
             return $member;
         } catch (QueryException $e) {

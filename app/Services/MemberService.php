@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Repositories\MemberRepository;
 use App\Services\JWTTokenService;
+use Ksd\SMS\Services\EasyGoService;
 use Illuminate\Support\Facades\Hash;
 use Carbon;
 
@@ -23,7 +24,18 @@ class MemberService
      */
     public function create($data = [])
     {
-        return $this->repository->create($data);
+        $member = $this->repository->create($data);
+
+        if ($member && env('APP_ENV') === 'production') {
+            //發送簡訊
+            $easyGoService = new EasyGoService;
+            $phoneNumber = $data['countryCode'] . $data['cellphone'];
+            $message = 'CityPass驗證碼： ' . $member->active_code;
+
+            $easyGoService->send($phoneNumber, $message);
+        }
+
+        return $member;
     }
 
     /**
@@ -81,28 +93,28 @@ class MemberService
     /**
      * 建立token
      * @param $member
+     * @param $platform
      * @return mixed
      */
-    public function generateToken($member)
+    public function generateToken($member, $platform)
     {
         $jwtTokenService = new JWTTokenService;
-        $token = $jwtTokenService->generateToken($member);
-        $result = $this->update($member->id, [
-            'token' => $token
-        ]);
+        $token = $jwtTokenService->generateToken($member, $platform);
+        $result = $this->update($member->id, ['token' => $token]);
 
-        return ($result) ? $token : null;
+        return ($result) ? $result : null;
     }
 
     /**
      * 刷新 token
      * @param $member
+     * @param $platform
      * @return mixed
      */
-     public function refreshToken($member)
+     public function refreshToken($member, $platform)
      {
         $jwtTokenService = new JWTTokenService;
-        $token = $jwtTokenService->refreshToken($member);
+        $token = $jwtTokenService->refreshToken($member, $platform);
 
         if ($token) {
             $result = $this->update($member->id, [
@@ -191,10 +203,10 @@ class MemberService
     /**
      * 驗證-手機驗證碼
      * @param $id
-     * @param $active_code
+     * @param $validPhoneCode
      * @return bool
      */
-    public function validateCellphone($id, $active_code)
+    public function validateCellphone($id, $validPhoneCode)
     {
         $member = $this->repository->find($id);
         if ($member) {
@@ -202,7 +214,7 @@ class MemberService
             $updated_at = strtotime($member->updated_at);
             $minutes = round(abs($updated_at - $now) / 60);
 
-            return ($minutes < 10 && $member->active_code == $active_code);
+            return ($minutes < 10 && $member->validPhoneCode == $validPhoneCode);
         }
 
         return false;
@@ -210,12 +222,13 @@ class MemberService
 
     /**
      * 會員密碼修改
+     * @param $id
      * @param $data
      * @return bool
      */
-     public function changePassword($data)
-     {
-        $member = $this->repository->find($data['id']);
+    public function changePassword($id, $data)
+    {
+        $member = $this->repository->find($id);
         if ($member && Hash::check($data['oldpassword'], $member->password)) {
             $result = $this->update($member->id, [
                 'password' => $data['password']
@@ -225,5 +238,25 @@ class MemberService
         }
 
         return false;
-     }
+    }
+
+     /**
+     * 寄送Email驗證信
+     * @param $id
+     * @param $data
+     * @return bool
+     */
+    public function sendValidateEmail($id)
+    {
+        $member = $this->repository->find($id);
+
+        if ($member && !$member->isValidEmail) {
+            //未實作寄信
+            //記得要做
+
+            return true;
+        }
+
+        return false;
+    }
 }

@@ -12,31 +12,37 @@ class JWTTokenService
     /**
      * 建立 token
      * @param $member
+     * @param $platform
      * @return string
      */
-    public function generateToken($member)
+    public function generateToken($member, $platform = 'web')
     {
         $iat = time();
-        $exp = time() + env('JWT_EXP');
-        
-        return $this->JWTencode([
-            'iss' => env('JWT_ISS'),
+        $exp = time() + env('JWT_EXP', 43200);
+
+        $token = [
+            'iss' => env('JWT_ISS', 'CityPass'),
             'iat' => $iat,
-            'exp' => $exp,
             'id' => $member->id
-        ]);
+        ];
+
+        //來源不為app, token需限制時間
+        if ($platform !== 'app') $token['exp'] = $exp;
+
+        return $this->JWTencode($token);
     }
 
     /**
      * 刷新 token
      * @param $member
+     * @param $platform
      * @return string
      */
-     public function refreshToken($member)
+     public function refreshToken($member, $platform = 'web')
      {
         $result = $this->checkToken($member->token);
 
-        return ($result) ? $this->generateToken($member) : null;
+        return ($result) ? $this->generateToken($member, $platform) : null;
      }
 
     /**

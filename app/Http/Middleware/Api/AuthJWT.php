@@ -33,22 +33,26 @@ class AuthJWT
     {
         $token = $request->bearerToken();
         if (empty($token)) {
-            return $this->apiRespFail('A01001', '無效token');
+            return $this->apiRespFail('E0023', '無法取得Token');
         }
 
         try {
-            $member = $this->memberTokenService->findByToken($token);
-            if(empty($member)) {
-                return $this->apiRespFail('A01004', '無法驗證金鑰');
-            }
-
             $result = $this->jwtTokenSer->checkToken($token);
             if (!$result) {
-                return $this->apiRespFail('A01002', '無法驗證token');
+                return $this->apiRespFail('E0022', '無法驗證token');
+            }
+
+            //來源為app, 需檢查DB裡的token
+            $platform = $request->header('platform');
+            if ($platform === 'app') {
+                $member = $this->memberTokenService->findByToken($token);
+                if(empty($member)) {
+                    return $this->apiRespFail('E0022', '無法驗證token');
+                }
             }
         } catch (Exception $e) {
             Log::error($e);
-            return $this->apiRespFail('A01002', '無法驗證token');
+            return $this->apiRespFail('E0022', '無法驗證token');
         }
         return $next($request);
     }
