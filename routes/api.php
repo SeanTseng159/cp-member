@@ -29,7 +29,9 @@ Route::middleware('auth.jwt')->group(function () {
         //刪除會員
         Route::delete('delete/{id}', 'MemberController@deleteMember');
         //會員密碼修改
-        Route::get('password', 'MemberController@changePassword');
+        Route::put('password/{id}', 'MemberController@changePassword');
+        //發送Email驗證信
+        Route::post('sendValidateEmail', 'MemberController@sendValidateEmail');
         //更新會員憑證
         Route::put('token', 'MemberController@refreshToken');
     });
@@ -41,7 +43,7 @@ Route::namespace('Api')->group(function () {
         //新增會員
         Route::post('create', 'MemberController@createMember');
         //驗證-手機驗證碼
-        Route::post('validate/cellphone', 'MemberController@validateCellphone');
+        Route::post('validate/cellphone/{id}', 'MemberController@validateCellphone');
         //註冊-更新會員資料
         Route::post('register/{id}', 'MemberController@registerMember');
         //新增會員憑證
