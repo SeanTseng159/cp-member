@@ -48,12 +48,14 @@ class Order extends Client
 
     public function order($itemId)
     {
+        $admintoken = new Client();
+        $this->authorization($admintoken->token);
+
         $path = "V1/orders/items/$itemId";
 
         $response = $this->request('GET', $path);
         $body = $response->getBody();
         $result = json_decode($body, true);
-
         $order = new OrderResult();
         $order->magento($result, true);
 

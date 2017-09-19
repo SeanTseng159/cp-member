@@ -22,9 +22,20 @@ class OrderResult
             $this->orderAmount = $this->arrayDefault($result, 'total_paid');
             $this->orderStatus = $this->arrayDefault($result, 'status');
             $this->orderDate = $this->arrayDefault($result, 'created_at');
-            $this->payment = $this->arrayDefault($result, 'payment');
-            $this->shippingDescription = $this->arrayDefault($result, 'shipping_description');
-            $this->shippingAmount = $this->arrayDefault($result, 'shipping_amount');
+            $payment = $this->arrayDefault($result, 'payment');
+            $this->payment['method'] = $payment['method'];
+            $this->shipping = [];
+            $ship = $this->arrayDefault($result, 'extension_attributes');
+            foreach ($this->arrayDefault($ship, 'shipping_assignments', []) as $shipping) {
+                $shipping = $this->arrayDefault($shipping, 'shipping');
+                $this->shipping['name'] = $shipping['address']['firstname'] . $shipping['address']['lastname'];
+                $this->shipping['phone'] = $shipping['address']['telephone'];
+                $this->shipping['postcode'] = $shipping['address']['postcode'];
+                $this->shipping['address'] = $shipping['address']['city'].$shipping['address']['street'][0];
+
+            }
+            $this->shipping['shippingDescription'] = $this->arrayDefault($result, 'shipping_description');
+            $this->shipping['shippingAmount'] = $this->arrayDefault($result, 'shipping_amount');
 
 
             $this->items = [];
@@ -49,7 +60,7 @@ class OrderResult
             $this->status = null;
             $this->date = $this->arrayDefault($result, 'created_at');
             $this->payment = null;
-            $this->shipping = null;
+
             $this->discount = $this->arrayDefault($result, 'discount_amount');
             $this->quantity = $this->arrayDefault($result, 'qty_ordered');
             $this->items = [];
