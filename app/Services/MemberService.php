@@ -70,9 +70,19 @@ class MemberService
         return $this->repository->query($data);
     }
 
+    /**
+     * 依據id,查詢使用者
+     * @param $id
+     * @return mixed
+     */
+    public function find($id)
+    {
+        return $this->repository->find($id);
+    }
+
 
     /**
-     * 依據email,查詢使用者認証
+     * 依據email,查詢使用者
      * @param $email
      * @return mixed
      */
