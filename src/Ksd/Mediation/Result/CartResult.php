@@ -15,9 +15,12 @@ class CartResult
 {
     use ObjectHelper;
 
-    public function magento($result)
+    /**
+     * magento 購物車建置
+     * @param $result
+     */
+    public function magento($result, $totalResult)
     {
-        $totalAmount = 0;
         $this->id = $this->arrayDefault($result, 'id');
         $this->items = [];
         foreach ($this->arrayDefault($result, 'items', []) as $item) {
@@ -29,12 +32,11 @@ class CartResult
             $row->qty = $this->arrayDefault($item, 'qty');
             $row->price = $this->arrayDefault($item, 'price');
             $this->items[] = $row;
-            $totalAmount += intval($row->price) * intval($row->qty);
         }
         $this->useCoupon = new \stdClass();
         $this->itemTotal = $this->arrayDefault($result, 'items_count', 0);
-        $this->totalAmount = $totalAmount;
-        $this->discountAmount = 0;
-        $this->payAmount = $totalAmount;
+        $this->totalAmount = $this->arrayDefault($totalResult, 'subtotal', 0);
+        $this->discountAmount = $this->arrayDefault($totalResult, 'discount_amount', 0);
+        $this->payAmount = $this->arrayDefault($totalResult, 'grand_total', 0);
     }
 }

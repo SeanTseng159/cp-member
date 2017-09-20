@@ -16,12 +16,15 @@ class ShippingInfoResult
 {
     use ObjectHelper;
 
+    /**
+     * magento 配送資料建置
+     * @param $result
+     */
     public function magento($result)
     {
         $this->source = ProjectConfig::MAGENTO;
         $this->id = sprintf('%s_%s', $this->arrayDefault($result, 'method_code'), $this->arrayDefault($result, 'carrier_code'));
         $this->name = $this->arrayDefault($result, 'method_title');
         $this->description = $this->arrayDefault($result, 'carrier_title');
-        $this->asSameBuyer = false;
     }
 }

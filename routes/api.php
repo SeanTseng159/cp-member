@@ -62,15 +62,22 @@ Route::middleware('cors')->namespace('Api')->group(function () {
     });
 
     Route::prefix('cart')->group(function () {
+        // 購物車簡易資訊
         Route::get('info', 'CartController@info');
+        // 購物車詳細資訊
         Route::get('detail', 'CartController@detail');
+        // 增加商品至購物車
         Route::post('add', 'CartController@add');
+        // 更新購物車內商品
         Route::post('update', 'CartController@update');
+        // 刪除購物車內商品
         Route::post('delete', 'CartController@delete');
     });
 
     Route::prefix('checkout')->group(function () {
+        // 取得結帳資訊
         Route::get('info', 'CheckoutController@info');
+        // 確定結帳
         Route::post('confirm', 'CheckoutController@confirm');
     });
 

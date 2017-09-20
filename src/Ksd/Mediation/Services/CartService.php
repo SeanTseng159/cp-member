@@ -23,26 +23,46 @@ class CartService
         $this->repository = new CartRepository();
     }
 
+    /**
+     * 取得購物車簡易資訊
+     * @return mixed
+     */
     public function info()
     {
         return $this->repository->setToken($this->userToken())->info();
     }
 
+    /**
+     * 取得購物車資訊
+     * @return mixed
+     */
     public function detail()
     {
         return $this->repository->setToken($this->userToken())->detail();
     }
 
+    /**
+     * 商品加入購物車
+     * @param $parameters
+     */
     public function add($parameters)
     {
         return $this->repository->setToken($this->userToken())->add($parameters);
     }
 
+    /**
+     * 更新購物車內商品
+     * @param $parameters
+     */
     public function update($parameters)
     {
         return $this->repository->setToken($this->userToken())->update($parameters);
     }
 
+    /**
+     * 刪除購物車內商品
+     * @param $parameters
+     */
     public function delete($parameters)
     {
         return $this->repository->setToken($this->userToken())->delete($parameters);
