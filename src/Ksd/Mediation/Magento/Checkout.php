@@ -178,21 +178,27 @@ class Checkout extends Client
     private function creditCardType($number)
     {
         $length = strlen($number);
-        if (substr($number,0, 1) === '4' &&  ($length === 13 || $length === 16 || $length === 19 )) {
+        if (substr($number,0, 1) === '4' &&  ($length === 13 || $length === 19 )) {
             return 'VI';
-        } else if(
-            (intval(substr($number,0, 2)) >= 51 && intval(substr($number,0, 2)) <= 55)
-            && $length === 16) {
+        } else if($length === 16) {
+            return $this->cardNumber16($number);
+        }
+    }
+
+    /**
+     * 信用卡16碼卡片類型判斷
+     * @param $number
+     * @return string
+     */
+    private function cardNumber16($number)
+    {
+        if (substr($number,0, 1) === '4') {
+            return 'VI';
+        } else if((intval(substr($number,0, 2)) >= 51 && intval(substr($number,0, 2)) <= 55)) {
             return 'MC';
-        } else if (
-            (intval(substr($number,0, 4)) >= 2221 && intval(substr($number,0, 4)) <= 2720)
-            && $length === 16
-        ) {
+        } else if ((intval(substr($number,0, 4)) >= 2221 && intval(substr($number,0, 4)) <= 2720)) {
             return 'MC';
-        } else if(
-            (intval(substr($number,0, 4)) >= 3528 && intval(substr($number,0, 4)) <= 3589)
-            && $length === 16
-        ) {
+        } else if((intval(substr($number,0, 4)) >= 3528 && intval(substr($number,0, 4)) <= 3589)) {
             return 'JCB';
         }
     }
