@@ -112,8 +112,8 @@ class MemberController extends RestLaravelController
          $data = $request->except([
                     'id',
                     'password',
-                    '',
-                    ''
+                    'countryCode',
+                    'cellphone'
                 ]);
          $member = $this->memberService->update($id, $data);
 
