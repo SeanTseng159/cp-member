@@ -23,11 +23,19 @@ class CheckoutRepository extends BaseRepository
         parent::__construct();
     }
 
+    /**
+     * 取得結帳資訊
+     * @return array
+     */
     public function info()
     {
         return $this->magento->authorization($this->userToken())->info();
     }
 
+    /**
+     * 確定結帳
+     * @param $parameters
+     */
     public function confirm($parameters)
     {
         if($parameters->checkSource(ProjectConfig::MAGENTO)) {

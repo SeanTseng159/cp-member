@@ -27,6 +27,10 @@ class Checkout extends Client
         parent::__construct();
     }
 
+    /**
+     * 取得結帳資訊
+     * @return array
+     */
     public function info()
     {
         return [
@@ -36,6 +40,10 @@ class Checkout extends Client
         ];
     }
 
+    /**
+     * 取得付款資訊
+     * @return array
+     */
     public function paymentInfo()
     {
         $response = $this->request('GET', 'V1/carts/mine/payment-information');
@@ -52,6 +60,10 @@ class Checkout extends Client
 
     }
 
+    /**
+     * 取得配送資訊
+     * @return array
+     */
     public function shippingInfo()
     {
         $response = $this->request('GET', 'V1/carts/mine/shipping-methods');
@@ -65,17 +77,29 @@ class Checkout extends Client
         return $data;
     }
 
+    /**
+     * 取得帳單資訊
+     * @return array
+     */
     public function billingInfo()
     {
         return [];
     }
 
+    /**
+     * 確認結帳方式
+     * @param $parameters
+     */
     public function confirm($parameters)
     {
         $this->putShipping($parameters->shipment());
         $this->putPayment($parameters->payment());
     }
 
+    /**
+     * 確認配送方式
+     * @param $shipment
+     */
     public function putShipping($shipment)
     {
         $address = $this->processAddress($shipment);
@@ -95,6 +119,10 @@ class Checkout extends Client
         $this->request('POST', 'V1/carts/mine/shipping-information');
     }
 
+    /**
+     * 確認付款方式
+     * @param $payment
+     */
     public function putPayment($payment)
     {
         $parameter = [
@@ -113,6 +141,11 @@ class Checkout extends Client
         $this->request('POST', 'V1/carts/mine/payment-information');
     }
 
+    /**
+     * 取得地址資訊
+     * @param $shipment
+     * @return array
+     */
     private function processAddress($shipment)
     {
         $userNames = $this->str_split_unicode($shipment->userName);
@@ -136,19 +169,30 @@ class Checkout extends Client
         ];
     }
 
+    /**
+     * 根據信用卡號取得信用卡類型
+     * 判斷規則參考：https://zh.wikipedia.org/zh-tw/%E5%8F%91%E5%8D%A1%E8%A1%8C%E8%AF%86%E5%88%AB%E7%A0%81
+     * @param $number
+     * @return string
+     */
     private function creditCardType($number)
     {
         $length = strlen($number);
         if (substr($number,0, 1) === '4' &&  ($length === 13 || $length === 16 || $length === 19 )) {
             return 'VI';
-        } else if((
-            (intval(substr($number,0, 2)) >= 51 && intval(substr($number,0, 2)) <= 55) ||
+        } else if(
+            (intval(substr($number,0, 2)) >= 51 && intval(substr($number,0, 2)) <= 55)
+            && $length === 16) {
+            return 'MC';
+        } else if (
             (intval(substr($number,0, 4)) >= 2221 && intval(substr($number,0, 4)) <= 2720)
-            ) && $length === 16) {
+            && $length === 16
+        ) {
             return 'MC';
         } else if(
             (intval(substr($number,0, 4)) >= 3528 && intval(substr($number,0, 4)) <= 3589)
-            && $length === 16 ) {
+            && $length === 16
+        ) {
             return 'JCB';
         }
     }

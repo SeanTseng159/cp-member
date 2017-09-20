@@ -25,6 +25,10 @@ class ConfirmParameter extends BaseParameter
     private $billing;
 
 
+    /**
+     * 處理 laravel request
+     * @param $request
+     */
     public function laravelRequest($request)
     {
         $this->source = $request->input('source');
@@ -36,6 +40,11 @@ class ConfirmParameter extends BaseParameter
         $this->shipment->userAddress = $this->address($this->shipment->userAddress);
     }
 
+    /**
+     * 處理參數
+     * @param $request
+     * @param $property
+     */
     public function processParameters($request, $property)
     {
         $paymentParameters = $request->input($property);
@@ -45,33 +54,41 @@ class ConfirmParameter extends BaseParameter
         }
     }
 
+    /**
+     * 判斷來源
+     * @param null $source
+     * @return bool
+     */
     public function checkSource($source = null)
     {
         $this->isCheck = $source === $this->source;
         return $this->isCheck;
     }
 
-    public function payment($source = null)
+    /**
+     * 取得付款資訊
+     * @return mixed
+     */
+    public function payment()
     {
-        if ($this->isCheck) {
-            return $this->payment;
-        }
-        return null;
+        return $this->payment;
     }
 
-    public function shipment($source = null)
+    /**
+     * 取得配送資訊
+     * @return mixed
+     */
+    public function shipment()
     {
-        if ($this->isCheck) {
-            return $this->shipment;
-        }
-        return null;
+        return $this->shipment;
     }
 
-    public function billing($source = null)
+    /**
+     * 取得帳單資訊
+     * @return mixed
+     */
+    public function billing()
     {
-        if ($this->isCheck) {
-            return $this->billing;
-        }
-        return null;
+        return $this->billing;
     }
 }

@@ -16,6 +16,10 @@ class PaymentInfoResult
 {
     use ObjectHelper;
 
+    /**
+     * magento 付款資料建置
+     * @param $result
+     */
     public function magento($result)
     {
         $this->source = ProjectConfig::MAGENTO;

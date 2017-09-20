@@ -20,11 +20,19 @@ class CheckoutService
         $this->repository = new CheckoutRepository();
     }
 
+    /**
+     * 取得付款資訊
+     * @return array
+     */
     public function info()
     {
         return $this->repository->info();
     }
 
+    /**
+     * 確定結帳
+     * @param $parameters
+     */
     public function confirm($parameters)
     {
         $this->repository->confirm($parameters);
