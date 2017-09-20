@@ -35,15 +35,17 @@ class Cart extends Client
     public function detail()
     {
         $result = [];
+        $totalResult = null;
         try {
             $response = $this->request('GET', 'V1/carts/mine');
             $result = json_decode($response->getBody(), true);
+            $totalResult = $this->totals();
         } catch (ClientException $e) {
             // TODO:處理抓取不到購物車資料
         }
 
         $cart = new CartResult();
-        $cart->magento($result);
+        $cart->magento($result, $totalResult);
 
         return $cart;
     }
@@ -148,5 +150,16 @@ class Cart extends Client
         }
 
         return null;
+    }
+
+    /**
+     * 取得購物車金額
+     * @return mixed
+     */
+    public function totals()
+    {
+        $path = 'V1/carts/mine/totals';
+        $response = $this->request('GET', $path);
+        return json_decode($response->getBody(), true);
     }
 }
