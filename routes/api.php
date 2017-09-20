@@ -18,7 +18,7 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 });
 
 // 需 token 認證的 route
-Route::middleware('auth.jwt')->group(function () {
+Route::middleware(['auth.jwt', 'cors'])->group(function () {
     Route::namespace('Api')->prefix('member')->group(function () {
         //取所有會員
         Route::get('all', 'MemberController@allMember');
@@ -37,7 +37,7 @@ Route::middleware('auth.jwt')->group(function () {
     });
 });
 
-Route::namespace('Api')->group(function () {
+Route::middleware('cors')->namespace('Api')->group(function () {
 
     Route::prefix('member')->group(function () {
         //新增會員
