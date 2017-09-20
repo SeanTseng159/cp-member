@@ -37,7 +37,7 @@ class Wishlist extends Client
     {
 
         $product = new Product();
-        $productId = $product->product($sku)->productId;
+        $productId = $product->find($sku)->productId;
         $url = sprintf('V1/ipwishlist/add/%s', $productId);
         $response = $this->request('POST', $url);
         $body = $response->getBody();

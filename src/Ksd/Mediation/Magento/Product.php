@@ -70,7 +70,7 @@ class Product extends Client
      * @param $sku
      * @return ProductResult
      */
-    public function product($sku)
+    public function find($sku)
     {
         $path = "V1/products/$sku";
 

@@ -9,7 +9,6 @@
 namespace Ksd\Mediation\CityPass;
 
 
-use Illuminate\Support\Facades\Log;
 use Ksd\Mediation\Helper\EnvHelper;
 use Ksd\Mediation\Result\ProductResult;
 
@@ -74,14 +73,13 @@ class Product extends Client
      * @param $id
      * @return ProductResult
      */
-    public function product($id)
+    public function find($id)
     {
         $path = "product/query/$id";
 
         $response = $this->request('GET', $path);
         $body = $response->getBody();
         $result = json_decode($body, true);
-        Log::debug($body);
         $product = new ProductResult();
         $product->cityPass($result['data'], true);
         return $product;

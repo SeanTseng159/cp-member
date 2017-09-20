@@ -21,7 +21,7 @@ class ProductRepository extends BaseRepository
     public function __construct()
     {
         $this->redis = new Redis();
-        $this->magento = new MagentoProduct(true);
+        $this->magento = new MagentoProduct();
         $this->cityPass = new CityPassProduct();
     }
 
@@ -87,9 +87,9 @@ class ProductRepository extends BaseRepository
         return $this->redis->remember("$source:product:id:$id", 3600, function () use ($source,$id) {
             $product = null;
             if($source == ProjectConfig::MAGENTO) {
-                $product = $this->magento->product($id);
+                $product = $this->magento->find($id);
             } else {
-                $product = $this->cityPass->product($id);
+                $product = $this->cityPass->find($id);
             }
             return $product;
         });
