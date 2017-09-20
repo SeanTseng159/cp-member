@@ -20,6 +20,11 @@ class ProductController extends RestLaravelController
         $this->productService = $productService;
     }
 
+    /**
+     * 取得所有商品列表
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function all(Request $request)
     {
         $parameter = new AllParameter();
@@ -31,6 +36,11 @@ class ProductController extends RestLaravelController
         ]);
     }
 
+    /**
+     * 根據 分類 取得商品列表
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function tags(Request $request)
     {
         $parameter = new TagsParameter();
@@ -42,6 +52,12 @@ class ProductController extends RestLaravelController
         ]);
     }
 
+    /**
+     * 根據 id 取得商品明細
+     * @param Request $request
+     * @param $id
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function query(Request $request, $id)
     {
         $parameter = new QueryParameter();
@@ -49,6 +65,11 @@ class ProductController extends RestLaravelController
         return $this->success($this->productService->product($parameter));
     }
 
+    /**
+     * 根據 關鍵字 取得商品列表
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function search(Request $request)
     {
         $parameter = new SearchParameter();

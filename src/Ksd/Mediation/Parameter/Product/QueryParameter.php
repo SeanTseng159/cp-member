@@ -13,6 +13,10 @@ use Ksd\Mediation\Parameter\BaseParameter;
 
 class QueryParameter extends BaseParameter
 {
+    /**
+     * 處理 ci request
+     * @param $input
+     */
     public function codeigniterRequest($no, $input = null)
     {
         parent::codeigniterRequest($input);
@@ -20,6 +24,10 @@ class QueryParameter extends BaseParameter
         $this->source = $input->get('source');
     }
 
+    /**
+     * 處理 laravel request
+     * @param $request
+     */
     public function laravelRequest($no, $request = null)
     {
         parent::laravelRequest($request);

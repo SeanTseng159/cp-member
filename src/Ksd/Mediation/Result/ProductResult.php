@@ -18,6 +18,11 @@ class ProductResult
     use EnvHelper;
     use ObjectHelper;
 
+    /**
+     * 處理 magento 資料建置
+     * @param $result
+     * @param bool $isDetail
+     */
     public function magento($result, $isDetail = false)
     {
         $this->source = ProjectConfig::MAGENTO;
@@ -54,7 +59,11 @@ class ProductResult
         }
     }
 
-
+    /**
+     * 處理 city pass 資料建置
+     * @param $result
+     * @param bool $isDetail
+     */
     public function cityPass($result, $isDetail = false)
     {
         $this->source = ProjectConfig::CITY_PASS;
@@ -83,6 +92,11 @@ class ProductResult
         }
     }
 
+    /**
+     * 取得 magento 圖片對應路徑
+     * @param $path
+     * @return string
+     */
     private function magentoImageUrl($path)
     {
         $basePath = $this->env('MAGENTO_PRODUCT_PATH');

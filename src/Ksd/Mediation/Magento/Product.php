@@ -17,6 +17,11 @@ class Product extends Client
 {
     use EnvHelper;
 
+    /**
+     * 根據 id 取得所有商品分類
+     * @param int $id
+     * @return ProductCategoryResult
+     */
     public function categories($id = 1)
     {
         $path = "V1/categories/$id";
@@ -35,6 +40,11 @@ class Product extends Client
         return $category;
     }
 
+    /**
+     * 根據 分類 id 取得對應商品列表
+     * @param null $id
+     * @return array
+     */
     public function products($id = null)
     {
         $path = 'V1/products';
@@ -55,6 +65,11 @@ class Product extends Client
         return $data;
     }
 
+    /**
+     * 根據 商品編號 取得商品明細
+     * @param $sku
+     * @return ProductResult
+     */
     public function product($sku)
     {
         $path = "V1/products/$sku";
@@ -67,6 +82,11 @@ class Product extends Client
         return $product;
     }
 
+    /**
+     * 根據 關鍵字 做模糊搜尋 取得商品列表
+     * @param $key
+     * @return array
+     */
     public function search($key)
     {
 

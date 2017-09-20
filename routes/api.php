@@ -55,9 +55,13 @@ Route::middleware('cors')->namespace('Api')->group(function () {
     });
 
     Route::prefix('product')->group(function () {
+        // 取得所有商品列表
         Route::get('all', 'ProductController@all');
+        // 根據商品分類取得商品列表
         Route::get('tags', 'ProductController@tags');
+        // 根據 id 取得商品明細
         Route::get('query/{id}', 'ProductController@query');
+        // 商品搜尋
         Route::get('search', 'ProductController@search');
     });
 

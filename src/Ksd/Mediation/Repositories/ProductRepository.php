@@ -25,6 +25,11 @@ class ProductRepository extends BaseRepository
         $this->cityPass = new CityPassProduct();
     }
 
+    /**
+     * 根據 id 取得所有商品分類
+     * @param int $id
+     * @return mixed
+     */
     public function categories($id = 1)
     {
         $result = $this->redis->remember("categories", 3600, function () use ($id) {
@@ -35,6 +40,12 @@ class ProductRepository extends BaseRepository
         return $result;
     }
 
+    /**
+     * 根據 產品分類 id 陣列 取得所有商品
+     * @param null $categories
+     * @param null $parameter
+     * @return Collection
+     */
     public function products($categories = null, $parameter = null)
     {
         $result = [];
@@ -64,6 +75,11 @@ class ProductRepository extends BaseRepository
         return new Collection($result, $parameter);
     }
 
+    /**
+     * 根據 商品 id 取得商品明細
+     * @param $parameter
+     * @return mixed
+     */
     public function product($parameter)
     {
         $id = $parameter->no;
@@ -79,6 +95,11 @@ class ProductRepository extends BaseRepository
         });
     }
 
+    /**
+     * 根據 關鍵字 搜尋 取得商品列表
+     * @param $parameter
+     * @return array
+     */
     public function search($parameter)
     {
 
