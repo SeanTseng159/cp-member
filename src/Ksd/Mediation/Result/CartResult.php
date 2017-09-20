@@ -15,6 +15,10 @@ class CartResult
 {
     use ObjectHelper;
 
+    /**
+     * magento 購物車建置
+     * @param $result
+     */
     public function magento($result)
     {
         $totalAmount = 0;

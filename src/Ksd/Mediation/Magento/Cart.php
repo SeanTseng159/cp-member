@@ -15,6 +15,10 @@ use Ksd\Mediation\Result\ProductResult;
 
 class Cart extends Client
 {
+    /**
+     * 取得購物車簡易資訊
+     * @return array
+     */
     public function info()
     {
         $cart = $this->detail();
@@ -24,6 +28,10 @@ class Cart extends Client
         ];
     }
 
+    /**
+     * 取得購物車資訊
+     * @return CartResult
+     */
     public function detail()
     {
         $result = [];
@@ -40,6 +48,11 @@ class Cart extends Client
         return $cart;
     }
 
+    /**
+     * 增加商品至購物車
+     * @param $parameters
+     * @return bool
+     */
     public function add($parameters)
     {
         $cart = $this->detail();
@@ -61,6 +74,11 @@ class Cart extends Client
         return true;
     }
 
+    /**
+     * 更新購物車內商品
+     * @param $parameters
+     * @return bool
+     */
     public function update($parameters)
     {
         $cart = $this->detail();
@@ -96,6 +114,10 @@ class Cart extends Client
         return true;
     }
 
+    /**
+     * 刪除購物車內商品
+     * @param $parameters
+     */
     public function delete($parameters)
     {
         $cart = $this->detail();
@@ -111,6 +133,12 @@ class Cart extends Client
         }
     }
 
+    /**
+     * 取得購物車內商品索引值
+     * @param $items
+     * @param $id
+     * @return int|null|string
+     */
     public function filterById($items, $id)
     {
         foreach ($items as $key => $item) {
