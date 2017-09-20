@@ -21,7 +21,6 @@ class CartResult
      */
     public function magento($result, $totalResult)
     {
-        $totalAmount = 0;
         $this->id = $this->arrayDefault($result, 'id');
         $this->items = [];
         foreach ($this->arrayDefault($result, 'items', []) as $item) {
