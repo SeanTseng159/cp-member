@@ -194,9 +194,9 @@ class Checkout extends Client
     {
         if (substr($number,0, 1) === '4') {
             return 'VI';
-        } else if((intval(substr($number,0, 2)) >= 51 && intval(substr($number,0, 2)) <= 55)) {
-            return 'MC';
-        } else if ((intval(substr($number,0, 4)) >= 2221 && intval(substr($number,0, 4)) <= 2720)) {
+        } else if((
+            intval(substr($number,0, 2)) >= 51 && intval(substr($number,0, 2)) <= 55) ||
+            (intval(substr($number,0, 4)) >= 2221 && intval(substr($number,0, 4)) <= 2720) ) {
             return 'MC';
         } else if((intval(substr($number,0, 4)) >= 3528 && intval(substr($number,0, 4)) <= 3589)) {
             return 'JCB';
