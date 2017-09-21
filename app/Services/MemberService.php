@@ -66,7 +66,6 @@ class MemberService
     */
     public function queryMember($data)
     {
-        //$data = $request->all();
         return $this->repository->query($data);
     }
 
@@ -199,11 +198,8 @@ class MemberService
      */
     public function checkHasPhoneAndNotRegistered($countryCode, $cellphone)
     {
-        return $this->repository->query([
-            'countryCode' => $countryCode,
-            'cellphone' => $cellphone,
-            'isRegistered' => 0
-        ]);
+        $member = $this->repository->findByPhone($countryCode, $cellphone);
+        return ($member && $member->isRegistered == 0) ? $member : null;
     }
 
     /**
@@ -324,13 +320,13 @@ class MemberService
      */
     public function sendSMS($member)
     {
-        if ($member && env('APP_ENV') === 'production') {
+        if ($member) {
             //發送簡訊
             $easyGoService = new EasyGoService;
             $phoneNumber = $member->countryCode . $member->cellphone;
             $message = 'CityPass驗證碼： ' . $member->validPhoneCode;
 
-            return $easyGoService->send($phoneNumber, $message);
+            return (env('APP_ENV') === 'production') ? $easyGoService->send($phoneNumber, $message) : true;
         }
 
         return false;

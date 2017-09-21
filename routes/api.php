@@ -44,6 +44,8 @@ Route::middleware('cors')->namespace('Api')->group(function () {
         Route::post('create', 'MemberController@createMember');
         //驗證-手機驗證碼
         Route::post('validate/cellphone/{id}', 'MemberController@validateCellphone');
+        //發送手機驗證碼
+        Route::post('sendValidPhoneCode', 'MemberController@sendValidPhoneCode');
         //確認Email是否已使用
         Route::post('checkEmail', 'MemberController@checkEmail');
         //註冊-更新會員資料
