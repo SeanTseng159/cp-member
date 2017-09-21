@@ -24,16 +24,28 @@ class WishlistService
         $this->repository = new WishlistRepository();
     }
 
+    /**
+     * 取得所有收藏列表
+     * @return mixed
+     */
     public function items()
     {
         return $this->repository->setToken($this->userToken())->items();
     }
 
+    /**
+     * 根據商品id 增加商品至收藏清單
+     * @param $parameter
+     */
     public function add($parameter)
     {
         return $this->repository->setToken($this->userToken())->add($parameter);
     }
 
+    /**
+     * 根據商品id 刪除收藏清單商品
+     * @param $parameter
+     */
     public function delete($parameter)
     {
         return $this->repository->setToken($this->userToken())->delete($parameter);

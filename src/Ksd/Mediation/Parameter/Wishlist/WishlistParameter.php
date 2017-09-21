@@ -17,12 +17,20 @@ class WishlistParameter extends BaseParameter
     private $magento;
     private $tpass;
 
+    /**
+     * 處理 ci request
+     * @param $input
+     */
     public function codeigniterRequest($input, $parameters = null)
     {
         $this->request($parameters);
         parent::codeigniterRequest($input);
     }
 
+    /**
+     * 處理 laravel request
+     * @param $request
+     */
     public function laravelRequest($no, $request = null)
     {
         parent::laravelRequest($request);

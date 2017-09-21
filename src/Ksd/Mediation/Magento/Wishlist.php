@@ -16,7 +16,10 @@ use Ksd\Mediation\Repositories\BaseRepository;
 
 class Wishlist extends Client
 {
-
+    /**
+     * 取得所有收藏列表
+     * @return array
+     */
     public function items()
     {
 
@@ -33,6 +36,11 @@ class Wishlist extends Client
         return $data;
     }
 
+    /**
+     * 根據商品id 增加商品至收藏清單
+     * @param $sku
+     * @return  array
+     */
     public function add($sku)
     {
 
@@ -45,6 +53,11 @@ class Wishlist extends Client
         return $result;
     }
 
+    /**
+     * 根據商品id 刪除收藏清單商品
+     * @param $wishlistItemId
+     *  @return  array
+     */
     public function delete($wishlistItemId)
     {
 

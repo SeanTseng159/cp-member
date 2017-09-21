@@ -16,6 +16,10 @@ class WishlistResult
     use EnvHelper;
     use ObjectHelper;
 
+    /**
+     * magento 收藏清單資料建置
+     * @param $result
+     */
     public function magento($result)
     {
         $this->source = 'magento';
@@ -42,7 +46,11 @@ class WishlistResult
         }
 */
     }
-
+    /**
+     * 取得 magento 圖片對應路徑
+     * @param $path
+     * @return string
+     */
     private function magentoImageUrl($path)
     {
         $basePath = $this->env('MAGENTO_PRODUCT_PATH');
