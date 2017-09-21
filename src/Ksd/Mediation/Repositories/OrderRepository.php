@@ -23,6 +23,10 @@ class OrderRepository extends BaseRepository
         parent::__construct();
     }
 
+    /**
+     * 取得所有訂單列表
+     * @return mixed
+     */
     public function info()
     {
         $this->cleanCache();
@@ -37,6 +41,11 @@ class OrderRepository extends BaseRepository
         });
     }
 
+    /**
+     * 根據訂單id 取得訂單細項資訊
+     * @param parameter
+     * @return mixed
+     */
     public function order($parameter)
     {
         $itemId = $parameter->itemId;
@@ -49,6 +58,11 @@ class OrderRepository extends BaseRepository
         });
     }
 
+    /**
+     * 根據 條件篩選 取得訂單
+     * @param $parameters
+     * @return mixed
+     */
     public function search($parameters)
     {
 
@@ -62,18 +76,29 @@ class OrderRepository extends BaseRepository
 
     }
 
-
+    /**
+     * 清除快取
+     */
     public function cleanCache()
     {
         $this->cacheKey(self::INFO_KEY);
         $this->cacheKey(self::DETAIL_KEY);
     }
 
+    /**
+     * 根據 key 清除快取
+     * @param $key
+     */
     private function cacheKey($key)
     {
         $this->redis->delete($this->genCacheKey($key));
     }
 
+    /**
+     * 建立快取 key
+     * @param $key
+     * @return string
+     */
     private function genCacheKey($key)
     {
         $date = new \DateTime();

@@ -13,6 +13,12 @@ use Ksd\Mediation\Helper\ObjectHelper;
 class OrderResult
 {
     use ObjectHelper;
+
+    /**
+     * 處理 magento 訂單資料建置
+     * @param $result
+     * @param bool $isDetail
+     */
     public function magento($result, $isDetail = false)
     {
         $this->source = 'magento';

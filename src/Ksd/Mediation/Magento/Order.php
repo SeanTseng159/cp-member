@@ -14,6 +14,10 @@ use Ksd\Mediation\Result\OrderResult;
 class Order extends Client
 {
 
+    /**
+     * 取得所有訂單列表
+     * @return array
+     */
     public function info()
     {
 
@@ -46,6 +50,11 @@ class Order extends Client
     }
 
 
+    /**
+     * 根據訂單id 取得訂單細項資訊
+     * @param $itemId
+     * @return OrderResult
+     */
     public function order($itemId)
     {
 
@@ -60,7 +69,11 @@ class Order extends Client
         return $order;
     }
 
-
+    /**
+     * 根據 條件篩選 取得訂單
+     * @param $parameters
+     * @return OrderResult
+     */
     public function search($parameters)
     {
         $email = $this->getEmail();
@@ -117,6 +130,10 @@ class Order extends Client
         return $data;
     }
 
+    /**
+     * 取得使用者email
+     * @return string
+     */
     public function getEmail()
     {
         $response = $this->request('GET', 'V1/customers/me');

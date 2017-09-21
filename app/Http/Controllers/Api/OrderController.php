@@ -18,12 +18,21 @@ class OrderController extends RestLaravelController
         $this->orderService = $orderService;
     }
 
+    /**
+     * 取得所有訂單列表
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function info()
     {
         return $this->success($this->orderService->info());
 
     }
 
+    /**
+     * 根據訂單id 取得訂單細項資訊
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function items(Request $request, $itemId)
     {
         $parameter = new OrderParameter();
@@ -31,6 +40,11 @@ class OrderController extends RestLaravelController
         return $this->success($this->orderService->order($parameter));
     }
 
+    /**
+     * 根據 條件篩選 取得訂單
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function search(Request $request)
     {
         $parameters = new SearchParameter();
