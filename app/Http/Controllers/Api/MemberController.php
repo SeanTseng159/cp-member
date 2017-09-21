@@ -203,7 +203,22 @@ class MemberController extends RestLaravelController
     }
 
     /**
-    * 會員密碼修改
+    * 發送手機驗證碼
+    * @paramRequest $request
+    * @return \Illuminate\Http\JsonResponse
+    */
+    public function sendValidPhoneCode(Request $request)
+    {
+        $id = $request->input('id');
+
+        $member = $this->memberService->find($id);
+        $result = $this->memberService->sendSMS($member);
+
+        return ($result) ? $this->success(['id' => $id]) : $this->failure('E0052', '簡訊發送失敗');
+    }
+
+    /**
+    * 發送Email驗證信
     * @paramRequest $request
     * @return \Illuminate\Http\JsonResponse
     */
@@ -213,7 +228,7 @@ class MemberController extends RestLaravelController
 
         $result = $this->memberService->sendValidateEmail($id);
 
-        return ($result) ? $this->success() : $this->failure('E0051', 'Email發送失敗');
+        return ($result) ? $this->success(['id' => $id]) : $this->failure('E0051', 'Email發送失敗');
     }
 
     /**
