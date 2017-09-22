@@ -97,7 +97,7 @@ class MemberController extends RestLaravelController
             ]);
         }
         else {
-            $this->failure('E0012', '註冊失敗');
+            return $this->failure('E0012', '註冊失敗');
         }
     }
 
