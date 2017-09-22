@@ -51,15 +51,15 @@ class ProductRepository extends BaseRepository
         $result = [];
         if (empty($categories) && empty($parameter->categories())) {
             $result = $this->redis->remember("product:category:all", 3600, function () {
-                $magentoProducts = $this->magento->products();
-                $cityPassProducts = $this->cityPass->products();
+                $magentoProducts = $this->magento->all();
+                $cityPassProducts = $this->cityPass->all();
                 return array_merge($magentoProducts, $cityPassProducts);
             });
         } else {
             $source = ProjectConfig::MAGENTO;
             foreach ($categories as $category) {
                 $row = $this->redis->remember("$source:product:category:$category", 3600, function () use ($category) {
-                    return $this->magento->products($category);
+                    return $this->magento->all($category);
                 });
                 $result = array_merge($result,$row);
             }

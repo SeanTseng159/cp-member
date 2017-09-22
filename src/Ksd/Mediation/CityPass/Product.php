@@ -21,7 +21,7 @@ class Product extends Client
      * @param null $categories
      * @return array
      */
-    public function products($categories = null)
+    public function all($categories = null)
     {
         $path = 'product/all';
 

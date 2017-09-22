@@ -41,28 +41,48 @@ class Product extends Client
     }
 
     /**
-     * 根據 分類 id 取得對應商品列表
+     * 根據 分類 id 取得所有商品列表
      * @param null $id
      * @return array
      */
-    public function products($id = null)
+    public function all($id = null)
+    {
+        $data = [];
+        $total = 1;
+        $limit = $this->env('API_DATA_LIMIT', 100);
+        $page = 1;
+        while (count($data) < $total) {
+            $result = $this->category($id, $limit, $page);
+            $total = $result['total_count'];
+            foreach ($result['items'] as $item) {
+                $product = new ProductResult();
+                $product->magento($item);
+                $data[] = $product;
+            }
+            $page++;
+        }
+        return $data;
+    }
+
+    /**
+     * 根據 分類 id 取得對應商品列表
+     * @param null $id
+     * @param int $limit
+     * @param int $page
+     * @return mixed
+     */
+    public function category($id = null, $limit = 100, $page = 1)
     {
         $path = 'V1/products';
         if (!empty($id)) {
             $this->putQuery('searchCriteria[filterGroups][0][filters][0][field]', 'category_id')
                 ->putQuery('searchCriteria[filterGroups][0][filters][0][value]', $id);
         }
-        $response = $this->putQuery('searchCriteria[pageSize]', $this->env('API_DATA_LIMIT', 500))
+        $response = $this->putQuery('searchCriteria[pageSize]', $limit)
+            ->putQuery('searchCriteria[currentPage]	', $page)
             ->request('GET', $path);
         $body = $response->getBody();
-        $data = [];
-        $result = json_decode($body, true);
-        foreach ($result['items'] as $item) {
-            $product = new ProductResult();
-            $product->magento($item);
-            $data[] = $product;
-        }
-        return $data;
+        return json_decode($body, true);
     }
 
     /**
