@@ -192,14 +192,14 @@ class MemberController extends RestLaravelController
     */
     public function changePassword(Request $request, $id)
     {
-        $data = $request->except([
+        $data = $request->only([
             'oldpassword',
             'password'
         ]);
 
         $result = $this->memberService->changePassword($id, $data);
 
-        return ($result) ? $this->success() : $this->failure('E0018', '密碼修改失敗');
+        return ($result) ? $this->success() : $this->failure('E0018', '密碼修改失敗，請確認舊密碼是否正確。');
     }
 
     /**
