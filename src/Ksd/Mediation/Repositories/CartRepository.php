@@ -48,13 +48,14 @@ class CartRepository extends BaseRepository
      */
     public function detail()
     {
+        $this->cleanCache();
         return $this->redis->remember($this->genCacheKey(self::DETAIL_KEY), 3600, function () {
             $this->magento->authorization($this->token);
             $magento = $this->magento->detail();
-            $tpass = [];
+            $cityPass = $this->cityPass->detail();
             return [
                 ProjectConfig::MAGENTO => $magento,
-                ProjectConfig::CITY_PASS => $tpass
+                ProjectConfig::CITY_PASS => $cityPass
             ];
         });
     }
