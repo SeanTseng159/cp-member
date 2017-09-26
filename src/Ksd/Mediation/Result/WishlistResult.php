@@ -8,6 +8,7 @@
 
 namespace Ksd\Mediation\Result;
 
+use Ksd\Mediation\Config\ProjectConfig;
 use Ksd\Mediation\Helper\ObjectHelper;
 use Ksd\Mediation\Helper\EnvHelper;
 
@@ -22,7 +23,7 @@ class WishlistResult
      */
     public function magento($result)
     {
-        $this->source = 'magento';
+        $this->source = ProjectConfig::MAGENTO;
         $this->wishlistItemId = $this->arrayDefault($result, 'wishlist_item_id');
         $this->id = $this->arrayDefault($result['product'], 'sku');
         $this->name = $this->arrayDefault($result['product'], 'name');

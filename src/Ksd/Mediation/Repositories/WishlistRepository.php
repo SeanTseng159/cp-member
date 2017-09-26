@@ -10,6 +10,7 @@ namespace Ksd\Mediation\Repositories;
 
 
 use Ksd\Mediation\Magento\Wishlist;
+use Ksd\Mediation\Config\ProjectConfig;
 
 class WishlistRepository extends BaseRepository
 {
@@ -32,10 +33,10 @@ class WishlistRepository extends BaseRepository
         return $this->redis->remember($this->genCacheKey(self::INFO_KEY), 3600, function () {
             $this->magento->authorization($this->token);
             $magento = $this->magento->items();
-            $tpass = [];
+            $cityPass = [];
             return [
-                'magento' => $magento,
-                'tpass' => $tpass
+                ProjectConfig::MAGENTO => $magento,
+                ProjectConfig::CITY_PASS => $cityPass
             ];
         });
     }

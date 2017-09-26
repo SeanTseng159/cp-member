@@ -9,7 +9,7 @@
 namespace Ksd\Mediation\Result;
 
 use Ksd\Mediation\Helper\ObjectHelper;
-
+use Ksd\Mediation\Config\ProjectConfig;
 class OrderResult
 {
     use ObjectHelper;
@@ -21,7 +21,7 @@ class OrderResult
      */
     public function magento($result, $isDetail = false)
     {
-        $this->source = 'magento';
+        $this->source = ProjectConfig::MAGENTO;
 
         if(!$isDetail) {
             $this->orderNo = $this->arrayDefault($result, 'increment_id');

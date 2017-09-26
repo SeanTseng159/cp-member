@@ -11,6 +11,7 @@ namespace Ksd\Mediation\Repositories;
 
 
 use Ksd\Mediation\Magento\Order;
+use Ksd\Mediation\Config\ProjectConfig;
 
 class OrderRepository extends BaseRepository
 {
@@ -33,10 +34,10 @@ class OrderRepository extends BaseRepository
         return $this->redis->remember($this->genCacheKey(self::INFO_KEY), 3600, function () {
             $this->magento->authorization($this->token);
             $magento = $this->magento->info();
-            $tpass = [];
+            $cityPass = [];
             return [
-                'magento' => $magento,
-                'tpass' => $tpass
+                ProjectConfig::MAGENTO => $magento,
+                ProjectConfig::CITY_PASS => $cityPass
             ];
         });
     }
@@ -50,11 +51,16 @@ class OrderRepository extends BaseRepository
     {
         $itemId = $parameter->itemId;
         return $this->redis->remember("order:id:$itemId", 3600, function () use ($itemId) {
-            $order = $this->magento->order($itemId);
+            $magento = $this->magento->order($itemId);
+            $cityPass = [];
             if (empty($order)) {
                 $order = null; //$this->tpass
             }
-            return $order;
+            return [
+                ProjectConfig::MAGENTO => $magento,
+                ProjectConfig::CITY_PASS => $cityPass
+            ];
+
         });
     }
 
@@ -65,14 +71,31 @@ class OrderRepository extends BaseRepository
      */
     public function search($parameters)
     {
+           switch($parameters->status){
 
+               case '0': # 待付款
+               $parameters->status = "pending";
+                   break;
+               case '1': # 已完成
+               $parameters->status = "complete";
+                   break;
+               case '2': # 部分退貨
+               $parameters->status = "holded";
+                   break;
+               case '3': # 已退貨
+               $parameters->status = "holded";
+                   break;
+               case '4': # 處理中
+               $parameters->status = "processing";
+                   break;
+           }
             $this->magento->authorization($this->token);
             $magento = $this->magento->search($parameters);
-            $tpass = [];
-            return [
-                'magento' => $magento,
-                'tpass' => $tpass
-            ];
+            $cityPass = [];
+        return [
+            ProjectConfig::MAGENTO => $magento,
+            ProjectConfig::CITY_PASS => $cityPass
+        ];
 
     }
 
