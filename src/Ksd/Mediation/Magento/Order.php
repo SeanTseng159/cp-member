@@ -69,6 +69,7 @@ class Order extends Client
         return $order;
     }
 
+
     /**
      * 根據 條件篩選 取得訂單
      * @param $parameters
@@ -97,10 +98,6 @@ class Order extends Client
                $this->putQuery('searchCriteria[filterGroups][2][filters][0][field]', 'increment_id')
                     ->putQuery('searchCriteria[filterGroups][2][filters][0][value]', $orderNo);
 
-            }else if(!empty($name)){
-               $this->putQuery('searchCriteria[filterGroups][3][filters][0][field]', 'name')
-                    ->putQuery('searchCriteria[filterGroups][3][filters][0][value]', '%'.$name.'%')
-                    ->putQuery('searchCriteria[filterGroups][3][filters][0][condition_type]', 'like');
             }else if(!empty($initDate)&&!empty($endDate)) {
                $this->putQuery('searchCriteria[filterGroups][4][filters][0][field]', 'created_at')
                     ->putQuery('searchCriteria[filterGroups][4][filters][0][value]', $initDate)
@@ -127,7 +124,21 @@ class Order extends Client
             $data[] = $order;
         }
 
-        return $data;
+        //如有關鍵字搜尋則進行判斷是否有相似字
+        $flag = false;
+        if(!empty($name)){
+            foreach ($data as $item) {
+                foreach ($item->items as $items) {
+                    if(preg_match("/".$name."/",$items->name)){
+                        $flag = true;
+                    }
+                }
+            }
+        }else{
+            $flag = true;
+        }
+
+        return $flag ? $data : null;
     }
 
     /**
