@@ -25,7 +25,7 @@ Route::middleware(['cors', 'auth.jwt'])->group(function () {
         //會員資料查詢
         Route::get('query', 'MemberController@queryMember');
         //更新會員資料
-        Route::put('update/{id}', 'MemberController@updateMember');
+        Route::post('update/{id}', 'MemberController@updateMember');
         //刪除會員
         Route::delete('delete/{id}', 'MemberController@deleteMember');
         //會員密碼修改
