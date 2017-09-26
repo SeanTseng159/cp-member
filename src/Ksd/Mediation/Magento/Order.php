@@ -126,19 +126,26 @@ class Order extends Client
 
         //如有關鍵字搜尋則進行判斷是否有相似字
         $flag = false;
+        $data1 = [];
         if(!empty($name)){
             foreach ($data as $item) {
+                $dataflag = false;
                 foreach ($item->items as $items) {
                     if(preg_match("/".$name."/",$items->name)){
                         $flag = true;
+                        $dataflag =true;
                     }
+                }
+                if($dataflag){
+                    $data1[] = $item;
                 }
             }
         }else{
             $flag = true;
+            $data1 = $data;
         }
 
-        return $flag ? $data : null;
+        return $flag ? $data1 : null;
     }
 
     /**
