@@ -18,7 +18,7 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 });
 
 // 需 token 認證的 route
-Route::middleware(['auth.jwt', 'cors'])->group(function () {
+Route::middleware(['cors', 'auth.jwt'])->group(function () {
     Route::namespace('Api')->prefix('member')->group(function () {
         //取所有會員
         Route::get('all', 'MemberController@allMember');
@@ -29,7 +29,7 @@ Route::middleware(['auth.jwt', 'cors'])->group(function () {
         //刪除會員
         Route::delete('delete/{id}', 'MemberController@deleteMember');
         //會員密碼修改
-        Route::put('password/{id}', 'MemberController@changePassword');
+        Route::post('password/{id}', 'MemberController@changePassword');
         //發送Email驗證信
         Route::post('sendValidateEmail', 'MemberController@sendValidateEmail');
         //更新會員憑證
