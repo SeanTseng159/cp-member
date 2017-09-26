@@ -10,7 +10,8 @@ namespace Ksd\Mediation\Repositories;
 
 
 use Ksd\Mediation\Config\ProjectConfig;
-use Ksd\Mediation\Magento\Cart;
+use Ksd\Mediation\Magento\Cart as MagentoCart;
+use Ksd\Mediation\CityPass\Cart as CityPassCart;
 
 class CartRepository extends BaseRepository
 {
@@ -19,7 +20,8 @@ class CartRepository extends BaseRepository
 
     public function __construct()
     {
-        $this->magento = new Cart();
+        $this->magento = new MagentoCart();
+        $this->cityPass = new CityPassCart();
         parent::__construct();
     }
 
@@ -32,7 +34,7 @@ class CartRepository extends BaseRepository
         return $this->redis->remember($this->genCacheKey(self::INFO_KEY), 3600, function () {
             $this->magento->authorization($this->token);
             $magento = $this->magento->info();
-            $cityPass = [];
+            $cityPass = $this->cityPass->info();
             return [
                 ProjectConfig::MAGENTO => $magento,
                 ProjectConfig::CITY_PASS => $cityPass
