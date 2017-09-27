@@ -202,6 +202,47 @@ class MemberController extends RestLaravelController
     }
 
     /**
+    * 發送忘記密碼信
+    * @paramRequest $request
+    * @return \Illuminate\Http\JsonResponse
+    */
+    public function sendForgetPassword(Request $request)
+    {
+        $email = $request->input('email');
+
+        $result = $this->memberService->sendForgetPassword($email);
+
+        return ($result) ? $this->success() : $this->failure('E0051', 'Email發送失敗');
+    }
+
+    /**
+    * 忘記密碼-修改密碼
+    * @paramRequest $request
+    * @return \Illuminate\Http\JsonResponse
+    */
+    public function forgetPassword(Request $request)
+    {
+        $key = $request->input('key');
+        $password = $request->input('password');
+
+        $keyAry = explode('__', $key);
+        $email = $keyAry[0];
+        $expires = $keyAry[1];
+
+        $result = $this->memberService->validateForgetPasswordKey($expires);
+
+        if (!$result) return $this->failure('A0033', '超過可修改時間，請重新操作');
+
+        $member = $this->memberService->findByEmail($email);
+
+        if (!$member) return $this->failure('E0021', '會員驗證失敗');
+
+        $result = $this->memberService->update($member->id, ['password' => $password]);
+
+        return ($result) ? $this->success() : $this->failure('E0018', '密碼修改失敗');
+    }
+
+    /**
     * 發送手機驗證碼
     * @paramRequest $request
     * @return \Illuminate\Http\JsonResponse
