@@ -54,7 +54,7 @@ class CartResult
             $row->source = ProjectConfig::CITY_PASS;
             $row->id = $this->arrayDefault($item, 'id');
             $row->name = $this->arrayDefault($item, 'name');
-            $row->qty = $this->arrayDefault($item, 'qty');
+            $row->qty = $this->arrayDefault($item, 'quantity');
             $row->price = $this->arrayDefault($item, 'price');
             $row->additionals = $this->arrayDefault($item, 'additionals');
             $row->imageUrl = $this->arrayDefault($item, 'imageUrl');
@@ -65,7 +65,7 @@ class CartResult
         $this->itemTotal = $this->arrayDefault($result, 'itemTotal', 0);
         $this->totalAmount = $this->arrayDefault($result, 'totalAmount', 0);
         $this->discountAmount = $this->arrayDefault($result, 'discountAmount', 0);
-        $this->payAmount = $this->arrayDefault($result, 'ayAmount', 0);
+        $this->payAmount = $this->arrayDefault($result, 'payAmount', 0);
     }
 
 

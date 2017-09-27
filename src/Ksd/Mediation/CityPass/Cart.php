@@ -40,7 +40,6 @@ class Cart extends Client
     public function detail()
     {
         $result = [];
-        $totalResult = null;
         try {
             $response = $this->request('GET', 'cart/detail');
             $result = json_decode($response->getBody(), true);
@@ -55,6 +54,53 @@ class Cart extends Client
         return $cart;
     }
 
+    /**
+     * 增加商品至購物車
+     * @param $parameters
+     * @return bool
+     */
+    public function add($parameters)
+    {
+        $response = $this->putParameters($parameters)
+            ->request('POST', 'cart/add');
+        $result = json_decode($response->getBody(), true);
+        if ($result['statusCode'] === 201) {
+            return true;
+        }
+        return false;
+    }
 
+    /**
+     * 更新購物車內商品
+     * @param $parameters
+     * @return bool
+     */
+    public function update($parameters)
+    {
+        // TODO:Api 目前尚未實作完成
+        $response = $this->putParameters($parameters)
+            ->request('POST', 'cart/update');
+        $result = json_decode($response->getBody(), true);
+        if ($result['statusCode'] === 202) {
+            return true;
+        }
+        return false;
+    }
 
+    /**
+     * 刪除購物車內商品
+     * @param $parameters
+     * @return bool
+     */
+    public function delete($parameters)
+    {
+        // TODO:Api 目前尚未實作完成
+        $response = $this->putParameters($parameters)
+            ->request('POST', 'cart/remove');
+        $result = json_decode($response->getBody(), true);
+        if ($result['statusCode'] === 203) {
+            return true;
+        }
+        return false;
+    }
 }
