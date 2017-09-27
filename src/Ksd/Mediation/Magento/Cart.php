@@ -10,6 +10,7 @@ namespace Ksd\Mediation\Magento;
 
 
 use GuzzleHttp\Exception\ClientException;
+use Illuminate\Support\Facades\Log;
 use Ksd\Mediation\Result\CartResult;
 use Ksd\Mediation\Result\ProductResult;
 
@@ -70,9 +71,11 @@ class Cart extends Client
             $row->qty = $item['quantity'];
             array_push($data['quote']['items'],$row);
         }
+        Log::debug(json_encode($data));
 
         $this->putParameters($data);
-        $this->request('PUT', 'V1/carts/mine');
+        $response = $this->request('PUT', 'V1/carts/mine');
+        Log::debug($response->getBody());
         return true;
     }
 

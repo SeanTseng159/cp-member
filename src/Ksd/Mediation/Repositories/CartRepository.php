@@ -48,7 +48,6 @@ class CartRepository extends BaseRepository
      */
     public function detail()
     {
-        $this->cleanCache();
         return $this->redis->remember($this->genCacheKey(self::DETAIL_KEY), 3600, function () {
             $this->magento->authorization($this->token);
             $magento = $this->magento->detail();
@@ -68,6 +67,8 @@ class CartRepository extends BaseRepository
     {
         if (!empty($parameters->magento())) {
             $this->magento->authorization($this->token)->add($parameters->magento());
+        } else if(!empty($parameters->cityPass())) {
+            $this->cityPass->add($parameters->cityPass());
         }
         $this->cleanCache();
     }
@@ -80,6 +81,8 @@ class CartRepository extends BaseRepository
     {
         if (!empty($parameters->magento())) {
             $this->magento->authorization($this->token)->update($parameters->magento());
+        } else if(!empty($parameters->cityPass())) {
+            $this->cityPass->update($parameters->cityPass());
         }
         $this->cleanCache();
     }
@@ -92,6 +95,8 @@ class CartRepository extends BaseRepository
     {
         if (!empty($parameters->magento())) {
             $this->magento->authorization($this->token)->delete($parameters->magento());
+        } else if(!empty($parameters->cityPass())) {
+            $this->cityPass->add($parameters->delete());
         }
         $this->cleanCache();
     }
