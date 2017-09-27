@@ -6,6 +6,7 @@ use App\Repositories\MemberRepository;
 use App\Services\JWTTokenService;
 use Ksd\SMS\Services\EasyGoService;
 use Illuminate\Support\Facades\Hash;
+use Crypt;
 use Carbon;
 
 class MemberService
@@ -261,6 +262,42 @@ class MemberService
         }
 
         return false;
+    }
+
+    /**
+     * 發送忘記密碼信
+     * @param $email
+     * @return bool
+     */
+    public function sendForgetPassword($email)
+    {
+        $member = $this->repository->findByEmail($email);
+        if ($member && $member->isRegistered == 1) {
+            $expires = Carbon\Carbon::now()->timestamp + 1800;
+            $k = Crypt::encrypt($email . '__' . $expires);
+            $url = 'https://www.citypass.com/member/validate/forgetPassword?k=' . $k;
+            //未實作寄信
+            //記得要做
+
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * 驗證-忘記密碼key
+     * @param $email
+     * @param $expires
+     * @return bool
+     */
+    public function validateForgetPasswordKey($email, $expires)
+    {
+        $member = $this->repository->findByEmail($email);
+
+        $now = Carbon\Carbon::now()->timestamp;
+
+        return ($member && $member->isRegistered == 1 && $now < $expires);
     }
 
      /**

@@ -27,13 +27,13 @@ Route::middleware(['cors', 'auth.jwt'])->group(function () {
         //更新會員資料
         Route::post('update/{id}', 'MemberController@updateMember');
         //刪除會員
-        Route::delete('delete/{id}', 'MemberController@deleteMember');
+        Route::post('delete/{id}', 'MemberController@deleteMember');
         //會員密碼修改
         Route::post('password/{id}', 'MemberController@changePassword');
         //發送Email驗證信
         Route::post('sendValidateEmail', 'MemberController@sendValidateEmail');
         //更新會員憑證
-        Route::put('token', 'MemberController@refreshToken');
+        Route::post('token', 'MemberController@refreshToken');
     });
 });
 
@@ -54,6 +54,10 @@ Route::middleware('cors')->namespace('Api')->group(function () {
         Route::post('token', 'MemberController@generateToken');
         //驗證-Email驗證碼
         Route::post('validate/email/{id}', 'MemberController@validateEmail');
+        //發送忘記密碼信
+        Route::post('sendForgetPassword', 'MemberController@sendForgetPassword');
+        //驗證-忘記密碼
+        Route::post('forgetPassword', 'MemberController@forgetPassword');
     });
 
     Route::prefix('product')->group(function () {
