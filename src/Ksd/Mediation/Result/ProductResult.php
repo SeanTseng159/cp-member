@@ -39,11 +39,13 @@ class ProductResult
         $this->imageUrl = $this->magentoImageUrl($this->customAttributes($result['custom_attributes'], 'image'));
         $this->createdAt = $this->arrayDefault($result, 'created_at');
         $this->productId = $this->arrayDefault($result, 'id');
+        $this->customAttributes = $this->arrayDefault($result, 'custom_attributes');
         if ($isDetail) {
+            $this->saleStatus = $result['extension_attributes']['stock_item']['is_in_stock'] ? '11' : '10';
             $this->canUseCoupon = null;
             $this->storeTelephone = null;
             $this->storeAddress = null;
-            $this->quantity = null;
+            $this->quantity = $result['extension_attributes']['stock_item']['qty'];
             $this->contents = null;
             $this->additionals = null;
             $this->purchase = null;
