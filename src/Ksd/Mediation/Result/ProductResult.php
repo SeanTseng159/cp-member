@@ -41,6 +41,7 @@ class ProductResult
         $this->productId = $this->arrayDefault($result, 'id');
         $this->customAttributes = $this->arrayDefault($result, 'custom_attributes');
         if ($isDetail) {
+            $this->saleStatus = $result['extension_attributes']['stock_item']['is_in_stock'] ? '11' : '10';
             $this->canUseCoupon = null;
             $this->storeTelephone = null;
             $this->storeAddress = null;
