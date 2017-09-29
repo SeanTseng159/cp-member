@@ -46,7 +46,6 @@ class ProductService
 
         $categoryIds = [];
         if(!empty($categories)) {
-
             foreach ($categories as $category) {
                 $categoryIds = array_merge($categoryIds, $this->filterCategory($category));
             }
@@ -63,9 +62,7 @@ class ProductService
     public function product($parameter)
     {
         $product = $this->repository->product($parameter);
-        $wishListService = new WishlistService();
-        $wishList = $wishListService->items();
-        return $this->process($product, $wishList);
+        return $this->process($product, $this->wishList);
     }
 
     /**
@@ -149,7 +146,6 @@ class ProductService
             }
             $product->tags = $categories;
         }
-        print_r($product); echo '<Br><br>';
         return $product->apiFormat();
     }
 
