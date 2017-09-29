@@ -8,15 +8,21 @@
 
 namespace Ksd\Mediation\Services;
 
+use Ksd\Mediation\Config\ProjectConfig;
 use Ksd\Mediation\Repositories\ProductRepository;
 
 class ProductService
 {
     protected $repository;
+    private $categoryResult;
+    private $wishList;
 
     public function __construct()
     {
         $this->repository = new ProductRepository();
+        $wishListService = new WishlistService();
+        $this->wishList = $wishListService->items();
+        $this->categoryResult = $this->categories();
     }
 
     /**
@@ -40,12 +46,13 @@ class ProductService
 
         $categoryIds = [];
         if(!empty($categories)) {
-            $categoryResult = $this->categories();
+
             foreach ($categories as $category) {
-                $categoryIds = array_merge($categoryIds, $this->filterCategory($categoryResult, $category));
+                $categoryIds = array_merge($categoryIds, $this->filterCategory($category));
             }
         }
-        return $this->repository->products($categoryIds, $parameter)->pagination()->sort();
+        $products = $this->repository->products($categoryIds, $parameter)->pagination()->sort();
+        return $this->processList($products);
     }
 
     /**
@@ -55,7 +62,10 @@ class ProductService
      */
     public function product($parameter)
     {
-        return $this->repository->product($parameter);
+        $product = $this->repository->product($parameter);
+        $wishListService = new WishlistService();
+        $wishList = $wishListService->items();
+        return $this->process($product, $wishList);
     }
 
     /**
@@ -70,14 +80,13 @@ class ProductService
 
     /**
      * 根據 分類名稱 取得分類 id
-     * @param $categoryResult
      * @param $name
      * @return array
      */
-    private function filterCategory($categoryResult, $name)
+    private function filterCategory($name)
     {
         $ids = [];
-        foreach ($categoryResult as $categoryRow) {
+        foreach ($this->categoryResult  as $categoryRow) {
             if (!empty($categoryRow)) {
                 $row = $categoryRow->filterByName($name);
                 if(!empty($row)) {
@@ -86,5 +95,77 @@ class ProductService
             }
         }
         return $ids;
+    }
+
+    /**
+     * 根據 id 取得分類
+     * @param $id
+     * @return array|null
+     */
+    private function filterCategoryById($id)
+    {
+        $category = null;
+        foreach ($this->categoryResult  as $categoryRow) {
+            if (!empty($categoryRow)) {
+                $row = $categoryRow->filterById($id);
+                if(!empty($row)) {
+                    $category = [
+                        'id' => $row->id,
+                        'name' => $row->name
+                    ];
+                }
+            }
+        }
+        return $category;
+    }
+
+    /**
+     * 處理商品列表資料
+     * @param $products
+     * @return mixed
+     */
+    private function processList($products)
+    {
+        foreach ($products->result as $key => $product) {
+            $products->result[$key] = $this->process($product);
+        }
+        return $products;
+
+    }
+
+    /**
+     * 處理商品資料
+     * @param $product
+     * @return mixed
+     */
+    private function process($product)
+    {
+        $product = $this->wishProduct($product);
+        if($product->source === ProjectConfig::MAGENTO) {
+            $categoryIds = $product->customAttributes($product->customAttributes, 'category_ids', []);
+            $categories = [];
+            foreach ($categoryIds as $categoryId) {
+                $categories[] = $this->filterCategoryById($categoryId);
+            }
+            $product->tags = $categories;
+        }
+        print_r($product); echo '<Br><br>';
+        return $product->apiFormat();
+    }
+
+    /**
+     * 增加產品收藏判斷
+     * @param $product
+     * @return mixed
+     */
+    private function wishProduct($product)
+    {
+        foreach ($this->wishList['magento'] as $wishRow) {
+            if ($product->id == $wishRow->id) {
+                $product->isWishlist = true;
+                break;
+            }
+        }
+        return $product;
     }
 }

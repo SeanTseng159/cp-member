@@ -29,7 +29,8 @@ class ProductResult
         $this->id = $this->arrayDefault($result, 'sku');
         $this->name = $this->arrayDefault($result, 'name');
         $this->price = $this->arrayDefault($result, 'price');
-        $this->salePrice = null;
+        $this->salePrice = $this->customAttributes($result['custom_attributes'], 'special_price', 0);
+        $this->discount = $this->countDiscount($this->salePrice, $this->price);
         $this->characteristic = null;
         $this->category = null;
         $this->storeName = null;
@@ -40,6 +41,7 @@ class ProductResult
         $this->createdAt = $this->arrayDefault($result, 'created_at');
         $this->productId = $this->arrayDefault($result, 'id');
         $this->customAttributes = $this->arrayDefault($result, 'custom_attributes');
+        $this->isWishlist = false;
         if ($isDetail) {
             $this->saleStatus = $result['extension_attributes']['stock_item']['is_in_stock'] ? '11' : '10';
             $this->canUseCoupon = null;
@@ -103,5 +105,39 @@ class ProductResult
     {
         $basePath = $this->env('MAGENTO_PRODUCT_PATH');
         return $basePath . $path;
+    }
+
+    /**
+     * 處理折扣
+     * @param $salePrice
+     * @param $price
+     * @return string
+     */
+    public function countDiscount($salePrice, $price)
+    {
+        if ($salePrice===0 || $price === 0) {
+            return '';
+        }
+        $discount = (int) (($salePrice / $price) * 100);
+        return sprintf("%d打折", $discount);
+    }
+
+    /**
+     * api response 資料格式化
+     * @return \stdClass
+     */
+    public function apiFormat()
+    {
+        $data = new \stdClass();
+        $columns = [
+            'source', 'id', 'name', 'price', 'salePrice', 'characteristic', 'category', 'tags', 'imageUrls', 'quantity',
+            'contents', 'additionals', 'purchase', 'storeName', 'place', 'imageUrl', 'isWishlist', 'discount'
+        ];
+        foreach ($columns as $column) {
+            if (property_exists($this, $column)) {
+                $data->$column = $this->$column;
+            }
+        }
+        return $data;
     }
 }

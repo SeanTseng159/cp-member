@@ -30,15 +30,16 @@ trait ObjectHelper
      * magento 根據 key 取得產品額外欄位
      * @param $attributes
      * @param $key
+     * @param $default
      * @return string
      */
-    public function customAttributes($attributes, $key)
+    public function customAttributes($attributes, $key, $default = '')
     {
         foreach ($attributes as $attribute) {
             if($attribute['attribute_code'] === $key) {
                 return $attribute['value'];
             }
         }
-        return '';
+        return $default;
     }
 }
