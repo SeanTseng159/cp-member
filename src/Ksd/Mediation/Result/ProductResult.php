@@ -108,7 +108,7 @@ class ProductResult
     }
 
     /**
-     * 處理折扣折數
+     * 處理折扣
      * @param $salePrice
      * @param $price
      * @return string
@@ -120,5 +120,24 @@ class ProductResult
         }
         $discount = (int) (($salePrice / $price) * 100);
         return sprintf("%d打折", $discount);
+    }
+
+    /**
+     * api response 資料格式化
+     * @return \stdClass
+     */
+    public function apiFormat()
+    {
+        $data = new \stdClass();
+        $columns = [
+            'source', 'id', 'name', 'price', 'salePrice', 'characteristic', 'category', 'tags', 'imageUrls', 'quantity',
+            'contents', 'additionals', 'purchase', 'storeName', 'place', 'imageUrl', 'isWishlist', 'discount'
+        ];
+        foreach ($columns as $column) {
+            if (property_exists($this, $column)) {
+                $data->$column = $this->$column;
+            }
+        }
+        return $data;
     }
 }
