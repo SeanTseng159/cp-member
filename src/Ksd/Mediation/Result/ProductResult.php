@@ -9,7 +9,6 @@
 namespace Ksd\Mediation\Result;
 
 
-use Illuminate\Support\Facades\Log;
 use Ksd\Mediation\Config\ProjectConfig;
 use Ksd\Mediation\Helper\EnvHelper;
 use Ksd\Mediation\Helper\ObjectHelper;
@@ -42,6 +41,7 @@ class ProductResult
         $this->createdAt = $this->arrayDefault($result, 'created_at');
         $this->productId = $this->arrayDefault($result, 'id');
         $this->customAttributes = $this->arrayDefault($result, 'custom_attributes');
+        $this->isWishlist = false;
         if ($isDetail) {
             $this->saleStatus = $result['extension_attributes']['stock_item']['is_in_stock'] ? '11' : '10';
             $this->canUseCoupon = null;
@@ -107,8 +107,17 @@ class ProductResult
         return $basePath . $path;
     }
 
+    /**
+     * 處理折扣折數
+     * @param $salePrice
+     * @param $price
+     * @return string
+     */
     public function countDiscount($salePrice, $price)
     {
+        if ($salePrice===0 || $price === 0) {
+            return '';
+        }
         $discount = (int) (($salePrice / $price) * 100);
         return sprintf("%d打折", $discount);
     }

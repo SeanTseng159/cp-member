@@ -45,7 +45,8 @@ class ProductService
                 $categoryIds = array_merge($categoryIds, $this->filterCategory($categoryResult, $category));
             }
         }
-        return $this->repository->products($categoryIds, $parameter)->pagination()->sort();
+        $products = $this->repository->products($categoryIds, $parameter)->pagination()->sort();
+        return $this->wishProducts($products);
     }
 
     /**
@@ -86,5 +87,25 @@ class ProductService
             }
         }
         return $ids;
+    }
+
+    /**
+     * 增加產品收藏判斷
+     * @param $products
+     * @return mixed
+     */
+    private function wishProducts($products)
+    {
+        $wishListService = new WishlistService();
+        $wishList = $wishListService->items();
+        foreach ($products->result as $key => $product) {
+            foreach ($wishList['magento'] as $wishRow) {
+                if ($product->id == $wishRow->id) {
+                    $products->result[$key]->isWishlist = true;
+                    break;
+                }
+            }
+        }
+        return $products;
     }
 }
