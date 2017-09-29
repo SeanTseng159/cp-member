@@ -9,6 +9,7 @@ use GuzzleHttp\Client;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Validator;
+use Crypt;
 use Log;
 
 class MemberController extends RestLaravelController
@@ -31,30 +32,52 @@ class MemberController extends RestLaravelController
             'countryCode',
             'cellphone',
             'openPlateform',
-            'openId'
+            'openId',
+            'country'
         ]);
 
         $validator = Validator::make($data, [
             'countryCode' => 'required|max:6',
             'cellphone' => 'required|alpha_num|max:12',
             'openPlateform' => 'required',
+            'country' => 'required'
         ]);
+
+        $country = $data['country'] = strtoupper($data['country']);
 
         if ($validator->fails()) {
             return $this->failure('E0001', '傳送參數錯誤');
         }
 
+        try {
+            $phoneUtil = \libphonenumber\PhoneNumberUtil::getInstance();
+            $phoneNumber = $phoneUtil->parse($data['countryCode'] . $data['cellphone'], $country);
+
+            $countryCode = $data['countryCode'] = $phoneNumber->getCountryCode();
+            $cellphone = $data['cellphone'] = $phoneNumber->getNationalNumber();
+            $intlNumber = $phoneUtil->format($phoneNumber, \libphonenumber\PhoneNumberFormat::E164);
+
+            $isValid = $phoneUtil->isValidNumber($phoneNumber);
+            $getNumberType = $phoneUtil->getNumberType($phoneNumber);
+
+            if (!$phoneUtil->isValidNumber($phoneNumber) || $phoneUtil->getNumberType($phoneNumber) != 1) {
+                return $this->failure('E0301', '手機格式錯誤');
+            }
+        } catch (\libphonenumber\NumberParseException $e) {
+            return $this->failure('E0301', '手機格式錯誤');
+        }
+
         //確認手機是否使用
-        if ($this->memberService->checkPhoneIsUse($data['countryCode'], $data['cellphone'])) {
+        if ($this->memberService->checkPhoneIsUse($countryCode, $cellphone)) {
             return $this->failure('A0031', '該手機號碼已使用');
         }
 
         //驗證可否註冊
-        if (!$this->memberService->canReRegister($data['countryCode'], $data['cellphone'])) {
+        if (!$this->memberService->canReRegister($countryCode, $cellphone)) {
             return $this->failure('A0030', '請15分鐘後再註冊');
         }
 
-        $member = $this->memberService->checkHasPhoneAndNotRegistered($data['countryCode'], $data['cellphone']);
+        $member = $this->memberService->checkHasPhoneAndNotRegistered($countryCode, $cellphone);
 
         $member = ($member) ? $this->memberService->update($member->id, $data) : $this->memberService->create($data);
 
@@ -87,7 +110,7 @@ class MemberController extends RestLaravelController
 
         if ($member) {
             // 發信
-            $this->memberService->sendValidateEmail($member->id);
+            $this->memberService->sendRegisterEmail($member);
 
             return $this->success([
                 'id' => $member->id,
@@ -220,22 +243,27 @@ class MemberController extends RestLaravelController
     * @paramRequest $request
     * @return \Illuminate\Http\JsonResponse
     */
-    public function forgetPassword(Request $request)
+    public function resetPassword(Request $request)
     {
         $key = $request->input('key');
         $password = $request->input('password');
 
-        $keyAry = explode('__', $key);
-        $email = $keyAry[0];
-        $expires = $keyAry[1];
+        try {
+            $key = Crypt::decrypt($key);
+            $keyAry = explode('_', $key);
+            $email = $keyAry[0];
+            $expires = $keyAry[1];
+        } catch (DecryptException $e) {
+            return $this->failure('E0001', '傳送參數錯誤');
+        }
 
-        $result = $this->memberService->validateForgetPasswordKey($expires);
+        $result = $this->memberService->validateResetPasswordKey($expires);
 
         if (!$result) return $this->failure('A0033', '超過可修改時間，請重新操作');
 
         $member = $this->memberService->findByEmail($email);
 
-        if (!$member) return $this->failure('E0021', '會員驗證失敗');
+        if (!$member || $member->isRegistered == 0) return $this->failure('E0021', '會員驗證失敗');
 
         $result = $this->memberService->update($member->id, ['password' => $password]);
 
@@ -276,11 +304,11 @@ class MemberController extends RestLaravelController
     * @paramRequest $request
     * @return \Illuminate\Http\JsonResponse
     */
-    public function validateEmail(Request $request, $id)
+    public function validateEmail(Request $request)
     {
         $validEmailCode = $request->input('validEmailCode');
 
-        $result = $this->memberService->validateEmail($id, $validEmailCode);
+        $result = $this->memberService->validateEmail($validEmailCode);
 
         return ($result) ? $this->success() : $this->failure('E0014', 'Email驗證碼錯誤');
     }

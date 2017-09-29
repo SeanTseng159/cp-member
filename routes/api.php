@@ -53,11 +53,11 @@ Route::middleware('cors')->namespace('Api')->group(function () {
         //新增會員憑證
         Route::post('token', 'MemberController@generateToken');
         //驗證-Email驗證碼
-        Route::post('validate/email/{id}', 'MemberController@validateEmail');
+        Route::post('validate/email', 'MemberController@validateEmail');
         //發送忘記密碼信
         Route::post('sendForgetPassword', 'MemberController@sendForgetPassword');
-        //驗證-忘記密碼
-        Route::post('forgetPassword', 'MemberController@forgetPassword');
+        //驗證-重設密碼
+        Route::post('resetPassword', 'MemberController@resetPassword');
     });
 
     Route::prefix('product')->group(function () {

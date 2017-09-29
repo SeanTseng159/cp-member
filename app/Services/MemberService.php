@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Repositories\MemberRepository;
 use App\Services\JWTTokenService;
+use App\Services\MailService;
 use Ksd\SMS\Services\EasyGoService;
 use Illuminate\Support\Facades\Hash;
 use Crypt;
@@ -273,11 +274,8 @@ class MemberService
     {
         $member = $this->repository->findByEmail($email);
         if ($member && $member->isRegistered == 1) {
-            $expires = Carbon\Carbon::now()->timestamp + 1800;
-            $k = Crypt::encrypt($email . '__' . $expires);
-            $url = 'https://www.citypass.com/member/validate/forgetPassword?k=' . $k;
-            //未實作寄信
-            //記得要做
+            $mailService = new MailService;
+            $mailService->sendForgetPasswordMail($member);
 
             return true;
         }
@@ -286,18 +284,34 @@ class MemberService
     }
 
     /**
-     * 驗證-忘記密碼key
+     * 驗證-重設密碼key
      * @param $email
      * @param $expires
      * @return bool
      */
-    public function validateForgetPasswordKey($email, $expires)
+    public function validateResetPasswordKey($expires)
     {
-        $member = $this->repository->findByEmail($email);
-
         $now = Carbon\Carbon::now()->timestamp;
 
-        return ($member && $member->isRegistered == 1 && $now < $expires);
+        return ($now < $expires);
+    }
+
+    /**
+     * 寄送Email註冊成功
+     * @param $id
+     * @param $data
+     * @return bool
+     */
+    public function sendRegisterEmail($member)
+    {
+        if ($member && $member->isRegistered == 1 && $member->isValidEmail == 0) {
+            $mailService = new MailService;
+            $mailService->sendRegisterMail($member);
+
+            return true;
+        }
+
+        return false;
     }
 
      /**
@@ -311,8 +325,8 @@ class MemberService
         $member = $this->repository->find($id);
 
         if ($member && $member->isValidEmail == 0) {
-            //未實作寄信
-            //記得要做
+            $mailService = new MailService;
+            $mailService->sendValidateEmail($member);
 
             return true;
         }
@@ -326,24 +340,26 @@ class MemberService
      * @param $validEmailCode
      * @return bool
      */
-    public function validateEmail($id, $validEmailCode)
+    public function validateEmail($validEmailCode)
     {
-        $member = $this->repository->find($id);
+        try {
+            $code = Crypt::decrypt($validEmailCode);
+
+            $codeAry = explode('_', $code);
+            $countryCode = $codeAry[0];
+            $cellphone = $codeAry[1];
+        } catch (DecryptException $e) {
+            return false;
+        }
+
+        $member = $this->repository->findByPhone($countryCode, $cellphone);
 
         if ($member) {
-            try {
-                $cellphone = Crypt::decrypt($validEmailCode);
-                if ($member->cellphone == $cellphone) {
-                    $result = $this->update($member->id, [
-                        'isValidEmail' => 1
-                    ]);
+            $result = $this->update($member->id, [
+                'isValidEmail' => 1
+            ]);
 
-                    return ($result);
-                }
-
-            } catch (DecryptException $e) {
-                return false;
-            }
+            return ($result);
         }
 
         return false;
