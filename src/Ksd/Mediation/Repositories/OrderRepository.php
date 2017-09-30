@@ -30,8 +30,8 @@ class OrderRepository extends BaseRepository
      */
     public function info()
     {
-        $this->cleanCache();
-        return $this->redis->remember($this->genCacheKey(self::INFO_KEY), 3600, function () {
+//        $this->cleanCache();
+        return $this->redis->remember($this->genCacheKey(self::INFO_KEY), 300, function () {
             $this->magento->authorization($this->token);
             $magento = $this->magento->info();
             $cityPass = [];

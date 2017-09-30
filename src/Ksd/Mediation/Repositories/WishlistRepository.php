@@ -29,7 +29,7 @@ class WishlistRepository extends BaseRepository
      */
     public function items()
     {
-        $this->cleanCache();
+ //       $this->cleanCache();
         return $this->redis->remember($this->genCacheKey(self::INFO_KEY), 3600, function () {
             $this->magento->authorization($this->token);
             $magento = $this->magento->items();
