@@ -43,11 +43,11 @@ class MemberController extends RestLaravelController
             'country' => 'required'
         ]);
 
-        $country = $data['country'] = strtoupper($data['country']);
-
         if ($validator->fails()) {
             return $this->failure('E0001', '傳送參數錯誤');
         }
+
+        $country = $data['country'] = strtoupper($data['country']);
 
         try {
             $phoneUtil = \libphonenumber\PhoneNumberUtil::getInstance();
