@@ -22,11 +22,12 @@ class CheckoutService
 
     /**
      * 取得付款資訊
+     * @param $source
      * @return array
      */
-    public function info()
+    public function info($source)
     {
-        return $this->repository->info();
+        return $this->repository->info($source);
     }
 
     /**
