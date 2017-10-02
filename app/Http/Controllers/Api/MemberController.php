@@ -341,6 +341,7 @@ class MemberController extends RestLaravelController
         return $this->success([
             'id' => $member->id,
             'token' => $member->token,
+            'email' => $member->email,
             'name' => $member->name,
             'avatar' => $member->avatar,
             'countryCode' => $member->countryCode,
