@@ -104,11 +104,15 @@ class MemberController extends RestLaravelController
         $data = $request->except(['id']);
         $data['status'] = $data['isValidPhone'] = $data['isRegistered'] = 1;
 
+        // 檢查Email是否使用
+        $result = $this->memberService->checkEmailIsUse($email);
+        if ($result) return $this->failure('A0032', '該Email已使用');
+
         $member = $this->memberService->update($id, $data);
 
-        $member = $this->memberService->generateToken($member, $platform);
-
         if ($member) {
+            $member = $this->memberService->generateToken($member, $platform);
+
             // 發信
             $this->memberService->sendRegisterEmail($member);
 
@@ -179,7 +183,7 @@ class MemberController extends RestLaravelController
 
         $result = $this->memberService->checkEmailIsUse($email);
 
-        return ($result) ? $this->success() : $this->failure('A0032', '該Email已使用');
+        return (!$result) ? $this->success() : $this->failure('A0032', '該Email已使用');
     }
 
     /**

@@ -174,7 +174,7 @@ class MemberService
     public function checkEmailIsUse($email)
     {
         $member = $this->repository->findByEmail($email);
-        return (!$member);
+        return ($member);
     }
 
     /**

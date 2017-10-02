@@ -5,6 +5,7 @@ namespace App\Services;
 use Mail;
 use Carbon;
 use Crypt;
+use Log;
 
 class MailService
 {
@@ -84,10 +85,14 @@ class MailService
             'name' => (isset($recipient['name'])) ? $recipient['name'] : ''
         ];
 
-        Mail::send($view, $viewData, function ($message) use ($from, $to) {
-            $message->from($from['email'], $from['name']);
-            $message->to($to['email'], $to['name'])->subject($from['subject']);
-        });
+        try {
+            Mail::send($view, $viewData, function ($message) use ($from, $to) {
+                $message->from($from['email'], $from['name']);
+                $message->to($to['email'], $to['name'])->subject($from['subject']);
+            });
+        } catch(\Exception $e) {
+            Log::error('smtp 有問題, 請檢查!');
+        }
     }
 
     /**
