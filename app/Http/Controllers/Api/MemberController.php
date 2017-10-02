@@ -105,7 +105,7 @@ class MemberController extends RestLaravelController
         $data['status'] = $data['isValidPhone'] = $data['isRegistered'] = 1;
 
         // 檢查Email是否使用
-        $result = $this->memberService->checkEmailIsUse($email);
+        $result = $this->memberService->checkEmailIsUse($data['email']);
         if ($result) return $this->failure('A0032', '該Email已使用');
 
         $member = $this->memberService->update($id, $data);
