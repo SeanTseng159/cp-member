@@ -86,7 +86,7 @@ Route::middleware('cors')->namespace('Api')->group(function () {
 
     Route::prefix('checkout')->group(function () {
         // 取得結帳資訊
-        Route::get('info', 'CheckoutController@info');
+        Route::get('info/{source}', 'CheckoutController@info');
         // 確定結帳
         Route::post('confirm', 'CheckoutController@confirm');
     });

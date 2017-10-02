@@ -25,11 +25,17 @@ class CheckoutRepository extends BaseRepository
 
     /**
      * 取得結帳資訊
+     * @param $source
      * @return array
      */
-    public function info()
+    public function info($source)
     {
-        return $this->magento->authorization($this->userToken())->info();
+        if($source === ProjectConfig::MAGENTO) {
+            return $this->magento->authorization($this->userToken())->info();
+        } else if ($source === ProjectConfig::CITY_PASS) {
+
+        }
+        return [];
     }
 
     /**

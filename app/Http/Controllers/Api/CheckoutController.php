@@ -18,11 +18,12 @@ class CheckoutController extends RestLaravelController
 
     /**
      * 取得結帳資訊
+     * @param $source
      * @return \Illuminate\Http\JsonResponse
      */
-    public function info()
+    public function info($source)
     {
-        return $this->success($this->service->info());
+        return $this->success($this->service->info($source));
     }
 
     /**
