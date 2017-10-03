@@ -66,7 +66,19 @@ class Checkout extends Client
      */
     public function shippingInfo()
     {
-        $response = $this->request('GET', 'V1/carts/mine/shipping-methods');
+        $cart = $this->cart->detail();
+        $data = [
+            "address" => [
+                "country_id"=>"TW"
+            ]
+        ];
+        if (!empty($cart->id)) {
+            $data['cart_id'] = $cart->id;
+        } else {
+            $data['cart_id'] = $this->cart->authorization($this->userToken())->createEmpty();
+        }
+        $this->putParameters($data);
+        $response = $this->request('POST', 'V1/carts/mine/estimate-shipping-methods');
         $result = json_decode($response->getBody(), true);
         $data = [];
         foreach ($result as $row) {
