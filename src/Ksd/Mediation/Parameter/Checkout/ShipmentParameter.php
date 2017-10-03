@@ -13,16 +13,14 @@ use Ksd\Mediation\Helper\AddressHelper;
 use Ksd\Mediation\Helper\ObjectHelper;
 use Ksd\Mediation\Parameter\BaseParameter;
 
-class ConfirmParameter extends BaseParameter
+class ShipmentParameter extends BaseParameter
 {
     use ObjectHelper;
     use AddressHelper;
 
     private $source;
     private $isCheck;
-    private $payment;
-    private $billing;
-
+    private $shipment;
 
     /**
      * 處理 laravel request
@@ -31,10 +29,7 @@ class ConfirmParameter extends BaseParameter
     public function laravelRequest($request)
     {
         $this->source = $request->input('source');
-
-        $this->processParameters($request, 'payment');
-        $this->processParameters($request, 'billing');
-
+        $this->processParameters($request, 'shipment');
         $this->shipment->userAddress = $this->address($this->shipment->userAddress);
     }
 
@@ -66,20 +61,11 @@ class ConfirmParameter extends BaseParameter
     }
 
     /**
-     * 取得付款資訊
+     * 取得配送資訊
      * @return mixed
      */
-    public function payment()
+    public function shipment()
     {
-        return $this->payment;
-    }
-
-    /**
-     * 取得帳單資訊
-     * @return mixed
-     */
-    public function billing()
-    {
-        return $this->billing;
+        return $this->shipment;
     }
 }

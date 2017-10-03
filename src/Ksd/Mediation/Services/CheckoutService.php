@@ -31,6 +31,15 @@ class CheckoutService
     }
 
     /**
+     * 設定物流方式
+     * @param $parameters
+     */
+    public function shipment($parameters)
+    {
+        $this->repository->shipment($parameters);
+    }
+
+    /**
      * 確定結帳
      * @param $parameters
      */

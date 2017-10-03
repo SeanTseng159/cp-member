@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use Illuminate\Http\Request;
 use Ksd\Mediation\Core\Controller\RestLaravelController;
 use Ksd\Mediation\Parameter\Checkout\ConfirmParameter;
+use Ksd\Mediation\Parameter\Checkout\ShipmentParameter;
 use Ksd\Mediation\Services\CheckoutService;
 
 class CheckoutController extends RestLaravelController
@@ -24,6 +25,19 @@ class CheckoutController extends RestLaravelController
     public function info($source)
     {
         return $this->success($this->service->info($source));
+    }
+
+    /**
+     * 設定物流方式
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function shipment(Request $request)
+    {
+        $parameters = new ShipmentParameter();
+        $parameters->laravelRequest($request);
+        $this->service->shipment($parameters);
+        return $this->success();
     }
 
     /**
