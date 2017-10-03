@@ -37,6 +37,7 @@ class CartResult
         $this->useCoupon = new \stdClass();
         $this->itemTotal = $this->arrayDefault($result, 'items_count', 0);
         $this->totalAmount = $this->arrayDefault($totalResult, 'subtotal', 0);
+        $this->shippingAmount = $this->arrayDefault($totalResult, 'shipping_amount', 0);
         $this->discountAmount = $this->arrayDefault($totalResult, 'discount_amount', 0);
         $this->payAmount = $this->arrayDefault($totalResult, 'grand_total', 0);
     }

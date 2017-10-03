@@ -39,6 +39,19 @@ class CheckoutRepository extends BaseRepository
     }
 
     /**
+     * 設定物流方式
+     * @param $parameters
+     */
+    public function shipment($parameters)
+    {
+        if($parameters->checkSource(ProjectConfig::MAGENTO)) {
+            $this->magento->authorization($this->userToken())->shipment($parameters);
+        } else if ($parameters->checkSource(ProjectConfig::CITY_PASS)) {
+
+        }
+    }
+
+    /**
      * 確定結帳
      * @param $parameters
      */
@@ -49,6 +62,5 @@ class CheckoutRepository extends BaseRepository
         } else if ($parameters->checkSource(ProjectConfig::CITY_PASS)) {
 
         }
-
     }
 }

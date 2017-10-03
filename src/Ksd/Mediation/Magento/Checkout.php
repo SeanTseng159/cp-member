@@ -99,12 +99,20 @@ class Checkout extends Client
     }
 
     /**
+     * 設定物流方式
+     * @param $parameters
+     */
+    public function shipment($parameters)
+    {
+        $this->putShipping($parameters->shipment());
+    }
+
+    /**
      * 確認結帳方式
      * @param $parameters
      */
     public function confirm($parameters)
     {
-        $this->putShipping($parameters->shipment());
         $this->putPayment($parameters->payment());
     }
 
