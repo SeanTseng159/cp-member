@@ -25,21 +25,19 @@ class Order extends Client
         $admintoken = new Client();
         $this->authorization($admintoken->token);
 
-        $response =[];
+        $result =[];
         try{
             $path = 'V1/orders';
             $response = $this->putQuery('searchCriteria[filterGroups][0][filters][0][field]', 'customer_email')
                 ->putQuery('searchCriteria[filterGroups][0][filters][0][value]', $email)
                 ->request('GET', $path);
+            $body = $response->getBody();
+            $result = json_decode($body, true);
         }catch (ClientException $e){
             // TODO:抓不到訂單資料
         }
 
-        $body = $response->getBody();
         $data = [];
-        $result = json_decode($body, true);
-
-
         foreach ($result['items'] as $item) {
             $order = new OrderResult();
             $order->magento($item);
@@ -55,18 +53,63 @@ class Order extends Client
      * @param $itemId
      * @return OrderResult
      */
-    public function order($itemId)
+    public function order($parameter)
     {
+        $itemId = $parameter->itemId;
+        $id = $parameter->id;
+        $email = $this->getEmail();
+        $admintoken = new Client();
+        $this->authorization($admintoken->token);
 
+        $response =[];
+        try{
+            $path = 'V1/orders';
+            $response = $this->putQuery('searchCriteria[filterGroups][0][filters][0][field]', 'customer_email')
+                ->putQuery('searchCriteria[filterGroups][0][filters][0][value]', $email)
+                ->putQuery('searchCriteria[filterGroups][1][filters][0][field]', 'increment_id')
+                ->putQuery('searchCriteria[filterGroups][1][filters][0][value]', $itemId)
+                ->request('GET', $path);
+        }catch (ClientException $e){
+            // TODO:抓不到訂單資料
+        }
+
+        $body = $response->getBody();
+
+        $result = json_decode($body, true);
+
+        if(!empty($result['items'][0])) {
+            $order = new OrderResult();
+            $order->magento($result['items'][0], true);
+        }else{
+            return null;
+        }
+
+        //如有關鍵字搜尋則進行判斷是否有相似字
+        if(!empty($id)){
+                $count = 0;
+                foreach ($order->items as $items) {
+                    if(!preg_match("/".$id."/",$items['id'])){
+                        array_splice($order->items,$count,1);
+                        $count--;
+                    }
+                    $count++;
+                }
+        }
+
+        return $order;
+
+/*
         $path = "V1/orders/items/$itemId";
 
         $response = $this->request('GET', $path);
         $body = $response->getBody();
         $result = json_decode($body, true);
+        dd($result);
         $order = new OrderResult();
         $order->magento($result, true);
 
         return $order;
+*/
     }
 
 

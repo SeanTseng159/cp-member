@@ -33,6 +33,7 @@ class OrderParameter extends BaseParameter
     {
         parent::laravelRequest($request);
         $this->itemId = $itemId;
+        $this->id = $request->input('id');
         $this->source = $request->input('source');
     }
 

@@ -10,7 +10,9 @@
 namespace Ksd\Mediation\Repositories;
 
 
-use Ksd\Mediation\Magento\Order;
+use Ksd\Mediation\Magento\Order as MagentoOrder;
+use Ksd\Mediation\CityPass\Order as CityPassOrder;
+
 use Ksd\Mediation\Config\ProjectConfig;
 
 class OrderRepository extends BaseRepository
@@ -20,7 +22,8 @@ class OrderRepository extends BaseRepository
 
     public function __construct()
     {
-        $this->magento = new Order();
+        $this->magento = new MagentoOrder();
+        $this->cityPass = new CityPassOrder();
         parent::__construct();
     }
 
@@ -30,11 +33,11 @@ class OrderRepository extends BaseRepository
      */
     public function info()
     {
-//        $this->cleanCache();
+
         return $this->redis->remember($this->genCacheKey(self::INFO_KEY), 300, function () {
             $this->magento->authorization($this->token);
             $magento = $this->magento->info();
-            $cityPass = [];
+            $cityPass = $this->cityPass->info();
             return [
                 ProjectConfig::MAGENTO => $magento,
                 ProjectConfig::CITY_PASS => $cityPass
@@ -50,16 +53,17 @@ class OrderRepository extends BaseRepository
     public function order($parameter)
     {
         $itemId = $parameter->itemId;
-        return $this->redis->remember("order:id:$itemId", 3600, function () use ($itemId) {
-            $magento = $this->magento->order($itemId);
-            $cityPass = [];
-            if (empty($order)) {
-                $order = null; //$this->tpass
+        $source = $parameter->source;
+        return $this->redis->remember("$source:order:id:$itemId", 300, function () use ($source,$parameter) {
+            if($source == ProjectConfig::MAGENTO) {
+                $this->magento->authorization($this->token);
+                $magento = $this->magento->order($parameter);
+                return $magento;
+            }else {
+                $cityPass = $this->cityPass->order($parameter);
+                return $cityPass;
             }
-            return [
-                ProjectConfig::MAGENTO => $magento,
-                ProjectConfig::CITY_PASS => $cityPass
-            ];
+
 
         });
     }
@@ -89,9 +93,10 @@ class OrderRepository extends BaseRepository
                $parameters->status = "processing";
                    break;
            }
+
             $this->magento->authorization($this->token);
             $magento = $this->magento->search($parameters);
-            $cityPass = [];
+            $cityPass = $this->cityPass->search($parameters);
         return [
             ProjectConfig::MAGENTO => $magento,
             ProjectConfig::CITY_PASS => $cityPass

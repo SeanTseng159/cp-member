@@ -40,7 +40,8 @@ class OrderService
      */
     public function order($parameter)
     {
-        return $this->repository->order($parameter);
+//        return $this->repository->order($parameter);
+          return $this->repository->setToken($this->userToken())->order($parameter);
     }
 
     /**
