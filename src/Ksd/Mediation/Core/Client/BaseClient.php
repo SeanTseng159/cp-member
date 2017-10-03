@@ -8,10 +8,6 @@
 
 namespace Ksd\Mediation\Core\Client;
 
-
-use GuzzleHttp\Client;
-use Ksd\Mediation\Helper\EnvHelper;
-
 class BaseClient
 {
     protected $token;
@@ -29,7 +25,6 @@ class BaseClient
      */
     public function authorization($token)
     {
-        $this->token = $token;
         $this->putHeader('Authorization', 'Bearer ' . $token);
         return $this;
     }

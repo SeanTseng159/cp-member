@@ -51,6 +51,16 @@ class Cart extends Client
     }
 
     /**
+     * 建立空的購物車
+     * @return string
+     */
+    public function createEmpty()
+    {
+        $response = $this->request('post', 'V1/carts/mine');
+        return trim($response->getBody(), '"');
+    }
+
+    /**
      * 增加商品至購物車
      * @param $parameters
      * @return bool
@@ -63,6 +73,8 @@ class Cart extends Client
         ]];
         if (!empty($cart->id)) {
             $data['quote']['id'] = $cart->id;
+        } else {
+            $data['quote']['id'] = $this->createEmpty();
         }
         foreach ($parameters as $item) {
             $row = new \stdClass();
