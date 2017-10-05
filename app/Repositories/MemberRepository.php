@@ -7,6 +7,7 @@ use Illuminate\Database\QueryException;
 use App\Models\Member;
 use Crypt;
 use Hash;
+use log;
 
 class MemberRepository
 {
@@ -54,9 +55,11 @@ class MemberRepository
                 $member->save();
                 return $member;
             } else {
+                log::error('找不到使用者，無法更新');
                 return false;
             }
         } catch (QueryException $e) {
+            log::error($e);
             return false;
         }
     }
