@@ -36,13 +36,18 @@ class ProductResult
         $this->storeName = null;
         $this->place = null;
         $this->tags = null;
-        $this->description = $this->customAttributes($result['custom_attributes'], 'description');
         $this->imageUrl = $this->magentoImageUrl($this->customAttributes($result['custom_attributes'], 'image'));
         $this->createdAt = $this->arrayDefault($result, 'created_at');
         $this->productId = $this->arrayDefault($result, 'id');
         $this->customAttributes = $this->arrayDefault($result, 'custom_attributes');
         $this->isWishlist = false;
         if ($isDetail) {
+            $this->contents = [
+                [
+                    'title' => 'description',
+                    'description' => $this->customAttributes($result['custom_attributes'], 'description')
+                ]
+            ];
             $this->saleStatus = $result['extension_attributes']['stock_item']['is_in_stock'] ? '11' : '10';
             $this->canUseCoupon = null;
             $this->storeTelephone = null;

@@ -101,7 +101,7 @@ class Product extends Client
         $result = json_decode($body, true);
         $product = new ProductResult();
         $product->magento($result, true);
-        $product->additionals = $this->configurableProduct($result);
+        $product->additionals = $this->additional($result);
         return $product;
     }
 
@@ -178,7 +178,7 @@ class Product extends Client
      * @param $result
      * @return array
      */
-    private function configurableProduct($result)
+    private function additional($result)
     {
         $extensionAttributes = $result['extension_attributes'];
         $specs = [];
@@ -216,7 +216,7 @@ class Product extends Client
                 $specs['spec'] = $this->putQuantity($product, $filters, $specs['spec']);
             }
         }
-        return $specs;
+        return array_key_exists('spec', $specs) ? $specs['spec'][0] : $specs;
     }
 
     /**
