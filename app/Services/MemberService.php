@@ -239,7 +239,15 @@ class MemberService
             $updated_at = strtotime($member->updated_at);
             $minutes = round(abs($updated_at - $now) / 60);
 
-            return ($minutes < 10 && $member->validPhoneCode == $validPhoneCode);
+            $result = ($minutes < 10 && $member->validPhoneCode == $validPhoneCode);
+
+            if ($result) {
+                $this->update($member->id, [
+                    'isValidPhone' => 1
+                ]);
+            }
+
+            return $result;
         }
 
         return false;
