@@ -107,4 +107,15 @@ Route::middleware('cors')->namespace('Api')->group(function () {
         Route::post('delete/{id}', 'WishlistController@delete');
 
     });
+
+    Route::prefix('layout')->group(function () {
+        Route::get('home',   'LayoutController@home');
+//        Route::get('ads',   'LayoutController@ads');
+//        Route::get('exploration',   'LayoutController@exploration');
+//        Route::get('customize',   'LayoutController@customize');
+//        Route::get('banner',   'LayoutController@banner');
+//        Route::get('info',   'LayoutController@info');
+//        Route::get('category/{categoryId}', 'LayoutController@category');
+//        Route::get('menu/{menuId}', 'LayoutController@menu');
+    });
 });
