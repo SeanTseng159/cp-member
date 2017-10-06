@@ -55,12 +55,12 @@ class Order extends Client
      */
     public function order($parameter)
     {
+
         $itemId = $parameter->itemId;
         $id = $parameter->id;
         $email = $this->getEmail();
         $admintoken = new Client();
         $this->authorization($admintoken->token);
-
         $response =[];
         try{
             $path = 'V1/orders';
@@ -76,6 +76,7 @@ class Order extends Client
         $body = $response->getBody();
 
         $result = json_decode($body, true);
+
 
         if(!empty($result['items'][0])) {
             $order = new OrderResult();
@@ -95,21 +96,8 @@ class Order extends Client
                     $count++;
                 }
         }
-
         return $order;
 
-/*
-        $path = "V1/orders/items/$itemId";
-
-        $response = $this->request('GET', $path);
-        $body = $response->getBody();
-        $result = json_decode($body, true);
-        dd($result);
-        $order = new OrderResult();
-        $order->magento($result, true);
-
-        return $order;
-*/
     }
 
 
@@ -123,6 +111,7 @@ class Order extends Client
         $email = $this->getEmail();
         $admintoken = new Client();
         $this->authorization($admintoken->token);
+
 
         $status = $parameters->status;
         $orderNo = $parameters->orderNo;
@@ -189,6 +178,36 @@ class Order extends Client
         }
 
         return $flag ? $data1 : null;
+    }
+
+
+    /**
+     * 取得訂單物流追蹤資訊
+     * @return string
+     */
+    public function getShippingInfo($order_id, $sku)
+    {
+
+        $path = 'V1/shipments';
+        $response = $this->putQuery('searchCriteria[filterGroups][0][filters][0][field]', 'order_id')
+            ->putQuery('searchCriteria[filterGroups][0][filters][0][value]', $order_id)
+            ->request('GET', $path);
+        $body = $response->getBody();
+        $result = json_decode($body, true);
+
+
+        $data = null;
+        foreach ($result['items'] as $items) {
+            foreach ($items['items'] as $item) {
+                if(preg_match("/".$sku."/",$item['sku'])){
+                    $data = $items['tracks'];
+                }
+            }
+        }
+
+        return $data;
+
+
     }
 
     /**

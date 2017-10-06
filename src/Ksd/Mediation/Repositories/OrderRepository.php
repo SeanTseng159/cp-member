@@ -18,7 +18,7 @@ use Ksd\Mediation\Config\ProjectConfig;
 class OrderRepository extends BaseRepository
 {
     const INFO_KEY = 'order:user:info:%s:%s';
-    const DETAIL_KEY = 'order:user:detail:%s:%s';
+
 
     public function __construct()
     {
@@ -110,7 +110,7 @@ class OrderRepository extends BaseRepository
     public function cleanCache()
     {
         $this->cacheKey(self::INFO_KEY);
-        $this->cacheKey(self::DETAIL_KEY);
+
     }
 
     /**

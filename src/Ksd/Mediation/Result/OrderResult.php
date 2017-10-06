@@ -11,6 +11,7 @@ namespace Ksd\Mediation\Result;
 use Ksd\Mediation\Helper\ObjectHelper;
 use Ksd\Mediation\Config\ProjectConfig;
 use Ksd\Mediation\Magento\Product;
+use Ksd\Mediation\Magento\Order;
 
 class OrderResult
 {
@@ -57,7 +58,17 @@ class OrderResult
                     $row['quantity'] = $this->arrayDefault($item, 'qty_ordered');
                     $row['price'] = $this->arrayDefault($item, 'price');
                     $row['description'] = $this->arrayDefault($result, 'shipping_description');
-                    $row['status'] = $this->arrayDefault($result, 'status');
+                    $ordered = $this->arrayDefault($item, 'qty_ordered');
+                    $shipped = $this->arrayDefault($item, 'qty_shipped');
+                    $refunded = $this->arrayDefault($item, '$qty_refunded');
+
+                    if($shipped !== 0){
+                        $row['status'] = $this->shippingStatus($this->arrayDefault($item, 'order_id'),$this->arrayDefault($item, 'sku'));
+                    }else if($refunded != 0){
+                        $row['status'] = '已退貨';
+                    }else{
+                        $row['status'] = '處理中';
+                    }
                     $row['discount'] = $this->arrayDefault($result, 'discount_amount');
                     $generalPath = $product->find($this->arrayDefault($item, 'sku'))->imageUrls[0]['generalPath'];
                     $thumbnailPath = $product->find($this->arrayDefault($item, 'sku'))->imageUrls[0]['thumbnailPath'];
@@ -104,7 +115,18 @@ class OrderResult
                     $row['quantity'] = $this->arrayDefault($item, 'qty_ordered');
                     $row['price'] = $this->arrayDefault($item, 'price');
                     $row['description'] = $this->arrayDefault($result, 'shipping_description');
-                    $row['status'] = $this->arrayDefault($result, 'status');
+                    $ordered = $this->arrayDefault($item, 'qty_ordered');
+                    $shipped = $this->arrayDefault($item, 'qty_shipped');
+                    $refunded = $this->arrayDefault($item, '$qty_refunded');
+
+                    if($shipped !== 0){
+                        $row['status'] = $this->shippingStatus($this->arrayDefault($item, 'order_id'),$this->arrayDefault($item, 'sku'));
+                    }else if($refunded != 0){
+                        $row['status'] = '已退貨';
+                    }else{
+                        $row['status'] = '處理中';
+                    }
+
                     $row['discount'] = $this->arrayDefault($result, 'discount_amount');
                     $generalPath = $product->find($this->arrayDefault($item, 'sku'))->imageUrls[0]['generalPath'];
                     $thumbnailPath = $product->find($this->arrayDefault($item, 'sku'))->imageUrls[0]['thumbnailPath'];
@@ -177,6 +199,30 @@ class OrderResult
         }
 
     }
+
+    /**
+     * 處理物流狀態
+     * @param $orderID
+     * @param $sku
+     * @return string
+     */
+    public function shippingStatus($orderID, $sku)
+    {
+
+            $order = new Order();
+            $data= $order->getShippingInfo($orderID,$sku);
+
+            $date = substr($data[0]['updated_at'],0,10);
+            $shipinfo =  $date.' 出貨'.' '.$data[0]['title'].' '.$data[0]['track_number'];
+            return  $shipinfo;
+
+
+    }
+
+
+
+
+
 
 
 }
