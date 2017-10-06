@@ -35,9 +35,8 @@ class LayoutRepository extends BaseRepository
         $this->cacheKey(self::HOME_KEY);
         return $this->redis->remember($this->genCacheKey(self::HOME_KEY), 3600, function () {
             $cityPass = $this->cityPass->home();
-            return [
-                ProjectConfig::CITY_PASS => $cityPass
-            ];
+            return $cityPass ;
+
         });
 
     }
