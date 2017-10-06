@@ -211,16 +211,17 @@ class OrderResult
 
             $order = new Order();
             $data= $order->getShippingInfo($orderID,$sku);
+            if(!empty($data)) {
+                $date = substr($data[0]['updated_at'], 0, 10);
+                $shipinfo = $date . ' 出貨' . ' ' . $data[0]['title'] . ' ' . $data[0]['track_number'];
+                return  $shipinfo;
+            }else{
+                return null;
+            }
 
-            $date = substr($data[0]['updated_at'],0,10);
-            $shipinfo =  $date.' 出貨'.' '.$data[0]['title'].' '.$data[0]['track_number'];
-            return  $shipinfo;
 
 
     }
-
-
-
 
 
 

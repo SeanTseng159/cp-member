@@ -197,15 +197,20 @@ class Order extends Client
 
 
         $data = null;
-        foreach ($result['items'] as $items) {
-            foreach ($items['items'] as $item) {
-                if(preg_match("/".$sku."/",$item['sku'])){
-                    $data = $items['tracks'];
+        if(!empty($result)) {
+            foreach ($result['items'] as $items) {
+                foreach ($items['items'] as $item) {
+                    if (preg_match("/" . $sku . "/", $item['sku'])) {
+                        $data = $items['tracks'];
+                    }
                 }
             }
+            return $data;
+        }else{
+
+            return null;
         }
 
-        return $data;
 
 
     }
