@@ -34,7 +34,6 @@ class Layout extends Client
 
         $order = new LayoutResult();
         $order->cityPass($result['data']);
-        dd($order);
         return $order;
     }
 
@@ -56,7 +55,7 @@ class Layout extends Client
 
         $order = new LayoutResult();
         $order->cityPass($result['data'],'all','ads');
-        dd($order);
+
         return $order;
     }
 
@@ -78,7 +77,7 @@ class Layout extends Client
 
         $order = new LayoutResult();
         $order->cityPass($result['data'],'all','exploration');
-        dd($order);
+
         return $order;
     }
 
@@ -100,7 +99,7 @@ class Layout extends Client
 
         $order = new LayoutResult();
         $order->cityPass($result['data'],'all','customize');
-        dd($order);
+
         return $order;
     }
 
@@ -122,7 +121,7 @@ class Layout extends Client
 
         $order = new LayoutResult();
         $order->cityPass($result['data'],'all','banner');
-        dd($order);
+
         return $order;
     }
 
