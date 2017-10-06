@@ -44,26 +44,27 @@ class OrderResult
             }
             $this->shipping['shippingDescription'] = $this->arrayDefault($result, 'shipping_description');
             $this->shipping['shippingAmount'] = $this->arrayDefault($result, 'shipping_amount');
-            $this->generalPath = [];
-            $this->thumbnailPath = [];
+
             $this->items = [];
             foreach ($this->arrayDefault($result, 'items', []) as $item) {
-                $row = [];
-                $row['source'] = ProjectConfig::MAGENTO;
-                $row['no'] = $this->arrayDefault($item, 'item_id');
-                $row['id'] = $this->arrayDefault($item, 'sku');
-                $row['name'] = $this->arrayDefault($item, 'name');
-                $row['spec'] = $this->arrayDefault($item, 'product_type');
-                $row['quantity'] = $this->arrayDefault($item, 'qty_ordered');
-                $row['price'] = $this->arrayDefault($item, 'price');
-                $row['description'] = $this->arrayDefault($result, 'shipping_description');
-                $row['status'] = $this->arrayDefault($result, 'status');
-                $row['discount'] = $this->arrayDefault($result, 'discount_amount');
-                $generalPath = $product->find($this->arrayDefault($item, 'sku'))->imageUrls[0]['generalPath'];
-                $thumbnailPath =  $product->find($this->arrayDefault($item, 'sku'))->imageUrls[0]['thumbnailPath'];
-                $row['imageUrls']['generalPath'] = $generalPath;
-                $row['imageUrls']['thumbnailPath'] = $thumbnailPath;
-                $this->items[] = $row;
+                if($this->arrayDefault($item, 'price') != 0) {
+                    $row = [];
+                    $row['source'] = ProjectConfig::MAGENTO;
+                    $row['no'] = $this->arrayDefault($item, 'item_id');
+                    $row['id'] = $this->arrayDefault($item, 'sku');
+                    $row['name'] = $this->arrayDefault($item, 'name');
+                    $row['spec'] = $this->arrayDefault($item, 'product_type');
+                    $row['quantity'] = $this->arrayDefault($item, 'qty_ordered');
+                    $row['price'] = $this->arrayDefault($item, 'price');
+                    $row['description'] = $this->arrayDefault($result, 'shipping_description');
+                    $row['status'] = $this->arrayDefault($result, 'status');
+                    $row['discount'] = $this->arrayDefault($result, 'discount_amount');
+                    $generalPath = $product->find($this->arrayDefault($item, 'sku'))->imageUrls[0]['generalPath'];
+                    $thumbnailPath = $product->find($this->arrayDefault($item, 'sku'))->imageUrls[0]['thumbnailPath'];
+                    $row['imageUrls']['generalPath'] = $generalPath;
+                    $row['imageUrls']['thumbnailPath'] = $thumbnailPath;
+                    $this->items[] = $row;
+                }
 
             }
 
@@ -90,28 +91,28 @@ class OrderResult
             $this->discount = $this->arrayDefault($result, 'discount_amount');
             $this->quantity = $this->arrayDefault($result, 'qty_ordered');
 
-            $this->generalPath = [];
-            $this->thumbnailPath = [];
+
             $this->items = [];
             foreach ($this->arrayDefault($result, 'items', []) as $item) {
-                $row = [];
-                $row['source'] = ProjectConfig::MAGENTO;
-                $row['no'] = $this->arrayDefault($item, 'item_id');
-                $row['id'] = $this->arrayDefault($item, 'sku');
-                $row['name'] = $this->arrayDefault($item, 'name');
-                $row['spec'] = $this->arrayDefault($item, 'product_type');
-                $row['quantity'] = $this->arrayDefault($item, 'qty_ordered');
-                $row['price'] = $this->arrayDefault($item, 'price');
-                $row['description'] = $this->arrayDefault($result, 'shipping_description');
-                $row['status'] = $this->arrayDefault($result, 'status');
-                $row['discount'] = $this->arrayDefault($result, 'discount_amount');
-                $generalPath = $product->find($this->arrayDefault($item, 'sku'))->imageUrls[0]['generalPath'];
-                $thumbnailPath =  $product->find($this->arrayDefault($item, 'sku'))->imageUrls[0]['thumbnailPath'];
-                $row['imageUrls']['generalPath'] = $generalPath;
-                $row['imageUrls']['thumbnailPath'] = $thumbnailPath;
+                if($this->arrayDefault($item, 'price') != 0) {
+                    $row = [];
+                    $row['source'] = ProjectConfig::MAGENTO;
+                    $row['no'] = $this->arrayDefault($item, 'item_id');
+                    $row['id'] = $this->arrayDefault($item, 'sku');
+                    $row['name'] = $this->arrayDefault($item, 'name');
+                    $row['spec'] = $this->arrayDefault($item, 'product_type');
+                    $row['quantity'] = $this->arrayDefault($item, 'qty_ordered');
+                    $row['price'] = $this->arrayDefault($item, 'price');
+                    $row['description'] = $this->arrayDefault($result, 'shipping_description');
+                    $row['status'] = $this->arrayDefault($result, 'status');
+                    $row['discount'] = $this->arrayDefault($result, 'discount_amount');
+                    $generalPath = $product->find($this->arrayDefault($item, 'sku'))->imageUrls[0]['generalPath'];
+                    $thumbnailPath = $product->find($this->arrayDefault($item, 'sku'))->imageUrls[0]['thumbnailPath'];
+                    $row['imageUrls']['generalPath'] = $generalPath;
+                    $row['imageUrls']['thumbnailPath'] = $thumbnailPath;
 
-                $this->items[] = $row;
-
+                    $this->items[] = $row;
+                }
             }
 
         }
