@@ -77,19 +77,19 @@ class OrderRepository extends BaseRepository
     {
            switch($parameters->status){
 
-               case '0': # 待付款
+               case '00': # 待付款
                $parameters->status = "pending";
                    break;
-               case '1': # 已完成
+               case '01': # 已完成
                $parameters->status = "complete";
                    break;
-               case '2': # 部分退貨
+               case '02': # 部分退貨
                $parameters->status = "holded";
                    break;
-               case '3': # 已退貨
+               case '03': # 已退貨
                $parameters->status = "holded";
                    break;
-               case '4': # 處理中
+               case '04': # 處理中
                $parameters->status = "processing";
                    break;
            }

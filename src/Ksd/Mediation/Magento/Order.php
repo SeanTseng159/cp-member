@@ -34,7 +34,7 @@ class Order extends Client
             $body = $response->getBody();
             $result = json_decode($body, true);
         }catch (ClientException $e){
-            // TODO:抓不到訂單資料
+            // TODO:抓不到MAGENTO API訂單資料
         }
 
         $data = [];

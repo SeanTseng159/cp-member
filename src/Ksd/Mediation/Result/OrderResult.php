@@ -29,7 +29,7 @@ class OrderResult
         if(!$isDetail) {
             $this->orderNo = $this->arrayDefault($result, 'increment_id');
             $this->orderAmount = $this->arrayDefault($result, 'total_paid');
-            $this->orderStatus = $this->arrayDefault($result, 'status');
+            $this->orderStatus = $this->getStatus(ProjectConfig::MAGENTO,$this->arrayDefault($result, 'status'));
             $this->orderDate = $this->arrayDefault($result, 'created_at');
             $payment = $this->arrayDefault($result, 'payment');
             $this->payment['method'] = $payment['method'];
@@ -83,7 +83,7 @@ class OrderResult
 
             $this->no = $this->arrayDefault($result, 'increment_id');
             $this->amount = $this->arrayDefault($result, 'total_paid');
-            $this->status = $this->arrayDefault($result, 'status');
+            $this->status = $this->getStatus(ProjectConfig::MAGENTO,$this->arrayDefault($result, 'status'));
             $this->date = $this->arrayDefault($result, 'created_at');
             $payment = $this->arrayDefault($result, 'payment');
             $this->payment['method'] = $payment['method'];
@@ -153,7 +153,7 @@ class OrderResult
         if(!$isDetail) {
             $this->orderNo = $this->arrayDefault($result, 'orderNo');
             $this->orderAmount = $this->arrayDefault($result, 'orderAmount');
-            $this->orderStatus = $this->arrayDefault($result, 'orderStatus');
+            $this->orderStatus = $this->getStatus(ProjectConfig::CITY_PASS,$this->arrayDefault($result, 'orderStatus'));
             $this->orderDate = $this->arrayDefault($result, 'orderDate');
             $this->payment = $this->arrayDefault($result, 'payment');
             $this->shipping = $this->arrayDefault($result, 'shipping');
@@ -190,7 +190,7 @@ class OrderResult
             $this->source = $this->arrayDefault($result, 'source');
             $this->no = $this->arrayDefault($result, 'no');
             $this->amount = $this->arrayDefault($result, 'amount');
-            $this->status = $this->arrayDefault($result, 'status');
+            $this->status = $this->getStatus(ProjectConfig::CITY_PASS,$this->arrayDefault($result, 'orderStatus'));
             $this->date = $this->arrayDefault($result, 'date');
             $this->discount = $this->arrayDefault($result, 'discount_amount');
             $this->quantity = $this->arrayDefault($result, 'qty_ordered');
@@ -223,7 +223,53 @@ class OrderResult
 
     }
 
+    /**
+     * 狀態轉換
+     * @return string
+     */
+    public function getStatus($source, $key)
+    {
+        if ($source . equalTo('magento')) {
+            switch ($key) {
 
+                case 'pending': # 待付款
+                    return "待付款";
+                    break;
+                case 'complete': # 已完成
+                    return "已完成";
+                    break;
+                case 'holded': # 部分退貨
+                    return "部分退貨";
+                    break;
+                case 'cancel': # 已退貨
+                    return "已退貨";
+                    break;
+                case 'processing': # 處理中
+                    return "處理中";
+                    break;
+            }
+        } else {
+            switch ($key) {
+
+                case '00': # 待付款
+                    return "待付款";
+                    break;
+                case '01': # 已完成
+                    return "已完成";
+                    break;
+                case '02': # 部分退貨
+                    return "部分退貨";
+                    break;
+                case '03': # 已退貨
+                    return "已退貨";
+                    break;
+                case '04': # 處理中
+                    return "處理中";
+                    break;
+            }
+        }
+
+    }
 
 
 }

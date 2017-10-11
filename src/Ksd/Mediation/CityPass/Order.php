@@ -28,7 +28,7 @@ class Order extends Client
             $result = json_decode($response->getBody(), true);
 
         } catch (ClientException $e) {
-            // TODO:處理抓取不到訂單資料
+            // TODO:處理抓取不到CITY_PASS API訂單資料
         }
         $data = [];
 
