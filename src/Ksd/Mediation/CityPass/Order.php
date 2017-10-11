@@ -23,6 +23,7 @@ class Order extends Client
     {
 
         $result = [];
+
         try {
             $response = $this->request('GET', 'order/info');
             $result = json_decode($response->getBody(), true);
@@ -32,14 +33,17 @@ class Order extends Client
         }
         $data = [];
 
-
-        foreach ($result['data']['items'] as $item) {
-            $order = new OrderResult();
-            $order->cityPass($item);
-            $data[] = $order;
+        if(!empty($result)) {
+            foreach ($result['data']['items'] as $item) {
+                $order = new OrderResult();
+                $order->cityPass($item);
+                $data[] = $order;
+            }
+            return $data;
+        }else{
+            return null;
         }
 
-        return $data;
     }
 
 
@@ -59,10 +63,13 @@ class Order extends Client
         $result = json_decode($body, true);
 
 
-        $order = new OrderResult();
-        $order->cityPass($result['data'], true);
-
-        return $order;
+        if(!empty($result)) {
+            $order = new OrderResult();
+            $order->cityPass($result['data'], true);
+            return $order;
+        }else{
+            return null;
+        }
     }
 
 
@@ -110,13 +117,18 @@ class Order extends Client
         $result = json_decode($body, true);
 
         $data = [];
-        foreach ($result['data']['items'] as $item) {
-            $order = new OrderResult();
-            $order->cityPass($item);
-            $data[] = $order;
+        if(!empty($result)) {
+            foreach ($result['data']['items'] as $item) {
+                $order = new OrderResult();
+                $order->cityPass($item);
+                $data[] = $order;
+            }
+            return $data;
+        }else{
+
+            return null;
         }
 
-        return $data;
     }
 
 
