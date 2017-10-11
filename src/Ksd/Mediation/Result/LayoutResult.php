@@ -63,7 +63,7 @@ class LayoutResult
                 }
 
 
-                foreach ($this->arrayDefault($result, 'exploration', []) as $item) {
+                foreach ($this->arrayDefault($result, 'explorations', []) as $item) {
                     $row = [];
                     $row['name'] = $this->arrayDefault($item, 'name');
                     $row['imgPath'] = $this->arrayDefault($item, 'imgPath');
@@ -77,7 +77,7 @@ class LayoutResult
 
 
 
-                foreach ($this->arrayDefault($result, 'customize', []) as $item) {
+                foreach ($this->arrayDefault($result, 'customizes', []) as $item) {
                     $row = [];
                     $row['id'] = $this->arrayDefault($item, 'id');
                     $row['name'] = $this->arrayDefault($item, 'name');
