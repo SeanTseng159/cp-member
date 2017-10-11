@@ -54,7 +54,7 @@ class Layout extends Client
         }
 
         $order = new LayoutResult();
-        $order->cityPass($result['data'],'all','ads');
+        $order->cityPass($result['data'],true,'ads');
 
         return $order;
     }
@@ -76,7 +76,7 @@ class Layout extends Client
         }
 
         $order = new LayoutResult();
-        $order->cityPass($result['data'],'all','exploration');
+        $order->cityPass($result['data'],true,'exploration');
 
         return $order;
     }
@@ -98,7 +98,7 @@ class Layout extends Client
         }
 
         $order = new LayoutResult();
-        $order->cityPass($result['data'],'all','customize');
+        $order->cityPass($result['data'],true,'customize');
 
         return $order;
     }
@@ -120,7 +120,7 @@ class Layout extends Client
         }
 
         $order = new LayoutResult();
-        $order->cityPass($result['data'],'all','banner');
+        $order->cityPass($result['data'],true,'banner');
 
         return $order;
     }

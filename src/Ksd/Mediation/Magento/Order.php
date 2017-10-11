@@ -50,7 +50,7 @@ class Order extends Client
 
     /**
      * 根據訂單id 取得訂單細項資訊
-     * @param $itemId
+     * @param $parameter
      * @return OrderResult
      */
     public function order($parameter)
