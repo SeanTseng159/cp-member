@@ -34,8 +34,6 @@ class ConfirmParameter extends BaseParameter
 
         $this->processParameters($request, 'payment');
         $this->processParameters($request, 'billing');
-
-        $this->shipment->userAddress = $this->address($this->shipment->userAddress);
     }
 
     /**
