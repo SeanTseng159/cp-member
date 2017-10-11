@@ -12,10 +12,14 @@ use Ksd\Mediation\Helper\ObjectHelper;
 use Ksd\Mediation\Config\ProjectConfig;
 use Ksd\Mediation\Magento\Product;
 use Ksd\Mediation\Magento\Order;
+use Ksd\Mediation\Helper\EnvHelper;
 
 class OrderResult
 {
     use ObjectHelper;
+    use EnvHelper;
+
+
     /**
      * 處理 magento 訂單資料建置
      * @param $result
@@ -24,7 +28,7 @@ class OrderResult
     public function magento($result, $isDetail = false)
     {
         $this->source = ProjectConfig::MAGENTO;
-        $product = new Product();
+        $product = new Order();
 
         if(!$isDetail) {
             $this->orderNo = $this->arrayDefault($result, 'increment_id');
@@ -70,8 +74,9 @@ class OrderResult
                         $row['status'] = '處理中';
                     }
                     $row['discount'] = $this->arrayDefault($result, 'discount_amount');
-                    $generalPath = $product->find($this->arrayDefault($item, 'sku'))->imageUrls[0]['generalPath'];
-                    $thumbnailPath = $product->find($this->arrayDefault($item, 'sku'))->imageUrls[0]['thumbnailPath'];
+                    $path = $product->find($this->arrayDefault($item, 'sku'));
+                    $generalPath = $this->magentoImageUrl($path['file']);
+                    $thumbnailPath = in_array('thumbnail', $path['types']) ? $this->magentoImageUrl($path['file'] ): '';
                     $row['imageUrls']['generalPath'] = $generalPath;
                     $row['imageUrls']['thumbnailPath'] = $thumbnailPath;
                     $this->items[] = $row;
@@ -128,8 +133,9 @@ class OrderResult
                     }
 
                     $row['discount'] = $this->arrayDefault($result, 'discount_amount');
-                    $generalPath = $product->find($this->arrayDefault($item, 'sku'))->imageUrls[0]['generalPath'];
-                    $thumbnailPath = $product->find($this->arrayDefault($item, 'sku'))->imageUrls[0]['thumbnailPath'];
+                    $path = $product->find($this->arrayDefault($item, 'sku'));
+                    $generalPath = $this->magentoImageUrl($path['file']);
+                    $thumbnailPath = in_array('thumbnail', $path['types']) ? $this->magentoImageUrl($path['file'] ): '';
                     $row['imageUrls']['generalPath'] = $generalPath;
                     $row['imageUrls']['thumbnailPath'] = $thumbnailPath;
 
@@ -269,6 +275,17 @@ class OrderResult
             }
         }
 
+    }
+
+    /**
+     * 取得 magento 圖片對應路徑
+     * @param $path
+     * @return string
+     */
+    private function magentoImageUrl($path)
+    {
+        $basePath = $this->env('MAGENTO_PRODUCT_PATH');
+        return $basePath . $path;
     }
 
 

@@ -214,6 +214,21 @@ class Order extends Client
 
 
     }
+    /**
+     * 根據 商品編號 取得圖片路徑
+     * @param $sku
+     * @return array
+     */
+    public function find($sku)
+    {
+        $path = "V1/products/$sku/media";
+
+        $response = $this->request('GET', $path);
+        $body = $response->getBody();
+        $result = json_decode($body, true);
+
+        return $result[0];
+    }
 
     /**
      * 取得使用者email
