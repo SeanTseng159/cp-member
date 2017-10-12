@@ -7,6 +7,7 @@ use Ksd\Mediation\Core\Controller\RestLaravelController;
 use Ksd\Mediation\Parameter\Checkout\ConfirmParameter;
 use Ksd\Mediation\Parameter\Checkout\ShipmentParameter;
 use Ksd\Mediation\Services\CheckoutService;
+use App\Services\Card3dLogService as LogService;
 
 class CheckoutController extends RestLaravelController
 {
@@ -51,5 +52,71 @@ class CheckoutController extends RestLaravelController
         $parameters->laravelRequest($request);
         $this->service->confirm($parameters);
         return $this->success();
+    }
+
+    /**
+     * 3D驗證
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function verify3d(Request $request)
+    {
+        $data = $request->only([
+            'cardNumber',
+            'expYear',
+            'expMonth',
+            'code',
+            'totalAmount',
+            'XID'
+        ]);
+
+        $request->session()->put('ccData', $data);
+
+        $data['RetUrl'] = url('api/checkout/verifyResult');
+
+        return view('checkout.verify3d', $data);
+    }
+
+    /**
+     * 取得3D驗證回傳資料
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function verifyResult(Request $request)
+    {
+        $platform = $request->header('platform');
+        $lang = 'zh_TW';
+
+        $data = $request->only([
+            'ErrorCode',
+            'ErrorMessage',
+            'ECI',
+            'CAVV',
+            'XID'
+        ]);
+
+        // 從session取信用卡資料
+        $ccData = $request->session()->pull('ccData', 'default');
+
+        $orderId = $ccData['XID'];
+
+        // 寫入資料庫
+        $data['platform'] = ($platform) ?: 'web';
+        $data['XID'] = $orderId;
+        $log = new LogService;
+        $result = $log->create($data);
+
+        $url = (env('APP_ENV') === 'production') ? 'http://172.104.83.229/' : 'http://localhost:3000/';
+        $url .= $lang;
+
+        // 失敗
+        if (!in_array($data['ECI'], ['05', '02', '06', '01'])) {
+            if ($platform === 'app') return redirect('app://order?id=' . $orderId . '&result=false&msg=' . $data['ErrorMessage']);
+        }
+
+        // 金流實作
+
+
+        return ($platform === 'app') ? redirect('app://order?id=' . $orderId . '&result=true&msg=success') : redirect($url . '/checkout/complete/' . $orderId);
     }
 }

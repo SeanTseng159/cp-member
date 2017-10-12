@@ -87,6 +87,10 @@ Route::middleware('cors')->namespace('Api')->group(function () {
         Route::post('shipment', 'CheckoutController@shipment');
         // 確定結帳
         Route::post('confirm', 'CheckoutController@confirm');
+        // 3D驗證
+        Route::post('verify3d', 'CheckoutController@verify3d');
+        // 取得3D驗證回傳資料
+        Route::post('verifyResult', 'CheckoutController@verifyResult');
     });
 
     Route::prefix('coupon')->group(function () {
