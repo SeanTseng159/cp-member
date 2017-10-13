@@ -36,7 +36,7 @@ class OrderResult
             $this->orderStatus = $this->getStatus(ProjectConfig::MAGENTO,$this->arrayDefault($result, 'status'));
             $this->orderDate = $this->arrayDefault($result, 'created_at');
             $payment = $this->arrayDefault($result, 'payment');
-            $this->payment['method'] = $this->putMagentoPayment($payment);
+            $this->payment = $this->putMagentoPayment($payment);
             $this->shipping = [];
             $ship = $this->arrayDefault($result, 'extension_attributes');
             foreach ($this->arrayDefault($ship, 'shipping_assignments', []) as $shipping) {
@@ -91,7 +91,7 @@ class OrderResult
             $this->status = $this->getStatus(ProjectConfig::MAGENTO,$this->arrayDefault($result, 'status'));
             $this->date = $this->arrayDefault($result, 'created_at');
             $payment = $this->arrayDefault($result, 'payment');
-            $this->payment['method'] = $this->putMagentoPayment($payment);
+            $this->payment = $this->putMagentoPayment($payment);
             $this->shipping = [];
             $ship = $this->arrayDefault($result, 'extension_attributes');
             foreach ($this->arrayDefault($ship, 'shipping_assignments', []) as $shipping) {
