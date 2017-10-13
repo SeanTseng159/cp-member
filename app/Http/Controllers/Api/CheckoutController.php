@@ -111,7 +111,7 @@ class CheckoutController extends RestLaravelController
         $url .= $lang;
 
         // 失敗
-        if (!in_array($data['ECI'], ['05', '02', '06', '01'])) {
+        if (!in_array($data['ECI'], ['5', '2', '6', '1'])) {
             if ($platform === 'app') return redirect('app://order?id=' . $orderId . '&result=false&msg=' . $data['ErrorMessage']);
         }
 
