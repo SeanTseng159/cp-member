@@ -61,9 +61,11 @@ class MemberController extends RestLaravelController
             $getNumberType = $phoneUtil->getNumberType($phoneNumber);
 
             if (!$phoneUtil->isValidNumber($phoneNumber) || $phoneUtil->getNumberType($phoneNumber) != 1) {
+                Log::error('不是手機格式');
                 return $this->failure('E0301', '手機格式錯誤');
             }
         } catch (\libphonenumber\NumberParseException $e) {
+            Log::debug($e);
             return $this->failure('E0301', '手機格式錯誤');
         }
 
