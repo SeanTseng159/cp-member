@@ -45,7 +45,7 @@ class CheckoutService
      */
     public function confirm($parameters)
     {
-        $this->repository->confirm($parameters);
+        return $this->repository->confirm($parameters);
     }
 
 }

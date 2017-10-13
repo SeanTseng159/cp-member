@@ -54,5 +54,13 @@ class OrderService
         return $this->repository->setToken($this->userToken())->search($parameters);
     }
 
-
+    /**
+     * 根據 id 查詢訂單
+     * @param $parameters
+     * @return \Ksd\Mediation\Result\OrderResult
+     */
+    public function find($parameters)
+    {
+        return $this->repository->find($parameters);
+    }
 }

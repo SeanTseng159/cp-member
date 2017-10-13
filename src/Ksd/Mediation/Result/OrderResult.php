@@ -36,7 +36,7 @@ class OrderResult
             $this->orderStatus = $this->getStatus(ProjectConfig::MAGENTO,$this->arrayDefault($result, 'status'));
             $this->orderDate = $this->arrayDefault($result, 'created_at');
             $payment = $this->arrayDefault($result, 'payment');
-            $this->payment['method'] = $payment['method'];
+            $this->payment['method'] = $this->putMagentoPayment($payment);
             $this->shipping = [];
             $ship = $this->arrayDefault($result, 'extension_attributes');
             foreach ($this->arrayDefault($ship, 'shipping_assignments', []) as $shipping) {
@@ -74,7 +74,7 @@ class OrderResult
                         $row['status'] = '處理中';
                     }
                     $row['discount'] = $this->arrayDefault($result, 'discount_amount');
-                    $path = $product->find($this->arrayDefault($item, 'sku'));
+                    $path = $product->findItemImage($this->arrayDefault($item, 'sku'));
                     $generalPath = $this->magentoImageUrl($path['file']);
                     $thumbnailPath = in_array('thumbnail', $path['types']) ? $this->magentoImageUrl($path['file'] ): '';
                     $row['imageUrls']['generalPath'] = $generalPath;
@@ -91,7 +91,7 @@ class OrderResult
             $this->status = $this->getStatus(ProjectConfig::MAGENTO,$this->arrayDefault($result, 'status'));
             $this->date = $this->arrayDefault($result, 'created_at');
             $payment = $this->arrayDefault($result, 'payment');
-            $this->payment['method'] = $payment['method'];
+            $this->payment['method'] = $this->putMagentoPayment($payment);
             $this->shipping = [];
             $ship = $this->arrayDefault($result, 'extension_attributes');
             foreach ($this->arrayDefault($ship, 'shipping_assignments', []) as $shipping) {
@@ -133,7 +133,7 @@ class OrderResult
                     }
 
                     $row['discount'] = $this->arrayDefault($result, 'discount_amount');
-                    $path = $product->find($this->arrayDefault($item, 'sku'));
+                    $path = $product->findItemImage($this->arrayDefault($item, 'sku'));
                     $generalPath = $this->magentoImageUrl($path['file']);
                     $thumbnailPath = in_array('thumbnail', $path['types']) ? $this->magentoImageUrl($path['file'] ): '';
                     $row['imageUrls']['generalPath'] = $generalPath;
@@ -288,5 +288,25 @@ class OrderResult
         return $basePath . $path;
     }
 
-
+    /**
+     * 設定付款資訊
+     * @param $payment
+     * @return array
+     */
+    private function putMagentoPayment($payment)
+    {
+        $result = [];
+        $method = $payment['method'];
+        $additionalInformation = $payment['additional_information'];
+        if ($method === 'neweb_atm') {
+            $result = [
+                'bankId' => $additionalInformation[1],
+                'virtualAccount' => $additionalInformation[2],
+                'amount' => $additionalInformation[3]
+            ];
+        }
+        $result['method'] = $method;
+        $result['title'] = $additionalInformation[0];
+        return $result;
+    }
 }

@@ -50,8 +50,8 @@ class CheckoutController extends RestLaravelController
     {
         $parameters = new ConfirmParameter();
         $parameters->laravelRequest($request);
-        $this->service->confirm($parameters);
-        return $this->success();
+        $result = $this->service->confirm($parameters);
+        return $this->success($result);
     }
 
     /**

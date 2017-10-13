@@ -9,6 +9,7 @@
 namespace Ksd\Mediation\Repositories;
 
 
+use Illuminate\Support\Facades\Log;
 use Ksd\Mediation\Config\ProjectConfig;
 use Ksd\Mediation\Helper\MemberHelper;
 use Ksd\Mediation\Magento\Checkout as MagentoCheckout;
@@ -57,8 +58,9 @@ class CheckoutRepository extends BaseRepository
      */
     public function confirm($parameters)
     {
+        Log::debug(json_encode($parameters));
         if($parameters->checkSource(ProjectConfig::MAGENTO)) {
-            $this->magento->authorization($this->userToken())->confirm($parameters);
+            return $this->magento->authorization($this->userToken())->confirm($parameters);
         } else if ($parameters->checkSource(ProjectConfig::CITY_PASS)) {
 
         }

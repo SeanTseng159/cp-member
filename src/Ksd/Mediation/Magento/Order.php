@@ -219,7 +219,7 @@ class Order extends Client
      * @param $sku
      * @return array
      */
-    public function find($sku)
+    public function findItemImage($sku)
     {
         $path = "V1/products/$sku/media";
 
@@ -243,4 +243,20 @@ class Order extends Client
         return $email;
     }
 
+    /**
+     * 根據訂單 id 查詢訂單資訊
+     * @param $id
+     * @return OrderResult
+     */
+    public function find($id)
+    {
+        $path = sprintf('V1/orders/%s', $id);
+        $response = $this->request('GET', $path);
+        $body = $response->getBody();
+        $result = json_decode($body, true);
+
+        $order = new OrderResult();
+        $order->magento($result);
+        return $order;
+    }
 }

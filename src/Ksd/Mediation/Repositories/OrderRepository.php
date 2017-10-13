@@ -54,7 +54,7 @@ class OrderRepository extends BaseRepository
     {
         $itemId = $parameter->itemId;
         $source = $parameter->source;
-        return $this->redis->remember("$source:order:id:$itemId", 300, function () use ($source,$parameter) {
+        return $this->redis->remember("$source:order:item_id:$itemId", 300, function () use ($source,$parameter) {
             if($source == ProjectConfig::MAGENTO) {
                 $this->magento->authorization($this->token);
                 $magento = $this->magento->order($parameter);
@@ -131,5 +131,23 @@ class OrderRepository extends BaseRepository
     {
         $date = new \DateTime();
         return sprintf($key, $this->token,$date->format('Ymd'));
+    }
+
+    /**
+     * 根據 id 查訂單
+     * @param $parameters
+     * @return \Ksd\Mediation\Result\OrderResult
+     */
+    public function find($parameters)
+    {
+        $source = $parameters->source;
+        $id = $parameters->id;
+        return $this->redis->remember("$source:order:$id", 300, function () use ($source,$parameters) {
+            if ($parameters->source === ProjectConfig::MAGENTO) {
+                return $this->magento->find($parameters->id);
+            } else if ($parameters->source === ProjectConfig::MAGENTO) {
+                return $this->cityPass->find($parameters->id);
+            }
+        });
     }
 }

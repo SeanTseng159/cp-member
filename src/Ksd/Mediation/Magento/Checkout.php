@@ -9,6 +9,7 @@
 namespace Ksd\Mediation\Magento;
 
 
+use Illuminate\Support\Facades\Log;
 use Ksd\Mediation\Helper\MemberHelper;
 use Ksd\Mediation\Helper\StringHelper;
 use Ksd\Mediation\Result\Checkout\PaymentInfoResult;
@@ -110,10 +111,11 @@ class Checkout extends Client
     /**
      * 確認結帳方式
      * @param $parameters
+     * @return array
      */
     public function confirm($parameters)
     {
-        $this->putPayment($parameters->payment());
+        return $this->putPayment($parameters->payment());
     }
 
     /**
@@ -147,7 +149,11 @@ class Checkout extends Client
     {
         $parameter = $this->processPayment($payment);
         $this->putParameters($parameter);
-        $this->request('POST', 'V1/carts/mine/payment-information');
+        $response = $this->request('POST', 'V1/carts/mine/payment-information');
+        $body = $response->getBody();
+        Log::debug($body);
+
+        return [ 'id' => trim($body, '"')];
     }
 
     /**

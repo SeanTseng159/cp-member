@@ -102,6 +102,7 @@ Route::middleware('cors')->namespace('Api')->group(function () {
         Route::get('info',   'OrderController@info');
         Route::get('items/{itemId}', 'OrderController@items');
         Route::get('search', 'OrderController@search');
+        Route::get('detail/{id}', 'OrderController@find');
 
     });
 
