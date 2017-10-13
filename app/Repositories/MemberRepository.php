@@ -28,7 +28,7 @@ class MemberRepository
         try {
             $member = new Member();
             $member->fill($data);
-            $member->validPhoneCode = mt_rand(100000, 999999);
+            $member->validPhoneCode = strval(mt_rand(100000, 999999));
             $member->validEmailCode = Crypt::encrypt($data['countryCode'] . '_' . $data['cellphone']);
             $member->save();
             return $member;
@@ -51,7 +51,7 @@ class MemberRepository
             if ($member) {
                 $member->fill($data);
                 if (isset($data['password'])) $member->password = Hash::make($member->password);
-                $member->validPhoneCode = mt_rand(100000, 999999);
+                $member->validPhoneCode = strval(mt_rand(100000, 999999));
                 $member->save();
                 return $member;
             } else {
