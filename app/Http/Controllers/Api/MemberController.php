@@ -144,7 +144,7 @@ class MemberController extends RestLaravelController
                 ]);
          $member = $this->memberService->update($id, $data);
 
-         return ($member) ? $this->success($member) : $this->failure('E0003', '更新失敗');
+         return ($member) ? $this->success() : $this->failure('E0003', '更新失敗');
      }
 
     /**
@@ -353,7 +353,9 @@ class MemberController extends RestLaravelController
             'avatar' => $member->avatar,
             'countryCode' => $member->countryCode,
             'cellphone' => $member->cellphone,
-            'gender' => $member->gender
+            'gender' => $member->gender,
+            'zipcode' => $member->zipcode,
+            'address' => $member->county . $member->district . $member->address
         ]);
     }
 
