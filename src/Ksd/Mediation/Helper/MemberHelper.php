@@ -9,6 +9,8 @@
 namespace Ksd\Mediation\Helper;
 
 
+use Illuminate\Support\Facades\Request;
+
 trait MemberHelper
 {
     /**
@@ -22,5 +24,10 @@ trait MemberHelper
         $localToken = '8gokejggsu8j4h8e3gnu72rdcj6xgyls';
 //        $localToken = 'uvyxdjeqfovjveeiuyqhu0uqq9ef6pnp';
         return $localToken;
+    }
+
+    protected function cityPassUserToken()
+    {
+        return Request::bearerToken();
     }
 }

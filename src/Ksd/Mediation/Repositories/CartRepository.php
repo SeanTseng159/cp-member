@@ -10,6 +10,7 @@ namespace Ksd\Mediation\Repositories;
 
 
 use Ksd\Mediation\Config\ProjectConfig;
+use Ksd\Mediation\Helper\MemberHelper;
 use Ksd\Mediation\Magento\Cart as MagentoCart;
 use Ksd\Mediation\CityPass\Cart as CityPassCart;
 
@@ -17,6 +18,8 @@ class CartRepository extends BaseRepository
 {
     const INFO_KEY = 'cart:user:info:%s:%s';
     const DETAIL_KEY = 'cart:user:detail:%s:%s';
+
+    use MemberHelper;
 
     public function __construct()
     {
@@ -68,7 +71,7 @@ class CartRepository extends BaseRepository
         if (!empty($parameters->magento())) {
             $this->magento->authorization($this->token)->add($parameters->magento());
         } else if(!empty($parameters->cityPass())) {
-            $this->cityPass->add($parameters->cityPass());
+            $this->cityPass->authorization($this->cityPassUserToken())->add($parameters->cityPass());
         }
         $this->cleanCache();
     }
@@ -82,7 +85,7 @@ class CartRepository extends BaseRepository
         if (!empty($parameters->magento())) {
             $this->magento->authorization($this->token)->update($parameters->magento());
         } else if(!empty($parameters->cityPass())) {
-            $this->cityPass->update($parameters->cityPass());
+            $this->cityPass->authorization($this->cityPassUserToken())->update($parameters->cityPass());
         }
         $this->cleanCache();
     }
@@ -96,7 +99,7 @@ class CartRepository extends BaseRepository
         if (!empty($parameters->magento())) {
             $this->magento->authorization($this->token)->delete($parameters->magento());
         } else if(!empty($parameters->cityPass())) {
-            $this->cityPass->add($parameters->delete());
+            $this->cityPass->authorization($this->cityPassUserToken())->add($parameters->delete());
         }
         $this->cleanCache();
     }

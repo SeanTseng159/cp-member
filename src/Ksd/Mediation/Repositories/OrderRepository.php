@@ -10,6 +10,7 @@
 namespace Ksd\Mediation\Repositories;
 
 
+use Ksd\Mediation\Helper\MemberHelper;
 use Ksd\Mediation\Magento\Order as MagentoOrder;
 use Ksd\Mediation\CityPass\Order as CityPassOrder;
 
@@ -19,6 +20,7 @@ class OrderRepository extends BaseRepository
 {
     const INFO_KEY = 'order:user:info:%s:%s';
 
+    use MemberHelper;
 
     public function __construct()
     {
@@ -37,7 +39,7 @@ class OrderRepository extends BaseRepository
         return $this->redis->remember($this->genCacheKey(self::INFO_KEY), 300, function () {
             $this->magento->authorization($this->token);
             $magento = $this->magento->info();
-            $cityPass = $this->cityPass->info();
+            $cityPass = $this->cityPass->authorization($this->cityPassUserToken())->info();
             return [
                 ProjectConfig::MAGENTO => $magento,
                 ProjectConfig::CITY_PASS => $cityPass
@@ -60,7 +62,7 @@ class OrderRepository extends BaseRepository
                 $magento = $this->magento->order($parameter);
                 return $magento;
             }else {
-                $cityPass = $this->cityPass->order($parameter);
+                $cityPass = $this->cityPass->authorization($this->cityPassUserToken())->order($parameter);
                 return $cityPass;
             }
 
@@ -96,7 +98,7 @@ class OrderRepository extends BaseRepository
 
             $this->magento->authorization($this->token);
             $magento = $this->magento->search($parameters);
-            $cityPass = $this->cityPass->search($parameters);
+            $cityPass = $this->cityPass->authorization($this->cityPassUserToken())->search($parameters);
         return [
             ProjectConfig::MAGENTO => $magento,
             ProjectConfig::CITY_PASS => $cityPass
@@ -146,7 +148,7 @@ class OrderRepository extends BaseRepository
             if ($parameters->source === ProjectConfig::MAGENTO) {
                 return $this->magento->find($parameters->id);
             } else if ($parameters->source === ProjectConfig::MAGENTO) {
-                return $this->cityPass->find($parameters->id);
+                return $this->cityPass->authorization($this->cityPassUserToken())->find($parameters->id);
             }
         });
     }
