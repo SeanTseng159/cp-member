@@ -37,7 +37,7 @@ class CartRepository extends BaseRepository
         return $this->redis->remember($this->genCacheKey(self::INFO_KEY), 3600, function () {
             $this->magento->authorization($this->token);
             $magento = $this->magento->info();
-            $cityPass = $this->cityPass->info();
+            $cityPass = $this->cityPass->authorization($this->cityPassUserToken())->info();
             return [
                 ProjectConfig::MAGENTO => $magento,
                 ProjectConfig::CITY_PASS => $cityPass
@@ -54,7 +54,7 @@ class CartRepository extends BaseRepository
         return $this->redis->remember($this->genCacheKey(self::DETAIL_KEY), 3600, function () {
             $this->magento->authorization($this->token);
             $magento = $this->magento->detail();
-            $cityPass = $this->cityPass->detail();
+            $cityPass = $this->cityPass->authorization($this->cityPassUserToken())->detail();
             return [
                 ProjectConfig::MAGENTO => $magento,
                 ProjectConfig::CITY_PASS => $cityPass
