@@ -176,7 +176,7 @@ class Layout extends Client
      * @param $itemId
      * @return LayoutResult
      */
-    public function menu($itemId)
+    public function menu()
     {
 
         $result = [];
@@ -189,7 +189,7 @@ class Layout extends Client
         }
 
         $order = new LayoutResult();
-        $order->cityPass($result['data']);
+        $order->cityPass($result['data'],true,'menu');
 
         return $order;
     }

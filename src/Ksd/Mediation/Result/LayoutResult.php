@@ -155,6 +155,12 @@ class LayoutResult
                                 $this->banner[] = $item;
                             }
                             break;
+                        case 'menu':
+                            foreach ($result as $item) {
+
+                                $this->menu[] = $item;
+                            }
+                            break;
 
                     }
 

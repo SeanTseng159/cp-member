@@ -93,15 +93,12 @@ class LayoutController extends RestLaravelController
         }
 
     /**
-         * 利用選單id取得選單資料
+         * 取得下拉選單資料
          * @return \Illuminate\Http\JsonResponse
          */
-        public function menu(Request $request, $menuId)
+        public function menu()
         {
-            $parameter = new LayoutParameter();
-            $parameter->laravelRequest($menuId, $request);
-            return $this->success($this->layoutService->menu($parameter));
-
+            return $this->success($this->layoutService->menu());
         }
 
 

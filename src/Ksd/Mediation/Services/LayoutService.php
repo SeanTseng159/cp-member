@@ -87,13 +87,13 @@ class LayoutService
     }
 
     /**
-     * 利用選單id取得選單資料
+     * 取得下拉 選單資料
      * @param  $parameter
      * @return mixed
      */
-    public function menu($parameter)
+    public function menu()
     {
-        return $this->repository->menu($parameter);
+        return $this->repository->menu();
     }
 
 

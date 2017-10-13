@@ -18,6 +18,7 @@ class LayoutRepository extends BaseRepository
     const EXPLORATION_KEY = 'layout:exploration:%s:%s';
     const CUSTOMIZE_KEY = 'layout:customize:%s:%s';
     const BANNER_KEY = 'layout:banner:%s:%s';
+    const MENU_KEY = 'layout:menu:%s:%s';
 
     public function __construct()
     {
@@ -124,18 +125,16 @@ class LayoutRepository extends BaseRepository
     }
 
     /**
-     * 利用選單id取得選單資料
+     * 取得下拉選單資料
      * @param parameter
      * @return mixed
      */
-    public function menu($parameter)
+    public function menu()
     {
-        $itemId = $parameter->itemId;
-        return $this->redis->remember("menu:id:$itemId", 3600, function () use ($itemId) {
-            $cityPass = $this->cityPass->category($itemId);
-            return [
-                ProjectConfig::CITY_PASS => $cityPass
-            ];
+        $this->cleanCache(); //測試階段先清
+        return $this->redis->remember($this->genCacheKey(self::MENU_KEY), 3600, function ()  {
+            $cityPass = $this->cityPass->menu();
+            return  $cityPass;
 
         });
     }
@@ -151,7 +150,7 @@ class LayoutRepository extends BaseRepository
         $this->cacheKey(self::EXPLORATION_KEY);
         $this->cacheKey(self::CUSTOMIZE_KEY);
         $this->cacheKey(self::BANNER_KEY);
-
+        $this->cacheKey(self::MENU_KEY);
     }
 
     /**
