@@ -145,18 +145,7 @@ class Checkout extends Client
      */
     public function putPayment($payment)
     {
-        $parameter = [
-            'paymentMethod' => [
-                'method' => $payment->id,
-                'additional_data' => [
-                    'cc_type' => $this->creditCardType($payment->creditCardNumer),
-                    'cc_exp_year' => $payment->creditCardYear,
-                    'cc_exp_month' => $payment->creditCardMonth,
-                    'cc_number' => $payment->creditCardNumer,
-                    'cc_cid' => $payment->creditCardcCode,
-                ]
-            ]
-        ];
+        $parameter = $this->processPayment($payment);
         $this->putParameters($parameter);
         $this->request('POST', 'V1/carts/mine/payment-information');
     }
@@ -221,5 +210,30 @@ class Checkout extends Client
         } else if((intval(substr($number,0, 4)) >= 3528 && intval(substr($number,0, 4)) <= 3589)) {
             return 'JCB';
         }
+    }
+
+    /**
+     * 處理付款資訊參數
+     * @param $payment
+     * @return array
+     */
+    private function processPayment($payment)
+    {
+        $parameter = [
+            'paymentMethod' => [
+                'method' => $payment->id,
+            ]
+        ];
+
+        if (!empty($payment->creditCardNumer)) {
+            $parameter['paymentMethod']['additional_data'] = [
+                'cc_type' => $this->creditCardType($payment->creditCardNumer),
+                'cc_exp_year' => $payment->creditCardYear,
+                'cc_exp_month' => $payment->creditCardMonth,
+                'cc_number' => $payment->creditCardNumer,
+                'cc_cid' => $payment->creditCardcCode,
+            ];
+        }
+        return $parameter;
     }
 }
