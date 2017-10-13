@@ -67,7 +67,8 @@ class CheckoutController extends RestLaravelController
             'expMonth',
             'code',
             'totalAmount',
-            'XID'
+            'XID',
+            'platform'
         ]);
 
         $request->session()->put('ccData', $data);
@@ -84,7 +85,6 @@ class CheckoutController extends RestLaravelController
      */
     public function verifyResult(Request $request)
     {
-        $platform = $request->header('platform');
         $lang = 'zh_TW';
 
         $data = $request->only([
@@ -99,6 +99,7 @@ class CheckoutController extends RestLaravelController
         $ccData = $request->session()->pull('ccData', 'default');
 
         $orderId = $ccData['XID'];
+        $platform = $ccData['platform'];
 
         // 寫入資料庫
         $data['platform'] = ($platform) ?: 'web';
