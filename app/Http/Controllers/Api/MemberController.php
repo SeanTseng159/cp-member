@@ -144,7 +144,7 @@ class MemberController extends RestLaravelController
                 ]);
          $member = $this->memberService->update($id, $data);
 
-         return ($member) ? $this->success() : $this->failure('E0003', '更新失敗');
+         return ($member) ? $this->success($member) : $this->failure('E0003', '更新失敗');
      }
 
     /**
