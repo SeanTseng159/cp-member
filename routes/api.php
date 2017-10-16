@@ -120,7 +120,7 @@ Route::middleware('cors')->namespace('Api')->group(function () {
         Route::get('customize',   'LayoutController@customize');
         Route::get('banner',   'LayoutController@banner');
 //        Route::get('info',   'LayoutController@info');
-//        Route::get('category/{categoryId}', 'LayoutController@category');
+        Route::get('category/{categoryId}', 'LayoutController@category');
         Route::get('menu', 'LayoutController@menu');
     });
 });

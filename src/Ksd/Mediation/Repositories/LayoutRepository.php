@@ -113,13 +113,12 @@ class LayoutRepository extends BaseRepository
      */
     public function category($parameter)
     {
-        $itemId = $parameter->itemId;
+        $itemId = $parameter->id;
         return $this->redis->remember("category:id:$itemId", 3600, function () use ($itemId) {
             $cityPass = $this->cityPass->category($itemId);
 
-            return [
-                ProjectConfig::CITY_PASS => $cityPass
-            ];
+            return  $cityPass;
+
 
         });
     }

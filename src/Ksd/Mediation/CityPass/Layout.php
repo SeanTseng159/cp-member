@@ -149,26 +149,23 @@ class Layout extends Client
 
 
     /**
- * 利用目錄id取得目錄資料
- * @param $itemId
- * @return LayoutResult
- */
+     * 利用目錄id取得目錄資料
+     * @param $itemId
+     * @return LayoutResult
+     */
     public function category($itemId)
     {
 
         $result = [];
         try {
-            $response = $this->request('GET', 'layout/category');
+            $response = $this->request('GET', 'layout/category/'.$itemId);
             $result = json_decode($response->getBody(), true);
 
         } catch (ClientException $e) {
 
         }
 
-        $order = new LayoutResult();
-        $order->cityPass($result['data']);
-
-        return $order;
+        return $result['data'];
     }
 
     /**
