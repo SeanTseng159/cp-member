@@ -71,7 +71,9 @@ class CartRepository extends BaseRepository
         if (!empty($parameters->magento())) {
             $this->magento->authorization($this->token)->add($parameters->magento());
         } else if(!empty($parameters->cityPass())) {
-            $this->cityPass->authorization($this->cityPassUserToken())->add($parameters->cityPass());
+            foreach ($parameters->cityPass() as $item) {
+                $this->cityPass->authorization($this->cityPassUserToken())->add($item);
+            }
         }
         $this->cleanCache();
     }
@@ -85,7 +87,9 @@ class CartRepository extends BaseRepository
         if (!empty($parameters->magento())) {
             $this->magento->authorization($this->token)->update($parameters->magento());
         } else if(!empty($parameters->cityPass())) {
-            $this->cityPass->authorization($this->cityPassUserToken())->update($parameters->cityPass());
+            foreach ($parameters->cityPass() as $item) {
+                $this->cityPass->authorization($this->cityPassUserToken())->update($item);
+            }
         }
         $this->cleanCache();
     }
@@ -99,7 +103,10 @@ class CartRepository extends BaseRepository
         if (!empty($parameters->magento())) {
             $this->magento->authorization($this->token)->delete($parameters->magento());
         } else if(!empty($parameters->cityPass())) {
-            $this->cityPass->authorization($this->cityPassUserToken())->add($parameters->delete());
+            foreach ($parameters->cityPass() as $item) {
+                $this->cityPass->authorization($this->cityPassUserToken())->delete($item);
+            }
+
         }
         $this->cleanCache();
     }

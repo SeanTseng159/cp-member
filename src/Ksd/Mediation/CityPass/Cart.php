@@ -77,7 +77,6 @@ class Cart extends Client
      */
     public function update($parameters)
     {
-        // TODO:Api 目前尚未實作完成
         $response = $this->putParameters($parameters)
             ->request('POST', 'cart/update');
         $result = json_decode($response->getBody(), true);
@@ -94,7 +93,6 @@ class Cart extends Client
      */
     public function delete($parameters)
     {
-        // TODO:Api 目前尚未實作完成
         $response = $this->putParameters($parameters)
             ->request('POST', 'cart/remove');
         $result = json_decode($response->getBody(), true);
