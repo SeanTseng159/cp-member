@@ -101,5 +101,17 @@ class LayoutController extends RestLaravelController
             return $this->success($this->layoutService->menu());
         }
 
+        /**
+         * 利用選單id取得商品資料
+         * @return \Illuminate\Http\JsonResponse
+         */
+        public function subcategory(Request $request, $subcategoryId)
+        {
+            $parameter = new LayoutParameter();
+            $parameter->laravelRequest($subcategoryId, $request);
+            return $this->success($this->layoutService->subcategory($parameter));
+
+        }
+
 
 }

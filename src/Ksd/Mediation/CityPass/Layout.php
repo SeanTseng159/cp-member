@@ -169,7 +169,7 @@ class Layout extends Client
     }
 
     /**
-     * 利用選單id取得選單資料
+     * 取得選單資料
      * @param $itemId
      * @return LayoutResult
      */
@@ -189,5 +189,25 @@ class Layout extends Client
         $order->cityPass($result['data'],true,'menu');
 
         return $order;
+    }
+
+    /**
+     * 利用選單id取得商品資料
+     * @param $itemId
+     * @return LayoutResult
+     */
+    public function subcategory($itemId)
+    {
+
+        $result = [];
+        try {
+            $response = $this->request('GET', 'product/subcategory/'.$itemId);
+            $result = json_decode($response->getBody(), true);
+
+        } catch (ClientException $e) {
+
+        }
+
+        return $result['data'];
     }
 }

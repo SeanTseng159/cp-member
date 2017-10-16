@@ -65,6 +65,8 @@ Route::middleware('cors')->namespace('Api')->group(function () {
         Route::get('query/{id}', 'ProductController@query');
         // 商品搜尋
         Route::get('search', 'ProductController@search');
+        //子分類搜尋（商品）
+        Route::get('subcategory/{subcategoryId}', 'LayoutController@subcategory');
     });
 
     Route::prefix('cart')->group(function () {
