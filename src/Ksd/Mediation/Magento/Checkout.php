@@ -14,6 +14,7 @@ use Ksd\Mediation\Helper\MemberHelper;
 use Ksd\Mediation\Helper\StringHelper;
 use Ksd\Mediation\Result\Checkout\PaymentInfoResult;
 use Ksd\Mediation\Result\Checkout\ShippingInfoResult;
+use Ksd\Mediation\Result\CheckoutResult;
 
 class Checkout extends Client
 {
@@ -34,11 +35,9 @@ class Checkout extends Client
      */
     public function info()
     {
-        return [
-            'payments' => $this->paymentInfo(),
-            'shipments' => $this->shippingInfo(),
-            'billings' => $this->billingInfo()
-        ];
+        $checkout = new CheckoutResult();
+        $checkout->magneto($this->paymentInfo(), $this->shippingInfo(), $this->billingInfo());
+        return $checkout;
     }
 
     /**

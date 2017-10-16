@@ -9,10 +9,10 @@
 namespace Ksd\Mediation\Repositories;
 
 
-use Illuminate\Support\Facades\Log;
 use Ksd\Mediation\Config\ProjectConfig;
 use Ksd\Mediation\Helper\MemberHelper;
 use Ksd\Mediation\Magento\Checkout as MagentoCheckout;
+use Ksd\Mediation\CityPass\Checkout as CityPassCheckout;
 
 class CheckoutRepository extends BaseRepository
 {
@@ -21,6 +21,7 @@ class CheckoutRepository extends BaseRepository
     public function __construct()
     {
         $this->magento = new MagentoCheckout();
+        $this->cityPass = new CityPassCheckout();
         parent::__construct();
     }
 
@@ -34,7 +35,7 @@ class CheckoutRepository extends BaseRepository
         if($source === ProjectConfig::MAGENTO) {
             return $this->magento->authorization($this->userToken())->info();
         } else if ($source === ProjectConfig::CITY_PASS) {
-
+            return $this->cityPass->authorization($this->cityPassUserToken())->info();
         }
         return [];
     }
@@ -55,14 +56,14 @@ class CheckoutRepository extends BaseRepository
     /**
      * 確定結帳
      * @param $parameters
+     * @return array|mixed
      */
     public function confirm($parameters)
     {
-        Log::debug(json_encode($parameters));
         if($parameters->checkSource(ProjectConfig::MAGENTO)) {
             return $this->magento->authorization($this->userToken())->confirm($parameters);
         } else if ($parameters->checkSource(ProjectConfig::CITY_PASS)) {
-
+            return $this->cityPass->authorization($this->cityPassUserToken())->confirm($parameters);
         }
     }
 }
