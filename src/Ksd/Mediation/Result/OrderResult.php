@@ -300,9 +300,9 @@ class OrderResult
         $additionalInformation = $payment['additional_information'];
         if ($method === 'neweb_atm') {
             $result = [
-                'bankId' => $additionalInformation[1],
-                'virtualAccount' => $additionalInformation[2],
-                'amount' => $additionalInformation[3]
+                'bankId' => $this->arrayDefault($additionalInformation, 1),
+                'virtualAccount' => $this->arrayDefault($additionalInformation, 2),
+                'amount' => $this->arrayDefault($additionalInformation, 3)
             ];
         }
         $result['method'] = $method;
