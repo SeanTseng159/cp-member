@@ -84,4 +84,29 @@ class Product extends Client
         $product->cityPass($result['data'], true);
         return $product;
     }
+
+    /**
+     * 根據 關鍵字 做模糊搜尋 取得商品列表
+     * @param $key
+     * @return array
+     */
+    public function search($key)
+    {
+        $keyword = $key->search;
+        $path = "product/search";
+
+        $response  = $this->putQuery('search',$keyword)->request('GET', $path);
+        $body = $response->getBody();
+        $result = json_decode($body, true);
+
+        $data =[];
+        foreach ($result['data'] as $item) {
+            $product = new ProductResult();
+            $product->cityPass($item);
+            $data[] = $product;
+        }
+
+        return $data;
+
+    }
 }

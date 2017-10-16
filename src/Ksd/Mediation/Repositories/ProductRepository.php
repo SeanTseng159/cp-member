@@ -104,7 +104,7 @@ class ProductRepository extends BaseRepository
     {
 
         $magento = $this->magento->search($parameter);
-        $cityPass = [];
+        $cityPass = $this->cityPass->search($parameter);;
         return [
             ProjectConfig::MAGENTO => $magento,
             ProjectConfig::CITY_PASS => $cityPass
