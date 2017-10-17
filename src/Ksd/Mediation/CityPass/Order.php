@@ -52,10 +52,9 @@ class Order extends Client
      * @param $itemId
      * @return OrderResult
      */
-    public function order($parameter)
+    public function order($itemId)
     {
 
-        $itemId = $parameter->itemId;
         $path = "order/items/$itemId";
 
         $response = $this->request('GET', $path);
@@ -131,6 +130,30 @@ class Order extends Client
 
     }
 
+
+    /**
+     * 根據訂單id 取得訂單細項資訊
+     * @param $itemId
+     * @return OrderResult
+     */
+    public function find($itemId)
+    {
+
+        $path = "order/items/$itemId";
+
+        $response = $this->request('GET', $path);
+        $body = $response->getBody();
+        $result = json_decode($body, true);
+
+
+        if(!empty($result)) {
+            $order = new OrderResult();
+            $order->cityPass($result['data'], true);
+            return $order;
+        }else{
+            return null;
+        }
+    }
 
 
 }
