@@ -125,4 +125,12 @@ Route::middleware('cors')->namespace('Api')->group(function () {
         Route::get('category/{categoryId}', 'LayoutController@category');
         Route::get('menu', 'LayoutController@menu');
     });
+
+    Route::prefix('notification')->group(function () {
+        //手機註冊推播token
+        Route::post('register', 'NotificationController@register');
+        //後台發送推播訊息
+        Route::post('send', 'NotificationController@send');
+    });
+
 });
