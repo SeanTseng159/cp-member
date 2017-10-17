@@ -47,7 +47,7 @@ class MemberController extends RestLaravelController
             return $this->failure('E0001', '傳送參數錯誤');
         }
 
-        $country = $data['country'] = strtoupper($data['country']);
+        $country = strtoupper($data['country']);
 
         try {
             $phoneUtil = \libphonenumber\PhoneNumberUtil::getInstance();
