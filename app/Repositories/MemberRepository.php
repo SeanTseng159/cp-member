@@ -52,6 +52,7 @@ class MemberRepository
                 $member->fill($data);
                 if (isset($data['password'])) $member->password = Hash::make($member->password);
                 $member->validPhoneCode = strval(mt_rand(100000, 999999));
+                if (!isset($data['birthday']) || !$data['birthday']) unset($member->birthday);
                 $member->save();
                 return $member;
             } else {
