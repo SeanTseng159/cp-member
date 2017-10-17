@@ -10,11 +10,21 @@ namespace Ksd\Mediation\Magento;
 
 
 use GuzzleHttp\Exception\ClientException;
+use Ksd\Mediation\Config\ProjectConfig;
+use Ksd\Mediation\Repositories\ProductRepository;
 use Ksd\Mediation\Result\CartResult;
 use Ksd\Mediation\Result\ProductResult;
 
 class Cart extends Client
 {
+    private $productRepository;
+
+    public function __construct($defaultAuthorization = true)
+    {
+        parent::__construct($defaultAuthorization);
+        $this->productRepository = new ProductRepository();
+    }
+
     /**
      * 取得購物車簡易資訊
      * @return array
@@ -46,6 +56,7 @@ class Cart extends Client
 
         $cart = new CartResult();
         $cart->magento($result, $totalResult);
+        $cart = $this->processItem($cart);
 
         return $cart;
     }
@@ -78,7 +89,7 @@ class Cart extends Client
         }
         foreach ($parameters as $item) {
             $row = new \stdClass();
-            $row->sku = $item['id'];
+            $row->sku = $this->parameterItemId($item);
             $row->qty = $item['quantity'];
             array_push($data['quote']['items'],$row);
         }
@@ -99,10 +110,10 @@ class Cart extends Client
         $items = $cart->items;
 
         foreach ($parameters as $parameter) {
-            $index = $this->filterById($items, $parameter['id']);
+            $index = $this->filterById($items, $this->parameterItemId($parameter));
             if (!is_null($index)) {
                 $row = new ProductResult();
-                $row->id = $parameter['id'];
+                $row->id = $this->parameterItemId($parameter);
                 $row->qty = $parameter['quantity'];
                 $items[$index] = $row;
             }
@@ -137,7 +148,7 @@ class Cart extends Client
         $cart = $this->detail();
         $items = $cart->items;
         foreach ($parameters as $parameter) {
-            $index = $this->filterById($cart->items, $parameter['id']);
+            $index = $this->filterById($cart->items, $this->parameterItemId($parameter));
             if (!is_null($index)) {
                 $item = $items[$index];
                 $path = sprintf('V1/carts/mine/items/%s', $item->itemId);
@@ -173,5 +184,29 @@ class Cart extends Client
         $path = 'V1/carts/mine/totals';
         $response = $this->request('GET', $path);
         return json_decode($response->getBody(), true);
+    }
+
+    /**
+     * 處理規格商品 id 轉換
+     * @param $item
+     * @return mixed
+     */
+    private function parameterItemId($item)
+    {
+        if(array_key_exists('additionals', $item) && array_key_exists('priceId', $item['additionals'])) {
+            return $item['additionals']['priceId'];
+        }
+        return $item['id'];
+    }
+
+    private function processItem($cart)
+    {
+        foreach ($cart->items as $index => $item) {
+            $row = $this->productRepository->findFromIndex(ProjectConfig::MAGENTO, $item->id);
+            if (!empty($row)) {
+                $cart->items[$index]->specification = $row->specificationsText();
+            }
+        }
+        return $cart;
     }
 }

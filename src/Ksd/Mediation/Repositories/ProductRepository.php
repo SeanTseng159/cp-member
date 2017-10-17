@@ -18,6 +18,7 @@ use Ksd\Mediation\Result\Product\ProductIndexResult;
 
 class ProductRepository extends BaseRepository
 {
+    const CACHE_INDEX = '%s:product:index';
 
     public function __construct()
     {
@@ -122,7 +123,7 @@ class ProductRepository extends BaseRepository
      */
     public function createIndex($source, $product)
     {
-        $cacheKey = sprintf('%s:product:index', $source);
+        $cacheKey = $this->getCacheKey(self::CACHE_INDEX, [$source]);
         $indexResults = $this->redis->get($cacheKey);
         if (empty($indexResults)) {
             $indexResults = [];
@@ -147,5 +148,42 @@ class ProductRepository extends BaseRepository
 
         $this->redis->set($cacheKey, $indexResults, 3600 * 24);
 
+    }
+
+    /**
+     * 根據 來源 id 查詢商品索引檔
+     * @param $source
+     * @param $id
+     * @return null
+     */
+    public function findFromIndex($source, $id)
+    {
+        $cacheKey = $this->getCacheKey(self::CACHE_INDEX, [$source]);
+        $indexResults = $this->redis->get($cacheKey);
+        foreach ($indexResults as $row) {
+            $index = $row->find($id);
+            if (!empty($index)) {
+                return $index;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * 取得 cache key
+     * @param $key
+     * @param array $args
+     * @return string
+     */
+    private function getCacheKey($key, $args = [])
+    {
+        $str = $key;
+        if (!empty($args)) {
+            foreach ($args as $arg) {
+                $str = sprintf($str, $arg);
+            }
+        }
+
+        return $str;
     }
 }

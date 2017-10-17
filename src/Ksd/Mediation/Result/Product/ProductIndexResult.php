@@ -29,7 +29,6 @@ class ProductIndexResult
         }
 
         if (empty($this->configurableProductOptions)) {
-
             $this->type = 'configurable';
         } else {
             $this->type = 'simple';
@@ -65,5 +64,21 @@ class ProductIndexResult
             }
         }
         return null;
+    }
+
+    /**
+     * 取得規格文字敘述
+     * @return string
+     */
+    public function specificationsText()
+    {
+        if (property_exists($this, 'specifications')) {
+            $data = [];
+            foreach ($this->specifications as $specification) {
+                $data[] = $specification['label'] . ':' . $specification['value'];
+            }
+            return implode(',', $data);
+        }
+        return '';
     }
 }
