@@ -144,9 +144,10 @@ class OrderRepository extends BaseRepository
     {
         $source = $parameters->source;
         $id = $parameters->id;
+
         return $this->redis->remember("$source:order:$id", 300, function () use ($source,$parameters) {
             if ($parameters->source === ProjectConfig::MAGENTO) {
-                return $this->magento->find($parameters->id);
+                return $this->magento->find($parameters);
             } else if ($parameters->source === ProjectConfig::MAGENTO) {
                 return $this->cityPass->authorization($this->cityPassUserToken())->find($parameters->id);
             }

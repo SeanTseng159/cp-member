@@ -36,7 +36,7 @@ class Order extends Client
         }catch (ClientException $e){
             // TODO:抓不到MAGENTO API訂單資料
         }
-
+        dd($result['items']);
         $data = [];
         foreach ($result['items'] as $item) {
             $order = new OrderResult();
@@ -248,15 +248,30 @@ class Order extends Client
      * @param $id
      * @return OrderResult
      */
-    public function find($id)
+    public function find($parameters)
     {
+        $id = $parameters->id;
+        $itemId = $parameters->itemId;
+
         $path = sprintf('V1/orders/%s', $id);
         $response = $this->request('GET', $path);
         $body = $response->getBody();
         $result = json_decode($body, true);
-
         $order = new OrderResult();
         $order->magento($result);
+
+        //如有關鍵字搜尋則進行判斷是否有相似字
+        if(!empty($itemId)){
+            $count = 0;
+            foreach ($order->items as $items) {
+                if(!preg_match("/".$itemId."/",$items['id'])){
+                    array_splice($order->items,$count,1);
+                    $count--;
+                }
+                $count++;
+            }
+        }
+
         return $order;
     }
 }
