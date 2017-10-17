@@ -9,6 +9,7 @@
 namespace Ksd\Mediation\Magento;
 
 
+use Illuminate\Support\Facades\Log;
 use Ksd\Mediation\Helper\EnvHelper;
 use Ksd\Mediation\Helper\ObjectHelper;
 use Ksd\Mediation\Result\ProductCategoryResult;
@@ -181,7 +182,7 @@ class Product extends Client
     private function additional($result)
     {
         $extensionAttributes = $result['extension_attributes'];
-        $specs = [];
+        $specs = new \stdClass();
         if (array_key_exists('configurable_product_options', $extensionAttributes)) {
             $productOptions = $result['extension_attributes']['configurable_product_options'];
 
@@ -189,23 +190,22 @@ class Product extends Client
             $filters = [];
             foreach ($productOptions as $key => $productOption) {
                 $attributes = $this->attributes($productOption['attribute_id']);
-                $spec = [
-                    'label' => $productOption['label'],
-                    'code' => $attributes['attribute_code']
-                ];
+                $additionals = new \stdClass();
+                $additionals->label = $productOption['label'];
+                $additionals->code = $attributes['attribute_code'];
 
                 $options = $attributes['options'];
+                $additionals->spec = [];
                 foreach ($productOption['values'] as $index => $value) {
-                    $spec['spec'][] = [
-                        'value' => $this->optionLabel($options, $value['value_index']),
-                        'value_index' => $value['value_index']
-                    ];
+                    $optionValue = new \stdClass();
+                    $optionValue->value =  $this->optionLabel($options, $value['value_index']);
+                    $optionValue->value_index =  $value['value_index'];
+                    $additionals->spec[] = $optionValue;
                 }
-                $specs =  $this->addSpec($specs, $spec);
+                $specs =  $this->addSpec($specs, $additionals);
                 $attributeCodes[] = $attributes['attribute_code'];
                 $filters[]['code'] = $attributes['attribute_code'];
             }
-
 
             $productLinks = $result['extension_attributes']['configurable_product_links'];
             foreach ($productLinks as $productLink) {
@@ -213,10 +213,10 @@ class Product extends Client
                 foreach ($filters as $key => $filter) {
                     $filters[$key]['value'] = $this->customAttributes($product->customAttributes, $filter['code']);
                 }
-                $specs['spec'] = $this->putQuantity($product, $filters, $specs['spec']);
+                $specs->additionals = $this->putQuantity($product, $filters, $specs->additionals);
             }
         }
-        return array_key_exists('spec', $specs) ? $specs['spec'][0] : $specs;
+        return property_exists($specs,'additionals') ? $specs->additionals  : $specs;
     }
 
     /**
@@ -227,12 +227,12 @@ class Product extends Client
      */
     private function addSpec($result, $specs)
     {
-        if (array_key_exists('spec', $result) && count($result['spec']) > 0) {
-            foreach ($result['spec'] as $key => $row) {
-                $result['spec'][$key] = $this->addSpec($row, $specs);
+        if (property_exists($result, 'additionals') && count($result->additionals->spec) > 0) {
+            foreach ($result->additionals->spec as $key => $row) {
+                $result->additionals->spec[$key] = $this->addSpec($row, $specs);
             }
         } else {
-            $result['spec'][] = $specs;
+            $result->additionals = $specs;
         }
         return $result;
     }
@@ -257,31 +257,27 @@ class Product extends Client
      * 取得所有規格商品數量
      * @param $product
      * @param $filters
-     * @param $result
+     * @param $additionals
      * @return mixed
      */
-    private function putQuantity($product, $filters, $result)
+    private function putQuantity($product, $filters, $additionals)
     {
         while (!empty($filters)) {
             $filter = array_shift($filters);
-            foreach ($result as $key => $row) {
-                if ($filter['code'] == $row['code']) {
-                    foreach ($row['spec'] as $index => $spec) {
-                        if(array_key_exists('value_index', $spec) && $filter['value'] == $spec['value_index']) {
-                            if(array_key_exists('spec', $spec)) {
-                                $spec['spec'] = $this->putQuantity($product, $filters, $spec['spec']);
-                                $result[$key]['spec'][$index] = $spec;
-                            } else {
-                                $result[$key]['spec'][$index]['id'] = $product->id;
-                                $result[$key]['spec'][$index]['quantity'] = $product->quantity;
-                            }
-                            break;
+            if($filter['code'] == $additionals->code) {
+                foreach ($additionals->spec as $key => $row) {
+                    if (property_exists($row, 'value_index') && $filter['value'] == $row->value_index) {
+                        if (property_exists($row, 'additionals')) {
+                            $additionals->spec[$key]->additionals = $this->putQuantity($product, $filters, $row->additionals);
+                        } else {
+                            $row->id = $product->id;
+                            $row->quantity = $product->quantity;
                         }
+                        break;
                     }
                 }
             }
-
         }
-        return $result;
+        return $additionals;
     }
 }

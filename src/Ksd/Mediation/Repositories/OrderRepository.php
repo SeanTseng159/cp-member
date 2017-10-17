@@ -62,7 +62,7 @@ class OrderRepository extends BaseRepository
                 $magento = $this->magento->order($parameter);
                 return $magento;
             }else {
-                $cityPass = $this->cityPass->authorization($this->cityPassUserToken())->order($parameter);
+                $cityPass = $this->cityPass->authorization($this->cityPassUserToken())->order($parameter->itemId);
                 return $cityPass;
             }
 
