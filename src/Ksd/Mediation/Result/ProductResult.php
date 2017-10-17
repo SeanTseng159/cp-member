@@ -145,4 +145,22 @@ class ProductResult
         }
         return $data;
     }
+
+    /**
+     * 建立規格商品
+     * @param $configurableProductResult
+     */
+    public function magentoConfigurableProduct($configurableProductResult)
+    {
+        $this->additionals = $configurableProductResult['additionals'];
+        $this->configurableProducts = $configurableProductResult['configurableProducts'];
+        $this->configurableProductOptions = $configurableProductResult['configurableProductOptions'];
+        if(!empty($this->configurableProducts)) {
+            $configurableProducts = $this->configurableProducts[0];
+            $this->price = $configurableProducts->price;
+            $this->salePrice = $configurableProducts->salePrice;
+            $this->discount = $this->countDiscount($this->salePrice, $this->price);
+        }
+
+    }
 }

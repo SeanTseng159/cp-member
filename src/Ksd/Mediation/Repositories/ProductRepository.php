@@ -14,6 +14,7 @@ use Ksd\Mediation\Config\ProjectConfig;
 use Ksd\Mediation\Magento\Product as MagentoProduct;
 use Ksd\Mediation\CityPass\Product as CityPassProduct;
 use Ksd\Mediation\Result\Collection;
+use Ksd\Mediation\Result\Product\ProductIndexResult;
 
 class ProductRepository extends BaseRepository
 {
@@ -84,7 +85,7 @@ class ProductRepository extends BaseRepository
     {
         $id = $parameter->no;
         $source = $parameter->source;
-        return $this->redis->remember("$source:product:id:$id", 3600, function () use ($source,$id) {
+        $product = $this->redis->remember("$source:product:id:$id", 3600, function () use ($source,$id) {
             $product = null;
             if($source == ProjectConfig::MAGENTO) {
                 $product = $this->magento->find($id);
@@ -93,6 +94,8 @@ class ProductRepository extends BaseRepository
             }
             return $product;
         });
+        $this->createIndex($source, $product);
+        return $product;
     }
 
     /**
@@ -109,6 +112,40 @@ class ProductRepository extends BaseRepository
             ProjectConfig::MAGENTO => $magento,
             ProjectConfig::CITY_PASS => $cityPass
         ];
+
+    }
+
+    /**
+     * 建立索引檔
+     * @param $source
+     * @param $product
+     */
+    public function createIndex($source, $product)
+    {
+        $cacheKey = sprintf('%s:product:index', $source);
+        $indexResults = $this->redis->get($cacheKey);
+        if (empty($indexResults)) {
+            $indexResults = [];
+        }
+
+        $productIndex = new ProductIndexResult();
+        if($source == ProjectConfig::MAGENTO) {
+            $productIndex->magneto($product);
+        }
+
+        $hasIndex = false;
+
+        foreach ($indexResults as $row) {
+            if (!empty($row->find($productIndex->id))) {
+                $hasIndex = true;
+                break;
+            }
+        }
+        if (!$hasIndex) {
+            $indexResults = array_merge($indexResults, [$productIndex]);
+        }
+
+        $this->redis->set($cacheKey, $indexResults, 3600 * 24);
 
     }
 }
