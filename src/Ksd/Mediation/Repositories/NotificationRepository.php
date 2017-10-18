@@ -8,6 +8,9 @@
 
 namespace Ksd\Mediation\Repositories;
 
+use App\Models\NotificationMobile;
+
+use Illuminate\Database\QueryException;
 
 class NotificationRepository extends BaseRepository
 {
@@ -18,7 +21,20 @@ class NotificationRepository extends BaseRepository
     }
 
     public function register($parameter){
+        try{
+            $notimob = new NotificationMobile();
+            $notimob->token = $parameter['token'];
+            $notimob->platform = $parameter['platform'];
+            if(array_key_exists('memberId',$parameter)){
+                $notimob->memberId = $parameter['memberId'];
+            }
+            $notimob->deviceId = $parameter['deviceId'];
+            $notimob->save();
+            return $notimob;
+        }catch(QueryException $e){
 
+            return false;
+        }
     }
 
 }

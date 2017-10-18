@@ -18,4 +18,10 @@ class NotificationService
     {
         $this->repository = new NotificationRepository();
     }
+
+    public function register($data){
+
+        return $this->repository->register($data);
+
+    }
 }
