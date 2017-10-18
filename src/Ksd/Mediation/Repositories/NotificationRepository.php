@@ -24,12 +24,13 @@ class NotificationRepository extends BaseRepository
         try{
             $notimob = new NotificationMobile();
 
-            if($notimob->where([
+            $old_registed = $notimob->where([
                 ['platform', '=', $parameter['platform']],
                 ['mobile_token', '=', $parameter['token']]
-                ])
-                ->get()
-                ->count() == 0){
+            ])
+            ->get();
+
+            if($old_registed->count() == 0){
 
                     $notimob->mobile_token = $parameter['token'];
                     $notimob->platform = $parameter['platform'];
@@ -40,6 +41,12 @@ class NotificationRepository extends BaseRepository
                     $notimob->save();
                 return $notimob;
             }else{
+                $update_record = $old_registed->first();
+                if(array_key_exists('memberId',$parameter)){
+                    $update_record->member_id = $parameter['memberId'];
+                    $update_record->save();
+                }
+
                 return true;
             }
 
