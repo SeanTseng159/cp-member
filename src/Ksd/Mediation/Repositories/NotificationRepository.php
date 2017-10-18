@@ -23,14 +23,26 @@ class NotificationRepository extends BaseRepository
     public function register($parameter){
         try{
             $notimob = new NotificationMobile();
-            $notimob->mobile_token = $parameter['token'];
-            $notimob->platform = $parameter['platform'];
-            if(array_key_exists('memberId',$parameter)){
-                $notimob->member_id = $parameter['memberId'];
+
+            if($notimob->where([
+                ['platform', '=', $parameter['platform']],
+                ['mobile_token', '=', $parameter['token']]
+                ])
+                ->get()
+                ->count() == 0){
+
+                    $notimob->mobile_token = $parameter['token'];
+                    $notimob->platform = $parameter['platform'];
+                    if(array_key_exists('memberId',$parameter)){
+                        $notimob->member_id = $parameter['memberId'];
+                    }
+                    //$notimob->device_id = $parameter['deviceId'];
+                    $notimob->save();
+                return $notimob;
+            }else{
+                return true;
             }
-            //$notimob->device_id = $parameter['deviceId'];
-            $notimob->save();
-            return $notimob;
+
         }catch(QueryException $e){
 
             return false;
