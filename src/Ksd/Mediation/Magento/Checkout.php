@@ -9,8 +9,6 @@
 namespace Ksd\Mediation\Magento;
 
 
-use Illuminate\Support\Facades\Log;
-use Ksd\Mediation\Helper\MemberHelper;
 use Ksd\Mediation\Helper\StringHelper;
 use Ksd\Mediation\Result\Checkout\PaymentInfoResult;
 use Ksd\Mediation\Result\Checkout\ShippingInfoResult;

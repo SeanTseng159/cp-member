@@ -10,14 +10,11 @@ namespace Ksd\Mediation\Repositories;
 
 
 use Ksd\Mediation\Config\ProjectConfig;
-use Ksd\Mediation\Helper\MemberHelper;
 use Ksd\Mediation\Magento\Checkout as MagentoCheckout;
 use Ksd\Mediation\CityPass\Checkout as CityPassCheckout;
 
 class CheckoutRepository extends BaseRepository
 {
-    use MemberHelper;
-
     private $memberTokenService;
 
     public function __construct($memberTokenService)

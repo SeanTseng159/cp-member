@@ -9,8 +9,6 @@
 
 namespace Ksd\Mediation\Repositories;
 
-
-use Ksd\Mediation\Helper\MemberHelper;
 use Ksd\Mediation\Magento\Order as MagentoOrder;
 use Ksd\Mediation\CityPass\Order as CityPassOrder;
 
@@ -20,8 +18,6 @@ use Ksd\Mediation\Services\MemberTokenService;
 class OrderRepository extends BaseRepository
 {
     const INFO_KEY = 'order:user:info:%s:%s';
-
-    use MemberHelper;
 
     private $memberTokenService;
 
