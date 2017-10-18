@@ -9,24 +9,24 @@
 
 namespace Ksd\Mediation\Repositories;
 
-
-use Ksd\Mediation\Helper\MemberHelper;
 use Ksd\Mediation\Magento\Order as MagentoOrder;
 use Ksd\Mediation\CityPass\Order as CityPassOrder;
 
 use Ksd\Mediation\Config\ProjectConfig;
+use Ksd\Mediation\Services\MemberTokenService;
 
 class OrderRepository extends BaseRepository
 {
     const INFO_KEY = 'order:user:info:%s:%s';
 
-    use MemberHelper;
+    private $memberTokenService;
 
-    public function __construct()
+    public function __construct(MemberTokenService $memberTokenService)
     {
         $this->magento = new MagentoOrder();
         $this->cityPass = new CityPassOrder();
         parent::__construct();
+        $this->memberTokenService = $memberTokenService;
     }
 
     /**
@@ -38,8 +38,8 @@ class OrderRepository extends BaseRepository
 
         return $this->redis->remember($this->genCacheKey(self::INFO_KEY), 300, function () {
             $this->magento->authorization($this->token);
-            $magento = $this->magento->info();
-            $cityPass = $this->cityPass->authorization($this->cityPassUserToken())->info();
+            $magento = $this->magento->userAuthorization($this->memberTokenService->magentoUserToken())->info();
+            $cityPass = $this->cityPass->authorization($this->memberTokenService->cityPassUserToken())->info();
             return [
                 ProjectConfig::MAGENTO => $magento,
                 ProjectConfig::CITY_PASS => $cityPass
@@ -58,11 +58,10 @@ class OrderRepository extends BaseRepository
         $source = $parameter->source;
         return $this->redis->remember("$source:order:item_id:$itemId", 300, function () use ($source,$parameter) {
             if($source == ProjectConfig::MAGENTO) {
-                $this->magento->authorization($this->token);
-                $magento = $this->magento->order($parameter);
+                $magento = $this->magento->userAuthorization($this->memberTokenService->magentoUserToken())->order($parameter);
                 return $magento;
             }else {
-                $cityPass = $this->cityPass->authorization($this->cityPassUserToken())->order($parameter->itemId);
+                $cityPass = $this->cityPass->authorization($this->memberTokenService->cityPassUserToken())->order($parameter->itemId);
                 return $cityPass;
             }
 
@@ -96,9 +95,8 @@ class OrderRepository extends BaseRepository
                    break;
            }
 
-            $this->magento->authorization($this->token);
-            $magento = $this->magento->search($parameters);
-            $cityPass = $this->cityPass->authorization($this->cityPassUserToken())->search($parameters);
+            $magento = $this->magento->userAuthorization($this->memberTokenService->magentoUserToken())->search($parameters);
+            $cityPass = $this->cityPass->authorization($this->memberTokenService->cityPassUserToken())->search($parameters);
         return [
             ProjectConfig::MAGENTO => $magento,
             ProjectConfig::CITY_PASS => $cityPass

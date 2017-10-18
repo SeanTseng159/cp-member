@@ -8,13 +8,10 @@
 
 namespace Ksd\Mediation\Services;
 
-use Ksd\Mediation\Helper\MemberHelper;
 use Ksd\Mediation\Repositories\LayoutRepository;
 
 class LayoutService
 {
-    use MemberHelper;
-
     private $repository;
 
     public function __construct()
