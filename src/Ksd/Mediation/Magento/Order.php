@@ -226,7 +226,7 @@ class Order extends Client
         $body = $response->getBody();
         $result = json_decode($body, true);
 
-        return $result[0];
+        return empty($result) ? ['file' => '', 'types' => [] ] : $result[0];
     }
 
     /**

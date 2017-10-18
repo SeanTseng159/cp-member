@@ -11,16 +11,20 @@ namespace Ksd\Mediation\Repositories;
 
 use Ksd\Mediation\Magento\Wishlist;
 use Ksd\Mediation\Config\ProjectConfig;
+use Ksd\Mediation\Services\MemberTokenService;
 
 class WishlistRepository extends BaseRepository
 {
     const INFO_KEY = 'wish:user:info:%s:%s';
     const DETAIL_KEY = 'wish:user:detail:%s:%s';
 
-    public function __construct()
+    private $memberTokenService;
+
+    public function __construct(MemberTokenService $memberTokenService)
     {
         $this->magento = new Wishlist();
         parent::__construct();
+        $this->memberTokenService = $memberTokenService;
     }
 
     /**
@@ -29,8 +33,9 @@ class WishlistRepository extends BaseRepository
      */
     public function items()
     {
-            $this->magento->authorization($this->token);
-            $magento = $this->magento->items();
+            $magento = $this->magento
+                ->userAuthorization($this->memberTokenService->magentoUserToken())
+                ->items();
             $cityPass = [];
             return [
                 ProjectConfig::MAGENTO => $magento,
@@ -46,8 +51,9 @@ class WishlistRepository extends BaseRepository
     public function add($parameter)
     {
         $id = $parameter->no;
-        $this->magento->authorization($this->token)->add($id);
-
+        $this->magento
+            ->userAuthorization($this->memberTokenService->magentoUserToken())
+            ->add($id);
     }
 
     /**
@@ -57,8 +63,9 @@ class WishlistRepository extends BaseRepository
     public function delete($parameter)
     {
         $id = $parameter->no;
-        $this->magento->authorization($this->token)->delete($id);
-
+        $this->magento
+            ->userAuthorization($this->memberTokenService->magentoUserToken())
+            ->delete($id);
     }
 
 
