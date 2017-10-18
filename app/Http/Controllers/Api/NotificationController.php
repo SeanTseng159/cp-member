@@ -24,6 +24,7 @@ class NotificationController extends RestLaravelController
         $this->notificationService = $notificationService;
     }
 
+    //註冊裝置推播金鑰
     public function register(Request $request){
 
 
@@ -31,14 +32,12 @@ class NotificationController extends RestLaravelController
             'token',
             'platform',
             'memberId',
-            //'deviceId',
             ]
         );
 
         $validator = Validator::make($data, [
             'token' => 'required',
             'platform' => 'required',
-            //'deviceId' => 'required',
         ]);
 
         if ($validator->fails()) {
@@ -50,6 +49,47 @@ class NotificationController extends RestLaravelController
         }else{
             return $this->failure('E0002', '推播金鑰註冊失敗');
         }
+
+    }
+
+    //發送推播訊系
+    public function send(Request $request){
+
+        $data = $request->only([
+                'title',
+                'body',
+                'type',
+                'url',
+                'platform',
+                'memberId',
+            ]
+        );
+
+        $validator = Validator::make($data, [
+            'title' => 'required',
+            'body' => 'required',
+            'type' => 'required',
+            'url' => 'required',
+            'platform' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            return $this->failure('E0001', '傳送參數錯誤');
+        }
+
+        //指定用戶推播
+        //缺少用戶資料
+        if($data['platform'] === '3' && !array_key_exists('memberId',$data)){
+            return $this->failure('E0001', '傳送參數錯誤');
+        }
+
+
+        if($this->notificationService->send($data)){
+            //return $this->success();
+        }else{
+            return $this->failure('E0052', '推播訊息發送失敗');
+        }
+
 
     }
 

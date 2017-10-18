@@ -20,6 +20,7 @@ class NotificationRepository extends BaseRepository
         parent::__construct();
     }
 
+    //註冊裝置推播金鑰
     public function register($parameter){
         try{
             $notimob = new NotificationMobile();
@@ -54,6 +55,18 @@ class NotificationRepository extends BaseRepository
 
             return false;
         }
+    }
+
+    //取得平台裝置註冊金鑰
+    public function devicesByPlatform($platform){
+        $notimob = new NotificationMobile();
+
+        $devices = $notimob->where([
+            ['platform', '=', $platform],
+        ])
+            ->get();
+
+        return $devices;
     }
 
 }
