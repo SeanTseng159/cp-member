@@ -31,14 +31,14 @@ class NotificationController extends RestLaravelController
             'token',
             'platform',
             'memberId',
-            'deviceId',
+            //'deviceId',
             ]
         );
 
         $validator = Validator::make($data, [
             'token' => 'required',
             'platform' => 'required',
-            'deviceId' => 'required',
+            //'deviceId' => 'required',
         ]);
 
         if ($validator->fails()) {
