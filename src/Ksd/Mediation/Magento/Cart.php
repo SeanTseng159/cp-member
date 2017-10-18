@@ -199,12 +199,17 @@ class Cart extends Client
         return $item['id'];
     }
 
+    /**
+     * 處理購物車品項
+     * @param $cart
+     * @return mixed
+     */
     private function processItem($cart)
     {
         foreach ($cart->items as $index => $item) {
             $row = $this->productRepository->findFromIndex(ProjectConfig::MAGENTO, $item->id);
             if (!empty($row)) {
-                $cart->items[$index]->specification = $row->specificationsText();
+                $cart->items[$index]->spec = $row->specificationsText();
             }
         }
         return $cart;
