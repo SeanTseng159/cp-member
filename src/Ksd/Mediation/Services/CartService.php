@@ -9,18 +9,16 @@
 namespace Ksd\Mediation\Services;
 
 
-use Ksd\Mediation\Helper\MemberHelper;
 use Ksd\Mediation\Repositories\CartRepository;
+
 
 class CartService
 {
-    use MemberHelper;
-
     private $repository;
 
-    public function __construct()
+    public function __construct(MemberTokenService $memberTokenService)
     {
-        $this->repository = new CartRepository();
+        $this->repository = new CartRepository($memberTokenService);
     }
 
     /**
@@ -29,7 +27,7 @@ class CartService
      */
     public function info()
     {
-        return $this->repository->setToken($this->userToken())->info();
+        return $this->repository->info();
     }
 
     /**
@@ -38,7 +36,7 @@ class CartService
      */
     public function detail()
     {
-        return $this->repository->setToken($this->userToken())->detail();
+        return $this->repository->detail();
     }
 
     /**
@@ -47,7 +45,7 @@ class CartService
      */
     public function add($parameters)
     {
-        return $this->repository->setToken($this->userToken())->add($parameters);
+        return $this->repository->add($parameters);
     }
 
     /**
@@ -56,7 +54,7 @@ class CartService
      */
     public function update($parameters)
     {
-        return $this->repository->setToken($this->userToken())->update($parameters);
+        return $this->repository->update($parameters);
     }
 
     /**
@@ -65,6 +63,6 @@ class CartService
      */
     public function delete($parameters)
     {
-        return $this->repository->setToken($this->userToken())->delete($parameters);
+        return $this->repository->delete($parameters);
     }
 }

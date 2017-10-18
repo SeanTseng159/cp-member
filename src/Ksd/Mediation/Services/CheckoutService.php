@@ -15,9 +15,9 @@ class CheckoutService
 {
     protected $repository;
 
-    public function __construct()
+    public function __construct(MemberTokenService $memberTokenService)
     {
-        $this->repository = new CheckoutRepository();
+        $this->repository = new CheckoutRepository($memberTokenService);
     }
 
     /**
@@ -42,6 +42,7 @@ class CheckoutService
     /**
      * 確定結帳
      * @param $parameters
+     * @return array|mixed
      */
     public function confirm($parameters)
     {

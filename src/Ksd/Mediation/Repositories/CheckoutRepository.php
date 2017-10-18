@@ -18,11 +18,14 @@ class CheckoutRepository extends BaseRepository
 {
     use MemberHelper;
 
-    public function __construct()
+    private $memberTokenService;
+
+    public function __construct($memberTokenService)
     {
         $this->magento = new MagentoCheckout();
         $this->cityPass = new CityPassCheckout();
         parent::__construct();
+        $this->memberTokenService = $memberTokenService;
     }
 
     /**
@@ -33,9 +36,9 @@ class CheckoutRepository extends BaseRepository
     public function info($source)
     {
         if($source === ProjectConfig::MAGENTO) {
-            return $this->magento->authorization($this->userToken())->info();
+            return $this->magento->userAuthorization($this->memberTokenService->magentoUserToken())->info();
         } else if ($source === ProjectConfig::CITY_PASS) {
-            return $this->cityPass->authorization($this->cityPassUserToken())->info();
+            return $this->cityPass->authorization($this->memberTokenService->cityPassUserToken())->info();
         }
         return [];
     }
@@ -47,7 +50,7 @@ class CheckoutRepository extends BaseRepository
     public function shipment($parameters)
     {
         if($parameters->checkSource(ProjectConfig::MAGENTO)) {
-            $this->magento->authorization($this->userToken())->shipment($parameters);
+            $this->magento->userAuthorization($this->memberTokenService->magentoUserToken())->shipment($parameters);
         } else if ($parameters->checkSource(ProjectConfig::CITY_PASS)) {
 
         }
@@ -61,9 +64,9 @@ class CheckoutRepository extends BaseRepository
     public function confirm($parameters)
     {
         if($parameters->checkSource(ProjectConfig::MAGENTO)) {
-            return $this->magento->authorization($this->userToken())->confirm($parameters);
+            return $this->magento->userAuthorization($this->memberTokenService->magentoUserToken())->confirm($parameters);
         } else if ($parameters->checkSource(ProjectConfig::CITY_PASS)) {
-            return $this->cityPass->authorization($this->cityPassUserToken())->confirm($parameters);
+            return $this->cityPass->authorization($this->memberTokenService->cityPassUserToken())->confirm($parameters);
         }
     }
 }

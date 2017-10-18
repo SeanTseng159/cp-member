@@ -10,7 +10,6 @@ namespace Ksd\Mediation\Repositories;
 
 
 use Ksd\Mediation\Config\ProjectConfig;
-use Ksd\Mediation\Helper\MemberHelper;
 use Ksd\Mediation\Magento\Cart as MagentoCart;
 use Ksd\Mediation\CityPass\Cart as CityPassCart;
 
@@ -19,13 +18,14 @@ class CartRepository extends BaseRepository
     const INFO_KEY = 'cart:user:info:%s:%s';
     const DETAIL_KEY = 'cart:user:detail:%s:%s';
 
-    use MemberHelper;
+    private $memberTokenService;
 
-    public function __construct()
+    public function __construct($memberTokenService)
     {
         $this->magento = new MagentoCart();
         $this->cityPass = new CityPassCart();
         parent::__construct();
+        $this->memberTokenService = $memberTokenService;
     }
 
     /**
@@ -36,8 +36,8 @@ class CartRepository extends BaseRepository
     {
         return $this->redis->remember($this->genCacheKey(self::INFO_KEY), 3600, function () {
             $this->magento->authorization($this->token);
-            $magento = $this->magento->info();
-            $cityPass = $this->cityPass->authorization($this->cityPassUserToken())->info();
+            $magento = $this->magento->userAuthorization($this->memberTokenService->magentoUserToken())->info();
+            $cityPass = $this->cityPass->authorization($this->memberTokenService->cityPassUserToken())->info();
             return [
                 ProjectConfig::MAGENTO => $magento,
                 ProjectConfig::CITY_PASS => $cityPass
@@ -53,8 +53,8 @@ class CartRepository extends BaseRepository
     {
         return $this->redis->remember($this->genCacheKey(self::DETAIL_KEY), 3600, function () {
             $this->magento->authorization($this->token);
-            $magento = $this->magento->detail();
-            $cityPass = $this->cityPass->authorization($this->cityPassUserToken())->detail();
+            $magento = $this->magento->userAuthorization($this->memberTokenService->magentoUserToken())->detail();
+            $cityPass = $this->cityPass->authorization($this->memberTokenService->cityPassUserToken())->detail();
             return [
                 ProjectConfig::MAGENTO => $magento,
                 ProjectConfig::CITY_PASS => $cityPass
@@ -69,10 +69,10 @@ class CartRepository extends BaseRepository
     public function add($parameters)
     {
         if (!empty($parameters->magento())) {
-            $this->magento->authorization($this->token)->add($parameters->magento());
+            $this->magento->userAuthorization($this->memberTokenService->magentoUserToken())->add($parameters->magento());
         } else if(!empty($parameters->cityPass())) {
             foreach ($parameters->cityPass() as $item) {
-                $this->cityPass->authorization($this->cityPassUserToken())->add($item);
+                $this->cityPass->authorization($this->memberTokenService->cityPassUserToken())->add($item);
             }
         }
         $this->cleanCache();
@@ -85,10 +85,10 @@ class CartRepository extends BaseRepository
     public function update($parameters)
     {
         if (!empty($parameters->magento())) {
-            $this->magento->authorization($this->token)->update($parameters->magento());
+            $this->magento->userAuthorization($this->memberTokenService->magentoUserToken())->update($parameters->magento());
         } else if(!empty($parameters->cityPass())) {
             foreach ($parameters->cityPass() as $item) {
-                $this->cityPass->authorization($this->cityPassUserToken())->update($item);
+                $this->cityPass->authorization($this->memberTokenService->cityPassUserToken())->update($item);
             }
         }
         $this->cleanCache();
@@ -101,10 +101,10 @@ class CartRepository extends BaseRepository
     public function delete($parameters)
     {
         if (!empty($parameters->magento())) {
-            $this->magento->authorization($this->token)->delete($parameters->magento());
+            $this->magento->userAuthorization($this->memberTokenService->magentoUserToken())->delete($parameters->magento());
         } else if(!empty($parameters->cityPass())) {
             foreach ($parameters->cityPass() as $item) {
-                $this->cityPass->authorization($this->cityPassUserToken())->delete($item);
+                $this->cityPass->authorization($this->memberTokenService->cityPassUserToken())->delete($item);
             }
 
         }

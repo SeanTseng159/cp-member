@@ -17,6 +17,8 @@ class Client extends BaseClient
 {
     use EnvHelper;
 
+    protected $userToken;
+
     public function __construct($defaultAuthorization = true)
     {
         $this->token = $this->env('MAGENTO_ADMIN_TOKEN');
@@ -29,5 +31,17 @@ class Client extends BaseClient
                 'Authorization' => 'Bearer ' . $this->token
             ];
         }
+    }
+
+    /**
+     * 設定 user token
+     * @param $token
+     * @return $this
+     */
+    public function userAuthorization($token)
+    {
+        $this->userToken = $token;
+        $this->authorization($token);
+        return $this;
     }
 }
