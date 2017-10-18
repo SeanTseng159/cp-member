@@ -28,7 +28,7 @@ class NotificationRepository extends BaseRepository
             if(array_key_exists('memberId',$parameter)){
                 $notimob->member_id = $parameter['memberId'];
             }
-            $notimob->device_id = $parameter['deviceId'];
+            //$notimob->device_id = $parameter['deviceId'];
             $notimob->save();
             return $notimob;
         }catch(QueryException $e){
