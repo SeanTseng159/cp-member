@@ -25,12 +25,6 @@ class Customer extends Client
         $customer->email = $member->email;
         $customer->firstname = $firstName;
         $customer->lastname = $lastName;
-        $customer->addresses = [
-            [
-                'region_id' => $member->country,
-                'telephone' => $member->cellphone
-            ]
-        ];
 
         $this->putParameters([
             'customer' => $customer,
