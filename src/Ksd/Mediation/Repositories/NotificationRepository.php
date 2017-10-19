@@ -59,10 +59,25 @@ class NotificationRepository extends BaseRepository
 
     //取得平台裝置註冊金鑰
     public function devicesByPlatform($platform){
+
         $notimob = new NotificationMobile();
 
         $devices = $notimob->where([
             ['platform', '=', $platform],
+        ])
+            ->get();
+
+        return $devices;
+    }
+
+
+    //取得使用者註冊金鑰
+    public function devicesByMember($member){
+
+        $notimob = new NotificationMobile();
+
+        $devices = $notimob->where([
+            ['member_id', '=', $member],
         ])
             ->get();
 
