@@ -22,6 +22,9 @@ class Wishlist extends Client
      */
     public function items()
     {
+        if (empty($this->userToken)) {
+            return [];
+        }
 
         $response = $this->request('GET', 'V1/ipwishlist/items');
         $result = json_decode($response->getBody(), true);
