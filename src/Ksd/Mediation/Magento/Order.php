@@ -30,17 +30,20 @@ class Order extends Client
             $path = 'V1/orders';
             $response = $this->putQuery('searchCriteria[filterGroups][0][filters][0][field]', 'customer_email')
                 ->putQuery('searchCriteria[filterGroups][0][filters][0][value]', $email)
+ //               ->putQuery('searchCriteria[sortOrders][0][field]', 'created_at')
+ //               ->putQuery('searchCriteria[sortOrders][0][direction]', 'DESC')
                 ->request('GET', $path);
             $body = $response->getBody();
             $result = json_decode($body, true);
         }catch (ClientException $e){
             // TODO:抓不到MAGENTO API訂單資料
         }
+
         $data = [];
         foreach ($result['items'] as $item) {
             $order = new OrderResult();
             $order->magento($item);
-            $data[] = $order;
+            $data[] = (array)$order;
         }
 
         return $data;
@@ -103,7 +106,7 @@ class Order extends Client
     /**
      * 根據 條件篩選 取得訂單
      * @param $parameters
-     * @return OrderResult
+     * @return array
      */
     public function search($parameters)
     {
@@ -152,7 +155,7 @@ class Order extends Client
         foreach ($result['items'] as $item) {
             $order = new OrderResult();
             $order->magento($item);
-            $data[] = $order;
+            $data[] = (array)$order;
         }
 
         //如有關鍵字搜尋則進行判斷是否有相似字
@@ -168,12 +171,12 @@ class Order extends Client
                     }
                 }
                 if($dataflag){
-                    $data1[] = $item;
+                    $data1[] = (array)$item;
                 }
             }
         }else{
             $flag = true;
-            $data1 = $data;
+            $data1 = (array)$data;
         }
 
         return $flag ? $data1 : null;

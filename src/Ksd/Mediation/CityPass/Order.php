@@ -39,8 +39,8 @@ class Order extends Client
                 $order->cityPass($item);
                 $data[] = $order;
             }
-
- */           return $result['data']['items'];
+*/
+            return (array)$result['data']['items'];
         }else{
             return null;
         }
@@ -76,7 +76,7 @@ class Order extends Client
     /**
      * 根據 條件篩選 取得訂單
      * @param $parameters
-     * @return OrderResult
+     * @return array
      */
     public function search($parameters=null)
     {
@@ -123,7 +123,7 @@ class Order extends Client
                 $order->cityPass($item);
                 $data[] = $order;
             }
- */           return $result['data']['items'];
+ */           return (array)$result['data']['items'];
         }else{
 
             return null;
