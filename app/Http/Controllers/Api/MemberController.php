@@ -142,9 +142,39 @@ class MemberController extends RestLaravelController
                     'password',
                     'email'
                 ]);
-         $member = $this->memberService->update($id, $data);
 
-         return ($member) ? $this->success($member) : $this->failure('E0003', '更新失敗');
+        $country = strtoupper($data['country']);
+
+        if ($data['countryCode'] && $data['cellphone'] && $data['country']) {
+            try {
+                $phoneUtil = \libphonenumber\PhoneNumberUtil::getInstance();
+                $phoneNumber = $phoneUtil->parse($data['countryCode'] . $data['cellphone'], $country);
+
+                $countryCode = $data['countryCode'] = $phoneNumber->getCountryCode();
+                $cellphone = $data['cellphone'] = $phoneNumber->getNationalNumber();
+                $intlNumber = $phoneUtil->format($phoneNumber, \libphonenumber\PhoneNumberFormat::E164);
+
+                $isValid = $phoneUtil->isValidNumber($phoneNumber);
+                $getNumberType = $phoneUtil->getNumberType($phoneNumber);
+
+                if (!$phoneUtil->isValidNumber($phoneNumber) || $phoneUtil->getNumberType($phoneNumber) != 1) {
+                    Log::error('不是手機格式');
+                    return $this->failure('E0301', '手機格式錯誤');
+                }
+            } catch (\libphonenumber\NumberParseException $e) {
+                Log::debug($e);
+                return $this->failure('E0301', '手機格式錯誤');
+            }
+
+            //確認手機是否使用
+            if ($this->memberService->checkPhoneIsUse($countryCode, $cellphone)) {
+                return $this->failure('A0031', '該手機號碼已使用');
+            }
+        }
+
+        $member = $this->memberService->update($id, $data);
+
+        return ($member) ? $this->success($member) : $this->failure('E0003', '更新失敗');
      }
 
     /**
@@ -283,8 +313,45 @@ class MemberController extends RestLaravelController
     public function sendValidPhoneCode(Request $request)
     {
         $id = $request->input('id');
+        $countryCode = $request->input('countryCode');
+        $cellphone = $request->input('cellphone');
+        $country = $request->input('country');
 
-        $member = $this->memberService->find($id);
+        if ($countryCode && $cellphone && $country) {
+            try {
+                $phoneUtil = \libphonenumber\PhoneNumberUtil::getInstance();
+                $phoneNumber = $phoneUtil->parse($countryCode . $cellphone, strtoupper($country));
+
+                $countryCode = $phoneNumber->getCountryCode();
+                $cellphone = $phoneNumber->getNationalNumber();
+                $intlNumber = $phoneUtil->format($phoneNumber, \libphonenumber\PhoneNumberFormat::E164);
+
+                $isValid = $phoneUtil->isValidNumber($phoneNumber);
+                $getNumberType = $phoneUtil->getNumberType($phoneNumber);
+
+                if (!$phoneUtil->isValidNumber($phoneNumber) || $phoneUtil->getNumberType($phoneNumber) != 1) {
+                    Log::error('不是手機格式');
+                    return $this->failure('E0301', '手機格式錯誤');
+                }
+            } catch (\libphonenumber\NumberParseException $e) {
+                Log::debug($e);
+                return $this->failure('E0301', '手機格式錯誤');
+            }
+
+            //確認手機是否使用
+            if ($this->memberService->checkPhoneIsUse($countryCode, $cellphone)) {
+                return $this->failure('A0031', '該手機號碼已使用');
+            }
+
+            $member = $this->memberService->update($id, [
+                    'countryCode' => $countryCode,
+                    'cellphone' => $cellphone,
+                    'country' => $country
+                ]);
+        }
+        else {
+            $member = $this->memberService->find($id);
+        }
 
         if (env('APP_ENV') === 'production') {
             //傳送簡訊認證
