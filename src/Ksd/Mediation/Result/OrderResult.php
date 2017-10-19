@@ -31,24 +31,26 @@ class OrderResult
         $product = new Order();
 
         if(!$isDetail) {
+            $this->id = $this->arrayDefault($result, 'entity_id');
             $this->orderNo = $this->arrayDefault($result, 'increment_id');
             $this->orderAmount = $this->arrayDefault($result, 'total_paid');
             $this->orderStatus = $this->getStatus(ProjectConfig::MAGENTO,$this->arrayDefault($result, 'status'));
             $this->orderDate = $this->arrayDefault($result, 'created_at');
             $payment = $this->arrayDefault($result, 'payment');
             $this->payment = $this->putMagentoPayment($payment);
+            $this->payment['username'] =   $this->arrayDefault($result, 'customer_firstname') . $this->arrayDefault($result, 'customer_lastname');
             $this->shipping = [];
             $ship = $this->arrayDefault($result, 'extension_attributes');
             foreach ($this->arrayDefault($ship, 'shipping_assignments', []) as $shipping) {
                 $shipping = $this->arrayDefault($shipping, 'shipping');
                 $this->shipping['name'] = $shipping['address']['firstname'] . $shipping['address']['lastname'];
                 $this->shipping['phone'] = $shipping['address']['telephone'];
-                $this->shipping['postcode'] = $shipping['address']['postcode'];
+                $this->shipping['code'] = $shipping['address']['postcode'];
                 $this->shipping['address'] = $shipping['address']['city'].$shipping['address']['street'][0];
 
             }
-            $this->shipping['shippingDescription'] = $this->arrayDefault($result, 'shipping_description');
-            $this->shipping['shippingAmount'] = $this->arrayDefault($result, 'shipping_amount');
+            $this->shipping['description'] = $this->arrayDefault($result, 'shipping_description');
+            $this->shipping['amount'] = $this->arrayDefault($result, 'shipping_amount');
 
             $this->items = [];
             foreach ($this->arrayDefault($result, 'items', []) as $item) {
@@ -56,7 +58,7 @@ class OrderResult
                     $row = [];
                     $row['source'] = ProjectConfig::MAGENTO;
                     $row['no'] = $this->arrayDefault($item, 'item_id');
-                    $row['id'] = $this->arrayDefault($item, 'sku');
+                    $row['itemId'] = $this->arrayDefault($item, 'sku');
                     $row['name'] = $this->arrayDefault($item, 'name');
                     $row['spec'] = $this->arrayDefault($item, 'product_type');
                     $row['quantity'] = $this->arrayDefault($item, 'qty_ordered');
@@ -92,18 +94,19 @@ class OrderResult
             $this->date = $this->arrayDefault($result, 'created_at');
             $payment = $this->arrayDefault($result, 'payment');
             $this->payment = $this->putMagentoPayment($payment);
+            $this->payment['username'] =   $this->arrayDefault($result, 'customer_firstname') . $this->arrayDefault($result, 'customer_lastname');
             $this->shipping = [];
             $ship = $this->arrayDefault($result, 'extension_attributes');
             foreach ($this->arrayDefault($ship, 'shipping_assignments', []) as $shipping) {
                 $shipping = $this->arrayDefault($shipping, 'shipping');
                 $this->shipping['name'] = $shipping['address']['firstname'] . $shipping['address']['lastname'];
                 $this->shipping['phone'] = $shipping['address']['telephone'];
-                $this->shipping['postcode'] = $shipping['address']['postcode'];
+                $this->shipping['code'] = $shipping['address']['postcode'];
                 $this->shipping['address'] = $shipping['address']['city'].$shipping['address']['street'][0];
 
             }
-            $this->shipping['shippingDescription'] = $this->arrayDefault($result, 'shipping_description');
-            $this->shipping['shippingAmount'] = $this->arrayDefault($result, 'shipping_amount');
+            $this->shipping['description'] = $this->arrayDefault($result, 'shipping_description');
+            $this->shipping['amount'] = $this->arrayDefault($result, 'shipping_amount');
             $this->discount = $this->arrayDefault($result, 'discount_amount');
             $this->quantity = $this->arrayDefault($result, 'qty_ordered');
 
@@ -114,7 +117,7 @@ class OrderResult
                     $row = [];
                     $row['source'] = ProjectConfig::MAGENTO;
                     $row['no'] = $this->arrayDefault($item, 'item_id');
-                    $row['id'] = $this->arrayDefault($item, 'sku');
+                    $row['itemId'] = $this->arrayDefault($item, 'sku');
                     $row['name'] = $this->arrayDefault($item, 'name');
                     $row['spec'] = $this->arrayDefault($item, 'product_type');
                     $row['quantity'] = $this->arrayDefault($item, 'qty_ordered');
@@ -163,16 +166,7 @@ class OrderResult
             $this->orderDate = $this->arrayDefault($result, 'orderDate');
             $this->payment = $this->arrayDefault($result, 'payment');
             $this->shipping = $this->arrayDefault($result, 'shipping');
-/*            foreach ($this->arrayDefault($result, 'shipping', []) as $shipping) {
-                $this->shipping['name'] = $shipping['name'];
-                $this->shipping['phone'] = $shipping['phone'];
-                $this->shipping['postcode'] = $shipping['postcode'];
-                $this->shipping['address'] = $shipping['address'];
-                $this->shipping['shippingDescription'] = $shipping['shippingDescription'];
-                $this->shipping['shippingAmount'] = $shipping['shippingAmount'];
 
-            }
-*/
 
             $this->items = [];
             foreach ($this->arrayDefault($result, 'items', []) as $item) {
@@ -302,7 +296,8 @@ class OrderResult
             $result = [
                 'bankId' => $this->arrayDefault($additionalInformation, 1),
                 'virtualAccount' => $this->arrayDefault($additionalInformation, 2),
-                'amount' => $this->arrayDefault($additionalInformation, 3)
+                'amount' => $this->arrayDefault($additionalInformation, 3),
+                'paymentPeriod' => $this->arrayDefault($additionalInformation, 4)
             ];
         }
         $result['method'] = $method;
