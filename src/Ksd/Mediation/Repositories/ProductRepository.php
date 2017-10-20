@@ -136,7 +136,7 @@ class ProductRepository extends BaseRepository
 
         $hasIndex = false;
 
-        if (!empty($indexResults)) {
+        if (!empty($indexResults) && isset($productIndex->id)) {
             foreach ($indexResults as $row) {
                 if (!empty($row->find($productIndex->id))) {
                     $hasIndex = true;
