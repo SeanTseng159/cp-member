@@ -84,4 +84,26 @@ class NotificationRepository extends BaseRepository
         return $devices;
     }
 
+    //刪除token
+    public function deleteByToken($token){
+        $notimob = new NotificationMobile();
+
+        $notimob->where([
+            ['mobile_token', '=', $token],
+        ])
+            ->delete();
+
+    }
+
+    //刪除toekn-platform
+    public function deleteByTokenPlatform($token, $platform){
+        $notimob = new NotificationMobile();
+
+        $notimob->where([
+            ['mobile_token', '=', $token],
+            ['platform', '=', $platform],
+        ])
+            ->delete();
+    }
+
 }

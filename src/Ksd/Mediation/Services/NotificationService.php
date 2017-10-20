@@ -38,120 +38,238 @@ class NotificationService
     //發送推播訊息
     public function send($data){
         try{
-            //正式環境
-            //$pushManager = new PushManager(PushManager::ENVIRONMENT_PROD);
-            //測試環境
-            $pushManager = new PushManager(PushManager::ENVIRONMENT_DEV);
 
             // Then, create the push skel.
-            $message = new Message($data['title'], array(
+
+            $message = new Message($data['body'], array(
                 'badge' => 1,
-                'sound' => 'example.aiff',
+                'sound' => 'default',
 
-                'actionLocKey' => 'Action button title!',
-                'locKey' => 'localized key',
+                'actionLocKey' => '',
+                'locKey' => $data['title'],
                 'locArgs' => array(
-                    'localized args',
-                    'localized args',
-                    'localized args'
-                ),
-                'launchImage' => 'image.jpg',
 
-                'custom' => array('custom data' => array(
-                    'we' => 'want', 'send to app'
-                ))
+                ),
+                'launchImage' => '',
+
+                'custom' => array(
+                    'type'  => $data['type'],
+                    'url'   => $data['url'],
+                )
             ));
+
 
             //iOS
             if($data['platform']==='0' || $data['platform']==='1'){
-
-                // Then declare an adapter.
-                $apnsAdapter = new ApnsAdapter(array(
-                    'certificate' => 'C:\Users\ching\Desktop\VisualAMPv7\www\City-pass-member\src\Ksd\Mediation\Services\CityPass_APS_Development.pem',
-                ));
 
                 //取出已註冊iOS Token
                 //$registedDevices = $this->repository->devicesByPlatform('iOS');
                 $registedDevices = $this->repository->devicesByPlatform('iOS-Dev');
 
-                $deviceTokens = array();
 
-                var_dump($registedDevices->count());
+                while($registedDevices->count() > 0){
 
-                foreach($registedDevices as $key=>$registedDevice){
-                    var_dump($registedDevice->mobile_token);
-                    array_push($deviceTokens,new Device($registedDevice->mobile_token));
+                    //送出訊息
+                    $deviceTokens = array();
+
+                    foreach($registedDevices as $key=>$registedDevice){
+                        try{
+                            array_push($deviceTokens,new Device($registedDevice->mobile_token));
+                            // Set the device(s) to push the notification to.
+                        }catch(\Exception $e){
+
+                        }
+                    }
+                    $devices = new DeviceCollection(
+                        $deviceTokens
+                    );
+
+                    //正式環境
+                    //$pushManager = new PushManager(PushManager::ENVIRONMENT_PROD);
+                    //測試環境
+                    $pushManager = new PushManager(PushManager::ENVIRONMENT_DEV);
+
+                    // Then declare an adapter.
+                    $apnsAdapter = new ApnsAdapter(array(
+                        'certificate' => 'C:\Users\ching\Desktop\VisualAMPv7\www\City-pass-member\src\Ksd\Mediation\Services\CityPass_APS_Development.pem',
+                    ));
+
+                    $push = new Push($apnsAdapter, $devices, $message);
+                    $pushManager->add($push);
+                    $pushManager->push();
+
+                    $push_responses = $push->getResponses();
+
+                    //移除成功傳送token
+                    foreach($push_responses as $token => $response) {
+                        if(!is_null($response['id'])){
+                            break;
+                        }else{
+                            foreach($registedDevices as $key=>$registedDevice){
+                                if($token == $registedDevice->mobile_token){
+                                    unset($registedDevices[$key]);
+                                }
+                            }
+                        }
+
+                    }
+
+                    //移除失敗token
+                    foreach($push_responses as $token => $response) {
+                        if(!is_null($response['id'])){
+                            foreach($registedDevices as $key=>$registedDevice){
+                                if($token == $registedDevice->mobile_token){
+                                    unset($registedDevices[$key]);
+                                    $this->repository->deleteByToken($token);
+                                }
+                            }
+                        }
+                    }
+
                 }
 
-                // Set the device(s) to push the notification to.
-                $devices = new DeviceCollection(
-                    $deviceTokens
-                );
 
-                // Finally, create and add the push to the manager, and push it!
-                $push = new Push($apnsAdapter, $devices, $message);
-                $pushManager->add($push);
-                $pushManager->push();
-
-                foreach($push->getResponses() as $token => $response) {
-                    // ...
-                }
             }
 
             //Android
             if($data['platform']=='0' || $data['platform']=='2'){
 
-                // Then declare an adapter.
-                $gcmAdapter = new GcmAdapter(array(
-                    'apiKey' => 'YourApiKey',
-                ));
-
+                //取出已註冊Android Token
                 $registedDevices = $this->repository->devicesByPlatform('Android');
 
-                $deviceTokens = array();
+                while($registedDevices->count() > 0){
 
-                foreach($registedDevices as $key=>$registedDevice){
-                    array_push($deviceTokens,new Device($registedDevice->mobile_token));
+                    //送出訊息
+                    $deviceTokens = array();
+
+                    foreach($registedDevices as $key=>$registedDevice){
+                        try{
+                            array_push($deviceTokens,new Device($registedDevice->mobile_token));
+                            // Set the device(s) to push the notification to.
+                        }catch(\Exception $e){
+
+                        }
+                    }
+                    $devices = new DeviceCollection(
+                        $deviceTokens
+                    );
+
+                    //正式環境
+                    //$pushManager = new PushManager(PushManager::ENVIRONMENT_PROD);
+                    //測試環境
+                    $pushManager = new PushManager(PushManager::ENVIRONMENT_DEV);
+
+                    // Then declare an adapter.
+                    $gcmAdapter = new GcmAdapter(array(
+                        'apiKey' => 'YourApiKey',
+                    ));
+
+                    // Finally, create and add the push to the manager, and push it!
+                    $push = new Push($gcmAdapter, $devices, $message);
+                    $pushManager->add($push);
+                    $pushManager->push(); // Returns a collection of notified devices
+
+                    $push_responses = $push->getResponses();
+
+                    //移除成功傳送token
+                    foreach($push_responses as $token => $response) {
+                        if(!is_null($response['id'])){
+                            break;
+                        }else{
+                            foreach($registedDevices as $key=>$registedDevice){
+                                if($token == $registedDevice->mobile_token){
+                                    unset($registedDevices[$key]);
+                                }
+                            }
+                        }
+
+                    }
+
+                    //移除失敗token
+                    foreach($push_responses as $token => $response) {
+                        if(!is_null($response['id'])){
+                            foreach($registedDevices as $key=>$registedDevice){
+                                if($token == $registedDevice->mobile_token){
+                                    unset($registedDevices[$key]);
+                                    $this->repository->deleteByToken($token);
+                                }
+                            }
+                        }
+                    }
+
                 }
 
-                $devices = new DeviceCollection(
-                    $deviceTokens
-                );
 
-                // Finally, create and add the push to the manager, and push it!
-                $push = new Push($gcmAdapter, $devices, $message);
-                $pushManager->add($push);
-                $pushManager->push(); // Returns a collection of notified devices
-
-                // each response will contain also
-                // the data of the overall delivery
-                foreach($push->getResponses() as $token => $response) {
-                    // > $response
-                    // Array
-                    // (
-                    //     [message_id] => fake_message_id
-                    //     [multicast_id] => -1
-                    //     [success] => 1
-                    //     [failure] => 0
-                    //     [canonical_ids] => 0
-                    // )
-                }
 
             }
 
             //測試指定用戶
             if($data['platform']=='3'){
 
+
                 $registedDevices = $this->repository->devicesByMember($data['memberId']);
 
 
+                foreach($registedDevices as $key=>$registedDevice){
+
+                    try{
+                        //送出訊息
+                        $devices = new DeviceCollection(
+                            array(
+                                new Device($registedDevice->mobile_token)
+                            )
+                        );
+
+                        //正式環境
+                        //$pushManager = new PushManager(PushManager::ENVIRONMENT_PROD);
+                        //測試環境
+                        $pushManager = new PushManager(PushManager::ENVIRONMENT_DEV);
+
+                        switch($registedDevice->platform){
+                            case 'iOS':
+                                $adapter = new ApnsAdapter(array(
+                                    'certificate' => 'C:\Users\ching\Desktop\VisualAMPv7\www\City-pass-member\src\Ksd\Mediation\Services\CityPass_APS_Development.pem',
+                                ));
+                                break;
+                            case 'iOS-Dev':
+                                $adapter = new ApnsAdapter(array(
+                                    'certificate' => 'C:\Users\ching\Desktop\VisualAMPv7\www\City-pass-member\src\Ksd\Mediation\Services\CityPass_APS_Development.pem',
+                                ));
+                                break;
+                            case 'Android':
+                                $adapter = new GcmAdapter(array(
+                                    'apiKey' => 'YourApiKey',
+                                ));
+                                break;
+                            default:
+                                break;
+                        }
+
+                        // Finally, create and add the push to the manager, and push it!
+                        $push = new Push($adapter, $devices, $message);
+                        $pushManager->add($push);
+                        $pushManager->push(); // Returns a collection of notified devices
+
+                        $push_responses = $push->getResponses();
+
+                        //移除失敗token
+                        foreach($push_responses as $token => $response) {
+                            if(!is_null($response['id'])){
+                                $this->repository->deleteByTokenPlatform($token, $registedDevice->platform );
+                            }
+                        }
+                    }catch(\Exception $e){
+
+                    }
+
+                }
 
             }
 
 
             return true;
 
-        }catch(Exception $e){
+        }catch(\Exception $e){
             var_dump($e);
         }
 
