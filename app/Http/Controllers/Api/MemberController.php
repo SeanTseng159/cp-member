@@ -143,12 +143,14 @@ class MemberController extends RestLaravelController
                     'email'
                 ]);
 
-        $country = strtoupper($data['country']);
+        $countryCode = $request->input('countryCode');
+        $cellphone = $request->input('cellphone');
+        $country = $request->input('country');
 
-        if ($data['countryCode'] && $data['cellphone'] && $data['country']) {
+        if ($countryCode && $cellphone && $country) {
             try {
                 $phoneUtil = \libphonenumber\PhoneNumberUtil::getInstance();
-                $phoneNumber = $phoneUtil->parse($data['countryCode'] . $data['cellphone'], $country);
+                $phoneNumber = $phoneUtil->parse($countryCode . $cellphone, strtoupper($country));
 
                 $countryCode = $data['countryCode'] = $phoneNumber->getCountryCode();
                 $cellphone = $data['cellphone'] = $phoneNumber->getNationalNumber();
