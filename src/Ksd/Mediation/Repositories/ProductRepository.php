@@ -136,14 +136,16 @@ class ProductRepository extends BaseRepository
 
         $hasIndex = false;
 
-        foreach ($indexResults as $row) {
-            if (!empty($row->find($productIndex->id))) {
-                $hasIndex = true;
-                break;
+        if (!empty($indexResults)) {
+            foreach ($indexResults as $row) {
+                if (!empty($row->find($productIndex->id))) {
+                    $hasIndex = true;
+                    break;
+                }
             }
-        }
-        if (!$hasIndex) {
-            $indexResults = array_merge($indexResults, [$productIndex]);
+            if (!$hasIndex) {
+                $indexResults = array_merge($indexResults, [$productIndex]);
+            }
         }
 
         $this->redis->set($cacheKey, $indexResults, 3600 * 24);
