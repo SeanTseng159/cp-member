@@ -18,7 +18,7 @@ class Layout extends Client
 
     /**
      * 取得首頁資料
-     * @return array
+     * @return LayoutResult
      */
     public function home()
     {
@@ -39,7 +39,7 @@ class Layout extends Client
 
     /**
      * 取得廣告左右滿版資料
-     * @return array
+     * @return LayoutResult
      */
     public function ads()
     {
@@ -61,7 +61,7 @@ class Layout extends Client
 
     /**
      * 取得熱門探索資料
-     * @return array
+     * @return LayoutResult
      */
     public function exploration()
     {
@@ -83,7 +83,7 @@ class Layout extends Client
 
     /**
      * 取得自訂版位資料
-     * @return array
+     * @return LayoutResult
      */
     public function customize()
     {
@@ -105,7 +105,7 @@ class Layout extends Client
 
     /**
      * 取得底部廣告Banner
-     * @return array
+     * @return LayoutResult
      */
     public function banner()
     {
@@ -127,7 +127,7 @@ class Layout extends Client
 
     /**
      * 取得標籤資料
-     * @return array
+     * @return LayoutResult
      */
     public function info()
     {
@@ -170,7 +170,6 @@ class Layout extends Client
 
     /**
      * 取得選單資料
-     * @param $itemId
      * @return LayoutResult
      */
     public function menu()

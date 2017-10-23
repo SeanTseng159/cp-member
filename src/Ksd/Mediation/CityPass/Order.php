@@ -34,12 +34,13 @@ class Order extends Client
         $data = [];
 
         if(!empty($result)) {
-            foreach ($result['data']['items'] as $item) {
+/*            foreach ($result['data']['items'] as $item) {
                 $order = new OrderResult();
                 $order->cityPass($item);
                 $data[] = $order;
             }
-            return $data;
+*/
+            return (array)$result['data']['items'];
         }else{
             return null;
         }
@@ -63,9 +64,9 @@ class Order extends Client
 
 
         if(!empty($result)) {
-            $order = new OrderResult();
-            $order->cityPass($result['data'], true);
-            return $order;
+//            $order = new OrderResult();
+//            $order->cityPass($result['data'], true);
+            return $result['data'];
         }else{
             return null;
         }
@@ -75,7 +76,7 @@ class Order extends Client
     /**
      * 根據 條件篩選 取得訂單
      * @param $parameters
-     * @return OrderResult
+     * @return array
      */
     public function search($parameters=null)
     {
@@ -117,12 +118,12 @@ class Order extends Client
 
         $data = [];
         if(!empty($result)) {
-            foreach ($result['data']['items'] as $item) {
+/*            foreach ($result['data']['items'] as $item) {
                 $order = new OrderResult();
                 $order->cityPass($item);
                 $data[] = $order;
             }
-            return $data;
+ */           return (array)$result['data']['items'];
         }else{
 
             return null;
@@ -147,9 +148,9 @@ class Order extends Client
 
 
         if(!empty($result)) {
-            $order = new OrderResult();
-            $order->cityPass($result['data'], true);
-            return $order;
+//            $order = new OrderResult();
+//            $order->cityPass($result['data'], true);
+            return $result['data'];
         }else{
             return null;
         }

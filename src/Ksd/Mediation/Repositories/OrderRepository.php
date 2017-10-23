@@ -40,10 +40,15 @@ class OrderRepository extends BaseRepository
             $this->magento->authorization($this->token);
             $magento = $this->magento->userAuthorization($this->memberTokenService->magentoUserToken())->info();
             $cityPass = $this->cityPass->authorization($this->memberTokenService->cityPassUserToken())->info();
-            return [
+            $data = array_merge($magento, $cityPass);
+
+            return $this->multi_array_sort($data,'orderDate');
+
+/*            return [
                 ProjectConfig::MAGENTO => $magento,
                 ProjectConfig::CITY_PASS => $cityPass
             ];
+*/
         });
     }
 
@@ -97,11 +102,15 @@ class OrderRepository extends BaseRepository
 
             $magento = $this->magento->userAuthorization($this->memberTokenService->magentoUserToken())->search($parameters);
             $cityPass = $this->cityPass->authorization($this->memberTokenService->cityPassUserToken())->search($parameters);
+            $data = array_merge($magento, $cityPass);
+
+            return $this->multi_array_sort($data,'orderDate');
+/*
         return [
             ProjectConfig::MAGENTO => $magento,
             ProjectConfig::CITY_PASS => $cityPass
         ];
-
+*/
     }
 
     /**
@@ -150,5 +159,14 @@ class OrderRepository extends BaseRepository
                 return $this->cityPass->authorization($this->cityPassUserToken())->find($parameters->id);
             }
         });
+    }
+
+
+    public function multi_array_sort($arr,$key,$type=SORT_REGULAR,$short=SORT_DESC){
+        foreach ($arr as $k => $v){
+            $name[$k] = $v[$key];
+        }
+        array_multisort($name,$type,$short,$arr);
+        return $arr;
     }
 }

@@ -34,6 +34,9 @@ class MemberTokenService
     public function magentoUserToken()
     {
         $data = $this->JWTdecode();
+        if (empty($data)) {
+            return '';
+        }
         $member = $this->memberService->find($data->id);
 
         return $this->magentoCustomer->token($member);

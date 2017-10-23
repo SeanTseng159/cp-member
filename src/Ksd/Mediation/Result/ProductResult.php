@@ -90,6 +90,7 @@ class ProductResult
         $this->createdAt = $this->arrayDefault($result, 'createdAt');
 
         if ($isDetail) {
+            $this->saleStatus = $this->arrayDefault($result, 'saleStatus');
             $this->canUseCoupon = $this->arrayDefault($result, 'canUseCoupon');
             $this->storeTelephone = $this->arrayDefault($result, 'storeTelephone');
             $this->storeAddress = $this->arrayDefault($result, 'storeAddress');
@@ -135,8 +136,9 @@ class ProductResult
     {
         $data = new \stdClass();
         $columns = [
-            'source', 'id', 'name', 'price', 'salePrice', 'characteristic', 'category', 'tags', 'imageUrls', 'quantity',
-            'contents', 'additionals', 'purchase', 'storeName', 'place', 'imageUrl', 'isWishlist', 'discount'
+            'source', 'id', 'name', 'saleStatus', 'price', 'canUseCoupon', 'salePrice', 'characteristic', 'category', 'storeName',
+            'storeTelephone', 'storeAddress', 'place', 'tags', 'imageUrls', 'quantity', 'contents', 'additionals', 'purchase',
+            'imageUrl', 'isWishlist', 'discount'
         ];
         foreach ($columns as $column) {
             if (property_exists($this, $column)) {
