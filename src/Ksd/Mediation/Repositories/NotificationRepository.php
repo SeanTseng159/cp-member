@@ -20,6 +20,7 @@ class NotificationRepository extends BaseRepository
         parent::__construct();
     }
 
+    //註冊裝置推播金鑰
     public function register($parameter){
         try{
             $notimob = new NotificationMobile();
@@ -54,6 +55,55 @@ class NotificationRepository extends BaseRepository
 
             return false;
         }
+    }
+
+    //取得平台裝置註冊金鑰
+    public function devicesByPlatform($platform){
+
+        $notimob = new NotificationMobile();
+
+        $devices = $notimob->where([
+            ['platform', '=', $platform],
+        ])
+            ->get();
+
+        return $devices;
+    }
+
+
+    //取得使用者註冊金鑰
+    public function devicesByMember($member){
+
+        $notimob = new NotificationMobile();
+
+        $devices = $notimob->where([
+            ['member_id', '=', $member],
+        ])
+            ->get();
+
+        return $devices;
+    }
+
+    //刪除token
+    public function deleteByToken($token){
+        $notimob = new NotificationMobile();
+
+        $notimob->where([
+            ['mobile_token', '=', $token],
+        ])
+            ->delete();
+
+    }
+
+    //刪除toekn-platform
+    public function deleteByTokenPlatform($token, $platform){
+        $notimob = new NotificationMobile();
+
+        $notimob->where([
+            ['mobile_token', '=', $token],
+            ['platform', '=', $platform],
+        ])
+            ->delete();
     }
 
 }
