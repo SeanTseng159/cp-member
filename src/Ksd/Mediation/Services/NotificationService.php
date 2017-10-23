@@ -89,7 +89,6 @@ class NotificationService
                 'launchImage' => '',
 
                 'custom' => array(
-                    'type'  => $data['type'],
                     'url'   => $data['url'],
                 )
             ));
