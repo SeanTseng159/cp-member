@@ -31,7 +31,7 @@ class PaymentInfoResult
 
     /**
      * 設定付款方式
-     * @param $payment
+     * @param $key
      * @return string
      */
     public function paymentType($key)

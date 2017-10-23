@@ -10,7 +10,6 @@ namespace Ksd\Mediation\Result;
 
 use Ksd\Mediation\Helper\ObjectHelper;
 use Ksd\Mediation\Config\ProjectConfig;
-use Ksd\Mediation\Magento\Product;
 use Ksd\Mediation\Magento\Order;
 use Ksd\Mediation\Helper\EnvHelper;
 
@@ -57,7 +56,7 @@ class OrderResult
                 if($this->arrayDefault($item, 'price') != 0) {
                     $row = [];
                     $row['source'] = ProjectConfig::MAGENTO;
-                    $row['no'] = $this->arrayDefault($item, 'item_id');
+//                    $row['no'] = $this->arrayDefault($item, 'item_id');
                     $row['itemId'] = $this->arrayDefault($item, 'sku');
                     $row['name'] = $this->arrayDefault($item, 'name');
                     $row['spec'] = $this->arrayDefault($item, 'product_type');
