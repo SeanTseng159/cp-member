@@ -85,7 +85,7 @@ class NotificationController extends RestLaravelController
 
 
         if($this->notificationService->send($data)){
-            //return $this->success();
+            return $this->success();
         }else{
             return $this->failure('E0052', '推播訊息發送失敗');
         }
