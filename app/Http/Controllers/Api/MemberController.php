@@ -352,7 +352,9 @@ class MemberController extends RestLaravelController
                 ]);
         }
         else {
-            $member = $this->memberService->find($id);
+            $member = $this->memberService->update($id, [
+                    'validPhoneCode' => strval(mt_rand(100000, 999999));
+                ]);
         }
 
         if (env('APP_ENV') === 'production') {
