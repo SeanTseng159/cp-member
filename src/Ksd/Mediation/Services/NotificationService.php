@@ -22,10 +22,46 @@ use Sly\NotificationPusher\Model\Push;
 class NotificationService
 {
     private $repository;
+    private $env;           //環境變數
+
+    //環境參數選項
+    //0: 開發中, 1:產品
+    public $env_opt = array(
+        0   => PushManager::ENVIRONMENT_DEV,    //測試環境
+        1   => PushManager::ENVIRONMENT_PROD,   //正式環境
+    );
+
+    //iOS 平台參數
+    public $iOS_platform = array(
+        PushManager::ENVIRONMENT_DEV        =>  'iOS-Dev',
+        PushManager::ENVIRONMENT_PROD       =>  'iOS',
+    );
+
+    //iOS 憑證
+    public $iOS_certificate = array(
+        //PushManager::ENVIRONMENT_DEV        =>  'C:\Users\ching\Desktop\VisualAMPv7\www\City-pass-member\src\Ksd\Mediation\Services\CityPass_APS_Development.pem',
+        PushManager::ENVIRONMENT_DEV        =>  __DIR__.'/CityPass_APS_Development.pem',
+        PushManager::ENVIRONMENT_PROD       =>  __DIR__.'/CityPass_APS.pem',
+    );
+
+    //Android 平台參數
+    public $android_platform = array(
+        PushManager::ENVIRONMENT_DEV        =>  'Android',
+        PushManager::ENVIRONMENT_PROD       =>  'Android',
+    );
+
+    //Android api key
+    public $android_apiKey = array(
+        PushManager::ENVIRONMENT_DEV        =>  'YourApiKey',
+        PushManager::ENVIRONMENT_PROD       =>  'YourApiKey',
+    );
 
     public function __construct()
     {
         $this->repository = new NotificationRepository();
+
+        $this->env = PushManager::ENVIRONMENT_DEV;    //測試環境
+        //$this->env = PushManager::ENVIRONMENT_PROD;   //正式環境
     }
 
     //註冊推播金鑰
@@ -64,7 +100,8 @@ class NotificationService
 
                 //取出已註冊iOS Token
                 //$registedDevices = $this->repository->devicesByPlatform('iOS');
-                $registedDevices = $this->repository->devicesByPlatform('iOS-Dev');
+                //$registedDevices = $this->repository->devicesByPlatform('iOS-Dev');
+                $registedDevices = $this->repository->devicesByPlatform($this->iOS_platform[$this->env]);
 
 
                 while($registedDevices->count() > 0){
@@ -84,14 +121,12 @@ class NotificationService
                         $deviceTokens
                     );
 
-                    //正式環境
-                    //$pushManager = new PushManager(PushManager::ENVIRONMENT_PROD);
-                    //測試環境
-                    $pushManager = new PushManager(PushManager::ENVIRONMENT_DEV);
+                    //pushManager
+                    $pushManager = new PushManager($this->env);
 
                     // Then declare an adapter.
                     $apnsAdapter = new ApnsAdapter(array(
-                        'certificate' => 'C:\Users\ching\Desktop\VisualAMPv7\www\City-pass-member\src\Ksd\Mediation\Services\CityPass_APS_Development.pem',
+                        'certificate' => $this->iOS_certificate[$this->env],
                     ));
 
                     $push = new Push($apnsAdapter, $devices, $message);
@@ -135,7 +170,7 @@ class NotificationService
             if($data['platform']=='0' || $data['platform']=='2'){
 
                 //取出已註冊Android Token
-                $registedDevices = $this->repository->devicesByPlatform('Android');
+                $registedDevices = $this->repository->devicesByPlatform($this->android_platform[$this->env]);
 
                 while($registedDevices->count() > 0){
 
@@ -154,14 +189,13 @@ class NotificationService
                         $deviceTokens
                     );
 
-                    //正式環境
-                    //$pushManager = new PushManager(PushManager::ENVIRONMENT_PROD);
-                    //測試環境
-                    $pushManager = new PushManager(PushManager::ENVIRONMENT_DEV);
+
+                    //pushManager
+                    $pushManager = new PushManager($this->env);
 
                     // Then declare an adapter.
                     $gcmAdapter = new GcmAdapter(array(
-                        'apiKey' => 'YourApiKey',
+                        'apiKey' => $this->android_apiKey[$this->env],
                     ));
 
                     // Finally, create and add the push to the manager, and push it!
@@ -220,25 +254,18 @@ class NotificationService
                             )
                         );
 
-                        //正式環境
-                        //$pushManager = new PushManager(PushManager::ENVIRONMENT_PROD);
-                        //測試環境
-                        $pushManager = new PushManager(PushManager::ENVIRONMENT_DEV);
+                        //pushManager
+                        $pushManager = new PushManager($this->env);
 
                         switch($registedDevice->platform){
-                            case 'iOS':
+                            case $this->iOS_platform[$this->env]:
                                 $adapter = new ApnsAdapter(array(
-                                    'certificate' => 'C:\Users\ching\Desktop\VisualAMPv7\www\City-pass-member\src\Ksd\Mediation\Services\CityPass_APS_Development.pem',
+                                    'certificate' => $this->iOS_certificate[$this->env],
                                 ));
                                 break;
-                            case 'iOS-Dev':
-                                $adapter = new ApnsAdapter(array(
-                                    'certificate' => 'C:\Users\ching\Desktop\VisualAMPv7\www\City-pass-member\src\Ksd\Mediation\Services\CityPass_APS_Development.pem',
-                                ));
-                                break;
-                            case 'Android':
+                            case $this->android_platform[$this->env]:
                                 $adapter = new GcmAdapter(array(
-                                    'apiKey' => 'YourApiKey',
+                                    'apiKey' => $this->android_apiKey[$this->env],
                                 ));
                                 break;
                             default:
