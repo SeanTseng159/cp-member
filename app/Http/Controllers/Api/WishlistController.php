@@ -18,10 +18,12 @@ class WishlistController extends RestLaravelController
 
     /**
      * 取得所有收藏列表
+     * @param Request $request
      * @return mixed
      */
-    public function items()
+    public function items(Request $request)
     {
+        dd($request);
         return $this->success($this->wishlistService->items());
     }
 
