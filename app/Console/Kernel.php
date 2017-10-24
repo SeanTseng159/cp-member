@@ -30,7 +30,7 @@ class Kernel extends ConsoleKernel
         //          ->hourly();
 
         //發送推播訊息
-        $schedule->job(new SendNotification())->everyMinute();
+        $schedule->job(new SendNotification())->everyMinute()->withoutOverlapping();
 
     }
 
