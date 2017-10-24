@@ -35,7 +35,7 @@ class SendNotification implements ShouldQueue
     {
         //
         $now = date("Y-m-d H:i:00");
-        $one_minute = date("Y-m-d H:i:00", strtotime("-1 minute"));
+        $one_minute = date("Y-m-d H:i:00", strtotime("-60 minute"));
 
         $notification = new Notification();
 
@@ -47,7 +47,7 @@ class SendNotification implements ShouldQueue
 
         foreach($messages as $key=>$message){
             $data = array();
-            $data['title'] = $messages->title;
+            $data['title'] = $message->title;
             $data['body'] = $messages->body;
             $data['type'] = $messages->type;
             $data['url'] = $messages->url;
