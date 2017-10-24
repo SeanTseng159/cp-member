@@ -71,6 +71,21 @@ class NotificationService
 
     }
 
+    //新增推播訊錫
+    public function createMessage($data){
+
+        return $this->repository->createMessage($data);
+
+    }
+
+    //更新推播訊息
+
+    public function updateMessage($data){
+
+        return $this->repository->updateMessage($data);
+
+    }
+
     //發送推播訊息
     public function send($data){
         try{
@@ -89,7 +104,6 @@ class NotificationService
                 'launchImage' => '',
 
                 'custom' => array(
-                    'type'  => $data['type'],
                     'url'   => $data['url'],
                 )
             ));
@@ -239,7 +253,6 @@ class NotificationService
 
             //測試指定用戶
             if($data['platform']=='3'){
-
 
                 $registedDevices = $this->repository->devicesByMember($data['memberId']);
 
