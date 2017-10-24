@@ -110,7 +110,7 @@ class NotificationService
 
 
             //iOS
-            if($data['platform']==='0' || $data['platform']==='1'){
+            if($data['platform']=='0' || $data['platform']=='1'){
 
                 //取出已註冊iOS Token
                 //$registedDevices = $this->repository->devicesByPlatform('iOS');
