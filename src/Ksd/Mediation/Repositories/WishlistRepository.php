@@ -9,7 +9,8 @@
 namespace Ksd\Mediation\Repositories;
 
 
-use Ksd\Mediation\Magento\Wishlist;
+use Ksd\Mediation\Magento\Wishlist as MagentoWishlist;
+use Ksd\Mediation\CityPass\Wishlist as CityPassWishlist;
 use Ksd\Mediation\Config\ProjectConfig;
 use Ksd\Mediation\Services\MemberTokenService;
 
@@ -22,7 +23,8 @@ class WishlistRepository extends BaseRepository
 
     public function __construct(MemberTokenService $memberTokenService)
     {
-        $this->magento = new Wishlist();
+        $this->magento = new MagentoWishlist();
+        $this->cityPass = new cityPassWishlist();
         parent::__construct();
         $this->memberTokenService = $memberTokenService;
     }
@@ -36,11 +38,10 @@ class WishlistRepository extends BaseRepository
             $magento = $this->magento
                 ->userAuthorization($this->memberTokenService->magentoUserToken())
                 ->items();
-            $cityPass = [];
-            return [
-                ProjectConfig::MAGENTO => $magento,
-                ProjectConfig::CITY_PASS => $cityPass
-            ];
+            $cityPass = $this->cityPass
+                ->authorization($this->memberTokenService->cityPassUserToken())
+                ->items();
+            return array_merge($magento, $cityPass);
 
     }
 
@@ -50,10 +51,14 @@ class WishlistRepository extends BaseRepository
      */
     public function add($parameter)
     {
+        $source = $parameter->source;
         $id = $parameter->no;
-        $this->magento
-            ->userAuthorization($this->memberTokenService->magentoUserToken())
-            ->add($id);
+        if($source == ProjectConfig::MAGENTO) {
+            $this->magento->userAuthorization($this->memberTokenService->magentoUserToken())->add($id);
+        } else {
+            $this->cityPass->authorization($this->memberTokenService->cityPassUserToken())->add($id);
+        }
+
     }
 
     /**
@@ -62,10 +67,14 @@ class WishlistRepository extends BaseRepository
      */
     public function delete($parameter)
     {
+        $source = $parameter->source;
         $id = $parameter->no;
-        $this->magento
-            ->userAuthorization($this->memberTokenService->magentoUserToken())
-            ->delete($id);
+        if($source == ProjectConfig::MAGENTO) {
+            $this->magento->userAuthorization($this->memberTokenService->magentoUserToken())->delete($id);
+        } else {
+            $this->cityPass->authorization($this->memberTokenService->cityPassUserToken())->delete($id);
+        }
+
     }
 
 
