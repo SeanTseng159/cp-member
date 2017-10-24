@@ -30,8 +30,7 @@ class WishlistRepository extends BaseRepository
     }
 
     /**
-     * 取得所有收藏列表
-     * @return mixed
+     * 取得所有收藏列表@return mixed
      */
     public function items()
     {
@@ -41,7 +40,10 @@ class WishlistRepository extends BaseRepository
             $cityPass = $this->cityPass
                 ->authorization($this->memberTokenService->cityPassUserToken())
                 ->items();
-            return array_merge($magento, $cityPass);
+            return [
+                ProjectConfig::MAGENTO => $magento,
+                ProjectConfig::CITY_PASS => $cityPass
+            ];
 
     }
 
