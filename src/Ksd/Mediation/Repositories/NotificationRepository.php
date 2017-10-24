@@ -9,6 +9,7 @@
 namespace Ksd\Mediation\Repositories;
 
 use App\Models\NotificationMobile;
+use App\Models\Notification;
 
 use Illuminate\Database\QueryException;
 
@@ -104,6 +105,62 @@ class NotificationRepository extends BaseRepository
             ['platform', '=', $platform],
         ])
             ->delete();
+    }
+
+
+    //新增推播訊錫
+    public function createMessage($data){
+        $notification = new Notification();
+
+        $notification->title = $data['title'];
+        $notification->body = $data['body'];
+        if(array_key_exists('type',$data)){
+            $notification->type = $data['type'];
+        }else{
+            $notification->type = 0;
+        }
+
+        $notification->sent = 0;
+        $notification->url = $data['url'];
+        $notification->platform = $data['platform'];
+        $notification->time = $data['sendtime'];
+        $notification->status = $data['status'];
+
+        $notification->save();
+
+        return $notification->id;
+
+    }
+
+    //更新推播訊錫
+    public function updateMessage($data){
+
+        $notification = Notification::find($data['id']);
+
+        if($notification){
+
+            $notification->title = $data['title'];
+            $notification->body = $data['body'];
+            if(array_key_exists('type',$data)){
+                $notification->type = $data['type'];
+            }else{
+                $notification->type = 0;
+            }
+
+            $notification->sent = 0;
+            $notification->url = $data['url'];
+            $notification->platform = $data['platform'];
+            $notification->time = $data['sendtime'];
+            $notification->status = $data['status'];
+
+            $notification->save();
+
+
+            return $notification->id;
+
+        }
+
+
     }
 
 }
