@@ -35,7 +35,7 @@ class SendNotification implements ShouldQueue
     {
         //
         $now = date("Y-m-d H:i:00");
-        $one_minute = date("Y-m-d H:i:00", strtotime("-60 minute"));
+        $one_minute = date("Y-m-d H:i:00", strtotime("-1 minute"));
 
         $notification = new Notification();
 
