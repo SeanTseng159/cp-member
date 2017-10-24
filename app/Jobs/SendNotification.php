@@ -48,10 +48,10 @@ class SendNotification implements ShouldQueue
         foreach($messages as $key=>$message){
             $data = array();
             $data['title'] = $message->title;
-            $data['body'] = $messages->body;
-            $data['type'] = $messages->type;
-            $data['url'] = $messages->url;
-            $data['platform'] = $messages->title;
+            $data['body'] = $message->body;
+            $data['type'] = $message->type;
+            $data['url'] = $message->url;
+            $data['platform'] = $message->platform;
 
             $notiServ = new NotificationService();
 
