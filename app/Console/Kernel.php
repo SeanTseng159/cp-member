@@ -31,7 +31,7 @@ class Kernel extends ConsoleKernel
         //          ->hourly();
 
         //發送推播訊息
-        $schedule->call(function(){
+        $schedule->job(function(){
 
             $now = date("Y-m-d H:i:00");
             $one_minute = date("Y-m-d H:i:00", strtotime("-1 minute"));
