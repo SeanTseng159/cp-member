@@ -23,7 +23,6 @@ class WishlistController extends RestLaravelController
      */
     public function items(Request $request)
     {
-        dd($request);
         return $this->success($this->wishlistService->items());
     }
 
