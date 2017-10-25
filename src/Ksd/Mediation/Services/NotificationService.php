@@ -71,7 +71,17 @@ class NotificationService
 
     }
 
-    //新增推播訊錫
+    //所有推播訊息
+    public function allMessage(){
+        return $this->repository->allMessage();
+    }
+
+    //查詢推播訊息
+    public function queryMessage($id){
+        return $this->repository->queryMessage($id);
+    }
+
+    //新增推播訊息
     public function createMessage($data){
 
         return $this->repository->createMessage($data);
@@ -79,7 +89,6 @@ class NotificationService
     }
 
     //更新推播訊息
-
     public function updateMessage($data){
 
         return $this->repository->updateMessage($data);

@@ -131,6 +131,10 @@ Route::middleware('cors')->namespace('Api')->group(function () {
         Route::post('register', 'NotificationController@register');
         //後台發送推播訊息
         Route::post('send', 'NotificationController@send');
+        //取所有訊息
+        Route::get('all', 'NotificationController@allMessage');
+        //訊息資料查詢
+        Route::get('query/{id}', 'NotificationController@queryMessage');
     });
 
 });
