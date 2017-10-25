@@ -51,6 +51,7 @@ class MemberRepository
             if ($member) {
                 $member->fill($data);
                 if (isset($data['password'])) $member->password = Hash::make($member->password);
+                if ($member->email) $member->validEmailCode = Crypt::encrypt($member->email);
                 if (isset($data['email'])) $member->validEmailCode = Crypt::encrypt($data['email']);
                 $member->validPhoneCode = strval(mt_rand(100000, 999999));
                 if (!isset($data['birthday']) || !$data['birthday']) unset($member->birthday);
