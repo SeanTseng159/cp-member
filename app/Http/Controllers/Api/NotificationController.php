@@ -55,7 +55,7 @@ class NotificationController extends RestLaravelController
 
     }
 
-    //發送推播訊系
+    //發送推播訊息
     public function send(Request $request){
 
         $data = $request->only([
@@ -114,50 +114,26 @@ class NotificationController extends RestLaravelController
         }
 
 
-        //3分鐘前
-        $time = date("Y-m-d H:i:00", strtotime("-3 minute"));
-        //$time = date("Y-m-d H:i:s");
+    }
 
-        //立刻送出
-        //發送時間比接收時間略早
-        if($data['sendtime'] < date("Y-m-d H:i:s") && $data['sendtime'] > $time){
-            $this->notificationService->send($data);
-        }
+    //所有推播訊息
+    public function allMessage(Request $request){
 
+        $messages = $this->notificationService->allMessage();
 
-        /*
-        $schedule = new Schedule();
-        */
+        return $this->success($messages);
+    }
 
+    //查詢推播訊息內容
+    public function queryMessage($id){
 
+        $message = $this->notificationService->queryMessage($id);
 
-        /*
-        $schedule->call(function($data){
-            //$checktime = date("Y-m-d H:i:00");
-            //if($time == $checktime){
-            $this->notificationService->send($data);
-
-            //}
-        })->everyMinute()
-          ->when(function($time){
-              $checktime = date("Y-m-d H:i:00");
-              if($time == $checktime){
-                  return true;
-              }else{
-                  return false;
-              }
-          });
-        */
-
-
-        /*
-        if($this->notificationService->send($data)){
-            //return $this->success();
+        if(!is_null($message)){
+            return $this->success($message);
         }else{
-            return $this->failure('E0052', '推播訊息發送失敗');
+            return $this->failure('E0001', '訊息id不存在');
         }
-        */
-
     }
 
 }
