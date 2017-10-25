@@ -21,7 +21,9 @@ class MailService
                 'name' => $member->name
             ];
 
-        $data['link'] = 'http://172.104.83.229/validateEmail/' . $member->validEmailCode;
+        $lang = 'zh_TW';
+
+        $data['link'] = 'http://172.104.83.229/' . $lang . '/validateEmail/' . $member->validEmailCode;
 
         return $this->send('歡迎使用 CityPass 城市通 - 註冊成功認證', $recipient, 'emails/register', $data);
     }
@@ -38,7 +40,9 @@ class MailService
                 'name' => $member->name
             ];
 
-        $data['link'] = 'http://172.104.83.229/validateEmail/' . $member->validEmailCode;
+        $lang = 'zh_TW';
+
+        $data['link'] = 'http://172.104.83.229/' . $lang . '/validateEmail/' . $member->validEmailCode;
 
         return $this->send('CityPass 城市通 - Email認證信', $recipient, 'emails/validateEmail', $data);
     }
@@ -55,9 +59,11 @@ class MailService
                 'name' => $member->name
             ];
 
+        $lang = 'zh_TW';
+
         $expires = Carbon\Carbon::now()->timestamp + 1800;
         $key = Crypt::encrypt($member->email . '_' . $expires);
-        $data['link'] = 'http://172.104.83.229/changePassword/' . $key;
+        $data['link'] = 'http://172.104.83.229/' . $lang . '/changePassword/' . $key;
 
         $data['name'] = $member->name;
 
