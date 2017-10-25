@@ -339,6 +339,7 @@ class MemberService
         $member = $this->repository->find($id);
 
         if ($member && $member->isValidEmail == 0) {
+
             $job = (new SendValidateEmail($member))->delay(5);
             $this->dispatch($job);
 
@@ -357,16 +358,12 @@ class MemberService
     public function validateEmail($validEmailCode)
     {
         try {
-            $code = Crypt::decrypt($validEmailCode);
-
-            $codeAry = explode('_', $code);
-            $countryCode = $codeAry[0];
-            $cellphone = $codeAry[1];
+            $email = Crypt::decrypt($validEmailCode);
         } catch (DecryptException $e) {
             return false;
         }
 
-        $member = $this->repository->findByPhone($countryCode, $cellphone);
+        $member = $this->repository->findByEmail($email);
 
         if ($member) {
             $result = $this->update($member->id, [
