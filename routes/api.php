@@ -137,4 +137,13 @@ Route::middleware('cors')->namespace('Api')->group(function () {
         Route::get('query/{id}', 'NotificationController@queryMessage');
     });
 
+    Route::prefix('ticket')->group(function () {
+        //票券使用說明
+        Route::get('help',   'MyTicketController@help');
+        //票券列表
+        Route::get('info/{status}', 'MyTicketController@info');
+        //票券明細
+        Route::get('detail/{id}', 'MyTicketController@detail');
+    });
+
 });
