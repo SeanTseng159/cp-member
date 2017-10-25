@@ -163,4 +163,21 @@ class NotificationRepository extends BaseRepository
 
     }
 
+    //所有推播訊息
+    public function allMessage(){
+
+        $notifications = new Notification();
+
+        return $notifications->all();
+
+    }
+
+    //查詢推播訊息
+    public function queryMessage($id){
+
+        $notification = new Notification();
+
+        return $notification->find($id);
+    }
+
 }
