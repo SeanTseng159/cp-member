@@ -28,8 +28,8 @@ class MemberRepository
         try {
             $member = new Member();
             $member->fill($data);
+            if (isset($data['email'])) $member->validEmailCode = Crypt::encrypt($data['email']);
             $member->validPhoneCode = strval(mt_rand(100000, 999999));
-            $member->validEmailCode = Crypt::encrypt($data['countryCode'] . '_' . $data['cellphone']);
             $member->save();
             return $member;
         } catch (QueryException $e) {
@@ -51,6 +51,7 @@ class MemberRepository
             if ($member) {
                 $member->fill($data);
                 if (isset($data['password'])) $member->password = Hash::make($member->password);
+                if (isset($data['email'])) $member->validEmailCode = Crypt::encrypt($data['email']);
                 $member->validPhoneCode = strval(mt_rand(100000, 999999));
                 if (!isset($data['birthday']) || !$data['birthday']) unset($member->birthday);
                 $member->save();
