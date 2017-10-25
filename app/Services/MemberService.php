@@ -4,14 +4,20 @@ namespace App\Services;
 
 use App\Repositories\MemberRepository;
 use App\Services\JWTTokenService;
-use App\Services\MailService;
 use Ksd\SMS\Services\EasyGoService;
 use Illuminate\Support\Facades\Hash;
 use Crypt;
 use Carbon;
 
+use Illuminate\Foundation\Bus\DispatchesJobs;
+use App\Jobs\SendValidateEmail;
+use App\Jobs\SendRegisterMail;
+use App\Jobs\SendForgetPasswordMail;
+
 class MemberService
 {
+    use DispatchesJobs;
+
     protected $repository;
 
     public function __construct(MemberRepository $repository)
@@ -282,8 +288,8 @@ class MemberService
     {
         $member = $this->repository->findByEmail($email);
         if ($member && $member->isRegistered == 1) {
-            $mailService = new MailService;
-            $mailService->sendForgetPasswordMail($member);
+            $job = (new SendForgetPasswordMail($member))->delay(5);
+            $this->dispatch($job);
 
             return true;
         }
@@ -313,8 +319,8 @@ class MemberService
     public function sendRegisterEmail($member)
     {
         if ($member && $member->isRegistered == 1 && $member->isValidEmail == 0) {
-            $mailService = new MailService;
-            $mailService->sendRegisterMail($member);
+            $job = (new SendRegisterMail($member))->delay(5);
+            $this->dispatch($job);
 
             return true;
         }
@@ -333,8 +339,8 @@ class MemberService
         $member = $this->repository->find($id);
 
         if ($member && $member->isValidEmail == 0) {
-            $mailService = new MailService;
-            $mailService->sendValidateEmail($member);
+            $job = (new SendValidateEmail($member))->delay(5);
+            $this->dispatch($job);
 
             return true;
         }

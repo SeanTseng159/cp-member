@@ -26,7 +26,7 @@ Route::middleware(['cors', 'auth.jwt'])->group(function () {
         Route::post('delete/{id}', 'MemberController@deleteMember');
         //會員密碼修改
         Route::post('password/{id}', 'MemberController@changePassword');
-        //發送Email驗證信
+        //發送-Email驗證信
         Route::post('sendValidateEmail', 'MemberController@sendValidateEmail');
         //更新會員憑證
         Route::post('token', 'MemberController@refreshToken');
