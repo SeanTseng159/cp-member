@@ -278,6 +278,7 @@ class NotificationService
                         }
 
                         // Finally, create and add the push to the manager, and push it!
+                        var_dump($message);
                         $push = new Push($adapter, $devices, $message);
                         $pushManager->add($push);
                         $pushManager->push(); // Returns a collection of notified devices
