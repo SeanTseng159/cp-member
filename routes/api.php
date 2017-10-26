@@ -33,6 +33,11 @@ Route::middleware(['cors', 'auth.jwt'])->group(function () {
         //更新會員憑證
         Route::post('token', 'MemberController@refreshToken');
     });
+
+    Route::namespace('Api')->prefix('newsletter')->group(function () {
+        //取得所有電子報名單資料
+        Route::get('all', 'NewsletterController@all');
+    });
 });
 
 Route::middleware('cors')->namespace('Api')->group(function () {
@@ -142,8 +147,6 @@ Route::middleware('cors')->namespace('Api')->group(function () {
     Route::prefix('newsletter')->group(function () {
         //新增電子報名單
         Route::post('create', 'NewsletterController@createNewsletter');
-        //更新電子報名單資料
-        Route::get('all', 'NewsletterController@all');
     });
 
     Route::prefix('ticket')->group(function () {
