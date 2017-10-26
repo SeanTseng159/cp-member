@@ -52,9 +52,11 @@ class NotificationService
 
     //Android api key
     public $android_apiKey = array(
-        PushManager::ENVIRONMENT_DEV        =>  'AAAAVWyRiMI:APA91bF0rT9qWuZaUHGOTYa0Ft81i55M4aEjYambb6ZsXN-twhtsa5rSGR-luQ1J-Apwqnx7aBLfG3LVV-dEgiQe86yz2KelOKAGls3xMljgkbihj8txTBqU3YJwxXpmqYCBiXYW4Cij',
-        PushManager::ENVIRONMENT_PROD       =>  'AAAAVWyRiMI:APA91bF0rT9qWuZaUHGOTYa0Ft81i55M4aEjYambb6ZsXN-twhtsa5rSGR-luQ1J-Apwqnx7aBLfG3LVV-dEgiQe86yz2KelOKAGls3xMljgkbihj8txTBqU3YJwxXpmqYCBiXYW4Cij',
+        PushManager::ENVIRONMENT_DEV        =>  'AAAAEdDRT3I:APA91bFumil2iuFMx0BBCO0e3ZUd8w5rh1Zc2gRypNU2UqbpgV9aiu2iVzit0nahe84wlyy4IbFARWCfPT8OrtC46vjD7wOzgLPODHmRgyAZkj87r1WYHj2wNYiDcIPg04Hs_tbvH3hj',
+        PushManager::ENVIRONMENT_PROD       =>  'AAAAEdDRT3I:APA91bFumil2iuFMx0BBCO0e3ZUd8w5rh1Zc2gRypNU2UqbpgV9aiu2iVzit0nahe84wlyy4IbFARWCfPT8OrtC46vjD7wOzgLPODHmRgyAZkj87r1WYHj2wNYiDcIPg04Hs_tbvH3hj',
     );
+    //舊版金鑰
+    //AIzaSyBmU1vKmXaFv8_RHMydWFIEvzFx4adhvuk
 
     public function __construct()
     {
