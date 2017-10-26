@@ -168,7 +168,8 @@ class OrderRepository extends BaseRepository
                 $name[$k] = $v[$key];
             }
             array_multisort($name, $type, $short, $arr);
-            return $arr;
+
         }
+        return $arr;
     }
 }
