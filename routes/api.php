@@ -137,6 +137,11 @@ Route::middleware('cors')->namespace('Api')->group(function () {
         Route::get('query/{id}', 'NotificationController@queryMessage');
     });
 
+    Route::prefix('newsletter')->group(function () {
+        //新增電子報名單
+        Route::post('create', 'NewsletterController@createNewsletter');
+    });
+
     Route::prefix('ticket')->group(function () {
         //票券使用說明
         Route::get('help',   'MyTicketController@help');
