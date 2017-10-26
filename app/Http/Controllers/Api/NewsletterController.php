@@ -26,7 +26,7 @@ class NewsletterController extends RestLaravelController
      * @param Request $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function createNewsletter(Request $request)
+    public function orderNewsletter(Request $request)
     {
         $email = $request->input('email');
 
