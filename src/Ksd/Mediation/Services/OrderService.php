@@ -10,18 +10,15 @@
 namespace Ksd\Mediation\Services;
 
 
-use Ksd\Mediation\Helper\MemberHelper;
 use Ksd\Mediation\Repositories\OrderRepository;
 
 class OrderService
 {
-    use MemberHelper;
-
     private $repository;
 
-    public function __construct()
+    public function __construct(MemberTokenService $memberTokenService)
     {
-        $this->repository = new OrderRepository();
+        $this->repository = new OrderRepository($memberTokenService);
     }
 
     /**
@@ -30,7 +27,7 @@ class OrderService
      */
     public function info()
     {
-        return $this->repository->setToken($this->userToken())->info();
+        return $this->repository->info();
     }
 
     /**
@@ -40,8 +37,8 @@ class OrderService
      */
     public function order($parameter)
     {
-//        return $this->repository->order($parameter);
-          return $this->repository->setToken($this->userToken())->order($parameter);
+
+          return $this->repository->order($parameter);
     }
 
     /**
@@ -51,7 +48,7 @@ class OrderService
      */
     public function search($parameters)
     {
-        return $this->repository->setToken($this->userToken())->search($parameters);
+        return $this->repository->search($parameters);
     }
 
     /**

@@ -90,6 +90,7 @@ class ProductResult
         $this->createdAt = $this->arrayDefault($result, 'createdAt');
 
         if ($isDetail) {
+            $this->saleStatus = $this->arrayDefault($result, 'saleStatus');
             $this->canUseCoupon = $this->arrayDefault($result, 'canUseCoupon');
             $this->storeTelephone = $this->arrayDefault($result, 'storeTelephone');
             $this->storeAddress = $this->arrayDefault($result, 'storeAddress');
@@ -135,8 +136,9 @@ class ProductResult
     {
         $data = new \stdClass();
         $columns = [
-            'source', 'id', 'name', 'price', 'salePrice', 'characteristic', 'category', 'tags', 'imageUrls', 'quantity',
-            'contents', 'additionals', 'purchase', 'storeName', 'place', 'imageUrl', 'isWishlist', 'discount'
+            'source', 'id', 'name', 'saleStatus', 'price', 'canUseCoupon', 'salePrice', 'characteristic', 'category', 'storeName',
+            'storeTelephone', 'storeAddress', 'place', 'tags', 'imageUrls', 'quantity', 'contents', 'additionals', 'purchase',
+            'imageUrl', 'isWishlist', 'discount'
         ];
         foreach ($columns as $column) {
             if (property_exists($this, $column)) {
@@ -144,5 +146,23 @@ class ProductResult
             }
         }
         return $data;
+    }
+
+    /**
+     * 建立規格商品
+     * @param $configurableProductResult
+     */
+    public function magentoConfigurableProduct($configurableProductResult)
+    {
+        $this->additionals = $configurableProductResult['additionals'];
+        $this->configurableProducts = $configurableProductResult['configurableProducts'];
+        $this->configurableProductOptions = $configurableProductResult['configurableProductOptions'];
+        if(!empty($this->configurableProducts)) {
+            $configurableProducts = $this->configurableProducts[0];
+            $this->price = $configurableProducts->price;
+            $this->salePrice = $configurableProducts->salePrice;
+            $this->discount = $this->countDiscount($this->salePrice, $this->price);
+        }
+
     }
 }

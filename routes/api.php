@@ -26,7 +26,7 @@ Route::middleware(['cors', 'auth.jwt'])->group(function () {
         Route::post('delete/{id}', 'MemberController@deleteMember');
         //會員密碼修改
         Route::post('password/{id}', 'MemberController@changePassword');
-        //發送Email驗證信
+        //發送-Email驗證信
         Route::post('sendValidateEmail', 'MemberController@sendValidateEmail');
         //更新會員憑證
         Route::post('token', 'MemberController@refreshToken');
@@ -100,7 +100,7 @@ Route::middleware('cors')->namespace('Api')->group(function () {
         Route::post('remove', 'SalesRuleController@deleteCoupon');
     });
 
-    Route::prefix('orders')->group(function () {
+    Route::prefix('order')->group(function () {
         Route::get('info',   'OrderController@info');
         Route::get('items/{itemId}', 'OrderController@items');
         Route::get('search', 'OrderController@search');
@@ -135,6 +135,15 @@ Route::middleware('cors')->namespace('Api')->group(function () {
         Route::get('all', 'NotificationController@allMessage');
         //訊息資料查詢
         Route::get('query/{id}', 'NotificationController@queryMessage');
+    });
+
+    Route::prefix('ticket')->group(function () {
+        //票券使用說明
+        Route::get('help',   'MyTicketController@help');
+        //票券列表
+        Route::get('info/{status}', 'MyTicketController@info');
+        //票券明細
+        Route::get('detail/{id}', 'MyTicketController@detail');
     });
 
 });

@@ -8,20 +8,16 @@
 
 namespace Ksd\Mediation\Services;
 
-use Ksd\Mediation\Helper\MemberHelper;
 use Ksd\Mediation\Repositories\WishlistRepository;
 
 
 class WishlistService
 {
-
-    use MemberHelper;
-
     private $repository;
 
-    public function __construct()
+    public function __construct(MemberTokenService $memberTokenService)
     {
-        $this->repository = new WishlistRepository();
+        $this->repository = new WishlistRepository($memberTokenService);
     }
 
     /**
@@ -30,7 +26,7 @@ class WishlistService
      */
     public function items()
     {
-        return $this->repository->setToken($this->userToken())->items();
+        return $this->repository->items();
     }
 
     /**
@@ -39,7 +35,7 @@ class WishlistService
      */
     public function add($parameter)
     {
-        return $this->repository->setToken($this->userToken())->add($parameter);
+        return $this->repository->add($parameter);
     }
 
     /**
@@ -48,7 +44,7 @@ class WishlistService
      */
     public function delete($parameter)
     {
-        return $this->repository->setToken($this->userToken())->delete($parameter);
+        return $this->repository->delete($parameter);
     }
 
 }

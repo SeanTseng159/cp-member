@@ -2,41 +2,32 @@
 /**
  * Created by PhpStorm.
  * User: Jim
- * Date: 2017/9/14
- * Time: 下午 04:45
+ * Date: 2017/10/24
+ * Time: 上午 09:19
  */
 
-namespace Ksd\Mediation\Magento;
+namespace Ksd\Mediation\CityPass;
 
-
-use GuzzleHttp\Exception\ClientException;
 use Ksd\Mediation\Result\WishlistResult;
-use Ksd\Mediation\Magento\Product;
-use Ksd\Mediation\Repositories\BaseRepository;
+use Ksd\Mediation\Helper\EnvHelper;
 
 class Wishlist extends Client
 {
+    use EnvHelper;
+
     /**
      * 取得所有收藏列表
      * @return array
      */
     public function items()
     {
-        if (empty($this->userToken)) {
-            return [];
-        }
+        $path = 'wishlist/items';
 
-        $response = $this->request('GET', 'V1/ipwishlist/items');
+        $response = $this->request('GET', $path);
         $result = json_decode($response->getBody(), true);
 
-        $data=[];
-        foreach ($result as $item) {
-            $wish = new WishlistResult();
-            $wish->magento($item);
-            $data[] = $wish;
-        }
 
-        return $data;
+        return $result['data'];
     }
 
     /**
@@ -47,9 +38,7 @@ class Wishlist extends Client
     public function add($sku)
     {
 
-        $product = new Product();
-        $productId = $product->find($sku)->productId;
-        $url = sprintf('V1/ipwishlist/add/%s', $productId);
+        $url = sprintf('wishlist/add/%s', $sku);
         $response = $this->request('POST', $url);
         $body = $response->getBody();
         $result = json_decode($body, true);
@@ -64,13 +53,10 @@ class Wishlist extends Client
     public function delete($wishlistItemId)
     {
 
-        $url = sprintf('V1/ipwishlist/delete/%s', $wishlistItemId);
-        $response = $this->request('DELETE', $url);
+        $url = sprintf('wishlist/delete/%s', $wishlistItemId);
+        $response = $this->request('POST', $url);
         $body = $response->getBody();
         $result = json_decode($body, true);
         return $result;
     }
-
-
-
 }

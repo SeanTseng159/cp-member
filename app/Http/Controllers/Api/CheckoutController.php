@@ -62,6 +62,7 @@ class CheckoutController extends RestLaravelController
     public function verify3d(Request $request)
     {
         $data = $request->only([
+            'source',
             'cardNumber',
             'expYear',
             'expMonth',
@@ -100,10 +101,13 @@ class CheckoutController extends RestLaravelController
 
         $orderId = $ccData['XID'];
         $platform = $ccData['platform'];
+        $source = $ccData['source'];
 
         // 寫入資料庫
         $data['platform'] = ($platform) ?: 'web';
         $data['XID'] = $orderId;
+        $data['totalAmount'] = $ccData['totalAmount'];
+        $data['source'] = $source;
         $log = new LogService;
         $result = $log->create($data);
 
@@ -112,12 +116,12 @@ class CheckoutController extends RestLaravelController
 
         // 失敗
         if (!in_array($data['ECI'], ['5', '2', '6', '1'])) {
-            if ($platform === 'app') return redirect('app://order?id=' . $orderId . '&result=false&msg=' . $data['ErrorMessage']);
+            if ($platform === 'app') return redirect('app://order?id=' . $orderId . '&source=' . $source . '&result=false&msg=' . $data['ErrorMessage']);
         }
 
         // 金流實作
 
 
-        return ($platform === 'app') ? redirect('app://order?id=' . $orderId . '&result=true&msg=success') : redirect($url . '/checkout/complete/' . $orderId);
+        return ($platform === 'app') ? redirect('app://order?id=' . $orderId . '&source=' . $source . '&result=true&msg=success') : redirect($url . '/checkout/complete/' . $orderId . '/' . $source);
     }
 }

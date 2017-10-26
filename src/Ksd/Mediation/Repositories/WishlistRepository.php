@@ -9,36 +9,42 @@
 namespace Ksd\Mediation\Repositories;
 
 
-use Ksd\Mediation\Magento\Wishlist;
+use Ksd\Mediation\Magento\Wishlist as MagentoWishlist;
+use Ksd\Mediation\CityPass\Wishlist as CityPassWishlist;
 use Ksd\Mediation\Config\ProjectConfig;
+use Ksd\Mediation\Services\MemberTokenService;
 
 class WishlistRepository extends BaseRepository
 {
     const INFO_KEY = 'wish:user:info:%s:%s';
     const DETAIL_KEY = 'wish:user:detail:%s:%s';
 
-    public function __construct()
+    private $memberTokenService;
+
+    public function __construct(MemberTokenService $memberTokenService)
     {
-        $this->magento = new Wishlist();
+        $this->magento = new MagentoWishlist();
+        $this->cityPass = new cityPassWishlist();
         parent::__construct();
+        $this->memberTokenService = $memberTokenService;
     }
 
     /**
-     * 取得所有收藏列表
-     * @return mixed
+     * 取得所有收藏列表@return mixed
      */
     public function items()
     {
- //       $this->cleanCache();
-        return $this->redis->remember($this->genCacheKey(self::INFO_KEY), 3600, function () {
-            $this->magento->authorization($this->token);
-            $magento = $this->magento->items();
-            $cityPass = [];
+            $magento = $this->magento
+                ->userAuthorization($this->memberTokenService->magentoUserToken())
+                ->items();
+            $cityPass = $this->cityPass
+                ->authorization($this->memberTokenService->cityPassUserToken())
+                ->items();
             return [
                 ProjectConfig::MAGENTO => $magento,
                 ProjectConfig::CITY_PASS => $cityPass
             ];
-        });
+
     }
 
     /**
@@ -47,8 +53,13 @@ class WishlistRepository extends BaseRepository
      */
     public function add($parameter)
     {
+        $source = $parameter->source;
         $id = $parameter->no;
-        $this->magento->authorization($this->token)->add($id);
+        if($source == ProjectConfig::MAGENTO) {
+            $this->magento->userAuthorization($this->memberTokenService->magentoUserToken())->add($id);
+        } else {
+            $this->cityPass->authorization($this->memberTokenService->cityPassUserToken())->add($id);
+        }
 
     }
 
@@ -58,8 +69,13 @@ class WishlistRepository extends BaseRepository
      */
     public function delete($parameter)
     {
+        $source = $parameter->source;
         $id = $parameter->no;
-        $this->magento->authorization($this->token)->delete($id);
+        if($source == ProjectConfig::MAGENTO) {
+            $this->magento->userAuthorization($this->memberTokenService->magentoUserToken())->delete($id);
+        } else {
+            $this->cityPass->authorization($this->memberTokenService->cityPassUserToken())->delete($id);
+        }
 
     }
 

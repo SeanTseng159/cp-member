@@ -14,9 +14,11 @@ use Ksd\Mediation\Config\ProjectConfig;
 use Ksd\Mediation\Magento\Product as MagentoProduct;
 use Ksd\Mediation\CityPass\Product as CityPassProduct;
 use Ksd\Mediation\Result\Collection;
+use Ksd\Mediation\Result\Product\ProductIndexResult;
 
 class ProductRepository extends BaseRepository
 {
+    const CACHE_INDEX = '%s:product:index';
 
     public function __construct()
     {
@@ -84,7 +86,7 @@ class ProductRepository extends BaseRepository
     {
         $id = $parameter->no;
         $source = $parameter->source;
-        return $this->redis->remember("$source:product:id:$id", 3600, function () use ($source,$id) {
+        $product = $this->redis->remember("$source:product:id:$id", 3600, function () use ($source,$id) {
             $product = null;
             if($source == ProjectConfig::MAGENTO) {
                 $product = $this->magento->find($id);
@@ -93,6 +95,8 @@ class ProductRepository extends BaseRepository
             }
             return $product;
         });
+        $this->createIndex($source, $product);
+        return $product;
     }
 
     /**
@@ -104,11 +108,84 @@ class ProductRepository extends BaseRepository
     {
 
         $magento = $this->magento->search($parameter);
-        $cityPass = $this->cityPass->search($parameter);;
+        $cityPass = $this->cityPass->search($parameter);
         return [
             ProjectConfig::MAGENTO => $magento,
             ProjectConfig::CITY_PASS => $cityPass
         ];
 
+    }
+
+    /**
+     * 建立索引檔
+     * @param $source
+     * @param $product
+     */
+    public function createIndex($source, $product)
+    {
+        $cacheKey = $this->getCacheKey(self::CACHE_INDEX, [$source]);
+        $indexResults = $this->redis->get($cacheKey);
+        if (empty($indexResults)) {
+            $indexResults = [];
+        }
+
+        $productIndex = new ProductIndexResult();
+        if($source == ProjectConfig::MAGENTO) {
+            $productIndex->magneto($product);
+        }
+
+        $hasIndex = false;
+
+        if (!empty($indexResults) && isset($productIndex->id)) {
+            foreach ($indexResults as $row) {
+                if (!empty($row->find($productIndex->id))) {
+                    $hasIndex = true;
+                    break;
+                }
+            }
+            if (!$hasIndex) {
+                $indexResults = array_merge($indexResults, [$productIndex]);
+            }
+        }
+
+        $this->redis->set($cacheKey, $indexResults, 3600 * 24);
+
+    }
+
+    /**
+     * 根據 來源 id 查詢商品索引檔
+     * @param $source
+     * @param $id
+     * @return null
+     */
+    public function findFromIndex($source, $id)
+    {
+        $cacheKey = $this->getCacheKey(self::CACHE_INDEX, [$source]);
+        $indexResults = $this->redis->get($cacheKey);
+        foreach ($indexResults as $row) {
+            $index = $row->find($id);
+            if (!empty($index)) {
+                return $index;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * 取得 cache key
+     * @param $key
+     * @param array $args
+     * @return string
+     */
+    private function getCacheKey($key, $args = [])
+    {
+        $str = $key;
+        if (!empty($args)) {
+            foreach ($args as $arg) {
+                $str = sprintf($str, $arg);
+            }
+        }
+
+        return $str;
     }
 }

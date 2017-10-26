@@ -9,23 +9,20 @@
 namespace Ksd\Mediation\Services;
 
 
-use Ksd\Mediation\Helper\MemberHelper;
 use Ksd\Mediation\Repositories\SalesRuleRepository;
 
 class SalesRuleService
 {
-    use MemberHelper;
-
     private $repository;
 
-    public function __construct()
+    public function __construct(MemberTokenService $memberTokenService)
     {
-        $this->repository = new SalesRuleRepository();
+        $this->repository = new SalesRuleRepository($memberTokenService);
     }
 
     public function addCoupon($parameters)
     {
-        $salesRule = $this->repository->setToken($this->userToken())->addCoupon($parameters);
+        $salesRule = $this->repository->addCoupon($parameters);
         return [
             'name' => $salesRule->name,
         ];

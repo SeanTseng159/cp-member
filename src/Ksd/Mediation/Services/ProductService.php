@@ -17,10 +17,10 @@ class ProductService
     private $categoryResult;
     private $wishList;
 
-    public function __construct()
+    public function __construct(MemberTokenService $memberTokenService)
     {
         $this->repository = new ProductRepository();
-        $wishListService = new WishlistService();
+        $wishListService = new WishlistService($memberTokenService);
         $this->wishList = $wishListService->items();
         $this->categoryResult = $this->categories();
     }

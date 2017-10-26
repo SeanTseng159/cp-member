@@ -21,9 +21,11 @@ class MailService
                 'name' => $member->name
             ];
 
-        $data['link'] = 'http://172.104.83.229/validateEmail/' . $member->validEmailCode;
+        $lang = 'zh_TW';
 
-        $this->send('歡迎使用 CityPass 城市通 - 註冊成功認證', $recipient, 'emails/register', $data);
+        $data['link'] = 'http://172.104.83.229/' . $lang . '/validateEmail/' . $member->validEmailCode;
+
+        return $this->send('歡迎使用 CityPass 城市通 - 註冊成功認證', $recipient, 'emails/register', $data);
     }
 
     /**
@@ -38,9 +40,11 @@ class MailService
                 'name' => $member->name
             ];
 
-        $data['link'] = 'http://172.104.83.229/validateEmail/' . $member->validEmailCode;
+        $lang = 'zh_TW';
 
-        $this->send('CityPass 城市通 - Email認證信', $recipient, 'emails/validateEmail', $data);
+        $data['link'] = 'http://172.104.83.229/' . $lang . '/validateEmail/' . $member->validEmailCode;
+
+        return $this->send('CityPass 城市通 - Email認證信', $recipient, 'emails/validateEmail', $data);
     }
 
     /**
@@ -55,13 +59,15 @@ class MailService
                 'name' => $member->name
             ];
 
+        $lang = 'zh_TW';
+
         $expires = Carbon\Carbon::now()->timestamp + 1800;
         $key = Crypt::encrypt($member->email . '_' . $expires);
-        $data['link'] = 'http://172.104.83.229/changePassword/' . $key;
+        $data['link'] = 'http://172.104.83.229/' . $lang . '/changePassword/' . $key;
 
         $data['name'] = $member->name;
 
-        $this->send('CityPass 城市通 - 密碼重設連結', $recipient, 'emails/forgetPassword', $data);
+        return $this->send('CityPass 城市通 - 密碼重設連結', $recipient, 'emails/forgetPassword', $data);
     }
 
     /**
@@ -90,36 +96,11 @@ class MailService
                 $message->from($from['email'], $from['name']);
                 $message->to($to['email'], $to['name'])->subject($from['subject']);
             });
+
+            return true;
         } catch(\Exception $e) {
             Log::error('smtp 有問題, 請檢查!');
+            return false;
         }
-    }
-
-    /**
-     * 非同步寄信 (未實作queue)
-     *
-     * @param string $subject
-     * @param array $recipient
-     * @param string $view
-     * @param array $viewData
-     * @return \App\Models\Member
-     */
-    public function queue($subject, $recipient, $view, $viewData = [])
-    {
-        $from = [
-            'email' => env('MAIL_USERNAME', 'ksd0045ksd@gmail.com'),
-            'name' => 'CityPass 城市通',
-            'subject' => ($subject) ?: 'CityPass 城市通通知信'
-        ];
-
-        $to = [
-            'email' => $recipient['email'],
-            'name' => (isset($recipient['name'])) ? $recipient['name'] : ''
-        ];
-
-        Mail::queue($view, $viewData, function ($message) use ($from, $to) {
-            $message->from($from['email'], $from['name']);
-            $message->to($to['email'], $to['name'])->subject($from['subject']);
-        });
     }
 }

@@ -9,8 +9,6 @@
 namespace Ksd\Mediation\Magento;
 
 
-use Illuminate\Support\Facades\Log;
-use Ksd\Mediation\Helper\MemberHelper;
 use Ksd\Mediation\Helper\StringHelper;
 use Ksd\Mediation\Result\Checkout\PaymentInfoResult;
 use Ksd\Mediation\Result\Checkout\ShippingInfoResult;
@@ -18,7 +16,6 @@ use Ksd\Mediation\Result\CheckoutResult;
 
 class Checkout extends Client
 {
-    use MemberHelper;
     use StringHelper;
 
     private $cart;
@@ -75,7 +72,7 @@ class Checkout extends Client
         if (!empty($cart->id)) {
             $data['cart_id'] = $cart->id;
         } else {
-            $data['cart_id'] = $this->cart->authorization($this->userToken())->createEmpty();
+            $data['cart_id'] = $this->cart->authorization($this->userToken)->createEmpty();
         }
         $this->putParameters($data);
         $response = $this->request('POST', 'V1/carts/mine/estimate-shipping-methods');
@@ -143,6 +140,7 @@ class Checkout extends Client
     /**
      * 確認付款方式
      * @param $payment
+     * @return array
      */
     public function putPayment($payment)
     {
@@ -150,7 +148,6 @@ class Checkout extends Client
         $this->putParameters($parameter);
         $response = $this->request('POST', 'V1/carts/mine/payment-information');
         $body = $response->getBody();
-        Log::debug($body);
 
         return [ 'id' => trim($body, '"')];
     }

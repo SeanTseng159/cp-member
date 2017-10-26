@@ -29,7 +29,9 @@ class Card3dLogRepository
             $log->eci = $data['ECI'];
             $log->cavv = $data['CAVV'];
             $log->xid = $data['XID'];
+            $log->totalAmount = $data['totalAmount'];
             $log->platform = $data['platform'];
+            $log->source = $data['source'];
             $log->save();
             return $log;
         } catch (QueryException $e) {

@@ -34,12 +34,13 @@ class Order extends Client
         $data = [];
 
         if(!empty($result)) {
-            foreach ($result['data']['items'] as $item) {
+/*            foreach ($result['data']['items'] as $item) {
                 $order = new OrderResult();
                 $order->cityPass($item);
                 $data[] = $order;
             }
-            return $data;
+*/
+            return (array)$result['data']['items'];
         }else{
             return null;
         }
@@ -52,10 +53,9 @@ class Order extends Client
      * @param $itemId
      * @return OrderResult
      */
-    public function order($parameter)
+    public function order($itemId)
     {
 
-        $itemId = $parameter->itemId;
         $path = "order/items/$itemId";
 
         $response = $this->request('GET', $path);
@@ -64,9 +64,9 @@ class Order extends Client
 
 
         if(!empty($result)) {
-            $order = new OrderResult();
-            $order->cityPass($result['data'], true);
-            return $order;
+//            $order = new OrderResult();
+//            $order->cityPass($result['data'], true);
+            return $result['data'];
         }else{
             return null;
         }
@@ -76,7 +76,7 @@ class Order extends Client
     /**
      * 根據 條件篩選 取得訂單
      * @param $parameters
-     * @return OrderResult
+     * @return array
      */
     public function search($parameters=null)
     {
@@ -118,12 +118,12 @@ class Order extends Client
 
         $data = [];
         if(!empty($result)) {
-            foreach ($result['data']['items'] as $item) {
+/*            foreach ($result['data']['items'] as $item) {
                 $order = new OrderResult();
                 $order->cityPass($item);
                 $data[] = $order;
             }
-            return $data;
+ */           return (array)$result['data']['items'];
         }else{
 
             return null;
@@ -131,6 +131,30 @@ class Order extends Client
 
     }
 
+
+    /**
+     * 根據訂單id 取得訂單細項資訊
+     * @param $itemId
+     * @return OrderResult
+     */
+    public function find($itemId)
+    {
+
+        $path = "order/items/$itemId";
+
+        $response = $this->request('GET', $path);
+        $body = $response->getBody();
+        $result = json_decode($body, true);
+
+
+        if(!empty($result)) {
+//            $order = new OrderResult();
+//            $order->cityPass($result['data'], true);
+            return $result['data'];
+        }else{
+            return null;
+        }
+    }
 
 
 }
