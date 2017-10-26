@@ -125,6 +125,7 @@ class NotificationRepository extends BaseRepository
         $notification->platform = $data['platform'];
         $notification->time = $data['sendtime'];
         $notification->status = $data['status'];
+        $notification->modifier = $data['modifier'];
 
         $notification->save();
 
@@ -138,6 +139,13 @@ class NotificationRepository extends BaseRepository
         $notification = Notification::find($data['id']);
 
         if($notification){
+
+            $notification->modifier = $data['modifier'];
+
+            if(array_key_exists('delete',$data) && data['delete'] == '1' ){
+                $notification->delete();
+                return $notification->id;
+            }
 
             $notification->title = $data['title'];
             $notification->body = $data['body'];
