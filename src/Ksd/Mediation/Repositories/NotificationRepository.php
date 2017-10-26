@@ -142,7 +142,7 @@ class NotificationRepository extends BaseRepository
 
             $notification->modifier = $data['modifier'];
 
-            if(array_key_exists('delete',$data) && data['delete'] == '1' ){
+            if(array_key_exists('delete',$data) && $data['delete'] == '1' ){
                 $notification->delete();
                 return $notification->id;
             }
