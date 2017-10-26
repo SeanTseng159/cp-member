@@ -33,17 +33,13 @@ class Order extends Client
         }
         $data = [];
 
-        if(!empty($result['data']['items'])) {
-/*            foreach ($result['data']['items'] as $item) {
-                $order = new OrderResult();
-                $order->cityPass($item);
-                $data[] = $order;
+        foreach ($result['data']['items'] as $item) {
+            $order = new OrderResult();
+            $order->cityPass($item);
+            $data[] = (array)$order;
             }
-*/
-            return (array)$result['data']['items'];
-        }else{
-            return [];
-        }
+
+        return $data;
 
     }
 
@@ -62,14 +58,13 @@ class Order extends Client
         $body = $response->getBody();
         $result = json_decode($body, true);
 
+        $data = [];
 
-        if(!empty($result['data'])) {
-//            $order = new OrderResult();
-//            $order->cityPass($result['data'], true);
-            return $result['data'];
-        }else{
-            return [];
-        }
+        $order = new OrderResult();
+        $order->cityPass($result['data'], true);
+        $data[] = $order;
+        return $data;
+
     }
 
 
@@ -117,17 +112,15 @@ class Order extends Client
         $result = json_decode($body, true);
 
         $data = [];
-        if(!empty($result['data']['items'])) {
-/*            foreach ($result['data']['items'] as $item) {
-                $order = new OrderResult();
-                $order->cityPass($item);
-                $data[] = $order;
-            }
- */           return (array)$result['data']['items'];
-        }else{
 
-            return [];
+
+        foreach ($result['data']['items'] as $item) {
+            $order = new OrderResult();
+            $order->cityPass($item);
+            $data[] = (array)$order;
         }
+        return $data;
+
 
     }
 
@@ -146,14 +139,14 @@ class Order extends Client
         $body = $response->getBody();
         $result = json_decode($body, true);
 
+        $data = [];
 
-        if(!empty($result['data'])) {
-//            $order = new OrderResult();
-//            $order->cityPass($result['data'], true);
-            return $result['data'];
-        }else{
-            return [];
-        }
+        $order = new OrderResult();
+        $order->cityPass($result['data'], true);
+        $data[] = $order;
+
+        return $data;
+
     }
 
 
