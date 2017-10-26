@@ -60,6 +60,7 @@ class NotificationController extends RestLaravelController
 
         $data = $request->only([
                 'id',
+                'delete',
                 'title',
                 'body',
                 'type',
