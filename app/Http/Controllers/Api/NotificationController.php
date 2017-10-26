@@ -92,7 +92,7 @@ class NotificationController extends RestLaravelController
 
         if($data['platform'] === '3' && array_key_exists('memberId',$data)){
             $this->notificationService->send($data);
-            //return $this->success(['data'=>$data]);
+            return $this->success(['data'=>$data]);
             exit;
         }
 
