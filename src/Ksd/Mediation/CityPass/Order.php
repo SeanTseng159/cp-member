@@ -33,7 +33,7 @@ class Order extends Client
         }
         $data = [];
 
-        foreach ($result['data']['items'] as $item) {
+        foreach ($result['data'] as $item) {
             $order = new OrderResult();
             $order->cityPass($item);
             $data[] = (array)$order;
@@ -114,7 +114,7 @@ class Order extends Client
         $data = [];
 
 
-        foreach ($result['data']['items'] as $item) {
+        foreach ($result['data'] as $item) {
             $order = new OrderResult();
             $order->cityPass($item);
             $data[] = (array)$order;
