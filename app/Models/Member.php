@@ -16,9 +16,4 @@ class Member extends Model
 
     protected $guarded = ['id'];
     protected $dates = ['deleted_at'];
-
-    public function newsletter()
-    {
-    	return $this->hasOne('App\Model\Newsletter');
-    }
 }

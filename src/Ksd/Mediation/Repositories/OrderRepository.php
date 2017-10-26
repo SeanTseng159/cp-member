@@ -163,10 +163,13 @@ class OrderRepository extends BaseRepository
 
 
     public function multi_array_sort($arr,$key,$type=SORT_REGULAR,$short=SORT_DESC){
-        foreach ($arr as $k => $v){
-            $name[$k] = $v[$key];
+        if(!empty($arr)) {
+            foreach ($arr as $k => $v) {
+                $name[$k] = $v[$key];
+            }
+            array_multisort($name, $type, $short, $arr);
+
         }
-        array_multisort($name,$type,$short,$arr);
         return $arr;
     }
 }

@@ -89,7 +89,17 @@ class MemberService
      */
     public function find($id)
     {
-        return $this->repository->find($id);
+        $member = $this->repository->find($id);
+
+        if ($member) {
+            // 移除不必要的欄位
+            unset($member->password);
+            unset($member->token);
+            unset($member->validPhoneCode);
+            unset($member->validEmailCode);
+        }
+
+        return $member;
     }
 
 

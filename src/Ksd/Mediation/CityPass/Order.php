@@ -33,17 +33,13 @@ class Order extends Client
         }
         $data = [];
 
-        if(!empty($result)) {
-/*            foreach ($result['data']['items'] as $item) {
-                $order = new OrderResult();
-                $order->cityPass($item);
-                $data[] = $order;
+        foreach ($result['data'] as $item) {
+            $order = new OrderResult();
+            $order->cityPass($item);
+            $data[] = (array)$order;
             }
-*/
-            return (array)$result['data']['items'];
-        }else{
-            return null;
-        }
+
+        return $data;
 
     }
 
@@ -51,7 +47,7 @@ class Order extends Client
     /**
      * 根據訂單id 取得訂單細項資訊
      * @param $itemId
-     * @return OrderResult
+     * @return array
      */
     public function order($itemId)
     {
@@ -62,14 +58,13 @@ class Order extends Client
         $body = $response->getBody();
         $result = json_decode($body, true);
 
+        $data = [];
 
-        if(!empty($result)) {
-//            $order = new OrderResult();
-//            $order->cityPass($result['data'], true);
-            return $result['data'];
-        }else{
-            return null;
-        }
+        $order = new OrderResult();
+        $order->cityPass($result['data'], true);
+        $data[] = $order;
+        return $data;
+
     }
 
 
@@ -117,17 +112,15 @@ class Order extends Client
         $result = json_decode($body, true);
 
         $data = [];
-        if(!empty($result)) {
-/*            foreach ($result['data']['items'] as $item) {
-                $order = new OrderResult();
-                $order->cityPass($item);
-                $data[] = $order;
-            }
- */           return (array)$result['data']['items'];
-        }else{
 
-            return null;
+
+        foreach ($result['data'] as $item) {
+            $order = new OrderResult();
+            $order->cityPass($item);
+            $data[] = (array)$order;
         }
+        return $data;
+
 
     }
 
@@ -135,7 +128,7 @@ class Order extends Client
     /**
      * 根據訂單id 取得訂單細項資訊
      * @param $itemId
-     * @return OrderResult
+     * @return array
      */
     public function find($itemId)
     {
@@ -146,14 +139,14 @@ class Order extends Client
         $body = $response->getBody();
         $result = json_decode($body, true);
 
+        $data = [];
 
-        if(!empty($result)) {
-//            $order = new OrderResult();
-//            $order->cityPass($result['data'], true);
-            return $result['data'];
-        }else{
-            return null;
-        }
+        $order = new OrderResult();
+        $order->cityPass($result['data'], true);
+        $data[] = $order;
+
+        return $data;
+
     }
 
 

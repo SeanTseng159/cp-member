@@ -26,7 +26,7 @@ class NewsletterController extends RestLaravelController
      * @param Request $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function createNewsletter(Request $request)
+    public function orderNewsletter(Request $request)
     {
         $email = $request->input('email');
 
@@ -38,10 +38,9 @@ class NewsletterController extends RestLaravelController
             return $this->failure('E0001', '傳送參數錯誤');
         }
 
-        $result = $this->service->checkEmailIsUse($email);
+        $newsletter = $this->service->findByEmail($email);
 
-        if ($result) {
-            $newsletter = $this->service->findByEmail($email);
+        if ($newsletter) {
             $newsletter = $this->service->update($newsletter->id, [
                     'schedule' => 0,
                     'status' => 1
@@ -52,5 +51,17 @@ class NewsletterController extends RestLaravelController
         }
 
         return ($newsletter) ? $this->success() : $this->failure('E0002', '新增失敗');
+    }
+
+    /**
+    * 取所有電子報名單
+    * @paramRequest $request
+    * @return \Illuminate\Http\JsonResponse
+    */
+    public function allNewsletter(Request $request)
+    {
+        $newsletters = $this->service->all();
+
+        return $this->success($newsletters);
     }
 }

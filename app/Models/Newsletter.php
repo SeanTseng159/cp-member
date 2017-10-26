@@ -12,9 +12,4 @@ use Illuminate\Database\Eloquent\Model;
 class Newsletter extends Model
 {
     protected $guarded = ['id'];
-
-    public function member()
-    {
-    	return $this->belongsTo('App\Model\Member');
-    }
 }
