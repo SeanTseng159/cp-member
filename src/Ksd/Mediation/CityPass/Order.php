@@ -40,7 +40,7 @@ class Order extends Client
                 $data[] = $order;
             }
 */
-            return (array)$result['data']['items'];
+            return (array)$result['data'];
         }else{
             return null;
         }
@@ -123,7 +123,7 @@ class Order extends Client
                 $order->cityPass($item);
                 $data[] = $order;
             }
- */           return (array)$result['data']['items'];
+ */           return (array)$result['data'];
         }else{
 
             return null;
