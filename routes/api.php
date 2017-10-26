@@ -146,7 +146,7 @@ Route::middleware('cors')->namespace('Api')->group(function () {
 
     Route::prefix('newsletter')->group(function () {
         //新增電子報名單
-        Route::post('create', 'NewsletterController@createNewsletter');
+        Route::post('order', 'NewsletterController@orderNewsletter');
     });
 
     Route::prefix('ticket')->group(function () {
