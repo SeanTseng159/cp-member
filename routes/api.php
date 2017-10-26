@@ -20,6 +20,8 @@ Route::middleware(['cors', 'auth.jwt'])->group(function () {
         Route::get('all', 'MemberController@allMember');
         //會員資料查詢
         Route::get('query', 'MemberController@queryMember');
+        //單一會員資料查詢
+        Route::get('single/{id}', 'MemberController@singleMember');
         //更新會員資料
         Route::post('update/{id}', 'MemberController@updateMember');
         //刪除會員
@@ -140,6 +142,8 @@ Route::middleware('cors')->namespace('Api')->group(function () {
     Route::prefix('newsletter')->group(function () {
         //新增電子報名單
         Route::post('create', 'NewsletterController@createNewsletter');
+        //更新電子報名單資料
+        Route::get('all', 'NewsletterController@all');
     });
 
     Route::prefix('ticket')->group(function () {

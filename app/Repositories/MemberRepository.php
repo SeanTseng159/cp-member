@@ -10,6 +10,7 @@ namespace App\Repositories;
 use Illuminate\Database\QueryException;
 
 use App\Models\Member;
+use App\Models\Newsletter;
 use Crypt;
 use Hash;
 use Log;
