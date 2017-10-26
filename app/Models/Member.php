@@ -1,4 +1,9 @@
 <?php
+/**
+ * User: lee
+ * Date: 2017/09/26
+ * Time: 上午 9:42
+ */
 
 namespace App\Models;
 

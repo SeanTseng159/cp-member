@@ -20,6 +20,8 @@ Route::middleware(['cors', 'auth.jwt'])->group(function () {
         Route::get('all', 'MemberController@allMember');
         //會員資料查詢
         Route::get('query', 'MemberController@queryMember');
+        //單一會員資料查詢
+        Route::get('single/{id}', 'MemberController@singleMember');
         //更新會員資料
         Route::post('update/{id}', 'MemberController@updateMember');
         //刪除會員
@@ -30,6 +32,11 @@ Route::middleware(['cors', 'auth.jwt'])->group(function () {
         Route::post('sendValidateEmail', 'MemberController@sendValidateEmail');
         //更新會員憑證
         Route::post('token', 'MemberController@refreshToken');
+    });
+
+    Route::namespace('Api')->prefix('newsletter')->group(function () {
+        //取得所有電子報名單資料
+        Route::get('all', 'NewsletterController@all');
     });
 });
 
@@ -135,6 +142,11 @@ Route::middleware('cors')->namespace('Api')->group(function () {
         Route::get('all', 'NotificationController@allMessage');
         //訊息資料查詢
         Route::get('query/{id}', 'NotificationController@queryMessage');
+    });
+
+    Route::prefix('newsletter')->group(function () {
+        //新增電子報名單
+        Route::post('create', 'NewsletterController@createNewsletter');
     });
 
     Route::prefix('ticket')->group(function () {

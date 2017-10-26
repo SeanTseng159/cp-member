@@ -1,10 +1,15 @@
 <?php
+/**
+ * User: lee
+ * Date: 2017/09/26
+ * Time: 上午 9:42
+ */
 
 namespace App\Http\Controllers\Api;
 
 use Ksd\Mediation\Core\Controller\RestLaravelController;
 use App\Services\MemberService;
-use App\Services\JWTTokenService;
+use App\Services\NewsletterService;
 use GuzzleHttp\Client;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -14,11 +19,13 @@ use Log;
 
 class MemberController extends RestLaravelController
 {
-    private $memberService;
+    protected $memberService;
+    protected $newsletterService;
 
-    public function __construct(MemberService $memberService)
+    public function __construct(MemberService $memberService, NewsletterService $newsletterService)
     {
         $this->memberService = $memberService;
+        $this->newsletterService = $newsletterService;
     }
 
     /**
@@ -174,9 +181,35 @@ class MemberController extends RestLaravelController
             }
         }
 
-        $member = $this->memberService->update($id, $data);
+        $this->memberService->update($id, $data);
 
-        return ($member) ? $this->success($member) : $this->failure('E0003', '更新失敗');
+        $member = $this->memberService->find($id);
+        if (!$member) return $this->failure('E0003', '更新失敗');
+
+        $member->newsletter = $this->newsletterService->findByEmail($member->email);
+
+        // 更新訂閱電子報
+        $postNewsletter = $request->input('newsletter');
+
+        if (isset($postNewsletter['status'])) {
+            $newsletterData = [
+                'member_id' => $member->id,
+                'schedule' => (isset($postNewsletter['schedule'])) ? $postNewsletter['schedule'] : 0,
+                'status' => $postNewsletter['status']
+            ];
+
+            if ($member->newsletter) {
+                $newsletter = $this->newsletterService->update($member->newsletter->id, $newsletterData);
+            }
+            else {
+                $newsletterData['email'] = $member->email;
+                $newsletter = $this->newsletterService->create($newsletterData);
+            }
+
+            $member->newsletter = $newsletter;
+        }
+
+        return $this->success($member);
      }
 
     /**
@@ -229,6 +262,22 @@ class MemberController extends RestLaravelController
         $members = $this->memberService->all();
 
         return $this->success($members);
+    }
+
+    /**
+    * 單一會員資料查詢
+    * @paramRequest $request
+    * @return \Illuminate\Http\JsonResponse
+    */
+    public function singleMember(Request $request, $id)
+    {
+        $member = $this->memberService->find($id);
+
+        if ($member) {
+            $member->newsletter = $this->newsletterService->findByEmail($member->email);
+        }
+
+        return $this->success($member);
     }
 
     /**

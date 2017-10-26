@@ -52,9 +52,11 @@ class NotificationService
 
     //Android api key
     public $android_apiKey = array(
-        PushManager::ENVIRONMENT_DEV        =>  'YourApiKey',
-        PushManager::ENVIRONMENT_PROD       =>  'YourApiKey',
+        PushManager::ENVIRONMENT_DEV        =>  'AAAAEdDRT3I:APA91bFumil2iuFMx0BBCO0e3ZUd8w5rh1Zc2gRypNU2UqbpgV9aiu2iVzit0nahe84wlyy4IbFARWCfPT8OrtC46vjD7wOzgLPODHmRgyAZkj87r1WYHj2wNYiDcIPg04Hs_tbvH3hj',
+        PushManager::ENVIRONMENT_PROD       =>  'AAAAEdDRT3I:APA91bFumil2iuFMx0BBCO0e3ZUd8w5rh1Zc2gRypNU2UqbpgV9aiu2iVzit0nahe84wlyy4IbFARWCfPT8OrtC46vjD7wOzgLPODHmRgyAZkj87r1WYHj2wNYiDcIPg04Hs_tbvH3hj',
     );
+    //舊版金鑰
+    //AIzaSyBmU1vKmXaFv8_RHMydWFIEvzFx4adhvuk
 
     public function __construct()
     {
@@ -178,7 +180,7 @@ class NotificationService
                             foreach($registedDevices as $key=>$registedDevice){
                                 if($token == $registedDevice->mobile_token){
                                     unset($registedDevices[$key]);
-                                    $this->repository->deleteByToken($token);
+                                    $this->repository->deleteByTokenPlatform($token,$this->iOS_platform[$this->env]);
                                 }
                             }
                         }
@@ -195,7 +197,7 @@ class NotificationService
                 //取出已註冊Android Token
                 $registedDevices = $this->repository->devicesByPlatform($this->android_platform[$this->env]);
 
-                while($registedDevices->count() > 0){
+                //while($registedDevices->count() > 0){
 
                     //送出訊息
                     $deviceTokens = array();
@@ -228,37 +230,20 @@ class NotificationService
 
                     $push_responses = $push->getResponses();
 
-                    //移除成功傳送token
-                    foreach($push_responses as $token => $response) {
-                        if(!is_null($response['id'])){
-                            break;
-                        }else{
-                            foreach($registedDevices as $key=>$registedDevice){
-                                if($token == $registedDevice->mobile_token){
-                                    unset($registedDevices[$key]);
-                                }
-                            }
-                        }
-
-                    }
-
                     //移除失敗token
                     foreach($push_responses as $token => $response) {
-                        if(!is_null($response['id'])){
-                            foreach($registedDevices as $key=>$registedDevice){
-                                if($token == $registedDevice->mobile_token){
-                                    unset($registedDevices[$key]);
-                                    $this->repository->deleteByToken($token);
-                                }
-                            }
+
+                        if(array_key_exists('error',$response)){
+                            $this->repository->deleteByTokenPlatform($token,$this->android_platform[$this->env]);
                         }
+
                     }
 
                 }
 
 
 
-            }
+            //}
 
             //測試指定用戶
             if($data['platform']=='3'){
@@ -295,6 +280,7 @@ class NotificationService
                         }
 
                         // Finally, create and add the push to the manager, and push it!
+                        //var_dump($message);
                         $push = new Push($adapter, $devices, $message);
                         $pushManager->add($push);
                         $pushManager->push(); // Returns a collection of notified devices
@@ -303,12 +289,26 @@ class NotificationService
 
                         //移除失敗token
                         foreach($push_responses as $token => $response) {
-                            if(!is_null($response['id'])){
-                                $this->repository->deleteByTokenPlatform($token, $registedDevice->platform );
+
+                            switch($registedDevice->platform){
+                                case $this->iOS_platform[$this->env]:
+                                    if(!is_null($response['id'])){
+                                        $this->repository->deleteByTokenPlatform($token, $registedDevice->platform );
+                                    }
+                                    break;
+                                case $this->android_platform[$this->env]:
+                                    if($response['success']=='0'){
+                                        $this->repository->deleteByTokenPlatform($token, $registedDevice->platform );
+                                    }
+                                    break;
+                                default:
+                                    break;
                             }
+
+
                         }
                     }catch(\Exception $e){
-
+                        var_dump($e);
                     }
 
                 }

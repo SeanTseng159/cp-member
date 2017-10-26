@@ -68,6 +68,7 @@ class NotificationController extends RestLaravelController
                 'sendtime',
                 'memberId',
                 'status',
+                'modifier',
             ]
         );
 
@@ -77,7 +78,8 @@ class NotificationController extends RestLaravelController
             'url' => 'required',
             'platform' => 'required',
             'sendtime' => 'required',
-            'status' => 'required'
+            'status' => 'required',
+            'modifier' => 'required',
         ]);
 
         if ($validator->fails()) {

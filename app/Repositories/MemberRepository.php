@@ -1,10 +1,16 @@
 <?php
+/**
+ * User: lee
+ * Date: 2017/09/26
+ * Time: 上午 9:42
+ */
 
 namespace App\Repositories;
 
 use Illuminate\Database\QueryException;
 
 use App\Models\Member;
+use App\Models\Newsletter;
 use Crypt;
 use Hash;
 use Log;
