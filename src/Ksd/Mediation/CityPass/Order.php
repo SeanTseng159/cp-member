@@ -42,7 +42,7 @@ class Order extends Client
 */
             return (array)$result['data']['items'];
         }else{
-            return null;
+            return [];
         }
 
     }
@@ -51,7 +51,7 @@ class Order extends Client
     /**
      * 根據訂單id 取得訂單細項資訊
      * @param $itemId
-     * @return OrderResult
+     * @return array
      */
     public function order($itemId)
     {
@@ -68,7 +68,7 @@ class Order extends Client
 //            $order->cityPass($result['data'], true);
             return $result['data'];
         }else{
-            return null;
+            return [];
         }
     }
 
@@ -126,7 +126,7 @@ class Order extends Client
  */           return (array)$result['data']['items'];
         }else{
 
-            return null;
+            return [];
         }
 
     }
@@ -135,7 +135,7 @@ class Order extends Client
     /**
      * 根據訂單id 取得訂單細項資訊
      * @param $itemId
-     * @return OrderResult
+     * @return array
      */
     public function find($itemId)
     {
@@ -152,7 +152,7 @@ class Order extends Client
 //            $order->cityPass($result['data'], true);
             return $result['data'];
         }else{
-            return null;
+            return [];
         }
     }
 
