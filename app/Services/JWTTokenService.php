@@ -28,11 +28,12 @@ class JWTTokenService
         $token = [
             'iss' => env('JWT_ISS', 'CityPass'),
             'iat' => $iat,
+            'exp' => $exp,
             'id' => $member->id
         ];
 
-        //來源不為app, token需限制時間
-        if ($platform !== 'app') $token['exp'] = $exp;
+        //來源為app, token無限制時間
+        if ($platform === 'app') unset($token['exp']);
 
         return $this->JWTencode($token);
     }

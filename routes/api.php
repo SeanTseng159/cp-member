@@ -31,7 +31,7 @@ Route::middleware(['cors', 'auth.jwt'])->group(function () {
         //發送-Email驗證信
         Route::post('sendValidateEmail', 'MemberController@sendValidateEmail');
         //更新會員憑證
-        Route::post('token', 'MemberController@refreshToken');
+        Route::post('refreshToken', 'MemberController@refreshToken');
     });
 
     Route::namespace('Api')->prefix('newsletter')->group(function () {
