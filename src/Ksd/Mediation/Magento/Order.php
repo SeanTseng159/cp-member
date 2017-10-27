@@ -25,27 +25,28 @@ class Order extends Client
         $admintoken = new Client();
         $this->authorization($admintoken->token);
 
-        $result =[];
-        try{
+        $result = [];
+        try {
             $path = 'V1/orders';
             $response = $this->putQuery('searchCriteria[filterGroups][0][filters][0][field]', 'customer_email')
                 ->putQuery('searchCriteria[filterGroups][0][filters][0][value]', $email)
- //               ->putQuery('searchCriteria[sortOrders][0][field]', 'created_at')
- //               ->putQuery('searchCriteria[sortOrders][0][direction]', 'DESC')
+                //               ->putQuery('searchCriteria[sortOrders][0][field]', 'created_at')
+                //               ->putQuery('searchCriteria[sortOrders][0][direction]', 'DESC')
                 ->request('GET', $path);
             $body = $response->getBody();
             $result = json_decode($body, true);
-        }catch (ClientException $e){
+        } catch (ClientException $e) {
             // TODO:抓不到MAGENTO API訂單資料
         }
 
         $data = [];
-        foreach ($result['items'] as $item) {
-            $order = new OrderResult();
-            $order->magento($item);
-            $data[] = (array)$order;
+        if (!empty($result['items'])){
+            foreach ($result['items'] as $item) {
+                $order = new OrderResult();
+                $order->magento($item);
+                $data[] = (array)$order;
+            }
         }
-
         return $data;
     }
 
@@ -53,7 +54,7 @@ class Order extends Client
     /**
      * 根據訂單id 取得訂單細項資訊
      * @param $parameter
-     * @return OrderResult
+     * @return array
      */
     public function order($parameter)
     {
@@ -79,12 +80,11 @@ class Order extends Client
 
         $result = json_decode($body, true);
 
-
+        $data = [] ;
         if(!empty($result['items'][0])) {
             $order = new OrderResult();
             $order->magento($result['items'][0], true);
-        }else{
-            return null;
+            $data[] = $order;
         }
 
         //如有關鍵字搜尋則進行判斷是否有相似字
@@ -97,8 +97,10 @@ class Order extends Client
                     }
                     $count++;
                 }
+            $data[] = $order;
         }
-        return $order;
+
+        return $data;
 
     }
 
@@ -179,7 +181,7 @@ class Order extends Client
             $data1 = (array)$data;
         }
 
-        return $flag ? $data1 : null;
+        return $flag ? $data1 : [];
     }
 
 
@@ -247,8 +249,8 @@ class Order extends Client
 
     /**
      * 根據訂單 id 查詢訂單資訊
-     * @param $id
-     * @return OrderResult
+     * @param $parameters
+     * @return array
      */
     public function find($parameters)
     {
@@ -259,8 +261,11 @@ class Order extends Client
         $response = $this->request('GET', $path);
         $body = $response->getBody();
         $result = json_decode($body, true);
+
+        $data = [];
         $order = new OrderResult();
         $order->magento($result);
+        $data[] = $order;
 
         //如有關鍵字搜尋則進行判斷是否有相似字
         if(!empty($itemId)){
@@ -272,8 +277,9 @@ class Order extends Client
                 }
                 $count++;
             }
+            $data[] = $order;
         }
 
-        return $order;
+        return $data;
     }
 }
