@@ -35,6 +35,10 @@ class JWTTokenService
         //來源為app, token無限制時間
         if ($platform === 'app') unset($token['exp']);
 
+        if ($platform === 'oauth') {
+            $token['exp'] = time() + 7200;
+        }
+
         return $this->JWTencode($token);
     }
 

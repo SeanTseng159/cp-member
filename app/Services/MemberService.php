@@ -13,6 +13,7 @@ use Ksd\SMS\Services\EasyGoService;
 use Illuminate\Support\Facades\Hash;
 use Crypt;
 use Carbon;
+use Log;
 
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use App\Jobs\SendValidateEmail;
@@ -403,7 +404,12 @@ class MemberService
             $phoneNumber = $member->countryCode . $member->cellphone;
             $message = 'CityPass驗證碼： ' . $member->validPhoneCode;
 
-            return (env('APP_ENV') === 'production') ? $easyGoService->send($phoneNumber, $message) : true;
+            try {
+                // return (env('APP_ENV') === 'production') ? $easyGoService->send($phoneNumber, $message) : true;
+                return $easyGoService->send($phoneNumber, $message);
+            } catch (\Exception $e) {
+                Log::debug($e);
+            }
         }
 
         return false;
