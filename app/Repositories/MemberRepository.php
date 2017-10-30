@@ -10,7 +10,6 @@ namespace App\Repositories;
 use Illuminate\Database\QueryException;
 
 use App\Models\Member;
-use App\Models\Newsletter;
 use Crypt;
 use Hash;
 use Log;
@@ -34,7 +33,7 @@ class MemberRepository
         try {
             $member = new Member();
             $member->fill($data);
-            if (isset($data['email'])) $member->validEmailCode = Crypt::encrypt($data['email']);
+            $member->validEmailCode = '';
             $member->validPhoneCode = strval(mt_rand(100000, 999999));
             $member->save();
             return $member;
