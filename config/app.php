@@ -169,6 +169,7 @@ return [
          */
          Ksd\SMS\Providers\SMSServiceProvider::class,
          Barryvdh\Cors\ServiceProvider::class,
+         Ksd\OAuth\Providers\OAuthServiceProvider::class,
         /*
          * Application Service Providers...
          */

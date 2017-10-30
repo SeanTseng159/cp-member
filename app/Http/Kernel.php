@@ -43,6 +43,10 @@ class Kernel extends HttpKernel
             \Illuminate\Session\Middleware\StartSession::class,
             \App\Http\Middleware\Api\TraceRequest::class,
         ],
+
+        'oauth' => [
+            \Illuminate\Session\Middleware\StartSession::class
+        ]
     ];
 
     /**

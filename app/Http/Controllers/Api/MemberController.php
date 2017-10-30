@@ -90,13 +90,8 @@ class MemberController extends RestLaravelController
 
         $member = ($member) ? $this->memberService->update($member->id, $data) : $this->memberService->create($data);
 
-        if (env('APP_ENV') === 'production') {
-            //傳送簡訊認證
-            $this->memberService->sendSMS($member);
-
-            return ($member) ? $this->success(['id' => $member->id]) : $this->failure('E0011', '建立會員失敗');
-        }
-
+        //傳送簡訊認證
+        $this->memberService->sendSMS($member);
         return ($member) ? $this->success(['id' => $member->id, 'validPhoneCode' => $member->validPhoneCode]) : $this->failure('E0011', '建立會員失敗');
     }
 
@@ -406,13 +401,8 @@ class MemberController extends RestLaravelController
                 ]);
         }
 
-        if (env('APP_ENV') === 'production') {
-            //傳送簡訊認證
-            $this->memberService->sendSMS($member);
-
-            return ($member) ? $this->success(['id' => $member->id]) : $this->failure('E0052', '簡訊發送失敗');
-        }
-
+        //傳送簡訊認證
+        $this->memberService->sendSMS($member);
         return ($member) ? $this->success(['id' => $member->id, 'validPhoneCode' => $member->validPhoneCode]) : $this->failure('E0052', '簡訊發送失敗');
     }
 
