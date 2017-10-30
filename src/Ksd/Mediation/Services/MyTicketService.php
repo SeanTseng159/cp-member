@@ -8,12 +8,11 @@
 
 namespace Ksd\Mediation\Services;
 
-use Ksd\Mediation\Helper\MemberHelper;
 use Ksd\Mediation\Repositories\MyTicketRepository;
 
 class MyTicketService
 {
-    use MemberHelper;
+
 
     private $repository;
 
