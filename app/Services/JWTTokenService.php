@@ -43,6 +43,27 @@ class JWTTokenService
     }
 
     /**
+     * 建立 token
+     * @param $member
+     * @param $platform
+     * @return string
+     */
+    public function generateOAuthToken($id)
+    {
+        $iat = time();
+        $exp = time() + 86400;
+
+        $token = [
+            'iss' => env('JWT_ISS', 'CityPass'),
+            'iat' => $iat,
+            'exp' => $exp,
+            'id' => $id
+        ];
+
+        return $this->JWTencode($token);
+    }
+
+    /**
      * 刷新 token
      * @param $member
      * @param $platform
