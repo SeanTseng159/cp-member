@@ -76,7 +76,7 @@ class OAuthClientController extends BaseController
                 $new->response_type = 'token';
                 $new->token_type = 'Bearer';
                 $new->access_token = $jwtTokenService->generateOAuthToken($oc->uid);
-                $new->expires_at = time() + 7200;
+                $new->expires_at = time() + 86400;
             }
 
             return $this->success($new);

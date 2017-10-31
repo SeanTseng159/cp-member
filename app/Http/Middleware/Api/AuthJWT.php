@@ -50,12 +50,13 @@ class AuthJWT
             //來源為app, 需檢查DB裡的token
             $platform = $request->header('platform');
             $member = $this->memberService->find($tokenData->id);
+            $status = ($member) ? $member->status : 0;
 
             if ($platform === 'oauth') {
-                $member->status = 1;
+                $status = 1;
             }
 
-            if ($member->status == 0) {
+            if ($status == 0) {
                 return $this->apiRespFail('E0022', '會員驗證失效');
             }
 
