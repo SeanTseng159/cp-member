@@ -87,9 +87,9 @@ class OAuthClientController extends BaseController
             'redirect_url' => 'required|active_url'
         ]);
 
-        if ($validator->fails() || $data['response_type'] !== 'code') return $this->postFailure('E0001', '參數錯誤');
-
         $request->session()->put('redirect_url', $data['redirect_url']);
+
+        if ($validator->fails() || $data['response_type'] !== 'code') return $this->postFailure('E0001', '參數錯誤');
 
         $oc = $this->service->queryOne([
                     'uid' => $data['client_id'],
