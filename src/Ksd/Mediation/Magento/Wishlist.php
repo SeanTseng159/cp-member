@@ -42,7 +42,7 @@ class Wishlist extends Client
     /**
      * 根據商品id 增加商品至收藏清單
      * @param $sku
-     * @return  array
+     * @return  bool
      */
     public function add($sku)
     {
@@ -53,13 +53,13 @@ class Wishlist extends Client
         $response = $this->request('POST', $url);
         $body = $response->getBody();
         $result = json_decode($body, true);
-        return $result;
+        return true;
     }
 
     /**
      * 根據商品id 刪除收藏清單商品
      * @param $wishlistItemId
-     *  @return  array
+     *  @return  bool
      */
     public function delete($wishlistItemId)
     {
@@ -68,7 +68,7 @@ class Wishlist extends Client
         $response = $this->request('DELETE', $url);
         $body = $response->getBody();
         $result = json_decode($body, true);
-        return $result;
+        return true;
     }
 
 
