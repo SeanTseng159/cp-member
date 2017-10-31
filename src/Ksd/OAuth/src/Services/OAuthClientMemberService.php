@@ -48,7 +48,6 @@ class OAuthClientMemberService
 
     public function getMemberData($member)
     {
-        unset($member->id);
         unset($member->password);
         unset($member->isTw);
         unset($member->openPlateform);
