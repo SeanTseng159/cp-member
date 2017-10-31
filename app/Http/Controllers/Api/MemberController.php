@@ -221,7 +221,7 @@ class MemberController extends RestLaravelController
     {
         $member = $this->memberService->delete($id);
 
-        return ($member) ? $this->success(['id' => $member->id]) : $this->failure('E0004', '刪除失敗');
+        return ($member) ? $this->success(['id' => $member]) : $this->failure('E0004', '刪除失敗');
     }
 
     /**
