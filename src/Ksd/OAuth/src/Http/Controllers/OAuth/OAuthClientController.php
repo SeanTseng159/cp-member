@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use Ksd\OAuth\Http\Controllers\BaseController;
 use Ksd\OAuth\Services\OAuthClientService;
 use Ksd\OAuth\Services\OAuthClientMemberService;
+use App\Services\JWTTokenService;
 use Carbon\Carbon;
 use Validator;
 use Log;
@@ -48,6 +49,7 @@ class OAuthClientController extends BaseController
     public function authorize(Request $request)
     {
         $data = $request->only([
+                'grant_type',
                 'client_id',
                 'client_secret',
                 'scopes',
@@ -61,10 +63,21 @@ class OAuthClientController extends BaseController
             $new->uid = $oc->uid;
             $new->grant_type = $oc->grant_type;
             $new->scopes = $data['scopes'];
-            $new->code = $oc->code;
-            $new->response_type = 'code';
-            $new->redirect = $data['redirect_url'];
-            $new->expires_at = Carbon::createFromFormat('Y-m-d H:i:s', $oc->expires_at)->timestamp;
+
+            if ($data['grant_type'] === 'auth_code') {
+                $new->code = $oc->code;
+                $new->response_type = 'code';
+                $new->redirect = $data['redirect_url'];
+                $new->expires_at = Carbon::createFromFormat('Y-m-d H:i:s', $oc->expires_at)->timestamp;
+            }
+            elseif ($data['grant_type'] === 'password') {
+                $jwtTokenService = new JWTTokenService;
+
+                $new->response_type = $jwtTokenService->generateOAuthToken($oc->uid);
+                $new->token_type = 'Bearer';
+                $new->access_token = $token;
+                $new->expires_at = time() + 7200;
+            }
 
             return $this->success($new);
         }
