@@ -73,9 +73,9 @@ class OAuthClientController extends BaseController
             elseif ($data['grant_type'] === 'password') {
                 $jwtTokenService = new JWTTokenService;
 
-                $new->response_type = $jwtTokenService->generateOAuthToken($oc->uid);
+                $new->response_type = 'token';
                 $new->token_type = 'Bearer';
-                $new->access_token = $token;
+                $new->access_token = $jwtTokenService->generateOAuthToken($oc->uid);
                 $new->expires_at = time() + 7200;
             }
 
