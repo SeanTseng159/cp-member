@@ -405,8 +405,8 @@ class MemberService
             $message = 'CityPass驗證碼： ' . $member->validPhoneCode;
 
             try {
-                // return (env('APP_ENV') === 'production') ? $easyGoService->send($phoneNumber, $message) : true;
-                return $easyGoService->send($phoneNumber, $message);
+                return (env('APP_ENV') === 'production') ? $easyGoService->send($phoneNumber, $message) : true;
+                // return $easyGoService->send($phoneNumber, $message);
             } catch (\Exception $e) {
                 Log::debug($e);
             }
