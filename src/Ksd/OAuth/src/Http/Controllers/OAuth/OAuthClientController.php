@@ -119,6 +119,7 @@ class OAuthClientController extends BaseController
 
         // 檢查是否授權
         $checked = $this->ocmService->checkMemberAuthorize($oc->id, $member->id);
+        Log::debug('member auth checked: ' . $checked);
         if (!$checked) {
             return redirect('oauth/member/authorize/' . $oc->id);
         }
