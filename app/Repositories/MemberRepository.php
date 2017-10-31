@@ -67,7 +67,6 @@ class MemberRepository
                 return false;
             }
         } catch (QueryException $e) {
-            Log::error($e);
             return false;
         }
     }

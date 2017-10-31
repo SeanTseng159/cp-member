@@ -116,6 +116,15 @@ class MemberController extends RestLaravelController
         if ($member) {
             $member = $this->memberService->generateToken($member, $platform);
 
+            // 訂閱電子報
+            $newsletter = $this->newsletterService->findByEmail($member->email);
+            $newsletterData = [
+                'email' => $member->email,
+                'member_id' => $member->id
+            ];
+
+            ($newsletter) ? $this->newsletterService->update($newsletter->id, $newsletterData) : $this->newsletterService->create($newsletterData);
+
             // 發信
             $this->memberService->sendRegisterEmail($member);
 
@@ -142,7 +151,8 @@ class MemberController extends RestLaravelController
          $data = $request->except([
                     'id',
                     'password',
-                    'email'
+                    'email',
+                    'newsletter'
                 ]);
 
         $countryCode = $request->input('countryCode');
@@ -176,9 +186,7 @@ class MemberController extends RestLaravelController
             }
         }
 
-        $this->memberService->update($id, $data);
-
-        $member = $this->memberService->find($id);
+        $member = $this->memberService->update($id, $data);
         if (!$member) return $this->failure('E0003', '更新失敗');
 
         $member->newsletter = $this->newsletterService->findByEmail($member->email);
@@ -190,7 +198,8 @@ class MemberController extends RestLaravelController
             $newsletterData = [
                 'member_id' => $member->id,
                 'schedule' => (isset($postNewsletter['schedule'])) ? $postNewsletter['schedule'] : 0,
-                'status' => $postNewsletter['status']
+                'status' => $postNewsletter['status'],
+                'memo' => (isset($postNewsletter['memo'])) ? $postNewsletter['memo'] : ''
             ];
 
             if ($member->newsletter) {
