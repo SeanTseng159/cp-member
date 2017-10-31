@@ -47,13 +47,13 @@ class OAuthClientController extends BaseController
     public function authorize(Request $request)
     {
         $data = $request->only([
-                'client_uid',
+                'client_id',
                 'client_secret',
                 'scopes',
                 'redirect_url'
             ]);
 
-        $oc = $this->service->authorize($data['client_uid'], $data['client_secret']);
+        $oc = $this->service->authorize($data['client_id'], $data['client_secret']);
 
         if ($oc) {
             $new = new \stdClass;
@@ -75,14 +75,14 @@ class OAuthClientController extends BaseController
     {
         $data = $request->only([
                 'response_type',
-                'client_uid',
+                'client_id',
                 'code',
                 'redirect_url'
             ]);
 
         $validator = Validator::make($data, [
             'response_type' => 'required',
-            'client_uid' => 'required',
+            'client_id' => 'required',
             'code' => 'required',
             'redirect_url' => 'required|active_url'
         ]);
@@ -92,7 +92,7 @@ class OAuthClientController extends BaseController
         $request->session()->put('redirect_url', $data['redirect_url']);
 
         $oc = $this->service->queryOne([
-                    'uid' => $data['client_uid'],
+                    'uid' => $data['client_id'],
                     'code' => $data['code']
                 ]);
 
