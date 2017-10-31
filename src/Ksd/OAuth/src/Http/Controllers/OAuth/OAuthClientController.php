@@ -13,6 +13,7 @@ use Ksd\OAuth\Services\OAuthClientService;
 use Ksd\OAuth\Services\OAuthClientMemberService;
 use Carbon\Carbon;
 use Validator;
+use Log;
 
 class OAuthClientController extends BaseController
 {
@@ -89,12 +90,17 @@ class OAuthClientController extends BaseController
 
         $request->session()->put('redirect_url', $data['redirect_url']);
 
+        Log::debug(print_r($data, true));
+        Log::debug(print_r($validator->fails(), true));
+
         if ($validator->fails() || $data['response_type'] !== 'code') return $this->postFailure('E0001', '參數錯誤');
 
         $oc = $this->service->queryOne([
                     'uid' => $data['client_id'],
                     'code' => $data['code']
                 ]);
+
+        Log::debug(print_r($oc, true));
 
         if (!$oc) return $this->postFailure('E0001', '參數錯誤');
 
