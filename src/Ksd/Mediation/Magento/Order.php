@@ -282,4 +282,22 @@ class Order extends Client
 
         return $data;
     }
+
+    /**
+     * 虛擬 ATM繳款紀錄回傳
+     * @param $parameters
+     * @return bool
+     */
+    public function writeoff($parameters)
+    {
+        $incrementId = $parameters->ordernumber;
+        $url = sprintf('V1/ksd/orders/%s/processing', $incrementId);
+        $response = $this->request('POST', $url);
+        $body = $response->getBody();
+        $result = json_decode($body, true);
+
+        return true;
+    }
+
+
 }

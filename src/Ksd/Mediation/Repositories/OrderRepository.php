@@ -176,17 +176,18 @@ class OrderRepository extends BaseRepository
     public function writeoff($parameters)
     {
 
+//        待citypass提供api
 //        $this->cityPass->authorization($this->memberTokenService->cityPassUserToken())->writeoff($parameters);
 
 
         $code               = "abcd1234";
         $verify = md5(
-            "merchantnumber=".$parameters->merchantnumber.
-            "&ordernumber=".$parameters->ordernumber.
-            "&serialnumber=".$parameters->serialnumber.
-            "&writeoffnumber=".$parameters->writeoffnumber.
-            "&timepaid=".$parameters->timepaid.
-            "&paymenttype=".$parameters->paymenttype.
+            "merchant_number=".$parameters->merchantnumber.
+            "&order_number=".$parameters->ordernumber.
+            "&serial_number=".$parameters->serialnumber.
+            "&write_off_number=".$parameters->writeoffnumber.
+            "&time_paid=".$parameters->timepaid.
+            "&payment_type=".$parameters->paymenttype.
             "&amount=".$parameters->amount.
             "&tel=".$parameters->tel.
             $code
@@ -195,40 +196,41 @@ class OrderRepository extends BaseRepository
             if(strtolower($parameters->hash)!=strtolower($verify)){
                 //-- 驗證碼錯誤，資料可能遭到竄改，或是資料不是由ezPay簡單付發送
                 $data = [
-                    'merchantnumber' => $parameters->merchantnumber,
-                    'ordernumber' => $parameters->ordernumber,
-                    'serialnumber' => $parameters->serialnumber,
-                    'writeoffnumber' => $parameters->writeoffnumber,
-                    'timepaid' => $parameters->timepaid,
-                    'paymenttype' => $parameters->paymenttype,
+                    'merchant_number' => $parameters->merchantnumber,
+                    'order_number' => $parameters->ordernumber,
+                    'serial_number' => $parameters->serialnumber,
+                    'write_off_number' => $parameters->writeoffnumber,
+                    'time_paid' => $parameters->timepaid,
+                    'payment_type' => $parameters->paymenttype,
                     'amount' => $parameters->amount,
                     'tel' => $parameters->tel,
                     'hash' => $parameters->hash,
-                    'memo' => '驗證碼錯誤，資料可能遭到竄改，或是資料不是由ezPay簡單付發送'
+                    'status' => 0,
+                    'memo' => '驗證碼錯誤'
                 ];
                 $pay = new PayReceive();
                 $pay->fill($data)->save();
-
 
             }else{
                 //-- 驗證正確，請更新資料庫訂單狀態
                 $data = [
-                    'merchantnumber' => $parameters->merchantnumber,
-                    'ordernumber' => $parameters->ordernumber,
-                    'serialnumber' => $parameters->serialnumber,
-                    'writeoffnumber' => $parameters->writeoffnumber,
-                    'timepaid' => $parameters->timepaid,
-                    'paymenttype' => $parameters->paymenttype,
+                    'merchant_number' => $parameters->merchantnumber,
+                    'order_number' => $parameters->ordernumber,
+                    'serial_number' => $parameters->serialnumber,
+                    'writeoff_number' => $parameters->writeoffnumber,
+                    'time_paid' => $parameters->timepaid,
+                    'payment_type' => $parameters->paymenttype,
                     'amount' => $parameters->amount,
                     'tel' => $parameters->tel,
                     'hash' => $parameters->hash,
-                    'memo' => '驗證正確，請更新資料庫訂單狀態'
+                    'status' => 1,
+                    'memo' => '驗證正確'
                 ];
                 $pay = new PayReceive();
                 $pay->fill($data)->save();
 
-//                $magento = $this->magento->userAuthorization($this->memberTokenService->magentoUserToken())->info();
-//                $cityPass = $this->cityPass->authorization($this->memberTokenService->cityPassUserToken())->info();
+                $this->magento->userAuthorization($this->memberTokenService->magentoUserToken())->writeoff($parameters);
+
 
             }
 

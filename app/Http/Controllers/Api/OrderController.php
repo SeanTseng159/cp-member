@@ -76,7 +76,7 @@ class OrderController extends RestLaravelController
     {
         $parameters = new WriteoffParameter();
         $parameters->laravelRequest($request);
-        $this->success($this->orderService->writeoff($parameters));
+        $this->orderService->writeoff($parameters);
         return $this->success();
     }
 
