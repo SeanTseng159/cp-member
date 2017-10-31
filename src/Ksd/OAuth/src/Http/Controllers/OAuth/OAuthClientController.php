@@ -85,7 +85,7 @@ class OAuthClientController extends BaseController
             'response_type' => 'required',
             'client_id' => 'required',
             'code' => 'required',
-            'redirect_url' => 'required|active_url'
+            'redirect_url' => (env('APP_ENV') === 'production') ? 'required|active_url' : 'required'
         ]);
 
         $request->session()->put('redirect_url', $data['redirect_url']);
