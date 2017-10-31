@@ -8,6 +8,7 @@ use Ksd\Mediation\Core\Controller\RestLaravelController;
 use Ksd\Mediation\Parameter\Order\FindParameter;
 use Ksd\Mediation\Parameter\Order\OrderParameter;
 use Ksd\Mediation\Parameter\Order\SearchParameter;
+use Ksd\Mediation\Parameter\Order\WriteoffParameter;
 use Ksd\Mediation\Services\OrderService;
 
 class OrderController extends RestLaravelController
@@ -64,6 +65,19 @@ class OrderController extends RestLaravelController
         $parameters = new FindParameter();
         $parameters->laravelRequest($id, $request);
         return $this->success($this->orderService->find($parameters));
+    }
+
+    /**
+     * 接收ATM繳款通知程式
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function writeoff(Request $request)
+    {
+        $parameters = new WriteoffParameter();
+        $parameters->laravelRequest($request);
+        $this->success($this->orderService->writeoff($parameters));
+        return $this->success();
     }
 
 }

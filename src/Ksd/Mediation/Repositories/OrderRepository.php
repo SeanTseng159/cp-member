@@ -15,11 +15,14 @@ use Ksd\Mediation\CityPass\Order as CityPassOrder;
 use Ksd\Mediation\Config\ProjectConfig;
 use Ksd\Mediation\Services\MemberTokenService;
 
+use App\Models\PayReceive;
+
 class OrderRepository extends BaseRepository
 {
     const INFO_KEY = 'order:user:info:%s:%s';
 
     private $memberTokenService;
+    protected $model;
 
     public function __construct(MemberTokenService $memberTokenService)
     {
@@ -27,6 +30,8 @@ class OrderRepository extends BaseRepository
         $this->cityPass = new CityPassOrder();
         parent::__construct();
         $this->memberTokenService = $memberTokenService;
+
+        $this->model = new PayReceive();
     }
 
     /**
@@ -156,12 +161,87 @@ class OrderRepository extends BaseRepository
             if ($parameters->source === ProjectConfig::MAGENTO) {
                 return $this->magento->find($parameters);
             } else if ($parameters->source === ProjectConfig::MAGENTO) {
-                return $this->cityPass->authorization($this->cityPassUserToken())->find($parameters->id);
+                return $this->cityPass->authorization($this->memberTokenService->cityPassUserToken())->find($parameters->id);
             }
         });
     }
 
 
+    /**
+     * 接收ATM繳款通知程式
+     * citypass直接把資料回拋，magento驗證成功後再把訂單狀態改為processing
+     * @param $parameters
+     * @return mixed
+     */
+    public function writeoff($parameters)
+    {
+
+//        $this->cityPass->authorization($this->memberTokenService->cityPassUserToken())->writeoff($parameters);
+
+
+        $code               = "abcd1234";
+        $verify = md5(
+            "merchantnumber=".$parameters->merchantnumber.
+            "&ordernumber=".$parameters->ordernumber.
+            "&serialnumber=".$parameters->serialnumber.
+            "&writeoffnumber=".$parameters->writeoffnumber.
+            "&timepaid=".$parameters->timepaid.
+            "&paymenttype=".$parameters->paymenttype.
+            "&amount=".$parameters->amount.
+            "&tel=".$parameters->tel.
+            $code
+        );
+
+            if(strtolower($parameters->hash)!=strtolower($verify)){
+                //-- 驗證碼錯誤，資料可能遭到竄改，或是資料不是由ezPay簡單付發送
+                $data = [
+                    'merchantnumber' => $parameters->merchantnumber,
+                    'ordernumber' => $parameters->ordernumber,
+                    'serialnumber' => $parameters->serialnumber,
+                    'writeoffnumber' => $parameters->writeoffnumber,
+                    'timepaid' => $parameters->timepaid,
+                    'paymenttype' => $parameters->paymenttype,
+                    'amount' => $parameters->amount,
+                    'tel' => $parameters->tel,
+                    'hash' => $parameters->hash,
+                    'memo' => '驗證碼錯誤，資料可能遭到竄改，或是資料不是由ezPay簡單付發送'
+                ];
+                $pay = new PayReceive();
+                $pay->fill($data)->save();
+
+
+            }else{
+                //-- 驗證正確，請更新資料庫訂單狀態
+                $data = [
+                    'merchantnumber' => $parameters->merchantnumber,
+                    'ordernumber' => $parameters->ordernumber,
+                    'serialnumber' => $parameters->serialnumber,
+                    'writeoffnumber' => $parameters->writeoffnumber,
+                    'timepaid' => $parameters->timepaid,
+                    'paymenttype' => $parameters->paymenttype,
+                    'amount' => $parameters->amount,
+                    'tel' => $parameters->tel,
+                    'hash' => $parameters->hash,
+                    'memo' => '驗證正確，請更新資料庫訂單狀態'
+                ];
+                $pay = new PayReceive();
+                $pay->fill($data)->save();
+
+//                $magento = $this->magento->userAuthorization($this->memberTokenService->magentoUserToken())->info();
+//                $cityPass = $this->cityPass->authorization($this->memberTokenService->cityPassUserToken())->info();
+
+            }
+
+    }
+
+    /**
+     * 資料依日期做排序
+     * @param $arr
+     *  @param$key
+     *  @param $type
+     *  @param $short
+     * @return array
+     */
     public function multi_array_sort($arr,$key,$type=SORT_REGULAR,$short=SORT_DESC){
         if(!empty($arr)) {
             foreach ($arr as $k => $v) {

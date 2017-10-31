@@ -60,4 +60,14 @@ class OrderService
     {
         return $this->repository->find($parameters);
     }
+
+    /**
+     * 接收ATM繳款通知程式
+     * @param $parameters
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function writeoff($parameters)
+    {
+        return $this->repository->writeoff($parameters);
+    }
 }
