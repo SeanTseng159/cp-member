@@ -40,7 +40,13 @@ class WishlistRepository extends BaseRepository
             $cityPass = $this->cityPass
                 ->authorization($this->memberTokenService->cityPassUserToken())
                 ->items();
-            return array_merge($magento, $cityPass);
+
+        return [
+            ProjectConfig::MAGENTO => $magento,
+            ProjectConfig::CITY_PASS => $cityPass
+        ];
+
+ //       return array_merge($magento, $cityPass);
 
     }
 
