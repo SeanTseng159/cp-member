@@ -94,12 +94,14 @@ Route::middleware('cors')->namespace('Api')->group(function () {
         Route::get('info/{source}', 'CheckoutController@info');
         // 設定物流方式
         Route::post('shipment', 'CheckoutController@shipment');
-        // 確定結帳
+        // 確定結帳 (回傳訂單號，非信用卡)
         Route::post('confirm', 'CheckoutController@confirm');
         // 3D驗證
         Route::post('verify3d', 'CheckoutController@verify3d');
         // 取得3D驗證回傳資料
         Route::post('verifyResult', 'CheckoutController@verifyResult');
+        // 信用卡送金流
+        Route::post('creditCard', 'CheckoutController@creditCard');
     });
 
     Route::prefix('coupon')->group(function () {

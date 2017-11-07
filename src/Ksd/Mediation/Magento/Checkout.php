@@ -111,7 +111,26 @@ class Checkout extends Client
      */
     public function confirm($parameters)
     {
-        return $this->putPayment($parameters->payment());
+        if($parameters->payment()->type.equalTo('atm')){
+            return $this->putPayment($parameters->payment());
+        }else if($parameters->payment()->type.equalTo('credit_card')){
+            $response = $this->request('post', 'V1/ksd/mine/order');
+            return trim($response->getBody(), '"');
+        }else{
+            return null;
+        }
+
+    }
+
+    /**
+     *信用卡送金流
+     * @param $parameters
+     * @return array
+     */
+    public function creditCard($parameters)
+    {
+            return $this->putPayment($parameters->payment());
+
     }
 
     /**

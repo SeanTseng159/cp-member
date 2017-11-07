@@ -49,4 +49,14 @@ class CheckoutService
         return $this->repository->confirm($parameters);
     }
 
+    /**
+     * 信用卡送金流
+     * @param $parameters
+     * @return array|mixed
+     */
+    public function creditCard($parameters)
+    {
+        return $this->repository->creditCard($parameters);
+    }
+
 }

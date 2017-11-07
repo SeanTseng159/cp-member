@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use Ksd\Mediation\Core\Controller\RestLaravelController;
 use Ksd\Mediation\Parameter\Checkout\ConfirmParameter;
 use Ksd\Mediation\Parameter\Checkout\ShipmentParameter;
+use Ksd\Mediation\Parameter\Checkout\CreditCardParameterm;
+
 use Ksd\Mediation\Services\CheckoutService;
 use App\Services\Card3dLogService as LogService;
 
@@ -123,5 +125,19 @@ class CheckoutController extends RestLaravelController
 
 
         return ($platform === 'app') ? redirect('app://order?id=' . $orderId . '&source=' . $source . '&result=true&msg=success') : redirect($url . '/checkout/complete/' . $orderId . '/' . $source);
+    }
+
+
+    /**
+     * 信用卡送金流
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function creditCard(Request $request)
+    {
+        $parameters = new CreditCardParameterm();
+        $parameters->laravelRequest($request);
+        $result = $this->service->creditCard($parameters);
+        return $this->success($result);
     }
 }

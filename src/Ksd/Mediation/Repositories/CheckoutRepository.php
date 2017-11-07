@@ -66,4 +66,18 @@ class CheckoutRepository extends BaseRepository
             return $this->cityPass->authorization($this->memberTokenService->cityPassUserToken())->confirm($parameters);
         }
     }
+
+    /**
+     * 信用卡送金流
+     * @param $parameters
+     * @return array|mixed
+     */
+    public function creditCard($parameters)
+    {
+        if($parameters->checkSource(ProjectConfig::MAGENTO)) {
+            return $this->magento->userAuthorization($this->memberTokenService->magentoUserToken())->creditCard($parameters);
+        } else if ($parameters->checkSource(ProjectConfig::CITY_PASS)) {
+            return $this->cityPass->authorization($this->memberTokenService->cityPassUserToken())->creditCard($parameters);
+        }
+    }
 }
