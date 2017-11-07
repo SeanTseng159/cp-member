@@ -77,7 +77,7 @@ class Cart extends Client
      */
     public function update($parameters)
     {
-        $response = $this->putParameters($parameters)
+        $response = $this->setJson(false)->putParameters($parameters)
             ->request('POST', 'cart/update');
         $result = json_decode($response->getBody(), true);
         if ($result['statusCode'] === 202) {
@@ -93,7 +93,7 @@ class Cart extends Client
      */
     public function delete($parameters)
     {
-        $response = $this->putParameters($parameters)
+        $response = $this->setJson(false)->putParameters($parameters)
             ->request('POST', 'cart/remove');
         $result = json_decode($response->getBody(), true);
         if ($result['statusCode'] === 203) {

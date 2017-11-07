@@ -43,8 +43,8 @@ class CartController extends RestLaravelController
     {
         $parameters = new ProductParameter();
         $parameters->laravelRequest($request);
-        $this->cartService->add($parameters);
-        return $this->success();
+        $result = $this->cartService->add($parameters);
+        return ($result) ? $this->success() : $this->failure('E0002', '新增失敗');
     }
 
     /**
@@ -56,8 +56,8 @@ class CartController extends RestLaravelController
     {
         $parameters = new ProductParameter();
         $parameters->laravelRequest($request);
-        $this->cartService->update($parameters);
-        return $this->success();
+        $result = $this->cartService->update($parameters);
+        return ($result) ? $this->success() : $this->failure('E0003', '更新失敗');
     }
 
     /**
@@ -69,7 +69,7 @@ class CartController extends RestLaravelController
     {
         $parameters = new ProductParameter();
         $parameters->laravelRequest($request);
-        $this->cartService->delete($parameters);
-        return $this->success();
+        $result = $this->cartService->delete($parameters);
+        return ($result) ? $this->success() : $this->failure('E0004', '刪除失敗');
     }
 }
