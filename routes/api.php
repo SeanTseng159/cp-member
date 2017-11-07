@@ -14,8 +14,8 @@ use Illuminate\Http\Request;
 */
 
 // 需 token 認證的 route
-Route::middleware(['cors', 'auth.jwt'])->group(function () {
-    Route::namespace('Api')->prefix('member')->group(function () {
+Route::middleware(['cors', 'auth.jwt'])->namespace('Api')->group(function () {
+    Route::prefix('member')->group(function () {
         //取所有會員
         Route::get('all', 'MemberController@allMember');
         //會員資料查詢
@@ -34,7 +34,7 @@ Route::middleware(['cors', 'auth.jwt'])->group(function () {
         Route::post('refreshToken', 'MemberController@refreshToken');
     });
 
-    Route::namespace('Api')->prefix('newsletter')->group(function () {
+    Route::prefix('newsletter')->group(function () {
         //取得所有電子報名單資料
         Route::get('all', 'NewsletterController@all');
     });
