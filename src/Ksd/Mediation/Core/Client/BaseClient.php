@@ -132,7 +132,8 @@ class BaseClient
             if ($this->json) {
                 $option['json'] = $this->parameters;
             } else {
-                $option['body'] = $this->parameters;
+                // $option['headers']['Content-Type'] = 'application/x-www-form-urlencoded';
+                $option['form_params'] = $this->parameters;
             }
         }
 
