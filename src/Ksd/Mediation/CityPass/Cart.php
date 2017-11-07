@@ -61,7 +61,7 @@ class Cart extends Client
      */
     public function add($parameters)
     {
-        $response = $this->putParameters($parameters)
+        $response = $this->setJson(false)->putParameters($parameters)
             ->request('POST', 'cart/add');
         $result = json_decode($response->getBody(), true);
         if ($result['statusCode'] === 201) {

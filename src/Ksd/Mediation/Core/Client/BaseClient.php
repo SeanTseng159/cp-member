@@ -42,6 +42,15 @@ class BaseClient
     }
 
     /**
+     * set Json
+     */
+    public function setJson($bool = true)
+    {
+        $this->json = $bool;
+        return $this;
+    }
+
+    /**
      * 清除參數
      */
     public function clear()
