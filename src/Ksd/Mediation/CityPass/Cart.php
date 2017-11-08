@@ -67,7 +67,7 @@ class Cart extends Client
         $result = json_decode($response->getBody(), true);
 
         Log::debug('===購物車===');
-        Log::debug(print_r($response, true));
+        Log::debug(print_r(json_decode($response->getBody(), true), true));
 
         return ($result['statusCode'] === 201);
     }
@@ -84,7 +84,7 @@ class Cart extends Client
         $result = json_decode($response->getBody(), true);
 
         Log::debug('===購物車===');
-        Log::debug(print_r($response, true));
+        Log::debug(print_r(json_decode($response->getBody(), true), true));
 
         return ($result['statusCode'] === 202);
     }
@@ -101,7 +101,7 @@ class Cart extends Client
         $result = json_decode($response->getBody(), true);
 
         Log::debug('===購物車===');
-        Log::debug(print_r($response, true));
+        Log::debug(print_r(json_decode($response->getBody(), true), true));
 
         return ($result['statusCode'] === 203);
     }
