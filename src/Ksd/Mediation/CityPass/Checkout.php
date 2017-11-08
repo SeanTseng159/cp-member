@@ -10,6 +10,7 @@ namespace Ksd\Mediation\CityPass;
 
 
 use Ksd\Mediation\Result\CheckoutResult;
+use Log;
 
 class Checkout extends Client
 {
@@ -40,6 +41,9 @@ class Checkout extends Client
         $response = $this->setJson(false)->request('POST', 'checkout/confirm');
         $result = json_decode($response->getBody(),true);
 
+        Log::debug('===結帳===');
+        Log::debug(print_r(json_decode($response->getBody(), true), true));
+
         return $result;
     }
 
@@ -53,8 +57,10 @@ class Checkout extends Client
         $parameter = $this->processPayment($parameters);
         $this->putParameters($parameter);
         $response = $this->setJson(false)->request('POST', 'payment/credit_card');
-        $body = $response->getBody();
-        $result = json_decode($body, true);
+        $result = json_decode($response->getBody(), true);
+
+        Log::debug('===結帳信用卡===');
+        Log::debug(print_r(json_decode($response->getBody(), true), true));
 
         return $result;
     }
