@@ -37,7 +37,7 @@ class Checkout extends Client
     public function confirm($parameters)
     {
         $this->putParameters($parameters);
-        $response = $this->request('POST', 'checkout/confirm');
+        $response = $this->setJson(false)->request('POST', 'checkout/confirm');
         $result = json_decode($response->getBody(),true);
 
         return $result;
@@ -52,7 +52,7 @@ class Checkout extends Client
     {
         $parameter = $this->processPayment($parameters);
         $this->putParameters($parameter);
-        $response = $this->request('POST', 'payment/credit_card');
+        $response = $this->setJson(false)->request('POST', 'payment/credit_card');
         $body = $response->getBody();
         $result = json_decode($body, true);
 
