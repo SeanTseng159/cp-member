@@ -10,6 +10,7 @@ namespace Ksd\Mediation\CityPass;
 use GuzzleHttp\Exception\ClientException;
 use Ksd\Mediation\Helper\EnvHelper;
 use Ksd\Mediation\Result\CartResult;
+use Log;
 
 class Cart extends Client
 {
@@ -64,10 +65,10 @@ class Cart extends Client
         $response = $this->setJson(false)->putParameters($parameters)
             ->request('POST', 'cart/add');
         $result = json_decode($response->getBody(), true);
-        if ($result['statusCode'] === 201) {
-            return true;
-        }
-        return false;
+
+        Log::debug(print_r($result));
+
+        return ($result['statusCode'] === 201);
     }
 
     /**
@@ -80,10 +81,10 @@ class Cart extends Client
         $response = $this->setJson(false)->putParameters($parameters)
             ->request('POST', 'cart/update');
         $result = json_decode($response->getBody(), true);
-        if ($result['statusCode'] === 202) {
-            return true;
-        }
-        return false;
+
+        Log::debug(print_r($result));
+
+        return ($result['statusCode'] === 202);
     }
 
     /**
@@ -96,9 +97,9 @@ class Cart extends Client
         $response = $this->setJson(false)->putParameters($parameters)
             ->request('POST', 'cart/remove');
         $result = json_decode($response->getBody(), true);
-        if ($result['statusCode'] === 203) {
-            return true;
-        }
-        return false;
+
+        Log::debug(print_r($result));
+
+        return ($result['statusCode'] === 203);
     }
 }
