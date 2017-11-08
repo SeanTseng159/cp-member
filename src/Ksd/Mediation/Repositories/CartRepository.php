@@ -19,6 +19,7 @@ class CartRepository extends BaseRepository
     const DETAIL_KEY = 'cart:user:detail:%s:%s';
 
     private $memberTokenService;
+    private $result = false;
 
     public function __construct($memberTokenService)
     {
@@ -69,13 +70,15 @@ class CartRepository extends BaseRepository
     public function add($parameters)
     {
         if (!empty($parameters->magento())) {
-            $this->magento->userAuthorization($this->memberTokenService->magentoUserToken())->add($parameters->magento());
+            $this->result = $this->magento->userAuthorization($this->memberTokenService->magentoUserToken())->add($parameters->magento());
         } else if(!empty($parameters->cityPass())) {
             foreach ($parameters->cityPass() as $item) {
-                $this->cityPass->authorization($this->memberTokenService->cityPassUserToken())->add($item);
+                $this->result = $this->cityPass->authorization($this->memberTokenService->cityPassUserToken())->add($item);
             }
         }
         $this->cleanCache();
+
+        return $this->result;
     }
 
     /**
@@ -85,13 +88,15 @@ class CartRepository extends BaseRepository
     public function update($parameters)
     {
         if (!empty($parameters->magento())) {
-            $this->magento->userAuthorization($this->memberTokenService->magentoUserToken())->update($parameters->magento());
+            $this->result = $this->magento->userAuthorization($this->memberTokenService->magentoUserToken())->update($parameters->magento());
         } else if(!empty($parameters->cityPass())) {
             foreach ($parameters->cityPass() as $item) {
-                $this->cityPass->authorization($this->memberTokenService->cityPassUserToken())->update($item);
+                $this->result = $this->cityPass->authorization($this->memberTokenService->cityPassUserToken())->update($item);
             }
         }
         $this->cleanCache();
+
+        return $this->result;
     }
 
     /**
@@ -101,14 +106,16 @@ class CartRepository extends BaseRepository
     public function delete($parameters)
     {
         if (!empty($parameters->magento())) {
-            $this->magento->userAuthorization($this->memberTokenService->magentoUserToken())->delete($parameters->magento());
+            $this->result = $this->magento->userAuthorization($this->memberTokenService->magentoUserToken())->delete($parameters->magento());
         } else if(!empty($parameters->cityPass())) {
             foreach ($parameters->cityPass() as $item) {
-                $this->cityPass->authorization($this->memberTokenService->cityPassUserToken())->delete($item);
+                $this->result = $this->cityPass->authorization($this->memberTokenService->cityPassUserToken())->delete($item);
             }
 
         }
         $this->cleanCache();
+
+        return $this->result;
     }
 
     /**
