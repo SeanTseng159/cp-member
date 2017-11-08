@@ -52,7 +52,7 @@ class Checkout extends Client
     {
         $parameter = $this->processPayment($parameters);
         $this->putParameters($parameter);
-        $response = $this->request('POST', 'V1/carts/mine/payment-information');
+        $response = $this->request('POST', 'payment/credit_card');
         $body = $response->getBody();
         $result = json_decode($body, true);
 
