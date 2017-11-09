@@ -10,6 +10,7 @@ use Ksd\Mediation\Parameter\Checkout\CreditCardParameterm;
 
 use Ksd\Mediation\Services\CheckoutService;
 use App\Services\Card3dLogService as LogService;
+use Log;
 
 class CheckoutController extends RestLaravelController
 {
@@ -65,12 +66,13 @@ class CheckoutController extends RestLaravelController
     {
         $data = $request->only([
             'source',
+            'paymentId',
             'cardNumber',
             'expYear',
             'expMonth',
             'code',
             'totalAmount',
-            'XID',
+            'orderNo',
             'platform'
         ]);
 
@@ -90,7 +92,7 @@ class CheckoutController extends RestLaravelController
     {
         $lang = 'zh_TW';
 
-        $data = $request->only([
+        $requestData = $request->only([
             'ErrorCode',
             'ErrorMessage',
             'ECI',
@@ -101,30 +103,45 @@ class CheckoutController extends RestLaravelController
         // 從session取信用卡資料
         $ccData = $request->session()->pull('ccData', 'default');
 
-        $orderId = $ccData['XID'];
+        $orderNo = $ccData['orderNo'];
         $platform = $ccData['platform'];
         $source = $ccData['source'];
 
         // 寫入資料庫
-        $data['platform'] = ($platform) ?: 'web';
-        $data['XID'] = $orderId;
-        $data['totalAmount'] = $ccData['totalAmount'];
-        $data['source'] = $source;
+        $requestData['platform'] = ($platform) ?: 'web';
+        $requestData['XID'] = $orderNo;
+        $requestData['totalAmount'] = $ccData['totalAmount'];
+        $requestData['source'] = $source;
         $log = new LogService;
-        $result = $log->create($data);
+        $result = $log->create($requestData);
 
         $url = (env('APP_ENV') === 'production') ? 'http://172.104.83.229/' : 'http://localhost:3000/';
         $url .= $lang;
 
         // 失敗
         /*if (!in_array($data['ECI'], ['5', '2', '6', '1'])) {
-            if ($platform === 'app') return redirect('app://order?id=' . $orderId . '&source=' . $source . '&result=false&msg=' . $data['ErrorMessage']);
+            if ($platform === 'app') return redirect('app://order?id=' . $orderNo . '&source=' . $source . '&result=false&msg=' . $data['ErrorMessage']);
         }*/
 
+        Log::info('3D驗證完成');
+
         // 金流實作
+        $parameters = new CreditCardParameterm();
+        $parameters->mergeRequest($requestData, $ccData);
+        $result = $this->service->creditCard($parameters);
 
+        Log::info('信用卡完成');
 
-        return ($platform === 'app') ? redirect('app://order?id=' . $orderId . '&source=' . $source . '&result=true&msg=success') : redirect($url . '/checkout/complete/' . $orderId . '/' . $source);
+        if ($platform === 'app') {
+            $url = 'app://order?id=' . $orderNo . '&source=' . $source;
+
+            $url .= ($result) ? '&result=true&msg=success' : '&result=false&msg=' . $requestData['ErrorMessage'];
+        }
+        else {
+            $url .= '/checkout/complete/' . $orderNo . '/' . $source;
+        }
+
+        return redirect($url);
     }
 
 
