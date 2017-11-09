@@ -18,10 +18,11 @@ class ConfirmParameter extends BaseParameter
     use ObjectHelper;
     use AddressHelper;
 
-    private $source;
+    public $device;
+    public $source;
     private $isCheck;
-    private $payment;
-    private $billing;
+    public $payment;
+    public $billing;
 
 
     /**
@@ -30,6 +31,7 @@ class ConfirmParameter extends BaseParameter
      */
     public function laravelRequest($request)
     {
+        $this->device = $request->input('device');
         $this->source = $request->input('source');
 
         $this->processParameters($request, 'payment');

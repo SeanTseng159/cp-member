@@ -37,9 +37,8 @@ class Checkout extends Client
      */
     public function confirm($parameters)
     {
-        $this->putParameters($parameters);
-        $response = $this->setJson(false)->request('POST', 'checkout/confirm');
-        $result = json_decode($response->getBody(),true);
+        $response = $this->setJson(false)->putParameters($parameters)->request('POST', 'checkout/confirm');
+        $result = json_decode($response->getBody(), true);
 
         Log::debug('===結帳===');
         Log::debug(print_r(json_decode($response->getBody(), true), true));
