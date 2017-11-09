@@ -246,12 +246,12 @@ class Checkout extends Client
             ]
         ];
 
-        if (!empty($payment->creditCardNumer)) {
+        if (!empty($payment->creditCardNumber)) {
             $parameter['paymentMethod']['additional_data'] = [
-                'cc_type' => $this->creditCardType($payment->creditCardNumer),
+                'cc_type' => $this->creditCardType($payment->creditCardNumber),
                 'cc_exp_year' => $payment->creditCardYear,
                 'cc_exp_month' => $payment->creditCardMonth,
-                'cc_number' => $payment->creditCardNumer,
+                'cc_number' => $payment->creditCardNumber,
                 'cc_cid' => $payment->creditCardcCode,
             ];
         }
