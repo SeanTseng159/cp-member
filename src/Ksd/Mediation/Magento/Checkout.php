@@ -252,7 +252,7 @@ class Checkout extends Client
                 'cc_exp_year' => $payment->creditCardYear,
                 'cc_exp_month' => $payment->creditCardMonth,
                 'cc_number' => $payment->creditCardNumber,
-                'cc_cid' => $payment->creditCardcCode,
+                'cc_cid' => $payment->creditCardCode,
             ];
         }
         return $parameter;
