@@ -11,7 +11,7 @@ use Ksd\Mediation\Helper\AddressHelper;
 use Ksd\Mediation\Helper\ObjectHelper;
 use Ksd\Mediation\Parameter\BaseParameter;
 
-class CreditCardParameterm extends BaseParameter
+class CreditCardParameter extends BaseParameter
 {
     use ObjectHelper;
     use AddressHelper;
