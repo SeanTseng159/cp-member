@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use Ksd\Mediation\Core\Controller\RestLaravelController;
 use Ksd\Mediation\Parameter\Checkout\ConfirmParameter;
 use Ksd\Mediation\Parameter\Checkout\ShipmentParameter;
-use Ksd\Mediation\Parameter\Checkout\CreditCardParameterm;
+use Ksd\Mediation\Parameter\Checkout\CreditCardParameter;
 
 use Ksd\Mediation\Services\CheckoutService;
 use App\Services\Card3dLogService as LogService;
@@ -126,7 +126,7 @@ class CheckoutController extends RestLaravelController
         Log::info('3D驗證完成');
 
         // 金流實作
-        $parameters = new CreditCardParameterm();
+        $parameters = new CreditCardParameter();
         $parameters->mergeRequest($requestData, $ccData);
         $result = $this->service->creditCard($parameters);
 
@@ -152,7 +152,7 @@ class CheckoutController extends RestLaravelController
      */
     public function creditCard(Request $request)
     {
-        $parameters = new CreditCardParameterm();
+        $parameters = new CreditCardParameter();
         $parameters->laravelRequest($request);
         $result = $this->service->creditCard($parameters);
         return $this->success($result);
