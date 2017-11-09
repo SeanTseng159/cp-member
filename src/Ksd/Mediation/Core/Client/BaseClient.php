@@ -100,7 +100,7 @@ class BaseClient
         }
         $this->parameters[$key] = $value;
         return $this;
-    }
+    }//
 
     /**
      * 設置多筆參數
@@ -132,7 +132,6 @@ class BaseClient
             if ($this->json) {
                 $option['json'] = $this->parameters;
             } else {
-                //$option['headers']['Content-Type'] = 'application/x-www-form-urlencoded';
                 $option['form_params'] = $this->parameters;
             }
         }
