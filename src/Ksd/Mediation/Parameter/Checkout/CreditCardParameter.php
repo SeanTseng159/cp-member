@@ -49,8 +49,8 @@ class CreditCardParameterm extends BaseParameter
         $this->payment->id = $session['paymentId'];
         $this->payment->creditCardNumber = $session['cardNumber'];
         $this->payment->creditCardYear = $session['expYear'];
-        $this->payment->creditCardMonth = $cc['expMonth'];
-        $this->payment->creditCardCode = $cc['code'];
+        $this->payment->creditCardMonth = $session['expMonth'];
+        $this->payment->creditCardCode = $session['code'];
 
         $this->verify3d->eci = $request['ECI'];
         $this->verify3d->cavv = $request['CAVV'];
