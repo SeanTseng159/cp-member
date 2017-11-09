@@ -43,7 +43,7 @@ class Checkout extends Client
         Log::debug('===結帳===');
         Log::debug(print_r(json_decode($response->getBody(), true), true));
 
-        return $result;
+        return ($result['statusCode'] === 201) ? $result : false;
     }
 
     /**
