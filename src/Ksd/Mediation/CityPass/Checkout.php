@@ -77,8 +77,8 @@ class Checkout extends Client
                 'eci' => $payment->verify3d()->eci,
                 'cavv' => $payment->verify3d()->cavv,
                 'xid' => $payment->verify3d()->xid,
-                'errorCode' => $payment->verify3d()->errorCode,
-                'errorMessage' => $payment->verify3d()->errorMessage,
+                'error_code' => $payment->verify3d()->errorCode,
+                'error_message' => $payment->verify3d()->errorMessage,
             ]
         ];
         return $parameter;
