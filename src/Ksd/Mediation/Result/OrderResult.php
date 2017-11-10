@@ -161,7 +161,7 @@ class OrderResult
         if(!$isDetail) {
             $this->orderNo = $this->arrayDefault($result, 'orderNo');
             $this->orderAmount = $this->arrayDefault($result, 'orderAmount');
-            $this->orderStatus = $this->getStatus(ProjectConfig::CITY_PASS,$this->arrayDefault($result, 'orderStatus'));
+            $this->orderStatus = $this->arrayDefault($result, 'orderStatus');
             $this->orderDate = $this->arrayDefault($result, 'orderDate');
             $this->payment = $this->arrayDefault($result, 'payment');
             $this->shipping = $this->arrayDefault($result, 'shipping');
