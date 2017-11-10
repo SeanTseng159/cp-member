@@ -176,8 +176,7 @@ class OrderRepository extends BaseRepository
     public function writeoff($parameters)
     {
 
-//        待citypass提供api
-//        $this->cityPass->authorization($this->memberTokenService->cityPassUserToken())->writeoff($parameters);
+        $this->cityPass->authorization($this->memberTokenService->cityPassUserToken())->writeoff($parameters);
 
 
         $code               = "abcd1234";
