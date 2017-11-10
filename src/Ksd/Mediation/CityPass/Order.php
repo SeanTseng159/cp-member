@@ -146,7 +146,7 @@ class Order extends Client
 
         if(!empty($result['data'])) {
             $order = new OrderResult();
-            $order->cityPass($result['data'], true);
+            $order->cityPass($result['data']);
             $data[] = $order;
         }
 
