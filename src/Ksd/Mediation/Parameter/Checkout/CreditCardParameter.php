@@ -7,21 +7,16 @@
  */
 
 namespace Ksd\Mediation\Parameter\Checkout;
-use Ksd\Mediation\Helper\AddressHelper;
-use Ksd\Mediation\Helper\ObjectHelper;
 use Ksd\Mediation\Parameter\BaseParameter;
 
 class CreditCardParameter extends BaseParameter
 {
-    use ObjectHelper;
-    use AddressHelper;
-
-    private $source;
-    private $orderNo;
+    public $source;
+    public $orderNo;
     private $isCheck;
-    private $payment;
-    private $billing;
-    private $verify3d;
+    public $payment;
+    public $billing;
+    public $verify3d;
 
 
     /**

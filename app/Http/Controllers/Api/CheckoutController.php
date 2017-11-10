@@ -113,7 +113,7 @@ class CheckoutController extends RestLaravelController
         $requestData['totalAmount'] = $ccData['totalAmount'];
         $requestData['source'] = $source;
         $log = new LogService;
-        $result = $log->create($requestData);
+        $log->create($requestData);
 
         $url = (env('APP_ENV') === 'production') ? 'http://172.104.83.229/' : 'http://localhost:3000/';
         $url .= $lang;

@@ -37,7 +37,7 @@ class Checkout extends Client
      */
     public function confirm($parameters)
     {
-        $response = $this->setJson(false)->putParameters($parameters)->request('POST', 'checkout/confirm');
+        $response = $this->putParameters($parameters)->request('POST', 'checkout/confirm');
         $result = json_decode($response->getBody(), true);
 
         Log::debug('===結帳===');
@@ -55,13 +55,13 @@ class Checkout extends Client
     {
         $parameter = $this->processPayment($parameters);
         $this->putParameters($parameter);
-        $response = $this->setJson(false)->request('POST', 'payment/credit_card');
+        $response = $this->request('POST', 'payment/credit_card');
         $result = json_decode($response->getBody(), true);
 
         Log::debug('===結帳信用卡===');
         Log::debug(print_r(json_decode($response->getBody(), true), true));
 
-        return $result;
+        return ($result['statusCode'] === 200);
     }
 
     /**

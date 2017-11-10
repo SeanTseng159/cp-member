@@ -8,8 +8,12 @@
 
 namespace Ksd\Mediation\Core\Client;
 
+use Ksd\Mediation\Helper\ObjectHelper;
+
 class BaseClient
 {
+    use ObjectHelper;
+
     protected $token;
     protected $baseUrl;
     protected $client;
@@ -116,27 +120,6 @@ class BaseClient
     }
 
     /**
-     * null to array
-     * @param array $parameters
-     * @return $this
-     */
-    protected function replaceNullToEmptyString($parameters = [])
-    {
-        foreach ($parameters as $key => $value) {
-            if (is_array($value) || is_object($value)) {
-                $parameters[$key] = $this->replaceNullToEmptyString($value);
-            }
-
-            if (is_null($value)) {
-                if (is_array($parameters)) $parameters[$key] = '';
-                elseif (is_object($parameters)) $parameters->$key = '';
-            }
-        }
-
-        return $parameters;
-    }
-
-    /**
      * 建置傳送設定
      * @return array
      */
@@ -153,8 +136,7 @@ class BaseClient
             if ($this->json) {
                 $option['json'] = $this->parameters;
             } else {
-                $this->parameters = $this->replaceNullToEmptyString($this->parameters);
-                $option['form_params'] = $this->parameters;
+                $option['form_params'] = $this->replaceNullToEmptyString($this->parameters);
             }
         }
 
