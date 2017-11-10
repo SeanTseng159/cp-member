@@ -81,6 +81,9 @@ class CheckoutController extends RestLaravelController
             'platform'
         ]);
 
+        Log::info('verify3d資料');
+        Log::debug(print_r($data, true));
+
         $request->session()->put('ccData', $data);
 
         $data['RetUrl'] = url('api/checkout/verifyResult');
@@ -104,6 +107,9 @@ class CheckoutController extends RestLaravelController
             'CAVV',
             'XID'
         ]);
+
+        Log::info('verify3dcallback資料');
+        Log::debug(print_r($requestData, true));
 
         // 從session取信用卡資料
         $ccData = $request->session()->pull('ccData', 'default');
