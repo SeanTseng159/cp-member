@@ -107,6 +107,8 @@ class CheckoutController extends RestLaravelController
 
         // 從session取信用卡資料
         $ccData = $request->session()->pull('ccData', 'default');
+        Log::info('session信用卡資料');
+        Log::debug(print_r($ccData, true));
 
         $orderNo = $ccData['orderNo'];
         $platform = $ccData['platform'];
@@ -120,7 +122,8 @@ class CheckoutController extends RestLaravelController
         $log = new LogService;
         $log->create($requestData);
 
-        $url = (env('APP_ENV') === 'production') ? 'http://172.104.83.229/' : 'http://localhost:3000/';
+        // $url = (env('APP_ENV') === 'production') ? 'http://172.104.83.229/' : 'http://localhost:3000/';
+        $url = 'http://localhost:3000/';
         $url .= $lang;
 
         // 失敗
