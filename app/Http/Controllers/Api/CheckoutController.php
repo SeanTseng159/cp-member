@@ -9,16 +9,19 @@ use Ksd\Mediation\Parameter\Checkout\ShipmentParameter;
 use Ksd\Mediation\Parameter\Checkout\CreditCardParameter;
 
 use Ksd\Mediation\Services\CheckoutService;
+use Ksd\Mediation\Services\CartService;
 use App\Services\Card3dLogService as LogService;
 use Log;
 
 class CheckoutController extends RestLaravelController
 {
     protected $service;
+    protected $cartService;
 
-    public function __construct(CheckoutService $service)
+    public function __construct(CheckoutService $service, CartService $cartService)
     {
         $this->service = $service;
+        $this->cartService = $cartService;
     }
 
     /**
@@ -54,6 +57,8 @@ class CheckoutController extends RestLaravelController
         $parameters = new ConfirmParameter();
         $parameters->laravelRequest($request);
         $result = $this->service->confirm($parameters);
+        // 清空購物車快取
+        $this->cartService->cleanCache();
         return $this->success($result);
     }
 

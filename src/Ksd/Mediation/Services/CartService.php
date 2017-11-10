@@ -65,4 +65,13 @@ class CartService
     {
         return $this->repository->delete($parameters);
     }
+
+    /**
+     * 刪除購物車快取
+     * @param $parameters
+     */
+    public function cleanCache()
+    {
+        return $this->repository->cleanCache();
+    }
 }
