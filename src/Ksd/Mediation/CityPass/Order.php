@@ -154,5 +154,19 @@ class Order extends Client
 
     }
 
+    /**
+     * 虛擬 ATM繳款紀錄回傳
+     * @param $parameters
+     * @return bool
+     */
+    public function writeoff($parameters)
+    {
+        $response = $this->putParameters($parameters)->request('POST', 'checkout/writeoff');
+        $result = json_decode($response->getBody(), true);
+
+        return ($result['statusCode'] === 200) ? true : false;
+    }
+
+
 
 }
