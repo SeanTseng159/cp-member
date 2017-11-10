@@ -136,7 +136,7 @@ class Order extends Client
     public function find($itemId)
     {
 
-        $path = "order/items/$itemId";
+        $path = "order/detail/$itemId";
 
         $response = $this->request('GET', $path);
         $body = $response->getBody();
