@@ -93,15 +93,25 @@ class LayoutService
         return $this->repository->menu();
     }
 
-        /**
-         * 利用選單id取得商品資料
-         * @param  $parameter
-         * @return mixed
-         */
-        public function subcategory($parameter)
-        {
-            return $this->repository->subcategory($parameter);
-        }
+    /**
+    * 利用目錄id取得目錄資料
+    * @param  $parameter
+    * @return mixed
+    */
+    public function maincategory($parameter)
+    {
+        return $this->repository->maincategory($parameter);
+    }
+
+    /**
+    * 利用選單id取得商品資料
+    * @param  $parameter
+    * @return mixed
+    */
+    public function subcategory($parameter)
+    {
+        return $this->repository->subcategory($parameter);
+    }
 
 
 }
