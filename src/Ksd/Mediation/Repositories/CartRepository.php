@@ -37,7 +37,7 @@ class CartRepository extends BaseRepository
     public function info()
     {
         return $this->redis->remember($this->genCacheKey(self::INFO_KEY), CacheConfig::TEST_TIME, function () {
-            $this->magento->authorization($this->token);
+            // $this->magento->authorization($this->token);
             $magento = $this->magento->userAuthorization($this->memberTokenService->magentoUserToken())->info();
             $cityPass = $this->cityPass->authorization($this->memberTokenService->cityPassUserToken())->info();
             return [
@@ -145,6 +145,7 @@ class CartRepository extends BaseRepository
     private function genCacheKey($key)
     {
         $date = new \DateTime();
+        $this->token = $this->memberTokenService->cityPassUserToken();
         return sprintf($key, $this->token,$date->format('Ymd'));
     }
 }
