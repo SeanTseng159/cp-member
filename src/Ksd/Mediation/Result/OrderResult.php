@@ -75,8 +75,8 @@ class OrderResult
                         $row['status'] = '處理中';
                     }
                     $row['discount'] = $this->arrayDefault($result, 'discount_amount');
-                    $path = $product->findItemImage($this->arrayDefault($item, 'sku'));
-                    $row['imageUrl'] = $this->magentoImageUrl($path['file']);
+                    $row['imageUrl'] = $this->arrayDefault($item, 'extension_attributes', '')['image_url'];
+
 
                     $this->items[] = $row;
                 }
@@ -133,8 +133,7 @@ class OrderResult
                     }
 
                     $row['discount'] = $this->arrayDefault($result, 'discount_amount');
-                    $path = $product->findItemImage($this->arrayDefault($item, 'sku'));
-                    $row['imageUrl'] = $this->magentoImageUrl($path['file']);
+                    $row['imageUrl'] = $this->arrayDefault($item, 'extension_attributes', '')['image_url'];
 
                     $this->items[] = $row;
                 }
