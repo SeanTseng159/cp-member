@@ -174,7 +174,7 @@ class OrderResult
                 $row['description'] = $this->arrayDefault($item, 'description');
                 $row['status'] = $this->arrayDefault($item, 'status');
                 $row['discount'] = $this->arrayDefault($item, 'discount');
-                $row['imageUrl'] = $this->arrayDefault($item, 'imageUrls');
+                $row['imageUrl'] = $this->arrayDefault($item, 'imageUrl');
 
                 $this->items[] = $row;
 
