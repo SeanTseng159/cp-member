@@ -76,10 +76,8 @@ class OrderResult
                     }
                     $row['discount'] = $this->arrayDefault($result, 'discount_amount');
                     $path = $product->findItemImage($this->arrayDefault($item, 'sku'));
-                    $generalPath = $this->magentoImageUrl($path['file']);
-                    $thumbnailPath = in_array('thumbnail', $path['types']) ? $this->magentoImageUrl($path['file'] ): '';
-                    $row['imageUrls']['generalPath'] = $generalPath;
-                    $row['imageUrls']['thumbnailPath'] = $thumbnailPath;
+                    $row['imageUrl'] = $this->magentoImageUrl($path['file']);
+
                     $this->items[] = $row;
                 }
 
@@ -136,10 +134,7 @@ class OrderResult
 
                     $row['discount'] = $this->arrayDefault($result, 'discount_amount');
                     $path = $product->findItemImage($this->arrayDefault($item, 'sku'));
-                    $generalPath = $this->magentoImageUrl($path['file']);
-                    $thumbnailPath = in_array('thumbnail', $path['types']) ? $this->magentoImageUrl($path['file'] ): '';
-                    $row['imageUrls']['generalPath'] = $generalPath;
-                    $row['imageUrls']['thumbnailPath'] = $thumbnailPath;
+                    $row['imageUrl'] = $this->magentoImageUrl($path['file']);
 
                     $this->items[] = $row;
                 }
@@ -179,7 +174,7 @@ class OrderResult
                 $row['description'] = $this->arrayDefault($item, 'description');
                 $row['status'] = $this->arrayDefault($item, 'status');
                 $row['discount'] = $this->arrayDefault($item, 'discount');
-                $row['imageUrls'] = $this->arrayDefault($item, 'imageUrls');
+                $row['imageUrl'] = $this->arrayDefault($item, 'imageUrls');
 
                 $this->items[] = $row;
 
