@@ -11,6 +11,7 @@ namespace Ksd\Mediation\Repositories;
 
 use Ksd\Mediation\Cache\Redis;
 use Ksd\Mediation\Config\ProjectConfig;
+use Ksd\Mediation\Config\CacheConfig;
 use Ksd\Mediation\Magento\Product as MagentoProduct;
 use Ksd\Mediation\CityPass\Product as CityPassProduct;
 use Ksd\Mediation\Result\Collection;
@@ -34,7 +35,7 @@ class ProductRepository extends BaseRepository
      */
     public function categories($id = 1)
     {
-        $result = $this->redis->remember("categories", 600, function () use ($id) {
+        $result = $this->redis->remember("categories", CacheConfig::TEST_TIME, function () use ($id) {
             $magentoProducts = $this->magento->categories($id);
             $tpassProducts = [];//$this->tpass->products($category);
             return [$magentoProducts, $tpassProducts];
@@ -52,7 +53,7 @@ class ProductRepository extends BaseRepository
     {
         $result = [];
         if (empty($categories) && empty($parameter->categories())) {
-            $result = $this->redis->remember("product:category:all", 600, function () {
+            $result = $this->redis->remember("product:category:all", CacheConfig::TEST_TIME, function () {
                 $magentoProducts = $this->magento->all();
                 $cityPassProducts = $this->cityPass->all();
                 return array_merge($magentoProducts, $cityPassProducts);
@@ -60,7 +61,7 @@ class ProductRepository extends BaseRepository
         } else {
             $source = ProjectConfig::MAGENTO;
             foreach ($categories as $category) {
-                $row = $this->redis->remember("$source:product:category:$category", 600, function () use ($category) {
+                $row = $this->redis->remember("$source:product:category:$category", CacheConfig::TEST_TIME, function () use ($category) {
                     return $this->magento->all($category);
                 });
                 $result = array_merge($result,$row);
@@ -68,7 +69,7 @@ class ProductRepository extends BaseRepository
 
             $source = ProjectConfig::CITY_PASS;
             $categoryKey = join('_', $parameter->categories());
-            $cityPassProducts = $this->redis->remember("$source:product:category:$categoryKey", 600, function () use ($parameter) {
+            $cityPassProducts = $this->redis->remember("$source:product:category:$categoryKey", CacheConfig::TEST_TIME, function () use ($parameter) {
                 return $this->cityPass->tags($parameter->categories());
             });
             $result = array_merge($result, $cityPassProducts);
@@ -86,7 +87,7 @@ class ProductRepository extends BaseRepository
     {
         $id = $parameter->no;
         $source = $parameter->source;
-        $product = $this->redis->remember("$source:product:id:$id", 600, function () use ($source,$id) {
+        $product = $this->redis->remember("$source:product:id:$id", CacheConfig::TEST_TIME, function () use ($source,$id) {
             $product = null;
             if($source == ProjectConfig::MAGENTO) {
                 $product = $this->magento->find($id);
