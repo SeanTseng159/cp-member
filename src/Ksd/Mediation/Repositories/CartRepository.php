@@ -10,6 +10,7 @@ namespace Ksd\Mediation\Repositories;
 
 
 use Ksd\Mediation\Config\ProjectConfig;
+use Ksd\Mediation\Config\CacheConfig;
 use Ksd\Mediation\Magento\Cart as MagentoCart;
 use Ksd\Mediation\CityPass\Cart as CityPassCart;
 
@@ -35,7 +36,7 @@ class CartRepository extends BaseRepository
      */
     public function info()
     {
-        return $this->redis->remember($this->genCacheKey(self::INFO_KEY), 3600, function () {
+        return $this->redis->remember($this->genCacheKey(self::INFO_KEY), CacheConfig::TEST_TIME, function () {
             $this->magento->authorization($this->token);
             $magento = $this->magento->userAuthorization($this->memberTokenService->magentoUserToken())->info();
             $cityPass = $this->cityPass->authorization($this->memberTokenService->cityPassUserToken())->info();
@@ -52,7 +53,7 @@ class CartRepository extends BaseRepository
      */
     public function detail()
     {
-        return $this->redis->remember($this->genCacheKey(self::DETAIL_KEY), 3600, function () {
+        return $this->redis->remember($this->genCacheKey(self::DETAIL_KEY), CacheConfig::TEST_TIME, function () {
             $this->magento->authorization($this->token);
             $magento = $this->magento->userAuthorization($this->memberTokenService->magentoUserToken())->detail();
             $cityPass = $this->cityPass->authorization($this->memberTokenService->cityPassUserToken())->detail();

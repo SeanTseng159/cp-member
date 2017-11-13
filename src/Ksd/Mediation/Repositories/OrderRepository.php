@@ -13,6 +13,7 @@ use Ksd\Mediation\Magento\Order as MagentoOrder;
 use Ksd\Mediation\CityPass\Order as CityPassOrder;
 
 use Ksd\Mediation\Config\ProjectConfig;
+use Ksd\Mediation\Config\CacheConfig;
 use Ksd\Mediation\Services\MemberTokenService;
 
 use App\Models\PayReceive;
@@ -41,7 +42,7 @@ class OrderRepository extends BaseRepository
     public function info()
     {
 
-        return $this->redis->remember($this->genCacheKey(self::INFO_KEY), 300, function () {
+        return $this->redis->remember($this->genCacheKey(self::INFO_KEY), CacheConfig::TEST_TIME, function () {
             $this->magento->authorization($this->token);
             $magento = $this->magento->userAuthorization($this->memberTokenService->magentoUserToken())->info();
             $cityPass = $this->cityPass->authorization($this->memberTokenService->cityPassUserToken())->info();
@@ -66,7 +67,7 @@ class OrderRepository extends BaseRepository
     {
         $itemId = $parameter->itemId;
         $source = $parameter->source;
-        return $this->redis->remember("$source:order:item_id:$itemId", 300, function () use ($source,$parameter) {
+        return $this->redis->remember("$source:order:item_id:$itemId", CacheConfig::TEST_TIME, function () use ($source,$parameter) {
             if($source == ProjectConfig::MAGENTO) {
                 $magento = $this->magento->userAuthorization($this->memberTokenService->magentoUserToken())->order($parameter);
                 return $magento;
@@ -157,7 +158,7 @@ class OrderRepository extends BaseRepository
         $source = $parameters->source;
         $id = $parameters->id;
 
-        return $this->redis->remember("$source:order:$id", 300, function () use ($source,$parameters) {
+        return $this->redis->remember("$source:order:$id", CacheConfig::TEST_TIME, function () use ($source,$parameters) {
             if ($parameters->source === ProjectConfig::MAGENTO) {
                 return $this->magento->find($parameters);
             } else if ($parameters->source === ProjectConfig::CITY_PASS) {
