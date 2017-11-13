@@ -148,9 +148,8 @@ class ProductRepository extends BaseRepository
             }
         }
 
-//        $this->redis->set($cacheKey, $indexResults, 3600 * 24);
-        //為了DEMO先修正
-          $this->redis->set($cacheKey, $indexResults, 10 * 1);
+        $this->redis->set($cacheKey, $indexResults, 3600 * 24);
+
     }
 
     /**
