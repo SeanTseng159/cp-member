@@ -37,7 +37,7 @@ class OrderResult
             $this->orderDate = $this->arrayDefault($result, 'created_at');
             $payment = $this->arrayDefault($result, 'payment');
             $this->payment = $this->putMagentoPayment($payment);
-            $this->payment['username'] =   $this->arrayDefault($result, 'customer_firstname') . $this->arrayDefault($result, 'customer_lastname');
+//            $this->payment['username'] =   $this->arrayDefault($result, 'customer_firstname') . $this->arrayDefault($result, 'customer_lastname');
             $this->shipping = [];
             $ship = $this->arrayDefault($result, 'extension_attributes');
             foreach ($this->arrayDefault($ship, 'shipping_assignments', []) as $shipping) {
