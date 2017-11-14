@@ -138,7 +138,7 @@ class ProductResult
     {
         $data = new \stdClass();
         $columns = [
-            'source', 'id', 'name', 'saleStatus', 'price', 'canUseCoupon', 'salePrice', 'characteristic', 'category', 'storeName',
+            'source', 'id', 'name', 'saleStatus', 'saleStatusCode', 'price', 'canUseCoupon', 'salePrice', 'characteristic', 'category', 'storeName',
             'storeTelephone', 'storeAddress', 'place', 'tags', 'imageUrls', 'quantity', 'contents', 'additionals', 'purchase',
             'imageUrl', 'isWishlist', 'discount'
         ];
