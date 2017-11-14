@@ -28,7 +28,7 @@ class Checkout extends Client
 
     /**
      * 取得結帳資訊
-     * @return array
+     * @return CheckoutResult
      */
     public function info()
     {
@@ -112,6 +112,8 @@ class Checkout extends Client
     public function confirm($parameters)
     {
         if($parameters->payment()->type.equalTo('atm')){
+            return $this->putPayment($parameters->payment());
+        }else if($parameters->payment()->type.equalTo('ipass_pay')){
             return $this->putPayment($parameters->payment());
         }else if($parameters->payment()->type.equalTo('credit_card')){
             $response = $this->request('post', 'V1/ksd/mine/order');
