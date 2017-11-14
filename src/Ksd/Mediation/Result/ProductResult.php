@@ -48,9 +48,9 @@ class ProductResult
                     'description' => $this->customAttributes($result['custom_attributes'], 'description')
                 ]
             ];
-            $this->saleStatus = $result['extension_attributes']['stock_item']['is_in_stock'] ? '11' : '10';
-            $this->saleStatus = $this->getSaleStatus($this->saleStatus);
-            $this->canUseCoupon = null;
+            $this->saleStatusCode = $result['extension_attributes']['stock_item']['is_in_stock'] ? '11' : '10';
+            $this->saleStatus = $this->getSaleStatus($this->saleStatusCode);
+            $this->canUseCoupon = false;
             $this->storeTelephone = null;
             $this->storeAddress = null;
             $this->quantity = $result['extension_attributes']['stock_item']['qty'];
@@ -91,6 +91,7 @@ class ProductResult
         $this->createdAt = $this->arrayDefault($result, 'createdAt');
 
         if ($isDetail) {
+            $this->saleStatusCode = $this->arrayDefault($result, 'saleStatus');
             $this->saleStatus = $this->getSaleStatus($this->arrayDefault($result, 'saleStatus'));
             $this->canUseCoupon = $this->arrayDefault($result, 'canUseCoupon');
             $this->storeTelephone = $this->arrayDefault($result, 'storeTelephone');
