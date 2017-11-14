@@ -31,29 +31,31 @@ class Order extends Client
         } catch (ClientException $e) {
             // TODO:處理抓取不到CITY_PASS API訂單資料
         }
+
         $data = [];
 
         if(!empty($result['data'])) {
-            foreach ($result['data'] as $item) {
+            foreach ($result['data']['items'] as $item) {
                 $order = new OrderResult();
                 $order->cityPass($item);
                 $data[] = (array)$order;
             }
         }
+
         return $data;
 
     }
 
 
     /**
-     * 根據訂單id 取得訂單細項資訊
-     * @param $itemId
+     * 更新訂單
+     * @param $parameters
      * @return array
      */
-    public function order($itemId)
+    public function order($parameters)
     {
 
-        $path = "order/items/$itemId";
+ //       $path = "order/items/$itemId";
 
         $response = $this->request('GET', $path);
         $body = $response->getBody();
