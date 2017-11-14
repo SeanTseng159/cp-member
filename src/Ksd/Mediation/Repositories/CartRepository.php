@@ -14,6 +14,8 @@ use Ksd\Mediation\Config\CacheConfig;
 use Ksd\Mediation\Magento\Cart as MagentoCart;
 use Ksd\Mediation\CityPass\Cart as CityPassCart;
 
+use Ksd\Mediation\Services\MemberTokenService;
+
 class CartRepository extends BaseRepository
 {
     const INFO_KEY = 'cart:user:info:%s:%s';
@@ -22,7 +24,7 @@ class CartRepository extends BaseRepository
     private $memberTokenService;
     private $result = false;
 
-    public function __construct($memberTokenService)
+    public function __construct(MemberTokenService $memberTokenService)
     {
         $this->magento = new MagentoCart();
         $this->cityPass = new CityPassCart();
