@@ -49,6 +49,7 @@ class ProductResult
                 ]
             ];
             $this->saleStatus = $result['extension_attributes']['stock_item']['is_in_stock'] ? '11' : '10';
+            $this->saleStatus = $this->getSaleStatus($this->saleStatus);
             $this->canUseCoupon = null;
             $this->storeTelephone = null;
             $this->storeAddress = null;
@@ -90,7 +91,7 @@ class ProductResult
         $this->createdAt = $this->arrayDefault($result, 'createdAt');
 
         if ($isDetail) {
-            $this->saleStatus = $this->arrayDefault($result, 'saleStatus');
+            $this->saleStatus = $this->getSaleStatus($this->arrayDefault($result, 'saleStatus'));
             $this->canUseCoupon = $this->arrayDefault($result, 'canUseCoupon');
             $this->storeTelephone = $this->arrayDefault($result, 'storeTelephone');
             $this->storeAddress = $this->arrayDefault($result, 'storeAddress');
@@ -164,5 +165,27 @@ class ProductResult
             $this->discount = $this->countDiscount($this->salePrice, $this->price);
         }
 
+    }
+
+    /**
+     * 狀態轉換
+     * @return string
+     */
+    public function getSaleStatus($key)
+    {
+        switch ($key) {
+            case '11': # 熱賣中
+                return "熱賣中";
+                break;
+            case '20': # 結束銷售
+                return "結束銷售";
+                break;
+            case '10': # 已完售
+                return "已完售";
+                break;
+            default:
+                return "尚未販售";
+                break;
+        }
     }
 }
