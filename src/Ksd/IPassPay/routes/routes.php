@@ -6,7 +6,7 @@
  */
 
 // 需 token 認證的 route
-Route::group(['prefix' => 'ipass', 'namespace' => 'Ksd\IPassPay\Http\Controllers'], function () {
+Route::group(['middleware' => 'ipasspay', 'prefix' => 'ipass', 'namespace' => 'Ksd\IPassPay\Http\Controllers'], function () {
     // 一卡通支付
     Route::post('pay', 'PayController@pay');
 

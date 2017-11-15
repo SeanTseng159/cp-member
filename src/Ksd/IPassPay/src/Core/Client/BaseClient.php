@@ -18,25 +18,13 @@ class BaseClient
     protected $headers;
     protected $query;
     protected $parameters;
-    protected $json = true;
 
     public function __construct()
     {
-        $this->baseUrl = $this->env('IPASS_PAY_API_PATH', 'https://ipasspay.com.tw/api');
+        $this->baseUrl = env('IPASS_PAY_API_PATH', 'https://ipasspay.com.tw/');
         $this->client = new GuzzleHttpClient([
             'base_uri' => $this->baseUrl
         ]);
-    }
-
-    /**
-     * 設定 Authorization 金鑰
-     * @param $token
-     * @return $this
-     */
-    public function authorization($token)
-    {
-        $this->putHeader('Authorization', 'Bearer ' . $token);
-        return $this;
     }
 
     /**
@@ -130,11 +118,7 @@ class BaseClient
         }
 
         if (!empty($this->parameters)) {
-            if ($this->json) {
-                $option['json'] = $this->parameters;
-            } else {
-                $option['body'] = $this->parameters;
-            }
+            $option['form_params'] = $this->parameters;
         }
 
         return $option;

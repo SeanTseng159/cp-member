@@ -62,6 +62,16 @@ class OrderService
     }
 
     /**
+     * 根據 id 查詢訂單
+     * @param $parameters
+     * @return \Ksd\Mediation\Result\OrderResult
+     */
+    public function findOneByIpassPay($parameters)
+    {
+        return $this->repository->findOneByIpassPay($parameters);
+    }
+
+    /**
      * 接收ATM繳款通知程式
      * @param $parameters
      * @return \Illuminate\Http\JsonResponse

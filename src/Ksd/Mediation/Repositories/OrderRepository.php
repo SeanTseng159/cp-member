@@ -167,6 +167,22 @@ class OrderRepository extends BaseRepository
         });
     }
 
+    /**
+     * 根據 id 查訂單
+     * @param $parameters
+     * @return \Ksd\Mediation\Result\OrderResult
+     */
+    public function findOneByIpassPay($parameters)
+    {
+        if ($parameters->source === ProjectConfig::MAGENTO) {
+            return $this->magento->find($parameters);
+        } else if ($parameters->source === ProjectConfig::CITY_PASS) {
+            return $this->cityPass->authorization($parameters->token)->find($parameters->id);
+        }
+
+        return null;
+    }
+
 
     /**
      * 接收ATM繳款通知程式

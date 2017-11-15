@@ -46,6 +46,10 @@ class Kernel extends HttpKernel
 
         'oauth' => [
             \Illuminate\Session\Middleware\StartSession::class
+        ],
+
+        'ipasspay' => [
+            \Illuminate\Session\Middleware\StartSession::class
         ]
     ];
 

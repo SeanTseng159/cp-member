@@ -6,19 +6,12 @@
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
     </head>
     <body>
-        <form id="form" action="http://172.104.86.21/api/ipass/pay" method="POST" class="hidden">
-            <input type="hidden" name="client_id" value="{{ $order->client_id }}" />
-            <input type="hidden" name="respond_type" value="{{ $order->respond_type }}" />
-            <input type="hidden" name="version" value="{{ $order->version }}" />
-            <input type="hidden" name="lang_type" value="{{ $order->lang_type }}" />
-            <input type="hidden" name="order_id" value="{{ $order->order_id }}" />
-            <input type="hidden" name="order_name" value="{{ $order->order_name }}" />
-            <input type="hidden" name="amount" value="{{ $order->amount }}" />
-            <input type="hidden" name="item_name" value="{{ $order->item_name }}" />
-            <input type="hidden" name="success_url" value="{{ url('ipass/callback') }}" />
-            <input type="hidden" name="failure_url" value="{{ url('ipass/callback') }}" />
-            <input type="hidden" name="timestamp" value="{{ $order->timestamp }}" />
-            <input type="hidden" name="signature" value="{{ $order->signature }}" />
+        <form id="form" action="{{ env('IPASS_PAY_API_PATH') . 'third_party/Pay' }}" method="POST" class="hidden">
+            <input type="hidden" name="client_id" value="{{ $parameter->client_id }}" />
+            <input type="hidden" name="order_id" value="{{ $parameter->order_id }}" />
+            <input type="hidden" name="token" value="{{ $parameter->token }}" />
+            <input type="hidden" name="timestamp" value="{{ $parameter->timestamp }}" />
+            <input type="hidden" name="signature" value="{{ $parameter->signature }}" />
         </form>
 
         <script>

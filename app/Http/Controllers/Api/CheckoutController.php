@@ -128,8 +128,7 @@ class CheckoutController extends RestLaravelController
         $log = new LogService;
         $log->create($requestData);
 
-        // $url = (env('APP_ENV') === 'production') ? 'http://172.104.83.229/' : 'http://localhost:3000/';
-        $url = 'http://localhost:3000/';
+        $url = (env('APP_ENV') === 'production') ? 'http://172.104.83.229/' : 'http://localhost:3000/';
         $url .= $lang;
 
         // 失敗
