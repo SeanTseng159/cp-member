@@ -169,6 +169,26 @@ class Order extends Client
         return ($result['statusCode'] === 200) ? true : false;
     }
 
+    /**
+     * 更新訂單
+     * @param $parameters
+     * @return bool
+     */
+    public function update($parameters)
+    {
+        $id = $parameters->id;
+        $parameter = [
+            'entity' => [
+                'entity_id'=> $id,
+                'status'=> 'holded'
+            ]
+        ];
+        $this->putParameters($parameter);
+        $response = $this->request('PUT', 'V1/orders/create');
+        $body = $response->getBody();
+
+        return true;
+    }
 
 
 }

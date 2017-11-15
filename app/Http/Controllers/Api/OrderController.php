@@ -9,6 +9,7 @@ use Ksd\Mediation\Parameter\Order\FindParameter;
 use Ksd\Mediation\Parameter\Order\OrderParameter;
 use Ksd\Mediation\Parameter\Order\SearchParameter;
 use Ksd\Mediation\Parameter\Order\WriteoffParameter;
+use Ksd\Mediation\Parameter\Order\UpdateParameter;
 use Ksd\Mediation\Services\OrderService;
 
 class OrderController extends RestLaravelController
@@ -77,6 +78,19 @@ class OrderController extends RestLaravelController
         $parameters = new WriteoffParameter();
         $parameters->laravelRequest($request);
         $this->orderService->writeoff($parameters);
+        return $this->success();
+    }
+
+    /**
+     * 更新訂單狀態
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function update(Request $request)
+    {
+        $parameters = new UpdateParameter();
+        $parameters->laravelRequest($request);
+        $this->orderService->update($parameters);
         return $this->success();
     }
 

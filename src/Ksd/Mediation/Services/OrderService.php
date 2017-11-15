@@ -80,4 +80,15 @@ class OrderService
     {
         return $this->repository->writeoff($parameters);
     }
+
+    /**
+     * 更新訂單狀態
+     * @param $parameters
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function update($parameters)
+    {
+        return $this->repository->update($parameters);
+    }
 }
+
