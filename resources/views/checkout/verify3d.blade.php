@@ -16,7 +16,7 @@
             <input type="hidden" name="expYear" value="{{ $expYear }}" />
             <input type="hidden" name="expMonth" value="{{ $expMonth }}" />
             <input type="hidden" name="totalAmount" value="{{ $totalAmount }}" />
-            <input type="hidden" name="XID" value="{{ $XID }}" />
+            <input type="hidden" name="XID" value="{{ $orderNo }}" />
             <input type="hidden" name="RetUrl" value="{{ $RetUrl }}" />
             <input type="hidden" name="hyAction" value="index" />
         </form>

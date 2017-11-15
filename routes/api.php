@@ -72,6 +72,8 @@ Route::middleware('cors')->namespace('Api')->group(function () {
         Route::get('query/{id}', 'ProductController@query');
         // 商品搜尋
         Route::get('search', 'ProductController@search');
+        //主分類搜尋（商品）
+        Route::get('category/{categoryId}', 'LayoutController@maincategory');
         //子分類搜尋（商品）
         Route::get('subcategory/{subcategoryId}', 'LayoutController@subcategory');
     });
@@ -94,12 +96,14 @@ Route::middleware('cors')->namespace('Api')->group(function () {
         Route::get('info/{source}', 'CheckoutController@info');
         // 設定物流方式
         Route::post('shipment', 'CheckoutController@shipment');
-        // 確定結帳
+        // 確定結帳 (回傳訂單號，非信用卡)
         Route::post('confirm', 'CheckoutController@confirm');
         // 3D驗證
         Route::post('verify3d', 'CheckoutController@verify3d');
         // 取得3D驗證回傳資料
         Route::post('verifyResult', 'CheckoutController@verifyResult');
+        // 信用卡送金流
+        Route::post('creditCard', 'CheckoutController@creditCard');
     });
 
     Route::prefix('coupon')->group(function () {
@@ -112,7 +116,7 @@ Route::middleware('cors')->namespace('Api')->group(function () {
         Route::get('items/{itemId}', 'OrderController@items');
         Route::get('search', 'OrderController@search');
         Route::get('detail/{id}', 'OrderController@find');
-        Route::get('writeoff', 'OrderController@writeoff');
+        Route::post('writeoff', 'OrderController@writeoff');
 
     });
 

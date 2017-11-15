@@ -195,6 +195,26 @@ class Layout extends Client
      * @param $itemId
      * @return LayoutResult
      */
+    public function maincategory($itemId)
+    {
+
+        $result = [];
+        try {
+            $response = $this->request('GET', 'product/category/' . $itemId);
+            $result = json_decode($response->getBody(), true);
+
+        } catch (ClientException $e) {
+
+        }
+
+        return $result['data'];
+    }
+
+    /**
+     * 利用選單id取得商品資料
+     * @param $itemId
+     * @return LayoutResult
+     */
     public function subcategory($itemId)
     {
 

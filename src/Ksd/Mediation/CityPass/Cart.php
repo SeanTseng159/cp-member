@@ -10,6 +10,7 @@ namespace Ksd\Mediation\CityPass;
 use GuzzleHttp\Exception\ClientException;
 use Ksd\Mediation\Helper\EnvHelper;
 use Ksd\Mediation\Result\CartResult;
+use Log;
 
 class Cart extends Client
 {
@@ -61,13 +62,14 @@ class Cart extends Client
      */
     public function add($parameters)
     {
-        $response = $this->putParameters($parameters)
+        $response = $this->setJson(false)->putParameters($parameters)
             ->request('POST', 'cart/add');
         $result = json_decode($response->getBody(), true);
-        if ($result['statusCode'] === 201) {
-            return true;
-        }
-        return false;
+
+        Log::debug('===購物車===');
+        Log::debug(print_r(json_decode($response->getBody(), true), true));
+
+        return ($result['statusCode'] === 201);
     }
 
     /**
@@ -77,13 +79,14 @@ class Cart extends Client
      */
     public function update($parameters)
     {
-        $response = $this->putParameters($parameters)
+        $response = $this->setJson(false)->putParameters($parameters)
             ->request('POST', 'cart/update');
         $result = json_decode($response->getBody(), true);
-        if ($result['statusCode'] === 202) {
-            return true;
-        }
-        return false;
+
+        Log::debug('===購物車===');
+        Log::debug(print_r(json_decode($response->getBody(), true), true));
+
+        return ($result['statusCode'] === 202);
     }
 
     /**
@@ -93,12 +96,13 @@ class Cart extends Client
      */
     public function delete($parameters)
     {
-        $response = $this->putParameters($parameters)
+        $response = $this->setJson(false)->putParameters($parameters)
             ->request('POST', 'cart/remove');
         $result = json_decode($response->getBody(), true);
-        if ($result['statusCode'] === 203) {
-            return true;
-        }
-        return false;
+
+        Log::debug('===購物車===');
+        Log::debug(print_r(json_decode($response->getBody(), true), true));
+
+        return ($result['statusCode'] === 203);
     }
 }

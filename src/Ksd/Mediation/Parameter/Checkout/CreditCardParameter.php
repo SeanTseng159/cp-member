@@ -1,28 +1,22 @@
 <?php
 /**
  * Created by PhpStorm.
- * User: jofo
- * Date: 2017/9/8
- * Time: 上午 10:00
+ * User: Jim
+ * Date: 2017/11/7
+ * Time: 下午 03:22
  */
 
 namespace Ksd\Mediation\Parameter\Checkout;
-
-
-use Ksd\Mediation\Helper\AddressHelper;
-use Ksd\Mediation\Helper\ObjectHelper;
 use Ksd\Mediation\Parameter\BaseParameter;
 
-class ConfirmParameter extends BaseParameter
+class CreditCardParameter extends BaseParameter
 {
-    use ObjectHelper;
-    use AddressHelper;
-
-    public $device;
     public $source;
+    public $orderNo;
     private $isCheck;
     public $payment;
     public $billing;
+    public $verify3d;
 
 
     /**
@@ -31,11 +25,35 @@ class ConfirmParameter extends BaseParameter
      */
     public function laravelRequest($request)
     {
-        $this->device = $request->input('device');
         $this->source = $request->input('source');
-
+        $this->orderNo = $request->input('orderNo');
+        $this->processParameters($request, 'verify3d');
         $this->processParameters($request, 'payment');
         $this->processParameters($request, 'billing');
+    }
+
+    /**
+     * 處理 3D驗證 request 跟 session data
+     * @param $request
+     */
+    public function mergeRequest($request, $session)
+    {
+        $this->source = $session['source'];
+        $this->orderNo = $session['orderNo'];
+
+        $this->payment = new \stdClass();
+        $this->payment->id = $session['paymentId'];
+        $this->payment->creditCardNumber = $session['cardNumber'];
+        $this->payment->creditCardYear = $session['expYear'];
+        $this->payment->creditCardMonth = $session['expMonth'];
+        $this->payment->creditCardCode = $session['code'];
+
+        $this->verify3d = new \stdClass();
+        $this->verify3d->eci = $request['ECI'];
+        $this->verify3d->cavv = $request['CAVV'];
+        $this->verify3d->xid = $request['XID'];
+        $this->verify3d->errorCode = $request['ErrorCode'];
+        $this->verify3d->errorMessage = $request['ErrorMessage'];
     }
 
     /**
@@ -81,5 +99,14 @@ class ConfirmParameter extends BaseParameter
     public function billing()
     {
         return $this->billing;
+    }
+
+    /**
+     * 取得3D驗證資訊
+     * @return mixed
+     */
+    public function verify3d()
+    {
+        return $this->verify3d;
     }
 }

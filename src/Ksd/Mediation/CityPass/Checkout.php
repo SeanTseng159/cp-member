@@ -10,6 +10,7 @@ namespace Ksd\Mediation\CityPass;
 
 
 use Ksd\Mediation\Result\CheckoutResult;
+use Log;
 
 class Checkout extends Client
 {
@@ -36,11 +37,51 @@ class Checkout extends Client
      */
     public function confirm($parameters)
     {
-        $this->putParameters($parameters);
-        $response = $this->request('GET', 'checkout/confirm');
-        $result = json_decode($response->getBody(),true);
+        $response = $this->putParameters($parameters)->request('POST', 'checkout/confirm');
+        $result = json_decode($response->getBody(), true);
 
-        return $result;
+        Log::debug('===結帳===');
+        Log::debug(print_r(json_decode($response->getBody(), true), true));
+
+        return ($result['statusCode'] === 201) ? $result['data'] : false;
+    }
+
+    /**
+     * 金融卡送金流
+     * @param $parameters
+     * @return mixed
+     */
+    public function creditCard($parameters)
+    {
+        $parameter = $this->processPayment($parameters);
+        $this->putParameters($parameter);
+        $response = $this->request('POST', 'payment/credit_card');
+        $result = json_decode($response->getBody(), true);
+
+        Log::debug('===結帳信用卡===');
+        Log::debug(print_r(json_decode($response->getBody(), true), true));
+
+        return ($result['statusCode'] === 200);
+    }
+
+    /**
+     * 處理資訊參數
+     * @param $payment
+     * @return array
+     */
+    private function processPayment($payment)
+    {
+        $parameter = [
+            'order_no' => $payment->orderNo,
+            '_3d_response' => [
+                'eci' => $payment->verify3d()->eci,
+                'cavv' => $payment->verify3d()->cavv,
+                'xid' => $payment->verify3d()->xid,
+                'error_code' => $payment->verify3d()->errorCode,
+                'error_message' => $payment->verify3d()->errorMessage,
+            ]
+        ];
+        return $parameter;
     }
 
 }

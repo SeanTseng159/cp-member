@@ -37,7 +37,7 @@ class OrderResult
             $this->orderDate = $this->arrayDefault($result, 'created_at');
             $payment = $this->arrayDefault($result, 'payment');
             $this->payment = $this->putMagentoPayment($payment);
-            $this->payment['username'] =   $this->arrayDefault($result, 'customer_firstname') . $this->arrayDefault($result, 'customer_lastname');
+//            $this->payment['username'] =   $this->arrayDefault($result, 'customer_firstname') . $this->arrayDefault($result, 'customer_lastname');
             $this->shipping = [];
             $ship = $this->arrayDefault($result, 'extension_attributes');
             foreach ($this->arrayDefault($ship, 'shipping_assignments', []) as $shipping) {
@@ -76,10 +76,11 @@ class OrderResult
                     }
                     $row['discount'] = $this->arrayDefault($result, 'discount_amount');
                     $path = $product->findItemImage($this->arrayDefault($item, 'sku'));
-                    $generalPath = $this->magentoImageUrl($path['file']);
-                    $thumbnailPath = in_array('thumbnail', $path['types']) ? $this->magentoImageUrl($path['file'] ): '';
-                    $row['imageUrls']['generalPath'] = $generalPath;
-                    $row['imageUrls']['thumbnailPath'] = $thumbnailPath;
+                    $row['imageUrl'] = $this->magentoImageUrl($path['file']);
+
+//                    $row['imageUrl'] = $this->arrayDefault($item, 'extension_attributes', '')['image_url'];
+
+
                     $this->items[] = $row;
                 }
 
@@ -135,11 +136,11 @@ class OrderResult
                     }
 
                     $row['discount'] = $this->arrayDefault($result, 'discount_amount');
+
                     $path = $product->findItemImage($this->arrayDefault($item, 'sku'));
-                    $generalPath = $this->magentoImageUrl($path['file']);
-                    $thumbnailPath = in_array('thumbnail', $path['types']) ? $this->magentoImageUrl($path['file'] ): '';
-                    $row['imageUrls']['generalPath'] = $generalPath;
-                    $row['imageUrls']['thumbnailPath'] = $thumbnailPath;
+                    $row['imageUrl'] = $this->magentoImageUrl($path['file']);
+
+//                    $row['imageUrl'] = $this->arrayDefault($item, 'extension_attributes', '')['image_url'];
 
                     $this->items[] = $row;
                 }
@@ -158,7 +159,7 @@ class OrderResult
     {
         $this->source = ProjectConfig::CITY_PASS;
 
-        if(!$isDetail) {
+        if (!$isDetail) {
             $this->orderNo = $this->arrayDefault($result, 'orderNo');
             $this->orderAmount = $this->arrayDefault($result, 'orderAmount');
             $this->orderStatus = $this->getStatus(ProjectConfig::CITY_PASS,$this->arrayDefault($result, 'orderStatus'));
@@ -171,6 +172,31 @@ class OrderResult
             foreach ($this->arrayDefault($result, 'items', []) as $item) {
                 $row = [];
                 $row['source'] = ProjectConfig::CITY_PASS;
+                $row['no'] = $this->arrayDefault($item, 'itemId');
+                $row['name'] = $this->arrayDefault($item, 'name');
+                $row['spec'] = $this->arrayDefault($item, 'spec');
+                $row['quantity'] = $this->arrayDefault($item, 'quantity');
+                $row['price'] = $this->arrayDefault($item, 'price');
+                $row['description'] = $this->arrayDefault($item, 'description');
+                $row['status'] = $this->arrayDefault($item, 'status');
+                $row['discount'] = $this->arrayDefault($item, 'discount');
+                $row['imageUrl'] = $this->arrayDefault($item, 'imageUrl');
+
+                $this->items[] = $row;
+
+            }
+        } else {
+            $this->orderNo = $this->arrayDefault($result, 'orderNo');
+            $this->orderAmount = $this->arrayDefault($result, 'orderAmount');
+            $this->status = $this->getStatus(ProjectConfig::CITY_PASS, $this->arrayDefault($result, 'orderStatus'));
+            $this->orderDate = $this->arrayDefault($result, 'orderDate');
+            $this->payment = $this->arrayDefault($result, 'payment');
+            $this->shipment = $this->arrayDefault($result, 'shipment');
+            $this->items = [];
+            foreach ($this->arrayDefault($result, 'items', []) as $item) {
+                $row = [];
+                $row['source'] = ProjectConfig::CITY_PASS;
+                $row['itemId'] = $this->arrayDefault($item, 'itemId');
                 $row['no'] = $this->arrayDefault($item, 'no');
                 $row['name'] = $this->arrayDefault($item, 'name');
                 $row['spec'] = $this->arrayDefault($item, 'spec');
@@ -179,25 +205,14 @@ class OrderResult
                 $row['description'] = $this->arrayDefault($item, 'description');
                 $row['status'] = $this->arrayDefault($item, 'status');
                 $row['discount'] = $this->arrayDefault($item, 'discount');
-                $row['imageUrls'] = $this->arrayDefault($item, 'imageUrls');
+                $row['imageUrl'] = $this->arrayDefault($item, 'imageUrl');
 
                 $this->items[] = $row;
 
             }
-        }else{
-            $this->source = $this->arrayDefault($result, 'source');
-            $this->no = $this->arrayDefault($result, 'no');
-            $this->amount = $this->arrayDefault($result, 'amount');
-            $this->status = $this->getStatus(ProjectConfig::CITY_PASS,$this->arrayDefault($result, 'orderStatus'));
-            $this->date = $this->arrayDefault($result, 'date');
-            $this->discount = $this->arrayDefault($result, 'discount_amount');
-            $this->quantity = $this->arrayDefault($result, 'qty_ordered');
-            $this->items =  $this->arrayDefault($result, 'items');
 
         }
-
     }
-
     /**
      * 處理物流狀態
      * @param $orderID

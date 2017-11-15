@@ -6,16 +6,22 @@ use Illuminate\Http\Request;
 use Ksd\Mediation\Core\Controller\RestLaravelController;
 use Ksd\Mediation\Parameter\Checkout\ConfirmParameter;
 use Ksd\Mediation\Parameter\Checkout\ShipmentParameter;
+use Ksd\Mediation\Parameter\Checkout\CreditCardParameter;
+
 use Ksd\Mediation\Services\CheckoutService;
+use Ksd\Mediation\Services\CartService;
 use App\Services\Card3dLogService as LogService;
+use Log;
 
 class CheckoutController extends RestLaravelController
 {
     protected $service;
+    protected $cartService;
 
-    public function __construct(CheckoutService $service)
+    public function __construct(CheckoutService $service, CartService $cartService)
     {
         $this->service = $service;
+        $this->cartService = $cartService;
     }
 
     /**
@@ -51,6 +57,8 @@ class CheckoutController extends RestLaravelController
         $parameters = new ConfirmParameter();
         $parameters->laravelRequest($request);
         $result = $this->service->confirm($parameters);
+        // 清空購物車快取
+        $this->cartService->cleanCache();
         return $this->success($result);
     }
 
@@ -63,14 +71,18 @@ class CheckoutController extends RestLaravelController
     {
         $data = $request->only([
             'source',
+            'paymentId',
             'cardNumber',
             'expYear',
             'expMonth',
             'code',
             'totalAmount',
-            'XID',
+            'orderNo',
             'platform'
         ]);
+
+        Log::info('verify3d資料');
+        Log::debug(print_r($data, true));
 
         $request->session()->put('ccData', $data);
 
@@ -88,7 +100,7 @@ class CheckoutController extends RestLaravelController
     {
         $lang = 'zh_TW';
 
-        $data = $request->only([
+        $requestData = $request->only([
             'ErrorCode',
             'ErrorMessage',
             'ECI',
@@ -96,32 +108,68 @@ class CheckoutController extends RestLaravelController
             'XID'
         ]);
 
+        Log::info('verify3dcallback資料');
+        Log::debug(print_r($requestData, true));
+
         // 從session取信用卡資料
         $ccData = $request->session()->pull('ccData', 'default');
+        Log::info('session信用卡資料');
+        Log::debug(print_r($ccData, true));
 
-        $orderId = $ccData['XID'];
+        $orderNo = $ccData['orderNo'];
         $platform = $ccData['platform'];
         $source = $ccData['source'];
 
         // 寫入資料庫
-        $data['platform'] = ($platform) ?: 'web';
-        $data['XID'] = $orderId;
-        $data['totalAmount'] = $ccData['totalAmount'];
-        $data['source'] = $source;
+        $requestData['platform'] = ($platform) ?: 'web';
+        $requestData['XID'] = $orderNo;
+        $requestData['totalAmount'] = $ccData['totalAmount'];
+        $requestData['source'] = $source;
         $log = new LogService;
-        $result = $log->create($data);
+        $log->create($requestData);
 
-        $url = (env('APP_ENV') === 'production') ? 'http://172.104.83.229/' : 'http://localhost:3000/';
+        // $url = (env('APP_ENV') === 'production') ? 'http://172.104.83.229/' : 'http://localhost:3000/';
+        $url = 'http://localhost:3000/';
         $url .= $lang;
 
         // 失敗
-        if (!in_array($data['ECI'], ['5', '2', '6', '1'])) {
-            if ($platform === 'app') return redirect('app://order?id=' . $orderId . '&source=' . $source . '&result=false&msg=' . $data['ErrorMessage']);
-        }
+        /*if (!in_array($data['ECI'], ['5', '2', '6', '1'])) {
+            if ($platform === 'app') return redirect('app://order?id=' . $orderNo . '&source=' . $source . '&result=false&msg=' . $data['ErrorMessage']);
+        }*/
+
+        Log::info('3D驗證完成');
 
         // 金流實作
+        $parameters = new CreditCardParameter();
+        $parameters->mergeRequest($requestData, $ccData);
+        $result = $this->service->creditCard($parameters);
+
+        Log::info('信用卡完成');
+
+        if ($platform === 'app') {
+            $url = 'app://order?id=' . $orderNo . '&source=' . $source;
+
+            $url .= ($result) ? '&result=true&msg=success' : '&result=false&msg=' . $requestData['ErrorMessage'];
+        }
+        else {
+            $s = ($source === 'ct_pass') ? 'c' : 'm';
+            $url .= '/checkout/complete/' . $s . '/' . $orderNo;
+        }
+
+        return redirect($url);
+    }
 
 
-        return ($platform === 'app') ? redirect('app://order?id=' . $orderId . '&source=' . $source . '&result=true&msg=success') : redirect($url . '/checkout/complete/' . $orderId . '/' . $source);
+    /**
+     * 信用卡送金流
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function creditCard(Request $request)
+    {
+        $parameters = new CreditCardParameter();
+        $parameters->laravelRequest($request);
+        $result = $this->service->creditCard($parameters);
+        return $this->success($result);
     }
 }

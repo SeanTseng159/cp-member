@@ -138,6 +138,19 @@ class LayoutRepository extends BaseRepository
         });
     }
 
+    /**
+    * 利用選單id取得商品資料
+    * @param parameter
+    * @return mixed
+    */
+    public function maincategory($parameter)
+    {
+        $itemId = $parameter->id;
+        return $this->redis->remember("maincategory:id:$itemId", 3600, function () use ($itemId) {
+            return $this->cityPass->maincategory($itemId);
+        });
+    }
+
         /**
          * 利用選單id取得商品資料
          * @param parameter

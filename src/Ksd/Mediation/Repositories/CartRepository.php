@@ -10,8 +10,11 @@ namespace Ksd\Mediation\Repositories;
 
 
 use Ksd\Mediation\Config\ProjectConfig;
+use Ksd\Mediation\Config\CacheConfig;
 use Ksd\Mediation\Magento\Cart as MagentoCart;
 use Ksd\Mediation\CityPass\Cart as CityPassCart;
+
+use Ksd\Mediation\Services\MemberTokenService;
 
 class CartRepository extends BaseRepository
 {
@@ -19,8 +22,9 @@ class CartRepository extends BaseRepository
     const DETAIL_KEY = 'cart:user:detail:%s:%s';
 
     private $memberTokenService;
+    private $result = false;
 
-    public function __construct($memberTokenService)
+    public function __construct(MemberTokenService $memberTokenService)
     {
         $this->magento = new MagentoCart();
         $this->cityPass = new CityPassCart();
@@ -34,8 +38,8 @@ class CartRepository extends BaseRepository
      */
     public function info()
     {
-        return $this->redis->remember($this->genCacheKey(self::INFO_KEY), 3600, function () {
-            $this->magento->authorization($this->token);
+        return $this->redis->remember($this->genCacheKey(self::INFO_KEY), CacheConfig::TEST_TIME, function () {
+            // $this->magento->authorization($this->token);
             $magento = $this->magento->userAuthorization($this->memberTokenService->magentoUserToken())->info();
             $cityPass = $this->cityPass->authorization($this->memberTokenService->cityPassUserToken())->info();
             return [
@@ -51,7 +55,7 @@ class CartRepository extends BaseRepository
      */
     public function detail()
     {
-        return $this->redis->remember($this->genCacheKey(self::DETAIL_KEY), 3600, function () {
+        return $this->redis->remember($this->genCacheKey(self::DETAIL_KEY), CacheConfig::TEST_TIME, function () {
             $this->magento->authorization($this->token);
             $magento = $this->magento->userAuthorization($this->memberTokenService->magentoUserToken())->detail();
             $cityPass = $this->cityPass->authorization($this->memberTokenService->cityPassUserToken())->detail();
@@ -69,13 +73,15 @@ class CartRepository extends BaseRepository
     public function add($parameters)
     {
         if (!empty($parameters->magento())) {
-            $this->magento->userAuthorization($this->memberTokenService->magentoUserToken())->add($parameters->magento());
+            $this->result = $this->magento->userAuthorization($this->memberTokenService->magentoUserToken())->add($parameters->magento());
         } else if(!empty($parameters->cityPass())) {
             foreach ($parameters->cityPass() as $item) {
-                $this->cityPass->authorization($this->memberTokenService->cityPassUserToken())->add($item);
+                $this->result = $this->cityPass->authorization($this->memberTokenService->cityPassUserToken())->add($item);
             }
         }
         $this->cleanCache();
+
+        return $this->result;
     }
 
     /**
@@ -85,13 +91,15 @@ class CartRepository extends BaseRepository
     public function update($parameters)
     {
         if (!empty($parameters->magento())) {
-            $this->magento->userAuthorization($this->memberTokenService->magentoUserToken())->update($parameters->magento());
+            $this->result = $this->magento->userAuthorization($this->memberTokenService->magentoUserToken())->update($parameters->magento());
         } else if(!empty($parameters->cityPass())) {
             foreach ($parameters->cityPass() as $item) {
-                $this->cityPass->authorization($this->memberTokenService->cityPassUserToken())->update($item);
+                $this->result = $this->cityPass->authorization($this->memberTokenService->cityPassUserToken())->update($item);
             }
         }
         $this->cleanCache();
+
+        return $this->result;
     }
 
     /**
@@ -101,14 +109,16 @@ class CartRepository extends BaseRepository
     public function delete($parameters)
     {
         if (!empty($parameters->magento())) {
-            $this->magento->userAuthorization($this->memberTokenService->magentoUserToken())->delete($parameters->magento());
+            $this->result = $this->magento->userAuthorization($this->memberTokenService->magentoUserToken())->delete($parameters->magento());
         } else if(!empty($parameters->cityPass())) {
             foreach ($parameters->cityPass() as $item) {
-                $this->cityPass->authorization($this->memberTokenService->cityPassUserToken())->delete($item);
+                $this->result = $this->cityPass->authorization($this->memberTokenService->cityPassUserToken())->delete($item);
             }
 
         }
         $this->cleanCache();
+
+        return $this->result;
     }
 
     /**
@@ -137,6 +147,7 @@ class CartRepository extends BaseRepository
     private function genCacheKey($key)
     {
         $date = new \DateTime();
+        $this->token = $this->memberTokenService->cityPassUserToken();
         return sprintf($key, $this->token,$date->format('Ymd'));
     }
 }

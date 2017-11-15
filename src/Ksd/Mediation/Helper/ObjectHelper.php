@@ -42,4 +42,25 @@ trait ObjectHelper
         }
         return $default;
     }
+
+    /**
+     * 將array中的空值轉換成空字串
+     * @param array $parameters
+     * @return $this
+     */
+    public function replaceNullToEmptyString($array = [])
+    {
+        foreach ($array as $key => $value) {
+            if (is_array($value) || is_object($value)) {
+                $array[$key] = $this->replaceNullToEmptyString($value);
+            }
+
+            if (is_null($value)) {
+                if (is_array($array)) $array[$key] = '';
+                elseif (is_object($array)) $array->$key = '';
+            }
+        }
+
+        return $array;
+    }
 }

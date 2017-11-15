@@ -28,7 +28,7 @@ class Checkout extends Client
 
     /**
      * 取得結帳資訊
-     * @return array
+     * @return CheckoutResult
      */
     public function info()
     {
@@ -111,7 +111,28 @@ class Checkout extends Client
      */
     public function confirm($parameters)
     {
-        return $this->putPayment($parameters->payment());
+        if($parameters->payment()->type.equalTo('atm')){
+            return $this->putPayment($parameters->payment());
+        }else if($parameters->payment()->type.equalTo('ipass_pay')){
+            return $this->putPayment($parameters->payment());
+        }else if($parameters->payment()->type.equalTo('credit_card')){
+            $response = $this->request('post', 'V1/ksd/mine/order');
+            return trim($response->getBody(), '"');
+        }else{
+            return null;
+        }
+
+    }
+
+    /**
+     *信用卡送金流
+     * @param $parameters
+     * @return array
+     */
+    public function creditCard($parameters)
+    {
+            return $this->putPayment($parameters->payment());
+
     }
 
     /**
@@ -227,13 +248,13 @@ class Checkout extends Client
             ]
         ];
 
-        if (!empty($payment->creditCardNumer)) {
+        if (!empty($payment->creditCardNumber)) {
             $parameter['paymentMethod']['additional_data'] = [
-                'cc_type' => $this->creditCardType($payment->creditCardNumer),
+                'cc_type' => $this->creditCardType($payment->creditCardNumber),
                 'cc_exp_year' => $payment->creditCardYear,
                 'cc_exp_month' => $payment->creditCardMonth,
-                'cc_number' => $payment->creditCardNumer,
-                'cc_cid' => $payment->creditCardcCode,
+                'cc_number' => $payment->creditCardNumber,
+                'cc_cid' => $payment->creditCardCode,
             ];
         }
         return $parameter;

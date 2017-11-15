@@ -48,8 +48,9 @@ class ProductResult
                     'description' => $this->customAttributes($result['custom_attributes'], 'description')
                 ]
             ];
-            $this->saleStatus = $result['extension_attributes']['stock_item']['is_in_stock'] ? '11' : '10';
-            $this->canUseCoupon = null;
+            $this->saleStatusCode = $result['extension_attributes']['stock_item']['is_in_stock'] ? '11' : '10';
+            $this->saleStatus = $this->getSaleStatus($this->saleStatusCode);
+            $this->canUseCoupon = false;
             $this->storeTelephone = null;
             $this->storeAddress = null;
             $this->quantity = $result['extension_attributes']['stock_item']['qty'];
@@ -90,7 +91,8 @@ class ProductResult
         $this->createdAt = $this->arrayDefault($result, 'createdAt');
 
         if ($isDetail) {
-            $this->saleStatus = $this->arrayDefault($result, 'saleStatus');
+            $this->saleStatusCode = $this->arrayDefault($result, 'saleStatus');
+            $this->saleStatus = $this->getSaleStatus($this->arrayDefault($result, 'saleStatus'));
             $this->canUseCoupon = $this->arrayDefault($result, 'canUseCoupon');
             $this->storeTelephone = $this->arrayDefault($result, 'storeTelephone');
             $this->storeAddress = $this->arrayDefault($result, 'storeAddress');
@@ -136,7 +138,7 @@ class ProductResult
     {
         $data = new \stdClass();
         $columns = [
-            'source', 'id', 'name', 'saleStatus', 'price', 'canUseCoupon', 'salePrice', 'characteristic', 'category', 'storeName',
+            'source', 'id', 'name', 'saleStatus', 'saleStatusCode', 'price', 'canUseCoupon', 'salePrice', 'characteristic', 'category', 'storeName',
             'storeTelephone', 'storeAddress', 'place', 'tags', 'imageUrls', 'quantity', 'contents', 'additionals', 'purchase',
             'imageUrl', 'isWishlist', 'discount'
         ];
@@ -164,5 +166,27 @@ class ProductResult
             $this->discount = $this->countDiscount($this->salePrice, $this->price);
         }
 
+    }
+
+    /**
+     * 狀態轉換
+     * @return string
+     */
+    public function getSaleStatus($key)
+    {
+        switch ($key) {
+            case '11': # 熱賣中
+                return "熱賣中";
+                break;
+            case '20': # 結束銷售
+                return "結束銷售";
+                break;
+            case '10': # 已完售
+                return "已完售";
+                break;
+            default:
+                return "尚未販售";
+                break;
+        }
     }
 }

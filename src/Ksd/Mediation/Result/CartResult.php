@@ -19,6 +19,7 @@ class CartResult
     /**
      * magento 購物車建置
      * @param $result
+     * @param $totalResult
      */
     public function magento($result, $totalResult)
     {
@@ -27,11 +28,15 @@ class CartResult
         foreach ($this->arrayDefault($result, 'items', []) as $item) {
             $row = new ProductResult();
             $row->source = ProjectConfig::MAGENTO;
-            $row->itemId = $this->arrayDefault($item, 'item_id');
+//            $row->itemId = $this->arrayDefault($item, 'item_id');
             $row->id = $this->arrayDefault($item, 'sku');
             $row->name = $this->arrayDefault($item, 'name');
+            $row->spec = $this->arrayDefault($item, 'spec', '');
             $row->qty = $this->arrayDefault($item, 'qty');
             $row->price = $this->arrayDefault($item, 'price');
+            $row->additionals = $this->arrayDefault($item, 'additionals', '');
+            $row->imageUrl = $this->arrayDefault($item, 'extension_attributes', '')['image_url'];
+            $row->purchase = $this->arrayDefault($item, ' purchase', '');
             $this->items[] = $row;
         }
         $this->useCoupon = new \stdClass();
@@ -44,7 +49,6 @@ class CartResult
     /**
      * 處理 city pass 資料建置
      * @param $result
-     * @param bool $isDetail
      */
     public function cityPass($result)
     {
@@ -55,6 +59,7 @@ class CartResult
             $row->source = ProjectConfig::CITY_PASS;
             $row->id = $this->arrayDefault($item, 'id');
             $row->name = $this->arrayDefault($item, 'name');
+            $row->spec = $this->arrayDefault($item, 'spec');
             $row->qty = $this->arrayDefault($item, 'quantity');
             $row->price = $this->arrayDefault($item, 'price');
             $row->additionals = $this->arrayDefault($item, 'additionals');

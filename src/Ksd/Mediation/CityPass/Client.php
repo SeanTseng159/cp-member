@@ -24,5 +24,7 @@ class Client extends BaseClient
         $this->client = new GuzzleHttpClient([
             'base_uri' => $this->baseUrl
         ]);
+
+        $this->setJson(false);
     }
 }

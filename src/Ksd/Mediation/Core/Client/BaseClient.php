@@ -8,8 +8,12 @@
 
 namespace Ksd\Mediation\Core\Client;
 
+use Ksd\Mediation\Helper\ObjectHelper;
+
 class BaseClient
 {
+    use ObjectHelper;
+
     protected $token;
     protected $baseUrl;
     protected $client;
@@ -38,6 +42,15 @@ class BaseClient
     protected function putHeader($key, $value)
     {
         $this->headers[$key] = $value;
+        return $this;
+    }
+
+    /**
+     * set Json
+     */
+    public function setJson($bool = true)
+    {
+        $this->json = $bool;
         return $this;
     }
 
@@ -91,7 +104,7 @@ class BaseClient
         }
         $this->parameters[$key] = $value;
         return $this;
-    }
+    }//
 
     /**
      * 設置多筆參數
@@ -123,7 +136,7 @@ class BaseClient
             if ($this->json) {
                 $option['json'] = $this->parameters;
             } else {
-                $option['body'] = $this->parameters;
+                $option['form_params'] = $this->replaceNullToEmptyString($this->parameters);
             }
         }
 
