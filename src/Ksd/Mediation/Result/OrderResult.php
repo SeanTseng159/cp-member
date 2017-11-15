@@ -297,7 +297,7 @@ class OrderResult
 
     /**
      * 設定付款資訊
-     * @param $payment
+     * @param $paymentxc
      * @return array
      */
     private function putMagentoPayment($payment)

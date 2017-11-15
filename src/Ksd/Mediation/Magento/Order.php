@@ -47,7 +47,9 @@ class Order extends Client
                 $data[] = (array)$order;
             }
         }
+
         return $data;
+
     }
 
 
@@ -295,6 +297,27 @@ class Order extends Client
         $response = $this->request('POST', $url);
         $body = $response->getBody();
         $result = json_decode($body, true);
+
+        return true;
+    }
+
+    /**
+     * 更新訂單
+     * @param $parameters
+     * @return bool
+     */
+    public function update($parameters)
+    {
+        $id = $parameters->id;
+        $parameter = [
+            'entity' => [
+                'entity_id'=> $id,
+                'status'=> 'holded'
+            ]
+        ];
+        $this->putParameters($parameter);
+        $response = $this->request('PUT', 'V1/orders/create');
+        $body = $response->getBody();
 
         return true;
     }

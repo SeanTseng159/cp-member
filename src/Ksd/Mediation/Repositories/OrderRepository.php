@@ -237,6 +237,21 @@ class OrderRepository extends BaseRepository
     }
 
     /**
+     * 訂單更新
+     * @param $parameters
+     */
+    public function update($parameters)
+    {
+        $id = $parameters->id;
+            if ($parameters->source === ProjectConfig::MAGENTO) {
+                return $this->magento->update($parameters);
+            } else if ($parameters->source === ProjectConfig::CITY_PASS) {
+                return $this->cityPass->authorization($this->memberTokenService->cityPassUserToken())->update($parameters->id);
+            }
+
+    }
+
+    /**
      * 資料依日期做排序
      * @param $arr
      *  @param$key
