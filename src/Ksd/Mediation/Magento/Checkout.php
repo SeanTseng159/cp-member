@@ -131,7 +131,8 @@ class Checkout extends Client
      */
     public function creditCard($parameters)
     {
-            return $this->putPayment($parameters->payment());
+
+            return $this->putPayment($parameters->payment(),$parameters->verify3d());
 
     }
 
@@ -142,6 +143,7 @@ class Checkout extends Client
     public function putShipping($shipment)
     {
         $address = $this->processAddress($shipment);
+        dd($shipment);
         $methods = mb_split('_', $shipment->id);
 
         $this->putParameters([
@@ -165,11 +167,13 @@ class Checkout extends Client
      */
     public function putPayment($payment)
     {
+
         $parameter = $this->processPayment($payment);
+
         $this->putParameters($parameter);
         $response = $this->request('POST', 'V1/carts/mine/payment-information');
         $body = $response->getBody();
-
+        dd($body);
         return [ 'id' => trim($body, '"')];
     }
 
@@ -238,13 +242,15 @@ class Checkout extends Client
     /**
      * 處理付款資訊參數
      * @param $payment
+     * @param $verify3d
      * @return array
      */
-    private function processPayment($payment)
+    private function processPayment($payment,$verify3d)
     {
         $parameter = [
             'paymentMethod' => [
-                'method' => $payment->id,
+                'method' => "checkmo",
+ //               'method' => $payment->id,
             ]
         ];
 
@@ -255,8 +261,12 @@ class Checkout extends Client
                 'cc_exp_month' => $payment->creditCardMonth,
                 'cc_number' => $payment->creditCardNumber,
                 'cc_cid' => $payment->creditCardCode,
+                'eci' => $verify3d->eci,
+                'cavv' => $verify3d->cavv,
+                'xid' => $verify3d->xid,
             ];
         }
+
         return $parameter;
     }
 }
