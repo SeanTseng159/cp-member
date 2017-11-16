@@ -24,7 +24,7 @@ class PaymentInfoResult
     {
         $this->source = ProjectConfig::MAGENTO;
         $this->id = $this->arrayDefault($result, 'code');
-        $this->name = $this->arrayDefault($result, 'title');
+        $this->name = $this->getPaymentMethod($this->arrayDefault($result, 'title'));
         $this->type =  $this->paymentType($this->arrayDefault($result, 'code'));
     }
 
@@ -48,6 +48,25 @@ class PaymentInfoResult
         }
     }
 
+    /**
+     * 付款方式名稱轉換
+     * @return string
+     */
+    public function getPaymentMethod($key)
+    {
+        switch ($key) {
 
+            case 'Check / Money order':
+                return "信用卡一次付清";
+                break;
+            case 'Neweb Api Payment':
+                return "信用卡一次付清";
+                break;
+            case 'Neweb Atm Payment':
+                return "ATM虛擬帳號";
+                break;
+        }
+
+    }
 
 }
