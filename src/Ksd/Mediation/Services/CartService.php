@@ -42,6 +42,7 @@ class CartService
     /**
      * 商品加入購物車
      * @param $parameters
+     * @return bool
      */
     public function add($parameters)
     {
@@ -51,6 +52,7 @@ class CartService
     /**
      * 更新購物車內商品
      * @param $parameters
+     * @return bool
      */
     public function update($parameters)
     {
@@ -60,6 +62,7 @@ class CartService
     /**
      * 刪除購物車內商品
      * @param $parameters
+     * @return bool
      */
     public function delete($parameters)
     {
@@ -68,7 +71,6 @@ class CartService
 
     /**
      * 刪除購物車快取
-     * @param $parameters
      */
     public function cleanCache()
     {

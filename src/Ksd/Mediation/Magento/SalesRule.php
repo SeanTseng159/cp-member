@@ -45,8 +45,25 @@ class SalesRule extends Client
         return $coupon;
     }
 
+    public function salesRuleFindByCode($code)
+    {
+        $url = 'V1/salesRules/search';
+        $this->clear();
+        $this->putQueries([
+            'searchCriteria[filterGroups][0][filters][0][field]' => 'code',
+            'searchCriteria[filterGroups][0][filters][0][value]' => $code,
+            'searchCriteria[pageSize]' => 1
+        ]);
+        $response = $this->request('GET', $url);
+        $result = json_decode($response->getBody(), true);
+        $item = empty($result['items']) ? [] : $result['items'][0];
+
+        return $item;
+    }
+
     public function couponDetail($code)
     {
+
         $coupon = $this->couponFindByCode($code);
         $salesRule = $this->find($coupon->ruleId);
         $salesRule->setCoupon($coupon);

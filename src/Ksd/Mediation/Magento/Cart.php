@@ -8,21 +8,26 @@
 
 namespace Ksd\Mediation\Magento;
 
-
+use Ksd\Mediation\Helper\EnvHelper;
 use GuzzleHttp\Exception\ClientException;
 use Ksd\Mediation\Config\ProjectConfig;
 use Ksd\Mediation\Repositories\ProductRepository;
 use Ksd\Mediation\Result\CartResult;
 use Ksd\Mediation\Result\ProductResult;
+use Ksd\Mediation\Magento\SalesRule;
 
 class Cart extends Client
 {
+    use EnvHelper;
+
     private $productRepository;
+    private $salesRule;
 
     public function __construct($defaultAuthorization = true)
     {
         parent::__construct($defaultAuthorization);
         $this->productRepository = new ProductRepository();
+        $this->salesRule = new salesRule();
     }
 
     /**
@@ -53,10 +58,15 @@ class Cart extends Client
         } catch (ClientException $e) {
             // TODO:處理抓取不到購物車資料
         }
+        $coupon = new SalesRule();
+        if(!empty($totalResult['coupon_code'])) {
+            $coupon = $this->salesRule->authorization($this->env('MAGENTO_ADMIN_TOKEN'))->salesRuleFindByCode($totalResult['coupon_code']);
 
+        }
         $cart = new CartResult();
-        $cart->magento($result, $totalResult);
+        $cart->magento($result, $totalResult, $coupon);
         $cart = $this->processItem($cart);
+
 
         return $cart;
     }

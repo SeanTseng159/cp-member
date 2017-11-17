@@ -56,7 +56,7 @@ class CartRepository extends BaseRepository
     public function detail()
     {
         return $this->redis->remember($this->genCacheKey(self::DETAIL_KEY), CacheConfig::TEST_TIME, function () {
-            $this->magento->authorization($this->token);
+//            $this->magento->authorization($this->token);
             $magento = $this->magento->userAuthorization($this->memberTokenService->magentoUserToken())->detail();
             $cityPass = $this->cityPass->authorization($this->memberTokenService->cityPassUserToken())->detail();
             return [
@@ -69,6 +69,7 @@ class CartRepository extends BaseRepository
     /**
      * 商品加入購物車
      * @param $parameters
+     * @return bool
      */
     public function add($parameters)
     {

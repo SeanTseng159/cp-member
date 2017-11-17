@@ -12,6 +12,7 @@ namespace Ksd\Mediation\Result;
 use Ksd\Mediation\Helper\ObjectHelper;
 use Ksd\Mediation\Config\ProjectConfig;
 
+
 class CartResult
 {
     use ObjectHelper;
@@ -20,8 +21,9 @@ class CartResult
      * magento 購物車建置
      * @param $result
      * @param $totalResult
+     * @param $coupon
      */
-    public function magento($result, $totalResult)
+    public function magento($result, $totalResult, $coupon=null)
     {
         $this->id = $this->arrayDefault($result, 'id');
         $this->items = [];
@@ -39,12 +41,16 @@ class CartResult
             $row->purchase = $this->arrayDefault($item, ' purchase', '');
             $this->items[] = $row;
         }
-        $this->useCoupon = new \stdClass();
+
         $this->itemTotal = $this->arrayDefault($result, 'items_count', 0);
         $this->totalAmount = $this->arrayDefault($totalResult, 'subtotal', 0);
-        $this->shippingAmount = $this->arrayDefault($totalResult, 'shipping_amount', 0);
+        $this->useCoupon['id'] = $this->arrayDefault($totalResult, 'coupon_code', '');
+        $this->useCoupon['name'] = $this->arrayDefault($coupon, 'name', '');
+        $this->useCoupon['method'] = $this->arrayDefault($coupon, 'name', '');
         $this->discountAmount = $this->arrayDefault($totalResult, 'discount_amount', 0);
         $this->payAmount = $this->arrayDefault($totalResult, 'grand_total', 0);
+        $this->shipmentAmount = $this->arrayDefault($totalResult, 'shipping_amount', 0);
+        $this->shipmentFree = $this->arrayDefault($totalResult, 'shipping_discount_amount', 0);
     }
     /**
      * 處理 city pass 資料建置
@@ -67,11 +73,13 @@ class CartResult
             $row->purchase = $this->arrayDefault($item, ' purchase');
             $this->items[] = $row;
         }
-        $this->useCoupon = new \stdClass();
         $this->itemTotal = $this->arrayDefault($result, 'itemTotal', 0);
         $this->totalAmount = $this->arrayDefault($result, 'totalAmount', 0);
+        $this->useCoupon = $this->arrayDefault($result, 'useCoupon');
         $this->discountAmount = $this->arrayDefault($result, 'discountAmount', 0);
         $this->payAmount = $this->arrayDefault($result, 'payAmount', 0);
+        $this->shipmentAmount = $this->arrayDefault($result, 'shipmentAmount', 0);
+        $this->shipmentFree = $this->arrayDefault($result, 'shipmentFree', 0);
     }
 
 
