@@ -34,6 +34,7 @@ class OrderResult
             $this->orderNo = $this->arrayDefault($result, 'increment_id');
             $this->orderAmount = $this->arrayDefault($result, 'total_paid');
             $this->orderStatus = $this->getStatus(ProjectConfig::MAGENTO,$this->arrayDefault($result, 'status'));
+            $this->orderStatusCode = $this->getStatusCode($this->arrayDefault($result, 'status'));
             $this->orderDate = $this->arrayDefault($result, 'created_at');
             $payment = $this->arrayDefault($result, 'payment');
             $this->payment = $this->putMagentoPayment($payment);
@@ -91,6 +92,7 @@ class OrderResult
             $this->no = $this->arrayDefault($result, 'increment_id');
             $this->amount = $this->arrayDefault($result, 'total_paid');
             $this->status = $this->getStatus(ProjectConfig::MAGENTO,$this->arrayDefault($result, 'status'));
+            $this->statusCode = $this->getStatusCode($this->arrayDefault($result, 'status'));
             $this->date = $this->arrayDefault($result, 'created_at');
             $payment = $this->arrayDefault($result, 'payment');
             $this->payment = $this->putMagentoPayment($payment);
@@ -163,6 +165,7 @@ class OrderResult
             $this->orderNo = $this->arrayDefault($result, 'orderNo');
             $this->orderAmount = $this->arrayDefault($result, 'orderAmount');
             $this->orderStatus = $this->getStatus(ProjectConfig::CITY_PASS,$this->arrayDefault($result, 'orderStatus'));
+            $this->orderStatusCode = $this->arrayDefault($result, 'orderStatus');
             $this->orderDate = $this->arrayDefault($result, 'orderDate');
             $this->payment = $this->arrayDefault($result, 'payment');
             $this->shipping = $this->arrayDefault($result, 'shipping');
@@ -189,6 +192,7 @@ class OrderResult
             $this->orderNo = $this->arrayDefault($result, 'orderNo');
             $this->orderAmount = $this->arrayDefault($result, 'orderAmount');
             $this->status = $this->getStatus(ProjectConfig::CITY_PASS, $this->arrayDefault($result, 'orderStatus'));
+            $this->statusCode = $this->arrayDefault($result, 'orderStatus');
             $this->orderDate = $this->arrayDefault($result, 'orderDate');
             $this->payment = $this->arrayDefault($result, 'payment');
             $this->shipment = $this->arrayDefault($result, 'shipment');
@@ -281,6 +285,33 @@ class OrderResult
                     break;
             }
         }
+
+    }
+
+    /**
+     * magento狀態轉換
+     * @return string
+     */
+    public function getStatusCode($key)
+    {
+            switch ($key) {
+
+                case 'pending': # 待付款
+                    return "00";
+                    break;
+                case 'complete': # 已完成
+                    return "01";
+                    break;
+                case 'holded': # 部分退貨
+                    return "02";
+                    break;
+                case 'cancel': # 已退貨
+                    return "03";
+                    break;
+                case 'processing': # 處理中
+                    return "04";
+                    break;
+            }
 
     }
 
