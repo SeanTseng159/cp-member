@@ -61,6 +61,7 @@ class MyTicketController extends RestLaravelController
     /**
      * 利用票券id取得使用紀錄
      * @param Request $request
+     * @param $ticketId
      * @return \Illuminate\Http\JsonResponse
      */
     public function record(Request $request, $ticketId)
@@ -80,8 +81,8 @@ class MyTicketController extends RestLaravelController
     {
         $parameters = new QueryParameter();
         $parameters->laravelRequest($request);
-        $this->myTicketService->gift($parameters);
-        return $this->success();
+        $result = $this->myTicketService->gift($parameters);
+        return ($result) ? $this->success() : $this->failure('E0003', '更新失敗');
 
     }
 
@@ -94,8 +95,8 @@ class MyTicketController extends RestLaravelController
     {
         $parameters = new QueryParameter();
         $parameters->laravelRequest($request);
-        $this->myTicketService->refund($parameters);
-        return $this->success();
+        $result = $this->myTicketService->refund($parameters);
+        return ($result) ? $this->success() : $this->failure('E0003', '更新失敗');
 
     }
 

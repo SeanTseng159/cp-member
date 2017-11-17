@@ -59,7 +59,7 @@ class MyTicket extends Client
     }
 
     /**
-     * 利用票券id取得細項資料
+     * 利用id取得細項資料
      * @param $id
      * @return array
      */
@@ -80,89 +80,53 @@ class MyTicket extends Client
     }
 
     /**
-     * 取得所有訂單列表
+     * 利用id取得使用紀錄
+     * @param $id
      * @return array
      */
-    public function customize()
+    public function record($id)
     {
 
-        $path = "ticket/help";
+        $path = "ticket/record/".$id;
 
         $response = $this->request('GET', $path);
         $body = $response->getBody();
         $result = json_decode($body, true);
 
-        return $result['data'];
+        if(!empty($result['data'])) {
+            return $result['data'];
+        }else{
+            return null;
+        }
     }
 
     /**
-     * 取得所有訂單列表
-     * @return array
+     * 轉贈票券
+     *  @param $parameters
+     * @return bool
      */
-    public function banner()
+    public function gift($parameters)
     {
 
-        $result = [];
-        try {
-            $response = $this->request('GET', 'cart/detail');
-            $result = json_decode($response->getBody(), true);
+        $response = $this->putParameters($parameters)->request('POST', 'ticket/gift');
+        $result = json_decode($response->getBody(), true);
 
-        } catch (ClientException $e) {
-            // TODO:處理抓取不到購物車資料
-        }
-
-        $order = new LayoutResult();
-        $order->cityPass($result['data']);
-
-        return $order;
-    }
-
-
-
-
-    /**
-     * 根據訂單id 取得訂單細項資訊
-     * @param $itemId
-     * @return OrderResult
-     */
-    public function category($itemId)
-    {
-
-        $result = [];
-        try {
-            $response = $this->request('GET', 'cart/detail');
-            $result = json_decode($response->getBody(), true);
-
-        } catch (ClientException $e) {
-            // TODO:處理抓取不到購物車資料
-        }
-
-        $order = new LayoutResult();
-        $order->cityPass($result['data']);
-
-        return $order;
+        return ($result['statusCode'] === 202) ? true : false;
     }
 
     /**
-     * 根據訂單id 取得訂單細項資訊
-     * @param $itemId
-     * @return OrderResult
+     * 轉贈退回
+     *  @param $parameters
+     * @return bool
      */
-    public function menu($itemId)
+    public function refund($parameters)
     {
 
-        $result = [];
-        try {
-            $response = $this->request('GET', 'cart/detail');
-            $result = json_decode($response->getBody(), true);
+        $response = $this->putParameters($parameters)->request('POST', 'ticket/refund');
+        $result = json_decode($response->getBody(), true);
 
-        } catch (ClientException $e) {
-            // TODO:處理抓取不到購物車資料
-        }
-
-        $order = new LayoutResult();
-        $order->cityPass($result['data']);
-
-        return $order;
+        return ($result['statusCode'] === 202) ? true : false;
     }
+
+
 }

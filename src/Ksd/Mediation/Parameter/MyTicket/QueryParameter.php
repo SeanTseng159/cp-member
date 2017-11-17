@@ -29,10 +29,11 @@ class QueryParameter extends  BaseParameter
      * 處理 laravel request
      * @param $request
      */
-    public function laravelRequest($id, $request = null)
+    public function laravelRequest($request)
     {
         parent::laravelRequest($request);
-        $this->id = $id;
+        $this->serialNumber= $request->input('serialNumber');
+        $this->toMemberId = $request->input('toMemberId');
 
     }
 }

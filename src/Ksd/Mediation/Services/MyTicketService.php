@@ -62,6 +62,7 @@ class MyTicketService
     /**
      * 轉贈票券
      * @param  $parameters
+     * @return  bool
      */
     public function gift($parameters)
     {
@@ -70,11 +71,12 @@ class MyTicketService
 
     /**
      * 轉贈票券退回
-     * @param  $parameter
+     * @param  $parameters
+     * @return  bool
      */
-    public function refund($parameter)
+    public function refund($parameters)
     {
-        return $this->repository->refund($parameter);
+        return $this->repository->refund($parameters);
     }
 
 

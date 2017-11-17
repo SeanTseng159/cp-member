@@ -162,6 +162,12 @@ Route::middleware('cors')->namespace('Api')->group(function () {
         Route::get('info/{status}', 'MyTicketController@info');
         //票券明細
         Route::get('detail/{id}', 'MyTicketController@detail');
+        //票券使用紀錄
+        Route::get('record/{id}', 'MyTicketController@record');
+        // 票券轉贈
+        Route::post('gift', 'MyTicketController@gift');
+        // 票券轉贈
+        Route::post('refund', 'MyTicketController@refund');
     });
 
 });
