@@ -156,10 +156,12 @@ class ProductService
      */
     private function wishProduct($product)
     {
-        foreach ($this->wishList['magento'] as $wishRow) {
-            if ($product->id == $wishRow->id) {
-                $product->isWishlist = true;
-                break;
+        foreach ($this->wishList as $wishRow) {
+            if($wishRow->source == "magento") {
+                if ($product->id == $wishRow->id) {
+                    $product->isWishlist = true;
+                    break;
+                }
             }
         }
         return $product;

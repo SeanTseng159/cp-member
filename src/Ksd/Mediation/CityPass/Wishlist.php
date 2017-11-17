@@ -26,7 +26,7 @@ class Wishlist extends Client
         $response = $this->request('GET', $path);
         $result = json_decode($response->getBody(), true);
 
-        $data = $result['data'];
+        $data[] = $result['data'];
         return $data;
     }
 
