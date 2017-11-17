@@ -157,7 +157,7 @@ class ProductService
     private function wishProduct($product)
     {
         foreach ($this->wishList as $wishRow) {
-            if($wishRow->source == "magento") {
+            if(isset($wishRow->source) && $wishRow->source == 'magento') {
                 if ($product->id == $wishRow->id) {
                     $product->isWishlist = true;
                     break;
