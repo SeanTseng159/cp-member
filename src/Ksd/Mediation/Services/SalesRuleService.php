@@ -19,17 +19,24 @@ class SalesRuleService
     {
         $this->repository = new SalesRuleRepository($memberTokenService);
     }
-
+    /**
+     * 使用折扣優惠
+     * @param $parameters
+     * @return bool
+     */
     public function addCoupon($parameters)
     {
-        $salesRule = $this->repository->addCoupon($parameters);
-        return [
-            'name' => $salesRule->name,
-        ];
+        return $this->repository->addCoupon($parameters);
+
     }
 
+    /**
+     * 取消折扣優惠
+     * @param $parameters
+     * @return bool
+     */
     public function deleteCoupon($parameters)
     {
-        $this->repository->deleteCoupon($parameters);
+        return $this->repository->deleteCoupon($parameters);
     }
 }

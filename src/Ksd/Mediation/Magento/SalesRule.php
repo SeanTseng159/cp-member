@@ -62,6 +62,11 @@ class SalesRule extends Client
         return $result;
     }
 
+    /**
+     * 使用折扣優惠
+     * @param $code
+     * @return bool
+     */
     public function addCoupon($code)
     {
         $url = sprintf('V1/carts/mine/coupons/%s', $code);
@@ -71,6 +76,10 @@ class SalesRule extends Client
         return $result == 'true';
     }
 
+    /**
+     * 取消折扣優惠
+     * @return bool
+     */
     public function deleteCoupon()
     {
         $url = 'V1/carts/mine/coupons';

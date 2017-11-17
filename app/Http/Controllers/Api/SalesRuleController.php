@@ -17,6 +17,11 @@ class SalesRuleController extends RestLaravelController
         $this->service = $service;
     }
 
+    /**
+     * 使用折扣優惠
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function addCoupon(Request $request)
     {
         $parameters = new CouponParameter();
@@ -25,11 +30,16 @@ class SalesRuleController extends RestLaravelController
         return $this->success($salesRule);
     }
 
+    /**
+     * 取消折扣優惠
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function deleteCoupon(Request $request)
     {
         $parameters = new CouponParameter();
         $parameters->laravelRequest($request);
-        $this->service->addCoupon($parameters);
+        $this->service->deleteCoupon($parameters);
         return $this->success();
     }
 }
