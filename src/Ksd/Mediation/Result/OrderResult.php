@@ -35,7 +35,7 @@ class OrderResult
             $this->orderAmount = $this->arrayDefault($result, 'total_paid');
             $this->orderStatus = $this->getStatus(ProjectConfig::MAGENTO,$this->arrayDefault($result, 'status'));
             $this->orderStatusCode = $this->getStatusCode($this->arrayDefault($result, 'status'));
-            $this->orderDate = $this->arrayDefault($result, 'created_at');
+            $this->orderDate = date('Y-m-d H:i:s', strtotime('+8 hours', strtotime($this->arrayDefault($result, 'created_at'))));
             $payment = $this->arrayDefault($result, 'payment');
             $this->payment = $this->putMagentoPayment($payment);
 //            $this->payment['username'] =   $this->arrayDefault($result, 'customer_firstname') . $this->arrayDefault($result, 'customer_lastname');
@@ -89,11 +89,11 @@ class OrderResult
 
         }else{
 
-            $this->no = $this->arrayDefault($result, 'increment_id');
-            $this->amount = $this->arrayDefault($result, 'total_paid');
-            $this->status = $this->getStatus(ProjectConfig::MAGENTO,$this->arrayDefault($result, 'status'));
-            $this->statusCode = $this->getStatusCode($this->arrayDefault($result, 'status'));
-            $this->date = $this->arrayDefault($result, 'created_at');
+            $this->orderNo = $this->arrayDefault($result, 'increment_id');
+            $this->orderAmount = $this->arrayDefault($result, 'total_paid');
+            $this->orderStatus = $this->getStatus(ProjectConfig::MAGENTO,$this->arrayDefault($result, 'status'));
+            $this->orderStatusCode = $this->getStatusCode($this->arrayDefault($result, 'status'));
+            $this->orderDate = date('Y-m-d H:i:s', strtotime('+8 hours', strtotime($this->arrayDefault($result, 'created_at'))));
             $payment = $this->arrayDefault($result, 'payment');
             $this->payment = $this->putMagentoPayment($payment);
 
