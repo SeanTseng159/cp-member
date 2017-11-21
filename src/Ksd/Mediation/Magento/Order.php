@@ -292,11 +292,16 @@ class Order extends Client
      */
     public function writeoff($parameters)
     {
-        $incrementId = $parameters->ordernumber;
-        $url = sprintf('V1/ksd/orders/%s/processing', $incrementId);
-        $response = $this->request('POST', $url);
+        $orderId = $parameters->ordernumber;
+        $parameter = [
+            'entity' => [
+                'entity_id'=> $orderId,
+                'status'=> 'processing'
+            ]
+        ];
+        $this->putParameters($parameter);
+        $response = $this->request('PUT', 'V1/orders/create');
         $body = $response->getBody();
-        $result = json_decode($body, true);
 
         return true;
     }
