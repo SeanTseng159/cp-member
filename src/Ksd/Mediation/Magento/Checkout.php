@@ -132,7 +132,7 @@ class Checkout extends Client
     public function creditCard($parameters)
     {
 
-            return $this->putPayment($parameters->payment(),$parameters->verify3d());
+            return $this->putPayment($parameters);
 
     }
 
@@ -162,18 +162,18 @@ class Checkout extends Client
 
     /**
      * 確認付款方式
-     * @param $payment
+     * @param $parameters
      * @return array
      */
-    public function putPayment($payment)
+    public function putPayment($parameters)
     {
 
-        $parameter = $this->processPayment($payment);
-
+        $parameter = $this->processPayment($parameters->payment(),$parameters->verify3d());
         $this->putParameters($parameter);
         $response = $this->request('POST', 'V1/carts/mine/payment-information');
         $body = $response->getBody();
-        dd($body);
+
+
         return [ 'id' => trim($body, '"')];
     }
 
@@ -249,8 +249,8 @@ class Checkout extends Client
     {
         $parameter = [
             'paymentMethod' => [
-                'method' => "checkmo",
- //               'method' => $payment->id,
+ //               'method' => "checkmo",
+                'method' => $payment->id,
             ]
         ];
 
@@ -261,9 +261,9 @@ class Checkout extends Client
                 'cc_exp_month' => $payment->creditCardMonth,
                 'cc_number' => $payment->creditCardNumber,
                 'cc_cid' => $payment->creditCardCode,
-                'eci' => $verify3d->eci,
-                'cavv' => $verify3d->cavv,
-                'xid' => $verify3d->xid,
+                'eci' => "",
+                'cavv' => "",
+                'xid' => "",
             ];
         }
 
