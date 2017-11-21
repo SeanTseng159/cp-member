@@ -29,7 +29,8 @@ class ProductResult
         $this->id = $this->arrayDefault($result, 'sku');
         $this->name = $this->arrayDefault($result, 'name');
         $this->price = $this->arrayDefault($result, 'price');
-        $this->salePrice = $this->customAttributes($result['custom_attributes'], 'special_price', 0);
+        $this->salePrice = $this->arrayDefault($result, 'price');
+//        $this->salePrice = $this->customAttributes($result['custom_attributes'], 'special_price', 0);
         $this->discount = $this->countDiscount($this->salePrice, $this->price);
         $this->characteristic = null;
         $this->category = null;
