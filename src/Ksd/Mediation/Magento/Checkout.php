@@ -261,9 +261,9 @@ class Checkout extends Client
                 'cc_exp_month' => $payment->creditCardMonth,
                 'cc_number' => $payment->creditCardNumber,
                 'cc_cid' => $payment->creditCardCode,
-                'eci' => "",
-                'cavv' => "",
-                'xid' => "",
+                'eci' => $verify3d->eci,
+                'cavv' => $verify3d->cavv,
+                'xid' => $verify3d->xid,
             ];
         }
 
