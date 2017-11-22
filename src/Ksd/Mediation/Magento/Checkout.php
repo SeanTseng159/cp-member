@@ -249,8 +249,8 @@ class Checkout extends Client
     {
         $parameter = [
             'paymentMethod' => [
- //               'method' => "checkmo",
-                'method' => $payment->id,
+                'method' => "checkmo",
+ //               'method' => $payment->id,
             ]
         ];
 
