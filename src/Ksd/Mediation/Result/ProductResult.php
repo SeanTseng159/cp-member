@@ -33,7 +33,7 @@ class ProductResult
 //        $this->salePrice = $this->customAttributes($result['custom_attributes'], 'special_price', 0);
         $this->discount = $this->countDiscount($this->salePrice, $this->price);
         $this->characteristic = null;
-        $this->category = null;
+        $this->category = $this->getItemType($this->arrayDefault($result, 'type_id'));
         $this->storeName = null;
         $this->place = null;
         $this->tags = null;
@@ -132,6 +132,36 @@ class ProductResult
             return sprintf("%d打折", $discount);
         }{
             return sprintf('');
+        }
+
+    }
+
+    /**
+     * magento商品類型轉換
+     * @return string
+     */
+    public function getItemType($key)
+    {
+        switch ($key) {
+
+            case 'simple':
+                return "一般商品";
+                break;
+            case 'virtual':
+                return "虛擬商品";
+                break;
+            case 'downloadable':
+                return "線上下載商品";
+                break;
+            case 'configurable':
+                return "Configurable Product";
+                break;
+            case 'grouped':
+                return "組合商品";
+                break;
+            case 'bundle':
+                return "搭售商品";
+                break;
         }
 
     }
