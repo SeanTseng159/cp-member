@@ -124,11 +124,16 @@ class ProductResult
      */
     public function countDiscount($salePrice, $price)
     {
-        if ($salePrice===0 || $price === 0) {
+        if ($salePrice===0 || $price === 0 || $salePrice === "" || $price === "") {
             return '';
         }
-        $discount = (int) (($salePrice / $price) * 100);
-        return sprintf("%d打折", $discount);
+        if($price!==0){
+            $discount = (int) (($salePrice / $price) * 100);
+            return sprintf("%d打折", $discount);
+        }{
+            return sprintf('');
+        }
+
     }
 
     /**
