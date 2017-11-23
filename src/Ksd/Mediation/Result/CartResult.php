@@ -30,7 +30,7 @@ class CartResult
         foreach ($this->arrayDefault($result, 'items', []) as $item) {
             $row = new ProductResult();
             $row->source = ProjectConfig::MAGENTO;
-//            $row->itemId = $this->arrayDefault($item, 'item_id');
+            $row->itemId = $this->arrayDefault($item, 'item_id');
             $row->id = $this->arrayDefault($item, 'sku');
             $row->name = $this->arrayDefault($item, 'name');
             $row->spec = $this->arrayDefault($item, 'spec', '');
