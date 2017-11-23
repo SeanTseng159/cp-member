@@ -163,10 +163,12 @@ class ProductRepository extends BaseRepository
     {
         $cacheKey = $this->getCacheKey(self::CACHE_INDEX, [$source]);
         $indexResults = $this->redis->get($cacheKey);
-        foreach ($indexResults as $row) {
-            $index = $row->find($id);
-            if (!empty($index)) {
-                return $index;
+        if($indexResults) {
+            foreach ($indexResults as $row) {
+                $index = $row->find($id);
+                if (!empty($index)) {
+                    return $index;
+                }
             }
         }
         return null;
