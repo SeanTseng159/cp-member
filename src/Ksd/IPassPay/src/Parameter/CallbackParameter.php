@@ -20,8 +20,9 @@ class CallbackParameter
      */
     public function laravelRequest($request)
     {
+        $this->callback = new \stdClass;
         foreach ($request->all() as $key => $value) {
-            $this->{$key} = $value;
+            $this->callback->{$key} = $value;
         }
 
         $session = $request->session()->pull('ipassPay', 'default');

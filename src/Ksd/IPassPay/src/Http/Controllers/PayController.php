@@ -63,9 +63,9 @@ class PayController extends RestLaravelController
 
     }
 
-    public function callback(Request $request)
+    public function successCallback(Request $request)
     {
-      Log::debug('=== ipass pay callback ===');
+      Log::debug('=== ipass pay success callback ===');
       Log::debug(print_r($request->all(), true));
 
       $lang = 'zh_TW';
@@ -77,8 +77,31 @@ class PayController extends RestLaravelController
       $url .= $lang;
 
       if ($parameter->platform === 'app') {
-        $url = 'app://order?id=' . $parameter->orderId . '&source=' . $parameter->source;
-            //$url .= ($result) ? '&result=true&msg=success' : '&result=false&msg=' . $requestData['ErrorMessage'];
+        $url = 'app://order?id=' . $parameter->orderId . '&source=' . $parameter->source . '&result=true&msg=success';
+      }
+      else {
+        $s = ($parameter->source === 'ct_pass') ? 'c' : 'm';
+        $url .= '/checkout/complete/' . $s . '/' . $parameter->orderId;
+      }
+
+      return redirect($url);
+    }
+
+    public function failureCallback(Request $request)
+    {
+      Log::debug('=== ipass pay failure callback ===');
+      Log::debug(print_r($request->all(), true));
+
+      $lang = 'zh_TW';
+
+      $parameter = new CallbackParameter;
+      $parameter->laravelRequest($request);
+
+      $url = (env('APP_ENV') === 'production') ? 'http://172.104.83.229/' : 'http://localhost:3000/';
+      $url .= $lang;
+
+      if ($parameter->platform === 'app') {
+        $url = 'app://order?id=' . $parameter->orderId . '&source=' . $parameter->source . '&result=false&msg=failure';
       }
       else {
         $s = ($parameter->source === 'ct_pass') ? 'c' : 'm';
