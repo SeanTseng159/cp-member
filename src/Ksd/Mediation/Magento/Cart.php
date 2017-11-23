@@ -58,6 +58,7 @@ class Cart extends Client
         } catch (ClientException $e) {
             // TODO:處理抓取不到購物車資料
         }
+
         $coupon = new SalesRule();
         if(!empty($totalResult['coupon_code'])) {
             $coupon = $this->salesRule->authorization($this->env('MAGENTO_ADMIN_TOKEN'))->salesRuleFindByCode($totalResult['coupon_code']);
@@ -116,9 +117,9 @@ class Cart extends Client
      */
     public function update($parameters)
     {
+
         $cart = $this->detail();
         $items = $cart->items;
-
         foreach ($parameters as $parameter) {
             $index = $this->filterById($items, $this->parameterItemId($parameter));
             if (!is_null($index)) {
@@ -129,6 +130,7 @@ class Cart extends Client
             }
 
         }
+
         $data = new \stdClass();
 
         foreach ($items as $item) {
@@ -141,7 +143,6 @@ class Cart extends Client
             $this->delete([
                 ['id' => $item->id]
             ]);
-
             $this->putParameters($data);
             $this->request('POST', 'V1/carts/mine/items');
         }
@@ -152,20 +153,25 @@ class Cart extends Client
     /**
      * 刪除購物車內商品
      * @param $parameters
+     * @return bool
      */
     public function delete($parameters)
     {
         $cart = $this->detail();
         $items = $cart->items;
+        $result=false;
         foreach ($parameters as $parameter) {
             $index = $this->filterById($cart->items, $this->parameterItemId($parameter));
             if (!is_null($index)) {
                 $item = $items[$index];
                 $path = sprintf('V1/carts/mine/items/%s', $item->itemId);
                 $this->putParameter('cartId', $cart->id);
-                $this->request('delete', $path);
+                $response = $this->request('delete', $path);
+                $result = $response->getStatusCode() === 200;
             }
         }
+
+        return $result;
     }
 
     /**
