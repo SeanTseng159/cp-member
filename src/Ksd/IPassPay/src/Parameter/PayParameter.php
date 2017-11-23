@@ -56,8 +56,8 @@ class PayParameter
         $parameter->order_name = $this->orderId;
         $parameter->amount = $order[0]->orderAmount;
         $parameter->item_name = $this->itemsToItemString($order[0]->items);
-        $parameter->success_url = url('ipass/callback');
-        $parameter->failure_url = url('ipass/callback');
+        $parameter->success_url = url('ipass/successCallback');
+        $parameter->failure_url = url('ipass/failureCallback');
         $parameter->timestamp = Carbon\Carbon::now()->timestamp;
         $parameter->payment_company = 'iPASSPAY';
         $parameter->signature = '';

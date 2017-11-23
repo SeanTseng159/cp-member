@@ -10,5 +10,6 @@ Route::group(['middleware' => 'ipasspay', 'prefix' => 'ipass', 'namespace' => 'K
     // 一卡通支付
     Route::post('pay', 'PayController@pay');
 
-    Route::post('callback', 'PayController@callback');
+    Route::post('successCallback', 'PayController@successCallback');
+    Route::post('failureCallback', 'PayController@failureCallback');
 });
