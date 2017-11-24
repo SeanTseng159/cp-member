@@ -32,7 +32,7 @@ class ProductResult
         $this->salePrice = $this->arrayDefault($result, 'price');
 //        $this->salePrice = $this->customAttributes($result['custom_attributes'], 'special_price', 0);
         $this->discount = $this->countDiscount($this->salePrice, $this->price);
-        $this->characteristic = null;
+        $this->characteristic = $this->customAttributes($result['custom_attributes'], 'description');
         $this->category['id'] = $this->arrayDefault($result, 'type_id');
         $this->category['name'] = $this->getItemType($this->arrayDefault($result, 'type_id'));
         $this->storeName = null;
