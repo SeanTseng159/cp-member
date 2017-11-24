@@ -130,7 +130,12 @@ class ProductResult
         }
         if($price!==0){
             $discount = (int) (($salePrice / $price) * 100);
-            return sprintf("%d打折", $discount);
+            if($discount===100){
+                return "無折扣";
+            }else{
+                return sprintf("%d折", $discount);
+            }
+
         }{
             return sprintf('');
         }
