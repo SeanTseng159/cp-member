@@ -45,8 +45,21 @@ class WishlistRepository extends BaseRepository
             ProjectConfig::MAGENTO => $magento,
             ProjectConfig::CITY_PASS => $cityPass
         ];
-*/
-        return array_merge($magento, $cityPass);
+*/      if($magento&&$cityPass){
+            return array_merge($magento, $cityPass);
+        }else{
+            if($magento){
+                return $magento;
+            }else if($cityPass){
+                return $cityPass;
+            }else{
+                return [];
+            }
+
+
+
+        }
+
 
     }
 
