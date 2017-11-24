@@ -53,7 +53,7 @@ class WishlistRepository extends BaseRepository
             }else if($cityPass){
                 return $cityPass;
             }else{
-                return [];
+                return null;
             }
 
 
