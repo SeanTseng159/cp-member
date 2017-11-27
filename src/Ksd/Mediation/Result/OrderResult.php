@@ -302,14 +302,14 @@ class OrderResult
                 case 'complete': # 已完成
                     return "01";
                     break;
-                case 'holded': # 部分退貨
-                    return "02";
+                case 'holded': # 退貨處理中
+                    return "04";
                     break;
                 case 'cancel': # 已退貨
                     return "03";
                     break;
                 case 'processing': # 處理中
-                    return "04";
+                    return "01";
                     break;
             }
 
