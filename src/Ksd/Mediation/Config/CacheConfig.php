@@ -12,7 +12,7 @@ namespace Ksd\Mediation\Config;
 class CacheConfig
 {
     // 測試時間
-    const TEST_TIME = 60;
+    const TEST_TIME = 300;
     const CART_TEST_TIME = 60;
 
 }
