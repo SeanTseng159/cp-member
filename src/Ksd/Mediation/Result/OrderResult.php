@@ -252,17 +252,17 @@ class OrderResult
                 case 'pending': # 待付款
                     return "待付款";
                     break;
-                case 'complete': # 已完成
+                case 'complete': # 訂單完成(已出貨且開立發票)
                     return "已完成";
                     break;
-                case 'holded': # 部分退貨
-                    return "部分退貨";
+                case 'holded': # 退貨處理中
+                    return "退貨處理中";
                     break;
                 case 'cancel': # 已退貨
                     return "已退貨";
                     break;
-                case 'processing': # 處理中
-                    return "處理中";
+                case 'processing': # 付款成功(前台顯示已完成)，尚未出貨
+                    return "已完成";
                     break;
             }
         } else {
