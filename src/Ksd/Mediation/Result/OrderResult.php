@@ -32,7 +32,7 @@ class OrderResult
         if(!$isDetail) {
             $this->id = $this->arrayDefault($result, 'entity_id');
             $this->orderNo = $this->arrayDefault($result, 'increment_id');
-            $this->orderAmount = $this->arrayDefault($result, 'subtotal');
+            $this->orderAmount = $this->arrayDefault($result, 'subtotal') + $this->arrayDefault($result, 'shipping_amount');
             $this->orderStatus = $this->getStatus(ProjectConfig::MAGENTO,$this->arrayDefault($result, 'status'));
             $this->orderStatusCode = $this->getStatusCode($this->arrayDefault($result, 'status'));
             $this->orderDate = date('Y-m-d H:i:s', strtotime('+8 hours', strtotime($this->arrayDefault($result, 'created_at'))));
@@ -90,13 +90,14 @@ class OrderResult
         }else{
 
             $this->orderNo = $this->arrayDefault($result, 'increment_id');
-            $this->orderAmount = $this->arrayDefault($result, 'subtotal');
+            $this->orderAmount = $this->arrayDefault($result, 'grand_total');
+            $this->orderItemAmount = $this->arrayDefault($result, 'subtotal');
+            $this->orderDiscount = $this->arrayDefault($result, 'discount_amount');
             $this->orderStatus = $this->getStatus(ProjectConfig::MAGENTO,$this->arrayDefault($result, 'status'));
             $this->orderStatusCode = $this->getStatusCode($this->arrayDefault($result, 'status'));
             $this->orderDate = date('Y-m-d H:i:s', strtotime('+8 hours', strtotime($this->arrayDefault($result, 'created_at'))));
             $payment = $this->arrayDefault($result, 'payment');
             $this->payment = $this->putMagentoPayment($payment);
-
             $this->shipping = [];
             $ship = $this->arrayDefault($result, 'extension_attributes');
             foreach ($this->arrayDefault($ship, 'shipping_assignments', []) as $shipping) {
@@ -109,7 +110,7 @@ class OrderResult
             }
             $this->shipping['shippingDescription'] = $this->arrayDefault($result, 'shipping_description');
             $this->shipping['shippingAmount'] = $this->arrayDefault($result, 'shipping_amount');
-            $this->discount = $this->arrayDefault($result, 'discount_amount');
+
             $this->quantity = $this->arrayDefault($result, 'qty_ordered');
 
 
@@ -191,6 +192,8 @@ class OrderResult
         } else {
             $this->orderNo = $this->arrayDefault($result, 'orderNo');
             $this->orderAmount = $this->arrayDefault($result, 'orderAmount');
+            $this->orderItemAmount = $this->arrayDefault($result, 'orderItemAmount');
+            $this->orderDiscount = $this->arrayDefault($result, 'orderDiscount');
             $this->status = $this->getStatus(ProjectConfig::CITY_PASS, $this->arrayDefault($result, 'orderStatus'));
             $this->statusCode = $this->arrayDefault($result, 'orderStatus');
             $this->orderDate = $this->arrayDefault($result, 'orderDate');
