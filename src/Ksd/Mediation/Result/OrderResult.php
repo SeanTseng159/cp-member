@@ -32,7 +32,7 @@ class OrderResult
         if(!$isDetail) {
             $this->id = $this->arrayDefault($result, 'entity_id');
             $this->orderNo = $this->arrayDefault($result, 'increment_id');
-            $this->orderAmount = $this->arrayDefault($result, 'total_paid');
+            $this->orderAmount = $this->arrayDefault($result, 'subtotal');
             $this->orderStatus = $this->getStatus(ProjectConfig::MAGENTO,$this->arrayDefault($result, 'status'));
             $this->orderStatusCode = $this->getStatusCode($this->arrayDefault($result, 'status'));
             $this->orderDate = date('Y-m-d H:i:s', strtotime('+8 hours', strtotime($this->arrayDefault($result, 'created_at'))));
@@ -90,7 +90,7 @@ class OrderResult
         }else{
 
             $this->orderNo = $this->arrayDefault($result, 'increment_id');
-            $this->orderAmount = $this->arrayDefault($result, 'total_paid');
+            $this->orderAmount = $this->arrayDefault($result, 'subtotal');
             $this->orderStatus = $this->getStatus(ProjectConfig::MAGENTO,$this->arrayDefault($result, 'status'));
             $this->orderStatusCode = $this->getStatusCode($this->arrayDefault($result, 'status'));
             $this->orderDate = date('Y-m-d H:i:s', strtotime('+8 hours', strtotime($this->arrayDefault($result, 'created_at'))));
@@ -242,6 +242,8 @@ class OrderResult
 
     /**
      * 狀態轉換
+     * @param $source
+     * @param $key
      * @return string
      */
     public function getStatus($source, $key)
@@ -289,7 +291,8 @@ class OrderResult
     }
 
     /**
-     * magento狀態轉換
+     * magento狀態代碼轉換
+     * @param $key
      * @return string
      */
     public function getStatusCode($key)
@@ -328,11 +331,12 @@ class OrderResult
 
     /**
      * 設定付款資訊
-     * @param $paymentxc
+     * @param $payment
      * @return array
      */
     private function putMagentoPayment($payment)
     {
+
         $result = [];
         $method = $payment['method'];
         $additionalInformation = $payment['additional_information'];
@@ -345,7 +349,33 @@ class OrderResult
             ];
         }
         $result['method'] = $method;
-        $result['title'] = $additionalInformation[0];
+        $result['title'] = $this->paymentTypeTrans($additionalInformation[0]);
         return $result;
+    }
+
+    /**
+     * 付款方式名稱轉換
+     * @param $key
+     * @return string
+     */
+    public function paymentTypeTrans($key)
+    {
+        switch ($key) {
+
+            case 'Neweb Atm Payment': #  ATM虛擬帳號
+                return "ATM虛擬帳號";
+                break;
+            case 'Ipass Pay': # Ipass Pay支付
+                return "Ipass Pay支付";
+                break;
+            case 'Neweb Api Payment': # 信用卡一次付清
+                return "信用卡一次付清";
+                break;
+            case 'Check / Money order': # 測試用
+                return "信用卡一次付清";
+                break;
+
+        }
+
     }
 }
