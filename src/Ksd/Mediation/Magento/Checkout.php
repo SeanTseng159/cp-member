@@ -111,11 +111,12 @@ class Checkout extends Client
      */
     public function confirm($parameters)
     {
-        if($parameters->payment()->type.equalTo('atm')){
+
+        if($parameters->payment()->id === 'atm'){
             return $this->putPayment($parameters->payment());
-        }else if($parameters->payment()->type.equalTo('ipass_pay')){
+        }else if($parameters->payment()->id === 'ipass_pay'){
             return $this->putPayment($parameters->payment());
-        }else if($parameters->payment()->type.equalTo('credit_card')){
+        }else if($parameters->payment()->id === 'credit_card'){
             $response = $this->request('post', 'V1/ksd/mine/order');
             return trim($response->getBody(), '"');
         }else{
@@ -143,7 +144,6 @@ class Checkout extends Client
     public function putShipping($shipment)
     {
         $address = $this->processAddress($shipment);
-        dd($shipment);
         $methods = mb_split('_', $shipment->id);
 
         $this->putParameters([
@@ -172,7 +172,6 @@ class Checkout extends Client
         $this->putParameters($parameter);
         $response = $this->request('POST', 'V1/carts/mine/payment-information');
         $body = $response->getBody();
-
 
         return [ 'id' => trim($body, '"')];
     }
