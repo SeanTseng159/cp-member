@@ -44,6 +44,12 @@ class PaymentInfoResult
             case 'neweb_atm': # 虛擬帳號一次付清
                 return 'atm';
                 break;
+            case 'ipasspay': # ipasspay
+                return 'ipass_pay';
+                break;
+            case 'checkmo': # check
+                return 'test';
+                break;
 
         }
     }
@@ -57,13 +63,17 @@ class PaymentInfoResult
         switch ($key) {
 
             case 'Check / Money order':
-                return "信用卡一次付清";
+                return "測試用";
                 break;
+
             case 'Neweb Api Payment':
                 return "信用卡一次付清";
                 break;
             case 'Neweb Atm Payment':
                 return "ATM虛擬帳號";
+                break;
+            case 'Ipass Pay':
+                return "Ipass Pay";
                 break;
         }
 
