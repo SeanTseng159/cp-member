@@ -48,6 +48,7 @@ class CartResult
         $this->useCoupon['name'] = $this->arrayDefault($coupon, 'name', '');
         $this->useCoupon['method'] = $this->arrayDefault($coupon, 'name', '');
         $this->discountAmount = $this->arrayDefault($totalResult, 'discount_amount', 0);
+        $this->discountTotal = $this->arrayDefault($totalResult, 'subtotal_with_discount', 0);
         $this->payAmount = $this->arrayDefault($totalResult, 'grand_total', 0);
         $this->shipmentAmount = $this->arrayDefault($totalResult, 'shipping_amount', 0);
         $this->shipmentFree = $this->arrayDefault($totalResult, 'shipping_discount_amount', 0);
@@ -77,6 +78,7 @@ class CartResult
         $this->totalAmount = $this->arrayDefault($result, 'totalAmount', 0);
         $this->useCoupon = $this->arrayDefault($result, 'useCoupon');
         $this->discountAmount = $this->arrayDefault($result, 'discountAmount', 0);
+        $this->discountTotal = $this->arrayDefault($result, 'discountTotal');
         $this->payAmount = $this->arrayDefault($result, 'payAmount', 0);
         $this->shipmentAmount = $this->arrayDefault($result, 'shipmentAmount', 0);
         $this->shipmentFree = $this->arrayDefault($result, 'shipmentFree', 0);
