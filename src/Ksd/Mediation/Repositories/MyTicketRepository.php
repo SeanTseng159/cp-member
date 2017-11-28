@@ -27,6 +27,18 @@ class MyTicketRepository extends BaseRepository
     }
 
     /**
+     * 票券物理主分類(目錄)
+     * @param  $parameter
+     * @return array
+     */
+    public function catalogIcon($parameter)
+    {
+        $cityPass = $this->cityPass->authorization($this->memberTokenService->cityPassUserToken())->catalogIcon($parameter->hash);
+        return  $cityPass;
+
+    }
+
+    /**
      * 取得票券使用說明
      * @return array
      */

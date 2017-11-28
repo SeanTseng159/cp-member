@@ -20,6 +20,16 @@ class MyTicketService
     {
         $this->repository = new MyTicketRepository();
     }
+
+    /**
+     * 票券物理主分類(目錄)
+     * @param  $parameter
+     * @return array
+     */
+    public function catalogIcon($parameter)
+    {
+        return $this->repository->catalogIcon($parameter);
+    }
     /**
      * 取得票券使用說明
      * @return array

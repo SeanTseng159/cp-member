@@ -8,6 +8,7 @@ use Ksd\Mediation\Core\Controller\RestLaravelController;
 use Ksd\Mediation\Services\MyTicketService;
 use Ksd\Mediation\Parameter\MyTicket\InfoParameter;
 use Ksd\Mediation\Parameter\MyTicket\QueryParameter;
+use Ksd\Mediation\Parameter\MyTicket\CatalogIconParameter;
 
 class MyTicketController extends RestLaravelController
 {
@@ -16,6 +17,19 @@ class MyTicketController extends RestLaravelController
     public function __construct(MyTicketService $myTicketService)
     {
         $this->myTicketService = $myTicketService;
+    }
+
+    /**
+     * 票券物理主分類(目錄)
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function catalogIcon(Request $request)
+    {
+        $parameter = new CatalogIconParameter();
+        $parameter->laravelRequest($request);
+        return $this->success($this->myTicketService->catalogIcon($parameter));
+
     }
 
     /**

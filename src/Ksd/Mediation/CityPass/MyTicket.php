@@ -15,6 +15,26 @@ class MyTicket extends Client
 {
     use EnvHelper;
 
+    /**
+     * 票券物理主分類(目錄)
+     * @param $hash
+     * @return array
+     */
+    public function catalogIcon($hash)
+    {
+
+        $path = "ticket/catalogIcon";
+        $response = $this->putQuery('hash',$hash)->request('GET', $path);
+        $body = $response->getBody();
+        $result = json_decode($body, true);
+
+        if(!empty($result['data'])) {
+            return $result['data'];
+        }else{
+            return null;
+        }
+
+    }
 
     /**
      * 取得票券使用說明
