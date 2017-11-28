@@ -112,11 +112,11 @@ class Checkout extends Client
     public function confirm($parameters)
     {
 
-        if($parameters->payment()->id === 'atm'){
+        if($parameters->payment()->type === 'atm'){
             return $this->putPayment($parameters->payment());
-        }else if($parameters->payment()->id === 'ipass_pay'){
+        }else if($parameters->payment()->type === 'ipass_pay'){
             return $this->putPayment($parameters->payment());
-        }else if($parameters->payment()->id === 'credit_card'){
+        }else if($parameters->payment()->type === 'credit_card'){
             $response = $this->request('post', 'V1/ksd/mine/order');
             return trim($response->getBody(), '"');
         }else{
@@ -167,8 +167,15 @@ class Checkout extends Client
      */
     public function putPayment($parameters)
     {
-
-        $parameter = $this->processPayment($parameters->payment(),$parameters->verify3d());
+        if($parameters->type==='credit_card') {
+            $parameter = $this->processPayment($parameters->payment(), $parameters->verify3d());
+        }else{
+            $parameter = [
+                'paymentMethod' => [
+                     'method' => $parameters->id
+                ]
+            ];
+        }
         $this->putParameters($parameter);
         $response = $this->request('POST', 'V1/carts/mine/payment-information');
         $body = $response->getBody();
@@ -239,7 +246,7 @@ class Checkout extends Client
     }
 
     /**
-     * 處理付款資訊參數
+     * 處理信用卡付款資訊參數
      * @param $payment
      * @param $verify3d
      * @return array
@@ -268,4 +275,5 @@ class Checkout extends Client
 
         return $parameter;
     }
+
 }
