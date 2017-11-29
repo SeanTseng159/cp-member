@@ -9,8 +9,6 @@
 namespace Ksd\Mediation\Repositories;
 
 use Ksd\Mediation\CityPass\MyTicket;
-use Ksd\Mediation\Config\ProjectConfig;
-
 use Ksd\Mediation\Services\MemberTokenService;
 
 class MyTicketRepository extends BaseRepository

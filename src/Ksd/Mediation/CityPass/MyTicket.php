@@ -58,7 +58,7 @@ class MyTicket extends Client
     }
 
     /**
-     * 取得所有訂單列表
+     * 取得所有票券列表
      * @param $statusId
      * @return array
      */

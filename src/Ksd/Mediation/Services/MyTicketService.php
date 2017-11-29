@@ -16,9 +16,9 @@ class MyTicketService
 
     private $repository;
 
-    public function __construct()
+    public function __construct(MemberTokenService $memberTokenService)
     {
-        $this->repository = new MyTicketRepository();
+        $this->repository = new MyTicketRepository($memberTokenService);
     }
 
     /**
