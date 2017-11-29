@@ -255,6 +255,7 @@ class OrderRepository extends BaseRepository
     /**
      * 訂單更新
      * @param $parameters
+     * @return  bool
      */
     public function update($parameters)
     {
