@@ -48,14 +48,14 @@ class Order extends Client
 
 
     /**
-     * 更新訂單
-     * @param $parameters
+     * 取得訂單細項
+     * @param $itemId
      * @return array
      */
-    public function order($parameters)
+    public function order($itemId)
     {
 
- //       $path = "order/items/$itemId";
+        $path = "order/items/$itemId";
 
         $response = $this->request('GET', $path);
         $body = $response->getBody();
