@@ -472,9 +472,10 @@ class MemberController extends RestLaravelController
             'avatar' => $member->avatar,
             'countryCode' => $member->countryCode,
             'cellphone' => $member->cellphone,
+            'country' => $member->country,
             'gender' => $member->gender,
             'zipcode' => $member->zipcode,
-            'address' => $member->county . $member->district . $member->address
+            'address' => $member->address
         ]);
     }
 
