@@ -59,13 +59,14 @@ class Cart extends Client
             // TODO:處理抓取不到購物車資料
         }
 
-        $coupon = new SalesRule();
+ //       $coupon = new SalesRule();
+        $cart = new CartResult();
         if(!empty($totalResult['coupon_code'])) {
             $coupon = $this->salesRule->authorization($this->env('MAGENTO_ADMIN_TOKEN'))->salesRuleFindByCode($totalResult['coupon_code']);
-
+            $cart->magento($result, $totalResult, $coupon);
         }
-        $cart = new CartResult();
-        $cart->magento($result, $totalResult, $coupon);
+
+        $cart->magento($result, $totalResult);
         $cart = $this->processItem($cart);
 
 

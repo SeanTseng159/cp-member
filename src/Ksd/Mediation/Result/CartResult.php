@@ -44,9 +44,13 @@ class CartResult
 
         $this->itemTotal = $this->arrayDefault($result, 'items_count');
         $this->totalAmount = $this->arrayDefault($totalResult, 'subtotal');
-        $this->useCoupon['id'] = $this->arrayDefault($coupon, 'rule_id');
-        $this->useCoupon['name'] = $this->arrayDefault($coupon, 'name');
-        $this->useCoupon['method'] = $this->arrayDefault($coupon, 'name');
+        if(is_null($coupon)){
+            $this->useCoupon=[];
+        }else {
+            $this->useCoupon['id'] = $this->arrayDefault($coupon, 'rule_id');
+            $this->useCoupon['name'] = $this->arrayDefault($coupon, 'name');
+            $this->useCoupon['method'] = $this->arrayDefault($coupon, 'name');
+        }
         $this->discountAmount = $this->arrayDefault($totalResult, 'discount_amount');
         $this->discountTotal = $this->arrayDefault($totalResult, 'subtotal_with_discount');
         $this->payAmount = $this->arrayDefault($totalResult, 'grand_total');
