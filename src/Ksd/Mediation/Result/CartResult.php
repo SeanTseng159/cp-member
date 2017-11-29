@@ -42,16 +42,16 @@ class CartResult
             $this->items[] = $row;
         }
 
-        $this->itemTotal = $this->arrayDefault($result, 'items_count', 0);
-        $this->totalAmount = $this->arrayDefault($totalResult, 'subtotal', 0);
-        $this->useCoupon['id'] = $this->arrayDefault($totalResult, 'coupon_code', '');
-        $this->useCoupon['name'] = $this->arrayDefault($coupon, 'name', '');
-        $this->useCoupon['method'] = $this->arrayDefault($coupon, 'name', '');
-        $this->discountAmount = $this->arrayDefault($totalResult, 'discount_amount', 0);
-        $this->discountTotal = $this->arrayDefault($totalResult, 'subtotal_with_discount', 0);
-        $this->payAmount = $this->arrayDefault($totalResult, 'grand_total', 0);
-        $this->shipmentAmount = $this->arrayDefault($totalResult, 'shipping_amount', 0);
-        $this->shipmentFree = $this->arrayDefault($totalResult, 'shipping_discount_amount', 0);
+        $this->itemTotal = $this->arrayDefault($result, 'items_count');
+        $this->totalAmount = $this->arrayDefault($totalResult, 'subtotal');
+        $this->useCoupon['id'] = $this->arrayDefault($coupon, 'rule_id');
+        $this->useCoupon['name'] = $this->arrayDefault($coupon, 'name');
+        $this->useCoupon['method'] = $this->arrayDefault($coupon, 'name');
+        $this->discountAmount = $this->arrayDefault($totalResult, 'discount_amount');
+        $this->discountTotal = $this->arrayDefault($totalResult, 'subtotal_with_discount');
+        $this->payAmount = $this->arrayDefault($totalResult, 'grand_total');
+        $this->shipmentAmount = $this->arrayDefault($totalResult, 'shipping_amount');
+        $this->shipmentFree = $this->arrayDefault($totalResult, 'shipping_discount_amount');
     }
     /**
      * 處理 city pass 資料建置
@@ -74,14 +74,14 @@ class CartResult
             $row->purchase = $this->arrayDefault($item, ' purchase');
             $this->items[] = $row;
         }
-        $this->itemTotal = $this->arrayDefault($result, 'itemTotal', 0);
-        $this->totalAmount = $this->arrayDefault($result, 'totalAmount', 0);
+        $this->itemTotal = $this->arrayDefault($result, 'itemTotal');
+        $this->totalAmount = $this->arrayDefault($result, 'totalAmount');
         $this->useCoupon = $this->arrayDefault($result, 'useCoupon');
-        $this->discountAmount = $this->arrayDefault($result, 'discountAmount', 0);
+        $this->discountAmount = $this->arrayDefault($result, 'discountAmount');
         $this->discountTotal = $this->arrayDefault($result, 'discountTotal');
-        $this->payAmount = $this->arrayDefault($result, 'payAmount', 0);
-        $this->shipmentAmount = $this->arrayDefault($result, 'shipmentAmount', 0);
-        $this->shipmentFree = $this->arrayDefault($result, 'shipmentFree', 0);
+        $this->payAmount = $this->arrayDefault($result, 'payAmount');
+        $this->shipmentAmount = $this->arrayDefault($result, 'shipmentAmount');
+        $this->shipmentFree = $this->arrayDefault($result, 'shipmentFree');
     }
 
 
