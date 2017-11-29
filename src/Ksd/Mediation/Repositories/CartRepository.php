@@ -38,7 +38,7 @@ class CartRepository extends BaseRepository
      */
     public function info()
     {
-         $this->cleanCache(); //測試期間先清cache
+
         return $this->redis->remember($this->genCacheKey(self::INFO_KEY), CacheConfig::CART_TEST_TIME, function () {
             // $this->magento->authorization($this->token);
             $magento = $this->magento->userAuthorization($this->memberTokenService->magentoUserToken())->info();
@@ -56,7 +56,7 @@ class CartRepository extends BaseRepository
      */
     public function detail()
     {
-        $this->cleanCache(); //測試期間先清cache
+
         return $this->redis->remember($this->genCacheKey(self::DETAIL_KEY), CacheConfig::CART_TEST_TIME, function () {
 //            $this->magento->authorization($this->token);
             $magento = $this->magento->userAuthorization($this->memberTokenService->magentoUserToken())->detail();
