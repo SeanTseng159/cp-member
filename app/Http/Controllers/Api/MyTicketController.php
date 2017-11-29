@@ -82,7 +82,7 @@ class MyTicketController extends RestLaravelController
     {
         $parameter = new InfoParameter();
         $parameter->laravelRequest($ticketId, $request);
-        return $this->success($this->myTicketService->info($parameter));
+        return $this->success($this->myTicketService->record($parameter));
 
     }
 
