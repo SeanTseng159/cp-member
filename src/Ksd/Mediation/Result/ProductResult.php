@@ -32,7 +32,7 @@ class ProductResult
         $this->salePrice = $this->arrayDefault($result, 'price');
 //        $this->salePrice = $this->customAttributes($result['custom_attributes'], 'special_price', 0);
         $this->discount = $this->countDiscount($this->salePrice, $this->price);
-        $this->characteristic = $this->customAttributes($result['custom_attributes'], 'description');
+        $this->characteristic = html_entity_decode(trim(strip_tags($this->customAttributes($result['custom_attributes'], 'description'))),ENT_QUOTES, "UTF-8");
         $this->category['id'] = $this->arrayDefault($result, 'type_id');
         $this->category['name'] = $this->getItemType($this->arrayDefault($result, 'type_id'));
         $this->storeName = null;
@@ -231,4 +231,6 @@ class ProductResult
                 break;
         }
     }
+
+
 }
