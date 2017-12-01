@@ -46,7 +46,7 @@ class RestLaravelController extends Controller
      * @param int $httpCode
      * @return \Illuminate\Http\JsonResponse
      */
-    public function responseFormat($data, $code = '00000', $message = 'success', $httpCode = 200)
+    public function responseFormat($data = null, $code = '00000', $message = 'success', $httpCode = 200)
     {
         $result = [
             'code' => $code,
@@ -57,9 +57,8 @@ class RestLaravelController extends Controller
             $result[$key] = $value;
         }
 
-        if (!empty($data)) {
-            $result['data'] = $data;
-        }
+        $result['data'] = $data;
+
         return response()->json($result, $httpCode , [
             'Access-Control-Allow-Origin' => '*',
             'Access-Control-Allow-Methods' => 'GET, POST, PUT, DELETE, OPTIONS',

@@ -302,8 +302,6 @@ class MemberService
     {
         $member = $this->repository->findByEmail($email);
 
-        Log::debug(print_r($member, true));
-
         if ($member && $member->isRegistered == 1) {
             $job = (new SendForgetPasswordMail($member))->delay(5);
             $this->dispatch($job);
