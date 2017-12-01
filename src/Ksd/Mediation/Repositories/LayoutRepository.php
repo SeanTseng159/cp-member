@@ -33,7 +33,6 @@ class LayoutRepository extends BaseRepository
     public function home()
     {
 
-        $this->cacheKey(self::HOME_KEY); //測試階段先清
         return $this->redis->remember($this->genCacheKey(self::HOME_KEY), 3600, function () {
             $cityPass = $this->cityPass->home();
             return $cityPass ;
@@ -48,7 +47,7 @@ class LayoutRepository extends BaseRepository
      */
     public function ads()
     {
-        $this->cleanCache(); //測試階段先清
+
         return $this->redis->remember($this->genCacheKey(self::ADS_KEY), 3600, function () {
             $cityPass = $this->cityPass->ads();
             return $cityPass ;
@@ -61,7 +60,7 @@ class LayoutRepository extends BaseRepository
      */
     public function exploration()
     {
-        $this->cleanCache(); //測試階段先清
+
         return $this->redis->remember($this->genCacheKey(self::EXPLORATION_KEY), 3600, function () {
             $cityPass = $this->cityPass->exploration();
             return $cityPass ;
@@ -74,7 +73,7 @@ class LayoutRepository extends BaseRepository
      */
     public function customize()
     {
-        $this->cleanCache(); //測試階段先清
+
         return $this->redis->remember($this->genCacheKey(self::CUSTOMIZE_KEY), 3600, function () {
             $cityPass = $this->cityPass->customize();
             return $cityPass ;
@@ -87,7 +86,7 @@ class LayoutRepository extends BaseRepository
      */
     public function banner()
     {
-        $this->cleanCache(); //測試階段先清
+
         return $this->redis->remember($this->genCacheKey(self::BANNER_KEY), 3600, function () {
             $cityPass = $this->cityPass->banner();
             return $cityPass ;
@@ -130,7 +129,7 @@ class LayoutRepository extends BaseRepository
      */
     public function menu()
     {
-        $this->cleanCache(); //測試階段先清
+
         return $this->redis->remember($this->genCacheKey(self::MENU_KEY), 3600, function ()  {
             $cityPass = $this->cityPass->menu();
             return  $cityPass;
