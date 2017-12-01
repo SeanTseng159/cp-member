@@ -34,33 +34,19 @@ class WishlistRepository extends BaseRepository
      */
     public function items()
     {
-            $magento = $this->magento
-                ->userAuthorization($this->memberTokenService->magentoUserToken())
-                ->items();
-            $cityPass = $this->cityPass
-                ->authorization($this->memberTokenService->cityPassUserToken())
-                ->items();
-/*
-        return [
-            ProjectConfig::MAGENTO => $magento,
-            ProjectConfig::CITY_PASS => $cityPass
-        ];
-*/      if($magento&&$cityPass){
-            return array_merge($magento, $cityPass);
-        }else{
-            if($magento){
-                return $magento;
-            }else if($cityPass){
-                return $cityPass;
-            }else{
-                return null;
-            }
+        $magento = $this->magento
+            ->userAuthorization($this->memberTokenService->magentoUserToken())
+            ->items();
+        $cityPass = $this->cityPass
+            ->authorization($this->memberTokenService->cityPassUserToken())
+            ->items();
 
+        if (!$magento) $magento = [];
+        if (!$cityPass) $cityPass = [];
 
+        $data = array_filter(array_merge($magento, $cityPass));
 
-        }
-
-
+        return ($data) ?: null;
     }
 
     /**
