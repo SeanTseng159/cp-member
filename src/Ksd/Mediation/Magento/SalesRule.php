@@ -11,6 +11,7 @@ namespace Ksd\Mediation\Magento;
 
 use Ksd\Mediation\Result\SalesRule\CouponResult;
 use Ksd\Mediation\Result\SalesRule\SalesRuleResult;
+use GuzzleHttp\Exception\ClientException;
 
 class SalesRule extends Client
 {
@@ -86,11 +87,17 @@ class SalesRule extends Client
      */
     public function addCoupon($code)
     {
-        $url = sprintf('V1/carts/mine/coupons/%s', $code);
-        $response = $this->request('PUT', $url);
-        $result = $response->getBody();
 
-        return $result == 'true';
+        $result = false;
+        try {
+            $url = sprintf('V1/carts/mine/coupons/%s', $code);
+            $response = $this->request('PUT', $url);
+            $result = $response->getBody();
+        }catch (ClientException $e){
+
+        }
+
+        return $result == 'true' ? true : $result;
     }
 
     /**
@@ -99,9 +106,14 @@ class SalesRule extends Client
      */
     public function deleteCoupon()
     {
-        $url = 'V1/carts/mine/coupons';
-        $response = $this->request('DELETE', $url);
-        $result = $response->getBody();
-        return $result === 'true';
+        $result = false;
+        try {
+            $url = 'V1/carts/mine/coupons';
+            $response = $this->request('DELETE', $url);
+            $result = $response->getBody();
+        }catch (ClientException $e){
+
+        }
+        return $result == 'true' ? true : $result;
     }
 }

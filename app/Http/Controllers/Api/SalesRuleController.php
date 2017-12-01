@@ -27,7 +27,7 @@ class SalesRuleController extends RestLaravelController
         $parameters = new CouponParameter();
         $parameters->laravelRequest($request);
         $salesRule = $this->service->addCoupon($parameters);
-        return $this->success($salesRule);
+        return ($salesRule) ? $this->success() : $this->failure('E0002', '新增失敗');
     }
 
     /**
@@ -39,7 +39,7 @@ class SalesRuleController extends RestLaravelController
     {
         $parameters = new CouponParameter();
         $parameters->laravelRequest($request);
-        $this->service->deleteCoupon($parameters);
-        return $this->success();
+        $salesRule = $this->service->deleteCoupon($parameters);
+        return ($salesRule) ? $this->success() : $this->failure('E0004', '刪除失敗');
     }
 }
