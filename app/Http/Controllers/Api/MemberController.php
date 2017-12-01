@@ -323,9 +323,6 @@ class MemberController extends RestLaravelController
     {
         $email = $request->input('email');
 
-        Log::debug('=== sendForgetPassword ===');
-        Log::debug(print_r($email, true));
-
         $result = $this->memberService->sendForgetPassword($email);
 
         return ($result) ? $this->success() : $this->failure('E0061', '會員不存在');
