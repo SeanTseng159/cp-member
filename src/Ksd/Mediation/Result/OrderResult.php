@@ -176,7 +176,8 @@ class OrderResult
             foreach ($this->arrayDefault($result, 'items', []) as $item) {
                 $row = [];
                 $row['source'] = ProjectConfig::CITY_PASS;
-                $row['no'] = $this->arrayDefault($item, 'itemId');
+                $row['itemId'] = $this->arrayDefault($item, 'itemId');
+                $row['no'] = $this->arrayDefault($item, 'no');
                 $row['name'] = $this->arrayDefault($item, 'name');
                 $row['spec'] = $this->arrayDefault($item, 'spec');
                 $row['quantity'] = $this->arrayDefault($item, 'quantity');
