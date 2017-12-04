@@ -58,7 +58,7 @@ class CheckoutController extends RestLaravelController
         $parameters->laravelRequest($request);
         $result = $this->service->confirm($parameters);
         // 清空購物車快取
-        $this->cartService->cleanCache();
+        if ($result) $this->cartService->cleanCache();
         return $this->success($result);
     }
 
