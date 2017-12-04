@@ -49,6 +49,7 @@ class Checkout extends Client
         //$result = json_decode($response->getBody(), true);
 
         Log::debug('===結帳===');
+        Log::debug(print_r($this->putParameters($parameters)->getParameters(), true));
         Log::debug(print_r($output, true));
 
         //return ($result['statusCode'] === 201) ? $result['data'] : false;
