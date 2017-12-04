@@ -58,8 +58,10 @@ class CheckoutController extends RestLaravelController
         $parameters->laravelRequest($request);
         $result = $this->service->confirm($parameters);
         // 清空購物車快取
-        $this->cartService->cleanCache();
-        return $this->success($result);
+        if($result) {
+            $this->cartService->cleanCache();
+        }
+        return ($result)?$this->success() : $this->failure('E9001', '結帳(取單號)失敗');;
     }
 
     /**
