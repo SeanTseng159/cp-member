@@ -119,6 +119,11 @@ class BaseClient
         return $this;
     }
 
+    protected function getParameters()
+    {
+        return $this->replaceNullToEmptyString($this->parameters);
+    }
+
     /**
      * 建置傳送設定
      * @return array

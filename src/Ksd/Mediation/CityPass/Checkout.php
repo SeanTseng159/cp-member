@@ -37,13 +37,23 @@ class Checkout extends Client
      */
     public function confirm($parameters)
     {
-        $response = $this->putParameters($parameters)->request('POST', 'checkout/confirm');
-        $result = json_decode($response->getBody(), true);
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, 'http://139.162.122.115/backend-citypass/api/checkout/confirm');
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $this->headers);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($this->putParameters($parameters)->getParameters()));
+        $output = curl_exec($ch);
+        curl_close($ch);
+
+        //$response = $this->putParameters($parameters)->request('POST', 'checkout/confirm');
+        //$result = json_decode($response->getBody(), true);
 
         Log::debug('===結帳===');
-        Log::debug(print_r(json_decode($response->getBody(), true), true));
+        Log::debug(print_r($this->putParameters($parameters)->getParameters(), true));
+        Log::debug(print_r($output, true));
 
-        return ($result['statusCode'] === 201) ? $result['data'] : false;
+        //return ($result['statusCode'] === 201) ? $result['data'] : false;
+        return false;
     }
 
     /**
