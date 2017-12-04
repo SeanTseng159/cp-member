@@ -150,7 +150,8 @@ class CheckoutController extends RestLaravelController
 
             $url .= ($result) ? '&result=true&msg=success' : '&result=false&msg=' . $requestData['ErrorMessage'];
 
-            return header('Location:' . $url);
+            echo '<script>location.href="' . $url . '";</script>';
+            return;
         }
         else {
             $s = ($source === 'ct_pass') ? 'c' : 'm';
