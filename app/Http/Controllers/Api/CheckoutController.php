@@ -149,13 +149,15 @@ class CheckoutController extends RestLaravelController
             $url = 'app://order?id=' . $orderNo . '&source=' . $source;
 
             $url .= ($result) ? '&result=true&msg=success' : '&result=false&msg=' . $requestData['ErrorMessage'];
+
+            return header('Location:' . $url);
         }
         else {
             $s = ($source === 'ct_pass') ? 'c' : 'm';
             $url .= '/checkout/complete/' . $s . '/' . $orderNo;
-        }
 
-        return redirect($url);
+            return redirect($url);
+        }
     }
 
 
