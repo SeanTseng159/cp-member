@@ -245,7 +245,7 @@ class OrderRepository extends BaseRepository
                 $pay = new PayReceive();
                 $pay->fill($data)->save();
 
-                $this->magento->userAuthorization($this->memberTokenService->magentoUserToken())->writeoff($parameters);
+                $this->magento->userAuthorization($this->memberTokenService->magentoUserToken())->writeoff($parameters->ordernumber);
 
 
             }

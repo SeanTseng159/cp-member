@@ -38,7 +38,7 @@ class Order extends Client
         } catch (ClientException $e) {
             // TODO:抓不到MAGENTO API訂單資料
         }
-
+dd();
         $data = [];
         if (!empty($result['items'])){
             foreach ($result['items'] as $item) {
@@ -287,23 +287,23 @@ class Order extends Client
 
     /**
      * 虛擬 ATM繳款紀錄回傳
-     * @param $parameters
+     * @param $orderId
      * @return bool
      */
-    public function writeoff($parameters)
+    public function writeoff($orderId)
     {
-        $orderId = $parameters->ordernumber;
+
         $parameter = [
             'entity' => [
                 'entity_id'=> $orderId,
-                'status'=> 'processing'
+                'status'=> 'holded'
             ]
         ];
         $this->putParameters($parameter);
         $response = $this->request('PUT', 'V1/orders/create');
-        $body = $response->getBody();
+        $result = json_decode($response->getBody(), true);
 
-        return true;
+        return ($result['result'] === 'processing') ? true : false;
     }
 
     /**
@@ -322,9 +322,10 @@ class Order extends Client
         ];
         $this->putParameters($parameter);
         $response = $this->request('PUT', 'V1/orders/create');
-        $body = $response->getBody();
+        $result = json_decode($response->getBody(), true);
 
-        return true;
+        return ($result['result'] === 'processing') ? true : false;
+
     }
 
 

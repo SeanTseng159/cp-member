@@ -90,8 +90,8 @@ class OrderController extends RestLaravelController
     {
         $parameters = new UpdateParameter();
         $parameters->laravelRequest($request);
-        $this->orderService->update($parameters);
-        return $this->success();
+        $result = $this->orderService->update($parameters);
+        return ($result) ? $this->success() : $this->failure('E0003', '更新失敗');
     }
 
 }
