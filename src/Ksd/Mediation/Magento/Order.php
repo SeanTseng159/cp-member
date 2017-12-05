@@ -38,7 +38,7 @@ class Order extends Client
         } catch (ClientException $e) {
             // TODO:抓不到MAGENTO API訂單資料
         }
-dd();
+
         $data = [];
         if (!empty($result['items'])){
             foreach ($result['items'] as $item) {
