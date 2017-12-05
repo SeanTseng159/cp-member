@@ -252,7 +252,7 @@ class OrderResult
      */
     public function getStatus($source, $key)
     {
-        if ($source . equalTo('magento')) {
+        if ($source ==='magento') {
             switch ($key) {
 
                 case 'pending': # 待付款
@@ -271,7 +271,7 @@ class OrderResult
                     return "已完成";
                     break;
             }
-        } else {
+        } else if($source ==='ct_pass'){
             switch ($key) {
 
                 case '00': # 待付款
@@ -290,6 +290,9 @@ class OrderResult
                     return "處理中";
                     break;
             }
+        }else{
+                return null;
+
         }
 
     }
