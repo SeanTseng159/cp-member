@@ -33,6 +33,7 @@ class OrderResult
             $this->id = $this->arrayDefault($result, 'entity_id');
             $this->orderNo = $this->arrayDefault($result, 'increment_id');
             $this->orderAmount = $this->arrayDefault($result, 'subtotal') + $this->arrayDefault($result, 'shipping_amount');
+            $this->orderDiscountAmount = $this->arrayDefault($result, 'discount_amount');
             $this->orderStatus = $this->getStatus(ProjectConfig::MAGENTO,$this->arrayDefault($result, 'status'));
             $this->orderStatusCode = $this->getStatusCode($this->arrayDefault($result, 'status'));
             $this->orderDate = date('Y-m-d H:i:s', strtotime('+8 hours', strtotime($this->arrayDefault($result, 'created_at'))));
@@ -165,6 +166,7 @@ class OrderResult
         if (!$isDetail) {
             $this->orderNo = $this->arrayDefault($result, 'orderNo');
             $this->orderAmount = $this->arrayDefault($result, 'orderAmount');
+            $this->orderDiscountAmount = $this->arrayDefault($result, 'orderDiscountAmount');
             $this->orderStatus = $this->getStatus(ProjectConfig::CITY_PASS,$this->arrayDefault($result, 'orderStatus'));
             $this->orderStatusCode = $this->arrayDefault($result, 'orderStatus');
             $this->orderDate = $this->arrayDefault($result, 'orderDate');
