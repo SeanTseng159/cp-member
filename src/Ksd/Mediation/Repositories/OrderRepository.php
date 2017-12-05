@@ -47,7 +47,7 @@ class OrderRepository extends BaseRepository
             $cityPass = $this->cityPass->authorization($this->memberTokenService->cityPassUserToken())->info();
             $data = array_merge($magento, $cityPass);
 
-            return $this->multi_array_sort($data,'orderDate');
+            return ($data) ? $this->multi_array_sort($data, 'orderDate') : null;
 
 /*            return [
                 ProjectConfig::MAGENTO => $magento,
@@ -109,7 +109,7 @@ class OrderRepository extends BaseRepository
             $cityPass = $this->cityPass->authorization($this->memberTokenService->cityPassUserToken())->search($parameters);
             $data = array_merge($magento, $cityPass);
 
-            return $this->multi_array_sort($data,'orderDate');
+            return ($data) ? $this->multi_array_sort($data,'orderDate') : null;
 /*
         return [
             ProjectConfig::MAGENTO => $magento,
