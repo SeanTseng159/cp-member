@@ -10,6 +10,7 @@ namespace Ksd\Mediation\Repositories;
 
 use Ksd\Mediation\CityPass\Layout;
 use Ksd\Mediation\Config\ProjectConfig;
+use Ksd\Mediation\Config\CacheConfig;
 
 class LayoutRepository extends BaseRepository
 {
@@ -33,7 +34,7 @@ class LayoutRepository extends BaseRepository
     public function home()
     {
 
-        return $this->redis->remember($this->genCacheKey(self::HOME_KEY), 3600, function () {
+        return $this->redis->remember($this->genCacheKey(self::HOME_KEY), CacheConfig::LAYOUT_TIME, function () {
             $cityPass = $this->cityPass->home();
             return $cityPass ;
 
@@ -48,7 +49,7 @@ class LayoutRepository extends BaseRepository
     public function ads()
     {
 
-        return $this->redis->remember($this->genCacheKey(self::ADS_KEY), 3600, function () {
+        return $this->redis->remember($this->genCacheKey(self::ADS_KEY), CacheConfig::LAYOUT_TIME, function () {
             $cityPass = $this->cityPass->ads();
             return $cityPass ;
         });
@@ -61,7 +62,7 @@ class LayoutRepository extends BaseRepository
     public function exploration()
     {
 
-        return $this->redis->remember($this->genCacheKey(self::EXPLORATION_KEY), 3600, function () {
+        return $this->redis->remember($this->genCacheKey(self::EXPLORATION_KEY), CacheConfig::LAYOUT_TIME, function () {
             $cityPass = $this->cityPass->exploration();
             return $cityPass ;
         });
@@ -74,7 +75,7 @@ class LayoutRepository extends BaseRepository
     public function customize()
     {
 
-        return $this->redis->remember($this->genCacheKey(self::CUSTOMIZE_KEY), 3600, function () {
+        return $this->redis->remember($this->genCacheKey(self::CUSTOMIZE_KEY), CacheConfig::LAYOUT_TIME, function () {
             $cityPass = $this->cityPass->customize();
             return $cityPass ;
         });
@@ -87,7 +88,7 @@ class LayoutRepository extends BaseRepository
     public function banner()
     {
 
-        return $this->redis->remember($this->genCacheKey(self::BANNER_KEY), 3600, function () {
+        return $this->redis->remember($this->genCacheKey(self::BANNER_KEY), CacheConfig::LAYOUT_TIME, function () {
             $cityPass = $this->cityPass->banner();
             return $cityPass ;
         });
@@ -113,7 +114,7 @@ class LayoutRepository extends BaseRepository
     public function category($parameter)
     {
         $itemId = $parameter->id;
-        return $this->redis->remember("category:id:$itemId", 3600, function () use ($itemId) {
+        return $this->redis->remember("category:id:$itemId", CacheConfig::LAYOUT_TIME, function () use ($itemId) {
             $cityPass = $this->cityPass->category($itemId);
 
             return  $cityPass;
@@ -130,7 +131,7 @@ class LayoutRepository extends BaseRepository
     public function menu()
     {
 
-        return $this->redis->remember($this->genCacheKey(self::MENU_KEY), 3600, function ()  {
+        return $this->redis->remember($this->genCacheKey(self::MENU_KEY), CacheConfig::LAYOUT_TIME, function ()  {
             $cityPass = $this->cityPass->menu();
             return  $cityPass;
 
@@ -145,7 +146,7 @@ class LayoutRepository extends BaseRepository
     public function maincategory($parameter)
     {
         $itemId = $parameter->id;
-        return $this->redis->remember("maincategory:id:$itemId", 3600, function () use ($itemId) {
+        return $this->redis->remember("maincategory:id:$itemId", CacheConfig::LAYOUT_TIME, function () use ($itemId) {
             return $this->cityPass->maincategory($itemId);
         });
     }
@@ -158,7 +159,7 @@ class LayoutRepository extends BaseRepository
         public function subcategory($parameter)
         {
             $itemId = $parameter->id;
-            return $this->redis->remember("category:id:$itemId", 3600, function () use ($itemId) {
+            return $this->redis->remember("category:id:$itemId", CacheConfig::LAYOUT_TIME, function () use ($itemId) {
                 $cityPass = $this->cityPass->subcategory($itemId);
 
                 return  $cityPass;
