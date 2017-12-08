@@ -52,7 +52,7 @@ class CartResult
             $this->useCoupon['method'] = $this->arrayDefault($coupon, 'name');
         }
         $this->discountAmount = $this->arrayDefault($totalResult, 'discount_amount');
-        $this->discountTotal = $this->arrayDefault($totalResult, 'subtotal') - $this->arrayDefault($totalResult, 'discount_amount');
+        $this->discountTotal = $this->arrayDefault($totalResult, 'subtotal') + $this->arrayDefault($totalResult, 'discount_amount');
         $this->payAmount = $this->arrayDefault($totalResult, 'grand_total');
         $this->shipmentAmount = $this->arrayDefault($totalResult, 'shipping_amount');
         $this->shipmentFree = $this->arrayDefault($totalResult, 'shipping_discount_amount');
