@@ -36,7 +36,7 @@ class CartResult
             $row->spec = $this->arrayDefault($item, 'spec');
             $row->qty = $this->arrayDefault($item, 'qty');
             $row->price = $this->arrayDefault($item, 'price');
-            $row->additionals = $this->arrayDefault($item, 'additionals') ==='' ? [] : $this->arrayDefault($item, 'additionals');
+            $row->additionals = $this->arrayDefault($item, 'additionals') ==='' ? new \stdClass() : $this->arrayDefault($item, 'additionals');
             $row->imageUrl = $this->arrayDefault($item, 'extension_attributes', '')['image_url'];
             $row->purchase = $this->arrayDefault($item, ' purchase', '');
             $this->items[] = $row;
@@ -45,7 +45,7 @@ class CartResult
         $this->itemTotal = $this->arrayDefault($result, 'items_count');
         $this->totalAmount = $this->arrayDefault($totalResult, 'subtotal');
         if(is_null($coupon)){
-            $this->useCoupon=[];
+            $this->useCoupon=null;
         }else {
             $this->useCoupon['id'] = $this->arrayDefault($coupon, 'rule_id');
             $this->useCoupon['name'] = $this->arrayDefault($coupon, 'name');
