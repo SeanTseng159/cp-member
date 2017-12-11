@@ -257,14 +257,14 @@ class OrderRepository extends BaseRepository
      * @param $parameters
      * @return  bool
      */
-    public function update($parameters)
+    public function update($token, $parameters)
     {
-        $id = $parameters->id;
-            if ($parameters->source === ProjectConfig::MAGENTO) {
-                return $this->magento->update($parameters);
-            } else if ($parameters->source === ProjectConfig::CITY_PASS) {
-                return $this->cityPass->authorization($this->memberTokenService->cityPassUserToken())->update($parameters->id);
-            }
+        if ($parameters->source === ProjectConfig::MAGENTO) {
+            return $this->magento->update($parameters);
+        } else if ($parameters->source === ProjectConfig::CITY_PASS) {
+            $order_id = $parameters->order_id;
+            return $this->cityPass->authorization($this->memberTokenService->cityPassUserTokenForIpasspay($token, $order_id))->update($parameters);
+        }
 
     }
 
