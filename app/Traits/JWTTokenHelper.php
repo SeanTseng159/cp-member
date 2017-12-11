@@ -21,6 +21,8 @@ trait JWTTokenHelper
     {
         if (!$token) $token = Request::bearerToken();
 
+        if (!$token) return null;
+
         try {
             return JWT::decode($token, env('JWT_KEY', '53890045'), ['HS256']);
         } catch (\Firebase\JWT\ExpiredException $exception) {

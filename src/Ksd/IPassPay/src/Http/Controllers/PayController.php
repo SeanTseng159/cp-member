@@ -51,7 +51,7 @@ class PayController extends RestLaravelController
       // EC平台請求支付Token (步驟一)
       try {
         $order = $this->orderService->findOneByIpassPay($parameter);
-        if (!$order) return $this->failure('E0101', '訂單不存在');
+        // if (!$order) return $this->failure('E0101', '訂單不存在');
         $bindPayParameter = $parameter->bindPayReq($order);
         $result = $this->service->bindPayReq($bindPayParameter);
 
@@ -89,7 +89,7 @@ class PayController extends RestLaravelController
       Log::debug(print_r($payStatusResult, true));
 
       // 失敗導回前端
-      if (!$result['status']) return $this->failureRedirect($callbackParameter);
+      if (!$payStatusResult['status']) return $this->failureRedirect($callbackParameter);
 
       // 送後端訂單更新
       $orderParameter = new OrderParameter;
@@ -99,6 +99,7 @@ class PayController extends RestLaravelController
       Log::debug('=== update order ===');
       Log::debug(print_r($updateResult, true));
 
+      $result = false;
       if ($callbackParameter->source === SELF::MAGENTO) {
 
       }
