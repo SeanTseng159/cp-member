@@ -15,12 +15,14 @@ class PayParameter
     public $token;
     public $platform;
     public $source;
+    public $orderNo;
     public $orderId;
     public $id;
     public $itemId = '';
 
     private $bindPayReySignatureOptions = ['client_id', 'respond_type', 'version', 'lang_type', 'order_id', 'order_name', 'amount', 'success_url', 'failure_url', 'timestamp', 'client_pw'];
     private $bindPayTokenSignatureOptions = ['client_id', 'order_id', 'token', 'timestamp', 'client_pw'];
+    private $bindPayStatusSignatureOptions = ['client_id', 'respond_type', 'version', 'order_id', 'token', 'timestamp', 'client_pw'];
 
     /**
      * laravel request 參數處理
@@ -31,11 +33,14 @@ class PayParameter
         $this->token = $request->input('_token');
         $this->platform = $request->input('_platform');
         $this->source = $request->input('source');
+        $this->orderNo = $this->id = $request->input('orderNo');
         $this->orderId = $this->id = $request->input('orderId');
 
         $request->session()->put('ipassPay', [
+                'token' => $this->token,
                 'platform' => $this->platform,
                 'source' => $this->source,
+                'orderNo' => $this->orderNo,
                 'orderId' => $this->orderId
             ]);
     }
@@ -50,12 +55,14 @@ class PayParameter
         $parameter->client_id = env('IPASS_PAY_CLIENT_ID');
         $parameter->client_pw = env('IPASS_PAY_CLIENT_PW');
         $parameter->respond_type = env('IPASS_PAY_RESPOND_TYPE', 'json');
-        $parameter->version = env('IPASS_PAY_VERSION', '1.0');;
+        $parameter->version = env('IPASS_PAY_VERSION', '1.0');
         $parameter->lang_type = 'zh-tw';
         $parameter->order_id = $this->orderId;
         $parameter->order_name = $this->orderId;
-        $parameter->amount = $order[0]->orderAmount;
-        $parameter->item_name = $this->itemsToItemString($order[0]->items);
+        // $parameter->amount = $order[0]->orderAmount;
+        $parameter->amount = 10;
+        // $parameter->item_name = $this->itemsToItemString($order[0]->items);
+        $parameter->item_name = '';
         $parameter->success_url = url('ipass/successCallback');
         $parameter->failure_url = url('ipass/failureCallback');
         $parameter->timestamp = Carbon\Carbon::now()->timestamp;
@@ -93,6 +100,31 @@ class PayParameter
         $parameter->signature = hash('sha256', $parameter->signature);
 
         return $parameter;
+    }
+
+    /**
+     * 支付確認 (最後步驟)
+     * @param $data
+     */
+    public function bindPayStatus($callback)
+    {
+        if ($callback) {
+            $parameter = $callback;
+            $parameter->client_pw = env('IPASS_PAY_CLIENT_PW');
+            $parameter->respond_type = env('IPASS_PAY_RESPOND_TYPE', 'json');
+            $parameter->version = env('IPASS_PAY_VERSION', '1.0');
+            $parameter->signature = '';
+
+            foreach ($this->bindPayStatusSignatureOptions as $key) {
+                $parameter->signature .= $parameter->{$key};
+            }
+
+            $parameter->signature = hash('sha256', $parameter->signature);
+
+            return $parameter;
+        }
+
+        return null;
     }
 
     private function itemsToItemString($items)

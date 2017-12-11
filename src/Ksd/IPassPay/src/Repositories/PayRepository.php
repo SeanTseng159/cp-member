@@ -26,4 +26,17 @@ class PayRepository extends BaseClient
         $responseQueryString = urldecode($response->getBody()->getContents());
         return $this->parseQueryString($responseQueryString);
     }
+
+    /**
+     * 支付確認 (最後步驟)
+     * @param $parameters
+     * @return mixed
+     */
+    public function bindPayStatus($parameters)
+    {
+        $response = $this->putParameters($parameters)
+            ->request('POST', 'api/bindPayStatus');
+        $responseQueryString = urldecode($response->getBody()->getContents());
+        return $this->parseQueryString($responseQueryString);
+    }
 }

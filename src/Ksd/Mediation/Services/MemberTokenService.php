@@ -50,4 +50,28 @@ class MemberTokenService
     {
         return Request::bearerToken();
     }
+
+    /**
+     * city pass 直接轉拋 token
+     * @return mixed
+     */
+    public function cityPassUserTokenForIpasspay($token, $order_id)
+    {
+        if (!$token) return '';
+
+        $tokenData = $this->JWTdecode($token);
+
+        $exp = time() + 600;
+        $signature = $order_id . '_' . $exp;
+
+        $data = [
+            'iss' => $tokenData->iss,
+            'iat' => $tokenData->iat,
+            'exp' => $tokenData->exp,
+            'id' => $tokenData->id,
+            'signature' => $signature
+        ];
+
+        return $this->JWTencode($data);
+    }
 }
