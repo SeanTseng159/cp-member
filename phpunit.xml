@@ -32,6 +32,10 @@
         <env name="SESSION_DRIVER" value="array"/>
         <env name="QUEUE_DRIVER" value="sync"/>
 
+        <env name="REDIS_SCHEME" value="tcp"/>
+        <env name="REDIS_HOST" value="127.0.0.1"/>
+        <env name="REDIS_PORT" value="6379"/>
+
         <env name="MEMBER_TOKEN" value="eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJDaXR5UGFzcyIsImlhdCI6MTUxMzA2Mjg1MCwiZXhwIjoxNTEzMDk5NDUwLCJpZCI6MX0.nH6CHVZuWyXr5TonahjsUHmXqYpayjnvpl-r3PIQ5GQ"/>
 
         <env name="CITY_PASS_API_PATH" value="http://139.162.122.115/backend-citypass/api/"/>
