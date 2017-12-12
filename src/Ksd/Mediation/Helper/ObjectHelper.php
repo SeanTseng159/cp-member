@@ -92,6 +92,8 @@ trait ObjectHelper
                 return $val;
                 break;
             case 'array':
+                return $val;
+                break;
             default:
                 return null;
                 break;
