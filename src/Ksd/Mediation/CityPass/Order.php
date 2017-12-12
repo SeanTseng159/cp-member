@@ -10,6 +10,7 @@ namespace Ksd\Mediation\CityPass;
 
 use Ksd\Mediation\Helper\EnvHelper;
 use Ksd\Mediation\Result\OrderResult;
+use Log;
 
 class Order extends Client
 {
@@ -176,19 +177,13 @@ class Order extends Client
      */
     public function update($parameters)
     {
-        $id = $parameters->id;
-        $parameter = [
-            'entity' => [
-                'entity_id'=> $id,
-                'status'=> 'holded'
-            ]
-        ];
-        $this->putParameters($parameter);
-        $response = $this->request('PUT', 'V1/orders/create');
-        $body = $response->getBody();
+        $response = $this->putParameters($parameters)->request('POST', 'payment/feedbackipasspay');
+        $result = json_decode($response->getBody(), true);
 
-        return true;
+        Log::debug('=== ctpass update order ===');
+        Log::debug(print_r($result, true));
+
+        return ($result['statusCode'] === 201) ? true : false;
     }
-
 
 }

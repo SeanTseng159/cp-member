@@ -35,7 +35,7 @@ class Wishlist extends Client
             $wish->magento($item);
             $data[] = $wish;
         }
-
+//        dd($data);
         return $data;
     }
 
@@ -46,14 +46,17 @@ class Wishlist extends Client
      */
     public function add($sku)
     {
-
         $product = new Product();
         $productId = $product->find($sku)->productId;
-        $url = sprintf('V1/ipwishlist/add/%s', $productId);
-        $response = $this->request('POST', $url);
-        $body = $response->getBody();
-        $result = json_decode($body, true);
-        return true;
+        $result = [];
+        try {
+            $url = sprintf('V1/ipwishlist/add/%s', $productId);
+            $response = $this->request('POST', $url);
+            $result = json_decode($response->getBody(), true);
+        }catch (ClientException $e) {
+
+        }
+        return $result == 'true' ? true : false ;
     }
 
     /**
@@ -63,12 +66,15 @@ class Wishlist extends Client
      */
     public function delete($wishlistItemId)
     {
+        $result = [];
+        try {
+            $url = sprintf('V1/ipwishlist/delete/%s', $wishlistItemId);
+            $response = $this->request('DELETE', $url);
+            $result = json_decode($response->getBody(), true);
+        }catch (ClientException $e) {
 
-        $url = sprintf('V1/ipwishlist/delete/%s', $wishlistItemId);
-        $response = $this->request('DELETE', $url);
-        $body = $response->getBody();
-        $result = json_decode($body, true);
-        return true;
+        }
+        return $result == 'true' ? true : false ;
     }
 
 
