@@ -21,16 +21,21 @@ class Wishlist extends Client
      */
     public function items()
     {
+
         $path = 'wishlist/items';
 
         $response = $this->request('GET', $path);
         $result = json_decode($response->getBody(), true);
         $data = $result['data'];
 
-        if(is_null($data[0])){
+        if($result['statusCode'] === 200) {
+            if (is_null($data[0])) {
+                return [];
+            } else {
+                return $data;
+            }
+        }else{
             return [];
-        }else {
-            return $data;
         }
     }
 
