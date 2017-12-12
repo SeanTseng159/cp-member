@@ -20,13 +20,13 @@ trait ObjectHelper
      */
     public function arrayDefault($result, $key , $default = null)
     {
-        if (!$result) {
-            return $default;
-        }
+        if (!$result) return $default;
 
         if (array_key_exists($key, $result)) {
             if ($result[$key]) return $result[$key];
-            else return $this->changeNullType($result[$key]);
+            else {
+                return (!is_null($default)) ? $default : $this->changeNullType($result[$key]);
+            }
         }
 
         return $default;
