@@ -32,6 +32,7 @@ class WishlistService
     /**
      * 根據商品id 增加商品至收藏清單
      * @param $parameter
+     * @return bool
      */
     public function add($parameter)
     {
@@ -41,6 +42,7 @@ class WishlistService
     /**
      * 根據商品id 刪除收藏清單商品
      * @param $parameter
+     * @return bool
      */
     public function delete($parameter)
     {

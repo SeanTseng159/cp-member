@@ -36,8 +36,8 @@ class WishlistController extends RestLaravelController
     {
         $parameter = new WishlistParameter();
         $parameter->laravelRequest($id, $request);
-        $this->wishlistService->add($parameter);
-        return $this->success();
+        $result = $this->wishlistService->add($parameter);
+        return ($result) ? $this->success() : $this->failure('E0002', '新增失敗');
     }
 
 
@@ -51,8 +51,8 @@ class WishlistController extends RestLaravelController
     {
         $parameter = new WishlistParameter();
         $parameter->laravelRequest($id, $request);
-        $this->wishlistService->delete($parameter);
-        return $this->success();
+        $result = $this->wishlistService->delete($parameter);
+        return ($result) ? $this->success() : $this->failure('E0004', '刪除失敗');
     }
 
 

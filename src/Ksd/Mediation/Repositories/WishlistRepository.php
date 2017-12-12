@@ -16,8 +16,6 @@ use Ksd\Mediation\Services\MemberTokenService;
 
 class WishlistRepository extends BaseRepository
 {
-    const INFO_KEY = 'wish:user:info:%s:%s';
-    const DETAIL_KEY = 'wish:user:detail:%s:%s';
 
     private $memberTokenService;
 
@@ -52,15 +50,16 @@ class WishlistRepository extends BaseRepository
     /**
      * 根據商品id 增加商品至收藏清單
      * @param $parameter
+     * @return bool
      */
     public function add($parameter)
     {
         $source = $parameter->source;
         $id = $parameter->no;
         if($source == ProjectConfig::MAGENTO) {
-            $this->magento->userAuthorization($this->memberTokenService->magentoUserToken())->add($id);
+            return $this->magento->userAuthorization($this->memberTokenService->magentoUserToken())->add($id);
         } else {
-            $this->cityPass->authorization($this->memberTokenService->cityPassUserToken())->add($id);
+            return $this->cityPass->authorization($this->memberTokenService->cityPassUserToken())->add($id);
         }
 
     }
@@ -68,35 +67,21 @@ class WishlistRepository extends BaseRepository
     /**
      * 根據商品id 刪除收藏清單商品
      * @param $parameter
+     * @return bool
      */
     public function delete($parameter)
     {
         $source = $parameter->source;
         $id = $parameter->no;
         if($source == ProjectConfig::MAGENTO) {
-            $this->magento->userAuthorization($this->memberTokenService->magentoUserToken())->delete($id);
+            return $this->magento->userAuthorization($this->memberTokenService->magentoUserToken())->delete($id);
         } else {
-            $this->cityPass->authorization($this->memberTokenService->cityPassUserToken())->delete($id);
+            return $this->cityPass->authorization($this->memberTokenService->cityPassUserToken())->delete($id);
         }
 
     }
 
 
-    public function cleanCache()
-    {
-        $this->cacheKey(self::INFO_KEY);
-        $this->cacheKey(self::DETAIL_KEY);
-    }
 
-    private function cacheKey($key)
-    {
-        $this->redis->delete($this->genCacheKey($key));
-    }
-
-    private function genCacheKey($key)
-    {
-        $date = new \DateTime();
-        return sprintf($key, $this->token,$date->format('Ymd'));
-    }
 
 }

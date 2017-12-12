@@ -21,16 +21,21 @@ class Wishlist extends Client
      */
     public function items()
     {
+
         $path = 'wishlist/items';
 
         $response = $this->request('GET', $path);
         $result = json_decode($response->getBody(), true);
+        $data = $result['data'];
 
-        $data[] = $result['data'];
-        if(is_null($data[0])){
+        if($result['statusCode'] === 200) {
+            if (is_null($data[0])) {
+                return [];
+            } else {
+                return $data;
+            }
+        }else{
             return [];
-        }else {
-            return $data;
         }
     }
 
@@ -41,12 +46,10 @@ class Wishlist extends Client
      */
     public function add($sku)
     {
-
         $url = sprintf('wishlist/add/%s', $sku);
         $response = $this->request('POST', $url);
-        $body = $response->getBody();
-        $result = json_decode($body, true);
-        return true;
+        $result = json_decode($response->getBody(), true);
+        return $result['statusCode'] === 201 ? true : false;
     }
 
     /**
@@ -61,6 +64,6 @@ class Wishlist extends Client
         $response = $this->request('POST', $url);
         $body = $response->getBody();
         $result = json_decode($body, true);
-        return true;
+        return $result['statusCode'] === 203 ? true : false;
     }
 }
