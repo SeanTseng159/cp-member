@@ -31,5 +31,14 @@
         <env name="CACHE_DRIVER" value="array"/>
         <env name="SESSION_DRIVER" value="array"/>
         <env name="QUEUE_DRIVER" value="sync"/>
+
+        <env name="MEMBER_TOKEN" value="eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJDaXR5UGFzcyIsImlhdCI6MTUxMzA2Mjg1MCwiZXhwIjoxNTEzMDk5NDUwLCJpZCI6MX0.nH6CHVZuWyXr5TonahjsUHmXqYpayjnvpl-r3PIQ5GQ"/>
+
+        <env name="CITY_PASS_API_PATH" value="http://139.162.122.115/backend-citypass/api/"/>
+
+        <env name="MAGENTO_ADMIN_TOKEN" value="epw1dbasqn5l51flkwet6t2d16flt3sr"/>
+        <env name="MAGENTO_API_PATH" value="http://139.162.63.235/index.php/zh_hant_tw/rest/default"/>
+        <env name="MAGENTO_PRODUCT_PATH" value="http://139.162.63.235/pub/media/catalog/product/"/>
+        <env name="MAGENTO_CUSTOMER_TOKEN" value="i3f0ar9h1pef2esjobrr3wmyxgtel6m4"/>
     </php>
 </phpunit>

@@ -58,11 +58,14 @@ class Product extends Client
         $body = $response->getBody();
         $data = [];
         $result = json_decode($body, true);
-        foreach ($result['data']['result'] as $item) {
-            $product = new ProductResult();
-            $product->cityPass($item);
-            $data[] = $product;
+        if ($result['status']) {
+            foreach ($result['data']['result'] as $item) {
+                $product = new ProductResult();
+                $product->cityPass($item);
+                $data[] = $product;
+            }
         }
+
         return $data;
 
 
@@ -80,8 +83,12 @@ class Product extends Client
         $response = $this->request('GET', $path);
         $body = $response->getBody();
         $result = json_decode($body, true);
-        $product = new ProductResult();
-        $product->cityPass($result['data'], true);
+        $this->logger->info($body);
+        $product = null;
+        if ($result['status']) {
+            $product = new ProductResult();
+            $product->cityPass($result['data'], true);
+        }
         return $product;
     }
 
