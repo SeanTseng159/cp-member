@@ -20,7 +20,7 @@ trait ObjectHelper
      */
     public function arrayDefault($result, $key , $default = null)
     {
-        if (empty($result)) {
+        if (!$result) {
             return $default;
         }
 
@@ -56,8 +56,6 @@ trait ObjectHelper
      */
     public function replaceNullToEmptyString($array = [])
     {
-        if (!$array) return [];
-
         foreach ($array as $key => $value) {
             if (is_array($value) || is_object($value)) {
                 $array[$key] = $this->replaceNullToEmptyString($value);
