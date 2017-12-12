@@ -18,12 +18,17 @@ trait ObjectHelper
      * @param string $default
      * @return string
      */
-    public function arrayDefault($result, $key , $default = '')
+    public function arrayDefault($result, $key , $default = null)
     {
         if (empty($result)) {
             return $default;
         }
-        return array_key_exists($key, $result) ? $result[$key] : $default;
+
+        if (array_key_exists($key, $result) && $result[$key]) {
+            return $result[$key];
+        }
+
+        return $default;
     }
 
     /**
@@ -33,7 +38,7 @@ trait ObjectHelper
      * @param $default
      * @return string
      */
-    public function customAttributes($attributes, $key, $default = '')
+    public function customAttributes($attributes, $key, $default = null)
     {
         foreach ($attributes as $attribute) {
             if($attribute['attribute_code'] === $key) {
