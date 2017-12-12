@@ -28,9 +28,9 @@ class MailService
 
         $lang = 'zh_TW';
 
-        $data['link'] = 'http://172.104.83.229/' . $lang . '/validateEmail/' . $member->validEmailCode;
+        $data['link'] = env('CITY_PASS_WEB') . $lang . '/validateEmail/' . $member->validEmailCode;
 
-        return $this->send('歡迎使用 CityPass 城市通 - 註冊成功認證', $recipient, 'emails/register', $data);
+        return $this->send('歡迎使用 CityPass 都會通 - 註冊成功認證', $recipient, 'emails/register', $data);
     }
 
     /**
@@ -47,9 +47,9 @@ class MailService
 
         $lang = 'zh_TW';
 
-        $data['link'] = 'http://172.104.83.229/' . $lang . '/validateEmail/' . $member->validEmailCode;
+        $data['link'] = env('CITY_PASS_WEB') . $lang . '/validateEmail/' . $member->validEmailCode;
 
-        return $this->send('CityPass 城市通 - Email認證信', $recipient, 'emails/validateEmail', $data);
+        return $this->send('CityPass 都會通 - Email認證信', $recipient, 'emails/validateEmail', $data);
     }
 
     /**
@@ -68,11 +68,11 @@ class MailService
 
         $expires = Carbon\Carbon::now()->timestamp + 1800;
         $key = Crypt::encrypt($member->email . '_' . $expires);
-        $data['link'] = 'http://172.104.83.229/' . $lang . '/changePassword/' . $key;
+        $data['link'] = env('CITY_PASS_WEB') . $lang . '/changePassword/' . $key;
 
         $data['name'] = $member->name;
 
-        return $this->send('CityPass 城市通 - 密碼重設連結', $recipient, 'emails/forgetPassword', $data);
+        return $this->send('CityPass 都會通 - 密碼重設連結', $recipient, 'emails/forgetPassword', $data);
     }
 
     /**
@@ -87,8 +87,8 @@ class MailService
     {
         $from = [
             'email' => env('MAIL_USERNAME', 'ksd0045ksd@gmail.com'),
-            'name' => 'CityPass 城市通',
-            'subject' => ($subject) ?: 'CityPass 城市通通知信'
+            'name' => 'CityPass 都會通',
+            'subject' => ($subject) ?: 'CityPass 都會通 - 通知信'
         ];
 
         $to = [
