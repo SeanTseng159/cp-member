@@ -18,12 +18,18 @@ trait ObjectHelper
      * @param string $default
      * @return string
      */
-    public function arrayDefault($result, $key , $default = '')
+    public function arrayDefault($result, $key , $default = null)
     {
         if (empty($result)) {
             return $default;
         }
-        return array_key_exists($key, $result) ? $result[$key] : $default;
+
+        if (array_key_exists($key, $result)) {
+            if ($result[$key]) return $result[$key];
+            else return $this->changeNullType($result[$key]);
+        }
+
+        return $default;
     }
 
     /**
@@ -33,7 +39,7 @@ trait ObjectHelper
      * @param $default
      * @return string
      */
-    public function customAttributes($attributes, $key, $default = '')
+    public function customAttributes($attributes, $key, $default = null)
     {
         foreach ($attributes as $attribute) {
             if($attribute['attribute_code'] === $key) {
@@ -62,5 +68,35 @@ trait ObjectHelper
         }
 
         return $array;
+    }
+
+    /**
+     * 將空值轉換成對應型別空值
+     * @param array $parameters
+     * @return $this
+     */
+    public function changeNullType($val = null)
+    {
+        switch (gettype($val)) {
+            case 'boolean':
+                return false;
+                break;
+            case 'integer':
+            case 'double':
+                return 0;
+                break;
+            case 'string':
+                return '';
+                break;
+            case 'object':
+                return {};
+                break;
+            case 'array':
+            default:
+                return null;
+                break;
+        }
+
+        return null;
     }
 }
