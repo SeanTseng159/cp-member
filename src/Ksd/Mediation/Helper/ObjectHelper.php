@@ -56,6 +56,8 @@ trait ObjectHelper
      */
     public function replaceNullToEmptyString($array = [])
     {
+        if (!$array) return [];
+
         foreach ($array as $key => $value) {
             if (is_array($value) || is_object($value)) {
                 $array[$key] = $this->replaceNullToEmptyString($value);
