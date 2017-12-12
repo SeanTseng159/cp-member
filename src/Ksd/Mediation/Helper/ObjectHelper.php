@@ -89,7 +89,7 @@ trait ObjectHelper
                 return '';
                 break;
             case 'object':
-                return {};
+                return $val;
                 break;
             case 'array':
             default:
