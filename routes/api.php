@@ -38,6 +38,47 @@ Route::middleware(['cors', 'auth.jwt'])->namespace('Api')->group(function () {
         //取得所有電子報名單資料
         Route::get('all', 'NewsletterController@all');
     });
+
+
+    Route::prefix('cart')->group(function () {
+        // 購物車簡易資訊
+        Route::get('info', 'CartController@info');
+        // 購物車詳細資訊
+        Route::get('detail', 'CartController@detail');
+        // 增加商品至購物車
+        Route::post('add', 'CartController@add');
+        // 更新購物車內商品
+        Route::post('update', 'CartController@update');
+        // 刪除購物車內商品
+        Route::post('delete', 'CartController@delete');
+    });
+
+    Route::prefix('checkout')->group(function () {
+        // 取得結帳資訊
+        Route::get('info/{source}', 'CheckoutController@info');
+        // 設定物流方式
+        Route::post('shipment', 'CheckoutController@shipment');
+        // 確定結帳 (回傳訂單號，非信用卡)
+        Route::post('confirm', 'CheckoutController@confirm');
+        // 3D驗證
+        Route::post('verify3d', 'CheckoutController@verify3d');
+        // 取得3D驗證回傳資料
+        Route::post('verifyResult', 'CheckoutController@verifyResult');
+        // 信用卡送金流
+        Route::post('creditCard', 'CheckoutController@creditCard');
+    });
+
+    Route::prefix('order')->group(function () {
+        Route::get('info',   'OrderController@info');
+        Route::get('items/{itemId}', 'OrderController@items');
+        Route::get('search', 'OrderController@search');
+        Route::get('detail/{id}', 'OrderController@find');
+        Route::post('writeoff', 'OrderController@writeoff');
+        Route::post('update', 'OrderController@update');
+
+    });
+
+
 });
 
 Route::middleware('cors')->namespace('Api')->group(function () {
@@ -78,47 +119,11 @@ Route::middleware('cors')->namespace('Api')->group(function () {
         Route::get('subcategory/{subcategoryId}', 'LayoutController@subcategory');
     });
 
-    Route::prefix('cart')->group(function () {
-        // 購物車簡易資訊
-        Route::get('info', 'CartController@info');
-        // 購物車詳細資訊
-        Route::get('detail', 'CartController@detail');
-        // 增加商品至購物車
-        Route::post('add', 'CartController@add');
-        // 更新購物車內商品
-        Route::post('update', 'CartController@update');
-        // 刪除購物車內商品
-        Route::post('delete', 'CartController@delete');
-    });
 
-    Route::prefix('checkout')->group(function () {
-        // 取得結帳資訊
-        Route::get('info/{source}', 'CheckoutController@info');
-        // 設定物流方式
-        Route::post('shipment', 'CheckoutController@shipment');
-        // 確定結帳 (回傳訂單號，非信用卡)
-        Route::post('confirm', 'CheckoutController@confirm');
-        // 3D驗證
-        Route::post('verify3d', 'CheckoutController@verify3d');
-        // 取得3D驗證回傳資料
-        Route::post('verifyResult', 'CheckoutController@verifyResult');
-        // 信用卡送金流
-        Route::post('creditCard', 'CheckoutController@creditCard');
-    });
 
     Route::prefix('coupon')->group(function () {
         Route::post('add', 'SalesRuleController@addCoupon');
         Route::post('remove', 'SalesRuleController@deleteCoupon');
-    });
-
-    Route::prefix('order')->group(function () {
-        Route::get('info',   'OrderController@info');
-        Route::get('items/{itemId}', 'OrderController@items');
-        Route::get('search', 'OrderController@search');
-        Route::get('detail/{id}', 'OrderController@find');
-        Route::post('writeoff', 'OrderController@writeoff');
-        Route::post('update', 'OrderController@update');
-
     });
 
     Route::prefix('wishlist')->group(function () {

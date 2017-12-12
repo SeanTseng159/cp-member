@@ -8,12 +8,15 @@
 
 namespace Ksd\Mediation\Core\Client;
 
+use Ksd\Mediation\Core\Logger;
+use Ksd\Mediation\Helper\LoggerHelper;
 use Ksd\Mediation\Helper\ObjectHelper;
 
 class BaseClient
 {
     use ObjectHelper;
 
+    protected $logger;
     protected $token;
     protected $baseUrl;
     protected $client;
@@ -21,6 +24,11 @@ class BaseClient
     protected $query;
     protected $parameters;
     protected $json = true;
+
+    public function __construct()
+    {
+        $this->logger = new Logger();
+    }
 
     /**
      * 設定 Authorization 金鑰
