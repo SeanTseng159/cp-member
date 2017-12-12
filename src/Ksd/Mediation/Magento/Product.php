@@ -9,6 +9,7 @@
 namespace Ksd\Mediation\Magento;
 
 
+use GuzzleHttp\Exception\ClientException;
 use Ksd\Mediation\Helper\EnvHelper;
 use Ksd\Mediation\Helper\ObjectHelper;
 use Ksd\Mediation\Result\ProductCategoryResult;
@@ -96,12 +97,18 @@ class Product extends Client
     {
         $path = "V1/products/$sku";
 
-        $response = $this->request('GET', $path);
-        $body = $response->getBody();
-        $result = json_decode($body, true);
-        $product = new ProductResult();
-        $product->magento($result, true);
-        $product->magentoConfigurableProduct($this->additional($result));
+        $product = null;
+        try {
+            $response = $this->request('GET', $path);
+            $body = $response->getBody();
+            $result = json_decode($body, true);
+            $product = new ProductResult();
+            $product->magento($result, true);
+            $product->magentoConfigurableProduct($this->additional($result));
+        } catch (ClientException $clientException) {
+            $this->logger->error($clientException);
+        }
+
 
         return $product;
     }

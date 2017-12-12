@@ -21,6 +21,7 @@ class Client extends BaseClient
 
     public function __construct($defaultAuthorization = true)
     {
+        parent::__construct();
         $this->token = $this->env('MAGENTO_ADMIN_TOKEN');
         $this->baseUrl = $this->env('MAGENTO_API_PATH');
         $this->client = new GuzzleHttpClient([
