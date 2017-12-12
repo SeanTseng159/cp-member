@@ -24,8 +24,9 @@ trait ObjectHelper
             return $default;
         }
 
-        if (array_key_exists($key, $result) && $result[$key]) {
-            return $result[$key];
+        if (array_key_exists($key, $result)) {
+            if ($result[$key]) return $result[$key];
+            else return $this->changeNullType($result[$key]);
         }
 
         return $default;
@@ -67,5 +68,35 @@ trait ObjectHelper
         }
 
         return $array;
+    }
+
+    /**
+     * 將空值轉換成對應型別空值
+     * @param array $parameters
+     * @return $this
+     */
+    public function changeNullType($val = null)
+    {
+        switch (gettype($val)) {
+            case 'boolean':
+                return false;
+                break;
+            case 'integer':
+            case 'double':
+                return 0;
+                break;
+            case 'string':
+                return '';
+                break;
+            case 'object':
+                return {};
+                break;
+            case 'array':
+            default:
+                return null;
+                break;
+        }
+
+        return null;
     }
 }
