@@ -80,7 +80,11 @@ class CartResult
         }
         $this->itemTotal = $this->arrayDefault($result, 'itemTotal');
         $this->totalAmount = $this->arrayDefault($result, 'totalAmount');
-        $this->useCoupon = $this->arrayDefault($result, 'useCoupon');
+        if(empty($this->arrayDefault($result, 'useCoupon'))){
+            $this->useCoupon = null;
+        }else {
+            $this->useCoupon = $this->arrayDefault($result, 'useCoupon');
+        }
         $this->discountAmount = $this->arrayDefault($result, 'discountAmount');
         $this->discountTotal = $this->arrayDefault($result, 'discountTotal');
         $this->payAmount = $this->arrayDefault($result, 'payAmount');
