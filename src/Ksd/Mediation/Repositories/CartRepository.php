@@ -57,7 +57,7 @@ class CartRepository extends BaseRepository
     public function detail()
     {
 
-        //return $this->redis->remember($this->genCacheKey(self::DETAIL_KEY), CacheConfig::CART_TEST_TIME, function () {
+        return $this->redis->remember($this->genCacheKey(self::DETAIL_KEY), CacheConfig::CART_TEST_TIME, function () {
 //            $this->magento->authorization($this->token);
             $magento = $this->magento->userAuthorization($this->memberTokenService->magentoUserToken())->detail();
             $cityPass = $this->cityPass->authorization($this->memberTokenService->cityPassUserToken())->detail();
@@ -65,7 +65,7 @@ class CartRepository extends BaseRepository
                 ProjectConfig::MAGENTO => $magento,
                 ProjectConfig::CITY_PASS => $cityPass
             ];
-        //});
+        });
     }
 
     /**
