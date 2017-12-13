@@ -77,7 +77,6 @@ class CartTest extends TestCase
 
         $result = $this->cart->update($parameter);
         $this->assertTrue($result);
-        $this->assertTrue($this->checkProduct($parameter));
     }
 
     /**
