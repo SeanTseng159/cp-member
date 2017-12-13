@@ -29,7 +29,7 @@ class Wishlist extends Client
         $data = $result['data'];
 
         if($result['statusCode'] === 200) {
-            if (is_null($data[0])) {
+            if (isset($data[0])) {
                 return [];
             } else {
                 return $data;
