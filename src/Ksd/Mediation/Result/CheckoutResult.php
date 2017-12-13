@@ -30,8 +30,10 @@ class CheckoutResult
      */
     public function cityPass($result)
     {
-        foreach ($result as $key => $value) {
-            $this->$key = $value;
+        if ((is_array($result) || is_object(is_array($result))) && count($result) > 0) {
+            foreach ($result as $key => $value) {
+                $this->$key = $value;
+            }
         }
     }
 }
