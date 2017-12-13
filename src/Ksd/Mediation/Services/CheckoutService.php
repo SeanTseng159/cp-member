@@ -33,10 +33,11 @@ class CheckoutService
     /**
      * 設定物流方式
      * @param $parameters
+     * @return bool
      */
     public function shipment($parameters)
     {
-        $this->repository->shipment($parameters);
+        return $this->repository->shipment($parameters);
     }
 
     /**

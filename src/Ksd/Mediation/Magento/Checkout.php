@@ -98,10 +98,11 @@ class Checkout extends Client
     /**
      * 設定物流方式
      * @param $parameters
+     * @return bool
      */
     public function shipment($parameters)
     {
-        $this->putShipping($parameters->shipment());
+        return $this->putShipping($parameters->shipment());
     }
 
     /**
@@ -140,6 +141,7 @@ class Checkout extends Client
     /**
      * 確認配送方式
      * @param $shipment
+     * @return bool
      */
     public function putShipping($shipment)
     {
@@ -157,7 +159,10 @@ class Checkout extends Client
             'shipping_carrier_code' => $methods[1],
         ]);
 
-        $this->request('POST', 'V1/carts/mine/shipping-information');
+        $response = $this->request('POST', 'V1/carts/mine/shipping-information');
+        $result = json_decode($response->getBody(), true);
+        return isset($result['payment_methods']) ? true : false;
+
     }
 
     /**

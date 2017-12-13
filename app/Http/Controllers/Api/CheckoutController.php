@@ -43,8 +43,8 @@ class CheckoutController extends RestLaravelController
     {
         $parameters = new ShipmentParameter();
         $parameters->laravelRequest($request);
-        $this->service->shipment($parameters);
-        return $this->success();
+        $result = $this->service->shipment($parameters);
+        return ($result) ? $this->success() : $this->failure('E9002', '設定物流失敗');
     }
 
     /**

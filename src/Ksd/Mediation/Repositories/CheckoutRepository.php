@@ -43,13 +43,16 @@ class CheckoutRepository extends BaseRepository
     /**
      * 設定物流方式
      * @param $parameters
+     * @return bool
      */
     public function shipment($parameters)
     {
         if($parameters->checkSource(ProjectConfig::MAGENTO)) {
-            $this->magento->userAuthorization($this->memberTokenService->magentoUserToken())->shipment($parameters);
+            return $this->magento->userAuthorization($this->memberTokenService->magentoUserToken())->shipment($parameters);
         } else if ($parameters->checkSource(ProjectConfig::CITY_PASS)) {
 
+        }else{
+            return false;
         }
     }
 

@@ -30,7 +30,7 @@ class PaymentInfoResult
 
 
     /**
-     * 設定付款方式
+     * 設定付款方式type對應
      * @param $key
      * @return string
      */
@@ -48,14 +48,20 @@ class PaymentInfoResult
                 return 'ipass_pay';
                 break;
             case 'checkmo': # check
+                return 'credit_card';
+                break;
+            case 'tspg_transmit': # check
                 return 'test';
+                break;
+            case 'tspg_atm': # check
+                return 'atm';
                 break;
 
         }
     }
 
     /**
-     * 付款方式名稱轉換
+     * 付款方式name名稱轉換
      * @return string
      */
     public function getPaymentMethod($key)
@@ -65,16 +71,22 @@ class PaymentInfoResult
             case 'Check / Money order':
                 return "測試用";
                 break;
-
             case 'Neweb Api Payment':
-                return "信用卡一次付清";
+                return "(藍新)信用卡一次付清";
                 break;
             case 'Neweb Atm Payment':
-                return "ATM虛擬帳號";
+                return "(藍新)ATM虛擬帳號";
                 break;
             case 'Ipass Pay':
                 return "Ipass Pay";
                 break;
+            case 'Tspg Api Payment':
+                return "(台新)信用卡一次付清";
+                break;
+            case 'Tspg Atm Payment':
+                return "(台新)ATM虛擬帳號";
+                break;
+
         }
 
     }
