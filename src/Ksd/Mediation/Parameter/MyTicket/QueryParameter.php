@@ -9,10 +9,19 @@
 namespace Ksd\Mediation\Parameter\MyTicket;
 
 use Ksd\Mediation\Parameter\BaseParameter;
-
+use App\Services\MemberService;
 
 class QueryParameter extends  BaseParameter
 {
+    private $memberService;
+
+    public function __construct()
+    {
+
+
+    }
+
+
     /**
      * 處理 ci request
      * @param $input
@@ -31,12 +40,14 @@ class QueryParameter extends  BaseParameter
      */
     public function laravelRequest($request)
     {
+
         parent::laravelRequest($request);
         $this->serialNumber= $request->input('serialNumber');
-        $this->toMemberId = $request->input('toMemberId');
+
+        $this->country = $request->input('country');
+        $this->countryCode = $request->input('countryCode');
+        $this->memberPhone = $request->input('toMemberPhone');
+
 
     }
-}
-{
-
 }

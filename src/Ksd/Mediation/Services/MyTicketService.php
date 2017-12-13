@@ -8,6 +8,7 @@
 
 namespace Ksd\Mediation\Services;
 
+use App\Services\MemberService;
 use Ksd\Mediation\Repositories\MyTicketRepository;
 
 class MyTicketService
@@ -15,9 +16,11 @@ class MyTicketService
 
 
     private $repository;
+    private $memberService;
 
-    public function __construct(MemberTokenService $memberTokenService)
+    public function __construct(MemberService $memberService,MemberTokenService $memberTokenService)
     {
+        $this->memberService = $memberService;
         $this->repository = new MyTicketRepository($memberTokenService);
     }
 
@@ -76,7 +79,8 @@ class MyTicketService
      */
     public function gift($parameters)
     {
-        return $this->repository->gift($parameters);
+        $member = $this->memberService->findByCountryPhone($parameters->country,$parameters->countryCode,$parameters->memberPhone);
+        return $this->repository->gift($parameters,$member->id);
     }
 
     /**

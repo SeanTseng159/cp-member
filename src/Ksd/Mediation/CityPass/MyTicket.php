@@ -123,12 +123,17 @@ class MyTicket extends Client
     /**
      * 轉贈票券
      *  @param $parameters
+     * @param $id
      * @return bool
      */
-    public function gift($parameters)
+    public function gift($parameters,$id)
     {
+        $data = [
+                    'serialNumber' => $parameters->serialNumber,
+                    'memberId' => $id
+                ];
 
-        $response = $this->putParameters($parameters)->request('POST', 'ticket/gift');
+        $response = $this->putParameters($data)->request('POST', 'ticket/gift');
         $result = json_decode($response->getBody(), true);
 
         return ($result['statusCode'] === 202) ? true : false;

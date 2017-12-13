@@ -87,13 +87,14 @@ class MyTicketRepository extends BaseRepository
 
     /**
      * 轉贈票券
-     * @param parameters
+     * @param $parameters
+     * @param $id
      * @return  bool
      */
-    public function gift($parameters)
+    public function gift($parameters,$id)
     {
 
-        $this->result = $this->cityPass->authorization($this->memberTokenService->cityPassUserToken())->gift($parameters);
+        $this->result = $this->cityPass->authorization($this->memberTokenService->cityPassUserToken())->gift($parameters,$id);
         return $this->result;
 
     }

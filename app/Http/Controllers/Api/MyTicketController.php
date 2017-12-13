@@ -9,6 +9,7 @@ use Ksd\Mediation\Services\MyTicketService;
 use Ksd\Mediation\Parameter\MyTicket\InfoParameter;
 use Ksd\Mediation\Parameter\MyTicket\QueryParameter;
 use Ksd\Mediation\Parameter\MyTicket\CatalogIconParameter;
+use App\Services\MemberService;
 
 class MyTicketController extends RestLaravelController
 {
