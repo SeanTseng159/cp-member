@@ -152,4 +152,18 @@ class MemberRepository
     {
         return $this->model->where(['countryCode' => $countryCode, 'cellphone' => $cellphone])->first();
     }
+
+    /**
+     * 依據手機,查詢使用者(增加國家代碼)
+     * @param $country
+     * @param $countryCode
+     * @param $cellphone
+     * @return mixed
+     */
+    public function findByCountryPhone($country, $countryCode, $cellphone)
+    {
+        return $this->model->where(['country' => $country, 'countryCode' => $countryCode, 'cellphone' => $cellphone])->first();
+    }
+
+
 }
