@@ -130,7 +130,7 @@ class MyTicket extends Client
     {
         $data = [
                     'serialNumber' => $parameters->serialNumber,
-                    'memberId' => $id
+                    'toMemberId' => $id
                 ];
 
         $response = $this->putParameters($data)->request('POST', 'ticket/gift');
