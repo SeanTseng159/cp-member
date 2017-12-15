@@ -114,9 +114,9 @@ class Checkout extends Client
     {
 
         if($parameters->payment()->type === 'atm'){
-            return $this->putPayment($parameters->payment());
+            return $this->putPayment($parameters);
         }else if($parameters->payment()->type === 'ipass_pay'){
-            return $this->putPayment($parameters->payment());
+            return $this->putPayment($parameters);
         }else if($parameters->payment()->type === 'credit_card'){
             $response = $this->request('post', 'V1/ksd/mine/order');
             return trim($response->getBody(), '"');
@@ -172,15 +172,17 @@ class Checkout extends Client
      */
     public function putPayment($parameters)
     {
-        if($parameters->type==='credit_card') {
-            $parameter = $this->processPayment($parameters->payment(), $parameters->verify3d());
+        if($parameters->payment()->type==='credit_card') {
+//            $parameter = $this->processPayment($parameters->payment(), $parameters->verify3d());
+            $parameter = $this->processPayment($parameters->payment());
         }else{
             $parameter = [
                 'paymentMethod' => [
-                     'method' => $parameters->id
+                     'method' => $parameters->payment()->id
                 ]
             ];
         }
+
         $this->putParameters($parameter);
         $response = $this->request('POST', 'V1/carts/mine/payment-information');
         $body = $response->getBody();
@@ -256,12 +258,12 @@ class Checkout extends Client
      * @param $verify3d
      * @return array
      */
-    private function processPayment($payment,$verify3d)
+    private function processPayment($payment,$verify3d=null)
     {
         $parameter = [
             'paymentMethod' => [
-                'method' => "checkmo",
- //               'method' => $payment->id,
+ //               'method' => "checkmo",
+                'method' => $payment->id,
             ]
         ];
 
@@ -272,9 +274,9 @@ class Checkout extends Client
                 'cc_exp_month' => $payment->creditCardMonth,
                 'cc_number' => $payment->creditCardNumber,
                 'cc_cid' => $payment->creditCardCode,
-                'eci' => $verify3d->eci,
-                'cavv' => $verify3d->cavv,
-                'xid' => $verify3d->xid,
+//                'eci' => $verify3d->eci,
+//                'cavv' => $verify3d->cavv,
+//                'xid' => $verify3d->xid,
             ];
         }
 

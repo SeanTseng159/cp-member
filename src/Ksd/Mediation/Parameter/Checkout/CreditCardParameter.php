@@ -17,7 +17,7 @@ class CreditCardParameter extends BaseParameter
     public $payment;
     public $billing;
     public $verify3d;
-    public $type = 'credit_card';
+
 
 
     /**
@@ -28,7 +28,8 @@ class CreditCardParameter extends BaseParameter
     {
         $this->source = $request->input('source');
         $this->orderNo = $request->input('orderNo');
-        $this->processParameters($request, 'verify3d');
+
+//        $this->processParameters($request, 'verify3d');
         $this->processParameters($request, 'payment');
         $this->processParameters($request, 'billing');
     }
