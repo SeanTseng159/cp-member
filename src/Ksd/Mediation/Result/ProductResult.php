@@ -56,6 +56,7 @@ class ProductResult
             $this->storeTelephone = null;
             $this->storeAddress = null;
             $this->quantity = $result['extension_attributes']['stock_item']['qty'];
+            $this->maxQuantity = $result['extension_attributes']['stock_item']['max_sale_qty'];
             $this->contents = null;
             $this->additionals = null;
             $this->purchase = null;
@@ -99,6 +100,7 @@ class ProductResult
             $this->storeTelephone = $this->arrayDefault($result, 'storeTelephone');
             $this->storeAddress = $this->arrayDefault($result, 'storeAddress');
             $this->quantity = $this->arrayDefault($result, 'quantity');
+            $this->maxQuantity = $this->arrayDefault($result, 'quantity');
             $this->contents = $this->arrayDefault($result, 'contents');
             $this->additionals = $this->arrayDefault($result, 'additionals');
             $this->purchase = $this->arrayDefault($result, 'purchase');
