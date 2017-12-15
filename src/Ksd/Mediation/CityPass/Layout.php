@@ -172,12 +172,12 @@ class Layout extends Client
      * 取得選單資料
      * @return LayoutResult
      */
-    public function menu()
+    public function menu($itemId)
     {
 
         $result = [];
         try {
-            $response = $this->request('GET', 'layout/menu');
+            $response = ($itemId) ? $this->request('GET', 'layout/menu/' . $itemId) : $this->request('GET', 'layout/menu');
             $result = json_decode($response->getBody(), true);
 
         } catch (ClientException $e) {

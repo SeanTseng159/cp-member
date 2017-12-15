@@ -88,9 +88,9 @@ class LayoutService
      * @param  $parameter
      * @return mixed
      */
-    public function menu()
+    public function menu($parameter)
     {
-        return $this->repository->menu();
+        return $this->repository->menu($parameter);
     }
 
     /**

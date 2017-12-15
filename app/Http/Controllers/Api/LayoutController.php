@@ -96,9 +96,11 @@ class LayoutController extends RestLaravelController
          * 取得下拉選單資料
          * @return \Illuminate\Http\JsonResponse
          */
-        public function menu()
+        public function menu(Request $request, $categoryId = 0)
         {
-            return $this->success($this->layoutService->menu());
+            $parameter = new LayoutParameter();
+            $parameter->laravelRequest($categoryId, $request);
+            return $this->success($this->layoutService->menu($parameter));
         }
 
         /**
