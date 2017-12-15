@@ -128,11 +128,11 @@ class LayoutRepository extends BaseRepository
      * @param parameter
      * @return mixed
      */
-    public function menu()
+    public function menu($parameter)
     {
-
-        return $this->redis->remember($this->genCacheKey(self::MENU_KEY), CacheConfig::LAYOUT_TIME, function ()  {
-            $cityPass = $this->cityPass->menu();
+        $itemId = $parameter->id;
+        return $this->redis->remember("menu:id:$itemId", CacheConfig::LAYOUT_TIME, function ()  {
+            $cityPass = $this->cityPass->menu($itemId);
             return  $cityPass;
 
         });
