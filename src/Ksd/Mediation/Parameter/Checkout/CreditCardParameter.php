@@ -17,6 +17,7 @@ class CreditCardParameter extends BaseParameter
     public $payment;
     public $billing;
     public $verify3d;
+    public $type = 'credit_card';
 
 
     /**
