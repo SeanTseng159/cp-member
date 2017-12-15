@@ -184,10 +184,15 @@ class Layout extends Client
 
         }
 
-        $order = new LayoutResult();
-        $order->cityPass($result['data'],true,'menu');
+        if ($itemId) {
+            return $result['data'];
+        }
+        else {
+            $order = new LayoutResult();
+            $order->cityPass($result['data'],true,'menu');
 
-        return $order;
+            return $order;
+        }
     }
 
     /**
