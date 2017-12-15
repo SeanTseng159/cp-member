@@ -131,7 +131,7 @@ class LayoutRepository extends BaseRepository
     public function menu($parameter)
     {
         $itemId = $parameter->id;
-        return $this->redis->remember("menu:id:$itemId", CacheConfig::LAYOUT_TIME, function ()  {
+        return $this->redis->remember("menu:id:$itemId", CacheConfig::LAYOUT_TIME, function () use ($itemId) {
             $cityPass = $this->cityPass->menu($itemId);
             return  $cityPass;
 
