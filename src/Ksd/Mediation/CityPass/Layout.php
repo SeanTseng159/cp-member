@@ -32,9 +32,11 @@ class Layout extends Client
 
         }
 
-        $order = new LayoutResult();
-        $order->cityPass($result['data']);
-        return $order;
+//        $order = new LayoutResult();
+//        $order->cityPass($result['data']);
+//        return $order;
+
+        return $result['data'];
     }
 
     /**
