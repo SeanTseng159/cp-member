@@ -84,6 +84,7 @@ class ProductResult
         $this->name = $this->arrayDefault($result, 'name');
         $this->price = $this->arrayDefault($result, 'price');
         $this->salePrice = $this->arrayDefault($result, 'salePrice');
+        $this->discount = $this->arrayDefault($result, 'discount');
         $this->characteristic = $this->arrayDefault($result, 'characteristic');
         $this->category = null;
         $this->storeName = $this->arrayDefault($result, 'storeName');
@@ -133,7 +134,7 @@ class ProductResult
         if($price!==0){
             $discount = (int) (($salePrice / $price) * 100);
             if($discount===100){
-                return "無折扣";
+                return null;
             }else{
                 return sprintf("%d折", $discount);
             }
