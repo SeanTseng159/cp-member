@@ -172,6 +172,6 @@ class CheckoutController extends RestLaravelController
         $parameters = new CreditCardParameter();
         $parameters->laravelRequest($request);
         $result = $this->service->creditCard($parameters);
-        return $this->success($result);
+        return !empty($result) ? $this->success($result) : $this->failure('E9003', '刷卡失敗');
     }
 }

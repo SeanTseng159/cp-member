@@ -13,6 +13,7 @@ use Ksd\Mediation\Helper\StringHelper;
 use Ksd\Mediation\Result\Checkout\PaymentInfoResult;
 use Ksd\Mediation\Result\Checkout\ShippingInfoResult;
 use Ksd\Mediation\Result\CheckoutResult;
+use GuzzleHttp\Exception\ClientException;
 
 class Checkout extends Client
 {
@@ -183,11 +184,15 @@ class Checkout extends Client
             ];
         }
 
+        $body = [];
         $this->putParameters($parameter);
-        $response = $this->request('POST', 'V1/carts/mine/payment-information');
-        $body = $response->getBody();
+        try {
+            $response = $this->request('POST', 'V1/carts/mine/payment-information');
+            $body = $response->getBody();
+        }catch (ClientException $e){
 
-        return [ 'id' => trim($body, '"')];
+        }
+        return empty($body) ? [] : [ 'id' => trim($body, '"')];
     }
 
     /**
