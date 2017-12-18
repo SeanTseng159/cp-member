@@ -120,7 +120,7 @@ class Checkout extends Client
             return $this->putPayment($parameters);
         }else if($parameters->payment()->type === 'credit_card'){
             $response = $this->request('post', 'V1/ksd/mine/order');
-            return trim($response->getBody(), '"');
+            return [ 'id' => trim($response->getBody(), '"')];
         }else{
             return null;
         }
