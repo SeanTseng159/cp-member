@@ -83,8 +83,9 @@ class Order extends Client
 
 
         $status = $parameters->status;
-        $orderNo = $parameters->orderNo;
-        $name = $parameters->name;
+//        $orderNo = $parameters->orderNo;
+//        $name = $parameters->name;
+        $orderData = $parameters->orderData;
         $initDate = $parameters->initDate;
         $endDate = $parameters->endDate;
 
@@ -98,11 +99,8 @@ class Order extends Client
             if(!empty($status)){
                 $this->putQuery('status', $status);
 
-            }else if(!empty($orderNo)){
-                $this->putQuery('orderNo', $orderNo);
-
-            }else if(!empty($name)){
-                $this->putQuery('name', $name);
+            }else if(!empty($orderData)){
+                $this->putQuery('orderNo', $orderData);
 
             }else if(!empty($initDate)&&!empty($endDate)) {
                 $this->putQuery('initDate', $initDate)
@@ -139,12 +137,10 @@ class Order extends Client
     public function find($itemId)
     {
 
-        $path = "order/detail/$itemId";
-
-        $response = $this->request('GET', $path);
+        $url = sprintf('order/detail/%s', $itemId);
+        $response = $this->request('GET', $url);
         $body = $response->getBody();
         $result = json_decode($body, true);
-
         $data = [];
 
         if(!empty($result['data'])) {

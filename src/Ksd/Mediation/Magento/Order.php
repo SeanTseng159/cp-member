@@ -38,7 +38,6 @@ class Order extends Client
         } catch (ClientException $e) {
             // TODO:抓不到MAGENTO API訂單資料
         }
-
         $data = [];
         if (!empty($result['items'])){
             foreach ($result['items'] as $item) {
@@ -120,8 +119,9 @@ class Order extends Client
 
 
         $status = $parameters->status;
-        $orderNo = $parameters->orderNo;
-        $name = $parameters->name;
+        $orderData = $parameters->orderData;
+//        $orderNo = $parameters->orderNo;
+//        $name = $parameters->name;
         $initDate = $parameters->initDate;
         $endDate = $parameters->endDate;
 
@@ -132,10 +132,10 @@ class Order extends Client
                 $this->putQuery('searchCriteria[filterGroups][1][filters][0][field]', 'status')
                     ->putQuery('searchCriteria[filterGroups][1][filters][0][value]', $status);
 
-            }else if(!empty($orderNo)){
+            }else if(!empty($orderData)){
                $this->putQuery('searchCriteria[filterGroups][2][filters][0][field]', 'increment_id')
-                    ->putQuery('searchCriteria[filterGroups][2][filters][0][value]', $orderNo);
-
+                    ->putQuery('searchCriteria[filterGroups][2][filters][0][value]', '%'.$orderData.'%')
+                    ->putQuery('searchCriteria[filterGroups][2][filters][0][condition_type]', 'like');
             }else if(!empty($initDate)&&!empty($endDate)) {
                $this->putQuery('searchCriteria[filterGroups][4][filters][0][field]', 'created_at')
                     ->putQuery('searchCriteria[filterGroups][4][filters][0][value]', $initDate)
@@ -165,11 +165,12 @@ class Order extends Client
         //如有關鍵字搜尋則進行判斷是否有相似字
         $flag = false;
         $data1 = [];
-        if(!empty($name)){
+
+        if(!empty($orderData) && !substr($orderData,0,1) ==='0'){
             foreach ($data as $item) {
                 $dataflag = false;
-                foreach ($item->items as $items) {
-                    if(preg_match("/".$name."/",$items->name)){
+                foreach ($item['items'] as $items) {
+                    if(preg_match("/".$orderData."/",$items['name'])){
                         $flag = true;
                         $dataflag =true;
                     }

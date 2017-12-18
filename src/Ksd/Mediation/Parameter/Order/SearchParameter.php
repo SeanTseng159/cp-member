@@ -31,8 +31,9 @@ class SearchParameter   extends  BaseParameter
     {
         parent::laravelRequest($request);
         $this->status= $request->input('status');
-        $this->orderNo = $request->input('orderNo');
-        $this->name = $request->input('name');
+//        $this->orderNo = $request->input('orderNo');
+//        $this->name = $request->input('name');
+        $this->orderData = $request->input('orderData');
         $this->initDate = $request->input('initDate');
         $this->endDate = $request->input('endDate');
 
