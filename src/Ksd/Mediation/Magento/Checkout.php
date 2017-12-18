@@ -288,4 +288,41 @@ class Checkout extends Client
         return $parameter;
     }
 
+
+    /**
+     *信用卡送金流(台新)
+     * @param $parameters
+     * @return array
+     */
+    public function transmit($parameters)
+    {
+        $parameter = [
+            'paymentMethod' => [
+                'method' => $parameters->payment()->id,
+            ]
+        ];
+
+        if (!empty($parameters->payment()->creditCardNumber)) {
+            $parameter['paymentMethod']['additional_data'] = [
+                'cc_type' => $this->creditCardType($parameters->payment()->creditCardNumber),
+                'cc_exp_year' => $parameters->payment()->creditCardYear,
+                'cc_exp_month' => $parameters->payment()->creditCardMonth,
+                'cc_number' => $parameters->payment()->creditCardNumber,
+                'cc_cid' => $parameters->payment()->creditCardCode,
+            ];
+        }
+
+
+        $body = [];
+        $this->putParameters($parameter);
+        try {
+            $response = $this->request('POST', 'V1/carts/mine/payment-information');
+            $body = $response->getBody();
+        }catch (ClientException $e){
+
+        }
+        return empty($body) ? [] : [ 'id' => trim($body, '"')];
+
+    }
+
 }

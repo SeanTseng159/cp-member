@@ -7,6 +7,7 @@ use Ksd\Mediation\Core\Controller\RestLaravelController;
 use Ksd\Mediation\Parameter\Checkout\ConfirmParameter;
 use Ksd\Mediation\Parameter\Checkout\ShipmentParameter;
 use Ksd\Mediation\Parameter\Checkout\CreditCardParameter;
+use Ksd\Mediation\Parameter\Checkout\TransmitParameter;
 
 use Ksd\Mediation\Services\CheckoutService;
 use Ksd\Mediation\Services\CartService;
@@ -163,7 +164,7 @@ class CheckoutController extends RestLaravelController
 
 
     /**
-     * 信用卡送金流
+     * 信用卡送金流(藍新)
      * @param Request $request
      * @return \Illuminate\Http\JsonResponse
      */
@@ -172,6 +173,19 @@ class CheckoutController extends RestLaravelController
         $parameters = new CreditCardParameter();
         $parameters->laravelRequest($request);
         $result = $this->service->creditCard($parameters);
+        return !empty($result) ? $this->success($result) : $this->failure('E9003', '刷卡失敗');
+    }
+
+    /**
+     * 信用卡送金流(台新)
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function transmit(Request $request)
+    {
+        $parameters = new TransmitParameter();
+        $parameters->laravelRequest($request);
+        $result = $this->service->transmit($parameters);
         return !empty($result) ? $this->success($result) : $this->failure('E9003', '刷卡失敗');
     }
 }

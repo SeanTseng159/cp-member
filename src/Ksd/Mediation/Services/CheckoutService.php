@@ -60,4 +60,14 @@ class CheckoutService
         return $this->repository->creditCard($parameters);
     }
 
+    /**
+     * 信用卡送金流
+     * @param $parameters
+     * @return array|mixed
+     */
+    public function transmit($parameters)
+    {
+        return $this->repository->transmit($parameters);
+    }
+
 }

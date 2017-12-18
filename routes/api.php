@@ -83,8 +83,10 @@ Route::middleware('cors')->namespace('Api')->group(function () {
         Route::post('verify3d', 'CheckoutController@verify3d');
         // 取得3D驗證回傳資料
         Route::post('verifyResult', 'CheckoutController@verifyResult');
-        // 信用卡送金流
+        // 信用卡送金流(藍新)
         Route::post('creditCard', 'CheckoutController@creditCard');
+        // 信用卡送金流(台新)
+        Route::post('transmit', 'CheckoutController@transmit');
     });
 
     Route::prefix('member')->group(function () {
