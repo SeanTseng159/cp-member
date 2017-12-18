@@ -174,8 +174,7 @@ class Checkout extends Client
     public function putPayment($parameters)
     {
         if($parameters->payment()->type==='credit_card') {
-//            $parameter = $this->processPayment($parameters->payment(), $parameters->verify3d());
-            $parameter = $this->processPayment($parameters->payment());
+            $parameter = $this->processPayment($parameters->payment(), $parameters->verify3d());
         }else{
             $parameter = [
                 'paymentMethod' => [
@@ -279,9 +278,9 @@ class Checkout extends Client
                 'cc_exp_month' => $payment->creditCardMonth,
                 'cc_number' => $payment->creditCardNumber,
                 'cc_cid' => $payment->creditCardCode,
-//                'eci' => $verify3d->eci,
-//                'cavv' => $verify3d->cavv,
-//                'xid' => $verify3d->xid,
+                'eci' => $verify3d->eci,
+                'cavv' => $verify3d->cavv,
+                'xid' => $verify3d->xid,
             ];
         }
 
