@@ -111,7 +111,6 @@ class OrderResult
             }
             $this->shipping['shippingDescription'] = $this->arrayDefault($result, 'shipping_description');
             $this->shipping['shippingAmount'] = $this->arrayDefault($result, 'shipping_amount');
-
             $this->quantity = $this->arrayDefault($result, 'qty_ordered');
 
 
@@ -135,8 +134,10 @@ class OrderResult
                         $row['status'] = $this->shippingStatus($this->arrayDefault($item, 'order_id'),$this->arrayDefault($item, 'sku'));
                     }else if($refunded != 0){
                         $row['status'] = '已退貨';
+                        $row['statusCode'] = '03';
                     }else{
                         $row['status'] = '處理中';
+                        $row['statusCode'] = '04';
                     }
 
                     $row['discount'] = $this->arrayDefault($result, 'discount_amount');
@@ -145,7 +146,8 @@ class OrderResult
                     $row['imageUrl'] = $this->magentoImageUrl($path['file']);
 
 //                    $row['imageUrl'] = $this->arrayDefault($item, 'extension_attributes', '')['image_url'];
-
+                    $this->shipping['status'] = $this->shippingStatus($this->arrayDefault($item, 'order_id'),$this->arrayDefault($item, 'sku'));
+                    $this->shipping['traceCode'] = $this->shippingStatus($this->arrayDefault($item, 'order_id'),$this->arrayDefault($item, 'sku'),true);
                     $this->items[] = $row;
                 }
             }
@@ -227,17 +229,24 @@ class OrderResult
      * 處理物流狀態
      * @param $orderID
      * @param $sku
+     * @param $code
      * @return string
      */
-    public function shippingStatus($orderID, $sku)
+    public function shippingStatus($orderID, $sku,$code=false)
     {
 
             $order = new Order();
             $data= $order->getShippingInfo($orderID,$sku);
             if(!empty($data)) {
                 $date = substr($data[0]['updated_at'], 0, 10);
-                $shipinfo = $date . ' 出貨' . ' ' . $data[0]['title'] . ' ' . $data[0]['track_number'];
-                return  $shipinfo;
+                $shipinfo = $date . ' 出貨';
+                $shipcode = $data[0]['title'] . ' ' . $data[0]['track_number'];
+                if(!$code) {
+                    return $shipinfo;
+                }else{
+                    return $shipcode;
+
+                }
             }else{
                 return null;
             }
