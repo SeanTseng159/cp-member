@@ -200,8 +200,8 @@ class CheckoutController extends RestLaravelController
     {
         $parameters = new PostBackParameter();
         $parameters->laravelRequest($request);
-        $this->service->postBack($parameters);
-        return $this->success();
+        $result = $this->service->postBack($parameters);
+        return $this->success($result);
     }
 
 
@@ -214,8 +214,8 @@ class CheckoutController extends RestLaravelController
     {
         $parameters = new ResultParameter();
         $parameters->laravelRequest($request);
-        $this->service->result($parameters);
-        return $this->success();
+        $result = $this->service->result($parameters);
+        return $this->success($result);
     }
 
 
