@@ -183,4 +183,12 @@ Route::middleware('cors')->namespace('Api')->group(function () {
         Route::post('refund', 'MyTicketController@refund');
     });
 
+    Route::prefix('tspg')->group(function () {
+        //新增電子報名單
+        Route::post('postBack', 'NewsletterController@orderNewsletter');
+        Route::post('result', 'NewsletterController@orderNewsletter');
+    });
+
+
+
 });

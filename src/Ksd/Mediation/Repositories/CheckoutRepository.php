@@ -97,4 +97,28 @@ class CheckoutRepository extends BaseRepository
             return $this->cityPass->authorization($this->memberTokenService->cityPassUserToken())->creditCard($parameters);
         }
     }
+
+    /**
+     * 接收台新信用卡前台通知程式 post_back_url
+     * @param $parameters
+     * @return array|mixed
+     */
+    public function postBack($parameters)
+    {
+        $file  = 'postBack.txt';
+        file_put_contents($file, $parameters->ret_code,FILE_APPEND);
+
+    }
+
+    /**
+     * 接收台新信用卡後台通知程式 result_url
+     * @param $parameters
+     * @return array|mixed
+     */
+    public function result($parameters)
+    {
+        $file  = 'result.txt';
+        file_put_contents($file, $parameters->ret_code,FILE_APPEND);
+
+    }
 }

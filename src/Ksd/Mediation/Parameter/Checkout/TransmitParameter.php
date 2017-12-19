@@ -26,6 +26,7 @@ class TransmitParameter extends BaseParameter
      */
     public function laravelRequest($request)
     {
+        $this->device = $request->input('device');
         $this->source = $request->input('source');
         $this->orderNo = $request->input('orderNo');
 

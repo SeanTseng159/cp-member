@@ -308,6 +308,7 @@ class Checkout extends Client
                 'cc_exp_month' => $parameters->payment()->creditCardMonth,
                 'cc_number' => $parameters->payment()->creditCardNumber,
                 'cc_cid' => $parameters->payment()->creditCardCode,
+                'device' => $parameters->devices
             ];
         }
 

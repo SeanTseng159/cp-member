@@ -51,7 +51,7 @@ class CheckoutService
     }
 
     /**
-     * 信用卡送金流
+     * 信用卡送金流(藍新)
      * @param $parameters
      * @return array|mixed
      */
@@ -61,13 +61,33 @@ class CheckoutService
     }
 
     /**
-     * 信用卡送金流
+     * 信用卡送金流(台新)
      * @param $parameters
      * @return array|mixed
      */
     public function transmit($parameters)
     {
         return $this->repository->transmit($parameters);
+    }
+
+    /**
+     * 接收台新信用卡前台通知程式 post_back_url
+     * @param $parameters
+     * @return array|mixed
+     */
+    public function postBack($parameters)
+    {
+        return $this->repository->postBack($parameters);
+    }
+
+    /**
+     * 接收台新信用卡後台通知程式 result_url
+     * @param $parameters
+     * @return array|mixed
+     */
+    public function result($parameters)
+    {
+        return $this->repository->result($parameters);
     }
 
 }
