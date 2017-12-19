@@ -107,6 +107,7 @@ class CheckoutRepository extends BaseRepository
     {
         $file  = 'postBack.txt';
         file_put_contents($file, $parameters->ret_code,FILE_APPEND);
+        return $parameters;
 
     }
 
@@ -119,6 +120,7 @@ class CheckoutRepository extends BaseRepository
     {
         $file  = 'result.txt';
         file_put_contents($file, $parameters->ret_code,FILE_APPEND);
+        return $parameters;
 
     }
 }
