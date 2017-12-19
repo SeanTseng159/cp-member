@@ -185,8 +185,8 @@ Route::middleware('cors')->namespace('Api')->group(function () {
 
     Route::prefix('tspg')->group(function () {
         //新增電子報名單
-        Route::post('postBack', 'NewsletterController@orderNewsletter');
-        Route::post('result', 'NewsletterController@orderNewsletter');
+        Route::post('postBack', 'NewsletterController@postBack');
+        Route::post('result', 'NewsletterController@result');
     });
 
 
