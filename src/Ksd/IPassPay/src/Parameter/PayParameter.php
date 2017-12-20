@@ -34,7 +34,7 @@ class PayParameter
         $this->platform = $request->input('_platform');
         $this->source = $request->input('source');
         $this->orderNo = $this->id = $request->input('orderNo');
-        $this->orderId = $this->id = $request->input('orderId');
+        $this->orderId = $request->input('orderId');
 
         $request->session()->put('ipassPay', [
                 'token' => $this->token,
