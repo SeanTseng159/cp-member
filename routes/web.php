@@ -15,7 +15,7 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::namespace('Web')->->group(function () {
+Route::namespace('Web')->group(function () {
 	Route::prefix('ipass')->group(function () {
 		Route::get('login', 'IpassMemberController@login');
 	});
