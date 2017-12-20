@@ -15,6 +15,8 @@ use Ksd\Mediation\Result\Checkout\ShippingInfoResult;
 use Ksd\Mediation\Result\CheckoutResult;
 use GuzzleHttp\Exception\ClientException;
 
+use App\Models\TspgPostback;
+
 class Checkout extends Client
 {
     use StringHelper;
@@ -308,7 +310,8 @@ class Checkout extends Client
                 'cc_exp_month' => $parameters->payment()->creditCardMonth,
                 'cc_number' => $parameters->payment()->creditCardNumber,
                 'cc_cid' => $parameters->payment()->creditCardCode,
-                'device' => $parameters->device
+                'device' => $parameters->device,
+                'source' => $parameters->source
             ];
         }
 
@@ -321,8 +324,38 @@ class Checkout extends Client
         }catch (ClientException $e){
 
         }
-        return empty($body) ? [] : [ 'id' => trim($body, '"')];
+        $orderId = trim($body, '"');
+//        return empty($body) ? [] : [ 'id' => trim($body, '"')];
+
+
+        $admintoken = new Client();
+        $this->authorization($admintoken->token);
+
+        $path = sprintf('V1/orders/%s', $orderId);
+        $response = $this->request('GET', $path);
+        $result = json_decode($response->getBody(), true);
+
+        $url = $result['payment']['additional_information'][4];
+        $orderNo = $result['increment_id'];
+        $device = $result['payment']['additional_information'][0];
+        $source = $result['payment']['additional_information'][1];
+
+        $data = [
+            'order_id' => $orderId,
+            'order_no' => $orderNo,
+            'order_device' => $device,
+            'order_source' => $source
+        ];
+
+
+        $pay = new TspgPostback();
+        $pay->fill($data)->save();
+
+        return empty($orderId) ? [] : [ 'id' => $orderId, 'url' => $url];
 
     }
+
+
+
 
 }

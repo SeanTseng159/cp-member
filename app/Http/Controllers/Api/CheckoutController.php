@@ -153,8 +153,8 @@ class CheckoutController extends RestLaravelController
 
             $url .= ($result) ? '&result=true&msg=success' : '&result=false&msg=' . $requestData['ErrorMessage'];
 
-            echo '<script>location.href="' . $url . '";</script>';
-            return;
+            return '<script>location.href="' . $url . '";</script>';
+
         }
         else {
             $s = ($source === 'ct_pass') ? 'c' : 'm';
@@ -200,8 +200,10 @@ class CheckoutController extends RestLaravelController
     {
         $parameters = new PostBackParameter();
         $parameters->laravelRequest($request);
-        $result = $this->service->postBack($parameters);
-        return $this->success($result);
+        $url = $this->service->postBack($parameters);
+
+        return redirect($url);
+
     }
 
 
