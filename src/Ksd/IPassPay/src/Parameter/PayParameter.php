@@ -59,9 +59,8 @@ class PayParameter
         $parameter->lang_type = 'zh-tw';
         $parameter->order_id = $this->orderId;
         $parameter->order_name = $this->orderId;
-        // $parameter->amount = $order[0]->orderAmount;
-        $parameter->amount = 10;
-        // $parameter->item_name = $this->itemsToItemString($order[0]->items);
+        $parameter->amount = $order[0]->orderAmount;
+        $parameter->item_name = $this->itemsToItemString($order[0]->items);
         $parameter->item_name = '';
         $parameter->success_url = url('ipass/successCallback');
         $parameter->failure_url = url('ipass/failureCallback');
