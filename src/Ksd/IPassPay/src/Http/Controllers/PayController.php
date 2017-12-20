@@ -44,6 +44,9 @@ class PayController extends RestLaravelController
       $parameter = new PayParameter;
       $parameter->laravelRequest($request);
 
+      Log::debug('=== ipass pay 前端送過來的值 ===');
+      Log::debug(print_r($parameter, true));
+
       // 檢查會員
       $result = $this->memberService->checkToken($parameter->token, $parameter->platform);
       if (!$result) {
