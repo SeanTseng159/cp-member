@@ -153,7 +153,8 @@ class CheckoutController extends RestLaravelController
 
             $url .= ($result) ? '&result=true&msg=success' : '&result=false&msg=' . $requestData['ErrorMessage'];
 
-            return '<script>location.href="' . $url . '";</script>';
+            echo '<script>location.href="' . $url . '";</script>';
+            return;
 
         }
         else {
@@ -202,7 +203,12 @@ class CheckoutController extends RestLaravelController
         $parameters->laravelRequest($request);
         $url = $this->service->postBack($parameters);
 
-        return redirect($url);
+        if($url['platform'] === '1') {
+            return redirect($url['urlData']);
+        }else{
+            echo $url['urlData'];
+            return;
+        }
 
     }
 

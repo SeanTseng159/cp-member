@@ -121,14 +121,15 @@ class CheckoutRepository extends BaseRepository
 
             $url .= isset($data) ? '&result=true&msg=success' : '&result=false&msg=' . $requestData['ErrorMessage'];
 
-            return '<script>location.href="' . $url . '";</script>';
+            $urldata = '<script>location.href="' . $url . '";</script>';
+            return ['urlData' => $urldata,'platform' => $data->order_device];
 
         }
         else {
             $s = ($data->order_source === 'ct_pass') ? 'c' : 'm';
             $url .= '/checkout/complete/' . $s . '/' . $data->order_no;
 
-            return $url;
+            return ['urlData' => $url,'platform' => $data->order_device];
         }
 
 
