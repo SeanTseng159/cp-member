@@ -20,8 +20,6 @@ class OrderParameter
         $parameter = $payStatusParameter;
         $parameter->orderNo = $callback->orderNo;
         $parameter->source = $callback->source;
-        $parameter->status = 'Y';
-        $parameter->payment_type = 'ACCLINK';
         unset($parameter->rtnCode);
         unset($parameter->rtnMsg);
         unset($parameter->client_id);

@@ -177,7 +177,7 @@ class OrderRepository extends BaseRepository
         if ($parameters->source === ProjectConfig::MAGENTO) {
             return $this->magento->find($parameters);
         } else if ($parameters->source === ProjectConfig::CITY_PASS) {
-            return $this->cityPass->authorization($parameters->token)->find($parameters->id);
+            return $this->cityPass->authorization($parameters->token)->find($parameters->orderNo);
         }
 
         return null;
