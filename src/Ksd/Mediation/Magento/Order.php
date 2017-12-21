@@ -323,7 +323,7 @@ class Order extends Client
                 'entity_id'=> $id,
                 'status'=> 'holded',
                 'payment'=> [
-                    'additional_information'=>[
+                    'additional_data'=>[
                         'orderNo'=>$parameters->orderNo,
                         'order_id'=>$parameters->order_id,
                         'status'=>$parameters->status,
