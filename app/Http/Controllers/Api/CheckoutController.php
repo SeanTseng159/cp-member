@@ -155,6 +155,7 @@ class CheckoutController extends RestLaravelController
 
             echo '<script>location.href="' . $url . '";</script>';
             return;
+
         }
         else {
             $s = ($source === 'ct_pass') ? 'c' : 'm';
@@ -200,8 +201,15 @@ class CheckoutController extends RestLaravelController
     {
         $parameters = new PostBackParameter();
         $parameters->laravelRequest($request);
-        $result = $this->service->postBack($parameters);
-        return $this->success($result);
+        $url = $this->service->postBack($parameters);
+
+        if($url['platform'] === '1') {
+            return redirect($url['urlData']);
+        }else{
+            echo $url['urlData'];
+            return;
+        }
+
     }
 
 

@@ -108,6 +108,9 @@ Route::middleware('cors')->namespace('Api')->group(function () {
         Route::post('sendForgetPassword', 'MemberController@sendForgetPassword');
         //驗證-重設密碼
         Route::post('resetPassword', 'MemberController@resetPassword');
+
+        //第三方登入驗證token
+        Route::post('oauth/login', 'MemberController@oauthLogin');
     });
 
     Route::prefix('product')->group(function () {

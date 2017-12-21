@@ -10,14 +10,15 @@ namespace Ksd\Mediation\Services;
 
 
 use Ksd\Mediation\Repositories\CheckoutRepository;
+use App\Services\TspgPostbackService;
 
 class CheckoutService
 {
     protected $repository;
 
-    public function __construct(MemberTokenService $memberTokenService)
+    public function __construct(MemberTokenService $memberTokenService,TspgPostbackService $tspgPostbackService)
     {
-        $this->repository = new CheckoutRepository($memberTokenService);
+        $this->repository = new CheckoutRepository($memberTokenService,$tspgPostbackService);
     }
 
     /**

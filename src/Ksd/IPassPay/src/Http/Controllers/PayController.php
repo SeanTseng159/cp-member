@@ -44,20 +44,31 @@ class PayController extends RestLaravelController
       $parameter = new PayParameter;
       $parameter->laravelRequest($request);
 
+      Log::debug('=== ipass pay 前端送過來的值 ===');
+      Log::debug(print_r($parameter, true));
+
       // 檢查會員
       $result = $this->memberService->checkToken($parameter->token, $parameter->platform);
-      if (!$result) return $this->failure('E0021','會員驗證失效');
+      if (!$result) {
+        Log::debug('=== ipass pay 會員驗證失效 ===');
+        return $this->failureRedirect($parameter);
+      }
 
       // EC平台請求支付Token (步驟一)
       try {
         $order = $this->orderService->findOneByIpassPay($parameter);
-        // if (!$order) return $this->failure('E0101', '訂單不存在');
+        if (!$order) {
+          Log::debug('=== ipass pay 訂單不存在 ===');
+          return $this->failureRedirect($parameter);
+        }
         $bindPayParameter = $parameter->bindPayReq($order);
         $result = $this->service->bindPayReq($bindPayParameter);
 
         Log::debug('=== ipass pay step 1 ===');
         Log::debug(print_r($result['data'], true));
-        if (!$result['status']) return $this->failure('E0000', $result['data']->rtnMsg);
+        if (!$result['status']) {
+          return $this->failureRedirect($parameter);
+        }
 
         // 取得Token到ipass pay 付款介面 (步驟二)
         $bindPayParameter = $parameter->bindPayToken($result['data']);
@@ -69,6 +80,8 @@ class PayController extends RestLaravelController
       catch (Exception $e) {
         Log::debug('=== ipass pay error ===');
         Log::debug(print_r($e, true));
+
+        return $this->failureRedirect($parameter);
       }
     }
 
