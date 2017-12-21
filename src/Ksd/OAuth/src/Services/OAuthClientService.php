@@ -49,4 +49,12 @@ class OAuthClientService
 
         return $os;
     }
+
+    public function checkExpire($time)
+    {
+        $now = Carbon::now();
+        $expires_at = Carbon::createFromFormat('Y-m-d H:i:s', $time);
+        // 判断第一个日期是否比第二个日期大
+        return ($now->gt($expires_at));
+    }
 }

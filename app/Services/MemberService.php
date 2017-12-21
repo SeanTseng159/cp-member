@@ -19,6 +19,7 @@ use Illuminate\Foundation\Bus\DispatchesJobs;
 use App\Jobs\SendValidateEmail;
 use App\Jobs\SendRegisterMail;
 use App\Jobs\SendForgetPasswordMail;
+use Illuminate\Contracts\Encryption\DecryptException;
 
 class MemberService
 {
@@ -203,9 +204,9 @@ class MemberService
      * @param $cellphone
      * @return bool
      */
-    public function checkPhoneIsUse($countryCode, $cellphone)
+    public function checkPhoneIsUse($country, $countryCode, $cellphone)
     {
-        $member = $this->repository->findByPhone($countryCode, $cellphone);
+        $member = $this->repository->findByCountryPhone($country, $countryCode, $cellphone);
         if ($member) {
             return ($member->isRegistered == 1);
         }
@@ -218,9 +219,9 @@ class MemberService
      * @param $cellphone
      * @return mixed
      */
-    public function checkHasPhoneAndNotRegistered($countryCode, $cellphone)
+    public function checkHasPhoneAndNotRegistered($country, $countryCode, $cellphone)
     {
-        $member = $this->repository->findByPhone($countryCode, $cellphone);
+        $member = $this->repository->findByCountryPhone($country, $countryCode, $cellphone);
         return ($member && $member->isRegistered == 0) ? $member : null;
     }
 
@@ -230,9 +231,9 @@ class MemberService
      * @param $cellphone
      * @return bool
      */
-    public function canReRegister($countryCode, $cellphone)
+    public function canReRegister($country, $countryCode, $cellphone)
     {
-        $member = $this->repository->findByPhone($countryCode, $cellphone);
+        $member = $this->repository->findByCountryPhone($country, $countryCode, $cellphone);
 
         if ($member) {
             $now = Carbon\Carbon::now()->timestamp;
@@ -457,5 +458,48 @@ class MemberService
     public function findByCountryPhone($country, $countryCode, $cellphone)
     {
         return $this->repository->findByCountryPhone($country, $countryCode, $cellphone);
+    }
+
+    /**
+     * 產生第三方登入Token
+     * @param $data
+     * @return mixed
+     */
+    public function generateOpenIdToken($member)
+    {
+        $expires = Carbon\Carbon::now()->addSeconds(20)->timestamp;
+        return Crypt::encrypt($member->openId . '_' . $member->openPlateform . '_' . $expires);
+    }
+
+    /**
+     * 產生第三方登入Token
+     * @param $data
+     * @return mixed
+     */
+    public function checkOpenIdToken($token)
+    {
+        try {
+            $token = Crypt::decrypt($token);
+            $tokenAry = explode('_', $token);
+            $expires = $tokenAry[2];
+            $now = Carbon\Carbon::now()->timestamp;
+
+            return ($now < $expires);
+        } catch (DecryptException $e) {
+            return false;
+        }
+    }
+
+    /**
+     * 產生第三方登入Token
+     * @param $data
+     * @return mixed
+     */
+    public function findByOpenId($openId, $openPlateform)
+    {
+        $member = $this->repository->findByOpenId($openId, $openPlateform);
+        if ($member) $member->email = $member->openId;
+
+        return $member;
     }
 }

@@ -28,7 +28,9 @@ class OAuthController extends BaseController
 
     public function login(Request $request, $id)
     {
-        return view('oauth::login', ['auth_client_id' => $id]);
+        if (!session('isViewLoginWeb')) return abort(404);
+
+        return view('oauth::login', ['auth_client_id' => $id, 'web_url' => env('CITY_PASS_WEB')]);
     }
 
     public function loginHandle(Request $request)
@@ -56,7 +58,9 @@ class OAuthController extends BaseController
 
     public function authorize(Request $request, $id)
     {
-        $oc =$this->ocService->find($id);
+        if (!session('isViewLoginWeb')) return abort(404);
+
+        $oc = $this->ocService->find($id);
 
         return view('oauth::authorize', ['auth_client' => $oc]);
     }

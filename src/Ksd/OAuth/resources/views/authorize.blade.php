@@ -1,55 +1,75 @@
-<!doctype html>
-<html lang="{{ app()->getLocale() }}">
-    <head>
-        <meta charset="utf-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+@extends('oauth::layout.main')
 
-        <title>CityPass城市通 - 應用程式授權</title>
-
-        <!-- Latest compiled and minified CSS -->
-        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
-
-        <style>
-            .form-login {
-                width: 500px;
-                margin: 0 auto;
-                margin-top: 10%;
-            }
-
-            .img {
-                margin: 20px 0 40px;
-            }
-        </style>
-    </head>
-    <body>
-        <div class="container">
-            <form class="form-login" action="{{ url('oauth/member/authorize') }}" method="POST">
-                <div class="panel panel-default">
-                  <div class="panel-heading"><b>{{ $auth_client->name }}</b> 要求授權</div>
-                  <div class="panel-body">
-                    <div class="text-center">
-                        <img class="img" src="https://www.ipasskhcc.tw/assets/img/logo-white.png" class="img-rounded">
-                    </div>
-                    <p>將被取用項目:</p>
-                    <ul>
-                        <li>會員資料(email、姓名...)</li>
-                    </ul>
-                    <input type="hidden" name="auth_client_id" value="{{ $auth_client->id }}">
-                    <input type="hidden" id="revoked" name="revoked" value="0">
-                  </div>
-                  <div class="panel-footer ">
-                    <button type="submit" class="btn btn-success btn-default">確認</button>
-                    <button type="submit" class="btn btn-default" id="cancal">取消</button>
-                  </div>
-                </div>
-            </form>
+@section('content')
+<div class="warpper-2">
+    <div class="row img-warp">
+        <div class="col-half">
+            <img src="{{ asset('img/ipasslogo.png') }}">
         </div>
+        <div class="col-half">
+            <img src="{{ asset('img/citypasslogo.png') }}">
+        </div>
+    </div>
+    <form id="form" class="form-login" action="{{ url('oauth/member/authorize') }}" method="POST">
+        <div class="panel panel-default">
+            <div class="panel-heading">『{{ $auth_client->name }} 』 想要求以下權限：</div>
+            <div class="panel-body">
+                <ul>
+                    <li>
+                        <div class="title">
+                            <span class="icon"><i class="fa fa-user" aria-hidden="true"></i></span> 將收到您的基本個人資料
+                        </div>
+                        <div class="desc">
+                            包含帳號、姓名、個人檔案、手機號碼，等相關資訊等相關資訊。
+                        </div>
+                    </li>
+                    <li>
+                        <div class="title">
+                            <span class="icon"><i class="fa fa-envelope-o" aria-hidden="true"></i></span> 允許發送電子郵件
+                        </div>
+                        <div class="desc">
+                            『 CityPass都會通 』可以直接寄送電子郵寄至您的信箱。
+                        </div>
+                    </li>
+                </ul>
+                <input type="hidden" name="auth_client_id" value="{{ $auth_client->id }}">
+                <input type="hidden" id="revoked" name="revoked" value="0">
+            </div>
+            <div class="panel-footer">
+                <div class="checkbox">
+                    <label>
+                        <input type="checkbox" id="input_agree"> 同意CityPass「<a href="#">服務條款與隱私權政策</a>」
+                    </label>
+                </div>
+            </div>
+        </div>
+    </form>
+    <div class="row btn-warp">
+        <div class="col-half">
+            <button class="btn cancal" id="cancal">拒絕</button>
+        </div>
+        <div class="col-half">
+            <button class="btn agree" id="agree">允許</button>
+        </div>
+    </div>
+</div>
+<script>
+document.getElementById('cancal').addEventListener("click", function () {
+    document.getElementById('revoked').setAttribute('value', '1');
+    document.getElementById('form').submit();
+});
 
-        <script>
-            document.getElementById('cancal').addEventListener("click", function () {
-                document.getElementById('revoked').setAttribute('value', '1');
-            });
-        </script>
-    </body>
-</html>
+document.getElementById('agree').addEventListener("click", function () {
+    var checked = document.getElementById('input_agree').checked;
+
+    if (checked) {
+        document.getElementById('form').submit();
+    }
+    else {
+        alert('請同意「服務條款與隱私權政策」');
+    }
+
+    return false;
+});
+</script>
+@endsection
