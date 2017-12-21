@@ -33,7 +33,7 @@ class MemberRepository
         try {
             $member = new Member();
             $member->fill($data);
-            $member->validEmailCode = '';
+            $member->validEmailCode = (isset($data['openId'])) ? Crypt::encrypt($data['openId']) : '';
             $member->validPhoneCode = strval(mt_rand(100000, 999999));
             $member->save();
             return $member;
@@ -163,6 +163,17 @@ class MemberRepository
     public function findByCountryPhone($country, $countryCode, $cellphone)
     {
         return $this->model->where(['country' => $country, 'countryCode' => $countryCode, 'cellphone' => $cellphone])->first();
+    }
+
+    /**
+     * 依據OpenId,查詢使用者
+     * @param $countryCode
+     * @param $cellphone
+     * @return mixed
+     */
+    public function findByOpenId($openId, $openPlateform)
+    {
+        return $this->model->where(['openId' => $openId, 'openPlateform' => $openPlateform])->first();
     }
 
 
