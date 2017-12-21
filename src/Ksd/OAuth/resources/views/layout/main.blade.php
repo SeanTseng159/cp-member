@@ -244,6 +244,26 @@
                 color: white;
                 background-color: #eb5405;
             }
+
+            @media only screen and (max-width: 560px) {
+                .img-warp .col-half {
+                    padding: 5px;
+                }
+
+                .panel .panel-heading {
+                    font-size: 20px;
+                    padding: 10px 5px 15px;
+                }
+
+                .btn-warp .col-half {
+                    padding: 0 15px;
+                }
+
+                .btn-warp .col-half .cancal,
+                .btn-warp .col-half .agree {
+                    width: 100%;
+                }
+            }
         </style>
     </head>
     <body>

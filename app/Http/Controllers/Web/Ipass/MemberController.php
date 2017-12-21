@@ -36,12 +36,12 @@ class MemberController extends Controller
         $auth = $this->service->authorize($parameter);
 
         try {
-            if ($auth->statusCode !== 200) return abort(403);
+            if ($auth->statusCode !== 200) return abort(404);
             $data = (array) $auth->data;
             return view('ipass.login', $data);
         }
         catch (Exception $e) {
-            return abort(403);
+            return abort(404);
         }
     }
 
