@@ -8,35 +8,45 @@
 
 namespace Ksd\Mediation\Services;
 
-use Ksd\Mediation\Helper\MemberHelper;
 use Ksd\Mediation\Repositories\WishlistRepository;
 
 
 class WishlistService
 {
-
-    use MemberHelper;
-
     private $repository;
 
-    public function __construct()
+    public function __construct(MemberTokenService $memberTokenService)
     {
-        $this->repository = new WishlistRepository();
+        $this->repository = new WishlistRepository($memberTokenService);
     }
 
+    /**
+     * 取得所有收藏列表
+     * @return mixed
+     */
     public function items()
     {
-        return $this->repository->setToken($this->userToken())->items();
+        return $this->repository->items();
     }
 
+    /**
+     * 根據商品id 增加商品至收藏清單
+     * @param $parameter
+     * @return bool
+     */
     public function add($parameter)
     {
-        return $this->repository->setToken($this->userToken())->add($parameter);
+        return $this->repository->add($parameter);
     }
 
+    /**
+     * 根據商品id 刪除收藏清單商品
+     * @param $parameter
+     * @return bool
+     */
     public function delete($parameter)
     {
-        return $this->repository->setToken($this->userToken())->delete($parameter);
+        return $this->repository->delete($parameter);
     }
 
 }

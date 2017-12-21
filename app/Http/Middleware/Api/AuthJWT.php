@@ -1,4 +1,9 @@
 <?php
+/**
+ * User: lee
+ * Date: 2017/09/26
+ * Time: 上午 9:42
+ */
 
 namespace App\Http\Middleware\Api;
 
@@ -14,12 +19,12 @@ class AuthJWT
     use ApiResponseHelper;
 
     private $jwtTokenSer;
-    private $memberTokenService;
+    private $memberService;
 
-    public function __construct(JWTTokenService $jwtTokenSer, MemberService $memberTokenService)
+    public function __construct(JWTTokenService $jwtTokenSer, MemberService $memberService)
     {
         $this->jwtTokenSer = $jwtTokenSer;
-        $this->memberTokenService = $memberTokenService;
+        $this->memberService = $memberService;
     }
 
     /**
@@ -37,18 +42,26 @@ class AuthJWT
         }
 
         try {
-            $result = $this->jwtTokenSer->checkToken($token);
-            if (!$result) {
+            $tokenData = $this->jwtTokenSer->checkToken($token);
+            if (!$tokenData) {
                 return $this->apiRespFail('E0022', '無法驗證token');
             }
 
             //來源為app, 需檢查DB裡的token
             $platform = $request->header('platform');
-            if ($platform === 'app') {
-                $member = $this->memberTokenService->findByToken($token);
-                if(empty($member)) {
-                    return $this->apiRespFail('E0022', '無法驗證token');
-                }
+            $member = $this->memberService->find($tokenData->id);
+            $status = ($member) ? $member->status : 0;
+
+            if ($platform === 'oauth') {
+                $status = 1;
+            }
+
+            if ($status == 0) {
+                return $this->apiRespFail('E0022', '會員驗證失效');
+            }
+
+            if ($platform === 'app' && $member->token != $token) {
+                return $this->apiRespFail('E0022', '會員驗證失效');
             }
         } catch (Exception $e) {
             Log::error($e);

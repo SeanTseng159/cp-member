@@ -9,7 +9,6 @@
 namespace Ksd\Mediation\CityPass;
 
 
-use Illuminate\Support\Facades\Log;
 use Ksd\Mediation\Helper\EnvHelper;
 use Ksd\Mediation\Result\ProductResult;
 
@@ -17,7 +16,12 @@ class Product extends Client
 {
     use EnvHelper;
 
-    public function products($categories = null)
+    /**
+     * 根據 商品分類 取得商品列表
+     * @param null $categories
+     * @return array
+     */
+    public function all($categories = null)
     {
         $path = 'product/all';
 
@@ -37,6 +41,11 @@ class Product extends Client
         return $data;
     }
 
+    /**
+     * 根據 商品分類 取得商品列表
+     * @param $categories
+     * @return array
+     */
     public function tags($categories)
     {
         $path = 'product/tags';
@@ -49,26 +58,62 @@ class Product extends Client
         $body = $response->getBody();
         $data = [];
         $result = json_decode($body, true);
-        foreach ($result['data']['result'] as $item) {
-            $product = new ProductResult();
-            $product->cityPass($item);
-            $data[] = $product;
+        if ($result['status']) {
+            foreach ($result['data']['result'] as $item) {
+                $product = new ProductResult();
+                $product->cityPass($item);
+                $data[] = $product;
+            }
         }
+
         return $data;
 
 
     }
 
-    public function product($id)
+    /**
+     * 根據 id 取得商品明細
+     * @param $id
+     * @return ProductResult
+     */
+    public function find($id)
     {
         $path = "product/query/$id";
 
         $response = $this->request('GET', $path);
         $body = $response->getBody();
         $result = json_decode($body, true);
-        Log::debug($body);
-        $product = new ProductResult();
-        $product->cityPass($result['data'], true);
+        $this->logger->info($body);
+        $product = null;
+        if ($result['status']) {
+            $product = new ProductResult();
+            $product->cityPass($result['data'], true);
+        }
         return $product;
+    }
+
+    /**
+     * 根據 關鍵字 做模糊搜尋 取得商品列表
+     * @param $key
+     * @return array
+     */
+    public function search($key)
+    {
+        $keyword = $key->search;
+        $path = "product/search";
+
+        $response  = $this->putQuery('search',$keyword)->request('GET', $path);
+        $body = $response->getBody();
+        $result = json_decode($body, true);
+
+        $data =[];
+        foreach ($result['data'] as $item) {
+            $product = new ProductResult();
+            $product->cityPass($item);
+            $data[] = $product;
+        }
+
+        return $data;
+
     }
 }

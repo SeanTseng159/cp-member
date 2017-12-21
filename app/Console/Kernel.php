@@ -5,6 +5,8 @@ namespace App\Console;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
+use App\Jobs\SendNotification;
+
 class Kernel extends ConsoleKernel
 {
     /**
@@ -26,6 +28,10 @@ class Kernel extends ConsoleKernel
     {
         // $schedule->command('inspire')
         //          ->hourly();
+
+        //發送推播訊息
+        $schedule->job(new SendNotification())->everyMinute()->withoutOverlapping();
+
     }
 
     /**

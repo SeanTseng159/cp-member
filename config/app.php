@@ -65,7 +65,7 @@ return [
     |
     */
 
-    'timezone' => 'UTC',
+    'timezone' => 'Asia/Taipei',
 
     /*
     |--------------------------------------------------------------------------
@@ -168,6 +168,9 @@ return [
          * Package Service Providers...
          */
          Ksd\SMS\Providers\SMSServiceProvider::class,
+         Barryvdh\Cors\ServiceProvider::class,
+         Ksd\OAuth\Providers\OAuthServiceProvider::class,
+         Ksd\IPassPay\Providers\IPassPayServiceProvider::class,
         /*
          * Application Service Providers...
          */

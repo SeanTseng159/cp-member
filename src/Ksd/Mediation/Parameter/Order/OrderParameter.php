@@ -13,6 +13,10 @@ use Ksd\Mediation\Parameter\BaseParameter;
 
 class OrderParameter extends BaseParameter
 {
+    /**
+     * 處理 ci request
+     * @param $input
+     */
     public function codeigniterRequest($no, $input = null)
     {
         parent::codeigniterRequest($input);
@@ -20,10 +24,16 @@ class OrderParameter extends BaseParameter
         $this->source = $input->get('source');
     }
 
+
+    /**
+     * 處理 laravel request
+     * @param $request
+     */
     public function laravelRequest($itemId, $request = null)
     {
         parent::laravelRequest($request);
         $this->itemId = $itemId;
+        $this->id = $request->input('id');
         $this->source = $request->input('source');
     }
 

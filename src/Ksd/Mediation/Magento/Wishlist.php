@@ -16,9 +16,15 @@ use Ksd\Mediation\Repositories\BaseRepository;
 
 class Wishlist extends Client
 {
-
+    /**
+     * 取得所有收藏列表
+     * @return array
+     */
     public function items()
     {
+        if (empty($this->userToken)) {
+            return [];
+        }
 
         $response = $this->request('GET', 'V1/ipwishlist/items');
         $result = json_decode($response->getBody(), true);
@@ -29,30 +35,46 @@ class Wishlist extends Client
             $wish->magento($item);
             $data[] = $wish;
         }
-
+//        dd($data);
         return $data;
     }
 
+    /**
+     * 根據商品id 增加商品至收藏清單
+     * @param $sku
+     * @return  bool
+     */
     public function add($sku)
     {
-
         $product = new Product();
-        $productId = $product->product($sku)->productId;
-        $url = sprintf('V1/ipwishlist/add/%s', $productId);
-        $response = $this->request('POST', $url);
-        $body = $response->getBody();
-        $result = json_decode($body, true);
-        return $result;
+        $productId = $product->find($sku)->productId;
+        $result = [];
+        try {
+            $url = sprintf('V1/ipwishlist/add/%s', $productId);
+            $response = $this->request('POST', $url);
+            $result = json_decode($response->getBody(), true);
+        }catch (ClientException $e) {
+
+        }
+        return $result == 'true' ? true : false ;
     }
 
+    /**
+     * 根據商品id 刪除收藏清單商品
+     * @param $wishlistItemId
+     *  @return  bool
+     */
     public function delete($wishlistItemId)
     {
+        $result = [];
+        try {
+            $url = sprintf('V1/ipwishlist/delete/%s', $wishlistItemId);
+            $response = $this->request('DELETE', $url);
+            $result = json_decode($response->getBody(), true);
+        }catch (ClientException $e) {
 
-        $url = sprintf('V1/ipwishlist/delete/%s', $wishlistItemId);
-        $response = $this->request('DELETE', $url);
-        $body = $response->getBody();
-        $result = json_decode($body, true);
-        return $result;
+        }
+        return $result == 'true' ? true : false ;
     }
 
 

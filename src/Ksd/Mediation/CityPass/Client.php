@@ -20,9 +20,12 @@ class Client extends BaseClient
 
     public function __construct()
     {
+        parent::__construct();
         $this->baseUrl = $this->env('CITY_PASS_API_PATH');
         $this->client = new GuzzleHttpClient([
             'base_uri' => $this->baseUrl
         ]);
+
+        $this->setJson(false);
     }
 }

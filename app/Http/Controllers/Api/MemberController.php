@@ -1,23 +1,31 @@
 <?php
+/**
+ * User: lee
+ * Date: 2017/09/26
+ * Time: 上午 9:42
+ */
 
 namespace App\Http\Controllers\Api;
 
 use Ksd\Mediation\Core\Controller\RestLaravelController;
 use App\Services\MemberService;
-use App\Services\JWTTokenService;
+use App\Services\NewsletterService;
 use GuzzleHttp\Client;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Validator;
+use Crypt;
 use Log;
 
 class MemberController extends RestLaravelController
 {
-    private $memberService;
+    protected $memberService;
+    protected $newsletterService;
 
-    public function __construct(MemberService $memberService)
+    public function __construct(MemberService $memberService, NewsletterService $newsletterService)
     {
         $this->memberService = $memberService;
+        $this->newsletterService = $newsletterService;
     }
 
     /**
@@ -31,36 +39,60 @@ class MemberController extends RestLaravelController
             'countryCode',
             'cellphone',
             'openPlateform',
-            'openId'
+            'openId',
+            'country'
         ]);
 
         $validator = Validator::make($data, [
             'countryCode' => 'required|max:6',
             'cellphone' => 'required|alpha_num|max:12',
             'openPlateform' => 'required',
+            'country' => 'required'
         ]);
 
         if ($validator->fails()) {
             return $this->failure('E0001', '傳送參數錯誤');
         }
 
-        //驗證可否註冊
-        if (!$this->memberService->canReRegister($data['countryCode'], $data['cellphone'])) {
-            return $this->failure('A0030', '請15分鐘後再註冊');
+        $country = strtoupper($data['country']);
+
+        try {
+            $phoneUtil = \libphonenumber\PhoneNumberUtil::getInstance();
+            $phoneNumber = $phoneUtil->parse($data['countryCode'] . $data['cellphone'], $country);
+
+            $countryCode = $data['countryCode'] = $phoneNumber->getCountryCode();
+            $cellphone = $data['cellphone'] = $phoneNumber->getNationalNumber();
+            $intlNumber = $phoneUtil->format($phoneNumber, \libphonenumber\PhoneNumberFormat::E164);
+
+            $isValid = $phoneUtil->isValidNumber($phoneNumber);
+            $getNumberType = $phoneUtil->getNumberType($phoneNumber);
+
+            if (!$phoneUtil->isValidNumber($phoneNumber) || $phoneUtil->getNumberType($phoneNumber) != 1) {
+                Log::error('不是手機格式');
+                return $this->failure('E0301', '手機格式錯誤');
+            }
+        } catch (\libphonenumber\NumberParseException $e) {
+            Log::debug($e);
+            return $this->failure('E0301', '手機格式錯誤');
         }
 
-        if ($this->memberService->checkPhoneIsUse($data['countryCode'], $data['cellphone'])) {
+        //確認手機是否使用
+        if ($this->memberService->checkPhoneIsUse($countryCode, $cellphone)) {
             return $this->failure('A0031', '該手機號碼已使用');
         }
 
-        $member = $this->memberService->create($data);
+        //驗證可否註冊
+        if (!$this->memberService->canReRegister($countryCode, $cellphone)) {
+            return $this->failure('A0030', '請15分鐘後再註冊');
+        }
 
-        if ($member && env('APP_ENV') === 'production') {
-            return ($member) ? $this->success(['id' => $member->id]) : $this->failure('E0011', '建立會員失敗');
-        }
-        else {
-            return ($member) ? $this->success(['id' => $member->id, 'validPhoneCode' => $member->validPhoneCode]) : $this->failure('E0011', '建立會員失敗');
-        }
+        $member = $this->memberService->checkHasPhoneAndNotRegistered($countryCode, $cellphone);
+
+        $member = ($member) ? $this->memberService->update($member->id, $data) : $this->memberService->create($data);
+
+        //傳送簡訊認證
+        $this->memberService->sendSMS($member);
+        return ($member) ? $this->success(['id' => $member->id, 'validPhoneCode' => $member->validPhoneCode]) : $this->failure('E0011', '建立會員失敗');
     }
 
     /**
@@ -75,13 +107,26 @@ class MemberController extends RestLaravelController
         $data = $request->except(['id']);
         $data['status'] = $data['isValidPhone'] = $data['isRegistered'] = 1;
 
+        // 檢查Email是否使用
+        $result = $this->memberService->checkEmailIsUse($data['email']);
+        if ($result) return $this->failure('A0032', '該Email已使用');
+
         $member = $this->memberService->update($id, $data);
 
-        $member = $this->memberService->generateToken($member, $platform);
-
         if ($member) {
+            $member = $this->memberService->generateToken($member, $platform);
+
+            // 訂閱電子報
+            $newsletter = $this->newsletterService->findByEmail($member->email);
+            $newsletterData = [
+                'email' => $member->email,
+                'member_id' => $member->id
+            ];
+
+            ($newsletter) ? $this->newsletterService->update($newsletter->id, $newsletterData) : $this->newsletterService->create($newsletterData);
+
             // 發信
-            $this->memberService->sendValidateEmail($member->id);
+            $this->memberService->sendRegisterEmail($member);
 
             return $this->success([
                 'id' => $member->id,
@@ -91,7 +136,7 @@ class MemberController extends RestLaravelController
             ]);
         }
         else {
-            $this->failure('E0012', '註冊失敗');
+            return $this->failure('E0012', '註冊失敗');
         }
     }
 
@@ -106,12 +151,69 @@ class MemberController extends RestLaravelController
          $data = $request->except([
                     'id',
                     'password',
-                    '',
-                    ''
+                    'email',
+                    'newsletter'
                 ]);
-         $member = $this->memberService->update($id, $data);
 
-         return ($member) ? $this->success($member) : $this->failure('E0003', '更新失敗');
+        $countryCode = $request->input('countryCode');
+        $cellphone = $request->input('cellphone');
+        $country = $request->input('country');
+
+        if ($countryCode && $cellphone && $country) {
+            try {
+                $phoneUtil = \libphonenumber\PhoneNumberUtil::getInstance();
+                $phoneNumber = $phoneUtil->parse($countryCode . $cellphone, strtoupper($country));
+
+                $countryCode = $data['countryCode'] = $phoneNumber->getCountryCode();
+                $cellphone = $data['cellphone'] = $phoneNumber->getNationalNumber();
+                $intlNumber = $phoneUtil->format($phoneNumber, \libphonenumber\PhoneNumberFormat::E164);
+
+                $isValid = $phoneUtil->isValidNumber($phoneNumber);
+                $getNumberType = $phoneUtil->getNumberType($phoneNumber);
+
+                if (!$phoneUtil->isValidNumber($phoneNumber) || $phoneUtil->getNumberType($phoneNumber) != 1) {
+                    Log::error('不是手機格式');
+                    return $this->failure('E0301', '手機格式錯誤');
+                }
+            } catch (\libphonenumber\NumberParseException $e) {
+                Log::debug($e);
+                return $this->failure('E0301', '手機格式錯誤');
+            }
+
+            //確認手機是否使用
+            if ($this->memberService->checkPhoneIsUse($countryCode, $cellphone)) {
+                return $this->failure('A0031', '該手機號碼已使用');
+            }
+        }
+
+        $member = $this->memberService->update($id, $data);
+        if (!$member) return $this->failure('E0003', '更新失敗');
+
+        $member->newsletter = $this->newsletterService->findByEmail($member->email);
+
+        // 更新訂閱電子報
+        $postNewsletter = $request->input('newsletter');
+
+        if (isset($postNewsletter['status'])) {
+            $newsletterData = [
+                'member_id' => $member->id,
+                'schedule' => (isset($postNewsletter['schedule'])) ? $postNewsletter['schedule'] : 0,
+                'status' => $postNewsletter['status'],
+                'memo' => (isset($postNewsletter['memo'])) ? $postNewsletter['memo'] : ''
+            ];
+
+            if ($member->newsletter) {
+                $newsletter = $this->newsletterService->update($member->newsletter->id, $newsletterData);
+            }
+            else {
+                $newsletterData['email'] = $member->email;
+                $newsletter = $this->newsletterService->create($newsletterData);
+            }
+
+            $member->newsletter = $newsletter;
+        }
+
+        return $this->success($member);
      }
 
     /**
@@ -123,7 +225,7 @@ class MemberController extends RestLaravelController
     {
         $member = $this->memberService->delete($id);
 
-        return ($member) ? $this->success(['id' => $member->id]) : $this->failure('E0004', '刪除失敗');
+        return ($member) ? $this->success(['id' => $member]) : $this->failure('E0004', '刪除失敗');
     }
 
     /**
@@ -141,6 +243,20 @@ class MemberController extends RestLaravelController
     }
 
     /**
+    * 驗證-手機驗證碼
+    * @paramRequest $request
+    * @return \Illuminate\Http\JsonResponse
+    */
+    public function checkEmail(Request $request)
+    {
+        $email = $request->input('email');
+
+        $result = $this->memberService->checkEmailIsUse($email);
+
+        return (!$result) ? $this->success() : $this->failure('A0032', '該Email已使用');
+    }
+
+    /**
     * 取所有會員
     * @paramRequest $request
     * @return \Illuminate\Http\JsonResponse
@@ -150,6 +266,22 @@ class MemberController extends RestLaravelController
         $members = $this->memberService->all();
 
         return $this->success($members);
+    }
+
+    /**
+    * 單一會員資料查詢
+    * @paramRequest $request
+    * @return \Illuminate\Http\JsonResponse
+    */
+    public function singleMember(Request $request, $id)
+    {
+        $member = $this->memberService->find($id);
+
+        if ($member) {
+            $member->newsletter = $this->newsletterService->findByEmail($member->email);
+        }
+
+        return $this->success($member);
     }
 
     /**
@@ -172,18 +304,119 @@ class MemberController extends RestLaravelController
     */
     public function changePassword(Request $request, $id)
     {
-        $data = $request->except([
+        $data = $request->only([
             'oldpassword',
             'password'
         ]);
 
         $result = $this->memberService->changePassword($id, $data);
 
+        return ($result) ? $this->success() : $this->failure('E0018', '密碼修改失敗，請確認舊密碼是否正確。');
+    }
+
+    /**
+    * 發送忘記密碼信
+    * @paramRequest $request
+    * @return \Illuminate\Http\JsonResponse
+    */
+    public function sendForgetPassword(Request $request)
+    {
+        $email = $request->input('email');
+
+        $result = $this->memberService->sendForgetPassword($email);
+
+        return ($result) ? $this->success() : $this->failure('E0061', '會員不存在');
+    }
+
+    /**
+    * 忘記密碼-修改密碼
+    * @paramRequest $request
+    * @return \Illuminate\Http\JsonResponse
+    */
+    public function resetPassword(Request $request)
+    {
+        $key = $request->input('key');
+        $password = $request->input('password');
+
+        try {
+            $key = Crypt::decrypt($key);
+            $keyAry = explode('_', $key);
+            $email = $keyAry[0];
+            $expires = $keyAry[1];
+        } catch (DecryptException $e) {
+            return $this->failure('E0001', '傳送參數錯誤');
+        }
+
+        $result = $this->memberService->validateResetPasswordKey($expires);
+
+        if (!$result) return $this->failure('A0033', '超過可修改時間，請重新操作');
+
+        $member = $this->memberService->findByEmail($email);
+
+        if (!$member || $member->isRegistered == 0) return $this->failure('E0021', '會員驗證失敗');
+
+        $result = $this->memberService->update($member->id, ['password' => $password]);
+
         return ($result) ? $this->success() : $this->failure('E0018', '密碼修改失敗');
     }
 
     /**
-    * 會員密碼修改
+    * 發送手機驗證碼
+    * @paramRequest $request
+    * @return \Illuminate\Http\JsonResponse
+    */
+    public function sendValidPhoneCode(Request $request)
+    {
+        $id = $request->input('id');
+        $countryCode = $request->input('countryCode');
+        $cellphone = $request->input('cellphone');
+        $country = $request->input('country');
+
+        if ($countryCode && $cellphone && $country) {
+            try {
+                $phoneUtil = \libphonenumber\PhoneNumberUtil::getInstance();
+                $phoneNumber = $phoneUtil->parse($countryCode . $cellphone, strtoupper($country));
+
+                $countryCode = $phoneNumber->getCountryCode();
+                $cellphone = $phoneNumber->getNationalNumber();
+                $intlNumber = $phoneUtil->format($phoneNumber, \libphonenumber\PhoneNumberFormat::E164);
+
+                $isValid = $phoneUtil->isValidNumber($phoneNumber);
+                $getNumberType = $phoneUtil->getNumberType($phoneNumber);
+
+                if (!$phoneUtil->isValidNumber($phoneNumber) || $phoneUtil->getNumberType($phoneNumber) != 1) {
+                    Log::error('不是手機格式');
+                    return $this->failure('E0301', '手機格式錯誤');
+                }
+            } catch (\libphonenumber\NumberParseException $e) {
+                Log::debug($e);
+                return $this->failure('E0301', '手機格式錯誤');
+            }
+
+            //確認手機是否使用
+            if ($this->memberService->checkPhoneIsUse($countryCode, $cellphone)) {
+                return $this->failure('A0031', '該手機號碼已使用');
+            }
+
+            $member = $this->memberService->update($id, [
+                    'countryCode' => $countryCode,
+                    'cellphone' => $cellphone,
+                    'country' => $country
+                ]);
+        }
+        else {
+            $member = $this->memberService->update($id, [
+                    'validPhoneCode' => strval(mt_rand(100000, 999999))
+                ]);
+        }
+
+        //傳送簡訊認證
+        $this->memberService->sendSMS($member);
+        return ($member) ? $this->success(['id' => $member->id, 'validPhoneCode' => $member->validPhoneCode]) : $this->failure('E0052', '簡訊發送失敗');
+    }
+
+    /**
+    * 發送Email驗證信
     * @paramRequest $request
     * @return \Illuminate\Http\JsonResponse
     */
@@ -193,7 +426,21 @@ class MemberController extends RestLaravelController
 
         $result = $this->memberService->sendValidateEmail($id);
 
-        return ($result) ? $this->success() : $this->failure('E0051', 'Email發送失敗');
+        return ($result) ? $this->success(['id' => $id]) : $this->failure('E0051', 'Email發送失敗');
+    }
+
+    /**
+    * 驗證-Email驗證碼
+    * @paramRequest $request
+    * @return \Illuminate\Http\JsonResponse
+    */
+    public function validateEmail(Request $request)
+    {
+        $validEmailCode = $request->input('validEmailCode');
+
+        $result = $this->memberService->validateEmail($validEmailCode);
+
+        return ($result) ? $this->success() : $this->failure('E0014', 'Email驗證碼錯誤');
     }
 
     /**
@@ -220,8 +467,15 @@ class MemberController extends RestLaravelController
         return $this->success([
             'id' => $member->id,
             'token' => $member->token,
+            'email' => $member->email,
             'name' => $member->name,
-            'avatar' => $member->avatar
+            'avatar' => $member->avatar,
+            'countryCode' => $member->countryCode,
+            'cellphone' => $member->cellphone,
+            'country' => $member->country,
+            'gender' => $member->gender,
+            'zipcode' => $member->zipcode,
+            'address' => $member->address
         ]);
     }
 

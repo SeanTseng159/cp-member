@@ -1,0 +1,15 @@
+#!/bin/sh
+
+WEB_HOME=/var/www/city-pass-member-center;
+
+service cron restart;
+
+php $WEB_HOME/artisan optimize;
+php $WEB_HOME/artisan vendor:publish --all;
+php $WEB_HOME/artisan cache:clear;
+
+supervisorctl reread;
+supervisorctl update;
+supervisorctl start laravel-worker:*;
+
+chown -R www-data:www-data $WEB_HOME;

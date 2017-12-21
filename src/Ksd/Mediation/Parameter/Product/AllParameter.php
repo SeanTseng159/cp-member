@@ -10,48 +10,36 @@ namespace Ksd\Mediation\Parameter\Product;
 
 
 use Ksd\Mediation\Parameter\BaseParameter;
+use Ksd\Mediation\Traits\Product\Sort;
 
 class AllParameter extends BaseParameter
 {
+    use Sort;
+
+    /**
+     * 處理 ci request
+     * @param $input
+     */
     public function codeigniterRequest($input)
     {
         parent::codeigniterRequest($input);
         $this->tags = $input->get('tags');
     }
 
+    /**
+     * 處理 laravel request
+     * @param $request
+     */
     public function laravelRequest($request)
     {
         parent::laravelRequest($request);
         $this->tags = $request->input('tags');
     }
 
-    public function sort($a, $b)
-    {
-        if ($this->sort == 'created_at') {
-            $format = "Y-m-d H:i:s";
-
-            $now = \DateTime::createFromFormat($format, $a->createdAt);
-            $before = \DateTime::createFromFormat($format, $b->createdAt);
-            $compare = $now->getTimestamp() - $before->getTimestamp();
-
-            if ($compare == 0) {
-                return 0;
-            }
-            if ($this->direction == 'desc') {
-                return $compare ? 1 : -1;
-            }
-            return $compare ? -1 : 1;
-        } else if ($this->sort == 'price') {
-            if ($a->price == $b->price) {
-                return 0;
-            }
-            if ($this->direction == 'desc') {
-                return $a->price < $b->price ? 1 : -1;
-            }
-            return $a->price < $b->price ? -1 : 1;
-        }
-    }
-
+    /**
+     * 取得分類陣列
+     * @return mixed
+     */
     public function categories()
     {
         return $this->tags;

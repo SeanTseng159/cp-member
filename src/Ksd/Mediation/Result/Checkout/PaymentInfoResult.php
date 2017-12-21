@@ -16,10 +16,79 @@ class PaymentInfoResult
 {
     use ObjectHelper;
 
+    /**
+     * magento 付款資料建置
+     * @param $result
+     */
     public function magento($result)
     {
         $this->source = ProjectConfig::MAGENTO;
         $this->id = $this->arrayDefault($result, 'code');
-        $this->name = $this->arrayDefault($result, 'title');
+        $this->name = $this->getPaymentMethod($this->arrayDefault($result, 'title'));
+        $this->type =  $this->paymentType($this->arrayDefault($result, 'code'));
     }
+
+
+    /**
+     * 設定付款方式type對應
+     * @param $key
+     * @return string
+     */
+    public function paymentType($key)
+    {
+        switch ($key) {
+
+            case 'neweb_transmit': # 信用卡一次付清
+                return 'credit_card';
+                break;
+            case 'neweb_atm': # 虛擬帳號一次付清
+                return 'atm';
+                break;
+            case 'ipasspay': # ipasspay
+                return 'ipass_pay';
+                break;
+            case 'checkmo': # check
+                return 'credit_card';
+                break;
+            case 'tspg_transmit': # check
+                return 'test';
+                break;
+            case 'tspg_atm': # check
+                return 'atm';
+                break;
+
+        }
+    }
+
+    /**
+     * 付款方式name名稱轉換
+     * @return string
+     */
+    public function getPaymentMethod($key)
+    {
+        switch ($key) {
+
+            case 'Check / Money order':
+                return "測試用";
+                break;
+            case 'Neweb Api Payment':
+                return "(藍新)信用卡一次付清";
+                break;
+            case 'Neweb Atm Payment':
+                return "(藍新)ATM虛擬帳號";
+                break;
+            case 'Ipass Pay':
+                return "Ipass Pay";
+                break;
+            case 'Tspg Api Payment':
+                return "(台新)信用卡一次付清";
+                break;
+            case 'Tspg Atm Payment':
+                return "(台新)ATM虛擬帳號";
+                break;
+
+        }
+
+    }
+
 }

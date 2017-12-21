@@ -1,4 +1,9 @@
 <?php
+/**
+ * User: lee
+ * Date: 2017/09/26
+ * Time: 上午 9:42
+ */
 
 namespace App\Repositories;
 
@@ -7,6 +12,7 @@ use Illuminate\Database\QueryException;
 use App\Models\Member;
 use Crypt;
 use Hash;
+use Log;
 
 class MemberRepository
 {
@@ -27,8 +33,8 @@ class MemberRepository
         try {
             $member = new Member();
             $member->fill($data);
-            $member->validPhoneCode = mt_rand(100000, 999999);
-            $member->validEmailCode = Crypt::encrypt($data['cellphone']);
+            $member->validEmailCode = '';
+            $member->validPhoneCode = strval(mt_rand(100000, 999999));
             $member->save();
             return $member;
         } catch (QueryException $e) {
@@ -50,9 +56,14 @@ class MemberRepository
             if ($member) {
                 $member->fill($data);
                 if (isset($data['password'])) $member->password = Hash::make($member->password);
+                if ($member->email) $member->validEmailCode = Crypt::encrypt($member->email);
+                if (isset($data['email'])) $member->validEmailCode = Crypt::encrypt($data['email']);
+                $member->validPhoneCode = strval(mt_rand(100000, 999999));
+                if (!isset($data['birthday']) || !$data['birthday']) unset($member->birthday);
                 $member->save();
                 return $member;
             } else {
+                Log::error('找不到使用者，無法更新');
                 return false;
             }
         } catch (QueryException $e) {
@@ -141,4 +152,18 @@ class MemberRepository
     {
         return $this->model->where(['countryCode' => $countryCode, 'cellphone' => $cellphone])->first();
     }
+
+    /**
+     * 依據手機,查詢使用者(增加國家代碼)
+     * @param $country
+     * @param $countryCode
+     * @param $cellphone
+     * @return mixed
+     */
+    public function findByCountryPhone($country, $countryCode, $cellphone)
+    {
+        return $this->model->where(['country' => $country, 'countryCode' => $countryCode, 'cellphone' => $cellphone])->first();
+    }
+
+
 }

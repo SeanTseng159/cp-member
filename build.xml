@@ -11,7 +11,7 @@
        需先執行以下指令 安裝code style 跟 unit test套件
        composer global require phpunit/phpunit
     -->
-    <property name="phpunit" value="${user.home}/.config/composer/vendor/bin//phpunit"/>
+    <property name="phpunit" value="${basedir}/vendor/bin/phpunit"/>
 
     <target name="full-build"
             depends="prepare,composer,phpunit"

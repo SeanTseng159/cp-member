@@ -22,6 +22,11 @@ class ProductCategoryResult
         $this->name = $this->arrayDefault($result, 'name');
     }
 
+    /**
+     * 根據 名稱 取得分類
+     * @param $name
+     * @return $this|null
+     */
     public function filterByName($name)
     {
         if ($this->name === $name) {
@@ -30,6 +35,27 @@ class ProductCategoryResult
         if (!empty($this->children)) {
             foreach ($this->children as $child) {
                 $category =  $child->filterByName($name);
+                if(!empty($category)) {
+                    return $category;
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
+     * 根據 id 取得分類
+     * @param $id
+     * @return $this|null
+     */
+    public function filterById($id)
+    {
+        if ($this->id == $id) {
+            return $this;
+        }
+        if (!empty($this->children)) {
+            foreach ($this->children as $child) {
+                $category =  $child->filterById($id);
                 if(!empty($category)) {
                     return $category;
                 }

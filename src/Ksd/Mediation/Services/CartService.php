@@ -9,42 +9,71 @@
 namespace Ksd\Mediation\Services;
 
 
-use Ksd\Mediation\Helper\MemberHelper;
 use Ksd\Mediation\Repositories\CartRepository;
+
 
 class CartService
 {
-    use MemberHelper;
-
     private $repository;
 
-    public function __construct()
+    public function __construct(MemberTokenService $memberTokenService)
     {
-        $this->repository = new CartRepository();
+        $this->repository = new CartRepository($memberTokenService);
     }
 
+    /**
+     * 取得購物車簡易資訊
+     * @return mixed
+     */
     public function info()
     {
-        return $this->repository->setToken($this->userToken())->info();
+        return $this->repository->info();
     }
 
+    /**
+     * 取得購物車資訊
+     * @return mixed
+     */
     public function detail()
     {
-        return $this->repository->setToken($this->userToken())->detail();
+        return $this->repository->detail();
     }
 
+    /**
+     * 商品加入購物車
+     * @param $parameters
+     * @return bool
+     */
     public function add($parameters)
     {
-        return $this->repository->setToken($this->userToken())->add($parameters);
+        return $this->repository->add($parameters);
     }
 
+    /**
+     * 更新購物車內商品
+     * @param $parameters
+     * @return bool
+     */
     public function update($parameters)
     {
-        return $this->repository->setToken($this->userToken())->update($parameters);
+        return $this->repository->update($parameters);
     }
 
+    /**
+     * 刪除購物車內商品
+     * @param $parameters
+     * @return bool
+     */
     public function delete($parameters)
     {
-        return $this->repository->setToken($this->userToken())->delete($parameters);
+        return $this->repository->delete($parameters);
+    }
+
+    /**
+     * 刪除購物車快取
+     */
+    public function cleanCache()
+    {
+        return $this->repository->cleanCache();
     }
 }

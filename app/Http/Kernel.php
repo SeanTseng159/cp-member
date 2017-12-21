@@ -40,7 +40,17 @@ class Kernel extends HttpKernel
         'api' => [
             'throttle:60,1',
             'bindings',
+            \Illuminate\Session\Middleware\StartSession::class,
+            \App\Http\Middleware\Api\TraceRequest::class,
         ],
+
+        'oauth' => [
+            \Illuminate\Session\Middleware\StartSession::class
+        ],
+
+        'ipasspay' => [
+            \Illuminate\Session\Middleware\StartSession::class
+        ]
     ];
 
     /**
@@ -58,5 +68,6 @@ class Kernel extends HttpKernel
         'guest' => \App\Http\Middleware\RedirectIfAuthenticated::class,
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
         'auth.jwt' => \App\Http\Middleware\Api\AuthJWT::class,
+        'cors' => \Barryvdh\Cors\HandleCors::class,
     ];
 }

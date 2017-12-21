@@ -1,4 +1,9 @@
 <?php
+/**
+ * User: lee
+ * Date: 2017/09/26
+ * Time: 上午 9:42
+ */
 
 namespace App\Services;
 
@@ -23,11 +28,37 @@ class JWTTokenService
         $token = [
             'iss' => env('JWT_ISS', 'CityPass'),
             'iat' => $iat,
+            'exp' => $exp,
             'id' => $member->id
         ];
 
-        //來源不為app, token需限制時間
-        if ($platform !== 'app') $token['exp'] = $exp;
+        //來源為app, token無限制時間
+        if ($platform === 'app') unset($token['exp']);
+
+        if ($platform === 'oauth') {
+            $token['exp'] = time() + 7200;
+        }
+
+        return $this->JWTencode($token);
+    }
+
+    /**
+     * 建立 token
+     * @param $member
+     * @param $platform
+     * @return string
+     */
+    public function generateOAuthToken($id)
+    {
+        $iat = time();
+        $exp = time() + 86400;
+
+        $token = [
+            'iss' => env('JWT_ISS', 'CityPass'),
+            'iat' => $iat,
+            'exp' => $exp,
+            'id' => $id
+        ];
 
         return $this->JWTencode($token);
     }

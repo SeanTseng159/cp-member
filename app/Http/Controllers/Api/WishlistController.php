@@ -16,27 +16,43 @@ class WishlistController extends RestLaravelController
         $this->wishlistService = $wishlistService;
     }
 
-    public function items()
+    /**
+     * 取得所有收藏列表
+     * @param Request $request
+     * @return mixed
+     */
+    public function items(Request $request)
     {
         return $this->success($this->wishlistService->items());
     }
 
-
+    /**
+     * 根據商品id 增加商品至收藏清單
+     * @param Request $request
+     * @param $id
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function add(Request $request, $id)
     {
         $parameter = new WishlistParameter();
         $parameter->laravelRequest($id, $request);
-        $this->wishlistService->add($parameter);
-        return $this->success();
+        $result = $this->wishlistService->add($parameter);
+        return ($result) ? $this->success() : $this->failure('E0002', '新增失敗');
     }
 
 
+    /**
+     * 根據商品id 刪除收藏清單商品
+     * @param Request $request
+     * @param $id
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function delete(Request $request, $id)
     {
         $parameter = new WishlistParameter();
         $parameter->laravelRequest($id, $request);
-        $this->wishlistService->delete($parameter);
-        return $this->success();
+        $result = $this->wishlistService->delete($parameter);
+        return ($result) ? $this->success() : $this->failure('E0004', '刪除失敗');
     }
 
 

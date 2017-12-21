@@ -1,4 +1,9 @@
 <?php
+/**
+ * User: lee
+ * Date: 2017/09/26
+ * Time: 上午 9:42
+ */
 
 namespace App\Traits;
 
@@ -14,10 +19,10 @@ trait JWTTokenHelper
 
     public function JWTdecode($token = null)
     {
-        $hasToken = empty($token);
-        if ($hasToken) {
-            $token = Request::bearerToken();
-        }
+        if (!$token) $token = Request::bearerToken();
+
+        if (!$token) return null;
+
         try {
             return JWT::decode($token, env('JWT_KEY', '53890045'), ['HS256']);
         } catch (\Firebase\JWT\ExpiredException $exception) {
@@ -25,9 +30,7 @@ trait JWTTokenHelper
         } catch (\Firebase\JWT\SignatureInvalidException $exception) {
             throw $exception;
         } catch (\Exception $exception) {
-            if(!$hasToken) {
-                throw $exception;
-            }
+            throw $exception;
         }
 
         return null;

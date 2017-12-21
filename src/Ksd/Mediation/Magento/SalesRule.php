@@ -11,6 +11,7 @@ namespace Ksd\Mediation\Magento;
 
 use Ksd\Mediation\Result\SalesRule\CouponResult;
 use Ksd\Mediation\Result\SalesRule\SalesRuleResult;
+use GuzzleHttp\Exception\ClientException;
 
 class SalesRule extends Client
 {
@@ -45,8 +46,25 @@ class SalesRule extends Client
         return $coupon;
     }
 
+    public function salesRuleFindByCode($code)
+    {
+        $url = 'V1/salesRules/search';
+        $this->clear();
+        $this->putQueries([
+            'searchCriteria[filterGroups][0][filters][0][field]' => 'code',
+            'searchCriteria[filterGroups][0][filters][0][value]' => $code,
+            'searchCriteria[pageSize]' => 1
+        ]);
+        $response = $this->request('GET', $url);
+        $result = json_decode($response->getBody(), true);
+        $item = empty($result['items']) ? [] : $result['items'][0];
+
+        return $item;
+    }
+
     public function couponDetail($code)
     {
+
         $coupon = $this->couponFindByCode($code);
         $salesRule = $this->find($coupon->ruleId);
         $salesRule->setCoupon($coupon);
@@ -62,20 +80,40 @@ class SalesRule extends Client
         return $result;
     }
 
+    /**
+     * 使用折扣優惠
+     * @param $code
+     * @return bool
+     */
     public function addCoupon($code)
     {
-        $url = sprintf('V1/carts/mine/coupons/%s', $code);
-        $response = $this->request('PUT', $url);
-        $result = $response->getBody();
 
-        return $result == 'true';
+        $result = false;
+        try {
+            $url = sprintf('V1/carts/mine/coupons/%s', $code);
+            $response = $this->request('PUT', $url);
+            $result = $response->getBody();
+        }catch (ClientException $e){
+
+        }
+
+        return $result == 'true' ? true : $result;
     }
 
+    /**
+     * 取消折扣優惠
+     * @return bool
+     */
     public function deleteCoupon()
     {
-        $url = 'V1/carts/mine/coupons';
-        $response = $this->request('DELETE', $url);
-        $result = $response->getBody();
-        return $result === 'true';
+        $result = false;
+        try {
+            $url = 'V1/carts/mine/coupons';
+            $response = $this->request('DELETE', $url);
+            $result = $response->getBody();
+        }catch (ClientException $e){
+
+        }
+        return $result == 'true' ? true : $result;
     }
 }
