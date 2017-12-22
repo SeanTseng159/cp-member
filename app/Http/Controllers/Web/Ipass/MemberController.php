@@ -98,7 +98,7 @@ class MemberController extends Controller
 
       $url = (env('APP_ENV') === 'production') ? env('CITY_PASS_WEB') : 'http://localhost:3000/';
       $url .= $lang;
-      $url .= '/member/oauth/success/' . $token;
+      $url .= 'oauth/success/' . $token;
 
       return redirect($url);
     }
@@ -109,7 +109,7 @@ class MemberController extends Controller
 
       $url = (env('APP_ENV') === 'production') ? env('CITY_PASS_WEB') : 'http://localhost:3000/';
       $url .= $lang;
-      $url .= '/member/oauth/failure';
+      $url .= 'oauth/failure';
 
       return redirect($url);
     }

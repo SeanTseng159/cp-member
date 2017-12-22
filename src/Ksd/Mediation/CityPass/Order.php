@@ -143,9 +143,6 @@ class Order extends Client
         $result = json_decode($body, true);
         $data = [];
 
-        \Log::debug('=== ipass pay to citypass check order ===');
-        \Log::debug(print_r($result, true));
-
         if(!empty($result['data'])) {
             $order = new OrderResult();
             $order->cityPass($result['data']);
