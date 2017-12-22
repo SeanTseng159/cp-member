@@ -67,7 +67,7 @@ class MemberTokenService
         $data = [
             'iss' => $tokenData->iss,
             'iat' => $tokenData->iat,
-            'exp' => $tokenData->exp,
+            'exp' => $exp,
             'id' => $tokenData->id,
             'signature' => $signature
         ];

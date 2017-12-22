@@ -25,9 +25,11 @@ class CallbackParameter
             $this->callback->{$key} = $value;
         }
 
-        $session = $request->session()->pull('ipassPay', 'default');
-        foreach ($session as $key => $value) {
-            $this->{$key} = $value;
+        $session = session('ipassPay');
+        if ($session) {
+            foreach ($session as $key => $value) {
+                $this->{$key} = $value;
+            }
         }
     }
 }

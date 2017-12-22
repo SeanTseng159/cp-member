@@ -51,7 +51,7 @@ class PaymentInfoResult
                 return 'credit_card';
                 break;
             case 'tspg_transmit': # check
-                return 'test';
+                return 'credit_card';
                 break;
             case 'tspg_atm': # check
                 return 'atm';

@@ -16,6 +16,7 @@ use App\Http\Controllers\Controller;
 use Validator;
 use Crypt;
 use Log;
+use Illuminate\Contracts\Encryption\DecryptException;
 
 class MemberController extends RestLaravelController
 {
@@ -77,16 +78,16 @@ class MemberController extends RestLaravelController
         }
 
         //確認手機是否使用
-        if ($this->memberService->checkPhoneIsUse($countryCode, $cellphone)) {
+        if ($this->memberService->checkPhoneIsUse($data['country'], $countryCode, $cellphone)) {
             return $this->failure('A0031', '該手機號碼已使用');
         }
 
         //驗證可否註冊
-        if (!$this->memberService->canReRegister($countryCode, $cellphone)) {
+        if (!$this->memberService->canReRegister($data['country'], $countryCode, $cellphone)) {
             return $this->failure('A0030', '請15分鐘後再註冊');
         }
 
-        $member = $this->memberService->checkHasPhoneAndNotRegistered($countryCode, $cellphone);
+        $member = $this->memberService->checkHasPhoneAndNotRegistered($data['country'], $countryCode, $cellphone);
 
         $member = ($member) ? $this->memberService->update($member->id, $data) : $this->memberService->create($data);
 
@@ -181,7 +182,7 @@ class MemberController extends RestLaravelController
             }
 
             //確認手機是否使用
-            if ($this->memberService->checkPhoneIsUse($countryCode, $cellphone)) {
+            if ($this->memberService->checkPhoneIsUse($country, $countryCode, $cellphone)) {
                 return $this->failure('A0031', '該手機號碼已使用');
             }
         }
@@ -394,7 +395,7 @@ class MemberController extends RestLaravelController
             }
 
             //確認手機是否使用
-            if ($this->memberService->checkPhoneIsUse($countryCode, $cellphone)) {
+            if ($this->memberService->checkPhoneIsUse($country, $countryCode, $cellphone)) {
                 return $this->failure('A0031', '該手機號碼已使用');
             }
 
@@ -497,5 +498,54 @@ class MemberController extends RestLaravelController
         return $this->success([
             'token' => $token
         ]);
+    }
+
+    /**
+     * 第三方登入
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function oauthLogin(Request $request)
+    {
+        $token = $request->input('token');
+        $result = $this->memberService->checkOpenIdToken($token);
+
+        if ($result) {
+            try {
+                $token = Crypt::decrypt($token);
+                $tokenAry = explode('_', $token);
+                $openId = $tokenAry[0];
+                $openPlateform = $tokenAry[1];
+
+                $member = $this->memberService->findByOpenId($openId, $openPlateform);
+
+                if (!$member || $member->status == 0 || $member->isRegistered == 0) {
+                    return $this->failure('E0021','會員驗證失效');
+                }
+
+                $member = $this->memberService->generateToken($member, 'web');
+                if (!$member) {
+                    return $this->failure('E0025','Token產生失敗');
+                }
+
+                return $this->success([
+                    'id' => $member->id,
+                    'token' => $member->token,
+                    'email' => $member->openId,
+                    'name' => $member->name,
+                    'avatar' => $member->avatar,
+                    'countryCode' => $member->countryCode,
+                    'cellphone' => $member->cellphone,
+                    'country' => $member->country,
+                    'gender' => $member->gender,
+                    'zipcode' => $member->zipcode,
+                    'address' => $member->address
+                ]);
+            } catch (DecryptException $e) {
+                return $this->failure('E0025','Token產生失敗');
+            }
+        }
+
+        return $this->failure('E0025','Token產生失敗');
     }
 }

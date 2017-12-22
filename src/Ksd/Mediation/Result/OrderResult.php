@@ -105,12 +105,14 @@ class OrderResult
                 $shipping = $this->arrayDefault($shipping, 'shipping');
                 $this->shipping['name'] = $shipping['address']['firstname'] . $shipping['address']['lastname'];
                 $this->shipping['phone'] = $shipping['address']['telephone'];
-                $this->shipping['postcode'] = $shipping['address']['postcode'];
+                $this->shipping['code'] = $shipping['address']['postcode'];
                 $this->shipping['address'] = $shipping['address']['city'].$shipping['address']['street'][0];
 
             }
-            $this->shipping['shippingDescription'] = $this->arrayDefault($result, 'shipping_description');
-            $this->shipping['shippingAmount'] = $this->arrayDefault($result, 'shipping_amount');
+            $this->shipping['description'] = $this->arrayDefault($result, 'shipping_description');
+            $this->shipping['amount'] = $this->arrayDefault($result, 'shipping_amount');
+            $this->shipping['status'] = $this->shippingStatus($this->arrayDefault($result, 'entity_id'));
+            $this->shipping['traceCode'] = $this->shippingStatus($this->arrayDefault($result,'entity_id'),true);
             $this->quantity = $this->arrayDefault($result, 'qty_ordered');
 
 
@@ -131,13 +133,14 @@ class OrderResult
                     $refunded = $this->arrayDefault($item, '$qty_refunded');
 
                     if($shipped !== 0){
-                        $row['status'] = $this->shippingStatus($this->arrayDefault($item, 'order_id'),$this->arrayDefault($item, 'sku'));
+                        $row['status'] = '處理中';
+                        $row['statusCode'] = '01';
                     }else if($refunded != 0){
                         $row['status'] = '已退貨';
-                        $row['statusCode'] = '03';
+                        $row['statusCode'] = '04';
                     }else{
                         $row['status'] = '處理中';
-                        $row['statusCode'] = '04';
+                        $row['statusCode'] = '01';
                     }
 
                     $row['discount'] = $this->arrayDefault($result, 'discount_amount');
@@ -146,8 +149,6 @@ class OrderResult
                     $row['imageUrl'] = $this->magentoImageUrl($path['file']);
 
 //                    $row['imageUrl'] = $this->arrayDefault($item, 'extension_attributes', '')['image_url'];
-                    $this->shipping['status'] = $this->shippingStatus($this->arrayDefault($item, 'order_id'),$this->arrayDefault($item, 'sku'));
-                    $this->shipping['traceCode'] = $this->shippingStatus($this->arrayDefault($item, 'order_id'),$this->arrayDefault($item, 'sku'),true);
                     $this->items[] = $row;
                 }
             }
@@ -216,6 +217,7 @@ class OrderResult
                 $row['price'] = $this->arrayDefault($item, 'price');
                 $row['description'] = $this->arrayDefault($item, 'description');
                 $row['status'] = $this->arrayDefault($item, 'status');
+                $row['statusCode'] = $this->arrayDefault($item, 'statusCode');
                 $row['discount'] = $this->arrayDefault($item, 'discount');
                 $row['imageUrl'] = $this->arrayDefault($item, 'imageUrl');
 
@@ -228,19 +230,18 @@ class OrderResult
     /**
      * 處理物流狀態
      * @param $orderID
-     * @param $sku
      * @param $code
      * @return string
      */
-    public function shippingStatus($orderID, $sku,$code=false)
+    public function shippingStatus($orderID,$code=false)
     {
 
             $order = new Order();
-            $data= $order->getShippingInfo($orderID,$sku);
+            $data= $order->getShippingInfo($orderID);
             if(!empty($data)) {
                 $date = substr($data[0]['updated_at'], 0, 10);
                 $shipinfo = $date . ' 出貨';
-                $shipcode = $data[0]['title'] . ' ' . $data[0]['track_number'];
+                $shipcode = $data[0]['tracks'][0]['title'] . ' ' . $data[0]['tracks'][0]['track_number'];
                 if(!$code) {
                     return $shipinfo;
                 }else{
@@ -392,6 +393,59 @@ class OrderResult
             case 'Check / Money order': # 測試用
                 return "信用卡一次付清";
                 break;
+
+        }
+
+    }
+
+    /**
+     * 訂單明細商品狀態轉換
+     * @param $source
+     * @param $key
+     * @return string
+     */
+    public function getItemStatus($source, $key)
+    {
+        if ($source ==='magento') {
+            switch ($key) {
+
+                case 'pending': # 待付款
+                    return "待付款";
+                    break;
+                case 'complete': # 訂單完成(已出貨且開立發票)
+                    return "已完成";
+                    break;
+                case 'holded': # 退貨處理中
+                    return "退貨處理中";
+                    break;
+                case 'cancel': # 已退貨
+                    return "已退貨";
+                    break;
+                case 'processing': # 付款成功(前台顯示已完成)，尚未出貨
+                    return "已完成";
+                    break;
+            }
+        } else if($source ==='ct_pass'){
+            switch ($key) {
+
+                case '00': # 待付款
+                    return "待付款";
+                    break;
+                case '01': # 已完成
+                    return "已完成";
+                    break;
+                case '02': # 部分退貨
+                    return "部分退貨";
+                    break;
+                case '03': # 已退貨
+                    return "已退貨";
+                    break;
+                case '04': # 處理中
+                    return "處理中";
+                    break;
+            }
+        }else{
+            return null;
 
         }
 

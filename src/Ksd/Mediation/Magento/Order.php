@@ -190,9 +190,10 @@ class Order extends Client
 
     /**
      * 取得訂單物流追蹤資訊
+     * @param $order_id
      * @return string
      */
-    public function getShippingInfo($order_id, $sku)
+    public function getShippingInfo($order_id)
     {
 
         $path = 'V1/shipments';
@@ -201,8 +202,9 @@ class Order extends Client
             ->request('GET', $path);
         $body = $response->getBody();
         $result = json_decode($body, true);
+        return $result['items'];
 
-
+/*
         $data = null;
         if(!empty($result)) {
             foreach ($result['items'] as $items) {
@@ -217,7 +219,7 @@ class Order extends Client
 
             return null;
         }
-
+*/
 
 
     }
@@ -257,6 +259,7 @@ class Order extends Client
      */
     public function find($parameters)
     {
+
         $id = $parameters->id;
         $itemId = $parameters->itemId;
 
@@ -267,7 +270,7 @@ class Order extends Client
 
         $data = [];
         $order = new OrderResult();
-        $order->magento($result);
+        $order->magento($result,true);
         $data[] = $order;
 
         //如有關鍵字搜尋則進行判斷是否有相似字
@@ -318,9 +321,31 @@ class Order extends Client
         $parameter = [
             'entity' => [
                 'entity_id'=> $id,
-                'status'=> 'holded'
+                'status'=> 'holded',
+                'payment'=> [
+                    'additional_data'=>[
+                        'orderNo'=>$parameters->orderNo,
+                        'order_id'=>$parameters->order_id,
+                        'status'=>$parameters->status,
+                        'txnseq'=>$parameters->txnseq,
+                        'payment_type'=>$parameters->payment_type,
+                        'amount'=>$parameters->amount,
+                        'discount_amt'=>$parameters->discount_amt,
+                        'redeem_amt'=>$parameters->redeem_amt,
+                        'pay_amt'=>$parameters->pay_amt,
+                        'pay_time'=>$parameters->pay_time,
+                        'fund_time'=>$parameters->fund_time,
+                        'respond_code'=>$parameters->respond_code,
+                        'auth'=>$parameters->auth,
+                        'card6no'=>$parameters->card6no,
+                        'card4no'=>$parameters->card4no,
+                        'eci'=>$parameters->eci,
+                        'signature'=>$parameters->signature
+                    ]
+                ]
             ]
         ];
+
         $this->putParameters($parameter);
         $response = $this->request('PUT', 'V1/orders/create');
         $result = json_decode($response->getBody(), true);

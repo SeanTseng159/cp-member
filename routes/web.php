@@ -15,8 +15,9 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::namespace('Web')->group(function () {
+Route::namespace('Web\Ipass')->group(function () {
 	Route::prefix('ipass')->group(function () {
-		Route::get('login', 'IpassMemberController@login');
+		Route::get('login', 'MemberController@login');
+		Route::post('callback', 'MemberController@callback');
 	});
 });

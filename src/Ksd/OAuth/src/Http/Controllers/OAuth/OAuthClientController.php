@@ -91,7 +91,8 @@ class OAuthClientController extends BaseController
                 'response_type',
                 'client_id',
                 'code',
-                'redirect_url'
+                'redirect_url',
+                'cancel_url'
             ]);
 
         $validator = Validator::make($data, [
@@ -99,10 +100,12 @@ class OAuthClientController extends BaseController
             'client_id' => 'required',
             'code' => 'required',
             //'redirect_url' => (env('APP_ENV') === 'production') ? 'required|active_url' : 'required'
-            'redirect_url' => 'required'
+            'redirect_url' => 'required',
+            'cancel_url' => 'required'
         ]);
 
         $request->session()->put('redirect_url', $data['redirect_url']);
+        $request->session()->put('cancel_url', $data['cancel_url']);
 
         Log::debug(print_r($data, true));
         Log::debug(print_r($validator->fails(), true));
@@ -118,12 +121,11 @@ class OAuthClientController extends BaseController
 
         if (!$oc) return $this->postFailure('E0001', '參數錯誤');
 
+        $check = $this->service->checkExpire($oc->expires_at);
+        if ($check) return $this->postFailure('E0022', 'Authorize Time Over Expires');
 
-        $now = Carbon::now();
-        $expires_at = Carbon::createFromFormat('Y-m-d H:i:s', $oc->expires_at);
-
-        // 判断第一个日期是否比第二个日期大
-        if ($now->gt($expires_at)) return $this->postFailure('E0022', 'Authorize Time Over Expires');
+        // 設定 session，控制登入畫面瀏覽時間
+        $request->session()->put('isViewLoginWeb', true);
 
         // 檢查是否登入
         $member = session('member');
