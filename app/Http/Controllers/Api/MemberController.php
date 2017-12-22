@@ -16,10 +16,13 @@ use App\Http\Controllers\Controller;
 use Validator;
 use Crypt;
 use Log;
+use App\Traits\CryptHelper;
 use Illuminate\Contracts\Encryption\DecryptException;
 
 class MemberController extends RestLaravelController
 {
+    use CryptHelper;
+
     protected $memberService;
     protected $newsletterService;
 
@@ -279,6 +282,8 @@ class MemberController extends RestLaravelController
         $member = $this->memberService->find($id);
 
         if ($member) {
+            // 檢查是否是第三方登入
+            if ($member->openPlateform != '0') $member->email = $member->openId;
             $member->newsletter = $this->newsletterService->findByEmail($member->email);
         }
 
@@ -512,7 +517,7 @@ class MemberController extends RestLaravelController
 
         if ($result) {
             try {
-                $token = Crypt::decrypt($token);
+                $token = Crypt::decrypt($this->base64UrlDecode($token));
                 $tokenAry = explode('_', $token);
                 $openId = $tokenAry[0];
                 $openPlateform = $tokenAry[1];

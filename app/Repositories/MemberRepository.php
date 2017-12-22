@@ -38,6 +38,8 @@ class MemberRepository
             $member->save();
             return $member;
         } catch (QueryException $e) {
+            Log::info('=== 會員註冊 ===');
+            Log::debug(print_r($e, true));
             return false;
         }
     }

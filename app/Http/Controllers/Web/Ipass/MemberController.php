@@ -12,6 +12,7 @@ use Illuminate\Http\Request;
 use App\Services\Ipass\MemberService as IpassMemberService;
 use App\Services\MemberService;
 use App\Parameter\Ipass\MemberParameter;
+use Log;
 
 class MemberController extends Controller
 {
@@ -54,6 +55,9 @@ class MemberController extends Controller
         $parameter = (new MemberParameter)->callback($request);
         $member = $this->service->member($parameter);
 
+        Log::info('=== ipass 登入 ===');
+        Log::debug(print_r($member, true));
+
         try {
             if ($member->statusCode !== 200) return $this->failureRedirect();
             $memberData = $member->data;
@@ -64,6 +68,8 @@ class MemberController extends Controller
             // 會員已註冊，登入會員
             if ($loginMember && $loginMember->status && $loginMember->isRegistered) {
                 $token = $this->memberService->generateOpenIdToken($loginMember);
+
+                Log::info('=== ipass 會員已註冊，登入會員 ===');
             }
             else {
                 // 檢查帳號是否一樣並合併
@@ -79,15 +85,22 @@ class MemberController extends Controller
                 }*/
                 $parameter = (new MemberParameter)->member($memberData);
                 $member = $this->memberService->create($parameter);
+
+                Log::info('=== ipass 會員註冊 ===');
+                Log::debug(print_r($member, true));
+
                 if (!$member) return $this->failureRedirect();
 
                 $token = $this->memberService->generateOpenIdToken($member);
+
+                Log::info('=== ipass 會員註冊成功 ===');
             }
 
             // 導登入頁
             return $this->successRedirect($token);
         }
         catch (\Exception $e) {
+            Log::info('=== ipass 會員登入錯誤 ===');
             return $this->failureRedirect();
         }
     }
@@ -98,7 +111,7 @@ class MemberController extends Controller
 
       $url = (env('APP_ENV') === 'production') ? env('CITY_PASS_WEB') : 'http://localhost:3000/';
       $url .= $lang;
-      $url .= '/member/oauth/success/' . $token;
+      $url .= '/oauth/success/' . $token;
 
       return redirect($url);
     }
@@ -109,7 +122,7 @@ class MemberController extends Controller
 
       $url = (env('APP_ENV') === 'production') ? env('CITY_PASS_WEB') : 'http://localhost:3000/';
       $url .= $lang;
-      $url .= '/member/oauth/failure';
+      $url .= '/oauth/failure';
 
       return redirect($url);
     }
