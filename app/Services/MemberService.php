@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Hash;
 use Crypt;
 use Carbon;
 use Log;
+use App\Traits\CryptHelper;
 
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use App\Jobs\SendValidateEmail;
@@ -24,6 +25,7 @@ use Illuminate\Contracts\Encryption\DecryptException;
 class MemberService
 {
     use DispatchesJobs;
+    use CryptHelper;
 
     protected $repository;
 
@@ -467,8 +469,8 @@ class MemberService
      */
     public function generateOpenIdToken($member)
     {
-        $expires = Carbon\Carbon::now()->addSeconds(20)->timestamp;
-        return Crypt::encrypt($member->openId . '_' . $member->openPlateform . '_' . $expires);
+        $expires = Carbon\Carbon::now()->addSeconds(60)->timestamp;
+        return $this->base64UrlEncode(Crypt::encrypt($member->openId . '_' . $member->openPlateform . '_' . $expires));
     }
 
     /**
@@ -479,7 +481,7 @@ class MemberService
     public function checkOpenIdToken($token)
     {
         try {
-            $token = Crypt::decrypt($token);
+            $token = Crypt::decrypt($this->base64UrlDecode($token));
             $tokenAry = explode('_', $token);
             $expires = $tokenAry[2];
             $now = Carbon\Carbon::now()->timestamp;
