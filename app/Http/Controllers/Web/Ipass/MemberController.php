@@ -92,10 +92,9 @@ class MemberController extends Controller
                     if (!$member) return $this->failureRedirect();
                 }*/
                 $parameter = (new MemberParameter)->member($memberData);
-                $member = $this->memberService->create($parameter);
-
                 Log::info('=== ipass 會員註冊 ===');
-                Log::debug(print_r($member, true));
+                Log::debug(print_r($parameter, true));
+                $member = $this->memberService->create($parameter);
 
                 if (!$member) return $this->failureRedirect();
 

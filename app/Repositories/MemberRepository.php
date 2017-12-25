@@ -30,16 +30,10 @@ class MemberRepository
      */
     public function create($data)
     {
-        $member = new Member();
-            $member->fill($data);
-            $member->validEmailCode = (isset($data['openId'])) ? Crypt::encrypt($data['openId']) : '';
-            $member->validPhoneCode = strval(mt_rand(100000, 999999));
-            $member->save();
-            return $member;
-        /*try {
+        try {
             $member = new Member();
             $member->fill($data);
-            $member->validEmailCode = (isset($data['openId'])) ? Crypt::encrypt($data['openId']) : '';
+            $member->validEmailCode = (isset($data['openId']) && $data['openId']) ? Crypt::encrypt($data['openId']) : '';
             $member->validPhoneCode = strval(mt_rand(100000, 999999));
             $member->save();
             return $member;
@@ -47,7 +41,11 @@ class MemberRepository
             Log::info('=== 會員註冊 ===');
             Log::debug(print_r($e, true));
             return false;
-        }*/
+        } catch (\Exception $e) {
+            Log::info('=== 會員註冊 ===');
+            Log::debug(print_r($e, true));
+            return false;
+        }
     }
 
     /**
