@@ -10,6 +10,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\DB;
 
 class Notification  extends Model
 {
@@ -17,4 +18,15 @@ class Notification  extends Model
 
     protected $guarded = ['id'];
     protected $dates = ['deleted_at'];
+
+    public function getAfterDate($date){
+
+        $notifications = DB::table('notifications')
+                            ->select('*')
+                            ->where('updated_at', '>=', $date)
+                            ->get();
+
+        return $notifications;
+
+    }
 }
