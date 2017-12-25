@@ -172,11 +172,20 @@ class NotificationRepository extends BaseRepository
     }
 
     //所有推播訊息
-    public function allMessage(){
+    public function allMessage($data){
 
         $notifications = new Notification();
 
-        return $notifications->all();
+        $notis = null;
+
+        if(array_key_exists('date',$data)){
+            $notis = $notifications->getAfterDate($data['date']);
+
+        }else{
+            $notis = $notifications->all();
+        }
+
+        return $notis;
 
     }
 

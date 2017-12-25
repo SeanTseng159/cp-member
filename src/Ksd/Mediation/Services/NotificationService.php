@@ -74,8 +74,9 @@ class NotificationService
     }
 
     //所有推播訊息
-    public function allMessage(){
-        return $this->repository->allMessage();
+    public function allMessage($data){
+
+        return $this->repository->allMessage($data);
     }
 
     //查詢推播訊息

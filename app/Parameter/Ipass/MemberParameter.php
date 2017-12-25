@@ -46,12 +46,13 @@ class MemberParameter
      */
     public function member($member)
     {
-        $parameter['openPlateform'] = '1';
+        $parameter['openPlateform'] = 'ipass';
         $parameter['openId'] = $member->email;
-        $parameter['socialld'] = $member->idn;
+        $parameter['socialId'] = $member->idn;
         $parameter['name'] = $member->name;
         $parameter['zipcode'] = $member->zipcode;
         $parameter['address'] = $member->addr;
+        $parameter['isValidEmail'] = 1;
         $parameter['status'] = 1;
         $parameter['isRegistered'] = 1;
 
