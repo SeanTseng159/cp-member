@@ -12,7 +12,7 @@
             <input type="hidden" name="response_type" value="{{ $response_type }}" />
             <input type="hidden" name="client_id" value="{{ $uid }}" />
             <input type="hidden" name="code" value="{{ $code }}" />
-            <input type="hidden" name="redirect_url" value="{{ url('ipass/callback') }}" />
+            <input type="hidden" name="redirect_url" value="{{ $redirect_url }}" />
         </form>
 
         <script>

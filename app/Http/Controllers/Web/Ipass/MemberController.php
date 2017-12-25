@@ -18,6 +18,7 @@ class MemberController extends Controller
 {
     protected $service;
     protected $memberService;
+    protected $platform = 'web';
 
     const OPEN_PLATEFORM = '1';
 
@@ -31,7 +32,7 @@ class MemberController extends Controller
      * 登入
      * @param Illuminate\Http\Request $request
      */
-    public function login(Request $request)
+    public function login(Request $request, $platform = 'web')
     {
         $parameter = (new MemberParameter)->authorize();
         $auth = $this->service->authorize($parameter);
@@ -39,6 +40,7 @@ class MemberController extends Controller
         try {
             if ($auth->statusCode !== 200) return abort(404);
             $data = (array) $auth->data;
+            $data['redirect_url'] = ($platform === 'app') ? url('ipass/memberCallback/app') : url('ipass/memberCallback');
             return view('ipass.login', $data);
         }
         catch (Exception $e) {
@@ -50,8 +52,11 @@ class MemberController extends Controller
      * 登入資訊
      * @param Illuminate\Http\Request $request
      */
-    public function callback(Request $request)
+    public function callback(Request $request, $platform = 'web')
     {
+        $this->platform = $platform;
+        Log::info('=== ipass callback check ===');
+
         $parameter = (new MemberParameter)->callback($request);
         $member = $this->service->member($parameter);
 
@@ -70,7 +75,7 @@ class MemberController extends Controller
 
             // 會員已註冊，登入會員
             if ($loginMember && $loginMember->status && $loginMember->isRegistered) {
-                $token = $this->memberService->generateOpenIdToken($loginMember);
+                $token = $this->memberService->generateOpenIdToken($loginMember, $this->platform);
 
                 Log::info('=== ipass 會員已註冊，登入會員 ===');
             }
@@ -94,7 +99,7 @@ class MemberController extends Controller
 
                 if (!$member) return $this->failureRedirect();
 
-                $token = $this->memberService->generateOpenIdToken($member);
+                $token = $this->memberService->generateOpenIdToken($member, $this->platform);
 
                 Log::info('=== ipass 會員註冊成功 ===');
             }
@@ -110,23 +115,35 @@ class MemberController extends Controller
 
     private function successRedirect($token = '')
     {
-      $lang = 'zh_TW';
+        $lang = 'zh_TW';
 
-      $url = (env('APP_ENV') === 'production') ? env('CITY_PASS_WEB') : 'http://localhost:3000/';
-      $url .= $lang;
-      $url .= '/oauth/success/' . $token;
+        if ($this->platform === 'app') {
+            $url = 'app://ipassLogin?result=true&token=' . $token;
+            return '<script>location.href="' . $url . '";</script>';
+        }
+        else {
+            $url = (env('APP_ENV') === 'production') ? env('CITY_PASS_WEB') : 'http://localhost:3000/';
+            $url .= $lang;
+            $url .= '/oauth/success/' . $token;
 
-      return redirect($url);
+            return redirect($url);
+        }
     }
 
     private function failureRedirect()
     {
-      $lang = 'zh_TW';
+        $lang = 'zh_TW';
 
-      $url = (env('APP_ENV') === 'production') ? env('CITY_PASS_WEB') : 'http://localhost:3000/';
-      $url .= $lang;
-      $url .= '/oauth/failure';
+        if ($this->platform === 'app') {
+            $url = 'app://ipassLogin?result=false';
+            return '<script>location.href="' . $url . '";</script>';
+        }
+        else {
+            $url = (env('APP_ENV') === 'production') ? env('CITY_PASS_WEB') : 'http://localhost:3000/';
+            $url .= $lang;
+            $url .= '/oauth/failure';
 
-      return redirect($url);
+            return redirect($url);
+        }
     }
 }
