@@ -122,7 +122,11 @@ class NotificationController extends RestLaravelController
     //所有推播訊息
     public function allMessage(Request $request){
 
-        $messages = $this->notificationService->allMessage();
+        $data = $request->only([
+            'date',
+        ]);
+
+        $messages = $this->notificationService->allMessage($data);
 
         return $this->success($messages);
     }
