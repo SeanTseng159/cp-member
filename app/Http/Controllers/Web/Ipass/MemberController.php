@@ -65,6 +65,9 @@ class MemberController extends Controller
             // 檢查openId是否存在 (已註冊)
             $loginMember = $this->memberService->findByOpenId($memberData->email, self::OPEN_PLATEFORM);
 
+            Log::info('=== ipass 檢查openId是否存在 ===');
+            Log::debug(print_r($loginMember, true));
+
             // 會員已註冊，登入會員
             if ($loginMember && $loginMember->status && $loginMember->isRegistered) {
                 $token = $this->memberService->generateOpenIdToken($loginMember);
