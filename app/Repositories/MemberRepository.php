@@ -33,11 +33,13 @@ class MemberRepository
         try {
             $member = new Member();
             $member->fill($data);
-            $member->validEmailCode = (isset($data['openId'])) ? Crypt::encrypt($data['openId']) : '';
+            $member->validEmailCode = '';
             $member->validPhoneCode = strval(mt_rand(100000, 999999));
             $member->save();
             return $member;
         } catch (QueryException $e) {
+            Log::info('=== 會員註冊 ===');
+            Log::debug(print_r($e, true));
             return false;
         }
     }

@@ -32,6 +32,9 @@ Route::middleware(['cors', 'auth.jwt'])->namespace('Api')->group(function () {
         Route::post('sendValidateEmail', 'MemberController@sendValidateEmail');
         //更新會員憑證
         Route::post('refreshToken', 'MemberController@refreshToken');
+
+        //第三方登入驗證token
+        Route::post('oauth/login', 'MemberController@oauthLogin');
     });
 
     Route::prefix('newsletter')->group(function () {
@@ -108,9 +111,6 @@ Route::middleware('cors')->namespace('Api')->group(function () {
         Route::post('sendForgetPassword', 'MemberController@sendForgetPassword');
         //驗證-重設密碼
         Route::post('resetPassword', 'MemberController@resetPassword');
-
-        //第三方登入驗證token
-        Route::post('oauth/login', 'MemberController@oauthLogin');
     });
 
     Route::prefix('product')->group(function () {

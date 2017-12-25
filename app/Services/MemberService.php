@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Hash;
 use Crypt;
 use Carbon;
 use Log;
+use App\Traits\CryptHelper;
 
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use App\Jobs\SendValidateEmail;
@@ -24,6 +25,7 @@ use Illuminate\Contracts\Encryption\DecryptException;
 class MemberService
 {
     use DispatchesJobs;
+    use CryptHelper;
 
     protected $repository;
 
@@ -465,33 +467,17 @@ class MemberService
      * @param $data
      * @return mixed
      */
-    public function generateOpenIdToken($member)
+    public function generateOpenIdToken($member, $platform)
     {
-        $expires = Carbon\Carbon::now()->addSeconds(20)->timestamp;
-        return Crypt::encrypt($member->openId . '_' . $member->openPlateform . '_' . $expires);
+        $jwtTokenService = new JWTTokenService;
+        $token = $jwtTokenService->generateOpenIdToken($member, $platform);
+        $result = $this->update($member->id, ['token' => $token]);
+
+        return ($result) ? $token : '';
     }
 
     /**
-     * 產生第三方登入Token
-     * @param $data
-     * @return mixed
-     */
-    public function checkOpenIdToken($token)
-    {
-        try {
-            $token = Crypt::decrypt($token);
-            $tokenAry = explode('_', $token);
-            $expires = $tokenAry[2];
-            $now = Carbon\Carbon::now()->timestamp;
-
-            return ($now < $expires);
-        } catch (DecryptException $e) {
-            return false;
-        }
-    }
-
-    /**
-     * 產生第三方登入Token
+     * 用OpenId找會員
      * @param $data
      * @return mixed
      */

@@ -9,6 +9,7 @@ namespace App\Http\Controllers\Api;
 
 use Ksd\Mediation\Core\Controller\RestLaravelController;
 use App\Services\MemberService;
+use App\Services\JWTTokenService;
 use App\Services\NewsletterService;
 use GuzzleHttp\Client;
 use Illuminate\Http\Request;
@@ -16,10 +17,13 @@ use App\Http\Controllers\Controller;
 use Validator;
 use Crypt;
 use Log;
+use App\Traits\CryptHelper;
 use Illuminate\Contracts\Encryption\DecryptException;
 
 class MemberController extends RestLaravelController
 {
+    use CryptHelper;
+
     protected $memberService;
     protected $newsletterService;
 
@@ -279,6 +283,8 @@ class MemberController extends RestLaravelController
         $member = $this->memberService->find($id);
 
         if ($member) {
+            // 檢查是否是第三方登入
+            if ($member->openPlateform != '0') $member->email = $member->openId;
             $member->newsletter = $this->newsletterService->findByEmail($member->email);
         }
 
@@ -490,6 +496,14 @@ class MemberController extends RestLaravelController
         $token = $request->bearerToken();
         $platform = $request->header('platform');
 
+        $jwtTokenService = new JWTTokenService;
+        $tokenData = $jwtTokenService->checkToken($token);
+
+        $member = $this->memberService->find($tokenData->id);
+        if (!$member || $member->status == 0 || $member->isRegistered == 0) {
+            return $this->failure('E0021','會員驗證失效');
+        }
+
         $token = $this->memberService->refreshToken($member, $platform);
         if (!$token) {
             return $this->apiRespFail('E0026', 'Token更新失敗');
@@ -507,45 +521,34 @@ class MemberController extends RestLaravelController
      */
     public function oauthLogin(Request $request)
     {
-        $token = $request->input('token');
-        $result = $this->memberService->checkOpenIdToken($token);
+        $token = $request->bearerToken();
+        $platform = $request->header('platform');
 
-        if ($result) {
-            try {
-                $token = Crypt::decrypt($token);
-                $tokenAry = explode('_', $token);
-                $openId = $tokenAry[0];
-                $openPlateform = $tokenAry[1];
+        $jwtTokenService = new JWTTokenService;
+        $tokenData = $jwtTokenService->checkToken($token);
 
-                $member = $this->memberService->findByOpenId($openId, $openPlateform);
-
-                if (!$member || $member->status == 0 || $member->isRegistered == 0) {
-                    return $this->failure('E0021','會員驗證失效');
-                }
-
-                $member = $this->memberService->generateToken($member, 'web');
-                if (!$member) {
-                    return $this->failure('E0025','Token產生失敗');
-                }
-
-                return $this->success([
-                    'id' => $member->id,
-                    'token' => $member->token,
-                    'email' => $member->openId,
-                    'name' => $member->name,
-                    'avatar' => $member->avatar,
-                    'countryCode' => $member->countryCode,
-                    'cellphone' => $member->cellphone,
-                    'country' => $member->country,
-                    'gender' => $member->gender,
-                    'zipcode' => $member->zipcode,
-                    'address' => $member->address
-                ]);
-            } catch (DecryptException $e) {
-                return $this->failure('E0025','Token產生失敗');
-            }
+        $member = $this->memberService->find($tokenData->id);
+        if (!$member || $member->status == 0 || $member->isRegistered == 0) {
+            return $this->failure('E0021','會員驗證失效');
         }
 
-        return $this->failure('E0025','Token產生失敗');
+        $member = $this->memberService->generateToken($member, $platform);
+        if (!$member) {
+            return $this->failure('E0025','Token產生失敗');
+        }
+
+        return $this->success([
+            'id' => $member->id,
+            'token' => $member->token,
+            'email' => $member->openId,
+            'name' => $member->name,
+            'avatar' => $member->avatar,
+            'countryCode' => $member->countryCode,
+            'cellphone' => $member->cellphone,
+            'country' => $member->country,
+            'gender' => $member->gender,
+            'zipcode' => $member->zipcode,
+            'address' => $member->address
+        ]);
     }
 }

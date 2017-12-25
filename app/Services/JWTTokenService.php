@@ -43,6 +43,27 @@ class JWTTokenService
     }
 
     /**
+     * 建立 第三方暫時token
+     * @param $member
+     * @param $platform
+     * @return string
+     */
+    public function generateOpenIdToken($member, $platform = 'web')
+    {
+        $iat = time();
+        $exp = time() + 15;
+
+        $token = [
+            'iss' => env('JWT_ISS', 'CityPass'),
+            'iat' => $iat,
+            'exp' => $exp,
+            'id' => $member->id
+        ];
+
+        return $this->JWTencode($token);
+    }
+
+    /**
      * 建立 token
      * @param $member
      * @param $platform
