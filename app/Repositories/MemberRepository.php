@@ -42,8 +42,9 @@ class MemberRepository
             $member->save();
             return $member;
         } catch (QueryException $e) {
-            Log::info('=== 會員註冊 ===');
-            Log::debug(print_r($e, true));
+            Log::info('=== 會員註冊 error ===');
+            Log::debug(print_r($e->getSql(), true));
+            Log::debug(print_r($e->getMessage(), true));
             return false;
         }
     }
