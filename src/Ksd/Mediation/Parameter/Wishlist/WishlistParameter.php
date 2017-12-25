@@ -31,11 +31,12 @@ class WishlistParameter extends BaseParameter
      * 處理 laravel request
      * @param $request
      */
-    public function laravelRequest($no, $request = null)
+    public function laravelRequest($request)
     {
         parent::laravelRequest($request);
-        $this->no = $no;
+        $this->no = $request->input('wishlistItemId');
         $this->source = $request->input('source');
+        $this->id = $request->input('id');
     }
 
 

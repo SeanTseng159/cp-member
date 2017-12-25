@@ -35,7 +35,6 @@ class Wishlist extends Client
             $wish->magento($item);
             $data[] = $wish;
         }
-//        dd($data);
         return $data;
     }
 
@@ -62,19 +61,45 @@ class Wishlist extends Client
     /**
      * 根據商品id 刪除收藏清單商品
      * @param $wishlistItemId
-     *  @return  bool
+     * @param $sku
+     * @return  bool
      */
-    public function delete($wishlistItemId)
+    public function delete($wishlistItemId=null, $sku=null)
     {
+        $id = $wishlistItemId;
+        if(!empty($sku)){
+            $id = $this->find($sku);
+        }
         $result = [];
         try {
-            $url = sprintf('V1/ipwishlist/delete/%s', $wishlistItemId);
+            $url = sprintf('V1/ipwishlist/delete/%s', $id);
             $response = $this->request('DELETE', $url);
             $result = json_decode($response->getBody(), true);
         }catch (ClientException $e) {
 
         }
         return $result == 'true' ? true : false ;
+    }
+
+    /**
+     * 根據商品id 查詢wishlistItemId
+     * @param $sku
+     * @return  string
+     */
+    public function find($sku)
+    {
+        $wishlist = $this->items();
+
+        if(isset($wishlist)){
+            foreach ($wishlist as $items) {
+                if(preg_match("/".$sku."/",$items->id)){
+                    return $items->wishlistItemId;
+                }
+            }
+        }else{
+            return null;
+        }
+
     }
 
 
