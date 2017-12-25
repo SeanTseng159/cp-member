@@ -60,16 +60,14 @@ class Wishlist extends Client
 
     /**
      * 根據商品id 刪除收藏清單商品
-     * @param $wishlistItemId
      * @param $sku
      * @return  bool
      */
-    public function delete($wishlistItemId=null, $sku=null)
+    public function delete($sku)
     {
-        $id = $wishlistItemId;
-        if(!empty($sku)){
-            $id = $this->find($sku);
-        }
+
+        $id = $this->find($sku);
+
         $result = [];
         try {
             $url = sprintf('V1/ipwishlist/delete/%s', $id);

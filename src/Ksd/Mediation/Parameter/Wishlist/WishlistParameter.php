@@ -36,7 +36,6 @@ class WishlistParameter extends BaseParameter
         parent::laravelRequest($request);
         $this->no = $request->input('wishlistItemId');
         $this->source = $request->input('source');
-        $this->id = $request->input('id');
     }
 
 
