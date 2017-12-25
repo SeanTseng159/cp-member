@@ -20,7 +20,7 @@ class MemberController extends Controller
     protected $memberService;
     protected $platform = 'web';
 
-    const OPEN_PLATEFORM = '1';
+    const OPEN_PLATEFORM = 'ipass';
 
     public function __construct(IpassMemberService $service, MemberService $memberService)
     {
@@ -57,25 +57,26 @@ class MemberController extends Controller
         $this->platform = $platform;
         Log::info('=== ipass callback check ===');
 
-        $parameter = (new MemberParameter)->callback($request);
-        $member = $this->service->member($parameter);
+        $memberParameter = new MemberParameter;
+        $parameter = $memberParameter->callback($request);
+        $ipassMember = $this->service->member($parameter);
 
         Log::info('=== ipass 登入 ===');
-        Log::debug(print_r($member, true));
+        Log::debug(print_r($ipassMember, true));
 
         try {
-            if ($member->statusCode !== 200) return $this->failureRedirect();
-            $memberData = $member->data;
+            if ($ipassMember->statusCode !== 200) return $this->failureRedirect();
+            $memberData = $ipassMember->data;
 
             // 檢查openId是否存在 (已註冊)
-            $loginMember = $this->memberService->findByOpenId($memberData->email, self::OPEN_PLATEFORM);
+            $member = $this->memberService->findByOpenId($memberData->email, self::OPEN_PLATEFORM);
 
             Log::info('=== ipass 檢查openId是否存在 ===');
-            Log::debug(print_r($loginMember, true));
+            Log::debug(print_r($member, true));
 
             // 會員已註冊，登入會員
-            if ($loginMember && $loginMember->status && $loginMember->isRegistered) {
-                $token = $this->memberService->generateOpenIdToken($loginMember, $this->platform);
+            if ($member && $member->status && $member->isRegistered) {
+                $token = $this->memberService->generateOpenIdToken($member, $this->platform);
 
                 Log::info('=== ipass 會員已註冊，登入會員 ===');
             }
@@ -91,7 +92,7 @@ class MemberController extends Controller
                     $member = $this->memberService->create($parameter);
                     if (!$member) return $this->failureRedirect();
                 }*/
-                $parameter = (new MemberParameter)->member($memberData);
+                $parameter = $memberParameter->member($memberData);
                 Log::info('=== ipass 會員註冊 ===');
                 Log::debug(print_r($parameter, true));
                 $member = $this->memberService->create($parameter);

@@ -35,6 +35,10 @@ class MemberRepository
             $member->fill($data);
             $member->validEmailCode = '';
             $member->validPhoneCode = strval(mt_rand(100000, 999999));
+
+            Log::info('=== 會員註冊 ===');
+            Log::debug(print_r($member, true));
+
             $member->save();
             return $member;
         } catch (QueryException $e) {
