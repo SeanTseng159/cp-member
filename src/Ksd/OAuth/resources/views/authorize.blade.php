@@ -28,7 +28,7 @@
                             <span class="icon"><i class="fa fa-envelope-o" aria-hidden="true"></i></span> 允許發送電子郵件
                         </div>
                         <div class="desc">
-                            『 CityPass都會通 』可以直接寄送電子郵寄至您的信箱。
+                            『 {{ $auth_client->name }} 』可以直接寄送電子郵寄至您的信箱。
                         </div>
                     </li>
                 </ul>
@@ -38,7 +38,7 @@
             <div class="panel-footer">
                 <div class="checkbox">
                     <label>
-                        <input type="checkbox" id="input_agree"> 同意CityPass「<a href="#">服務條款與隱私權政策</a>」
+                        <input type="checkbox" id="input_agree"> 同意 {{ $auth_client->name }}「<a href="https://www.ipasskhcc.tw/home/privacy" target="_blank">服務條款與隱私權政策</a>」
                     </label>
                 </div>
             </div>

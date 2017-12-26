@@ -20,6 +20,7 @@ use Log;
 
 class PayController extends RestLaravelController
 {
+    protected $lang;
     protected $service;
     protected $memberService;
     protected $orderService;
@@ -32,6 +33,8 @@ class PayController extends RestLaravelController
         $this->service = $service;
         $this->memberService = $memberService;
         $this->orderService = $orderService;
+
+        $this->lang = env('APP_LANG');
     }
 
     /**
@@ -132,8 +135,6 @@ class PayController extends RestLaravelController
       Log::debug('=== ipass pay failure callback ===');
       Log::debug(print_r($request->all(), true));
 
-      $lang = 'zh_TW';
-
       $parameter = new CallbackParameter;
       $parameter->laravelRequest($request);
 
@@ -142,10 +143,8 @@ class PayController extends RestLaravelController
 
     private function successRedirect($parameter)
     {
-      $lang = 'zh_TW';
-
       $url = (env('APP_ENV') === 'production') ? env('CITY_PASS_WEB') : 'http://localhost:3000/';
-      $url .= $lang;
+      $url .= $this->lang;
 
       if ($parameter->platform === 'app') {
         $url = 'app://order?id=' . $parameter->orderNo . '&source=' . $parameter->source . '&result=true&msg=success';
@@ -162,10 +161,8 @@ class PayController extends RestLaravelController
 
     private function failureRedirect($parameter)
     {
-      $lang = 'zh_TW';
-
       $url = (env('APP_ENV') === 'production') ? env('CITY_PASS_WEB') : 'http://localhost:3000/';
-      $url .= $lang;
+      $url .= $this->lang;
 
       if ($parameter->platform === 'app') {
         $url = 'app://order?id=' . $parameter->orderNo . '&source=' . $parameter->source . '&result=false&msg=failure';
