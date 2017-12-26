@@ -34,10 +34,11 @@ class OrderResult
             $this->orderNo = $this->arrayDefault($result, 'increment_id');
             $this->orderAmount = $this->arrayDefault($result, 'subtotal') + $this->arrayDefault($result, 'shipping_amount');
             $this->orderDiscountAmount = $this->arrayDefault($result, 'discount_amount');
-            $this->orderStatus = $this->getStatus(ProjectConfig::MAGENTO,$this->arrayDefault($result, 'status'));
-            $this->orderStatusCode = $this->getStatusCode($this->arrayDefault($result, 'status'));
+            $this->orderStatus = $this->getStatus(ProjectConfig::MAGENTO,$this->arrayDefault($result, 'state'));
+            $this->orderStatusCode = $this->getStatusCode($this->arrayDefault($result, 'state'));
             $this->orderDate = date('Y-m-d H:i:s', strtotime('+8 hours', strtotime($this->arrayDefault($result, 'created_at'))));
             $payment = $this->arrayDefault($result, 'payment');
+            $comment = $this->arrayDefault($result, 'status_histories');
             $this->payment = $this->putMagentoPayment($payment);
 //            $this->payment['username'] =   $this->arrayDefault($result, 'customer_firstname') . $this->arrayDefault($result, 'customer_lastname');
             $this->shipping = [];
@@ -94,11 +95,12 @@ class OrderResult
             $this->orderAmount = $this->arrayDefault($result, 'grand_total');
             $this->orderItemAmount = $this->arrayDefault($result, 'subtotal');
             $this->orderDiscount = $this->arrayDefault($result, 'discount_amount');
-            $this->orderStatus = $this->getStatus(ProjectConfig::MAGENTO,$this->arrayDefault($result, 'status'));
-            $this->orderStatusCode = $this->getStatusCode($this->arrayDefault($result, 'status'));
+            $this->orderStatus = $this->getStatus(ProjectConfig::MAGENTO,$this->arrayDefault($result, 'state'));
+            $this->orderStatusCode = $this->getStatusCode($this->arrayDefault($result, 'state'));
             $this->orderDate = date('Y-m-d H:i:s', strtotime('+8 hours', strtotime($this->arrayDefault($result, 'created_at'))));
             $payment = $this->arrayDefault($result, 'payment');
-            $this->payment = $this->putMagentoPayment($payment);
+            $comment = $this->arrayDefault($result, 'status_histories');
+            $this->payment = $this->putMagentoPayment($payment,$comment);
             $this->shipping = [];
             $ship = $this->arrayDefault($result, 'extension_attributes');
             foreach ($this->arrayDefault($ship, 'shipping_assignments', []) as $shipping) {
@@ -264,9 +266,9 @@ class OrderResult
      */
     public function getStatus($source, $key)
     {
+
         if ($source ==='magento') {
             switch ($key) {
-
                 case 'pending': # 待付款
                     return "待付款";
                     break;
@@ -280,7 +282,7 @@ class OrderResult
                     return "已退貨";
                     break;
                 case 'processing': # 付款成功(前台顯示已完成)，尚未出貨
-                    return "已完成";
+                    return "處理中";
                     break;
             }
         } else if($source ==='ct_pass'){
@@ -351,14 +353,17 @@ class OrderResult
     /**
      * 設定付款資訊
      * @param $payment
+     * @param $comment
      * @return array
      */
-    private function putMagentoPayment($payment)
+    private function putMagentoPayment($payment , $comment=null)
     {
 
         $result = [];
         $method = $payment['method'];
         $additionalInformation = $payment['additional_information'];
+        $data = explode("&",$comment[0]['comment']);
+
         if ($method === 'neweb_atm') {
             $result = [
                 'bankId' => $this->arrayDefault($additionalInformation, 1),
@@ -368,17 +373,49 @@ class OrderResult
             ];
         }
         $result['method'] = $method;
-        $result['title'] = $this->paymentTypeTrans($additionalInformation[0]);
+        $result['title'] = $this->paymentTypeTrans($additionalInformation[0],$data);
         return $result;
     }
 
     /**
      * 付款方式名稱轉換
      * @param $key
+     * @param $data
      * @return string
      */
-    public function paymentTypeTrans($key)
+    public function paymentTypeTrans($key,$data=null)
     {
+        $status = null;
+        if($key === "Neweb Atm Payment"){
+            $status = "ATM虛擬帳號";
+        }else if($key === "Neweb Api Payment"){
+            $status = "信用卡一次付清";
+        }else if($key === "Tspg Atm Payment"){
+            $status = "ATM虛擬帳號";
+        }else if($key === "Tspg Api Payment"){
+            $status = "信用卡一次付清";
+        }else if($key === "Check / Money order"){
+            $status = "測試用";
+        }else if($key === "Ipass Pay"){
+            if($data[4] === "ACCLINK"){
+                $status = "IpassPay(約定帳戶付款)";
+            }else if($data[4] === "CREDIT"){
+                $status = "IpassPay(信用卡付款)";
+            }else if($data[4] === "VACC"){
+                $status = "IpassPay(ATM轉帳付款)";
+            }else if($data[4] === "WEBATM"){
+                $status = "IpassPay(網路銀行轉帳付款)";
+            }else if($data[4] === "BARCODE"){
+                $status = "IpassPay(超商條碼繳費)";
+            }else if($data[4] === "ECAC"){
+                $status = "IpassPay(電子支付帳戶付款)";
+            };
+        }else {
+            $status = "取不到付款方式";
+        }
+
+        return $status;
+/*
         switch ($key) {
 
             case 'Neweb Atm Payment': #  ATM虛擬帳號
@@ -395,7 +432,7 @@ class OrderResult
                 break;
 
         }
-
+*/
     }
 
     /**
@@ -447,6 +484,34 @@ class OrderResult
         }else{
             return null;
 
+        }
+
+    }
+
+    /**
+     * magento ipassPay狀態轉換
+     * @param $key
+     * @return string
+     */
+    public function getIpassPayStatus($key)
+    {
+        switch ($key) {
+
+            case 'pending': # 待付款
+                return "00";
+                break;
+            case 'complete': # 已完成
+                return "01";
+                break;
+            case 'holded': # 退貨處理中
+                return "04";
+                break;
+            case 'cancel': # 已退貨
+                return "03";
+                break;
+            case 'processing': # 處理中
+                return "01";
+                break;
         }
 
     }
