@@ -54,16 +54,16 @@ class Wishlist extends Client
 
     /**
      * 根據商品id 刪除收藏清單商品
-     * @param $wishlistItemId
+     * @param $parameter
      *  @return  bool
      */
-    public function delete($wishlistItemId)
+    public function delete($parameter)
     {
 
-        $url = sprintf('wishlist/delete/%s', $wishlistItemId);
-        $response = $this->request('POST', $url);
-        $body = $response->getBody();
-        $result = json_decode($body, true);
+        $response = $this->setJson(false)->putParameters($parameter)
+            ->request('POST', 'wishlist/delete');
+        $result = json_decode($response->getBody(), true);
+
         return $result['statusCode'] === 203 ? true : false;
     }
 }
