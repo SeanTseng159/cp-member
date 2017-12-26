@@ -18,6 +18,7 @@ class BaseClient
 
     protected $logger;
     protected $token;
+    protected $lang;
     protected $baseUrl;
     protected $client;
     protected $headers;
@@ -38,6 +39,17 @@ class BaseClient
     public function authorization($token)
     {
         $this->putHeader('Authorization', 'Bearer ' . $token);
+        return $this;
+    }
+
+    /**
+     * 設定 Accept-Language 語系
+     * @param $token
+     * @return $this
+     */
+    public function language($lang)
+    {
+        $this->putHeader('Accept-Language', $lang);
         return $this;
     }
 
