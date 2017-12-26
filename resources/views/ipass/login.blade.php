@@ -13,6 +13,7 @@
             <input type="hidden" name="client_id" value="{{ $uid }}" />
             <input type="hidden" name="code" value="{{ $code }}" />
             <input type="hidden" name="redirect_url" value="{{ $redirect_url }}" />
+            <input type="hidden" name="cancel_url" value="{{ $cancel_url }}" />
         </form>
 
         <script>

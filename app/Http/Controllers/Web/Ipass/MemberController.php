@@ -11,6 +11,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Services\Ipass\MemberService as IpassMemberService;
 use App\Services\MemberService;
+use Ksd\Mediation\Services\LanguageService;
 use App\Parameter\Ipass\MemberParameter;
 use Log;
 
@@ -19,13 +20,18 @@ class MemberController extends Controller
     protected $service;
     protected $memberService;
     protected $platform = 'web';
+    protected $citypassUrl = '';
+    protected $lang;
 
     const OPEN_PLATEFORM = 'ipass';
 
-    public function __construct(IpassMemberService $service, MemberService $memberService)
+    public function __construct(LanguageService $langService, IpassMemberService $service, MemberService $memberService)
     {
         $this->service = $service;
         $this->memberService = $memberService;
+
+        $this->lang = $langService->getLang();
+        $this->citypassUrl = env('CITY_PASS_WEB') : 'http://localhost:3000/';
     }
 
     /**
@@ -41,6 +47,7 @@ class MemberController extends Controller
             if ($auth->statusCode !== 200) return abort(404);
             $data = (array) $auth->data;
             $data['redirect_url'] = ($platform === 'app') ? url('ipass/memberCallback/app') : url('ipass/memberCallback');
+            $data['cancel_url'] = ($platform === 'app') ? 'app://ipassLogin?result=false' : $this->citypassUrl . $this->lang . '/oauth/failure';
             return view('ipass.login', $data);
         }
         catch (Exception $e) {
@@ -115,15 +122,12 @@ class MemberController extends Controller
 
     private function successRedirect($token = '')
     {
-        $lang = 'zh_TW';
-
         if ($this->platform === 'app') {
             $url = 'app://ipassLogin?result=true&token=' . $token;
             return '<script>location.href="' . $url . '";</script>';
         }
         else {
-            $url = (env('APP_ENV') === 'production') ? env('CITY_PASS_WEB') : 'http://localhost:3000/';
-            $url .= $lang;
+            $url = $this->citypassUrl . $this->lang;
             $url .= '/oauth/success/' . $token;
 
             return redirect($url);
@@ -132,15 +136,12 @@ class MemberController extends Controller
 
     private function failureRedirect()
     {
-        $lang = 'zh_TW';
-
         if ($this->platform === 'app') {
             $url = 'app://ipassLogin?result=false';
             return '<script>location.href="' . $url . '";</script>';
         }
         else {
-            $url = (env('APP_ENV') === 'production') ? env('CITY_PASS_WEB') : 'http://localhost:3000/';
-            $url .= $lang;
+            $url = $this->citypassUrl . $this->lang;
             $url .= '/oauth/failure';
 
             return redirect($url);
