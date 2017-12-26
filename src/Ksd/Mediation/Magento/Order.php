@@ -266,8 +266,7 @@ class Order extends Client
         $path = sprintf('V1/orders/%s', $id);
         $response = $this->request('GET', $path);
         $body = $response->getBody();
-        $result = json_decode($body, true);
-
+        $result = json_decode($body, true);;
         $data = [];
         $order = new OrderResult();
         $order->magento($result,true);
@@ -317,42 +316,87 @@ class Order extends Client
      */
     public function update($parameters)
     {
+
         $id = $parameters->id;
-        $parameter = [
-            'entity' => [
-                'entity_id'=> $id,
-                'status'=> 'holded',
-                'payment'=> [
-                    'additional_data'=>[
-                        'orderNo'=>$parameters->orderNo,
-                        'order_id'=>$parameters->order_id,
-                        'status'=>$parameters->status,
-                        'txnseq'=>$parameters->txnseq,
-                        'payment_type'=>$parameters->payment_type,
-                        'amount'=>$parameters->amount,
-                        'discount_amt'=>$parameters->discount_amt,
-                        'redeem_amt'=>$parameters->redeem_amt,
-                        'pay_amt'=>$parameters->pay_amt,
-                        'pay_time'=>$parameters->pay_time,
-                        'fund_time'=>$parameters->fund_time,
-                        'respond_code'=>$parameters->respond_code,
-                        'auth'=>$parameters->auth,
-                        'card6no'=>$parameters->card6no,
-                        'card4no'=>$parameters->card4no,
-                        'eci'=>$parameters->eci,
-                        'signature'=>$parameters->signature
-                    ]
+        //將ipasspay回傳結果存入order comment
+        if ($parameters->paySource === 'ipasspay') {
+            $dataArray = [
+                'orderNo' => $parameters->orderNo,
+                'order_id' => $parameters->order_id,
+                'status' => $parameters->status,
+                'txnseq' => $parameters->txnseq,
+                'payment_type' => $parameters->payment_type,
+                'amount' => $parameters->amount,
+                'discount_amt' => $parameters->discount_amt,
+                'redeem_amt' => $parameters->redeem_amt,
+                'pay_amt' => $parameters->pay_amt,
+                'pay_time' => $parameters->pay_time,
+                'fund_time' => $parameters->fund_time,
+                'respond_code' => $parameters->respond_code,
+                'auth' => $parameters->auth,
+                'card6no' => $parameters->card6no,
+                'card4no' => $parameters->card4no,
+                'eci' => $parameters->eci,
+                'signature' => $parameters->signature
+
+            ];
+            $parameter = [
+                'statusHistory' => [
+                    "comment" => implode('&', $dataArray)
                 ]
-            ]
-        ];
 
-        $this->putParameters($parameter);
-        $response = $this->request('PUT', 'V1/orders/create');
-        $result = json_decode($response->getBody(), true);
+            ];
 
-        return ($result['result'] === 'processing') ? true : false;
+            $this->putParameters($parameter);
+            $response = $this->request('POST', 'V1/orders/' . $id . '/comments');
+            $result = json_decode($response->getBody(), true);
+
+            //依ipasspay回傳結果 更改訂單狀態 成功:processing ; 失敗:pending
+            if(isset($result) && $parameters->status === "Y"){
+                $ipassParameter = [
+                    'entity' => [
+                        'entity_id' => $id,
+                        'status' => 'processing',
+                    ]
+                ];
+                $this->putParameters($ipassParameter);
+                $response = $this->request('PUT', 'V1/orders/create');
+                $result = json_decode($response->getBody(), true);
+                return (isset($result)) ? true : false;
+            }else{
+                $ipassParameter = [
+                    'entity' => [
+                        'entity_id' => $id,
+                        'status' => 'pending',
+                    ]
+                ];
+                $this->putParameters($ipassParameter);
+                $response = $this->request('PUT', 'V1/orders/create');
+                $result = json_decode($response->getBody(), true);
+                return (isset($result)) ? true : false;
+            }
+
+
+        } else {
+            $parameter = [
+                'entity' => [
+                    'entity_id' => $id,
+                    'status' => 'processing',
+
+                ]
+            ];
+
+            $this->putParameters($parameter);
+            $response = $this->request('PUT', 'V1/orders/create');
+            $result = json_decode($response->getBody(), true);
+            return (isset($result)) ? true : false;
+        }
+
 
     }
+
+
+    
 
 
 }

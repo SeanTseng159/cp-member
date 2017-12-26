@@ -86,7 +86,7 @@ class OrderService
      * @param $parameters
      * @return \Illuminate\Http\JsonResponse
      */
-    public function update($token, $parameters)
+    public function update($token=null, $parameters)
     {
         return $this->repository->update($token, $parameters);
     }
