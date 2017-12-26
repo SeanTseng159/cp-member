@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Ksd\Mediation\Core\Controller\RestLaravelController;
 use Ksd\Mediation\Services\WishlistService;
 use Ksd\Mediation\Parameter\Wishlist\WishlistParameter;
+use Ksd\Mediation\Parameter\Wishlist\AllParameter;
 
 class WishlistController extends RestLaravelController
 {
@@ -34,7 +35,8 @@ class WishlistController extends RestLaravelController
      */
     public function add(Request $request, $id)
     {
-        $parameter = new WishlistParameter();
+
+        $parameter = new AllParameter();
         $parameter->laravelRequest($id, $request);
         $result = $this->wishlistService->add($parameter);
         return ($result) ? $this->success() : $this->failure('E0002', '新增失敗');
