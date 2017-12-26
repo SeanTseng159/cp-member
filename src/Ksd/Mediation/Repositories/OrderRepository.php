@@ -179,7 +179,6 @@ class OrderRepository extends BaseRepository
         } else if ($parameters->source === ProjectConfig::CITY_PASS) {
             return $this->cityPass->authorization($parameters->token)->find($parameters->id);
         }
-
         return null;
     }
 
