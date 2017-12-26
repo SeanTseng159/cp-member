@@ -31,7 +31,7 @@ class MemberController extends Controller
         $this->memberService = $memberService;
 
         $this->lang = $langService->getLang();
-        $this->citypassUrl = env('CITY_PASS_WEB') : 'http://localhost:3000/';
+        $this->citypassUrl = ($platform === 'app') ? env('CITY_PASS_WEB') : 'http://localhost:3000/';
     }
 
     /**
