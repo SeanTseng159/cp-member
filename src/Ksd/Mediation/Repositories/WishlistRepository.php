@@ -72,11 +72,11 @@ class WishlistRepository extends BaseRepository
     public function delete($parameter)
     {
         $source = $parameter->source;
-        $id = $parameter->no;
+        $sku = $parameter->wishlistItemId;
         if($source == ProjectConfig::MAGENTO) {
-            return $this->magento->userAuthorization($this->memberTokenService->magentoUserToken())->delete($id);
+            return $this->magento->userAuthorization($this->memberTokenService->magentoUserToken())->delete($sku);
         } else {
-            return $this->cityPass->authorization($this->memberTokenService->cityPassUserToken())->delete($id);
+            return $this->cityPass->authorization($this->memberTokenService->cityPassUserToken())->delete($parameter);
         }
 
     }
