@@ -18,6 +18,7 @@ use Log;
 
 class CheckoutController extends RestLaravelController
 {
+    protected $lang;
     protected $service;
     protected $cartService;
 
@@ -25,6 +26,8 @@ class CheckoutController extends RestLaravelController
     {
         $this->service = $service;
         $this->cartService = $cartService;
+
+        $this->lang = env('APP_LANG');
     }
 
     /**
@@ -101,8 +104,6 @@ class CheckoutController extends RestLaravelController
      */
     public function verifyResult(Request $request)
     {
-        $lang = 'zh_TW';
-
         $requestData = $request->only([
             'ErrorCode',
             'ErrorMessage',
@@ -132,7 +133,7 @@ class CheckoutController extends RestLaravelController
         $log->create($requestData);
 
         $url = (env('APP_ENV') === 'production') ? env('CITY_PASS_WEB') : 'http://localhost:3000/';
-        $url .= $lang;
+        $url .= $this->lang;
 
         // 失敗
         /*if (!in_array($data['ECI'], ['5', '2', '6', '1'])) {

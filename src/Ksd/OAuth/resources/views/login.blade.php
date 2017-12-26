@@ -16,10 +16,10 @@
     </form>
     <div class="row box-warp">
         <div class="col-half">
-            <a href="{{ $web_url . 'zh_TW/member/forgetPassword' }}" target="_blank">忘記密碼</a>
+            <a href="{{ $web_url . '/member/forgetPassword' }}" target="_blank">忘記密碼</a>
         </div>
         <div class="col-half">
-            <a href="{{ $web_url . 'zh_TW/member/create' }}" target="_blank">註冊加入會員</a>
+            <a href="{{ $web_url . '/member/create' }}" target="_blank">註冊加入會員</a>
         </div>
     </div>
     <div class="row text-center">

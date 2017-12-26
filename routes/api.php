@@ -138,7 +138,7 @@ Route::middleware('cors')->namespace('Api')->group(function () {
     Route::prefix('wishlist')->group(function () {
         Route::get('items',   'WishlistController@items');
         Route::post('add/{id}', 'WishlistController@add');
-        Route::post('delete/{id}', 'WishlistController@delete');
+        Route::post('delete', 'WishlistController@delete');
 
     });
 

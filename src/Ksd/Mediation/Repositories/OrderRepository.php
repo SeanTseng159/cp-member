@@ -179,7 +179,6 @@ class OrderRepository extends BaseRepository
         } else if ($parameters->source === ProjectConfig::CITY_PASS) {
             return $this->cityPass->authorization($parameters->token)->find($parameters->id);
         }
-
         return null;
     }
 
@@ -257,7 +256,7 @@ class OrderRepository extends BaseRepository
      * @param $parameters
      * @return  bool
      */
-    public function update($token, $parameters)
+    public function update($token=null, $parameters)
     {
         if ($parameters->source === ProjectConfig::MAGENTO) {
             return $this->magento->update($parameters);

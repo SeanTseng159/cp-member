@@ -30,7 +30,9 @@ class OAuthController extends BaseController
     {
         if (!session('isViewLoginWeb')) return abort(404);
 
-        return view('oauth::login', ['auth_client_id' => $id, 'web_url' => env('CITY_PASS_WEB')]);
+        $lang = 'zh-TW';
+
+        return view('oauth::login', ['auth_client_id' => $id, 'web_url' => env('CITY_PASS_WEB') . $lang]);
     }
 
     public function loginHandle(Request $request)

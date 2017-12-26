@@ -13,8 +13,12 @@ use Ksd\Mediation\Config\ProjectConfig;
 use Ksd\Mediation\Magento\Checkout as MagentoCheckout;
 use Ksd\Mediation\CityPass\Checkout as CityPassCheckout;
 use App\Services\TspgPostbackService;
+use App\Traits\JWTTokenHelper;
+use Firebase\JWT\JWT;
 class CheckoutRepository extends BaseRepository
 {
+    use JWTTokenHelper;
+
     private $memberTokenService;
     private $tspgPostbackService;
     protected $model;
@@ -80,10 +84,11 @@ class CheckoutRepository extends BaseRepository
      */
     public function creditCard($parameters)
     {
+
         if($parameters->checkSource(ProjectConfig::MAGENTO)) {
             return $this->magento->userAuthorization($this->memberTokenService->magentoUserToken())->creditCard($parameters);
         } else if ($parameters->checkSource(ProjectConfig::CITY_PASS)) {
-            return $this->cityPass->authorization($this->memberTokenService->cityPassUserToken())->creditCard($parameters);
+            return $this->cityPass->authorization($this->generateToken())->creditCard($parameters);
         }
     }
 
@@ -133,19 +138,6 @@ class CheckoutRepository extends BaseRepository
         }
 
 
-
-        //處理網頁拋轉至訂單完成頁
-        $lang = 'zh_TW';
-        $url = (env('APP_ENV') === 'production') ? env('CITY_PASS_WEB') : 'http://localhost:3000/';
-        $url .= $lang;
-        $s = (strstr($parameters->order_no,0,1) === '0') ? 'm' : 'c';
-        $url .= '/checkout/complete/' . $s . '/' . $parameters->order_no;
-
-
-        $file  = 'postBack.txt';
-        file_put_contents($file, $parameters->ret_code,FILE_APPEND);
-        return $parameters;
-
     }
 
     /**
@@ -159,5 +151,19 @@ class CheckoutRepository extends BaseRepository
         file_put_contents($file, $parameters->ret_code,FILE_APPEND);
         return $parameters;
 
+    }
+
+    /**
+     * 建立 token for citypass金流
+     * @return string
+     */
+    public function generateToken()
+    {
+        $token = [
+            'exp' => time() + 600,
+            'secret' => 'a2f8b3503c2d66ea'
+        ];
+
+        return $this->JWTencode($token);
     }
 }

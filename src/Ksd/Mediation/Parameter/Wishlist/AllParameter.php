@@ -1,42 +1,37 @@
 <?php
-
 /**
  * Created by PhpStorm.
  * User: Jim
- * Date: 2017/9/15
- * Time: 上午 09:37
+ * Date: 2017/10/24
+ * Time: 上午 09:54
  */
 
 namespace Ksd\Mediation\Parameter\Wishlist;
 
-use Ksd\Mediation\Config\ProjectConfig;
 use Ksd\Mediation\Parameter\BaseParameter;
 
-class WishlistParameter extends BaseParameter
+class AllParameter extends BaseParameter
 {
-    private $magento;
-    private $tpass;
-
     /**
      * 處理 ci request
      * @param $input
      */
-    public function codeigniterRequest($input, $parameters = null)
+    public function codeigniterRequest($input)
     {
-        $this->request($parameters);
         parent::codeigniterRequest($input);
+
     }
 
     /**
      * 處理 laravel request
      * @param $request
      */
-    public function laravelRequest($request)
+    public function laravelRequest($no, $request = null)
     {
         parent::laravelRequest($request);
-        $this->wishlistItemId = $request->input('wishlistItemId');
+        $this->no = $no;
         $this->source = $request->input('source');
+
+
     }
-
-
 }
