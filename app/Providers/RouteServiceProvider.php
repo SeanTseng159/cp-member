@@ -39,6 +39,8 @@ class RouteServiceProvider extends ServiceProvider
 
         $this->mapWebRoutes();
 
+        $this->mapIpassRoutes();
+
         //
     }
 
@@ -69,5 +71,23 @@ class RouteServiceProvider extends ServiceProvider
              ->middleware('api')
              ->namespace($this->namespace)
              ->group(base_path('routes/api.php'));
+    }
+
+    /**
+     * Define the "ipass" routes for the application.
+     *
+     * These routes all receive session state, etc.
+     *
+     * @return void
+     */
+    protected function mapIpassRoutes()
+    {
+        Route::group([
+            'middleware' => 'ipass',
+            'prefix' => 'ipass',
+            'namespace' => $this->namespace,
+        ], function ($router) {
+            require base_path('routes/ipass.php');
+        });
     }
 }

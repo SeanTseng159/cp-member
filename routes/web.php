@@ -14,10 +14,3 @@
 Route::get('/', function () {
     return view('welcome');
 });
-
-Route::namespace('Web\Ipass')->group(function () {
-	Route::prefix('ipass')->group(function () {
-		Route::get('login/{platform?}', 'MemberController@login');
-		Route::post('memberCallback/{platform?}', 'MemberController@callback');
-	});
-});
