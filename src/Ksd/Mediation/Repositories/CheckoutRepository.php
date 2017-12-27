@@ -93,7 +93,7 @@ class CheckoutRepository extends BaseRepository
     }
 
     /**
-     * 信用卡送金流
+     * 信用卡送金流(台新)
      * @param $parameters
      * @return array|mixed
      */
@@ -102,6 +102,7 @@ class CheckoutRepository extends BaseRepository
         if($parameters->checkSource(ProjectConfig::MAGENTO)) {
             return $this->magento->userAuthorization($this->memberTokenService->magentoUserToken())->transmit($parameters);
         } else if ($parameters->checkSource(ProjectConfig::CITY_PASS)) {
+            //待sam提供更api
             return $this->cityPass->authorization($this->memberTokenService->cityPassUserToken())->creditCard($parameters);
         }
     }
@@ -115,16 +116,29 @@ class CheckoutRepository extends BaseRepository
     {
         $data = $this->tspgPostbackService->find($parameters->order_no);
 
-        $requestData=[];
+        //更新訂單狀態
+        if($data->order_source === "magento"){
+            $this->magento->updateOrder($data,$parameters);
+        }
+        //待sam提供更api
+        if($data->order_source === "ct_pass"){
+
+        }
+
+        //依需求是否實作錯誤訊息
+        $requestData=[
+            'ErrorMessage'=>'付款失敗'
+        ];
+
         $lang = 'zh_TW';
         $url = (env('APP_ENV') === 'production') ? env('CITY_PASS_WEB') : 'http://localhost:3000/';
         $url .= $lang;
 
         if ($data->order_device === '2') {
 
-            $url = 'app://order?id=' . $data->order_no . '&source=' . $data->order_source;
+            $url = 'app://order?id=' . $parameters->order_no . '&source=' . $data->order_source;
 
-            $url .= isset($data) ? '&result=true&msg=success' : '&result=false&msg=' . $requestData['ErrorMessage'];
+            $url .= ($parameters->ret_code === "00") ? '&result=true&msg=success' : '&result=false&msg=' . $requestData['ErrorMessage'];
 
             $urldata = '<script>location.href="' . $url . '";</script>';
             return ['urlData' => $urldata,'platform' => $data->order_device];
@@ -132,7 +146,7 @@ class CheckoutRepository extends BaseRepository
         }
         else {
             $s = ($data->order_source === 'ct_pass') ? 'c' : 'm';
-            $url .= '/checkout/complete/' . $s . '/' . $data->order_no;
+            $url .= '/checkout/complete/' . $s . '/' . $parameters->order_no;
 
             return ['urlData' => $url,'platform' => $data->order_device];
         }
@@ -160,7 +174,7 @@ class CheckoutRepository extends BaseRepository
     public function generateToken()
     {
         $token = [
-            'exp' => time() + 600,
+            'exp' => time() + 7200,
             'secret' => 'a2f8b3503c2d66ea'
         ];
 

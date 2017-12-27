@@ -20,6 +20,7 @@ class OrderParameter
         $parameter = $payStatusParameter;
         $parameter->orderNo = $callback->orderNo;
         $parameter->source = $callback->source;
+        $parameter->paySource = 'ipasspay';
         unset($parameter->rtnCode);
         unset($parameter->rtnMsg);
         unset($parameter->client_id);
