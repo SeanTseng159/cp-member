@@ -96,7 +96,7 @@ class OAuthController extends BaseController
     public function logout(Request $request)
     {
         // 清除登入
-        $request->session()->forget('member');
+        $request->session()->flush();
 
         return $this->success(['code' => '00000', 'message' => 'success']);
     }
