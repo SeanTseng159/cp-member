@@ -107,9 +107,6 @@ class OAuthClientController extends BaseController
         $request->session()->put('redirect_url', $data['redirect_url']);
         $request->session()->put('cancel_url', $data['cancel_url']);
 
-        Log::info('=== oauth session ===');
-        Log::debug(print_r(session()->getId(), true));
-
         if ($validator->fails() || $data['response_type'] !== 'code') return $this->postFailure('E0001', '參數錯誤');
 
         $oc = $this->service->queryOne([

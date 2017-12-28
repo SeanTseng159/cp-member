@@ -6,7 +6,7 @@
  */
 
 // 需 token 認證的 route
-Route::group(['middleware' => 'oauth', 'prefix' => 'oauth', 'namespace' => 'Ksd\OAuth\Http\Controllers\OAuth'], function () {
+Route::group(['middleware' => ['oauth', 'cors'], 'prefix' => 'oauth', 'namespace' => 'Ksd\OAuth\Http\Controllers\OAuth'], function () {
     // create 一個client app
     Route::post('create', 'OAuthClientController@create');
     // auth_code 授權
