@@ -92,4 +92,12 @@ class OAuthController extends BaseController
 
         return $this->postSuccess($this->ocmService->getResponseData($member));
     }
+
+    public function logout(Request $request)
+    {
+        // 清除登入
+        $request->session()->forget('member');
+
+        return $this->success(['code' => '00000', 'message' => 'success']);
+    }
 }

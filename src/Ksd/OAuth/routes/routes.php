@@ -20,5 +20,6 @@ Route::group(['middleware' => 'oauth', 'prefix' => 'oauth', 'namespace' => 'Ksd\
 	    Route::post('login', 'OAuthController@loginHandle');
 	    Route::get('authorize/{id}', 'OAuthController@authorize');
 	    Route::post('authorize', 'OAuthController@authorizeHandle');
+        Route::post('logout', 'OAuthController@logout');
 	});
 });

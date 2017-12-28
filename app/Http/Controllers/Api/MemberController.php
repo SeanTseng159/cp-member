@@ -482,7 +482,8 @@ class MemberController extends RestLaravelController
             'country' => $member->country,
             'gender' => $member->gender,
             'zipcode' => $member->zipcode,
-            'address' => $member->address
+            'address' => $member->address,
+            'openPlateform' => $member->openPlateform
         ]);
     }
 
@@ -548,7 +549,8 @@ class MemberController extends RestLaravelController
             'country' => $member->country,
             'gender' => $member->gender,
             'zipcode' => $member->zipcode,
-            'address' => $member->address
+            'address' => $member->address,
+            'openPlateform' => $member->openPlateform
         ]);
     }
 }
