@@ -332,12 +332,11 @@ class Order extends Client
                 'pay_amt' => $parameters->pay_amt,
                 'pay_time' => $parameters->pay_time,
                 'fund_time' => $parameters->fund_time,
-                'respond_code' => $parameters->respond_code,
+                'response_code' => $parameters->response_code,
                 'auth' => $parameters->auth,
                 'card6no' => $parameters->card6no,
                 'card4no' => $parameters->card4no,
-                'eci' => $parameters->eci,
-                'signature' => $parameters->signature
+                'eci' => $parameters->eci
 
             ];
             $parameter = [
