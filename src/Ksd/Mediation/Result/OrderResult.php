@@ -272,7 +272,7 @@ class OrderResult
                 case 'pending': # 待付款
                     return "待付款";
                     break;
-                case 'complete': # 訂單完成(已出貨且開立發票)
+                case 'complete': # 訂單完成(已出貨)
                     return "已完成";
                     break;
                 case 'holded': # 退貨處理中
@@ -282,7 +282,7 @@ class OrderResult
                     return "已退貨";
                     break;
                 case 'processing': # 付款成功(前台顯示已完成)，尚未出貨
-                    return "處理中";
+                    return "已完成";
                     break;
             }
         } else if($source ==='ct_pass'){
@@ -323,7 +323,7 @@ class OrderResult
                 case 'pending': # 待付款
                     return "00";
                     break;
-                case 'complete': # 已完成
+                case 'complete': # 已完成(完成出貨)
                     return "01";
                     break;
                 case 'holded': # 退貨處理中
@@ -332,7 +332,7 @@ class OrderResult
                 case 'cancel': # 已退貨
                     return "03";
                     break;
-                case 'processing': # 處理中
+                case 'processing': # 已完成(完成付款)
                     return "01";
                     break;
             }
