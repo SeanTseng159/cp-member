@@ -121,7 +121,7 @@ class CheckoutRepository extends BaseRepository
         }
 
         if($data->order_source === "ct_pass"){
-
+            $this->cityPass->updateOrder($parameters);
 
         }
 
@@ -130,7 +130,7 @@ class CheckoutRepository extends BaseRepository
             'ErrorMessage'=>'付款失敗'
         ];
 
-        $lang = 'zh_TW';
+        $lang =  env('APP_LANG');
         $url = (env('APP_ENV') === 'production') ? env('CITY_PASS_WEB') : 'http://localhost:3000/';
         $url .= $lang;
 
