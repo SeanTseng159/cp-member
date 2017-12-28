@@ -266,8 +266,7 @@ class Order extends Client
         $path = sprintf('V1/orders/%s', $id);
         $response = $this->request('GET', $path);
         $body = $response->getBody();
-        $result = json_decode($body, true);;
-        dd($result);
+        $result = json_decode($body, true);
         $data = [];
         $order = new OrderResult();
         $order->magento($result,true);
