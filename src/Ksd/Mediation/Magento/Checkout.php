@@ -14,7 +14,7 @@ use Ksd\Mediation\Result\Checkout\PaymentInfoResult;
 use Ksd\Mediation\Result\Checkout\ShippingInfoResult;
 use Ksd\Mediation\Result\CheckoutResult;
 use GuzzleHttp\Exception\ClientException;
-
+use Log;
 use App\Models\TspgPostback;
 
 class Checkout extends Client
@@ -321,8 +321,10 @@ class Checkout extends Client
         try {
             $response = $this->request('POST', 'V1/carts/mine/payment-information');
             $body = $response->getBody();
-        }catch (ClientException $e){
 
+        }catch (ClientException $e){
+            Log::debug('===magento結帳信用卡(台新)===');
+            Log::debug($e);
         }
         $orderId = trim($body, '"');
 
@@ -395,6 +397,8 @@ class Checkout extends Client
         $this->putParameters($parameter);
         $response = $this->request('PUT', 'V1/orders/create');
         $result = json_decode($response->getBody(), true);
+        Log::debug('===magento台新結果回傳更新訂單===');
+        Log::debug(print_r(json_decode($response->getBody(), true), true));
 
 
     }
