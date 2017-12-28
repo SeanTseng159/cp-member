@@ -100,7 +100,7 @@ class OAuthController extends BaseController
         $request->session()->forget('member');
 
         if ($redirect_url) {
-            header('Location:' . $redirect_url);
+            return '<script>location.href="' . $redirect_url . '";</script>';
         }
         else {
             exit();
