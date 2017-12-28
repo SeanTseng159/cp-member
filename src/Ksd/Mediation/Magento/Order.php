@@ -336,8 +336,7 @@ class Order extends Client
                 'auth' => $parameters->auth,
                 'card6no' => $parameters->card6no,
                 'card4no' => $parameters->card4no,
-                'eci' => $parameters->eci,
-                'signature' => $parameters->signature
+                'eci' => $parameters->eci
 
             ];
             $parameter = [
