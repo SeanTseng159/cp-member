@@ -102,8 +102,7 @@ class CheckoutRepository extends BaseRepository
         if($parameters->checkSource(ProjectConfig::MAGENTO)) {
             return $this->magento->userAuthorization($this->memberTokenService->magentoUserToken())->transmit($parameters);
         } else if ($parameters->checkSource(ProjectConfig::CITY_PASS)) {
-            //待sam提供更api
-            return $this->cityPass->authorization($this->memberTokenService->cityPassUserToken())->creditCard($parameters);
+            return $this->cityPass->authorization($this->generateToken())->transmit($parameters);
         }
     }
 
@@ -120,8 +119,9 @@ class CheckoutRepository extends BaseRepository
         if($data->order_source === "magento"){
             $this->magento->updateOrder($data,$parameters);
         }
-        //待sam提供更api
+
         if($data->order_source === "ct_pass"){
+
 
         }
 
@@ -174,7 +174,7 @@ class CheckoutRepository extends BaseRepository
     public function generateToken()
     {
         $token = [
-            'exp' => time() + 7200,
+//            'exp' => time() + 7200,
             'secret' => 'a2f8b3503c2d66ea'
         ];
 

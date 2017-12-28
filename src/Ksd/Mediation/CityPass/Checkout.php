@@ -11,6 +11,7 @@ namespace Ksd\Mediation\CityPass;
 
 use Ksd\Mediation\Result\CheckoutResult;
 use Log;
+use App\Models\TspgPostback;
 
 class Checkout extends Client
 {
@@ -47,7 +48,7 @@ class Checkout extends Client
     }
 
     /**
-     * 金融卡送金流
+     * 金融卡送金流(藍新)
      * @param $parameters
      * @return mixed
      */
@@ -55,10 +56,11 @@ class Checkout extends Client
     {
         $parameter = $this->processPayment($parameters);
         $this->putParameters($parameter);
+
         $response = $this->request('POST', 'payment/credit_card');
         $result = json_decode($response->getBody(), true);
 
-        Log::debug('===結帳信用卡===');
+        Log::debug('===結帳信用卡(藍新)===');
         Log::debug(print_r(json_decode($response->getBody(), true), true));
 
         return ($result['statusCode'] === 200);
@@ -82,6 +84,60 @@ class Checkout extends Client
             ]
         ];
         return $parameter;
+    }
+
+    /**
+     * 金融卡送金流(台新)
+     * @param $parameters
+     * @return mixed
+     */
+    public function transmit($parameters)
+    {
+
+        $parameter = [
+          'order_no' => $parameters->orderNo
+        ];
+
+        $this->putParameters($parameter);
+        $response = $this->request('POST', 'payment_tspg/credit_card');
+        $result = json_decode($response->getBody(), true);
+
+        Log::debug('===Citypass結帳信用卡(台新)===');
+        Log::debug(print_r(json_decode($response->getBody(), true), true));
+
+
+        $orderId = $result['data']['order_no'];
+        $url = $result['data']['result_url'];
+
+        $data = [
+            'order_id' => $orderId,
+            'order_no' => $orderId,
+            'order_device' => $parameters->device,
+            'order_source' => $parameters->source,
+            'back_url' => md5($url)
+        ];
+
+
+        $pay = new TspgPostback();
+        $pay->fill($data)->save();
+
+
+        return ($result['statusCode'] === 200) ? [ 'id' => $orderId, 'url' => $url] : [];
+    }
+
+    /**
+     * 更新訂單(台新結果回傳)
+     * @param $parameters
+     */
+    public function updateOrder($parameters)
+    {
+        $this->putParameters($parameters);
+        $response = $this->request('POST', 'payment_tspg/update_order');
+        $result = json_decode($response->getBody(), true);
+
+        Log::debug('===Citypass台新結果回傳更新訂單===');
+        Log::debug(print_r(json_decode($response->getBody(), true), true));
+
     }
 
 }
