@@ -362,7 +362,8 @@ class OrderResult
         $result = [];
         $method = $payment['method'];
         $additionalInformation = $payment['additional_information'];
-        $data = explode("&",$comment[0]['comment']);
+
+        $data = isset($comment) ? explode("&",$comment[0]['comment']) : null;
 
         if ($method === 'neweb_atm') {
             $result = [
@@ -397,42 +398,31 @@ class OrderResult
         }else if($key === "Check / Money order"){
             $status = "測試用";
         }else if($key === "Ipass Pay"){
-            if($data[4] === "ACCLINK"){
-                $status = "IpassPay(約定帳戶付款)";
-            }else if($data[4] === "CREDIT"){
-                $status = "IpassPay(信用卡付款)";
-            }else if($data[4] === "VACC"){
-                $status = "IpassPay(ATM轉帳付款)";
-            }else if($data[4] === "WEBATM"){
-                $status = "IpassPay(網路銀行轉帳付款)";
-            }else if($data[4] === "BARCODE"){
-                $status = "IpassPay(超商條碼繳費)";
-            }else if($data[4] === "ECAC"){
-                $status = "IpassPay(電子支付帳戶付款)";
+            if(isset($data[4])){
+                if($data[4] === "ACCLINK"){
+                    $status = "IpassPay(約定帳戶付款)";
+                }else if($data[4] === "CREDIT"){
+                    $status = "IpassPay(信用卡付款)";
+                }else if($data[4] === "VACC"){
+                    $status = "IpassPay(ATM轉帳付款)";
+                }else if($data[4] === "WEBATM"){
+                    $status = "IpassPay(網路銀行轉帳付款)";
+                }else if($data[4] === "BARCODE"){
+                    $status = "IpassPay(超商條碼繳費)";
+                }else if($data[4] === "ECAC"){
+                    $status = "IpassPay(電子支付帳戶付款)";
+                }else{
+                    $status = "IpassPay";
+                }
+            }else{
+                $status = "IpassPay";
             };
         }else {
             $status = "取不到付款方式";
         }
 
         return $status;
-/*
-        switch ($key) {
 
-            case 'Neweb Atm Payment': #  ATM虛擬帳號
-                return "ATM虛擬帳號";
-                break;
-            case 'Ipass Pay': # Ipass Pay支付
-                return "Ipass Pay支付";
-                break;
-            case 'Neweb Api Payment': # 信用卡一次付清
-                return "信用卡一次付清";
-                break;
-            case 'Check / Money order': # 測試用
-                return "信用卡一次付清";
-                break;
-
-        }
-*/
     }
 
     /**
