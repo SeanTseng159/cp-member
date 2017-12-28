@@ -95,9 +95,15 @@ class OAuthController extends BaseController
 
     public function logout(Request $request)
     {
+        $redirect_url = $request->input('redirect_url');
         // 清除登入
         $request->session()->forget('member');
 
-        return $this->success(['code' => '00000', 'message' => 'success']);
+        if ($redirect_url) {
+            header('Location:' . $redirect_url);
+        }
+        else {
+            exit();
+        }
     }
 }
