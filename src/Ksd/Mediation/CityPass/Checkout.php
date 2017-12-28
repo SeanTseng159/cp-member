@@ -25,10 +25,10 @@ class Checkout extends Client
         $response = $this->request('GET', 'checkout/info');
         $result = json_decode($response->getBody(),true);
 
-        $checkout = new CheckoutResult();
-        $checkout->cityPass($result);
+ //       $checkout = new CheckoutResult();
+ //       $checkout->cityPass($result);
 
-        return $checkout;
+        return ($result['statusCode'] === 200) ? $result['data'] : null;
     }
 
     /**
