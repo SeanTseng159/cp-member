@@ -208,7 +208,7 @@ class CheckoutController extends RestLaravelController
         \Log::debug(print_r($url, true));
 
         if($url['platform'] === '2') {
-            return $url['urlData'];
+            return '<script>location.href="' . $url['urlData'] . '";</script>';
         }else{
             return redirect($url['urlData']);
         }

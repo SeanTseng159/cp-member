@@ -139,8 +139,6 @@ class CheckoutRepository extends BaseRepository
             $url = 'app://order?id=' . $data->order_id . '&source=' . $data->order_source;
 
             $url .= ($parameters->ret_code === "00") ? '&result=true&msg=success' : '&result=false&msg=' . $requestData['ErrorMessage'];
-
-            $urldata = '<script>location.href="' . $url . '";</script>';
         }
         else {
             $s = ($data->order_source === 'ct_pass') ? 'c' : 'm';
