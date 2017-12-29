@@ -41,20 +41,16 @@ class OrderRepository extends BaseRepository
      */
     public function info()
     {
-
-        return $this->redis->remember($this->genCacheKey(self::INFO_KEY), CacheConfig::TEST_TIME, function () {
+        $key = $this->genCacheKey(self::INFO_KEY);
+        $allData = $this->redis->remember($key, CacheConfig::TEST_TIME, function () {
             $magento = $this->magento->userAuthorization($this->memberTokenService->magentoUserToken())->info();
             $cityPass = $this->cityPass->authorization($this->memberTokenService->cityPassUserToken())->info();
             $data = array_merge($magento, $cityPass);
 
             return ($data) ? $this->multi_array_sort($data, 'orderDate') : null;
-
-/*            return [
-                ProjectConfig::MAGENTO => $magento,
-                ProjectConfig::CITY_PASS => $cityPass
-            ];
-*/
         });
+
+        return ($allData) ? $allData : $this->cacheKey($key);
     }
 
     /**
