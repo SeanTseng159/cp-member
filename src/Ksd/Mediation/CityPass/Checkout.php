@@ -105,7 +105,6 @@ class Checkout extends Client
         Log::debug('===Citypass結帳信用卡(台新)===');
         Log::debug(print_r(json_decode($response->getBody(), true), true));
 
-
         $orderId = $result['data']['order_no'];
         $webpayOrderNo = $result['data']['webpay_order_no'];
         $url = $result['data']['result_url'];
