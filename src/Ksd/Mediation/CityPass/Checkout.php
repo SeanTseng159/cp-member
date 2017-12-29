@@ -107,11 +107,12 @@ class Checkout extends Client
 
 
         $orderId = $result['data']['order_no'];
+        $webpayOrderNo = $result['data']['webpay_order_no'];
         $url = $result['data']['result_url'];
 
         $data = [
-            'order_id' => $parameters->orderNo,
-            'order_no' => $orderId,
+            'order_id' => $orderId,
+            'order_no' => $webpayOrderNo,
             'order_device' => $parameters->device,
             'order_source' => $parameters->source,
             'back_url' => md5($url)
