@@ -50,7 +50,10 @@ class OrderRepository extends BaseRepository
             return ($data) ? $this->multi_array_sort($data, 'orderDate') : null;
         });
 
-        return ($allData) ? $allData : $this->cacheKey($key);
+        // 空值就砍掉快取
+        if (!$allData) $this->cacheKey($key);
+
+        return $allData;
     }
 
     /**
