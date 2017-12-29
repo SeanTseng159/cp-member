@@ -117,7 +117,7 @@ class PayController extends RestLaravelController
 
       $result = false;
       if ($callbackParameter->source === SELF::MAGENTO) {
-
+        $result = $updateResult;
       }
       elseif ($callbackParameter->source === SELF::CITYPASS) {
         $result = ($updateResult && $updateResult['statusCode'] === '201');
