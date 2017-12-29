@@ -120,16 +120,11 @@ class PayController extends RestLaravelController
         $result = $updateResult;
       }
       elseif ($callbackParameter->source === SELF::CITYPASS) {
-        $result = ($updateResult && $updateResult['statusCode'] === '201');
+        $result = ($updateResult && $updateResult['statusCode'] == 201);
       }
 
-      Log::debug('=== ipass 訂單更新狀態 ===');
-      Log::debug(print_r($result, true));
-
       // 導回前端
-      //return ($result) ? $this->successRedirect($callbackParameter) : $this->failureRedirect($callbackParameter);
-      //
-      return $this->successRedirect($callbackParameter);
+      return ($result) ? $this->successRedirect($callbackParameter) : $this->failureRedirect($callbackParameter);
     }
 
     public function failureCallback(Request $request)

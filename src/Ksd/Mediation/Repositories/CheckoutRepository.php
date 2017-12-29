@@ -113,16 +113,17 @@ class CheckoutRepository extends BaseRepository
      */
     public function postBack($parameters)
     {
+        Log::debug('=== 台新回來 ===');
+        Log::debug(print_r($parameters, true));
+
         $data = $this->tspgPostbackService->find($parameters->order_no);
 
         //更新訂單狀態
-        if($data->order_source === "magento"){
+        if ($data->order_source === "magento"){
             $this->magento->updateOrder($data,$parameters);
         }
-
-        if($data->order_source === "ct_pass"){
+        elseif ($data->order_source === "ct_pass"){
             $this->cityPass->updateOrder($parameters);
-
         }
 
         //依需求是否實作錯誤訊息
@@ -130,9 +131,8 @@ class CheckoutRepository extends BaseRepository
             'ErrorMessage'=>'付款失敗'
         ];
 
-        $lang =  env('APP_LANG');
-        $url = (env('APP_ENV') === 'production') ? env('CITY_PASS_WEB') : 'http://localhost:3000/';
-        $url .= $lang;
+        $lang = env('APP_LANG');
+        $url = env('CITY_PASS_WEB') . $lang;
 
         if ($data->order_device === '2') {
 
@@ -141,16 +141,13 @@ class CheckoutRepository extends BaseRepository
             $url .= ($parameters->ret_code === "00") ? '&result=true&msg=success' : '&result=false&msg=' . $requestData['ErrorMessage'];
 
             $urldata = '<script>location.href="' . $url . '";</script>';
-            return ['urlData' => $urldata,'platform' => $data->order_device];
-
         }
         else {
             $s = ($data->order_source === 'ct_pass') ? 'c' : 'm';
             $url .= '/checkout/complete/' . $s . '/' . $parameters->order_no;
-
-            return ['urlData' => $url,'platform' => $data->order_device];
         }
 
+        return ['urlData' => $url, 'platform' => $data->order_device];
 
     }
 
