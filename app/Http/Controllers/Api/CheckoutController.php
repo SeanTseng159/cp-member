@@ -204,8 +204,8 @@ class CheckoutController extends RestLaravelController
         $parameters->laravelRequest($request);
         $url = $this->service->postBack($parameters);
 
-        Log::debug('=== 台新導向URL ===');
-        Log::debug(print_r($url, true));
+        \Log::debug('=== 台新導向URL ===');
+        \Log::debug(print_r($url, true));
 
         if($url['platform'] === '2') {
             return $url['urlData'];

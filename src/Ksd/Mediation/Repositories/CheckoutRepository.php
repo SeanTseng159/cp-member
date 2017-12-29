@@ -113,8 +113,8 @@ class CheckoutRepository extends BaseRepository
      */
     public function postBack($parameters)
     {
-        Log::debug('=== 台新回來 ===');
-        Log::debug(print_r($parameters, true));
+        \Log::debug('=== 台新回來 ===');
+        \Log::debug(print_r($parameters, true));
 
         $data = $this->tspgPostbackService->find($parameters->order_no);
 
