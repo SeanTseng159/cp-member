@@ -29,12 +29,16 @@ class Layout extends Client
             $result = json_decode($response->getBody(), true);
 
         } catch (ClientException $e) {
-
         }
 
-        $order = new LayoutResult();
-        $order->cityPass($result['data']);
-        return $order;
+        if (isset($result['data'])) {
+
+            $order = new LayoutResult();
+            $order->cityPass($result['data']);
+            return $order;
+        }
+
+        return null;
     }
 
     /**

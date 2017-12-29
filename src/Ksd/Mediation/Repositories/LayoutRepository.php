@@ -14,6 +14,8 @@ use Ksd\Mediation\Config\CacheConfig;
 
 class LayoutRepository extends BaseRepository
 {
+    private $count = 0;
+
     const HOME_KEY = 'layout:home:%s:%s';
     const ADS_KEY = 'layout:ads:%s:%s';
     const EXPLORATION_KEY = 'layout:exploration:%s:%s';
@@ -33,13 +35,19 @@ class LayoutRepository extends BaseRepository
      */
     public function home()
     {
-
-        return $this->redis->remember($this->genCacheKey(self::HOME_KEY), CacheConfig::LAYOUT_TIME, function () {
-            $cityPass = $this->cityPass->home();
-            return $cityPass ;
-
+        $key = $this->genCacheKey(self::HOME_KEY);
+        $data = $this->redis->remember($key, CacheConfig::LAYOUT_TIME, function () {
+            return $this->cityPass->home();
         });
 
+        if (!$data && $this->count < 3) {
+            $this->cacheKey($key);
+            $this->count++;
+
+            return $this->home();
+        }
+
+        return $data;
     }
 
     /**
