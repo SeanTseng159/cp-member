@@ -95,7 +95,7 @@ class Checkout extends Client
     {
 
         $parameter = [
-          'order_no' => $parameters->orderId
+          'order_no' => $parameters->orderNo
         ];
 
         $this->putParameters($parameter);
