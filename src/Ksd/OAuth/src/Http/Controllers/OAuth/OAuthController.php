@@ -92,4 +92,18 @@ class OAuthController extends BaseController
 
         return $this->postSuccess($this->ocmService->getResponseData($member));
     }
+
+    public function logout(Request $request)
+    {
+        $redirect_url = $request->input('redirect_url');
+        // 清除登入
+        $request->session()->forget('member');
+
+        if ($redirect_url) {
+            return '<script>location.href="' . $redirect_url . '";</script>';
+        }
+        else {
+            exit();
+        }
+    }
 }

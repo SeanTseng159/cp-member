@@ -26,7 +26,7 @@ class TransmitParameter extends BaseParameter
      */
     public function laravelRequest($request)
     {
-        $this->device = $request->input('device');
+        $this->device = ($request->input('device')==="web") ? "1" : "2";
         $this->source = $request->input('source');
         $this->orderNo = $request->input('orderNo');
 

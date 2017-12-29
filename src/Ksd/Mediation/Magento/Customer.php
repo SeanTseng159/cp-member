@@ -22,7 +22,11 @@ class Customer extends Client
             $lastName = $name;
         }
         $customer = new \stdClass();
-        $customer->email = $member->email;
+        if($member->openPlateform ==="citypass") {
+            $customer->email = $member->email;
+        }else{
+            $customer->email = $member->openId;
+        }
         $customer->firstname = $firstName;
         $customer->lastname = $lastName;
 

@@ -272,7 +272,7 @@ class OrderResult
                 case 'pending': # 待付款
                     return "待付款";
                     break;
-                case 'complete': # 訂單完成(已出貨且開立發票)
+                case 'complete': # 訂單完成(已出貨)
                     return "已完成";
                     break;
                 case 'holded': # 退貨處理中
@@ -282,7 +282,7 @@ class OrderResult
                     return "已退貨";
                     break;
                 case 'processing': # 付款成功(前台顯示已完成)，尚未出貨
-                    return "處理中";
+                    return "已完成";
                     break;
             }
         } else if($source ==='ct_pass'){
@@ -323,7 +323,7 @@ class OrderResult
                 case 'pending': # 待付款
                     return "00";
                     break;
-                case 'complete': # 已完成
+                case 'complete': # 已完成(完成出貨)
                     return "01";
                     break;
                 case 'holded': # 退貨處理中
@@ -332,7 +332,7 @@ class OrderResult
                 case 'cancel': # 已退貨
                     return "03";
                     break;
-                case 'processing': # 處理中
+                case 'processing': # 已完成(完成付款)
                     return "01";
                     break;
             }
@@ -362,7 +362,8 @@ class OrderResult
         $result = [];
         $method = $payment['method'];
         $additionalInformation = $payment['additional_information'];
-        $data = explode("&",$comment[0]['comment']);
+
+        $data = isset($comment) ? explode("&",$comment[0]['comment']) : null;
 
         if ($method === 'neweb_atm') {
             $result = [
@@ -397,42 +398,31 @@ class OrderResult
         }else if($key === "Check / Money order"){
             $status = "測試用";
         }else if($key === "Ipass Pay"){
-            if($data[4] === "ACCLINK"){
-                $status = "IpassPay(約定帳戶付款)";
-            }else if($data[4] === "CREDIT"){
-                $status = "IpassPay(信用卡付款)";
-            }else if($data[4] === "VACC"){
-                $status = "IpassPay(ATM轉帳付款)";
-            }else if($data[4] === "WEBATM"){
-                $status = "IpassPay(網路銀行轉帳付款)";
-            }else if($data[4] === "BARCODE"){
-                $status = "IpassPay(超商條碼繳費)";
-            }else if($data[4] === "ECAC"){
-                $status = "IpassPay(電子支付帳戶付款)";
+            if(isset($data[4])){
+                if($data[4] === "ACCLINK"){
+                    $status = "IpassPay(約定帳戶付款)";
+                }else if($data[4] === "CREDIT"){
+                    $status = "IpassPay(信用卡付款)";
+                }else if($data[4] === "VACC"){
+                    $status = "IpassPay(ATM轉帳付款)";
+                }else if($data[4] === "WEBATM"){
+                    $status = "IpassPay(網路銀行轉帳付款)";
+                }else if($data[4] === "BARCODE"){
+                    $status = "IpassPay(超商條碼繳費)";
+                }else if($data[4] === "ECAC"){
+                    $status = "IpassPay(電子支付帳戶付款)";
+                }else{
+                    $status = "IpassPay";
+                }
+            }else{
+                $status = "IpassPay";
             };
         }else {
             $status = "取不到付款方式";
         }
 
         return $status;
-/*
-        switch ($key) {
 
-            case 'Neweb Atm Payment': #  ATM虛擬帳號
-                return "ATM虛擬帳號";
-                break;
-            case 'Ipass Pay': # Ipass Pay支付
-                return "Ipass Pay支付";
-                break;
-            case 'Neweb Api Payment': # 信用卡一次付清
-                return "信用卡一次付清";
-                break;
-            case 'Check / Money order': # 測試用
-                return "信用卡一次付清";
-                break;
-
-        }
-*/
     }
 
     /**

@@ -14,7 +14,7 @@ use Ksd\Mediation\Result\Checkout\PaymentInfoResult;
 use Ksd\Mediation\Result\Checkout\ShippingInfoResult;
 use Ksd\Mediation\Result\CheckoutResult;
 use GuzzleHttp\Exception\ClientException;
-
+use Log;
 use App\Models\TspgPostback;
 
 class Checkout extends Client
@@ -321,38 +321,85 @@ class Checkout extends Client
         try {
             $response = $this->request('POST', 'V1/carts/mine/payment-information');
             $body = $response->getBody();
-        }catch (ClientException $e){
 
+        }catch (ClientException $e){
+            Log::debug('===magento結帳信用卡(台新)===');
+            Log::debug($e);
         }
         $orderId = trim($body, '"');
-//        return empty($body) ? [] : [ 'id' => trim($body, '"')];
+
+        //信用卡授權成功，訂單成立
+        if(!empty($orderId)) {
+            $admintoken = new Client();
+            $this->authorization($admintoken->token);
+
+            $path = sprintf('V1/orders/%s', $orderId);
+            $response = $this->request('GET', $path);
+            $result = json_decode($response->getBody(), true);
+
+            $url = $result['payment']['additional_information'][4];
+            $orderNo = $result['increment_id'];
+            $device = $result['payment']['additional_information'][0];
+            $source = $result['payment']['additional_information'][1];
+
+            $data = [
+                'order_id' => $orderId,
+                'order_no' => $orderNo,
+                'order_device' => $device,
+                'order_source' => $source,
+                'back_url' => md5($url)
+            ];
 
 
-        $admintoken = new Client();
-        $this->authorization($admintoken->token);
+            $pay = new TspgPostback();
+            $pay->fill($data)->save();
 
-        $path = sprintf('V1/orders/%s', $orderId);
-        $response = $this->request('GET', $path);
+            return [ 'id' => $orderId, 'url' => $url];
+
+        }else{
+
+            return [];
+        }
+
+    }
+
+    /**
+     * 更新訂單(台新結果回傳)
+     * @param $data
+     * @param $parameters
+     */
+    public function updateOrder($data,$parameters)
+    {
+
+        $id = $data->order_id;
+        $ret_code = $parameters->ret_code;
+
+        //付款成功
+        if($ret_code === "00") {
+            $parameter = [
+                'entity' => [
+                    'entity_id' => $id,
+                    'status' => 'processing',
+
+                ]
+            ];
+        }else{
+            $parameter = [
+                'entity' => [
+                    'entity_id' => $id,
+                    'status' => 'pending',
+
+                ]
+            ];
+
+        }
+
+        $this->putParameters($parameter);
+        $response = $this->request('PUT', 'V1/orders/create');
         $result = json_decode($response->getBody(), true);
+        Log::debug('===magento台新結果回傳更新訂單===');
+        Log::debug(print_r(json_decode($response->getBody(), true), true));
 
-        $url = $result['payment']['additional_information'][4];
-        $orderNo = $result['increment_id'];
-        $device = $result['payment']['additional_information'][0];
-        $source = $result['payment']['additional_information'][1];
-
-        $data = [
-            'order_id' => $orderId,
-            'order_no' => $orderNo,
-            'order_device' => $device,
-            'order_source' => $source,
-            'back_url' => md5($url)
-        ];
-
-
-        $pay = new TspgPostback();
-        $pay->fill($data)->save();
-
-        return empty($orderId) ? [] : [ 'id' => $orderId, 'url' => $url];
 
     }
 

@@ -117,17 +117,14 @@ class PayController extends RestLaravelController
 
       $result = false;
       if ($callbackParameter->source === SELF::MAGENTO) {
-
+        $result = $updateResult;
       }
       elseif ($callbackParameter->source === SELF::CITYPASS) {
-        $result = ($updateResult && $updateResult['statusCode'] === '201');
+        $result = ($updateResult && $updateResult['statusCode'] == 201);
       }
 
-      // 失敗導回前端
-      if (!$result) return $this->failureRedirect($callbackParameter);
-
-      // 成功導回前端
-      return $this->successRedirect($callbackParameter);
+      // 導回前端
+      return ($result) ? $this->successRedirect($callbackParameter) : $this->failureRedirect($callbackParameter);
     }
 
     public function failureCallback(Request $request)
@@ -143,8 +140,7 @@ class PayController extends RestLaravelController
 
     private function successRedirect($parameter)
     {
-      $url = (env('APP_ENV') === 'production') ? env('CITY_PASS_WEB') : 'http://localhost:3000/';
-      $url .= $this->lang;
+      $url = env('CITY_PASS_WEB') . $this->lang;
 
       if ($parameter->platform === 'app') {
         $url = 'app://order?id=' . $parameter->orderNo . '&source=' . $parameter->source . '&result=true&msg=success';
@@ -153,7 +149,7 @@ class PayController extends RestLaravelController
       }
       else {
         $s = ($parameter->source === SELF::CITYPASS) ? 'c' : 'm';
-        $url .= '/checkout/complete/' . $s . '/' . $parameter->orderNo;
+        $url = env('CITY_PASS_WEB') . $this->lang . '/checkout/complete/' . $s . '/' . $parameter->orderNo;
 
         return redirect($url);
       }
@@ -161,9 +157,6 @@ class PayController extends RestLaravelController
 
     private function failureRedirect($parameter)
     {
-      $url = (env('APP_ENV') === 'production') ? env('CITY_PASS_WEB') : 'http://localhost:3000/';
-      $url .= $this->lang;
-
       if ($parameter->platform === 'app') {
         $url = 'app://order?id=' . $parameter->orderNo . '&source=' . $parameter->source . '&result=false&msg=failure';
 
@@ -171,7 +164,7 @@ class PayController extends RestLaravelController
       }
       else {
         $s = ($parameter->source === SELF::CITYPASS) ? 'c' : 'm';
-        $url .= '/checkout/complete/' . $s . '/' . $parameter->orderNo;
+        $url = env('CITY_PASS_WEB') . $this->lang . '/checkout/complete/' . $s . '/' . $parameter->orderNo;
 
         return redirect($url);
       }

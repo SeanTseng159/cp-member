@@ -33,11 +33,11 @@ class WishlistController extends RestLaravelController
      * @param $id
      * @return \Illuminate\Http\JsonResponse
      */
-    public function add(Request $request, $id)
+    public function add(Request $request)
     {
 
         $parameter = new AllParameter();
-        $parameter->laravelRequest($id, $request);
+        $parameter->laravelRequest($request);
         $result = $this->wishlistService->add($parameter);
         return ($result) ? $this->success() : $this->failure('E0002', '新增失敗');
     }

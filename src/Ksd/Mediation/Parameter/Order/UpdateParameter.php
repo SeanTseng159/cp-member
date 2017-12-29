@@ -17,7 +17,7 @@ class UpdateParameter extends BaseParameter
     {
         $this->source = $request->input('source');
         $this->id = $request->input('id');
-//        $this->payMethod = $request->input('payMethod');
+        $this->paySource = $request->input('paySource');
 //        $this->payResult = $request->input('payResult');
 
         //ipasspay回傳資料

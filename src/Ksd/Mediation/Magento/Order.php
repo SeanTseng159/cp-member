@@ -266,7 +266,7 @@ class Order extends Client
         $path = sprintf('V1/orders/%s', $id);
         $response = $this->request('GET', $path);
         $body = $response->getBody();
-        $result = json_decode($body, true);;
+        $result = json_decode($body, true);
         $data = [];
         $order = new OrderResult();
         $order->magento($result,true);
@@ -317,7 +317,7 @@ class Order extends Client
     public function update($parameters)
     {
 
-        $id = $parameters->id;
+        $id = isset($parameters->id) ? $parameters->id :$parameters->order_id;
         //將ipasspay回傳結果存入order comment
         if ($parameters->paySource === 'ipasspay') {
             $dataArray = [
@@ -332,12 +332,11 @@ class Order extends Client
                 'pay_amt' => $parameters->pay_amt,
                 'pay_time' => $parameters->pay_time,
                 'fund_time' => $parameters->fund_time,
-                'respond_code' => $parameters->respond_code,
+                'response_code' => $parameters->response_code,
                 'auth' => $parameters->auth,
                 'card6no' => $parameters->card6no,
                 'card4no' => $parameters->card4no,
-                'eci' => $parameters->eci,
-                'signature' => $parameters->signature
+                'eci' => $parameters->eci
 
             ];
             $parameter = [
@@ -396,7 +395,7 @@ class Order extends Client
     }
 
 
-    
+
 
 
 }
