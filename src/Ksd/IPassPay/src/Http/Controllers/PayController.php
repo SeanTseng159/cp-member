@@ -127,7 +127,9 @@ class PayController extends RestLaravelController
       Log::debug(print_r($result, true));
 
       // 導回前端
-      return ($result) ? $this->successRedirect($callbackParameter) : $this->failureRedirect($callbackParameter);
+      //return ($result) ? $this->successRedirect($callbackParameter) : $this->failureRedirect($callbackParameter);
+      //
+      return $this->successRedirect($callbackParameter);
     }
 
     public function failureCallback(Request $request)
