@@ -144,7 +144,7 @@ class CheckoutRepository extends BaseRepository
         }
         else {
             $s = ($data->order_source === 'ct_pass') ? 'c' : 'm';
-            $url .= '/checkout/complete/' . $s . '/' . $parameters->order_id;
+            $url .= '/checkout/complete/' . $s . '/' . $data->order_id;
         }
 
         return ['urlData' => $url, 'platform' => $data->order_device];
