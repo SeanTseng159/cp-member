@@ -136,7 +136,7 @@ class CheckoutRepository extends BaseRepository
 
         if ($data->order_device === '2') {
 
-            $url = 'app://order?id=' . $parameters->order_no . '&source=' . $data->order_source;
+            $url = 'app://order?id=' . $data->order_id . '&source=' . $data->order_source;
 
             $url .= ($parameters->ret_code === "00") ? '&result=true&msg=success' : '&result=false&msg=' . $requestData['ErrorMessage'];
 
@@ -144,7 +144,7 @@ class CheckoutRepository extends BaseRepository
         }
         else {
             $s = ($data->order_source === 'ct_pass') ? 'c' : 'm';
-            $url .= '/checkout/complete/' . $s . '/' . $parameters->order_no;
+            $url .= '/checkout/complete/' . $s . '/' . $parameters->order_id;
         }
 
         return ['urlData' => $url, 'platform' => $data->order_device];

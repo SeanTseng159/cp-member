@@ -95,7 +95,7 @@ class Checkout extends Client
     {
 
         $parameter = [
-          'order_no' => $parameters->orderNo
+          'order_no' => $parameters->orderId
         ];
 
         $this->putParameters($parameter);
@@ -110,7 +110,7 @@ class Checkout extends Client
         $url = $result['data']['result_url'];
 
         $data = [
-            'order_id' => $orderId,
+            'order_id' => $parameters->orderNo,
             'order_no' => $orderId,
             'order_device' => $parameters->device,
             'order_source' => $parameters->source,

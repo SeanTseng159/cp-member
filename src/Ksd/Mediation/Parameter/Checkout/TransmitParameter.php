@@ -29,7 +29,7 @@ class TransmitParameter extends BaseParameter
         $this->device = ($request->input('device')==="web") ? "1" : "2";
         $this->source = $request->input('source');
         $this->orderNo = $request->input('orderNo');
-
+        $this->orderId = $request->input('orderId');
 
         $this->processParameters($request, 'payment');
         $this->processParameters($request, 'billing');
