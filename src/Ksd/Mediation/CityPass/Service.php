@@ -17,12 +17,11 @@ class Service extends Client
 
     /**
      * 取得常用問題
-     * @param $id
      * @return array
      */
-    public function qa($id)
+    public function qa()
     {
-        $path = "service/qa/".$id;
+        $path = "service/qa/";
 
         $response = $this->request('GET', $path);
         $body = $response->getBody();

@@ -34,8 +34,13 @@ class ServiceParameter extends BaseParameter
     public function laravelRequest($request)
     {
         parent::laravelRequest($request);
-        $this->wishlistItemId = $request->input('wishlistItemId');
-        $this->source = $request->input('source');
+        $this->loginStatus = $request->input('loginStatus');
+        $this->name = $request->input('name');
+        $this->email = $request->input('email');
+        $this->phone = $request->input('phone');
+        $this->questionType = $request->input('questionType');
+        $this->questionContent = $request->input('questionContent');
+
     }
 
 

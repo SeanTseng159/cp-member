@@ -27,12 +27,11 @@ class ServiceRepository extends BaseRepository
 
     /**
      * 取得常用問題
-     * @param $id
      * @return array
      */
-    public function qa($id)
+    public function qa()
     {
-        return $this->cityPass->authorization($this->memberTokenService->cityPassUserToken())->qa($id);
+        return $this->cityPass->authorization($this->memberTokenService->cityPassUserToken())->qa();
 
     }
 

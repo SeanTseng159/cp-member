@@ -23,13 +23,12 @@ class ServiceService
 
     /**
      * 取得常用問題
-     * @param $id
      * @return array
      */
 
-    public function qa($id)
+    public function qa()
     {
-        return $this->repository->qa($id);
+        return $this->repository->qa();
     }
 
 

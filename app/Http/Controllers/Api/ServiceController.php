@@ -18,12 +18,11 @@ class ServiceController extends RestLaravelController
 
     /**
      * 取得常用問題
-     * @param $id
      * @return \Illuminate\Http\JsonResponse
      */
-    public function qa($id)
+    public function qa()
     {
-        return $this->success($this->serviceService->qa($id));
+        return $this->success($this->serviceService->qa());
     }
 
     /**
@@ -34,6 +33,7 @@ class ServiceController extends RestLaravelController
     public function suggestion(Request $request)
     {
         $parameters = new ServiceParameter();
+        $parameters->laravelRequest($request);
         $result = $this->serviceService->suggestion($parameters);
         return ($result) ? $this->success() : $this->failure('E0002', '新增失敗');
     }
