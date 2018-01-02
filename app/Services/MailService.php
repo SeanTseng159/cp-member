@@ -21,6 +21,7 @@ class MailService
     public function __construct(LanguageService $langService)
     {
         $this->lang = $langService->getLang();
+        if (!$this->lang) $this->lang = env('APP_LANG');
     }
 
     /**
