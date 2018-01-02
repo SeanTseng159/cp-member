@@ -123,7 +123,7 @@ class CheckoutRepository extends BaseRepository
             $this->magento->updateOrder($data,$parameters);
         }
         elseif ($data->order_source === "ct_pass"){
-            $this->cityPass->updateOrder($parameters);
+            $this->cityPass->authorization($this->generateToken())->updateOrder($parameters);
         }
 
         //依需求是否實作錯誤訊息
