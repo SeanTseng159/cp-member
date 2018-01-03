@@ -19,10 +19,19 @@ use Ksd\Mediation\Services\MemberTokenService;
 class CartRepository extends BaseRepository
 {
     const INFO_KEY = 'cart:user:info:%s:%s';
-    const DETAIL_KEY = 'cart:user:detail:%s:%s';
+    const INFO_KEY_M = 'cart:user:info_magento:%s:%s';
+    const INFO_KEY_C = 'cart:user:info_ct_pass:%s:%s';
+    const DETAIL_KEY= 'cart:user:detail:%s:%s';
+    const DETAIL_KEY_M = 'cart:user:detail_magento:%s:%s';
+    const DETAIL_KEY_C= 'cart:user:detail_ct_pass:%s:%s';
 
     private $memberTokenService;
     private $result = false;
+
+    private $magentoInfo = [];
+    private $cityPassInfo = [];
+    private $magentoDetail = [];
+    private $cityPassDetail = [];
 
     public function __construct(MemberTokenService $memberTokenService)
     {
@@ -39,15 +48,18 @@ class CartRepository extends BaseRepository
     public function info()
     {
 
-        return $this->redis->remember($this->genCacheKey(self::INFO_KEY), CacheConfig::CART_TEST_TIME, function () {
+            $this->redis->remember($this->genCacheKey(self::INFO_KEY_M), CacheConfig::CART_TEST_TIME, function () {
             // $this->magento->authorization($this->token);
-            $magento = $this->magento->userAuthorization($this->memberTokenService->magentoUserToken())->info();
-            $cityPass = $this->cityPass->authorization($this->memberTokenService->cityPassUserToken())->info();
+                $this->magentoInfo = $this->magento->userAuthorization($this->memberTokenService->magentoUserToken())->info();
+            });
+            $this->redis->remember($this->genCacheKey(self::INFO_KEY_C), CacheConfig::CART_TEST_TIME, function () {
+                $this->cityPassInfo = $this->cityPass->authorization($this->memberTokenService->cityPassUserToken())->info();
+            });
             return [
-                ProjectConfig::MAGENTO => $magento,
-                ProjectConfig::CITY_PASS => $cityPass
+                ProjectConfig::MAGENTO => $this->magentoInfo,
+                ProjectConfig::CITY_PASS => $this->cityPassInfo
             ];
-        });
+
     }
 
     /**
@@ -57,6 +69,18 @@ class CartRepository extends BaseRepository
     public function detail()
     {
 
+        $this->redis->remember($this->genCacheKey(self::DETAIL_KEY_M), CacheConfig::CART_TEST_TIME, function () {
+            // $this->magento->authorization($this->token);
+            $this->magentoData = $this->magento->userAuthorization($this->memberTokenService->magentoUserToken())->detail();
+        });
+        $this->redis->remember($this->genCacheKey(self::DETAIL_KEY_C), CacheConfig::CART_TEST_TIME, function () {
+            $this->cityPassData = $this->cityPass->authorization($this->memberTokenService->cityPassUserToken())->detail();
+        });
+        return [
+            ProjectConfig::MAGENTO => $this->magentoData,
+            ProjectConfig::CITY_PASS => $this->cityPassData
+        ];
+/*
         return $this->redis->remember($this->genCacheKey(self::DETAIL_KEY), CacheConfig::CART_TEST_TIME, function () {
 //            $this->magento->authorization($this->token);
             $magento = $this->magento->userAuthorization($this->memberTokenService->magentoUserToken())->detail();
@@ -66,6 +90,7 @@ class CartRepository extends BaseRepository
                 ProjectConfig::CITY_PASS => $cityPass
             ];
         });
+*/
     }
 
     /**
@@ -90,6 +115,7 @@ class CartRepository extends BaseRepository
     /**
      * 更新購物車內商品
      * @param $parameters
+     * @return bool
      */
     public function update($parameters)
     {
@@ -108,6 +134,7 @@ class CartRepository extends BaseRepository
     /**
      * 刪除購物車內商品
      * @param $parameters
+     * @return bool
      */
     public function delete($parameters)
     {
@@ -132,6 +159,26 @@ class CartRepository extends BaseRepository
         $this->cacheKey(self::INFO_KEY);
         $this->cacheKey(self::DETAIL_KEY);
     }
+
+    /**
+     * 清除快取_magento
+     */
+    public function cleanCacheMagento()
+    {
+        $this->cacheKey(self::INFO_KEY_M);
+        $this->cacheKey(self::DETAIL_KEY_M);
+    }
+
+
+    /**
+     * 清除快取_citypass
+     */
+    public function cleanCacheCityPass()
+    {
+        $this->cacheKey(self::INFO_KEY_C);
+        $this->cacheKey(self::DETAIL_KEY_C);
+    }
+
 
     /**
      * 根據 key 清除快取
