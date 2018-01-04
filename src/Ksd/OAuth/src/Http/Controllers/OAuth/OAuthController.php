@@ -28,7 +28,7 @@ class OAuthController extends BaseController
 
     public function login(Request $request, $id)
     {
-        if (!session('isViewLoginWeb')) return abort(404);
+        //if (!session('isViewLoginWeb')) return abort(404);
 
         $lang = 'zh-TW';
 
