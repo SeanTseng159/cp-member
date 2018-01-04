@@ -160,9 +160,7 @@ class CheckoutRepository extends BaseRepository
      */
     public function result($parameters)
     {
-        $file  = 'result.txt';
-        file_put_contents($file, $parameters->ret_code,FILE_APPEND);
-        return $parameters;
+        return $this->magento->resultUrl($parameters);
 
     }
 
