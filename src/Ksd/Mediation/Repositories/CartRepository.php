@@ -48,12 +48,12 @@ class CartRepository extends BaseRepository
     public function info()
     {
 
-            $this->redis->remember($this->genCacheKey(self::INFO_KEY_M), CacheConfig::CART_TEST_TIME, function () {
+        $this->magentoInfo = $this->redis->remember($this->genCacheKey(self::INFO_KEY_M), CacheConfig::CART_TEST_TIME, function () {
             // $this->magento->authorization($this->token);
-                $this->magentoInfo = $this->magento->userAuthorization($this->memberTokenService->magentoUserToken())->info();
+                return $this->magento->userAuthorization($this->memberTokenService->magentoUserToken())->info();
             });
-            $this->redis->remember($this->genCacheKey(self::INFO_KEY_C), CacheConfig::CART_TEST_TIME, function () {
-                $this->cityPassInfo = $this->cityPass->authorization($this->memberTokenService->cityPassUserToken())->info();
+        $this->cityPassInfo = $this->redis->remember($this->genCacheKey(self::INFO_KEY_C), CacheConfig::CART_TEST_TIME, function () {
+                return  $this->cityPass->authorization($this->memberTokenService->cityPassUserToken())->info();
             });
             return [
                 ProjectConfig::MAGENTO => $this->magentoInfo,
@@ -69,16 +69,15 @@ class CartRepository extends BaseRepository
     public function detail()
     {
 
-        $this->redis->remember($this->genCacheKey(self::DETAIL_KEY_M), CacheConfig::CART_TEST_TIME, function () {
-            // $this->magento->authorization($this->token);
-            $this->magentoData = $this->magento->userAuthorization($this->memberTokenService->magentoUserToken())->detail();
+        $this->magentoDetail = $this->redis->remember($this->genCacheKey(self::DETAIL_KEY_M), CacheConfig::CART_TEST_TIME, function () {
+            return $this->magento->userAuthorization($this->memberTokenService->magentoUserToken())->detail();
         });
-        $this->redis->remember($this->genCacheKey(self::DETAIL_KEY_C), CacheConfig::CART_TEST_TIME, function () {
-            $this->cityPassData = $this->cityPass->authorization($this->memberTokenService->cityPassUserToken())->detail();
+        $this->cityPassDetail = $this->redis->remember($this->genCacheKey(self::DETAIL_KEY_C), CacheConfig::CART_TEST_TIME, function () {
+            return  $this->cityPass->authorization($this->memberTokenService->cityPassUserToken())->detail();
         });
         return [
-            ProjectConfig::MAGENTO => $this->magentoData,
-            ProjectConfig::CITY_PASS => $this->cityPassData
+            ProjectConfig::MAGENTO => $this->magentoDetail,
+            ProjectConfig::CITY_PASS => $this->cityPassDetail
         ];
 /*
         return $this->redis->remember($this->genCacheKey(self::DETAIL_KEY), CacheConfig::CART_TEST_TIME, function () {
