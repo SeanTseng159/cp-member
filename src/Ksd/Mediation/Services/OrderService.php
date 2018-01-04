@@ -11,14 +11,17 @@ namespace Ksd\Mediation\Services;
 
 
 use Ksd\Mediation\Repositories\OrderRepository;
+use Ksd\Mediation\Repositories\CartRepository;
 
 class OrderService
 {
     private $repository;
+    protected $cartRepository;
 
-    public function __construct(MemberTokenService $memberTokenService)
+    public function __construct(MemberTokenService $memberTokenService, CartRepository $cartRepository)
     {
         $this->repository = new OrderRepository($memberTokenService);
+        $this->cartRepository = $cartRepository;
     }
 
     /**
@@ -88,6 +91,11 @@ class OrderService
      */
     public function update($token=null, $parameters)
     {
+        // ipasspay付款成功清除購物車
+        if($parameters->status==="Y");
+        {
+            $this->cartRepository->cleanCacheMagento();
+        }
         return $this->repository->update($token, $parameters);
     }
 }
