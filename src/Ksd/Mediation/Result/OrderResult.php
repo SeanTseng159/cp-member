@@ -190,7 +190,8 @@ class OrderResult
                 $row['quantity'] = $this->arrayDefault($item, 'quantity');
                 $row['price'] = $this->arrayDefault($item, 'price');
                 $row['description'] = $this->arrayDefault($item, 'description');
-                $row['status'] = $this->arrayDefault($item, 'status');
+                $row['statusCode'] = $this->arrayDefault($item, 'status');
+                $row['status'] = $this->getItemUseStatus(ProjectConfig::CITY_PASS, $row['statusCode']);
                 $row['discount'] = $this->arrayDefault($item, 'discount');
                 $row['imageUrl'] = $this->arrayDefault($item, 'imageUrl');
 
@@ -218,8 +219,8 @@ class OrderResult
                 $row['quantity'] = $this->arrayDefault($item, 'quantity');
                 $row['price'] = $this->arrayDefault($item, 'price');
                 $row['description'] = $this->arrayDefault($item, 'description');
-                $row['status'] = $this->arrayDefault($item, 'status');
-                $row['statusCode'] = $this->arrayDefault($item, 'statusCode');
+                $row['statusCode'] = $this->arrayDefault($item, 'status');
+                $row['status'] = $this->getItemUseStatus(ProjectConfig::CITY_PASS, $row['statusCode']);
                 $row['discount'] = $this->arrayDefault($item, 'discount');
                 $row['imageUrl'] = $this->arrayDefault($item, 'imageUrl');
 
@@ -468,6 +469,59 @@ class OrderResult
                     break;
                 case '04': # 處理中
                     return "處理中";
+                    break;
+            }
+        }else{
+            return null;
+
+        }
+
+    }
+
+    /**
+     * 訂單明細商品使用狀態轉換
+     * @param $source
+     * @param $key
+     * @return string
+     */
+    public function getItemUseStatus($source, $key)
+    {
+        if ($source ==='magento') {
+            switch ($key) {
+
+                case '00': # 保留中
+                    return "保留中";
+                    break;
+                case '01': # 處理中
+                    return "處理中";
+                    break;
+                case '02': # 已送達
+                    return "已送達";
+                    break;
+                case '03': # 退貨中
+                    return "退貨中";
+                    break;
+                case '04': # 已退貨
+                    return "已退貨";
+                    break;
+            }
+        } else if($source ==='ct_pass'){
+            switch ($key) {
+
+                case '00': # 保留中
+                    return "保留中";
+                    break;
+                case '01': # 未使用
+                    return "未使用";
+                    break;
+                case '02': # 已使用
+                    return "已使用";
+                    break;
+                case '03': # 退貨中
+                    return "退貨中";
+                    break;
+                case '04': # 已退貨
+                    return "已退貨";
                     break;
             }
         }else{
