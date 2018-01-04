@@ -76,4 +76,20 @@ class CartService
     {
         return $this->repository->cleanCache();
     }
+
+    /**
+     * 刪除購物車快取_magento
+     */
+    public function cleanCacheMagento()
+    {
+        return $this->repository->cleanCacheMagento();
+    }
+
+    /**
+     * 刪除購物車快取_ct_pass
+     */
+    public function cleanCacheCityPass()
+    {
+        return $this->repository->cleanCacheCityPass();
+    }
 }

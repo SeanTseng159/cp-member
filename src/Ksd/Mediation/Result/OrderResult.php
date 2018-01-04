@@ -374,7 +374,7 @@ class OrderResult
             ];
         }
         $result['method'] = $method;
-        $result['title'] = $this->paymentTypeTrans($additionalInformation[0],$data);
+        $result['title'] = $this->paymentTypeTrans(trim($additionalInformation[0]),$data);
         return $result;
     }
 
@@ -386,6 +386,7 @@ class OrderResult
      */
     public function paymentTypeTrans($key,$data=null)
     {
+
         $status = null;
         if($key === "Neweb Atm Payment"){
             $status = "ATM虛擬帳號";

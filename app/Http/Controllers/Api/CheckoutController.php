@@ -63,8 +63,8 @@ class CheckoutController extends RestLaravelController
         $parameters = new ConfirmParameter();
         $parameters->laravelRequest($request);
         $result = $this->service->confirm($parameters);
-        // 清空購物車快取
-        if($result) $this->cartService->cleanCache();
+        // 清空ct_pass購物車快取
+        if($result) $this->cartService->cleanCacheCityPass();
         return ($result) ? $this->success($result) : $this->failure('E9001', '結帳(取單號)失敗');
     }
 
@@ -190,6 +190,8 @@ class CheckoutController extends RestLaravelController
         $parameters = new TransmitParameter();
         $parameters->laravelRequest($request);
         $result = $this->service->transmit($parameters);
+        // 清空購物車快取
+        if(!empty($result)) $this->cartService->cleanCache();
         return !empty($result) ? $this->success($result) : $this->failure('E9003', '刷卡失敗');
     }
 
@@ -206,6 +208,11 @@ class CheckoutController extends RestLaravelController
 
         \Log::debug('=== 台新導向URL ===');
         \Log::debug(print_r($url, true));
+        //台新信用卡交易成功才清除購物車內容
+        if($url['orderFlag']) {
+            $this->cartService->cleanCacheMagento();
+            $this->cartService->cleanCacheCityPass();
+        }
 
         if($url['platform'] === '2') {
             return '<script>location.href="' . $url['urlData'] . '";</script>';

@@ -15,6 +15,7 @@ use Ksd\Mediation\CityPass\Checkout as CityPassCheckout;
 use App\Services\TspgPostbackService;
 use App\Traits\JWTTokenHelper;
 use Firebase\JWT\JWT;
+
 class CheckoutRepository extends BaseRepository
 {
     use JWTTokenHelper;
@@ -73,6 +74,7 @@ class CheckoutRepository extends BaseRepository
         if($parameters->checkSource(ProjectConfig::MAGENTO)) {
             return $this->magento->userAuthorization($this->memberTokenService->magentoUserToken())->confirm($parameters);
         } else if ($parameters->checkSource(ProjectConfig::CITY_PASS)) {
+
             return $this->cityPass->authorization($this->memberTokenService->cityPassUserToken())->confirm($parameters);
         }
     }
@@ -118,6 +120,8 @@ class CheckoutRepository extends BaseRepository
 
         $data = $this->tspgPostbackService->find($parameters->order_no);
 
+
+        $orderFlag = ($parameters->ret_code === "00");
         //更新訂單狀態
         if ($data->order_source === "magento"){
             $this->magento->updateOrder($data,$parameters);
@@ -145,7 +149,7 @@ class CheckoutRepository extends BaseRepository
             $url .= '/checkout/complete/' . $s . '/' . $data->order_id;
         }
 
-        return ['urlData' => $url, 'platform' => $data->order_device];
+        return ['urlData' => $url, 'platform' => $data->order_device, 'orderFlag' => $orderFlag];
 
     }
 
@@ -156,9 +160,7 @@ class CheckoutRepository extends BaseRepository
      */
     public function result($parameters)
     {
-        $file  = 'result.txt';
-        file_put_contents($file, $parameters->ret_code,FILE_APPEND);
-        return $parameters;
+        return $this->magento->resultUrl($parameters);
 
     }
 

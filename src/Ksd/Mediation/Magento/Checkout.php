@@ -16,6 +16,7 @@ use Ksd\Mediation\Result\CheckoutResult;
 use GuzzleHttp\Exception\ClientException;
 use Log;
 use App\Models\TspgPostback;
+use App\Models\TspgResultUrl;
 
 class Checkout extends Client
 {
@@ -401,6 +402,43 @@ class Checkout extends Client
         Log::debug(print_r(json_decode($response->getBody(), true), true));
 
 
+    }
+
+    /**
+     * 處理台新回傳result_url
+     * @param $parameters
+     * @return mixed
+     */
+    public function resultUrl($parameters)
+    {
+
+        $data = [
+            'ret_code' => $parameters->ret_code,
+            'ret_msg' => $parameters->ret_msg,
+            'order_no' => $parameters->order_no,
+            'auth_id_resp' => $parameters->auth_id_resp,
+            'rrn' => $parameters->rrn,
+            'order_status' => $parameters->order_status,
+            'auth_type' => $parameters->auth_type,
+            'cur' => $parameters->cur,
+            'purchase_date' => $parameters->purchase_date,
+            'tx_amt' => $parameters->tx_amt,
+            'settle_amt' => $parameters->settle_amt,
+            'settle_seq' => $parameters->settle_seq,
+            'settle_date' => $parameters->settle_date,
+            'refund_trans_amt' => $parameters->refund_trans_amt,
+            'refund_rrn' => $parameters->refund_rrn,
+            'refund_auth_id_resp' => $parameters->refund_auth_id_resp,
+            'refund_date' => $parameters->refund_date,
+
+        ];
+
+
+        $pay = new TspgResultUrl();
+        $pay->fill($data)->save();
+
+
+        return true;
     }
 
 
