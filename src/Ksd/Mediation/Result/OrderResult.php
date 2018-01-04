@@ -362,10 +362,8 @@ class OrderResult
         $result = [];
         $method = $payment['method'];
         $additionalInformation = $payment['additional_information'];
-
-        $data = isset($comment) ? explode("&",$comment[0]['comment']) : null;
-
-        if ($method === 'neweb_atm') {
+        $data = !empty($comment) ? explode("&",$comment[0]['comment']) : null;
+        if ($method === 'tspg_atm') {
             $result = [
                 'bankId' => $this->arrayDefault($additionalInformation, 1),
                 'virtualAccount' => $this->arrayDefault($additionalInformation, 2),
@@ -387,42 +385,42 @@ class OrderResult
     public function paymentTypeTrans($key,$data=null)
     {
 
-        $status = null;
-        if($key === "Neweb Atm Payment"){
-            $status = "ATM虛擬帳號";
-        }else if($key === "Neweb Api Payment"){
-            $status = "信用卡一次付清";
-        }else if($key === "Tspg Atm Payment"){
-            $status = "ATM虛擬帳號";
-        }else if($key === "Tspg Api Payment"){
-            $status = "信用卡一次付清";
-        }else if($key === "Check / Money order"){
-            $status = "測試用";
-        }else if($key === "Ipass Pay"){
-            if(isset($data[4])){
-                if($data[4] === "ACCLINK"){
-                    $status = "IpassPay(約定帳戶付款)";
-                }else if($data[4] === "CREDIT"){
-                    $status = "IpassPay(信用卡付款)";
-                }else if($data[4] === "VACC"){
-                    $status = "IpassPay(ATM轉帳付款)";
-                }else if($data[4] === "WEBATM"){
-                    $status = "IpassPay(網路銀行轉帳付款)";
-                }else if($data[4] === "BARCODE"){
-                    $status = "IpassPay(超商條碼繳費)";
-                }else if($data[4] === "ECAC"){
-                    $status = "IpassPay(電子支付帳戶付款)";
-                }else{
-                    $status = "IpassPay";
+        if(!empty($key)) {
+            if ($key === "Neweb Atm Payment") {
+                return "ATM虛擬帳號";
+            } else if ($key === "Neweb Api Payment") {
+                return "信用卡一次付清";
+            } else if ($key === "Tspg Atm Payment") {
+                return "ATM虛擬帳號";
+            } else if ($key === "Tspg Api Payment") {
+                return "信用卡一次付清";
+            } else if ($key === "Check / Money order") {
+                return "測試用";
+            } else if ($key === "Ipass Pay") {
+                if (isset($data[4])) {
+                    if ($data[4] === "ACCLINK") {
+                        return "IpassPay(約定帳戶付款)";
+                    } else if ($data[4] === "CREDIT") {
+                        return "IpassPay(信用卡付款)";
+                    } else if ($data[4] === "VACC") {
+                        return "IpassPay(ATM轉帳付款)";
+                    } else if ($data[4] === "WEBATM") {
+                        return "IpassPay(網路銀行轉帳付款)";
+                    } else if ($data[4] === "BARCODE") {
+                        return "IpassPay(超商條碼繳費)";
+                    } else if ($data[4] === "ECAC") {
+                        return "IpassPay(電子支付帳戶付款)";
+                    } else {
+                        return "IpassPay";
+                    }
+                } else {
+                    return "IpassPay";
                 }
-            }else{
-                $status = "IpassPay";
-            };
-        }else {
-            $status = "取不到付款方式";
+            }
+        }else{
+            return  "取不到付款資料";
         }
 
-        return $status;
 
     }
 
