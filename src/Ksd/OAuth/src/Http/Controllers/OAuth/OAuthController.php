@@ -72,10 +72,21 @@ class OAuthController extends BaseController
         $auth_client_id = $request->input('auth_client_id');
         $revoked = $request->input('revoked');
 
-        if ($revoked == 1) return $this->postFailure('E0001', '會員取消授權');
+        if ($revoked == 1) {
+            // return $this->postFailure('E0001', '會員取消授權');
+            $request->session()->forget('member');
+            $cancel_url = session('cancel_url');
+            $redirect_url = $cancel_url ?: env('IPASS_WEB_PATH');
+            return '<script>location.href="' . $redirect_url . '";</script>';
+        }
 
         $member = session('member');
-        if (!$member) return $this->postFailure('E0021', '會員驗證失效');
+        if (!$member) {
+            // return $this->postFailure('E0021', '會員驗證失效');
+            $cancel_url = session('cancel_url');
+            $redirect_url = $cancel_url ?: env('IPASS_WEB_PATH');
+            return '<script>location.href="' . $redirect_url . '";</script>';
+        }
 
         $ocm = $this->ocmService->queryOne(['oauth_client_id' => $auth_client_id, 'member_id' => $member->id]);
 

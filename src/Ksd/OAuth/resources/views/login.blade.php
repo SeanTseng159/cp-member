@@ -24,8 +24,15 @@
     </div>
     <div class="row text-center">
         <div class="col-xs-12">
-            <a class="btn btn-link" href="{{ session('cancel_url') }}">取消登入</a>
+            <a id="cancal" class="btn btn-link" data-href="{{ session('cancel_url') }}" data-orghref="{{ env('IPASS_WEB_PATH') }}">取消登入</a>
         </div>
     </div>
 </div>
+<script>
+document.getElementById('cancal').addEventListener("click", function () {
+    var href = this.dataset.href;
+    var orgHref = this.dataset.orghref;
+    location.href = (href) ? href : orgHref;
+});
+</script>
 @endsection
