@@ -78,8 +78,11 @@ class OrderResult
                         $row['status'] = '處理中';
                     }
                     $row['discount'] = $this->arrayDefault($result, 'discount_amount');
+                    $row['imageUrl'] = null;
+                    /*
                     $path = $product->findItemImage($this->arrayDefault($item, 'sku'));
                     $row['imageUrl'] = $this->magentoImageUrl($path['file']);
+                    */
 
 //                    $row['imageUrl'] = $this->arrayDefault($item, 'extension_attributes', '')['image_url'];
 
@@ -135,7 +138,7 @@ class OrderResult
                     $refunded = $this->arrayDefault($item, '$qty_refunded');
 
                     if($shipped !== 0){
-                        $row['status'] = '處理中';
+                        $row['status'] = $this->shippingStatus($this->arrayDefault($item, 'order_id'),$this->arrayDefault($item, 'sku'));
                         $row['statusCode'] = '01';
                     }else if($refunded != 0){
                         $row['status'] = '已退貨';
@@ -146,11 +149,11 @@ class OrderResult
                     }
 
                     $row['discount'] = $this->arrayDefault($result, 'discount_amount');
-
+/*
                     $path = $product->findItemImage($this->arrayDefault($item, 'sku'));
                     $row['imageUrl'] = $this->magentoImageUrl($path['file']);
-
-//                    $row['imageUrl'] = $this->arrayDefault($item, 'extension_attributes', '')['image_url'];
+*/
+                    $row['imageUrl'] = $this->arrayDefault($item, 'extension_attributes', '')['image_url'];
                     $this->items[] = $row;
                 }
             }
