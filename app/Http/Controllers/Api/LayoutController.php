@@ -133,7 +133,8 @@ class LayoutController extends RestLaravelController
      */
     public function cleanCache()
     {
-        $this->success($this->layoutService->cleanCache());
+        $this->layoutService->cleanCache();
+        return $this->success('刷新成功');
 
     }
 
