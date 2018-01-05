@@ -113,5 +113,13 @@ class LayoutService
         return $this->repository->subcategory($parameter);
     }
 
+    /**
+     * 清除首頁快取
+     */
+    public function cleanCache()
+    {
+        return $this->repository->cleanCache();
+    }
+
 
 }

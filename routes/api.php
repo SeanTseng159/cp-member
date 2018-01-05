@@ -151,6 +151,7 @@ Route::middleware('cors')->namespace('Api')->group(function () {
 //        Route::get('info',   'LayoutController@info');
         Route::get('category/{categoryId}', 'LayoutController@category');
         Route::get('menu/{categoryId?}', 'LayoutController@menu');
+        Route::get('reload',   'LayoutController@cleanCache');
     });
 
     Route::prefix('notification')->group(function () {
