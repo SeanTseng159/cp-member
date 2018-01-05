@@ -19,7 +19,7 @@
                     </tr>
                     <tr>
                         <td>
-                           日期 :@php date("Y-m-d H:i:s") @endphp
+                           日期 :{{ $date }}
                         </td>
                     </tr>
                     <tr>

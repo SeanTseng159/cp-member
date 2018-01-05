@@ -107,6 +107,7 @@ class MailService
             $data['name'] = $parameters->name;
             $data['questionType'] = $parameters->questionType;
             $data['questionContent'] = $parameters->questionContent;
+            $data['date'] = date("Y-m-d H:i:s");
 
             $this->sendCityPass('【CityPass】客服追蹤通知信_' . date("YmdHi"), $recipient, 'emails/serviceEmail', $data);
             $this->send('【CityPass】客服追蹤通知信_' . date("YmdHi"), $recipient, 'emails/serviceEmail', $data);
