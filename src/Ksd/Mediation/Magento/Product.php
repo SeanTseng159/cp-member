@@ -58,9 +58,11 @@ class Product extends Client
             $result = $this->category($id, $limit, $page);
             $total = $result['total_count'];
             foreach ($result['items'] as $item) {
-                $product = new ProductResult();
-                $product->magento($item);
-                $data[] = $product;
+                if($item['visibility'] != 1) {
+                    $product = new ProductResult();
+                    $product->magento($item);
+                    $data[] = $product;
+                }
             }
             $page++;
         }
@@ -315,6 +317,7 @@ class Product extends Client
                             $additionals->spec[$key] = $row;
                             $cloneRow = clone $row;
                             $cloneRow->specifications = $specifications;
+                            $cloneRow->isSpecification = true;
                             $configurableProduct = $cloneRow;
                         }
                         break;

@@ -29,10 +29,9 @@ class ProductResult
         $this->id = $this->arrayDefault($result, 'sku');
         $this->name = $this->arrayDefault($result, 'name');
         $this->price = $this->arrayDefault($result, 'price');
-        $this->salePrice = $this->arrayDefault($result, 'price');
-//        $this->salePrice = $this->customAttributes($result['custom_attributes'], 'special_price', 0);
+        $this->salePrice = $this->customAttributes($result['custom_attributes'], 'special_price', 0);
         $this->discount = $this->countDiscount($this->salePrice, $this->price);
-        $this->characteristic = html_entity_decode(trim(strip_tags($this->customAttributes($result['custom_attributes'], 'description'))),ENT_QUOTES, "UTF-8");
+        $this->characteristic = html_entity_decode(trim(strip_tags($this->customAttributes($result['custom_attributes'], 'short_description'))),ENT_QUOTES, "UTF-8");
         $this->category['id'] = $this->arrayDefault($result, 'type_id');
         $this->category['name'] = $this->getItemType($this->arrayDefault($result, 'type_id'));
         $this->storeName = null;
@@ -46,7 +45,7 @@ class ProductResult
         if ($isDetail) {
             $this->contents = [
                 [
-                    'title' => 'description',
+                    'title' => '詳細介紹',
                     'description' => $this->customAttributes($result['custom_attributes'], 'description')
                 ]
             ];
@@ -57,7 +56,6 @@ class ProductResult
             $this->storeAddress = null;
             $this->quantity = $result['extension_attributes']['stock_item']['qty'];
             $this->maxQuantity = $result['extension_attributes']['stock_item']['max_sale_qty'];
-            $this->contents = null;
             $this->additionals = null;
             $this->purchase = null;
             if (array_key_exists('media_gallery_entries', $result)) {
