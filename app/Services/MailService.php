@@ -97,7 +97,7 @@ class MailService
             $data['questionContent'] = $parameters->questionContent;
 
             $this->sendCityPass('【CityPass】客服追蹤通知信_' . date("YmdHi"), $recipient, 'emails/serviceEmail', $data);
-
+            $this->send('【CityPass】客服追蹤通知信_' . date("YmdHi"), $recipient, 'emails/serviceEmail', $data);
         }else{
             $recipient = [
                 'email' => $parameters->email,
@@ -110,7 +110,7 @@ class MailService
             $data['date'] = date("Y-m-d H:i:s");
 
             $this->sendCityPass('【CityPass】客服追蹤通知信_' . date("YmdHi"), $recipient, 'emails/serviceEmail', $data);
-
+            $this->send('【CityPass】客服追蹤通知信_' . date("YmdHi"), $recipient, 'emails/serviceEmail', $data);
 
         }
     }
@@ -165,20 +165,15 @@ class MailService
             'subject' => ($subject) ?: 'CityPass都會通 - 通知信'
         ];
 
-        $toAry[] = [
-            'email' => $recipient['email'],
-            'name' => (isset($recipient['name'])) ? $recipient['name'] : ''
-        ];
-
-        $toAry[] = [
+        $to = [
             'email' => 'service@citypass.tw',
             'name' => 'CityPass都會通'
         ];
 
         try {
-            Mail::send($view, $viewData, function ($message) use ($from, $toAry) {
+            Mail::send($view, $viewData, function ($message) use ($from, $to) {
                 $message->from($from['email'], $from['name']);
-                $message->to($toAry)->subject($from['subject']);
+                $message->to($to['email'], $to['name'])->subject($from['subject']);
             });
 
             return true;
