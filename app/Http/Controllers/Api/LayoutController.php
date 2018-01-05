@@ -127,5 +127,16 @@ class LayoutController extends RestLaravelController
 
         }
 
+    /**
+     * 清除首頁快取
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function cleanCache()
+    {
+        $this->layoutService->cleanCache();
+        return $this->success('刷新成功');
+
+    }
+
 
 }

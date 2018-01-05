@@ -16,12 +16,12 @@ class LayoutRepository extends BaseRepository
 {
     private $count = 0;
 
-    const HOME_KEY = 'layout:home:%s:%s';
-    const ADS_KEY = 'layout:ads:%s:%s';
-    const EXPLORATION_KEY = 'layout:exploration:%s:%s';
-    const CUSTOMIZE_KEY = 'layout:customize:%s:%s';
-    const BANNER_KEY = 'layout:banner:%s:%s';
-    const MENU_KEY = 'layout:menu:%s:%s';
+    const HOME_KEY = 'layout:home:%s';
+    const ADS_KEY = 'layout:ads:%s';
+    const EXPLORATION_KEY = 'layout:exploration:%s';
+    const CUSTOMIZE_KEY = 'layout:customize:%s';
+    const BANNER_KEY = 'layout:banner:%s';
+    const MENU_KEY = 'layout:menu:%s';
 
     public function __construct()
     {
@@ -35,19 +35,19 @@ class LayoutRepository extends BaseRepository
      */
     public function home()
     {
-        $key = $this->genCacheKey(self::HOME_KEY);
-        $data = $this->redis->remember($key, CacheConfig::LAYOUT_TIME, function () {
+//        $key = $this->genCacheKey(self::HOME_KEY);
+        return $this->redis->remember($this->genCacheKey(self::HOME_KEY), CacheConfig::LAYOUT_TIME, function () {
             return $this->cityPass->home();
         });
-
+/*
         if (!$data && $this->count < 3) {
             $this->cacheKey($key);
             $this->count++;
 
             return $this->home();
         }
-
-        return $data;
+*/
+//        return $data;
     }
 
     /**
@@ -198,6 +198,7 @@ class LayoutRepository extends BaseRepository
     private function cacheKey($key)
     {
         $this->redis->delete($this->genCacheKey($key));
+        $this->home();
     }
 
     /**
@@ -208,6 +209,10 @@ class LayoutRepository extends BaseRepository
     private function genCacheKey($key)
     {
         $date = new \DateTime();
-        return sprintf($key, $this->token,$date->format('Ymd'));
+        return sprintf($key,$date->format('Ymd'));
     }
+
+
+
+
 }

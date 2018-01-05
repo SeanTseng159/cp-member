@@ -38,12 +38,14 @@ class Order extends Client
         } catch (ClientException $e) {
             // TODO:抓不到MAGENTO API訂單資料
         }
+
         $data = [];
         if (!empty($result['items'])){
             foreach ($result['items'] as $item) {
-                $order = new OrderResult();
-                $order->magento($item);
-                $data[] = (array)$order;
+            if(!$item['state']==="canceled");
+                    $order = new OrderResult();
+                    $order->magento($item);
+                    $data[] = (array)$order;
             }
         }
 
@@ -267,6 +269,7 @@ class Order extends Client
         $response = $this->request('GET', $path);
         $body = $response->getBody();
         $result = json_decode($body, true);
+
         $data = [];
         $order = new OrderResult();
         $order->magento($result,true);
@@ -284,6 +287,7 @@ class Order extends Client
             }
             $data[] = $order;
         }
+
 
         return $data;
     }
@@ -366,7 +370,7 @@ class Order extends Client
                 $ipassParameter = [
                     'entity' => [
                         'entity_id' => $id,
-                        'status' => 'pending',
+                        'status' => 'canceled',
                     ]
                 ];
                 $this->putParameters($ipassParameter);
@@ -393,7 +397,6 @@ class Order extends Client
 
 
     }
-
 
 
 
