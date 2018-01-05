@@ -80,6 +80,41 @@ class MailService
     }
 
     /**
+     * 客服QA通知信
+     * @param string $member
+     * @param string $parameters
+     */
+    public function sendServiceEmail($member,$parameters)
+    {
+        if(!empty($member)) {
+            $recipient = [
+                'email' => $member->email,
+                'name' => $member->name
+            ];
+
+            $data['name'] = $member->name;
+            $data['questionType'] = $parameters->questionType;
+            $data['questionContent'] = $parameters->questionContent;
+
+            $this->sendCityPass('【CityPass】客服追蹤通知信_' . date("YmdHi"), $recipient, 'emails/serviceEmail', $data);
+            $this->send('【CityPass】客服追蹤通知信_' . date("YmdHi"), $recipient, 'emails/serviceEmail', $data);
+        }else{
+            $recipient = [
+                'email' => $parameters->email,
+                'name' => $parameters->name
+            ];
+
+            $data['name'] = $parameters->name;
+            $data['questionType'] = $parameters->questionType;
+            $data['questionContent'] = $parameters->questionContent;
+
+            $this->sendCityPass('【CityPass】客服追蹤通知信_' . date("YmdHi"), $recipient, 'emails/serviceEmail', $data);
+            $this->send('【CityPass】客服追蹤通知信_' . date("YmdHi"), $recipient, 'emails/serviceEmail', $data);
+
+        }
+    }
+
+    /**
      * 同步寄信
      * @param string $subject
      * @param array $recipient
@@ -112,4 +147,40 @@ class MailService
             return false;
         }
     }
+
+    /**
+     * 同步寄信(客服信箱)
+     * @param string $subject
+     * @param array $recipient
+     * @param string $view
+     * @param array $viewData
+     * @return \App\Models\Member
+     */
+    public function sendCityPass($subject, $recipient, $view, $viewData = [])
+    {
+        $from = [
+            'email' => env('MAIL_USERNAME', 'ksd0045ksd@gmail.com'),
+            'name' => 'CityPass都會通',
+            'subject' => ($subject) ?: 'CityPass都會通 - 通知信'
+        ];
+
+        $to = [
+            'email' => 'service@citypass.tw',
+            'name' => 'CityPass都會通'
+        ];
+
+        try {
+            Mail::send($view, $viewData, function ($message) use ($from, $to) {
+                $message->from($from['email'], $from['name']);
+                $message->to($to['email'], $to['name'])->subject($from['subject']);
+            });
+
+            return true;
+        } catch(\Exception $e) {
+            Log::error('smtp 有問題, 請檢查!');
+            return false;
+        }
+    }
+
+
 }
