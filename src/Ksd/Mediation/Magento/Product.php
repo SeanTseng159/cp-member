@@ -298,7 +298,7 @@ class Product extends Client
                         $specifications[] = [
                             'label' => $additionals->label,
                             'code' => $additionals->code,
-                            'valueIndex' => $row->valueIndex,
+                            'valueIndex' => $product->id,
                             'value' => $row->value,
                         ];
                         if (property_exists($row, 'additionals')) {
@@ -307,7 +307,7 @@ class Product extends Client
                             $configurableProduct = $result['configurableProduct'];
                         } else {
                             $row->id = $product->id;
-                            $row->value_index = $product->productId;
+                            $row->value_index = $product->id;
                             $row->productId = $product->productId;
                             $row->quantity = $product->quantity;
                             $row->price = $product->price;
