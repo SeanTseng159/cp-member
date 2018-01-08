@@ -48,4 +48,18 @@ class MemberRepository extends BaseClient
 
         return json_decode($data);
     }
+
+    /**
+     * 會員登出
+     * @param $data
+     * @return mixed
+     */
+    public function logout($parameters)
+    {
+        $response = $this->putParameters($parameters)
+            ->request('POST', 'auth_member/logout/' . $parameters->member_id);
+        $data = $response->getBody()->getContents();
+
+        return json_decode($data);
+    }
 }

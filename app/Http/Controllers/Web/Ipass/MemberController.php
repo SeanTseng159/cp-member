@@ -147,4 +147,15 @@ class MemberController extends Controller
             return redirect($url);
         }
     }
+
+    /**
+     * 登出
+     * @param Illuminate\Http\Request $request
+     */
+    public function logout(Request $request, $platform = 'web')
+    {
+        $this->platform = $platform;
+        $ipassMember = session('ipassMember');
+        $this->service->logout($ipassMember);
+    }
 }
