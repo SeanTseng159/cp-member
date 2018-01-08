@@ -327,7 +327,8 @@ class Checkout extends Client
             Log::debug('===magento結帳信用卡(台新)===');
             Log::debug($e);
         }
-        $orderId = trim($body, '"');
+
+        $orderId = (!empty(trim($body, '"'))) ? trim($body, '"') : null ;
 
         //信用卡授權成功，訂單成立
         if(!empty($orderId)) {
