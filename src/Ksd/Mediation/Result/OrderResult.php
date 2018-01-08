@@ -193,7 +193,7 @@ class OrderResult
                 $row['quantity'] = $this->arrayDefault($item, 'quantity');
                 $row['price'] = $this->arrayDefault($item, 'price');
                 $row['description'] = $this->arrayDefault($item, 'description');
-                $row['statusCode'] = $this->arrayDefault($item, 'status');
+                $row['statusCode'] = $this->arrayDefault($item, 'statusCode');
                 $row['status'] = $this->getItemUseStatus(ProjectConfig::CITY_PASS, $row['statusCode']);
                 $row['discount'] = $this->arrayDefault($item, 'discount');
                 $row['imageUrl'] = $this->arrayDefault($item, 'imageUrl');
@@ -507,6 +507,9 @@ class OrderResult
                 case '04': # 已退貨
                     return "已退貨";
                     break;
+                case '05': # 已轉贈
+                    return "已轉贈";
+                    break;
             }
         } else if($source ==='ct_pass'){
             switch ($key) {
@@ -525,6 +528,9 @@ class OrderResult
                     break;
                 case '04': # 已退貨
                     return "已退貨";
+                    break;
+                case '05': # 已轉贈
+                    return "已轉贈";
                     break;
             }
         }else{
