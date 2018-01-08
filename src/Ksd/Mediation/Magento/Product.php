@@ -306,7 +306,8 @@ class Product extends Client
                             $additionals->spec[$key]->additionals = $result['additionals'];
                             $configurableProduct = $result['configurableProduct'];
                         } else {
-                            $row->id = $product->productId;
+                            $row->maId = $product->productId;
+                            $row->id = $product->id;
                             $row->value_index = $product->id;
                             $row->productId = $product->id;
                             $row->quantity = $product->quantity;
