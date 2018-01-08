@@ -184,12 +184,12 @@ class LayoutRepository extends BaseRepository
     public function cleanCache()
     {
 
- //       $this->cacheKey(self::HOME_KEY,null);
+        $this->cacheKey(self::HOME_KEY,null);
 
         $categoryId = $this->cityPass->getCategoryId();
         $subCategoryId = $this->cityPass->getSubCategoryId();
 
-/*
+
         $category = [];
         if (isset($categoryId)) {
             foreach ($categoryId as $id) {
@@ -199,7 +199,7 @@ class LayoutRepository extends BaseRepository
                 $this->cacheKey(null,$item);
             }
         }
-*/
+
         $subCategory = [];
         if (isset($subCategoryId)) {
             foreach ($subCategoryId as $id) {
