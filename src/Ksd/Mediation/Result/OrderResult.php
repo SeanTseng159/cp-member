@@ -375,8 +375,13 @@ class OrderResult
                 'paymentPeriod' => $this->arrayDefault($additionalInformation, 4)
             ];
         }
+
         $result['method'] = $method;
-        $result['title'] = $this->paymentTypeTrans(trim($additionalInformation[0]),$data);
+        if ($method === 'tspg_transmit') {
+            $result['title'] = $this->paymentTypeTrans(trim($additionalInformation[2]), $data);
+        }else{
+            $result['title'] = $this->paymentTypeTrans(trim($additionalInformation[0]), $data);
+        }
         return $result;
     }
 
