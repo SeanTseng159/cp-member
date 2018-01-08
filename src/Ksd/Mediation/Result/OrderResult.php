@@ -34,8 +34,8 @@ class OrderResult
             $this->orderNo = $this->arrayDefault($result, 'increment_id');
             $this->orderAmount = $this->arrayDefault($result, 'subtotal') + $this->arrayDefault($result, 'shipping_amount');
             $this->orderDiscountAmount = $this->arrayDefault($result, 'discount_amount');
-            $this->orderStatus = $this->getStatus(ProjectConfig::MAGENTO,$this->arrayDefault($result, 'state'));
-            $this->orderStatusCode = $this->getStatusCode($this->arrayDefault($result, 'state'));
+            $this->orderStatus = $this->getStatus(ProjectConfig::MAGENTO,$this->arrayDefault($result, 'status'));
+            $this->orderStatusCode = $this->getStatusCode($this->arrayDefault($result, 'status'));
             $this->orderDate = date('Y-m-d H:i:s', strtotime('+8 hours', strtotime($this->arrayDefault($result, 'created_at'))));
             $payment = $this->arrayDefault($result, 'payment');
             $comment = $this->arrayDefault($result, 'status_histories');
@@ -98,8 +98,8 @@ class OrderResult
             $this->orderAmount = $this->arrayDefault($result, 'grand_total');
             $this->orderItemAmount = $this->arrayDefault($result, 'subtotal');
             $this->orderDiscount = $this->arrayDefault($result, 'discount_amount');
-            $this->orderStatus = $this->getStatus(ProjectConfig::MAGENTO,$this->arrayDefault($result, 'state'));
-            $this->orderStatusCode = $this->getStatusCode($this->arrayDefault($result, 'state'));
+            $this->orderStatus = $this->getStatus(ProjectConfig::MAGENTO,$this->arrayDefault($result, 'status'));
+            $this->orderStatusCode = $this->getStatusCode($this->arrayDefault($result, 'status'));
             $this->orderDate = date('Y-m-d H:i:s', strtotime('+8 hours', strtotime($this->arrayDefault($result, 'created_at'))));
             $payment = $this->arrayDefault($result, 'payment');
             $comment = $this->arrayDefault($result, 'status_histories');
