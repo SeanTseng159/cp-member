@@ -219,7 +219,6 @@ class Product extends Client
                 $filters[]['code'] = $attributes['attribute_code'];
             }
 
-
             $productLinks = $result['extension_attributes']['configurable_product_links'];
             foreach ($productLinks as $productLink) {
                 $product = $this->findById($productLink);
@@ -262,7 +261,7 @@ class Product extends Client
         } else {
             $result->additionals = $specs;
         }
-        return $result;
+        return unserialize(serialize($result));
     }
 
     /**
