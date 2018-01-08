@@ -238,4 +238,58 @@ class Layout extends Client
 
         return $result['data'];
     }
+
+
+    /**
+     * 取得主標籤id
+     * @return array
+     */
+    public function getCategoryId()
+    {
+
+        $result = [];
+        try {
+            $response = $this->request('GET', 'layout/menu');
+            $result = json_decode($response->getBody(), true);
+
+        } catch (ClientException $e) {
+
+        }
+
+        $categoryId=[];
+        foreach ($result['data'] as $items) {
+            $categoryId[] = $items['id'];
+        }
+        return isset($categoryId) ? $categoryId : null;
+
+    }
+
+    /**
+     * 取得子標籤id
+     * @return array
+     */
+    public function getSubCategoryId()
+    {
+
+        $result = [];
+        try {
+            $response = $this->request('GET', 'layout/menu');
+            $result = json_decode($response->getBody(), true);
+
+        } catch (ClientException $e) {
+
+        }
+
+        $subCategoryId=[];
+        foreach ($result['data'] as $items) {
+            foreach ($items['items'] as $item) {
+                $subCategoryId[] = $item['id'];
+            }
+        }
+
+        return isset($subCategoryId) ? $subCategoryId : null;
+
+    }
+
+
 }
