@@ -507,6 +507,9 @@ class OrderResult
                 case '04': # 已退貨
                     return "已退貨";
                     break;
+                case '05': # 已轉贈
+                    return "已轉贈";
+                    break;
             }
         } else if($source ==='ct_pass'){
             switch ($key) {
@@ -525,6 +528,9 @@ class OrderResult
                     break;
                 case '04': # 已退貨
                     return "已退貨";
+                    break;
+                case '05': # 已轉贈
+                    return "已轉贈";
                     break;
             }
         }else{
