@@ -11,6 +11,7 @@ namespace Ksd\Mediation\Cache;
 
 use Ksd\Mediation\Helper\EnvHelper;
 use Predis\Client;
+use Cache;
 
 class Redis
 {
@@ -45,7 +46,7 @@ class Redis
      */
     public function set($key, $value, $expire = 3600)
     {
-        $this->client->setex($key, $expire, serialize($value));
+        Cache::put($key, $value, $expire);
     }
 
     /**
@@ -55,7 +56,7 @@ class Redis
      */
     public function get($key)
     {
-        return unserialize($this->client->get($key));
+        return Cache::get($key);
     }
 
     /**
@@ -67,12 +68,7 @@ class Redis
      */
     public function remember($key, $expire, $callFunction)
     {
-        if ($this->exists($key)) {
-            return $this->get($key);
-        }
-        $result = call_user_func($callFunction);
-        $this->set($key, $result, $expire);
-        return $result;
+        return Cache::remember($key, $expire, $callFunction);
     }
 
     /**
@@ -81,6 +77,6 @@ class Redis
      */
     public function delete($key)
     {
-        $this->client->del($key);
+        Cache::forget($key);
     }
 }
