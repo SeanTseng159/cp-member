@@ -298,7 +298,7 @@ class Product extends Client
                         $specifications[] = [
                             'label' => $additionals->label,
                             'code' => $additionals->code,
-                            'valueIndex' => $row->valueIndex,
+                            'valueIndex' => $product->productId,
                             'value' => $row->value,
                         ];
                         if (property_exists($row, 'additionals')) {
