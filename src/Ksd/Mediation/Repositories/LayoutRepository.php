@@ -167,7 +167,7 @@ class LayoutRepository extends BaseRepository
         public function subcategory($parameter)
         {
             $itemId = $parameter->id;
-            return $this->redis->remember("category:id:$itemId", CacheConfig::LAYOUT_TIME, function () use ($itemId) {
+            return $this->redis->remember("subcategory:id:$itemId", CacheConfig::LAYOUT_TIME, function () use ($itemId) {
                 $cityPass = $this->cityPass->subcategory($itemId);
 
                 return  $cityPass;
@@ -179,26 +179,57 @@ class LayoutRepository extends BaseRepository
 
     /**
      * 清除快取
+     * @return bool
      */
     public function cleanCache()
     {
 
-        $this->cacheKey(self::HOME_KEY);
-        $this->cacheKey(self::ADS_KEY);
-        $this->cacheKey(self::EXPLORATION_KEY);
-        $this->cacheKey(self::CUSTOMIZE_KEY);
-        $this->cacheKey(self::BANNER_KEY);
-        $this->cacheKey(self::MENU_KEY);
+ //       $this->cacheKey(self::HOME_KEY,null);
+
+        $categoryId = $this->cityPass->getCategoryId();
+        $subCategoryId = $this->cityPass->getSubCategoryId();
+
+/*
+        $category = [];
+        if (isset($categoryId)) {
+            foreach ($categoryId as $id) {
+                $category[] = "category:id:" . $id;
+            }
+            foreach ($category as $item) {
+                $this->cacheKey(null,$item);
+            }
+        }
+*/
+        $subCategory = [];
+        if (isset($subCategoryId)) {
+            foreach ($subCategoryId as $id) {
+                $subCategory[] = "subcategory:id:" . $id;
+            }
+            foreach ($subCategory as $item) {
+                $this->cacheKey(null,$item);
+            }
+        }
+
+        return true;
+
     }
 
     /**
      * 根據 key 清除快取
      * @param $key
+     * @param $key
      */
-    private function cacheKey($key)
+    private function cacheKey($key=null,$id=null)
     {
-        $this->redis->delete($this->genCacheKey($key));
-        $this->home();
+        if(!empty($key)) {
+            $this->redis->delete($this->genCacheKey($key));
+            $this->home();
+        }
+        if(!empty($id)) {
+            $this->redis->delete($id);
+            $this->genCache($id);
+        }
+
     }
 
     /**
@@ -210,6 +241,37 @@ class LayoutRepository extends BaseRepository
     {
         $date = new \DateTime();
         return sprintf($key,$date->format('Ymd'));
+    }
+
+    /**
+     * 重新建立快取
+     * @param $key
+     */
+    private function genCache($key)
+    {
+
+        $categoryId = $this->cityPass->getCategoryId();
+        $subCategoryId = $this->cityPass->getSubCategoryId();
+
+        if (isset($categoryId)) {
+            foreach ($categoryId as $id) {
+                $this->redis->remember($key, CacheConfig::LAYOUT_TIME, function () use ($id) {
+                    $this->cityPass->category($id);
+                });
+            }
+        }
+
+        if (isset($subCategoryId)) {
+            foreach ($subCategoryId as $id) {
+                $this->redis->remember($key, CacheConfig::LAYOUT_TIME, function () use ($id) {
+                    $this->cityPass->subcategory($id);
+                });
+            }
+        }
+
+
+
+
     }
 
 
