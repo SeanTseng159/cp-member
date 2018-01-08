@@ -129,7 +129,7 @@ class ProductResult
      */
     public function countDiscount($salePrice, $price)
     {
-        if ($salePrice===0 || $price === 0 || $salePrice === "" || $price === "") {
+        if (empty($salePrice) || empty($price)) {
             return '';
         }
         if($price!==0){
@@ -140,10 +140,8 @@ class ProductResult
                 return sprintf("%d折", $discount);
             }
 
-        }{
-            return sprintf('');
         }
-
+        return '';
     }
 
     /**
@@ -153,25 +151,18 @@ class ProductResult
     public function getItemType($key)
     {
         switch ($key) {
-
             case 'simple':
                 return "一般商品";
-                break;
             case 'virtual':
                 return "虛擬商品";
-                break;
             case 'downloadable':
                 return "線上下載商品";
-                break;
             case 'configurable':
                 return "Configurable Product";
-                break;
             case 'grouped':
                 return "組合商品";
-                break;
             case 'bundle':
                 return "搭售商品";
-                break;
         }
 
     }
@@ -223,16 +214,12 @@ class ProductResult
         switch ($key) {
             case '11': # 熱賣中
                 return "熱賣中";
-                break;
             case '20': # 結束銷售
                 return "結束銷售";
-                break;
             case '10': # 已完售
                 return "已完售";
-                break;
             default:
                 return "尚未販售";
-                break;
         }
     }
 
