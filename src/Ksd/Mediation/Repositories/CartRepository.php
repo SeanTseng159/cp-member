@@ -47,14 +47,18 @@ class CartRepository extends BaseRepository
      */
     public function info()
     {
-
+/*
         $this->magentoInfo = $this->redis->remember($this->genCacheKey(self::INFO_KEY_M), CacheConfig::CART_TEST_TIME, function () {
             // $this->magento->authorization($this->token);
                 return $this->magento->userAuthorization($this->memberTokenService->magentoUserToken())->info();
-            });
+           });
         $this->cityPassInfo = $this->redis->remember($this->genCacheKey(self::INFO_KEY_C), CacheConfig::CART_TEST_TIME, function () {
                 return  $this->cityPass->authorization($this->memberTokenService->cityPassUserToken())->info();
             });
+*/
+        $this->magentoInfo = $this->magento->userAuthorization($this->memberTokenService->magentoUserToken())->info();
+        $this->cityPassInfo = $this->cityPass->authorization($this->memberTokenService->cityPassUserToken())->info();
+
             return [
                 ProjectConfig::MAGENTO => $this->magentoInfo,
                 ProjectConfig::CITY_PASS => $this->cityPassInfo
@@ -68,13 +72,17 @@ class CartRepository extends BaseRepository
      */
     public function detail()
     {
-
+/*
         $this->magentoDetail = $this->redis->remember($this->genCacheKey(self::DETAIL_KEY_M), CacheConfig::CART_TEST_TIME, function () {
             return $this->magento->userAuthorization($this->memberTokenService->magentoUserToken())->detail();
         });
         $this->cityPassDetail = $this->redis->remember($this->genCacheKey(self::DETAIL_KEY_C), CacheConfig::CART_TEST_TIME, function () {
             return  $this->cityPass->authorization($this->memberTokenService->cityPassUserToken())->detail();
         });
+*/
+        $this->magentoDetail  = $this->magento->userAuthorization($this->memberTokenService->magentoUserToken())->detail();
+        $this->cityPassDetail = $this->cityPass->authorization($this->memberTokenService->cityPassUserToken())->detail();
+
         return [
             ProjectConfig::MAGENTO => $this->magentoDetail,
             ProjectConfig::CITY_PASS => $this->cityPassDetail
@@ -99,6 +107,7 @@ class CartRepository extends BaseRepository
      */
     public function add($parameters)
     {
+
         if (!empty($parameters->magento())) {
             $this->result = $this->magento->userAuthorization($this->memberTokenService->magentoUserToken())->add($parameters->magento());
         } else if(!empty($parameters->cityPass())) {
