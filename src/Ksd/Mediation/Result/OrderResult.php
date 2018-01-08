@@ -193,7 +193,7 @@ class OrderResult
                 $row['quantity'] = $this->arrayDefault($item, 'quantity');
                 $row['price'] = $this->arrayDefault($item, 'price');
                 $row['description'] = $this->arrayDefault($item, 'description');
-                $row['statusCode'] = $this->arrayDefault($item, 'status');
+                $row['statusCode'] = $this->arrayDefault($item, 'statusCode');
                 $row['status'] = $this->getItemUseStatus(ProjectConfig::CITY_PASS, $row['statusCode']);
                 $row['discount'] = $this->arrayDefault($item, 'discount');
                 $row['imageUrl'] = $this->arrayDefault($item, 'imageUrl');
