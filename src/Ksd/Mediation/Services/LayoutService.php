@@ -121,5 +121,21 @@ class LayoutService
         return $this->repository->cleanCache();
     }
 
+    /**
+     * 清除主分類快取
+     */
+    public function clean($id)
+    {
+        return $this->repository->clean($id);
+    }
+
+    /**
+     * 清除子分類快取
+     */
+    public function subClean($id)
+    {
+        return $this->repository->subClean($id);
+    }
+
 
 }
