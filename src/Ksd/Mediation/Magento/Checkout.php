@@ -345,10 +345,10 @@ class Checkout extends Client
             $orderNo = $result['increment_id'];
             $device = $result['payment']['additional_information'][0];
             $source = $result['payment']['additional_information'][1];
-
+            $order_No = "TMA_".$orderNo;
             $data = [
                 'order_id' => $orderId,
-                'order_no' => "TMA_".$orderNo,
+                'order_no' => $order_No,
                 'order_device' => $device,
                 'order_source' => $source,
                 'back_url' => md5($url)
