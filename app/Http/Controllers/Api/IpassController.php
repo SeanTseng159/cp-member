@@ -23,10 +23,12 @@ class IpassController extends RestLaravelController
     {
         $this->platform = $platform;
         $ipassMember = session('ipassMember');
-        $result = $this->service->logout($ipassMember);
+        if ($ipassMember) {
+            $result = $this->service->logout($ipassMember);
 
-        \Log::info('=== ipass 會員登出 ===');
-        \Log::debug(print_r($result, true));
+            \Log::info('=== ipass 會員登出 ===');
+            \Log::debug(print_r($result, true));
+        }
 
         return $this->success();
     }
