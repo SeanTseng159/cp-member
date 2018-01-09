@@ -37,6 +37,9 @@ class MemberParameter
         $parameter->email = $request->input('email');
         $parameter->expire_at = $request->input('expire_at');
 
+        // save session
+        $request->session()->put('ipassMember', $parameter);
+
         return $parameter;
     }
 

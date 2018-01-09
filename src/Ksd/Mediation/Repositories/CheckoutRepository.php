@@ -171,7 +171,7 @@ class CheckoutRepository extends BaseRepository
     public function generateToken()
     {
         $token = [
-//            'exp' => time() + 7200,
+            'exp' => time() + 120,
             'secret' => 'a2f8b3503c2d66ea'
         ];
 

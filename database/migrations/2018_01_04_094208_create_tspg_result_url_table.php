@@ -25,6 +25,7 @@ class CreateTspgResultUrlTable extends Migration
             $table->string('ret_code')->nullable();
             $table->string('order_no')->nullable();
             $table->string('ret_msg')->nullable();
+            $table->string('auth_id_resp')->nullable();
             $table->string('rrn')->nullable();
             $table->string('order_status')->nullable();
             $table->string('auth_type')->nullable();

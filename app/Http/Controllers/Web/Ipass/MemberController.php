@@ -20,7 +20,7 @@ class MemberController extends Controller
     protected $service;
     protected $memberService;
     protected $platform = 'web';
-    protected $citypassUrl = '';
+    protected $citypassUrl;
     protected $lang;
 
     const OPEN_PLATEFORM = 'ipass';
@@ -31,7 +31,7 @@ class MemberController extends Controller
         $this->memberService = $memberService;
 
         $this->lang = $langService->getLang();
-        $this->citypassUrl = (env('APP_ENV') === 'production') ? env('CITY_PASS_WEB') : 'http://localhost:3000/';
+        $this->citypassUrl = env('CITY_PASS_WEB');
     }
 
     /**
@@ -70,6 +70,7 @@ class MemberController extends Controller
 
         Log::info('=== ipass 登入 ===');
         Log::debug(print_r($ipassMember, true));
+        Log::debug(print_r(session()->getId(), true));
 
         try {
             if ($ipassMember->statusCode !== 200) return $this->failureRedirect();
@@ -146,5 +147,24 @@ class MemberController extends Controller
 
             return redirect($url);
         }
+    }
+
+    /**
+     * 登出
+     * @param Illuminate\Http\Request $request
+     */
+    public function logout(Request $request, $platform = 'web')
+    {
+        $this->platform = $platform;
+        $ipassMember = session('ipassMember');
+        if ($ipassMember) {
+            $result = $this->service->logout($ipassMember);
+
+            Log::info('=== ipass 會員登出 ===');
+            Log::debug(print_r(session()->getId(), true));
+            Log::debug(print_r($result, true));
+        }
+
+        return '<script>location.href="' . $this->citypassUrl . '";</script>';
     }
 }

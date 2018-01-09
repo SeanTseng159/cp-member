@@ -39,4 +39,14 @@ class MemberService
         return $this->repository->member($parameters);
     }
 
+    /**
+     * 會員登出
+     * @param $data
+     * @return mixed
+     */
+    public function logout($parameters)
+    {
+        return $this->repository->logout($parameters);
+    }
+
 }

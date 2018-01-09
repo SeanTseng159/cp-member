@@ -194,7 +194,7 @@ class OrderResult
                 $row['price'] = $this->arrayDefault($item, 'price');
                 $row['description'] = $this->arrayDefault($item, 'description');
                 $row['statusCode'] = $this->arrayDefault($item, 'statusCode');
-                $row['status'] = $this->getItemUseStatus(ProjectConfig::CITY_PASS, $row['statusCode']);
+                $row['status'] = $this->arrayDefault($item, 'status');
                 $row['discount'] = $this->arrayDefault($item, 'discount');
                 $row['imageUrl'] = $this->arrayDefault($item, 'imageUrl');
 
@@ -222,8 +222,8 @@ class OrderResult
                 $row['quantity'] = $this->arrayDefault($item, 'quantity');
                 $row['price'] = $this->arrayDefault($item, 'price');
                 $row['description'] = $this->arrayDefault($item, 'description');
-                $row['statusCode'] = $this->arrayDefault($item, 'status');
-                $row['status'] = $this->getItemUseStatus(ProjectConfig::CITY_PASS, $row['statusCode']);
+                $row['statusCode'] = $this->arrayDefault($item, 'statusCode');
+                $row['status'] = $this->arrayDefault($item, 'status');
                 $row['discount'] = $this->arrayDefault($item, 'discount');
                 $row['imageUrl'] = $this->arrayDefault($item, 'imageUrl');
 
@@ -368,6 +368,8 @@ class OrderResult
         $additionalInformation = $payment['additional_information'];
         $data = !empty($comment) ? explode("&",$comment[0]['comment']) : null;
         if ($method === 'tspg_atm') {
+            $result['gateway'] = "tspg";
+            $result['method'] = "atm";
             $result = [
                 'bankId' => $this->arrayDefault($additionalInformation, 1),
                 'virtualAccount' => $this->arrayDefault($additionalInformation, 2),
@@ -376,11 +378,14 @@ class OrderResult
             ];
         }
 
-        $result['method'] = $method;
         if ($method === 'tspg_transmit') {
+            $result['gateway'] = "tspg";
+            $result['method'] = "credit_card";
             $result['title'] = $this->paymentTypeTrans(trim($additionalInformation[2]), $data);
         }else{
+            $result['gateway'] = "ipasspay";
             $result['title'] = $this->paymentTypeTrans(trim($additionalInformation[0]), $data);
+            $result['method'] = $this->getPaymentMethod($data);
         }
         return $result;
     }
@@ -572,4 +577,39 @@ class OrderResult
         }
 
     }
+
+
+    /**
+     * 訂單明細ipasspay付款方式轉換
+     * @param $key
+     * @return string
+     */
+    public function getPaymentMethod($key)
+    {
+            switch ($key) {
+
+                case 'ACCLINK': # 信用卡
+                    return "acclink";
+                    break;
+                case 'CREDIT': #　ATM
+                    return "credit_card";
+                    break;
+                case 'WEBATM': # iPassPay
+                    return "atm";
+                    break;
+                case 'BARCODE': # iPassPay
+                    return "barcode";
+                    break;
+                case 'ECAC': # iPassPay
+                    return "ecac";
+                    break;
+                case 'VACC': # iPassPay
+                    return "atm";
+                    break;
+
+            }
+
+
+    }
+
 }

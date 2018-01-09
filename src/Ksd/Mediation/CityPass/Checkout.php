@@ -105,24 +105,28 @@ class Checkout extends Client
         Log::debug('===Citypass結帳信用卡(台新)===');
         Log::debug(print_r(json_decode($response->getBody(), true), true));
 
-        $orderId = $result['data']['order_no'];
-        $webpayOrderNo = $result['data']['webpay_order_no'];
-        $url = $result['data']['result_url'];
+        $url = '';
+        $id = $parameters->orderNo;
 
-        $data = [
-            'order_id' => $orderId,
-            'order_no' => $webpayOrderNo,
-            'order_device' => $parameters->device,
-            'order_source' => $parameters->source,
-            'back_url' => md5($url)
-        ];
+        if ($result && $result['statusCode'] === 200) {
+            $id = $orderId = $result['data']['order_no'];
+            $webpayOrderNo = $result['data']['webpay_order_no'];
+            $url = $result['data']['result_url'];
+
+            $data = [
+                'order_id' => $orderId,
+                'order_no' => $webpayOrderNo,
+                'order_device' => $parameters->device,
+                'order_source' => $parameters->source,
+                'back_url' => md5($url)
+            ];
 
 
-        $pay = new TspgPostback();
-        $pay->fill($data)->save();
+            $pay = new TspgPostback();
+            $pay->fill($data)->save();
+        }
 
-
-        return ($result['statusCode'] === 200) ? [ 'id' => $orderId, 'url' => $url] : [];
+        return ['id' => $id, 'url' => $url];
     }
 
     /**

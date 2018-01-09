@@ -13,7 +13,8 @@ class CacheConfig
 {
     // 測試時間
     const TEST_TIME = 300;
-    const LAYOUT_TIME = 3600;
-    const CART_TEST_TIME = 10;
+    const LAYOUT_TIME = 86400;
+    const CART_TEST_TIME = 0;
+    const ORDER_TEST_TIME = 0;
 
 }
