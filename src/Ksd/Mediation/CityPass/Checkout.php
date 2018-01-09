@@ -116,24 +116,28 @@ class Checkout extends Client
         Log::debug(print_r($output, true));
         $result = json_decode($output, true);
 
-        $orderId = $result['data']['order_no'];
-        $webpayOrderNo = $result['data']['webpay_order_no'];
-        $url = $result['data']['result_url'];
+        if ($result) {
+            $orderId = $result['data']['order_no'];
+            $webpayOrderNo = $result['data']['webpay_order_no'];
+            $url = $result['data']['result_url'];
 
-        $data = [
-            'order_id' => $orderId,
-            'order_no' => $webpayOrderNo,
-            'order_device' => $parameters->device,
-            'order_source' => $parameters->source,
-            'back_url' => md5($url)
-        ];
-
-
-        $pay = new TspgPostback();
-        $pay->fill($data)->save();
+            $data = [
+                'order_id' => $orderId,
+                'order_no' => $webpayOrderNo,
+                'order_device' => $parameters->device,
+                'order_source' => $parameters->source,
+                'back_url' => md5($url)
+            ];
 
 
-        return ($result['statusCode'] === 200) ? [ 'id' => $orderId, 'url' => $url] : [];
+            $pay = new TspgPostback();
+            $pay->fill($data)->save();
+
+
+            if ($result['statusCode'] === 200) ['id' => $orderId, 'url' => $url];
+        }
+
+        return ['id' => $parameters->orderNo, 'url' => ''];
     }
 
     /**
