@@ -107,6 +107,7 @@ class ProductResult
             $this->additionals = $this->arrayDefault($result, 'additionals');
             $this->purchase = $this->arrayDefault($result, 'purchase');
             $this->imageUrls = $this->arrayDefault($result, 'imageUrls');
+            $this->isBook = $this->arrayDefault($result, 'isBook');
         }
     }
 
