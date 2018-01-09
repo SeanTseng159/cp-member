@@ -98,28 +98,18 @@ class Checkout extends Client
           'order_no' => $parameters->orderNo
         ];
 
-        /*$this->putParameters($parameter);
+        $this->putParameters($parameter);
         $response = $this->request('POST', 'payment_tspg/credit_card');
-        $result = json_decode($response->getBody(), true);*/
-
-        $url = env('CITY_PASS_API_PATH') . 'payment_tspg/credit_card';
-
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($parameter));
-        $output = curl_exec($ch);
-        curl_close($ch);
-
-        var_dump($output);
+        $result = json_decode($response->getBody(), true);
 
         Log::debug('===Citypass結帳信用卡(台新)===');
-        //Log::debug(print_r(json_decode($response->getBody(), true), true));
-        Log::debug(print_r($output, true));
-        $result = json_decode($output, true);
+        Log::debug(print_r(json_decode($response->getBody(), true), true));
 
-        if ($result) {
-            $orderId = $result['data']['order_no'];
+        $url = '';
+        $id = $parameters->orderNo;
+
+        if ($result && $result['statusCode'] === 200) {
+            $id = $orderId = $result['data']['order_no'];
             $webpayOrderNo = $result['data']['webpay_order_no'];
             $url = $result['data']['result_url'];
 
@@ -134,12 +124,9 @@ class Checkout extends Client
 
             $pay = new TspgPostback();
             $pay->fill($data)->save();
-
-
-            if ($result['statusCode'] === 200) ['id' => $orderId, 'url' => $url];
         }
 
-        return ['id' => $parameters->orderNo, 'url' => ''];
+        return ['id' => $id, 'url' => $url];
     }
 
     /**

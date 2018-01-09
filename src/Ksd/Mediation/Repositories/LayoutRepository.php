@@ -186,9 +186,9 @@ class LayoutRepository extends BaseRepository
 
         $this->cacheKey(self::HOME_KEY,null);
 
+/*
         $categoryId = $this->cityPass->getCategoryId();
         $subCategoryId = $this->cityPass->getSubCategoryId();
-
 
         $category = [];
         if (isset($categoryId)) {
@@ -209,10 +209,45 @@ class LayoutRepository extends BaseRepository
                 $this->cacheKey(null,$item);
             }
         }
+*/
+        return true;
+
+    }
+
+    /**
+     * 清除主分頁快取
+     * @param $id
+     * @return bool
+     */
+    public function clean($id)
+    {
+
+        $key = "category:id:" . $id;
+        $this->cacheKey(null,$key);
+        $this->genCache($key,$id,"m");
+
 
         return true;
 
     }
+
+    /**
+     * 清除子分頁快取
+     * @param $id
+     * @return bool
+     */
+    public function subClean($id)
+    {
+
+        $key = "subCategory:id:" . $id;
+        $this->cacheKey(null,$key);
+        $this->genCache($key,$id,"s");
+
+
+        return true;
+
+    }
+
 
     /**
      * 根據 key 清除快取
@@ -227,7 +262,6 @@ class LayoutRepository extends BaseRepository
         }
         if(!empty($id)) {
             $this->redis->delete($id);
-            $this->genCache($id);
         }
 
     }
@@ -246,35 +280,22 @@ class LayoutRepository extends BaseRepository
     /**
      * 重新建立快取
      * @param $key
+     * @param $id
+     * @param $type
      */
-    private function genCache($key)
+    private function genCache($key,$id,$type)
     {
-
-        $categoryId = $this->cityPass->getCategoryId();
-        $subCategoryId = $this->cityPass->getSubCategoryId();
-
-        if (isset($categoryId)) {
-            foreach ($categoryId as $id) {
-                $this->redis->remember($key, CacheConfig::LAYOUT_TIME, function () use ($id) {
-                    $this->cityPass->category($id);
-                });
-            }
+        if($type === "m") {
+            $this->redis->remember($key, CacheConfig::LAYOUT_TIME, function () use ($id) {
+                $this->cityPass->category($id);
+            });
         }
-
-        if (isset($subCategoryId)) {
-            foreach ($subCategoryId as $id) {
-                $this->redis->remember($key, CacheConfig::LAYOUT_TIME, function () use ($id) {
-                    $this->cityPass->subcategory($id);
-                });
-            }
+        if($type === "s") {
+            $this->redis->remember($key, CacheConfig::LAYOUT_TIME, function () use ($id) {
+                $this->cityPass->subcategory($id);
+            });
         }
-
-
-
-
     }
-
-
 
 
 }

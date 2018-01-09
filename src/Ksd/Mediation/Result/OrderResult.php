@@ -376,7 +376,7 @@ class OrderResult
             ];
         }
 
-        $result['method'] = $method;
+        $result['method'] = $this->getPaymentMethod($method);
         if ($method === 'tspg_transmit') {
             $result['title'] = $this->paymentTypeTrans(trim($additionalInformation[2]), $data);
         }else{
@@ -572,4 +572,30 @@ class OrderResult
         }
 
     }
+
+
+    /**
+     * 訂單明細付款方式轉換
+     * @param $key
+     * @return string
+     */
+    public function getPaymentMethod($key)
+    {
+            switch ($key) {
+
+                case 'tspg_transmit': # 信用卡
+                    return "credit_card";
+                    break;
+                case 'tspg_atm': #　ATM
+                    return "atm";
+                    break;
+                case 'ipasspay': # iPassPay
+                    return "ipass_pay";
+                    break;
+
+            }
+
+
+    }
+
 }
