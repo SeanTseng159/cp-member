@@ -70,6 +70,7 @@ class MemberController extends Controller
 
         Log::info('=== ipass 登入 ===');
         Log::debug(print_r($ipassMember, true));
+        Log::debug(print_r(session()->getId(), true));
 
         try {
             if ($ipassMember->statusCode !== 200) return $this->failureRedirect();
@@ -159,9 +160,9 @@ class MemberController extends Controller
         if ($ipassMember) {
             $result = $this->service->logout($ipassMember);
 
-            \Log::info('=== ipass 會員登出 ===');
-            \Log::debug(print_r($ipassMember, true));
-            \Log::debug(print_r($result, true));
+            Log::info('=== ipass 會員登出 ===');
+            Log::debug(print_r(session()->getId(), true));
+            Log::debug(print_r($result, true));
         }
 
         return '<script>location.href="' . $this->citypassUrl . '";</script>';
