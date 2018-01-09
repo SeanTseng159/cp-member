@@ -9,6 +9,7 @@
 namespace Ksd\Mediation\Magento;
 
 
+use App\Exceptions\Api\Checkout\PayCreditCardFailException;
 use Ksd\Mediation\Helper\StringHelper;
 use Ksd\Mediation\Result\Checkout\PaymentInfoResult;
 use Ksd\Mediation\Result\Checkout\ShippingInfoResult;
@@ -326,6 +327,7 @@ class Checkout extends Client
         }catch (ClientException $e){
             Log::debug('===magento結帳信用卡(台新)===');
             Log::debug($e);
+            throw new PayCreditCardFailException();
         }
 
         $orderId = (!empty(trim($body, '"'))) ? trim($body, '"') : null ;
