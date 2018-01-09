@@ -111,6 +111,8 @@ class Checkout extends Client
         $output = curl_exec($ch);
         curl_close($ch);
 
+        var_dump($output);
+
         Log::debug('===Citypass結帳信用卡(台新)===');
         //Log::debug(print_r(json_decode($response->getBody(), true), true));
         Log::debug(print_r($output, true));
