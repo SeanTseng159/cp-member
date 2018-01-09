@@ -55,6 +55,7 @@
 </div>
 <script>
 document.getElementById('cancal').addEventListener("click", function () {
+    alert('拒絕授權，登入失敗!');
     document.getElementById('revoked').setAttribute('value', '1');
     document.getElementById('form').submit();
 });
