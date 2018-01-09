@@ -2,11 +2,15 @@
 
 namespace App\Exceptions;
 
+use App\Exceptions\Api\Checkout\PayCreditCardFailException;
+use App\Traits\ApiResponseHelper;
 use Exception;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 
 class Handler extends ExceptionHandler
 {
+    use ApiResponseHelper;
+
     /**
      * A list of the exception types that are not reported.
      *
@@ -48,6 +52,18 @@ class Handler extends ExceptionHandler
      */
     public function render($request, Exception $exception)
     {
+        if ($request->isJson()) {
+            return $this->JSONRender($request, $exception);
+        }
+
+        return parent::render($request, $exception);
+    }
+
+    public function JSONRender($request, Exception $exception)
+    {
+        if ($exception instanceof PayCreditCardFailException) {
+            return $this->apiRespFail($exception->getCode(), $exception->getMessage());
+        }
         return parent::render($request, $exception);
     }
 }
