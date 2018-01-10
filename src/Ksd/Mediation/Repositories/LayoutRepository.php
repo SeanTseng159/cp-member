@@ -96,7 +96,7 @@ class LayoutRepository extends BaseRepository
     public function banner()
     {
 
-        return $this->redis->remember($this->genCacheKey(self::BANNER_KEY), CacheConfig::LAYOUT_TIME, function () {
+        return $this->redis->remember($this->genCacheKey(self::MENU_KEY), CacheConfig::LAYOUT_TIME, function () {
             $cityPass = $this->cityPass->banner();
             return $cityPass ;
         });
@@ -139,7 +139,7 @@ class LayoutRepository extends BaseRepository
     public function menu($parameter)
     {
         $itemId = $parameter->id;
-        return $this->redis->remember("menu:id:$itemId", CacheConfig::LAYOUT_TIME, function () use ($itemId) {
+        return $this->redis->remember($this->genCacheKey(self::BANNER_KEY), CacheConfig::LAYOUT_TIME, function () use ($itemId) {
             $cityPass = $this->cityPass->menu($itemId);
             return  $cityPass;
 
@@ -185,7 +185,7 @@ class LayoutRepository extends BaseRepository
     {
 
         $this->cacheKey(self::HOME_KEY,null);
-
+        $this->cacheKey(self::MENU_KEY,null);
 /*
         $categoryId = $this->cityPass->getCategoryId();
         $subCategoryId = $this->cityPass->getSubCategoryId();
@@ -259,6 +259,7 @@ class LayoutRepository extends BaseRepository
         if(!empty($key)) {
             $this->redis->delete($this->genCacheKey($key));
             $this->home();
+            $this->menu(null);
         }
         if(!empty($id)) {
             $this->redis->delete($id);
