@@ -15,6 +15,6 @@ class CacheConfig
     const TEST_TIME = 300;
     const LAYOUT_TIME = 86400;
     const CART_TEST_TIME = 0;
-    const ORDER_TEST_TIME = 0;
+    const ORDER_TEST_TIME = 300;
 
 }

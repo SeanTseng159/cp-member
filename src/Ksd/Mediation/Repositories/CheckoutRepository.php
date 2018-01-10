@@ -15,6 +15,7 @@ use Ksd\Mediation\CityPass\Checkout as CityPassCheckout;
 use App\Services\TspgPostbackService;
 use App\Traits\JWTTokenHelper;
 use Firebase\JWT\JWT;
+use App\Models\TspgPostbackRecord;
 
 class CheckoutRepository extends BaseRepository
 {
@@ -118,8 +119,21 @@ class CheckoutRepository extends BaseRepository
         \Log::debug('=== 台新回來 ===');
         \Log::debug(print_r($parameters, true));
 
-        $data = $this->tspgPostbackService->find($parameters->order_no);
+        $record = [
+            'ret_code' => $parameters->ret_code,
+            'tx_type' => $parameters->tx_type,
+            'order_no' => $parameters->order_no,
+            'ret_msg' => $parameters->ret_msg,
+            'auth_id_resp' => $parameters->auth_id_resp
 
+        ];
+
+        $pay = new TspgPostbackRecord();
+        $pay->fill($record)->save();
+
+
+
+        $data = $this->tspgPostbackService->find($parameters->order_no);
 
         $orderFlag = ($parameters->ret_code === "00");
         //更新訂單狀態
