@@ -177,6 +177,7 @@ class OrderResult
             $this->orderDiscountAmount = $this->arrayDefault($result, 'orderDiscountAmount');
             $this->orderStatus = $this->getStatus(ProjectConfig::CITY_PASS,$this->arrayDefault($result, 'orderStatus'));
             $this->orderStatusCode = $this->arrayDefault($result, 'orderStatus');
+            $this->isRePayment = $this->arrayDefault($result, 'isRePayment');
             $this->orderDate = $this->arrayDefault($result, 'orderDate');
             $this->payment = $this->arrayDefault($result, 'payment');
             $this->shipping = $this->arrayDefault($result, 'shipping');
