@@ -366,8 +366,9 @@ class OrderResult
         $result = [];
         $method = $payment['method'];
         $additionalInformation = $payment['additional_information'];
-        $data = !empty($comment) ? explode("&",$comment[0]['comment']) : null;
+
         if ($method === 'tspg_atm') {
+
             $result['gateway'] = "tspg";
             $result['method'] = "atm";
             $result = [
@@ -379,12 +380,16 @@ class OrderResult
         }
 
         if ($method === 'tspg_transmit') {
+
             $result['gateway'] = "tspg";
             $result['method'] = "credit_card";
-            $result['title'] = $this->paymentTypeTrans(trim($additionalInformation[2]), $data);
-        }else{
+            $result['title'] = $this->paymentTypeTrans($additionalInformation[0]);
+        }
+
+        if($method === 'ipasspay'){
+            $data = !empty($comment) ? explode("&",$comment[0]['comment']) : null;
             $result['gateway'] = "ipasspay";
-            $result['title'] = $this->paymentTypeTrans(trim($additionalInformation[0]), $data);
+            $result['title'] = $this->paymentTypeTrans($additionalInformation[0], $data);
             $result['method'] = $this->getPaymentMethod($data);
         }
         return $result;
@@ -430,6 +435,8 @@ class OrderResult
                 } else {
                     return "IpassPay";
                 }
+            }else{
+                return  "取不到付款資料";
             }
         }else{
             return  "取不到付款資料";
