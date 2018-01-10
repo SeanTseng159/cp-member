@@ -21,6 +21,7 @@ use Ksd\Mediation\Result\Product\ProductIndexResult;
 class ProductRepository extends BaseRepository
 {
     const CACHE_INDEX = '%s:product:index';
+    const CACHE_PRODUCT_ALL = 'product:category:all';
 
     public function __construct()
     {
@@ -54,7 +55,7 @@ class ProductRepository extends BaseRepository
     {
         $result = [];
         if (empty($categories) && empty($parameter->categories())) {
-            $result = $this->redis->remember("product:category:all", CacheConfig::TEST_TIME, function () {
+            $result = $this->redis->remember(self::CACHE_PRODUCT_ALL, CacheConfig::TEST_TIME, function () {
                 $magentoProducts = $this->magento->all();
                 $magentoProducts = $this->magentoProducts($magentoProducts);
                 $cityPassProducts = $this->cityPass->all();
@@ -116,8 +117,6 @@ class ProductRepository extends BaseRepository
 
         if (!$magento) $magento = [];
         if (!$cityPass) $cityPass = [];
-
-        $magento = $this->magentoProducts($magento);
 
         $data = array_filter(array_merge($magento, $cityPass));
 
@@ -214,5 +213,10 @@ class ProductRepository extends BaseRepository
             }
         }
         return $products;
+    }
+
+    public function cleanAllProductCache()
+    {
+        $this->redis->delete(self::CACHE_PRODUCT_ALL);
     }
 }

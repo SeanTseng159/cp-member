@@ -170,4 +170,9 @@ class ProductService
         }
         return $product;
     }
+
+    public function cleanAllProductCache()
+    {
+        $this->repository->cleanAllProductCache();
+    }
 }

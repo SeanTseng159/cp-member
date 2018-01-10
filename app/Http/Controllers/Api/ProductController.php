@@ -77,5 +77,12 @@ class ProductController extends RestLaravelController
         return $this->success($this->productService->search($parameter));
     }
 
-
+    public function cleanAllProductCache(Request $request)
+    {
+        $this->productService->cleanAllProductCache();
+        $parameter = new AllParameter();
+        $parameter->laravelRequest($request);
+        $this->productService->products($parameter);
+        return $this->success();
+    }
 }
