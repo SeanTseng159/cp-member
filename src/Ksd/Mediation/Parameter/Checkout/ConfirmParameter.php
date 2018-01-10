@@ -33,6 +33,8 @@ class ConfirmParameter extends BaseParameter
     {
         $this->device = $request->input('device');
         $this->source = $request->input('source');
+        $this->source = $request->input('orderNo');
+        $this->source = $request->input('repay');
 
         $this->processParameters($request, 'payment');
         $this->processParameters($request, 'billing');
