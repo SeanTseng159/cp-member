@@ -10,9 +10,25 @@ namespace Ksd\Mediation\Magento;
 
 use GuzzleHttp\Exception\ClientException;
 use Ksd\Mediation\Result\OrderResult;
+use App\Models\Member;
+
+use Ksd\Mediation\Magento\Customer;
+use Ksd\Mediation\Magento\Cart;
 
 class Order extends Client
 {
+    private $member;
+    private $magentoCustomer;
+    private $cart;
+
+    public function __construct()
+    {
+        $this->member = new Member();
+        $this->magentoCustomer = new Customer();
+        $this->cart = new Cart();
+        parent::__construct();
+    }
+
 
     /**
      * 取得所有訂單列表
@@ -25,6 +41,7 @@ class Order extends Client
         $admintoken = new Client();
         $this->authorization($admintoken->token);
 
+        
         $result = [];
         try {
             $path = 'V1/orders';
@@ -354,7 +371,8 @@ class Order extends Client
             $response = $this->request('POST', 'V1/orders/' . $id . '/comments');
             $result = json_decode($response->getBody(), true);
 
-            //依ipasspay回傳結果 更改訂單狀態 成功:processing ; 失敗:pending
+            //依ipasspay回傳結果 更改訂單狀態 成功:processing ; 失敗:canceled
+
             if(isset($result) && $parameters->status === "Y"){
                 $ipassParameter = [
                     'entity' => [
@@ -367,6 +385,10 @@ class Order extends Client
                 $result = json_decode($response->getBody(), true);
                 return (isset($result)) ? true : false;
             }else{
+                //三種ACCLINK、CREDIT、ECAC可重新付款，把原訂單品項加回購物車，再重新結帳
+                if($parameters->payment_type =='ACCLINK' || $parameters->payment_type =='CREDIT' || $parameters->payment_type =='ECAC'){
+                    $this->getOrder($parameters->orderNo);
+                }
                 $ipassParameter = [
                     'entity' => [
                         'entity_id' => $id,
@@ -398,6 +420,40 @@ class Order extends Client
 
     }
 
+    /**
+     * 根據訂單 id 把品項加回購物車(處理iPassPay重新付款)
+     * @param $id
+     */
+    public function getOrder($id)
+    {
+
+        $path = sprintf('V1/orders/%s', $id);
+        $response = $this->request('GET', $path);
+        $body = $response->getBody();
+        $result = json_decode($body, true);
+
+
+        //
+        $member = $this->member->whereEmail($result['customer_email'])->first();
+        if(isset($member)) {
+            $token = $this->magentoCustomer->token($member);
+            $this->cart->authorization($token)->createEmpty();
+            $cart = [];
+            foreach ($result['items'] as $items) {
+                $parameter = [
+                    'id' => $items['sku'],
+                    'source' => 'magento',
+                    'quantity' => $items['qty_ordered'],
+                    'additionals' => [],
+                    'purchase' => [],
+
+                ];
+
+                array_push($cart, $parameter);
+            }
+            $this->cart->authorization($token)->add($cart);
+        }
+    }
 
 
 
