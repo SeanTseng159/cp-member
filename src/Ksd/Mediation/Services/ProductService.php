@@ -62,7 +62,7 @@ class ProductService
     public function product($parameter)
     {
         $product = $this->repository->product($parameter);
-        return $this->process($product, $this->wishList);
+        return $this->process($product, true);
     }
 
     /**
@@ -72,7 +72,8 @@ class ProductService
      */
     public function search($parameter)
     {
-        return $this->repository->search($parameter);
+        $products = $this->repository->search($parameter);
+        return $this->processList($products)->result;
     }
 
     /**
@@ -133,9 +134,10 @@ class ProductService
     /**
      * 處理商品資料
      * @param $product
+     * @param bool $isDetail
      * @return mixed
      */
-    private function process($product)
+    private function process($product, $isDetail = false)
     {
         $product = $this->wishProduct($product);
         if($product->source === ProjectConfig::MAGENTO) {
@@ -146,7 +148,7 @@ class ProductService
             }
             $product->tags = $categories;
         }
-        return $product->apiFormat();
+        return $product->apiFormat($isDetail);
     }
 
     /**

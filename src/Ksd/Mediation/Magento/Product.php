@@ -139,9 +139,11 @@ class Product extends Client
             $result = json_decode($body, true);
             $data = [];
             foreach ($result['items'] as $item) {
-                $product = new ProductResult();
-                $product->magento($item);
-                $data[] = $product;
+                if($item['visibility'] != 1) {
+                    $product = new ProductResult();
+                    $product->magento($item);
+                    $data[] = $product;
+                }
             }
 
             return $data;
@@ -156,8 +158,8 @@ class Product extends Client
     public function findById($id)
     {
         $path = 'V1/products';
-
-        $response =$this->putQuery('searchCriteria[filterGroups][0][filters][0][field]', 'entity_id')
+        $this->clear();
+        $response = $this->putQuery('searchCriteria[filterGroups][0][filters][0][field]', 'entity_id')
             ->putQuery('searchCriteria[filterGroups][0][filters][0][value]', $id)
             ->request('GET', $path);
         $body = $response->getBody();

@@ -14,6 +14,7 @@ use Ksd\Mediation\Config\ProjectConfig;
 use Ksd\Mediation\Config\CacheConfig;
 use Ksd\Mediation\Magento\Product as MagentoProduct;
 use Ksd\Mediation\CityPass\Product as CityPassProduct;
+use Ksd\Mediation\Parameter\Product\QueryParameter;
 use Ksd\Mediation\Result\Collection;
 use Ksd\Mediation\Result\Product\ProductIndexResult;
 
@@ -55,6 +56,7 @@ class ProductRepository extends BaseRepository
         if (empty($categories) && empty($parameter->categories())) {
             $result = $this->redis->remember("product:category:all", CacheConfig::TEST_TIME, function () {
                 $magentoProducts = $this->magento->all();
+                $magentoProducts = $this->magentoProducts($magentoProducts);
                 $cityPassProducts = $this->cityPass->all();
                 return array_merge($magentoProducts, $cityPassProducts);
             });
@@ -66,6 +68,7 @@ class ProductRepository extends BaseRepository
                 });
                 $result = array_merge($result,$row);
             }
+            $result = $this->magentoProducts($result);
 
             $source = ProjectConfig::CITY_PASS;
             $categoryKey = join('_', $parameter->categories());
@@ -114,9 +117,11 @@ class ProductRepository extends BaseRepository
         if (!$magento) $magento = [];
         if (!$cityPass) $cityPass = [];
 
+        $magento = $this->magentoProducts($magento);
+
         $data = array_filter(array_merge($magento, $cityPass));
 
-        return ($data) ?: null;
+        return new Collection($data, $parameter) ?: null;
     }
 
     /**
@@ -126,6 +131,9 @@ class ProductRepository extends BaseRepository
      */
     public function createIndex($source, $product)
     {
+        if (empty($product)) {
+            return ;
+        }
         $cacheKey = $this->getCacheKey(self::CACHE_INDEX, [$source]);
         $indexResults = $this->redis->get($cacheKey);
         if (empty($indexResults)) {
@@ -192,5 +200,19 @@ class ProductRepository extends BaseRepository
         }
 
         return $str;
+    }
+
+    private function magentoProducts($products)
+    {
+        foreach ($products as $index => $row) {
+            $query = new QueryParameter();
+            $query->no = $row->id;
+            $query->source = ProjectConfig::MAGENTO;
+            $product = $this->product($query);
+            if (!empty($product)) {
+                $products[$index] = $product;
+            }
+        }
+        return $products;
     }
 }
