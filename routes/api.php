@@ -126,6 +126,8 @@ Route::middleware('cors')->namespace('Api')->group(function () {
         Route::get('category/{categoryId}', 'LayoutController@maincategory');
         //子分類搜尋（商品）
         Route::get('subcategory/{subcategoryId}', 'LayoutController@subcategory');
+
+        Route::get('cache/clean/all', 'ProductController@cleanAllProductCache');
     });
 
 
