@@ -28,11 +28,17 @@ class OAuthController extends BaseController
 
     public function login(Request $request, $id)
     {
+        $platform = $request->input('platform');
+        $platform = $platform ?: 'web';
+
         if (!session('isViewLoginWeb')) return abort(404);
 
         $lang = 'zh-TW';
 
-        return view('oauth::login', ['auth_client_id' => $id, 'web_url' => env('CITY_PASS_WEB') . $lang]);
+        $path = ($platform === 'app') ? '/app' : '/member';
+        $web_url = env('CITY_PASS_WEB') . $lang . $path;
+
+        return view('oauth::login', ['auth_client_id' => $id, 'web_url' => $web_url]);
     }
 
     public function loginHandle(Request $request)
