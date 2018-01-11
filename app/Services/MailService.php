@@ -165,20 +165,20 @@ class MailService
             'subject' => ($subject) ?: 'CityPass都會通 - 通知信'
         ];
 
-        $toAry[] = [
+        $to = [
             'email' => $recipient['email'],
             'name' => (isset($recipient['name'])) ? $recipient['name'] : ''
         ];
 
-        $toAry[] = [
+        $toCityPass = [
             'email' => 'service@citypass.tw',
             'name' => 'CityPass都會通'
         ];
 
         try {
-            Mail::send($view, $viewData, function ($message) use ($from, $to) {
+            Mail::send($view, $viewData, function ($message) use ($from, $to, $toCityPass) {
                 $message->from($from['email'], $from['name']);
-                $message->to($to['email'], $to['name'])->subject($from['subject']);
+                $message->to($to['email'], $to['name'])->cc($toCityPass['email'], $toCityPass['name'])->subject($from['subject']);
             });
 
             return true;
