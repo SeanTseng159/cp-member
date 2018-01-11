@@ -87,6 +87,9 @@ class OAuthClientController extends BaseController
 
     public function generateToken(Request $request)
     {
+        $platform = $request->input('platform');
+        $platform = $platform ?: 'web';
+
         $data = $request->only([
                 'response_type',
                 'client_id',
@@ -124,7 +127,7 @@ class OAuthClientController extends BaseController
         // 檢查是否登入
         $member = session('member');
         if (!$member) {
-            return redirect('oauth/member/login/' . $oc->id);
+            return redirect('oauth/member/login/' . $oc->id . '?platform=' . $platform);
         }
 
         // 檢查是否授權

@@ -28,11 +28,20 @@ class OAuthController extends BaseController
 
     public function login(Request $request, $id)
     {
-        if (!session('isViewLoginWeb')) return abort(404);
+        $platform = $request->input('platform');
+        $platform = $platform ?: 'web';
+
+        if (!session('isViewLoginWeb')) {
+            $url = ($platform === 'app') ? 'app://ipassLogin?result=false' : env('IPASS_WEB_PATH') . '/oauth/city_pass?return_url=' . env('IPASS_WEB_PATH');
+            return '<script>location.href="' . $url . '";</script>';
+        }
 
         $lang = 'zh-TW';
 
-        return view('oauth::login', ['auth_client_id' => $id, 'web_url' => env('CITY_PASS_WEB') . $lang]);
+        $path = ($platform === 'app') ? '/app' : '/member';
+        $web_url = env('CITY_PASS_WEB') . $lang . $path;
+
+        return view('oauth::login', ['auth_client_id' => $id, 'web_url' => $web_url]);
     }
 
     public function loginHandle(Request $request)
@@ -60,7 +69,10 @@ class OAuthController extends BaseController
 
     public function authorize(Request $request, $id)
     {
-        if (!session('isViewLoginWeb')) return abort(404);
+        if (!session('isViewLoginWeb')) {
+            $url = ($platform === 'app') ? 'app://ipassLogin?result=false' : env('IPASS_WEB_PATH') . '/oauth/city_pass?return_url=' . env('IPASS_WEB_PATH');
+            return '<script>location.href="' . $url . '";</script>';
+        }
 
         $oc = $this->ocService->find($id);
 

@@ -54,7 +54,8 @@ class Product extends Client
         $total = 1;
         $limit = $this->env('API_DATA_LIMIT', 100);
         $page = 1;
-        while (count($data) < $total) {
+        $nowTotal = 0;
+        while ($nowTotal < $total) {
             $result = $this->category($id, $limit, $page);
             $total = $result['total_count'];
             foreach ($result['items'] as $item) {
@@ -64,6 +65,7 @@ class Product extends Client
                     $data[] = $product;
                 }
             }
+            $nowTotal += count($result['items']);
             $page++;
         }
         return $data;
@@ -224,13 +226,15 @@ class Product extends Client
             $productLinks = $result['extension_attributes']['configurable_product_links'];
             foreach ($productLinks as $productLink) {
                 $product = $this->findById($productLink);
-                foreach ($filters as $key => $filter) {
-                    $filters[$key]['value'] = $this->customAttributes($product->customAttributes, $filter['code']);
-                }
+                if(isset($product->customAttributes)) {
+                    foreach ($filters as $key => $filter) {
+                        $filters[$key]['value'] = $this->customAttributes($product->customAttributes, $filter['code']);
+                    }
 
-                $configurableProductResult = $this->putQuantity($product, $filters, $specs->additionals);
-                $specs->additionals = $configurableProductResult['additionals'];
-                $configurableProducts[] = $configurableProductResult['configurableProduct'];
+                    $configurableProductResult = $this->putQuantity($product, $filters, $specs->additionals);
+                    $specs->additionals = $configurableProductResult['additionals'];
+                    $configurableProducts[] = $configurableProductResult['configurableProduct'];
+                }
             }
         }
         if (property_exists($specs,'additionals')) {

@@ -35,7 +35,7 @@ class Redis
      */
     public function exists($key)
     {
-        return $this->client->exists($key);
+        return Cache::has($key);
     }
 
     /**
@@ -66,9 +66,14 @@ class Redis
      * @param $callFunction
      * @return mixed
      */
-    public function remember($key, $expire, $callFunction)
+    public function remember($key, $expire, $callFunction, $isRefresh = false)
     {
-        return Cache::remember($key, $expire, $callFunction);
+        if ($this->exists($key) && !$isRefresh) {
+            return $this->get($key);
+        }
+        $result = call_user_func($callFunction);
+        $this->set($key, $result, $expire);
+        return $result;
     }
 
     /**

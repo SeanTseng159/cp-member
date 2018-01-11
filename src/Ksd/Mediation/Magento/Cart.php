@@ -16,12 +16,14 @@ use Ksd\Mediation\Result\CartResult;
 use Ksd\Mediation\Result\ProductResult;
 use Ksd\Mediation\Magento\SalesRule;
 
+
 class Cart extends Client
 {
     use EnvHelper;
 
     private $productRepository;
     private $salesRule;
+
 
     public function __construct($defaultAuthorization = true)
     {
@@ -52,10 +54,16 @@ class Cart extends Client
         $result = [];
         $totalResult = null;
         try {
+            $responseData = $this->request('GET', 'V1/carts/mine');
+            $resultData = json_decode($responseData->getBody(), true);
+            $totalResult = $this->totals();
+
+            $this->updateCart($resultData['id']);
+
             $response = $this->request('GET', 'V1/carts/mine');
             $result = json_decode($response->getBody(), true);
-            $totalResult = $this->totals();
-            $this->updateCart($result['id']);
+
+
         } catch (ClientException $e) {
             // TODO:處理抓取不到購物車資料
         }
@@ -116,6 +124,7 @@ class Cart extends Client
         ]];
         if (!empty($cart->id)) {
             $data['quote']['id'] = $cart->id;
+
         } else {
             $data['quote']['id'] = $this->createEmpty();
         }
@@ -220,6 +229,7 @@ class Cart extends Client
     {
         $path = 'V1/carts/mine/totals';
         $response = $this->request('GET', $path);
+
         return json_decode($response->getBody(), true);
     }
 

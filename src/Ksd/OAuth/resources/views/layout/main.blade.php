@@ -67,6 +67,7 @@
                 max-width: 100%;
                 margin: 0 auto;
                 margin-top: 50px;
+                margin-bottom: 50px;
             }
 
             .warpper-2 {
@@ -74,6 +75,7 @@
                 max-width: 100%;
                 margin: 0 auto;
                 margin-top: 30px;
+                margin-bottom: 50px;
             }
 
             .form-login {
