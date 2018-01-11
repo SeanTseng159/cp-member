@@ -126,9 +126,9 @@ class MailService
     public function send($subject, $recipient, $view, $viewData = [])
     {
         $from = [
-            'email' => env('MAIL_USERNAME', 'ksd0045ksd@gmail.com'),
+            'email' => 'noreply@citypass.tw',
             'name' => 'CityPass都會通',
-            'subject' => ($subject) ?: 'CityPass都會通 - 通知信'
+            'subject' => $subject ?: 'CityPass都會通 - 通知信'
         ];
 
         $to = [
@@ -160,9 +160,9 @@ class MailService
     public function sendCityPass($subject, $recipient, $view, $viewData = [])
     {
         $from = [
-            'email' => env('MAIL_USERNAME', 'ksd0045ksd@gmail.com'),
+            'email' => 'noreply@citypass.tw',
             'name' => 'CityPass都會通',
-            'subject' => ($subject) ?: 'CityPass都會通 - 通知信'
+            'subject' => $subject ?: 'CityPass都會通 - 通知信'
         ];
 
         $to = [
