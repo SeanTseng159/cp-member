@@ -13,19 +13,66 @@ use Illuminate\Http\Request;
 |
 */
 
-// 需 token 認證的 route
-Route::middleware(['cors', 'auth.jwt'])->namespace('Api')->group(function () {
+// 需 管理者權限的token 認證的 route
+Route::middleware(['cors', 'admin.jwt'])->namespace('Api')->group(function () {
     Route::prefix('member')->group(function () {
         //取所有會員
         Route::get('all', 'MemberController@allMember');
         //會員資料查詢
         Route::get('query', 'MemberController@queryMember');
-        //單一會員資料查詢
-        Route::get('single/{id}', 'MemberController@singleMember');
         //更新會員資料
         Route::post('update/{id}', 'MemberController@updateMember');
         //刪除會員
         Route::post('delete/{id}', 'MemberController@deleteMember');
+
+    });
+
+    Route::prefix('newsletter')->group(function () {
+        //取得所有電子報名單資料
+        Route::get('all', 'NewsletterController@all');
+    });
+
+    Route::prefix('product')->group(function () {
+        // 取得所有商品列表
+        Route::get('all', 'ProductController@all');
+        // 根據商品分類取得商品列表
+        Route::get('tags', 'ProductController@tags');
+        // 根據 id 取得商品明細
+        Route::get('query/{id}', 'ProductController@query');
+        // 商品搜尋
+        Route::get('search', 'ProductController@search');
+        //主分類搜尋（商品）
+        Route::get('category/{categoryId}', 'LayoutController@maincategory');
+        //子分類搜尋（商品）
+        Route::get('subcategory/{subcategoryId}', 'LayoutController@subcategory');
+
+        Route::get('cache/clean/all', 'ProductController@cleanAllProductCache');
+    });
+
+    Route::prefix('notification')->group(function () {
+        //手機註冊推播token
+        Route::post('register', 'NotificationController@register');
+        //後台發送推播訊息
+        Route::post('send', 'NotificationController@send');
+        //取所有訊息
+        Route::get('all', 'NotificationController@allMessage');
+        //訊息資料查詢
+        Route::get('query/{id}', 'NotificationController@queryMessage');
+    });
+
+});
+
+// 需 token 認證的 route
+Route::middleware(['cors', 'auth.jwt'])->namespace('Api')->group(function () {
+    Route::prefix('member')->group(function () {
+        //取所有會員
+        //Route::get('all', 'MemberController@allMember');
+        //會員資料查詢
+        //Route::get('query', 'MemberController@queryMember');
+        //單一會員資料查詢
+        Route::get('single/{id}', 'MemberController@singleMember');
+        //更新會員資料
+        Route::post('update/{id}', 'MemberController@updateMember');
         //會員密碼修改
         Route::post('password/{id}', 'MemberController@changePassword');
         //發送-Email驗證信
@@ -157,17 +204,6 @@ Route::middleware('cors')->namespace('Api')->group(function () {
         Route::get('clean/{id}', 'LayoutController@clean');
         Route::get('subClean/{id}', 'LayoutController@subClean');
 
-    });
-
-    Route::prefix('notification')->group(function () {
-        //手機註冊推播token
-        Route::post('register', 'NotificationController@register');
-        //後台發送推播訊息
-        Route::post('send', 'NotificationController@send');
-        //取所有訊息
-        Route::get('all', 'NotificationController@allMessage');
-        //訊息資料查詢
-        Route::get('query/{id}', 'NotificationController@queryMessage');
     });
 
     Route::prefix('newsletter')->group(function () {

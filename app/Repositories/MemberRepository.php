@@ -101,7 +101,16 @@ class MemberRepository
      */
      public function query($data)
      {
-         return $this->model->where($data)->get();
+         $members = $this->model->where($data)->get();
+
+         // 將第三方登入openId對到email
+         if ($members) {
+            foreach ($members as $key => $member) {
+                if ($member['openPlateform'] != 'citypass') $members[$key]['email'] = $member['openId'];
+            }
+         }
+
+         return $members;
      }
 
      /**
@@ -111,7 +120,16 @@ class MemberRepository
      */
      public function all()
      {
-         return $this->model->all();
+         $members = $this->model->all();
+
+         // 將第三方登入openId對到email
+         if ($members) {
+            foreach ($members as $key => $member) {
+                if ($member['openPlateform'] != 'citypass') $members[$key]['email'] = $member['openId'];
+            }
+         }
+
+         return $members;
      }
 
     /**
