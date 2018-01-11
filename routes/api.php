@@ -175,6 +175,8 @@ Route::middleware('cors')->namespace('Api')->group(function () {
         Route::get('subcategory/{subcategoryId}', 'LayoutController@subcategory');
 
         Route::get('cache/clean/all', 'ProductController@cleanAllProductCache');
+
+        Route::get('cache/clean/{id}', 'ProductController@cleanProductCache');
     });
 
 
