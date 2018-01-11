@@ -384,14 +384,14 @@ class OrderResult
 
             $result['gateway'] = "tspg";
             $result['method'] = "credit_card";
-            $result['title'] = $this->paymentTypeTrans($additionalInformation[0]);
+            $result['title'] = $this->paymentTypeTrans(isset($additionalInformation[2]) ? $additionalInformation[2] : $additionalInformation[0]);
         }
 
         if($method === 'ipasspay'){
             $data = !empty($comment) ? explode("&",$comment[0]['comment']) : null;
             $result['gateway'] = "ipasspay";
             $result['title'] = $this->paymentTypeTrans($additionalInformation[0], $data);
-            $result['method'] = $this->getPaymentMethod($data);
+            $result['method'] = $this->getPaymentMethod(isset($data[4]) ? $data[4] : null);
         }
         return $result;
     }
@@ -613,6 +613,9 @@ class OrderResult
                     break;
                 case 'VACC': # iPassPay
                     return "atm";
+                    break;
+                case null: # iPassPay
+                    return "iPassPay未回傳付款方式(payment_type)";
                     break;
 
             }

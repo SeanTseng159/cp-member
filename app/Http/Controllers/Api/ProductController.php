@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Jobs\CacheReload;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Ksd\Mediation\Core\Controller\RestLaravelController;
@@ -77,12 +78,27 @@ class ProductController extends RestLaravelController
         return $this->success($this->productService->search($parameter));
     }
 
-    public function cleanAllProductCache(Request $request)
+    /**
+     * 清除所有商品快取
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function cleanAllProductCache()
     {
         $this->productService->cleanAllProductCache();
-        $parameter = new AllParameter();
-        $parameter->laravelRequest($request);
-        $this->productService->products($parameter);
+        return $this->success();
+    }
+
+    /**
+     * 清除單一商品快取
+     * @param Request $request
+     * @param $id
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function cleanProductCache(Request $request, $id)
+    {
+        $parameter = new QueryParameter();
+        $parameter->laravelRequest($id, $request);
+        $this->productService->cleanProductCache($parameter);
         return $this->success();
     }
 }

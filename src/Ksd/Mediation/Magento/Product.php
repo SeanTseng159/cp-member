@@ -54,7 +54,8 @@ class Product extends Client
         $total = 1;
         $limit = $this->env('API_DATA_LIMIT', 100);
         $page = 1;
-        while (count($data) < $total) {
+        $nowTotal = 0;
+        while ($nowTotal < $total) {
             $result = $this->category($id, $limit, $page);
             $total = $result['total_count'];
             foreach ($result['items'] as $item) {
@@ -64,6 +65,7 @@ class Product extends Client
                     $data[] = $product;
                 }
             }
+            $nowTotal += count($result['items']);
             $page++;
         }
         return $data;
