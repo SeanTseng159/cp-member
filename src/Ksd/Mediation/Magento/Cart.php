@@ -55,6 +55,7 @@ class Cart extends Client
             $response = $this->request('GET', 'V1/carts/mine');
             $result = json_decode($response->getBody(), true);
             $totalResult = $this->totals();
+            $this->updateCart($result['id']);
         } catch (ClientException $e) {
             // TODO:處理抓取不到購物車資料
         }
@@ -84,12 +85,31 @@ class Cart extends Client
     }
 
     /**
+     * 更新購物車金額
+     * @param $id
+     * @return bool
+     */
+    public function updateCart($id)
+    {
+        $parameter = [
+            "cart_id" => $id,
+                "address"=>[
+                    "country_id" => "TW",
+                ]
+        ];
+        $response = $this->putParameters($parameter)->request('post', 'V1/carts/mine/billing-address');
+
+        return true;
+    }
+
+    /**
      * 增加商品至購物車
      * @param $parameters
      * @return bool
      */
     public function add($parameters)
     {
+
         $cart = $this->detail();
         $data = ['quote' => [
             'items' => []

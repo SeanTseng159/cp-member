@@ -41,19 +41,19 @@ class OrderRepository extends BaseRepository
      */
     public function info()
     {
-        $key = $this->genCacheKey(self::INFO_KEY);
-        $allData = $this->redis->remember($key, CacheConfig::ORDER_TEST_TIME, function () {
+//        $key = $this->genCacheKey(self::INFO_KEY);
+//        $allData = $this->redis->remember($key, CacheConfig::ORDER_TEST_TIME, function () {
             $magento = $this->magento->userAuthorization($this->memberTokenService->magentoUserToken())->info();
             $cityPass = $this->cityPass->authorization($this->memberTokenService->cityPassUserToken())->info();
             $data = array_merge($magento, $cityPass);
 
             return ($data) ? $this->multi_array_sort($data, 'orderDate') : null;
-        });
+//        });
 
         // 空值就砍掉快取
-        if (!$allData) $this->cacheKey($key);
+//        if (!$allData) $this->cacheKey($key);
 
-        return $allData;
+//        return $allData;
     }
 
     /**
@@ -65,7 +65,7 @@ class OrderRepository extends BaseRepository
     {
         $itemId = $parameter->itemId;
         $source = $parameter->source;
-        return $this->redis->remember("$source:order:item_id:$itemId", CacheConfig::ORDER_TEST_TIME, function () use ($source,$parameter) {
+ //       return $this->redis->remember("$source:order:item_id:$itemId", CacheConfig::ORDER_TEST_TIME, function () use ($source,$parameter) {
             if($source == ProjectConfig::MAGENTO) {
                 $magento = $this->magento->userAuthorization($this->memberTokenService->magentoUserToken())->order($parameter);
                 return $magento;
@@ -75,7 +75,7 @@ class OrderRepository extends BaseRepository
             }
 
 
-        });
+//        });
     }
 
     /**

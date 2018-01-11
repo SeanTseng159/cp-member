@@ -170,16 +170,23 @@ class ProductResult
 
     /**
      * api response 資料格式化
+     * @param bool $isDetail
      * @return \stdClass
      */
-    public function apiFormat()
+    public function apiFormat($isDetail = true)
     {
         $data = new \stdClass();
         $columns = [
-            'source', 'id', 'name', 'saleStatus', 'saleStatusCode', 'price', 'canUseCoupon', 'salePrice', 'characteristic', 'category', 'storeName',
-            'storeTelephone', 'storeAddress', 'place', 'tags', 'imageUrls', 'quantity', 'contents', 'additionals', 'purchase',
-            'imageUrl', 'isWishlist', 'discount'
+            'source', 'id', 'name',  'price', 'salePrice', 'discount', 'characteristic', 'category', 'storeName',
+            'storeTelephone', 'storeAddress', 'place', 'tags', 'imageUrl', 'isWishlist'
         ];
+        if ($isDetail) {
+            $detailColumns = [
+                'saleStatus', 'saleStatusCode', 'canUseCoupon', 'quantity', 'contents', 'additionals', 'purchase','imageUrls',
+            ];
+            $columns = array_merge($columns, $detailColumns);
+        }
+
         foreach ($columns as $column) {
             if (property_exists($this, $column)) {
                 $data->$column = $this->$column;
