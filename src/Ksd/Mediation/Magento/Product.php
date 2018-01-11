@@ -226,13 +226,15 @@ class Product extends Client
             $productLinks = $result['extension_attributes']['configurable_product_links'];
             foreach ($productLinks as $productLink) {
                 $product = $this->findById($productLink);
-                foreach ($filters as $key => $filter) {
-                    $filters[$key]['value'] = $this->customAttributes($product->customAttributes, $filter['code']);
-                }
+                if(isset($product->customAttributes)) {
+                    foreach ($filters as $key => $filter) {
+                        $filters[$key]['value'] = $this->customAttributes($product->customAttributes, $filter['code']);
+                    }
 
-                $configurableProductResult = $this->putQuantity($product, $filters, $specs->additionals);
-                $specs->additionals = $configurableProductResult['additionals'];
-                $configurableProducts[] = $configurableProductResult['configurableProduct'];
+                    $configurableProductResult = $this->putQuantity($product, $filters, $specs->additionals);
+                    $specs->additionals = $configurableProductResult['additionals'];
+                    $configurableProducts[] = $configurableProductResult['configurableProduct'];
+                }
             }
         }
         if (property_exists($specs,'additionals')) {
