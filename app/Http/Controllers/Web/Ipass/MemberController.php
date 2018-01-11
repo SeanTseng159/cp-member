@@ -44,14 +44,14 @@ class MemberController extends Controller
         $auth = $this->service->authorize($parameter);
 
         try {
-            if ($auth->statusCode !== 200) return abort(404);
+            if ($auth->statusCode !== 200) return ($platform === 'app') ? 'app://ipassLogin?result=false' : $this->citypassUrl . $this->lang . '/oauth/failure';
             $data = (array) $auth->data;
             $data['redirect_url'] = ($platform === 'app') ? url('ipass/memberCallback/app') : url('ipass/memberCallback');
             $data['cancel_url'] = ($platform === 'app') ? 'app://ipassLogin?result=false' : $this->citypassUrl . $this->lang . '/oauth/failure';
             return view('ipass.login', $data);
         }
         catch (Exception $e) {
-            return abort(404);
+            return ($platform === 'app') ? 'app://ipassLogin?result=false' : $this->citypassUrl . $this->lang . '/oauth/failure';
         }
     }
 

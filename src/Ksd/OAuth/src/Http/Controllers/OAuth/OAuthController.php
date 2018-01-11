@@ -31,7 +31,10 @@ class OAuthController extends BaseController
         $platform = $request->input('platform');
         $platform = $platform ?: 'web';
 
-        if (!session('isViewLoginWeb')) return abort(404);
+        if (!session('isViewLoginWeb')) {
+            $url = ($platform === 'app') ? 'app://ipassLogin?result=false' : env('IPASS_WEB_PATH') . '/oauth/city_pass?return_url=' . env('IPASS_WEB_PATH');
+            return '<script>location.href="' . $url . '";</script>';
+        }
 
         $lang = 'zh-TW';
 
@@ -66,7 +69,10 @@ class OAuthController extends BaseController
 
     public function authorize(Request $request, $id)
     {
-        if (!session('isViewLoginWeb')) return abort(404);
+        if (!session('isViewLoginWeb')) {
+            $url = ($platform === 'app') ? 'app://ipassLogin?result=false' : env('IPASS_WEB_PATH') . '/oauth/city_pass?return_url=' . env('IPASS_WEB_PATH');
+            return '<script>location.href="' . $url . '";</script>';
+        }
 
         $oc = $this->ocService->find($id);
 
