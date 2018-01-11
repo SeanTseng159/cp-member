@@ -73,7 +73,7 @@ class MemberController extends Controller
         Log::debug(print_r(session()->getId(), true));
 
         try {
-            if ($ipassMember->statusCode !== 200) return $this->failureRedirect();
+            if ($ipassMember->statusCode !== 200) return redirect('ipass/login/' . $this->platform);
             $memberData = $ipassMember->data;
 
             // 檢查openId是否存在 (已註冊)
