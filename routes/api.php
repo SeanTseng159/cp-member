@@ -123,10 +123,34 @@ Route::middleware(['cors', 'auth.jwt'])->namespace('Api')->group(function () {
 
     });
 
+    Route::prefix('ticket')->group(function () {
+        //票券物理主分類
+        Route::get('catalogIcon',   'MyTicketController@catalogIcon');
+        //票券使用說明
+        Route::get('help',   'MyTicketController@help');
+        //票券列表
+        Route::get('info/{status}', 'MyTicketController@info');
+        //票券明細
+        Route::get('detail/{id}', 'MyTicketController@detail');
+        //票券使用紀錄
+        Route::get('record/{id}', 'MyTicketController@record');
+        // 票券轉贈
+        Route::post('gift', 'MyTicketController@gift');
+        // 票券轉贈
+        Route::post('refund', 'MyTicketController@refund');
+    });
 
-});
+    Route::prefix('coupon')->group(function () {
+        Route::post('add', 'SalesRuleController@addCoupon');
+        Route::post('remove', 'SalesRuleController@deleteCoupon');
+    });
 
-Route::middleware('cors')->namespace('Api')->group(function () {
+    Route::prefix('wishlist')->group(function () {
+        Route::get('items',   'WishlistController@items');
+        Route::post('add', 'WishlistController@add');
+        Route::post('delete', 'WishlistController@delete');
+
+    });
 
     Route::prefix('checkout')->group(function () {
         // 3D驗證
@@ -138,6 +162,15 @@ Route::middleware('cors')->namespace('Api')->group(function () {
         // 信用卡送金流(台新)
         Route::post('transmit', 'CheckoutController@transmit');
     });
+
+
+
+
+});
+
+Route::middleware('cors')->namespace('Api')->group(function () {
+
+
 
     Route::prefix('member')->group(function () {
         //新增會員
@@ -181,18 +214,6 @@ Route::middleware('cors')->namespace('Api')->group(function () {
 
 
 
-    Route::prefix('coupon')->group(function () {
-        Route::post('add', 'SalesRuleController@addCoupon');
-        Route::post('remove', 'SalesRuleController@deleteCoupon');
-    });
-
-    Route::prefix('wishlist')->group(function () {
-        Route::get('items',   'WishlistController@items');
-        Route::post('add', 'WishlistController@add');
-        Route::post('delete', 'WishlistController@delete');
-
-    });
-
     Route::prefix('layout')->group(function () {
         Route::get('home',   'LayoutController@home');
         Route::get('ads',   'LayoutController@ads');
@@ -213,22 +234,7 @@ Route::middleware('cors')->namespace('Api')->group(function () {
         Route::post('order', 'NewsletterController@orderNewsletter');
     });
 
-    Route::prefix('ticket')->group(function () {
-        //票券物理主分類
-        Route::get('catalogIcon',   'MyTicketController@catalogIcon');
-        //票券使用說明
-        Route::get('help',   'MyTicketController@help');
-        //票券列表
-        Route::get('info/{status}', 'MyTicketController@info');
-        //票券明細
-        Route::get('detail/{id}', 'MyTicketController@detail');
-        //票券使用紀錄
-        Route::get('record/{id}', 'MyTicketController@record');
-        // 票券轉贈
-        Route::post('gift', 'MyTicketController@gift');
-        // 票券轉贈
-        Route::post('refund', 'MyTicketController@refund');
-    });
+
 
     Route::prefix('tspg')->group(function () {
         //台新信用卡回傳
