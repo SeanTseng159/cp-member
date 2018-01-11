@@ -11,6 +11,14 @@
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
+Route::get('shopping_notes', function () {
+    return view('web.shopping_notes');
+});
+
+Route::get('privacy', function () {
+    return view('web.privacy');
+});
+
+Route::get('terms', function () {
+    return view('web.terms');
 });

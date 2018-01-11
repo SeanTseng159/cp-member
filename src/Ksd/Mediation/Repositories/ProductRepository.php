@@ -51,7 +51,7 @@ class ProductRepository extends BaseRepository
      * @param null $parameter
      * @return Collection
      */
-    public function products($categories = null, $parameter = null)
+    public function products($categories = null, $parameter = null, $isRefresh = false)
     {
         $result = [];
         if (empty($categories) && empty($parameter->categories())) {
@@ -60,13 +60,13 @@ class ProductRepository extends BaseRepository
                 $magentoProducts = $this->magentoProducts($magentoProducts);
                 $cityPassProducts = $this->cityPass->all();
                 return array_merge($magentoProducts, $cityPassProducts);
-            });
+            }, $isRefresh);
         } else {
             $source = ProjectConfig::MAGENTO;
             foreach ($categories as $category) {
                 $row = $this->redis->remember("$source:product:category:$category", CacheConfig::TEST_TIME, function () use ($category) {
                     return $this->magento->all($category);
-                });
+                }, $isRefresh);
                 $result = array_merge($result,$row);
             }
             $result = $this->magentoProducts($result);
@@ -75,7 +75,7 @@ class ProductRepository extends BaseRepository
             $categoryKey = join('_', $parameter->categories());
             $cityPassProducts = $this->redis->remember("$source:product:category:$categoryKey", CacheConfig::TEST_TIME, function () use ($parameter) {
                 return $this->cityPass->tags($parameter->categories());
-            });
+            }, $isRefresh);
             $result = array_merge($result, $cityPassProducts);
         }
 
@@ -87,7 +87,7 @@ class ProductRepository extends BaseRepository
      * @param $parameter
      * @return mixed
      */
-    public function product($parameter)
+    public function product($parameter, $isRefresh = false)
     {
         $id = $parameter->no;
         $source = $parameter->source;
@@ -99,7 +99,7 @@ class ProductRepository extends BaseRepository
                 $product = $this->cityPass->find($id);
             }
             return $product;
-        });
+        }, $isRefresh);
         $this->createIndex($source, $product);
         return $product;
     }
@@ -213,10 +213,5 @@ class ProductRepository extends BaseRepository
             }
         }
         return $products;
-    }
-
-    public function cleanAllProductCache()
-    {
-        $this->redis->delete(self::CACHE_PRODUCT_ALL);
     }
 }

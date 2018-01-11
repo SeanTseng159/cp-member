@@ -8,7 +8,9 @@
 
 namespace Ksd\Mediation\Services;
 
+use App\Jobs\CacheReload;
 use Ksd\Mediation\Config\ProjectConfig;
+use Ksd\Mediation\Parameter\Product\AllParameter;
 use Ksd\Mediation\Repositories\ProductRepository;
 
 class ProductService
@@ -38,9 +40,10 @@ class ProductService
     /**
      * 根據 產品分類 id 陣列 取得所有商品
      * @param $parameter
-     * @return $this
+     * @param bool $isRefresh
+     * @return mixed
      */
-    public function products($parameter)
+    public function products($parameter, $isRefresh = false)
     {
         $categories = $parameter->categories();
 
@@ -50,18 +53,19 @@ class ProductService
                 $categoryIds = array_merge($categoryIds, $this->filterCategory($category));
             }
         }
-        $products = $this->repository->products($categoryIds, $parameter)->pagination()->sort();
+        $products = $this->repository->products($categoryIds, $parameter, $isRefresh)->pagination()->sort();
         return $this->processList($products);
     }
 
     /**
      * 根據 商品 id 取得商品明細
      * @param $parameter
+     * @param bool $isRefresh
      * @return mixed
      */
-    public function product($parameter)
+    public function product($parameter, $isRefresh = false)
     {
-        $product = $this->repository->product($parameter);
+        $product = $this->repository->product($parameter, $isRefresh);
         return $this->process($product, true);
     }
 
@@ -171,8 +175,25 @@ class ProductService
         return $product;
     }
 
-    public function cleanAllProductCache()
+    /**
+     * 清除所有商品快取
+     * @param int $delayTime
+     */
+    public function cleanAllProductCache($delayTime = 0)
     {
-        $this->repository->cleanAllProductCache();
+        $parameter = new AllParameter();
+        $parameter->laravelRequest(request());
+        dispatch(new CacheReload(ProductRepository::CACHE_PRODUCT_ALL,ProductService::class, 'products', [$parameter, true]))
+        ->delay($delayTime);
+    }
+
+    /**
+     * 清除單一商品快取
+     * @param $parameter
+     */
+    public function cleanProductCache($parameter)
+    {
+        dispatch(new CacheReload(ProductRepository::CACHE_PRODUCT_ALL,ProductService::class, 'product', [$parameter, true]));
+        $this->cleanAllProductCache(60);
     }
 }
