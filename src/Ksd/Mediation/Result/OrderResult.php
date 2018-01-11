@@ -384,7 +384,7 @@ class OrderResult
 
             $result['gateway'] = "tspg";
             $result['method'] = "credit_card";
-            $result['title'] = $this->paymentTypeTrans($additionalInformation[0]);
+            $result['title'] = $this->paymentTypeTrans(isset($additionalInformation[2]) ? $additionalInformation[2] : $additionalInformation[0]);
         }
 
         if($method === 'ipasspay'){
