@@ -9,6 +9,7 @@
 namespace Ksd\Mediation\Cache;
 
 
+use Illuminate\Support\Facades\App;
 use Ksd\Mediation\Helper\EnvHelper;
 use Predis\Client;
 use Cache;
@@ -18,6 +19,8 @@ class Redis
     use EnvHelper;
 
     protected $client;
+
+    public $lang;
 
     public function __construct()
     {
@@ -35,7 +38,7 @@ class Redis
      */
     public function exists($key)
     {
-        return Cache::has($key);
+        return Cache::has($this->i18nKey($key));
     }
 
     /**
@@ -46,7 +49,7 @@ class Redis
      */
     public function set($key, $value, $expire = 3600)
     {
-        Cache::put($key, $value, $expire);
+        Cache::put($this->i18nKey($key), $value, $expire);
     }
 
     /**
@@ -56,7 +59,7 @@ class Redis
      */
     public function get($key)
     {
-        return Cache::get($key);
+        return Cache::get($this->i18nKey($key));
     }
 
     /**
@@ -82,6 +85,19 @@ class Redis
      */
     public function delete($key)
     {
-        Cache::forget($key);
+        Cache::forget($this->i18nKey($key));
+    }
+
+    /**
+     * 取得 i18n key
+     * @param $key
+     * @return string
+     */
+    public function i18nKey($key)
+    {
+        if (empty($this->lang)) {
+            $local = App::getLocale();
+        }
+        return sprintf('%s:%s', $local, $key);
     }
 }
