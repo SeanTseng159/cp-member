@@ -52,7 +52,7 @@ class OAuthController extends BaseController
 
         if (!session('redirect_url')) {
             $url = ($platform === 'app') ? 'app://ipassLogin?result=false' : env('IPASS_WEB_PATH') . '/oauth/city_pass?return_url=' . env('IPASS_WEB_PATH');
-            return '<script>location.href="' . $url . '";</script>';
+            return '<script>alert("未取得授權或授權過期，請重新登入"); location.href="' . $url . '";</script>';
         }
 
         $email = $request->input('email');
@@ -95,7 +95,7 @@ class OAuthController extends BaseController
         $platform = $platform ?: 'web';
         if (!session('redirect_url')) {
             $url = ($platform === 'app') ? 'app://ipassLogin?result=false' : env('IPASS_WEB_PATH') . '/oauth/city_pass?return_url=' . env('IPASS_WEB_PATH');
-            return '<script>location.href="' . $url . '";</script>';
+            return '<script>alert("未取得授權或授權過期，請重新登入"); location.href="' . $url . '";</script>';
         }
 
         $auth_client_id = $request->input('auth_client_id');

@@ -75,19 +75,19 @@ class MyTicketController extends RestLaravelController
             \Log::debug('=== ticket detail ===');
             \Log::debug(print_r($data, true));
 
-            if (isset($data->gift) && $data->gift) {
-                $member = $this->memberService->find($data->gift->memberId);
+            if (isset($data['gift']) && $data['gift']) {
+                $member = $this->memberService->find($data['gift']['memberId']);
 
                 if ($member) {
                     $memberData = new \stdClass;
-                    $memberData->name = $memberData->name;
-                    $memberData->phone = '+' . $memberData->countryCode . $memberData->cellphone;
+                    $memberData->name = $member->name;
+                    $memberData->phone = '+' . $member->countryCode . $member->cellphone;
 
                     $member = $memberData;
                 }
 
-                unset($data->gift->memberId);
-                $data->gift->member = $member;
+                unset($data['gift']['memberId']);
+                $data['gift']['member'] = $member;
             }
 
             return $this->success($data);
