@@ -55,7 +55,33 @@ class MyTicketController extends RestLaravelController
     {
         $parameter = new InfoParameter();
         $parameter->laravelRequest($statusId, $request);
-        return $this->success($this->myTicketService->info($parameter));
+        $data = $this->success($this->myTicketService->info($parameter));
+
+        if ($data) {
+            \Log::debug('=== ticket info ===');
+            \Log::debug(print_r($data, true));
+
+            foreach ($data as $key => $value) {
+                $member = $this->memberService->find($value['memberId']);
+
+                if ($member) {
+                    $memberData = new \stdClass;
+                    $memberData->name = $member->name;
+                    $memberData->phone = '+' . $member->countryCode . $member->cellphone;
+
+                    $member = $memberData;
+                }
+
+                unset($data[$key]['memberId']);
+                unset($data[$key]['memberName']);
+                unset($data[$key]['memberPhone']);
+                $data[$key]['member'] = $member;
+            }
+
+            return $this->success($data);
+        }
+
+        return $this->failure('E0005', '資料無法取得');
 
     }
 
