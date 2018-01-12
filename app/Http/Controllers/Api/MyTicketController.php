@@ -72,6 +72,9 @@ class MyTicketController extends RestLaravelController
         $parameter->laravelRequest($id, $request);
         $data = $this->myTicketService->detail($parameter);
         if ($data) {
+            \Log::debug('=== ticket detail ===');
+            \Log::debug(print_r($data, true));
+
             if (isset($data->gift) && $data->gift) {
                 $member = $this->memberService->find($data->gift->memberId);
 
