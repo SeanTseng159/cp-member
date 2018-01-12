@@ -4,7 +4,7 @@
 
 @section('content')
 <div class="warpper">
-    <form class="form-login" action="{{ url('oauth/member/login') }}" method="POST">
+    <form class="form-login" action="{{ url('oauth/member/login?platform=' . $platform) }}" method="POST">
         <div class="form-group">
             <input type="email" class="form-control" id="email" name="email" placeholder="帳號 ( Email信箱 )">
         </div>
