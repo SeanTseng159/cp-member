@@ -100,8 +100,6 @@ Route::middleware(['cors', 'auth.jwt'])->namespace('Api')->group(function () {
     });
 
     Route::prefix('ticket')->group(function () {
-        //票券使用說明
-        Route::get('help',   'MyTicketController@help');
         //票券列表
         Route::get('info/{status}', 'MyTicketController@info');
         //票券明細
@@ -221,6 +219,8 @@ Route::middleware('cors')->namespace('Api')->group(function () {
     Route::prefix('ticket')->group(function () {
         //票券物理主分類
         Route::get('catalogIcon',   'MyTicketController@catalogIcon');
+        //票券使用說明
+        Route::get('help',   'MyTicketController@help');
     });
 
 });
