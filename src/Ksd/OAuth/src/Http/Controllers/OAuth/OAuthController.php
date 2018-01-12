@@ -70,7 +70,7 @@ class OAuthController extends BaseController
 
         $checked = $this->ocmService->checkMemberAuthorize($auth_client_id, $member->id);
         if (!$checked) {
-            return redirect('oauth/member/authorize/' . $auth_client_id);
+            return redirect('oauth/member/authorize/' . $auth_client_id . '?platform=' . $platform);
         }
 
         return $this->postSuccess($this->ocmService->getResponseData($member));
@@ -78,6 +78,9 @@ class OAuthController extends BaseController
 
     public function authorize(Request $request, $id)
     {
+        // 導向網址不存在倒回登入
+        $platform = $request->input('platform');
+        $platform = $platform ?: 'web';
         if (!session('isViewLoginWeb')) {
             $url = ($platform === 'app') ? 'app://ipassLogin?result=false' : env('IPASS_WEB_PATH') . '/oauth/city_pass?return_url=' . env('IPASS_WEB_PATH');
             return '<script>location.href="' . $url . '";</script>';
@@ -85,7 +88,7 @@ class OAuthController extends BaseController
 
         $oc = $this->ocService->find($id);
 
-        return view('oauth::authorize', ['auth_client' => $oc]);
+        return view('oauth::authorize', ['auth_client' => $oc, 'platform' => $platform]);
     }
 
     public function authorizeHandle(Request $request)

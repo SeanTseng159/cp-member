@@ -24,6 +24,10 @@ class PayRepository extends BaseClient
         $response = $this->putParameters($parameters)
             ->request('POST', 'api/BindPayReq');
         $responseQueryString = urldecode($response->getBody()->getContents());
+
+        \Log::debug('=== ipass pay bindPayReq ===');
+        \Log::debug(print_r($responseQueryString, true));
+
         return $this->parseQueryString($responseQueryString);
     }
 
