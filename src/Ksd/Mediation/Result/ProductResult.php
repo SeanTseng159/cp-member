@@ -138,7 +138,7 @@ class ProductResult
             if($discount===100){
                 return null;
             }else{
-                return sprintf("%d折", $discount);
+                return sprintf("%d折", (substr($discount,1,2)) !== 0 ? $discount : substr($discount,0,1));
             }
 
         }
