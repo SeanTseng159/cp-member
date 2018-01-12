@@ -32,26 +32,7 @@ Route::middleware(['cors', 'admin.jwt'])->namespace('Api')->group(function () {
         Route::get('all', 'NewsletterController@all');
     });
 
-    Route::prefix('product')->group(function () {
-        // 取得所有商品列表
-        Route::get('all', 'ProductController@all');
-        // 根據商品分類取得商品列表
-        Route::get('tags', 'ProductController@tags');
-        // 根據 id 取得商品明細
-        Route::get('query/{id}', 'ProductController@query');
-        // 商品搜尋
-        Route::get('search', 'ProductController@search');
-        //主分類搜尋（商品）
-        Route::get('category/{categoryId}', 'LayoutController@maincategory');
-        //子分類搜尋（商品）
-        Route::get('subcategory/{subcategoryId}', 'LayoutController@subcategory');
-
-        Route::get('cache/clean/all', 'ProductController@cleanAllProductCache');
-    });
-
     Route::prefix('notification')->group(function () {
-        //手機註冊推播token
-        Route::post('register', 'NotificationController@register');
         //後台發送推播訊息
         Route::post('send', 'NotificationController@send');
         //取所有訊息
@@ -65,10 +46,6 @@ Route::middleware(['cors', 'admin.jwt'])->namespace('Api')->group(function () {
 // 需 token 認證的 route
 Route::middleware(['cors', 'auth.jwt'])->namespace('Api')->group(function () {
     Route::prefix('member')->group(function () {
-        //取所有會員
-        //Route::get('all', 'MemberController@allMember');
-        //會員資料查詢
-        //Route::get('query', 'MemberController@queryMember');
         //單一會員資料查詢
         Route::get('single/{id}', 'MemberController@singleMember');
         //更新會員資料
@@ -88,7 +65,6 @@ Route::middleware(['cors', 'auth.jwt'])->namespace('Api')->group(function () {
         //取得所有電子報名單資料
         Route::get('all', 'NewsletterController@all');
     });
-
 
     Route::prefix('cart')->group(function () {
         // 購物車簡易資訊
@@ -124,8 +100,6 @@ Route::middleware(['cors', 'auth.jwt'])->namespace('Api')->group(function () {
     });
 
     Route::prefix('ticket')->group(function () {
-        //票券物理主分類
-        Route::get('catalogIcon',   'MyTicketController@catalogIcon');
         //票券使用說明
         Route::get('help',   'MyTicketController@help');
         //票券列表
@@ -163,14 +137,14 @@ Route::middleware(['cors', 'auth.jwt'])->namespace('Api')->group(function () {
         Route::post('transmit', 'CheckoutController@transmit');
     });
 
-
-
+    Route::prefix('notification')->group(function () {
+        //手機註冊推播token
+        Route::post('register', 'NotificationController@register');
+    });
 
 });
 
 Route::middleware('cors')->namespace('Api')->group(function () {
-
-
 
     Route::prefix('member')->group(function () {
         //新增會員
@@ -212,8 +186,6 @@ Route::middleware('cors')->namespace('Api')->group(function () {
         Route::get('cache/clean/{id}', 'ProductController@cleanProductCache');
     });
 
-
-
     Route::prefix('layout')->group(function () {
         Route::get('home',   'LayoutController@home');
         Route::get('ads',   'LayoutController@ads');
@@ -234,23 +206,21 @@ Route::middleware('cors')->namespace('Api')->group(function () {
         Route::post('order', 'NewsletterController@orderNewsletter');
     });
 
-
-
     Route::prefix('tspg')->group(function () {
         //台新信用卡回傳
         Route::post('postBack', 'CheckoutController@postBack');
         Route::post('result', 'CheckoutController@result');
     });
 
-
     Route::prefix('service')->group(function () {
         //台新信用卡回傳
         Route::get('qa', 'ServiceController@qa');
         Route::post('suggestion', 'ServiceController@suggestion');
-
     });
 
-
-
+    Route::prefix('ticket')->group(function () {
+        //票券物理主分類
+        Route::get('catalogIcon',   'MyTicketController@catalogIcon');
+    });
 
 });
