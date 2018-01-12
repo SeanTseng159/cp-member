@@ -55,10 +55,11 @@ class Client extends BaseClient
      */
     private function lang()
     {
+        $lang = $this->lang;
         if (empty($this->lang)) {
-            return App::getLocale();
+            $lang = App::getLocale();
         }
-        return $this->correspondingLang($this->lang);
+        return $this->correspondingLang($lang);
     }
 
     /**
