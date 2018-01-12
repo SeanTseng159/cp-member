@@ -46,6 +46,12 @@ class OAuthController extends BaseController
 
     public function loginHandle(Request $request)
     {
+        // 導向網址不存在倒回登入
+        if (!session('redirect_url')) {
+            $url = ($platform === 'app') ? 'app://ipassLogin?result=false' : env('IPASS_WEB_PATH') . '/oauth/city_pass?return_url=' . env('IPASS_WEB_PATH');
+            return '<script>location.href="' . $url . '";</script>';
+        }
+
         $email = $request->input('email');
         $password = $request->input('password');
         $auth_client_id = $request->input('auth_client_id');
@@ -81,6 +87,12 @@ class OAuthController extends BaseController
 
     public function authorizeHandle(Request $request)
     {
+        // 導向網址不存在倒回登入
+        if (!session('redirect_url')) {
+            $url = ($platform === 'app') ? 'app://ipassLogin?result=false' : env('IPASS_WEB_PATH') . '/oauth/city_pass?return_url=' . env('IPASS_WEB_PATH');
+            return '<script>location.href="' . $url . '";</script>';
+        }
+
         $auth_client_id = $request->input('auth_client_id');
         $revoked = $request->input('revoked');
 

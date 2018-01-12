@@ -23,6 +23,7 @@ class PayParameter
     private $bindPayReySignatureOptions = ['client_id', 'respond_type', 'version', 'lang_type', 'order_id', 'order_name', 'amount', 'success_url', 'failure_url', 'timestamp', 'client_pw'];
     private $bindPayTokenSignatureOptions = ['client_id', 'order_id', 'token', 'timestamp', 'client_pw'];
     private $bindPayStatusSignatureOptions = ['client_id', 'respond_type', 'version', 'order_id', 'token', 'timestamp', 'client_pw'];
+    private $bindRefundOptions = ['client_id', 'amt', 'timestamp', 'client_pw'];
 
     /**
      * laravel request 參數處理
@@ -74,6 +75,8 @@ class PayParameter
 
         $parameter->signature = hash('sha256', $parameter->signature);
 
+        unset($parameter->client_pw);
+
         return $parameter;
     }
 
@@ -98,6 +101,8 @@ class PayParameter
 
         $parameter->signature = hash('sha256', $parameter->signature);
 
+        unset($parameter->client_pw);
+
         return $parameter;
     }
 
@@ -119,6 +124,42 @@ class PayParameter
             }
 
             $parameter->signature = hash('sha256', $parameter->signature);
+
+            unset($parameter->client_pw);
+
+            return $parameter;
+        }
+
+        return null;
+    }
+
+    /**
+     * 退款
+     * @param $data
+     */
+    public function bindRefund($request)
+    {
+        $order_id = $request->input('order_id');
+        $amt = $request->input('amt');
+
+        if ($order_id && $amt) {
+            $parameter = new \stdClass;
+            $parameter->client_id = env('IPASS_PAY_CLIENT_ID');
+            $parameter->client_pw = env('IPASS_PAY_CLIENT_PW');
+            $parameter->respond_type = env('IPASS_PAY_RESPOND_TYPE', 'json');
+            $parameter->version = env('IPASS_PAY_VERSION', '1.0');
+            $parameter->order_id = $order_id;
+            $parameter->amt = $amt;
+            $parameter->timestamp = Carbon\Carbon::now()->timestamp;
+            $parameter->signature = '';
+
+            foreach ($this->bindRefundOptions as $key) {
+                $parameter->signature .= $parameter->{$key};
+            }
+
+            $parameter->signature = hash('sha256', $parameter->signature);
+
+            unset($parameter->client_pw);
 
             return $parameter;
         }

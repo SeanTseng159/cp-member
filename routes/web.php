@@ -11,8 +11,24 @@
 |
 */
 
-Route::get('shopping_notes', function () {
-    return view('web.shopping_notes');
+Route::get('shopping_process', function () {
+    return view('web.shopping_process');
+});
+
+Route::get('e-ticket', function () {
+    return view('web.e-ticket');
+});
+
+Route::get('delivery', function () {
+    return view('web.delivery');
+});
+
+Route::get('returns_and_refunds', function () {
+    return view('web.returns_and_refunds');
+});
+
+Route::get('e-ticket_gift', function () {
+    return view('web.e-ticket_gift');
 });
 
 Route::get('privacy', function () {

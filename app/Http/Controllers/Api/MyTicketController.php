@@ -14,10 +14,12 @@ use App\Services\MemberService;
 class MyTicketController extends RestLaravelController
 {
     private $myTicketService;
+    protected $memberService;
 
-    public function __construct(MyTicketService $myTicketService)
+    public function __construct(MyTicketService $myTicketService, MemberService $memberService)
     {
         $this->myTicketService = $myTicketService;
+        $this->memberService = $memberService;
     }
 
     /**
@@ -68,8 +70,27 @@ class MyTicketController extends RestLaravelController
     {
         $parameter = new InfoParameter();
         $parameter->laravelRequest($id, $request);
-        return $this->success($this->myTicketService->detail($parameter));
+        $data = $this->myTicketService->detail($parameter);
+        if ($data) {
+            if (isset($data->gift) && $data->gift) {
+                $member = $this->memberService->find($data->gift->memberId);
 
+                if ($member) {
+                    $memberData = new \stdClass;
+                    $memberData->name = $memberData->name;
+                    $memberData->phone = '+' . $memberData->countryCode . $memberData->cellphone;
+
+                    $member = $memberData;
+                }
+
+                unset($data->gift->memberId);
+                $data->gift->member = $member;
+            }
+
+            return $this->success($data);
+        }
+
+        return $this->failure('E0005', '資料無法取得');
     }
 
 
