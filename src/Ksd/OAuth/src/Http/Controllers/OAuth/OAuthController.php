@@ -41,11 +41,20 @@ class OAuthController extends BaseController
         $path = ($platform === 'app') ? '/app' : '/member';
         $web_url = env('CITY_PASS_WEB') . $lang . $path;
 
-        return view('oauth::login', ['auth_client_id' => $id, 'web_url' => $web_url]);
+        return view('oauth::login', ['auth_client_id' => $id, 'web_url' => $web_url, 'platform' => $platform]);
     }
 
     public function loginHandle(Request $request)
     {
+        // 導向網址不存在倒回登入
+        $platform = $request->input('platform');
+        $platform = $platform ?: 'web';
+
+        if (!session('redirect_url')) {
+            $url = ($platform === 'app') ? 'app://ipassLogin?result=false' : env('IPASS_WEB_PATH') . '/oauth/city_pass?return_url=' . env('IPASS_WEB_PATH');
+            return '<script>alert("未取得授權或授權過期，請重新登入"); location.href="' . $url . '";</script>';
+        }
+
         $email = $request->input('email');
         $password = $request->input('password');
         $auth_client_id = $request->input('auth_client_id');
@@ -81,6 +90,14 @@ class OAuthController extends BaseController
 
     public function authorizeHandle(Request $request)
     {
+        // 導向網址不存在倒回登入
+        $platform = $request->input('platform');
+        $platform = $platform ?: 'web';
+        if (!session('redirect_url')) {
+            $url = ($platform === 'app') ? 'app://ipassLogin?result=false' : env('IPASS_WEB_PATH') . '/oauth/city_pass?return_url=' . env('IPASS_WEB_PATH');
+            return '<script>alert("未取得授權或授權過期，請重新登入"); location.href="' . $url . '";</script>';
+        }
+
         $auth_client_id = $request->input('auth_client_id');
         $revoked = $request->input('revoked');
 

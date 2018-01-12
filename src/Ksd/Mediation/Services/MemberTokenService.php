@@ -74,4 +74,20 @@ class MemberTokenService
 
         return $this->JWTencode($data);
     }
+
+
+    /**
+     * 取得 member email for magento order
+     * @return string
+     */
+    public function getEmail()
+    {
+        $data = $this->JWTdecode();
+        if (empty($data)) {
+            return '';
+        }
+        $member = $this->memberService->find($data->id);
+
+        return $member->email;
+    }
 }

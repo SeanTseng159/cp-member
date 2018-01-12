@@ -41,6 +41,11 @@ Route::middleware(['cors', 'admin.jwt'])->namespace('Api')->group(function () {
         Route::get('query/{id}', 'NotificationController@queryMessage');
     });
 
+    Route::prefix('ipasspay')->group(function () {
+        //退款
+        Route::post('refund', 'IpassPayController@refund');
+    });
+
 });
 
 // 需 token 認證的 route

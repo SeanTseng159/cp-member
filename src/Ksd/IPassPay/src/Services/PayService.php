@@ -53,4 +53,24 @@ class PayService
 
         return ['status' => $status, 'data' => $data];
     }
+
+    /**
+     * 退款
+     * @param $parameters
+     * @return mixed
+     */
+    public function bindRefund($parameters)
+    {
+        $status = false;
+        $data = null;
+
+        if ($parameters) {
+            $data = $this->repository->bindRefund($parameters);
+
+            // 成功
+            $status = ($data->rtnCode == '0');
+        }
+
+        return ['status' => $status, 'data' => $data];
+    }
 }

@@ -48,7 +48,7 @@ class ProductResult
         if ($isDetail) {
             $this->contents = [
                 [
-                    'title' => '詳細介紹',
+                    'title' => __('product.content.title_label'),
                     'description' => $this->customAttributes($result['custom_attributes'], 'description')
                 ]
             ];
@@ -138,9 +138,9 @@ class ProductResult
             if($discount===100){
                 return null;
             }else{
-                return sprintf("%d折", $discount);
+                $discountText = (substr($discount,1,2)) !== 0 ? $discount : substr($discount,0,1);
+                return __('product.discount', ['discount' => $discountText]);
             }
-
         }
         return '';
     }
@@ -153,17 +153,17 @@ class ProductResult
     {
         switch ($key) {
             case 'simple':
-                return "一般商品";
+                return __('product.item_type.simple');
             case 'virtual':
-                return "虛擬商品";
+                return __('product.item_type.virtual');
             case 'downloadable':
-                return "線上下載商品";
+                return __('product.item_type.downloadable');
             case 'configurable':
-                return "Configurable Product";
+                return __('product.item_type.configurable');
             case 'grouped':
-                return "組合商品";
+                return __('product.item_type.grouped');
             case 'bundle':
-                return "搭售商品";
+                return __('product.item_type.bundle');
         }
 
     }
@@ -221,13 +221,13 @@ class ProductResult
     {
         switch ($key) {
             case '11': # 熱賣中
-                return "熱賣中";
+                return __('product.sale_status.on_sale');
             case '20': # 結束銷售
-                return "結束銷售";
+                return __('product.sale_status.end_sale');
             case '10': # 已完售
-                return "已完售";
+                return __('product.sale_status.has_been_sale');
             default:
-                return "尚未販售";
+                return __('product.sale_status.not_yet_sale');
         }
     }
 

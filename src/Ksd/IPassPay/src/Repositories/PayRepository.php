@@ -39,4 +39,17 @@ class PayRepository extends BaseClient
         $responseQueryString = urldecode($response->getBody()->getContents());
         return $this->parseQueryString($responseQueryString);
     }
+
+    /**
+     * 退款
+     * @param $parameters
+     * @return mixed
+     */
+    public function bindRefund($parameters)
+    {
+        $response = $this->putParameters($parameters)
+            ->request('POST', 'api/BindRefund');
+        $responseQueryString = urldecode($response->getBody()->getContents());
+        return $this->parseQueryString($responseQueryString);
+    }
 }

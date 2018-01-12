@@ -9,6 +9,7 @@
 namespace Ksd\Mediation\Magento;
 
 use GuzzleHttp\Exception\ClientException;
+use Illuminate\Support\Facades\Log;
 use Ksd\Mediation\Result\OrderResult;
 use App\Models\Member;
 
@@ -31,43 +32,42 @@ class Order extends Client
 
 
     /**
-     * 取得所有訂單列表
+     * 取得所有訂單列表\
+     * @param $email
      * @return array
      */
-    public function info()
+    public function info($email)
     {
+        if(!empty($email)) {
+            $result = [];
+            try {
+                $path = 'V1/orders';
 
-        $email = $this->getEmail();
-        $admintoken = new Client();
-        $this->authorization($admintoken->token);
+                $response = $this->putQuery('searchCriteria[filterGroups][0][filters][0][field]', 'customer_email')
+                    ->putQuery('searchCriteria[filterGroups][0][filters][0][value]', $email)
+                    //               ->putQuery('searchCriteria[sortOrders][0][field]', 'created_at')
+                    //               ->putQuery('searchCriteria[sortOrders][0][direction]', 'DESC')
+                    ->request('GET', $path);
+                $body = $response->getBody();
+                $result = json_decode($body, true);
+            } catch (ClientException $e) {
+                // TODO:抓不到MAGENTO API訂單資料
+            }
 
-        
-        $result = [];
-        try {
-            $path = 'V1/orders';
-            $response = $this->putQuery('searchCriteria[filterGroups][0][filters][0][field]', 'customer_email')
-                ->putQuery('searchCriteria[filterGroups][0][filters][0][value]', $email)
-                //               ->putQuery('searchCriteria[sortOrders][0][field]', 'created_at')
-                //               ->putQuery('searchCriteria[sortOrders][0][direction]', 'DESC')
-                ->request('GET', $path);
-            $body = $response->getBody();
-            $result = json_decode($body, true);
-        } catch (ClientException $e) {
-            // TODO:抓不到MAGENTO API訂單資料
-        }
-
-        $data = [];
-        if (!empty($result['items'])){
-            foreach ($result['items'] as $item) {
-            if(!$item['state']==="canceled");
+            $data = [];
+            if (!empty($result['items'])) {
+                foreach ($result['items'] as $item) {
+                    if (!$item['state'] === "canceled") ;
                     $order = new OrderResult();
                     $order->magento($item);
                     $data[] = (array)$order;
+                }
             }
+
+            return $data;
+        }else{
+            return [];
         }
-
-        return $data;
-
     }
 
 
