@@ -10,7 +10,7 @@
             <img src="{{ asset('img/citypasslogo.png') }}">
         </div>
     </div>
-    <form id="form" class="form-login" action="{{ url('oauth/member/authorize') }}" method="POST">
+    <form id="form" class="form-login" action="{{ url('oauth/member/authorize?platform=' . $platform) }}" method="POST">
         <div class="panel panel-default">
             <div class="panel-heading">『{{ $auth_client->name }} 』 想要求以下權限：</div>
             <div class="panel-body">
