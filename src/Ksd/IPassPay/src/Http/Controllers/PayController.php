@@ -10,9 +10,11 @@ namespace Ksd\IPassPay\Http\Controllers;
 use Illuminate\Http\Request;
 use Ksd\IPassPay\Core\Controller\RestLaravelController;
 use Ksd\IPassPay\Services\PayService;
+use Ksd\IPassPay\Services\IpasspayLogService;
 use App\Services\MemberService;
 use Ksd\Mediation\Services\OrderService;
 use Ksd\IPassPay\Parameter\PayParameter;
+use Ksd\IPassPay\Parameter\LogParameter;
 use Ksd\IPassPay\Parameter\CallbackParameter;
 use Ksd\IPassPay\Parameter\OrderParameter;
 use Carbon;
@@ -22,15 +24,17 @@ class PayController extends RestLaravelController
 {
     protected $lang;
     protected $service;
+    protected $logService;
     protected $memberService;
     protected $orderService;
 
     const MAGENTO = 'magento';
     const CITYPASS = 'ct_pass';
 
-    public function __construct(PayService $service, MemberService $memberService, OrderService $orderService)
+    public function __construct(PayService $service, IpasspayLogService $logService, MemberService $memberService, OrderService $orderService)
     {
         $this->service = $service;
+        $this->logService = $logService;
         $this->memberService = $memberService;
         $this->orderService = $orderService;
 
@@ -56,6 +60,11 @@ class PayController extends RestLaravelController
         Log::debug('=== ipass pay 會員驗證失效 ===');
         return $this->failureRedirect($parameter);
       }
+
+      //Log寫入DB
+      $logParameter = new LogParameter;
+      $log = $logParameter->pay($request);
+      $this->logService->create($log);
 
       // EC平台請求支付Token (步驟一)
       try {
@@ -96,6 +105,9 @@ class PayController extends RestLaravelController
       $callbackParameter = new CallbackParameter;
       $callbackParameter->laravelRequest($request);
 
+      //Log寫入DB
+      $this->logService->update($callbackParameter->callback->order_id, ['bindPayCallback' => json_encode($request->all())]);
+
       // 跟ipass確認付款
       $payParameter = new PayParameter;
       $bindPayStatusParameter = $payParameter->bindPayStatus($callbackParameter->callback);
@@ -132,10 +144,13 @@ class PayController extends RestLaravelController
       Log::debug('=== ipass pay failure callback ===');
       Log::debug(print_r($request->all(), true));
 
-      $parameter = new CallbackParameter;
-      $parameter->laravelRequest($request);
+      $callbackParameter = new CallbackParameter;
+      $callbackParameter->laravelRequest($request);
 
-      return $this->failureRedirect($parameter);
+      //Log寫入DB
+      $this->logService->update($callbackParameter->callback->order_id, ['bindPayCallback' => json_encode($request->all())]);
+
+      return $this->failureRedirect($callbackParameter);
     }
 
     private function successRedirect($parameter)

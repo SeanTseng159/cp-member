@@ -430,17 +430,13 @@ class MemberService
         if (empty($token)) return false;
 
         try {
-            $jwtTokenService = new JWTTokenService;
-
-            $tokenData = $jwtTokenService->checkToken($token);
+            $tokenData = (new JWTTokenService)->checkToken($token);
             if (!$tokenData) return false;
 
             //來源為app, 需檢查DB裡的token
             $member = $this->repository->find($tokenData->id);
-            $status = ($member) ? $member->status : 0;
-
-            if ($status == 0) return false;
-
+            if (!$member) return false;
+            if (!$member->status || !$member->isRegistered) return false;
             if ($platform === 'app' && $member->token != $token) return false;
         } catch (Exception $e) {
             return false;
