@@ -29,7 +29,7 @@ class PayService
     	$data = $this->repository->bindPayReq($parameters);
 
     	// 成功
-        $status = ($data->rtnCode == '0');
+        $status = ($data && $data->rtnCode == '0');
 
         return ['status' => $status, 'data' => $data];
     }
@@ -48,7 +48,7 @@ class PayService
             $data = $this->repository->bindPayStatus($parameters);
 
             // 成功
-            $status = ($data->rtnCode == '0');
+            $status = ($data && $data->rtnCode == '0');
         }
 
         return ['status' => $status, 'data' => $data];
@@ -68,7 +68,7 @@ class PayService
             $data = $this->repository->bindRefund($parameters);
 
             // 成功
-            $status = ($data->rtnCode == '0');
+            $status = ($data && $data->rtnCode == '0');
         }
 
         return ['status' => $status, 'data' => $data];
