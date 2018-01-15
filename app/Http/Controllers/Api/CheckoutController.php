@@ -198,7 +198,7 @@ class CheckoutController extends RestLaravelController
         $parameters->laravelRequest($request);
         $result = $this->service->transmit($parameters);
         // 清空magento購物車快取
-        if(!empty($result)) $this->cartService->cleanCacheMagento();
+//        if(!empty($result)) $this->cartService->cleanCacheMagento();
         return !empty($result) ? $this->success($result) : $this->failure('E9003', '刷卡失敗');
     }
 
@@ -215,11 +215,8 @@ class CheckoutController extends RestLaravelController
 
         \Log::debug('=== 台新導向URL ===');
         \Log::debug(print_r($url, true));
-        //台新信用卡交易成功才清除購物車內容
-        if($url['orderFlag']) {
-            $this->cartService->cleanCacheMagento();
-            $this->cartService->cleanCacheCityPass();
-        }
+
+
 
         if($url['platform'] === '2') {
             return '<script>location.href="' . $url['urlData'] . '";</script>';
