@@ -184,7 +184,7 @@ class LayoutRepository extends BaseRepository
     public function cleanCache()
     {
 
-        $this->cacheKey(self::HOME_KEY,null);
+        $this->cacheKey($this->genCacheKey(self::HOME_KEY),null);
 
 /*
         $categoryId = $this->cityPass->getCategoryId();
@@ -257,11 +257,13 @@ class LayoutRepository extends BaseRepository
     private function cacheKey($key=null,$id=null)
     {
         if(!empty($key)) {
-            $this->redis->delete($this->genCacheKey($key));
+            $index_key = "laravel:zh-TW:".$key;
+            $this->redis->delete($this->genCacheKey($index_key));
             $this->home();
         }
         if(!empty($id)) {
-            $this->redis->delete($id);
+            $index_key = "laravel:zh-TW:".$id;
+            $this->redis->delete($index_key);
         }
 
     }
@@ -287,12 +289,12 @@ class LayoutRepository extends BaseRepository
     {
         if($type === "m") {
             $this->redis->remember($key, CacheConfig::LAYOUT_TIME, function () use ($id) {
-                $this->cityPass->category($id);
+                return $this->cityPass->category($id);
             });
         }
         if($type === "s") {
             $this->redis->remember($key, CacheConfig::LAYOUT_TIME, function () use ($id) {
-                $this->cityPass->subcategory($id);
+                return $this->cityPass->subcategory($id);
             });
         }
     }
