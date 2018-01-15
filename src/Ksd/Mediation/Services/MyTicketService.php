@@ -51,7 +51,7 @@ class MyTicketService
     {
         $data = $this->repository->info($parameter);
 
-        if ($data) {
+        if ($data && $data !== 'nodata') {
             foreach ($data as $key => $value) {
                 $member = $this->memberService->find($value['memberId']);
 
@@ -82,7 +82,7 @@ class MyTicketService
     {
         $data = $this->repository->detail($parameter);
 
-        if ($data) {
+        if ($data && $data !== 'nodata') {
             if (isset($data['gift']) && $data['gift']) {
                 $member = $this->memberService->find($data['gift']['memberId']);
 

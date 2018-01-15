@@ -54,7 +54,7 @@ class MyTicketController extends RestLaravelController
         $parameter->laravelRequest($statusId, $request);
         $data = $this->myTicketService->info($parameter);
 
-        return ($data) ? $this->success($data) : $this->failure('E0005', '資料無法取得');
+        return ($data !== 'nodata') ? $this->success($data) : $this->failure('E0005', '資料無法取得');
     }
 
 
@@ -70,7 +70,7 @@ class MyTicketController extends RestLaravelController
         $parameter->laravelRequest($id, $request);
         $data = $this->myTicketService->detail($parameter);
 
-        return ($data) ? $this->success($data) : $this->failure('E0005', '資料無法取得');
+        return ($data !== 'nodata') ? $this->success($data) : $this->failure('E0005', '資料無法取得');
     }
 
 

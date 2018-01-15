@@ -68,11 +68,14 @@ class PayController extends RestLaravelController
 
       // EC平台請求支付Token (步驟一)
       try {
+        Log::debug('=== ipass pay 訂單查詢 ===');
         $order = $this->orderService->findOneByIpassPay($parameter);
         if (!$order) {
           Log::debug('=== ipass pay 訂單不存在 ===');
           return $this->failureRedirect($parameter);
         }
+
+        Log::debug('=== ipass pay 送step 1 ===');
         $bindPayParameter = $parameter->bindPayReq($order);
         $result = $this->service->bindPayReq($bindPayParameter);
 

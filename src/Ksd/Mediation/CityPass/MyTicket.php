@@ -74,7 +74,7 @@ class MyTicket extends Client
         if(!empty($result['data'])) {
             return $result['data'];
         }else{
-            return null;
+            return 'nodata';
         }
     }
 
@@ -95,7 +95,7 @@ class MyTicket extends Client
         if(!empty($result['data'])) {
             return $result['data'];
         }else{
-            return null;
+            return 'nodata';
         }
     }
 
