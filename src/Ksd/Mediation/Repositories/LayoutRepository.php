@@ -289,12 +289,12 @@ class LayoutRepository extends BaseRepository
     {
         if($type === "m") {
             $this->redis->remember($key, CacheConfig::LAYOUT_TIME, function () use ($id) {
-                $this->cityPass->category($id);
+                return $this->cityPass->category($id);
             });
         }
         if($type === "s") {
             $this->redis->remember($key, CacheConfig::LAYOUT_TIME, function () use ($id) {
-                $this->cityPass->subcategory($id);
+                return $this->cityPass->subcategory($id);
             });
         }
     }
