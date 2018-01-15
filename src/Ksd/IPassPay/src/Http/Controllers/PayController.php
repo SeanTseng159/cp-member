@@ -92,7 +92,7 @@ class PayController extends RestLaravelController
         Log::debug(print_r($bindPayParameter, true));
         return view('ipass::pay', ['parameter' => $bindPayParameter]);
       }
-      catch (Exception $e) {
+      catch (\Exception $e) {
         Log::debug('=== ipass pay error ===');
         Log::debug(print_r($e, true));
 

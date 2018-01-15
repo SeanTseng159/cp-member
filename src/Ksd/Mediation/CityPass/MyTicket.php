@@ -71,9 +71,9 @@ class MyTicket extends Client
         $body = $response->getBody();
         $result = json_decode($body, true);
 
-        if(!empty($result['data'])) {
+        if ($result) {
             return $result['data'];
-        }else{
+        } else {
             return 'nodata';
         }
     }
@@ -92,9 +92,9 @@ class MyTicket extends Client
         $body = $response->getBody();
         $result = json_decode($body, true);
 
-        if(!empty($result['data'])) {
+        if ($result) {
             return $result['data'];
-        }else{
+        } else {
             return 'nodata';
         }
     }

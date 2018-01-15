@@ -44,7 +44,7 @@ class IpassPayController extends RestLaravelController
         Log::debug('=== ipass pay refund back ===');
         Log::debug(print_r($result, true));
 
-        if (!$payStatusResult['status']) return $this->failure('E0102', '訂單退款失敗');
+        if (!$result['status']) return $this->failure('E0102', '訂單退款失敗');
 
         //成功
         $callbackParameter = (new RefundParameter)->callbackParameter($result['data']);
