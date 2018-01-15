@@ -9,17 +9,14 @@ use Ksd\Mediation\Services\MyTicketService;
 use Ksd\Mediation\Parameter\MyTicket\InfoParameter;
 use Ksd\Mediation\Parameter\MyTicket\QueryParameter;
 use Ksd\Mediation\Parameter\MyTicket\CatalogIconParameter;
-use App\Services\MemberService;
 
 class MyTicketController extends RestLaravelController
 {
     private $myTicketService;
-    protected $memberService;
 
-    public function __construct(MyTicketService $myTicketService, MemberService $memberService)
+    public function __construct(MyTicketService $myTicketService)
     {
         $this->myTicketService = $myTicketService;
-        $this->memberService = $memberService;
     }
 
     /**
@@ -55,8 +52,9 @@ class MyTicketController extends RestLaravelController
     {
         $parameter = new InfoParameter();
         $parameter->laravelRequest($statusId, $request);
-        return $this->success($this->myTicketService->info($parameter));
+        $data = $this->myTicketService->info($parameter);
 
+        return ($data !== 'nodata') ? $this->success($data) : $this->failure('E0005', '資料無法取得');
     }
 
 
@@ -71,29 +69,8 @@ class MyTicketController extends RestLaravelController
         $parameter = new InfoParameter();
         $parameter->laravelRequest($id, $request);
         $data = $this->myTicketService->detail($parameter);
-        if ($data) {
-            \Log::debug('=== ticket detail ===');
-            \Log::debug(print_r($data, true));
 
-            if (isset($data['gift']) && $data['gift']) {
-                $member = $this->memberService->find($data['gift']['memberId']);
-
-                if ($member) {
-                    $memberData = new \stdClass;
-                    $memberData->name = $member->name;
-                    $memberData->phone = '+' . $member->countryCode . $member->cellphone;
-
-                    $member = $memberData;
-                }
-
-                unset($data['gift']['memberId']);
-                $data['gift']['member'] = $member;
-            }
-
-            return $this->success($data);
-        }
-
-        return $this->failure('E0005', '資料無法取得');
+        return ($data !== 'nodata') ? $this->success($data) : $this->failure('E0005', '資料無法取得');
     }
 
 

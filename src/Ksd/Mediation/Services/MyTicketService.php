@@ -49,7 +49,28 @@ class MyTicketService
      */
     public function info($parameter)
     {
-        return $this->repository->info($parameter);
+        $data = $this->repository->info($parameter);
+
+        if ($data && $data !== 'nodata') {
+            foreach ($data as $key => $value) {
+                $member = $this->memberService->find($value['memberId']);
+
+                if ($member) {
+                    $memberData = new \stdClass;
+                    $memberData->name = $member->name;
+                    $memberData->phone = '+' . $member->countryCode . $member->cellphone;
+
+                    $member = $memberData;
+                }
+
+                unset($data[$key]['memberId']);
+                unset($data[$key]['memberName']);
+                unset($data[$key]['memberPhone']);
+                $data[$key]['member'] = $member;
+            }
+        }
+
+        return $data;
     }
 
     /**
@@ -59,7 +80,26 @@ class MyTicketService
      */
     public function detail($parameter)
     {
-        return $this->repository->detail($parameter);
+        $data = $this->repository->detail($parameter);
+
+        if ($data && $data !== 'nodata') {
+            if (isset($data['gift']) && $data['gift']) {
+                $member = $this->memberService->find($data['gift']['memberId']);
+
+                if ($member) {
+                    $memberData = new \stdClass;
+                    $memberData->name = $member->name;
+                    $memberData->phone = '+' . $member->countryCode . $member->cellphone;
+
+                    $member = $memberData;
+                }
+
+                unset($data['gift']['memberId']);
+                $data['gift']['member'] = $member;
+            }
+        }
+
+        return $data;
     }
 
     /**
