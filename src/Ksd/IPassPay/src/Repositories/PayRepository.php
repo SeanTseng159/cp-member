@@ -19,6 +19,7 @@ class PayRepository extends BaseClient
 
     public function __construct(IpasspayLogRepository $repository)
     {
+        parent::__construct();
         $this->repository = $repository;
     }
 

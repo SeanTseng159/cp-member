@@ -21,7 +21,7 @@ class BaseClient
 
     public function __construct()
     {
-        $this->baseUrl = env('IPASS_PAY_API_PATH', 'https://ipasspay.com.tw/');
+        $this->baseUrl = env('IPASS_PAY_API_PATH', 'https://www.ipasspay.com.tw/');
         $this->client = new GuzzleHttpClient([
             'base_uri' => $this->baseUrl
         ]);
