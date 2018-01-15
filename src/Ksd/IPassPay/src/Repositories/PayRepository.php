@@ -30,13 +30,17 @@ class PayRepository extends BaseClient
      */
     public function bindPayReq($parameters)
     {
-        $response = $this->putParameters($parameters)
-            ->request('POST', 'api/BindPayReq');
-        $responseQueryString = urldecode($response->getBody()->getContents());
+        try {
+            $response = $this->putParameters($parameters)
+                ->request('POST', 'api/BindPayReq');
+            $responseQueryString = urldecode($response->getBody()->getContents());
 
-        $this->repository->update($parameters->order_id, ['bindPayReq' => $responseQueryString]);
+            $this->repository->update($parameters->order_id, ['bindPayReq' => $responseQueryString]);
 
-        return $this->parseQueryString($responseQueryString);
+            return $this->parseQueryString($responseQueryString);
+        } catch (\Exception $e) {
+            return false;
+        }
     }
 
     /**
@@ -46,13 +50,17 @@ class PayRepository extends BaseClient
      */
     public function bindPayStatus($parameters)
     {
-        $response = $this->putParameters($parameters)
-            ->request('POST', 'api/bindPayStatus');
-        $responseQueryString = urldecode($response->getBody()->getContents());
+        try {
+            $response = $this->putParameters($parameters)
+                ->request('POST', 'api/bindPayStatus');
+            $responseQueryString = urldecode($response->getBody()->getContents());
 
-        $this->repository->update($parameters->order_id, ['bindPayStatus' => $responseQueryString]);
+            $this->repository->update($parameters->order_id, ['bindPayStatus' => $responseQueryString]);
 
-        return $this->parseQueryString($responseQueryString);
+            return $this->parseQueryString($responseQueryString);
+        } catch (\Exception $e) {
+            return false;
+        }
     }
 
     /**
@@ -62,12 +70,16 @@ class PayRepository extends BaseClient
      */
     public function bindRefund($parameters)
     {
-        $response = $this->putParameters($parameters)
-            ->request('POST', 'api/BindRefund');
-        $responseQueryString = urldecode($response->getBody()->getContents());
+        try {
+            $response = $this->putParameters($parameters)
+                ->request('POST', 'api/BindRefund');
+            $responseQueryString = urldecode($response->getBody()->getContents());
 
-        $this->repository->update($parameters->order_id, ['bindRefund' => $responseQueryString]);
+            $this->repository->update($parameters->order_id, ['bindRefund' => $responseQueryString]);
 
-        return $this->parseQueryString($responseQueryString);
+            return $this->parseQueryString($responseQueryString);
+        } catch (\Exception $e) {
+            return false;
+        }
     }
 }
