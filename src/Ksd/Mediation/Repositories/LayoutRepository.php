@@ -222,7 +222,7 @@ class LayoutRepository extends BaseRepository
     public function clean($id)
     {
 
-        $key = "category:id:" . $id;
+        $key = "maincategory:id:" . $id;
         $this->cacheKey(null,$key);
         $this->genCache($key,$id,"m");
 
@@ -288,8 +288,8 @@ class LayoutRepository extends BaseRepository
     private function genCache($key,$id,$type)
     {
         if($type === "m") {
-            $this->redis->remember($key, CacheConfig::LAYOUT_TIME, function () use ($id) {
-                return $this->cityPass->category($id);
+            $this->redis->remember("$key", CacheConfig::LAYOUT_TIME, function () use ($id) {
+                return $this->cityPass->maincategory($id);
             });
         }
         if($type === "s") {
