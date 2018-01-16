@@ -103,7 +103,7 @@ class OrderResult
             $this->orderDate = date('Y-m-d H:i:s', strtotime('+8 hours', strtotime($this->arrayDefault($result, 'created_at'))));
             $payment = $this->arrayDefault($result, 'payment');
             $comment = $this->arrayDefault($result, 'status_histories');
-            $this->payment = $this->putMagentoPayment($payment,$comment);
+            $this->payment = $this->putMagentoPayment($payment,$comment,$this->arrayDefault($result, 'entity_id'));
             $this->shipping = [];
             $ship = $this->arrayDefault($result, 'extension_attributes');
             foreach ($this->arrayDefault($ship, 'shipping_assignments', []) as $shipping) {
@@ -203,6 +203,7 @@ class OrderResult
 
             }
         } else {
+
             $this->orderNo = $this->arrayDefault($result, 'orderNo');
             $this->orderAmount = $this->arrayDefault($result, 'orderAmount');
             $this->orderItemAmount = $this->arrayDefault($result, 'orderItemAmount');
@@ -368,9 +369,10 @@ class OrderResult
      * 設定付款資訊
      * @param $payment
      * @param $comment
+     * @param $id
      * @return array
      */
-    private function putMagentoPayment($payment , $comment=null)
+    private function putMagentoPayment($payment , $comment=null, $id=null)
     {
 
         $result = [];
@@ -398,9 +400,20 @@ class OrderResult
 
         if($method === 'ipasspay'){
             $data = !empty($comment) ? explode("&",$comment[0]['comment']) : null;
-            $result['gateway'] = "ipasspay";
-            $result['title'] = $this->paymentTypeTrans($additionalInformation[0], $data);
-            $result['method'] = $this->getPaymentMethod(isset($data[4]) ? $data[4] : null);
+            if(!empty($comment)) {
+                $result['gateway'] = "ipasspay";
+                $result['title'] = $this->paymentTypeTrans($additionalInformation[0], $data);
+                $result['method'] = $this->getPaymentMethod(isset($data[4]) ? $data[4] : null);
+            }else{
+                //comment沒資料，表示沒接受到ipassPay回饋訊息即離開付款，把此筆訂單取消，並將商品加回購物車
+                $order = new Order();
+                $order->getOrder($id);
+                $order->updateOrderState($id,"canceled");
+                $result['gateway'] = "";
+                $result['title'] = "";
+                $result['method'] = "";
+
+            }
         }
         return $result;
     }
@@ -624,7 +637,7 @@ class OrderResult
                     return "atm";
                     break;
                 case null: # iPassPay
-                    return "iPassPay未回傳付款方式(payment_type)";
+                    return "iPassPay";
                     break;
 
             }
