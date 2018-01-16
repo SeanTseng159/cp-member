@@ -4,6 +4,7 @@ namespace App\Console\Commands\Payment\Tspg;
 
 use Carbon\Carbon;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
 use Ksd\Mediation\Config\ProjectConfig;
@@ -47,13 +48,17 @@ class AtmSalesAccount extends Command
     public function handle()
     {
         $directory = env('TSPG_ATM_SALES_ACCOUNT_DIR', storage_path('app/tspg'));
-        $backupDirectory = env('TSPG_ATM_SALES_ACCOUNT_BACKUP_DIR', storage_path('app/tspg/atm/backup'));
         $files = File::allFiles($directory);
         $magentoPayment = new MagentoPayment();
         $cityPassPayment = new CityPassPayment();
 
         foreach ($files as $file) {
             $filename = $file->getBasename();
+            if(Cache::has($this->cacheKey($filename))) {
+                Log::debug("$filename is run");
+                continue;
+            }
+
             $fileTime = $this->fileTime($filename);
             if (!empty($fileTime)) {
                 $fileResource  = fopen($file, "r");
@@ -73,19 +78,15 @@ class AtmSalesAccount extends Command
                     Log::error('city pass fail file:' . $filename);
                 }
                 fclose($fileResource);
-                if (!file_exists($backupDirectory)) {
-                    File::makeDirectory($backupDirectory, 0755, true);
-                }
-                File::move($file->getRealPath(), $backupDirectory . '/' . $filename);
             }
-
+            Cache::forever($this->cacheKey($filename), true);
         }
     }
 
     public function fileTime($filename)
     {
         $prefix = 'TSAC53890045';
-        if(strpos($filename, $prefix) === 0) {
+        if(strpos($filename, $prefix) == 0) {
             return Carbon::parse(mb_substr($filename, 12));
         }
         return null;
@@ -126,5 +127,10 @@ class AtmSalesAccount extends Command
             return trim($str);
         }
         return $str;
+    }
+
+    private function cacheKey($filename)
+    {
+        return sprintf('tspg:atm_sales_account:%s',$filename);
     }
 }

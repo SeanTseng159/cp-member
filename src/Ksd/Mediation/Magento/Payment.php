@@ -21,21 +21,22 @@ class Payment extends Client
                     $this->clear();
                     $response = $this->putParameter('account', $row->customerVirtualAccount)
                         ->request('POST', 'V1/ksd/order/payment');
-                    $saleOrderId = $response->getBody()->getContents();
+                    $body = $response->getBody()->getContents();
+                    $data = [];
+                    eval("\$data = $body;");
+                    if (count($data) > 1) {
+                        $parameter = [
+                            'entity' => [
+                                'entity_id' => intval($data[0]),
+                                'increment_id' => $data[1],
+                                'status' => 'processing',
+                            ]
+                        ];
 
-
-                    $parameter = [
-                        'entity' => [
-                            'entity_id' => intval($saleOrderId),
-                            'status' => 'processing',
-
-                        ]
-                    ];
-
-
-                    $this->clear();
-                    $this->putParameters($parameter);
-                    $this->request('PUT', 'V1/orders/create');
+                        $this->clear();
+                        $this->putParameters($parameter);
+                        $this->request('PUT', 'V1/orders/create');
+                    }
                 } catch (\Exception $e) {
                     Log::error('Magento tspgATMReturn fail: account='. $row->customerVirtualAccount);
                 }
