@@ -18,6 +18,7 @@ use GuzzleHttp\Exception\ClientException;
 use Log;
 use App\Models\TspgPostback;
 use App\Models\TspgResultUrl;
+use Ksd\Mediation\Magento\Order;
 
 class Checkout extends Client
 {
@@ -390,14 +391,17 @@ class Checkout extends Client
                 ]
             ];
         }else{
+            //3D驗證失敗，把訂單狀態改為canceled，並將原訂單重加回購物車
             $parameter = [
                 'entity' => [
                     'entity_id' => $id,
                     'increment_id' => $incrementId,
-                    'status' => 'pending',
+                    'status' => 'canceled',
 
                 ]
             ];
+            $order = new Order();
+            $order->getOrder($id);
 
         }
 
