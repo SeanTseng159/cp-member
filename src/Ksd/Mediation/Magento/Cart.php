@@ -191,6 +191,7 @@ class Cart extends Client
     {
         $cart = $this->detail();
         $items = $cart->items;
+        dd($items);
         $result=false;
         foreach ($parameters as $parameter) {
             $index = $this->filterById($cart->items, $this->parameterItemId($parameter));
