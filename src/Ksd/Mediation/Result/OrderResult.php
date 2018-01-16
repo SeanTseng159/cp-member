@@ -35,7 +35,7 @@ class OrderResult
             $this->orderAmount = $this->arrayDefault($result, 'subtotal') + $this->arrayDefault($result, 'shipping_amount');
             $this->orderDiscountAmount = $this->arrayDefault($result, 'discount_amount');
             $this->orderStatus = $this->getStatus(ProjectConfig::MAGENTO,$this->arrayDefault($result, 'status'));
-            $this->orderStatusCode = $this->getStatusCode($this->arrayDefault($result, 'status'));
+            $this->orderStatusCode = $this->getStatusCode(ProjectConfig::MAGENTO,$this->arrayDefault($result, 'status'));
             $this->orderDate = date('Y-m-d H:i:s', strtotime('+8 hours', strtotime($this->arrayDefault($result, 'created_at'))));
             $payment = $this->arrayDefault($result, 'payment');
             $comment = $this->arrayDefault($result, 'status_histories');
@@ -99,7 +99,7 @@ class OrderResult
             $this->orderItemAmount = $this->arrayDefault($result, 'subtotal');
             $this->orderDiscount = $this->arrayDefault($result, 'discount_amount');
             $this->orderStatus = $this->getStatus(ProjectConfig::MAGENTO,$this->arrayDefault($result, 'status'));
-            $this->orderStatusCode = $this->getStatusCode($this->arrayDefault($result, 'status'));
+            $this->orderStatusCode = $this->getStatusCode(ProjectConfig::MAGENTO,$this->arrayDefault($result, 'status'));
             $this->orderDate = date('Y-m-d H:i:s', strtotime('+8 hours', strtotime($this->arrayDefault($result, 'created_at'))));
             $payment = $this->arrayDefault($result, 'payment');
             $comment = $this->arrayDefault($result, 'status_histories');
@@ -175,8 +175,8 @@ class OrderResult
             $this->orderNo = $this->arrayDefault($result, 'orderNo');
             $this->orderAmount = $this->arrayDefault($result, 'orderAmount');
             $this->orderDiscountAmount = $this->arrayDefault($result, 'orderDiscountAmount');
-            $this->orderStatus = $this->getStatus(ProjectConfig::CITY_PASS,$this->arrayDefault($result, 'orderStatus'));
-            $this->orderStatusCode = $this->arrayDefault($result, 'orderStatus');
+            $this->orderStatus = $this->getStatus(ProjectConfig::CITY_PASS,$this->arrayDefault($result, 'orderStatus'), $this->arrayDefault($result, 'isRePayment'));
+            $this->orderStatusCode = $this->getStatusCode(ProjectConfig::CITY_PASS,$this->arrayDefault($result, 'orderStatus'), $this->arrayDefault($result, 'isRePayment'));
             $this->isRePayment = $this->arrayDefault($result, 'isRePayment');
             $this->orderDate = $this->arrayDefault($result, 'orderDate');
             $this->payment = $this->arrayDefault($result, 'payment');
@@ -208,7 +208,7 @@ class OrderResult
             $this->orderItemAmount = $this->arrayDefault($result, 'orderItemAmount');
             $this->orderDiscount = $this->arrayDefault($result, 'orderDiscount');
             $this->status = $this->getStatus(ProjectConfig::CITY_PASS, $this->arrayDefault($result, 'orderStatus'));
-            $this->statusCode = $this->arrayDefault($result, 'orderStatus');
+            $this->statusCode = $this->getStatusCode(ProjectConfig::CITY_PASS, $this->arrayDefault($result, 'orderStatus'), $this->arrayDefault($result, 'isRePayment'));
             $this->orderDate = $this->arrayDefault($result, 'orderDate');
             $this->payment = $this->arrayDefault($result, 'payment');
             $this->shipment = $this->arrayDefault($result, 'shipment');
@@ -269,7 +269,7 @@ class OrderResult
      * @param $key
      * @return string
      */
-    public function getStatus($source, $key)
+    public function getStatus($source, $key, $isRePayment = false)
     {
 
         if ($source ==='magento') {
@@ -293,8 +293,8 @@ class OrderResult
         } else if($source ==='ct_pass'){
             switch ($key) {
 
-                case '00': # 待付款
-                    return "待付款";
+                case '00': # 重新付款 || 待付款
+                    return ($isRePayment) ? "重新付款" : "待付款";
                     break;
                 case '01': # 已完成
                     return "已完成";
@@ -321,8 +321,9 @@ class OrderResult
      * @param $key
      * @return string
      */
-    public function getStatusCode($key)
+    public function getStatusCode($source, $key, $isRePayment = false)
     {
+        if ($source ==='magento') {
             switch ($key) {
 
                 case 'pending': # 待付款
@@ -341,6 +342,14 @@ class OrderResult
                     return "01";
                     break;
             }
+        } else if($source ==='ct_pass'){
+            # 重新付款
+            if ($key === '00' && $isRePayment) return '07';
+            else return $key;
+        }
+        else {
+            return null;
+        }
 
     }
 
