@@ -57,7 +57,7 @@ class Order extends Client
             $data = [];
             if (!empty($result['items'])) {
                 foreach ($result['items'] as $item) {
-                    if (!$item['state'] === "canceled") ;
+                    if (!$item['state'] === "canceled") ;  //訂單狀態為canceled不顯示
                     $order = new OrderResult();
                     $order->magento($item);
                     $data[] = (array)$order;
@@ -385,22 +385,26 @@ class Order extends Client
                 $result = json_decode($response->getBody(), true);
                 return (isset($result)) ? true : false;
             }else{
-                //三種ACCLINK、CREDIT、ECAC可重新付款，把原訂單品項加回購物車，再重新結帳
+                //三種ACCLINK、CREDIT、ECAC可重新付款，把原訂單變成canceled，並將原品項加回購物車，再重新結帳
                 if($parameters->payment_type =='ACCLINK' || $parameters->payment_type =='CREDIT' || $parameters->payment_type =='ECAC'){
                     $this->getOrder($parameters->orderNo);
-                }
-                $ipassParameter = [
-                    'entity' => [
-                        'entity_id' => $id,
-                        'status' => 'canceled',
-                    ]
-                ];
-                $this->putParameters($ipassParameter);
-                $response = $this->request('PUT', 'V1/orders/create');
-                $result = json_decode($response->getBody(), true);
-                return (isset($result)) ? true : false;
-            }
 
+                    $ipassParameter = [
+                        'entity' => [
+                            'entity_id' => $id,
+                            'status' => 'canceled',
+                        ]
+                    ];
+                    $this->putParameters($ipassParameter);
+                    $response = $this->request('PUT', 'V1/orders/create');
+                    $result = json_decode($response->getBody(), true);
+                    return (isset($result)) ? true : false;
+
+                }else{// VACC、WEBATM、BARCODE，parameters->status === "N"，訂單狀態為pending(待付款)，故不做處理
+                    return true;
+                }
+
+            }
 
         } else {
             $parameter = [
@@ -423,38 +427,63 @@ class Order extends Client
     /**
      * 根據訂單 id 把品項加回購物車(處理iPassPay重新付款)
      * @param $id
+     * @return  bool
      */
     public function getOrder($id)
     {
+        if(!empty($id)) {
+            $path = sprintf('V1/orders/%s', $id);
+            $response = $this->request('GET', $path);
+            $body = $response->getBody();
+            $result = json_decode($body, true);
 
-        $path = sprintf('V1/orders/%s', $id);
-        $response = $this->request('GET', $path);
-        $body = $response->getBody();
-        $result = json_decode($body, true);
 
+            //
+            $member = $this->member->whereEmail($result['customer_email'])->first();
+            if (isset($member)) {
+                $token = $this->magentoCustomer->token($member);
+                $this->cart->authorization($token)->createEmpty();
+                $cart = [];
+                foreach ($result['items'] as $items) {
+                    $parameter = [
+                        'id' => $items['sku'],
+                        'source' => 'magento',
+                        'quantity' => $items['qty_ordered'],
+                        'additionals' => [],
+                        'purchase' => [],
 
-        //
-        $member = $this->member->whereEmail($result['customer_email'])->first();
-        if(isset($member)) {
-            $token = $this->magentoCustomer->token($member);
-            $this->cart->authorization($token)->createEmpty();
-            $cart = [];
-            foreach ($result['items'] as $items) {
-                $parameter = [
-                    'id' => $items['sku'],
-                    'source' => 'magento',
-                    'quantity' => $items['qty_ordered'],
-                    'additionals' => [],
-                    'purchase' => [],
+                    ];
 
-                ];
-
-                array_push($cart, $parameter);
+                    array_push($cart, $parameter);
+                }
+                $this->cart->authorization($token)->add($cart);
             }
-            $this->cart->authorization($token)->add($cart);
         }
+        return true;
     }
 
+    /**
+     * 更改訂單狀態
+     * @param $id
+     * @param $status
+     * @return  bool
+     */
+    public function updateOrderState($id,$status)
+    {
+        if(!empty($id) && !empty($status)) {
+            $parameter = [
+                'entity' => [
+                    'entity_id' => $id,
+                    'status' => $status,
+
+                ]
+            ];
+            $this->putParameters($parameter);
+            $response = $this->request('PUT', 'V1/orders/create');
+            $result = json_decode($response->getBody(), true);
+        }
+        return true;
+    }
 
 
 }
