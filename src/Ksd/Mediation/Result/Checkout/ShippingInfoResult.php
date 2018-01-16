@@ -39,6 +39,8 @@ class ShippingInfoResult
         if(isset($key)) {
             if($key === 'flatrate_flatrate'){
                 return "delivery";
+            }else{
+                return "delivery";
             }
         }else{
             return "delivery";
