@@ -75,6 +75,9 @@ class PayRepository extends BaseClient
                 ->request('POST', 'api/BindRefund');
             $responseQueryString = urldecode($response->getBody()->getContents());
 
+            \Log::debug('=== ipaypass refund ===');
+            \Log::debug(print_r($this->parseQueryString($responseQueryString), true));
+
             $this->repository->update($parameters->order_id, ['bindRefund' => $responseQueryString]);
 
             return $this->parseQueryString($responseQueryString);
