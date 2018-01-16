@@ -7,6 +7,8 @@ use Illuminate\Console\Command;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
 use Ksd\Mediation\Config\ProjectConfig;
+use Ksd\Mediation\Magento\Payment as MagentoPayment;
+use Ksd\Mediation\CityPass\Payment as CityPassPayment;
 
 class AtmSalesAccount extends Command
 {
@@ -45,23 +47,48 @@ class AtmSalesAccount extends Command
     public function handle()
     {
         $directory = env('TSPG_ATM_SALES_ACCOUNT_DIR', storage_path('app/tspg'));
+        $backupDirectory = env('TSPG_ATM_SALES_ACCOUNT_BACKUP_DIR', storage_path('app/tspg/atm/backup'));
         $files = File::allFiles($directory);
+        $magentoPayment = new MagentoPayment();
+        $cityPassPayment = new CityPassPayment();
 
         foreach ($files as $file) {
-            $fileResource  = fopen($file, "r");
-            if ($fileResource) {
-                $result = [ProjectConfig::MAGENTO => [], ProjectConfig::CITY_PASS => []];
-                while (($line = fgets($fileResource)) !== false) {
-                    $row = $this->processData($line);
-                    if(strrpos($row->customerVirtualAccount, self::CITY_PASS_BUSINESS_CODE) !== false) {
-                        $result[ProjectConfig::CITY_PASS][] = $row;
-                    } else if(strrpos($row->customerVirtualAccount, self::MAGENTO_BUSINESS_CODE) !== false) {
-                        $result[ProjectConfig::MAGENTO][] = $row;
+            $filename = $file->getBasename();
+            $fileTime = $this->fileTime($filename);
+            if (!empty($fileTime)) {
+                $fileResource  = fopen($file, "r");
+                if ($fileResource) {
+                    $result = [ProjectConfig::MAGENTO => [], ProjectConfig::CITY_PASS => []];
+                    while (($line = fgets($fileResource)) !== false) {
+                        $row = $this->processData($line);
+                        if(strrpos($row->customerVirtualAccount, self::CITY_PASS_BUSINESS_CODE) !== false) {
+                            $result[ProjectConfig::CITY_PASS][] = $row;
+                        } else if(strrpos($row->customerVirtualAccount, self::MAGENTO_BUSINESS_CODE) !== false) {
+                            $result[ProjectConfig::MAGENTO][] = $row;
+                        }
                     }
                 }
+                $magentoPayment->tspgATMReturn($result[ProjectConfig::MAGENTO]);
+                if(!$cityPassPayment->tspgATMReturn($result[ProjectConfig::CITY_PASS])) {
+                    Log::error('city pass fail file:' . $filename);
+                }
+                fclose($fileResource);
+                if (!file_exists($backupDirectory)) {
+                    File::makeDirectory($backupDirectory, 0755, true);
+                }
+                File::move($file->getRealPath(), $backupDirectory . '/' . $filename);
             }
-            fclose($fileResource);
+
         }
+    }
+
+    public function fileTime($filename)
+    {
+        $prefix = 'TSAC53890045';
+        if(strpos($filename, $prefix) === 0) {
+            return Carbon::parse(mb_substr($filename, 12));
+        }
+        return null;
     }
 
     /**
@@ -79,16 +106,25 @@ class AtmSalesAccount extends Command
         $atm->transactionTime = mb_substr($line, 33 , 6);
         $atm->transactionSerial = mb_substr($line, 26 , 6);
         $atm->clearMark = mb_substr($line, 32 , 1);
-        $atm->transactionType = mb_substr($line, 39 , 4);
-        $atm->amount = mb_substr($line, 43 , 12);
+        $atm->transactionType = $this->mdSubstr($line, 39 , 4);
+        $atm->amount = $this->mdSubstr($line, 43 , 12);
         $atm->amountSign = mb_substr($line, 55 , 1);
         $atm->loanType = mb_substr($line, 56 , 1);
-        $atm->customerVirtualAccount = mb_substr($line, 57 , 16);
-        $atm->idNumber = mb_substr($line, 73 , 10);
+        $atm->customerVirtualAccount = $this->mdSubstr($line, 57 , 14);
+        $atm->idNumber = $this->mdSubstr($line, 73 , 10);
         $atm->exportBank = mb_substr($line, 83 , 3);
-        $atm->memorandum = mb_substr($line, 86 , 20);
+        $atm->memorandum = $this->mdSubstr($line, 86 , 20);
         $atm->status = mb_substr($line, 124 , 1);
-        $atm->retention = mb_substr($line, 106 , 18);
+        $atm->retention = $this->mdSubstr($line, 106 , 18);
         return $atm;
+    }
+
+    private function mdSubstr($line, $start, $length, $isTrim = true)
+    {
+        $str = mb_substr($line, $start, $length);
+        if ($isTrim) {
+            return trim($str);
+        }
+        return $str;
     }
 }
