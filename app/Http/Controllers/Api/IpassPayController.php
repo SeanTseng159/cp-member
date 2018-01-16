@@ -5,7 +5,7 @@
  * Time: 下午2:20
  */
 
-namespace Ksd\IPassPay\Http\Controllers;
+namespace App\Http\Controllers\Api;
 
 use Illuminate\Http\Request;
 use Ksd\Mediation\Core\Controller\RestLaravelController;
