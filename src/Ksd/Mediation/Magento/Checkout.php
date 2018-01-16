@@ -123,8 +123,8 @@ class Checkout extends Client
         }else if($parameters->payment()->type === 'ipass_pay'){
             return $this->putPayment($parameters);
         }else if($parameters->payment()->type === 'credit_card'){
-            $response = $this->request('post', 'V1/ksd/mine/order');
-            return [ 'id' => trim($response->getBody(), '"')];
+            $id = date("YmdHis");
+            return [ 'id' => date($id)];
         }else{
             return null;
         }
@@ -377,12 +377,14 @@ class Checkout extends Client
 
         $id = $data->order_id;
         $ret_code = $parameters->ret_code;
-
+        $str =  explode("_",$parameters->order_no);
+        $incrementId = $str[1];
         //付款成功
         if($ret_code === "00") {
             $parameter = [
                 'entity' => [
                     'entity_id' => $id,
+                    'increment_id' => $incrementId,
                     'status' => 'processing',
 
                 ]
@@ -391,6 +393,7 @@ class Checkout extends Client
             $parameter = [
                 'entity' => [
                     'entity_id' => $id,
+                    'increment_id' => $incrementId,
                     'status' => 'pending',
 
                 ]
@@ -442,6 +445,17 @@ class Checkout extends Client
 
 
         return true;
+    }
+
+    /**
+     * 建立隨機ID
+     * @param $key
+     * @return string
+     */
+    private function genCacheKey($key)
+    {
+        $date = new \DateTime();
+        return sprintf($key,$date->format('Ymd'));
     }
 
 

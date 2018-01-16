@@ -103,7 +103,7 @@ class OrderResult
             $this->orderDate = date('Y-m-d H:i:s', strtotime('+8 hours', strtotime($this->arrayDefault($result, 'created_at'))));
             $payment = $this->arrayDefault($result, 'payment');
             $comment = $this->arrayDefault($result, 'status_histories');
-            $this->payment = $this->putMagentoPayment($payment,$comment,$this->arrayDefault($result, 'entity_id'));
+            $this->payment = $this->putMagentoPayment($payment,$comment,$this->arrayDefault($result, 'entity_id'),$this->arrayDefault($result, 'increment_id'));
             $this->shipping = [];
             $ship = $this->arrayDefault($result, 'extension_attributes');
             foreach ($this->arrayDefault($ship, 'shipping_assignments', []) as $shipping) {
@@ -372,7 +372,7 @@ class OrderResult
      * @param $id
      * @return array
      */
-    private function putMagentoPayment($payment , $comment=null, $id=null)
+    private function putMagentoPayment($payment , $comment=null, $id=null, $incrementId=null)
     {
 
         $result = [];
@@ -408,7 +408,7 @@ class OrderResult
                 //comment沒資料，表示沒接受到ipassPay回饋訊息即離開付款，把此筆訂單取消，並將商品加回購物車
                 $order = new Order();
                 $order->getOrder($id);
-                $order->updateOrderState($id,"canceled");
+                $order->updateOrderState($id,$incrementId,"canceled");
                 $result['gateway'] = "";
                 $result['title'] = "";
                 $result['method'] = "";
