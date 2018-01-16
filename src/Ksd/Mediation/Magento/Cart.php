@@ -54,14 +54,13 @@ class Cart extends Client
         $result = [];
         $totalResult = null;
         try {
-            $responseData = $this->request('GET', 'V1/carts/mine');
-            $resultData = json_decode($responseData->getBody(), true);
-            $totalResult = $this->totals();
+                $responseData = $this->request('GET', 'V1/carts/mine');
+                $resultData = json_decode($responseData->getBody(), true);
+                $totalResult = $this->totals();
+                $this->updateCart($resultData['id']);
 
-            $this->updateCart($resultData['id']);
-
-            $response = $this->request('GET', 'V1/carts/mine');
-            $result = json_decode($response->getBody(), true);
+                $response = $this->request('GET', 'V1/carts/mine');
+                $result = json_decode($response->getBody(), true);
 
 
         } catch (ClientException $e) {
@@ -105,7 +104,7 @@ class Cart extends Client
                     "country_id" => "TW",
                 ]
         ];
-        $response = $this->putParameters($parameter)->request('post', 'V1/carts/mine/billing-address');
+        $this->putParameters($parameter)->request('post', 'V1/carts/mine/billing-address');
 
         return true;
     }
@@ -118,12 +117,15 @@ class Cart extends Client
     public function add($parameters)
     {
 
-        $cart = $this->detail();
+        $response = $this->request('GET', 'V1/carts/mine');
+        $result = json_decode($response->getBody(), true);
+        $cartId = $result['id'];
+
         $data = ['quote' => [
             'items' => []
         ]];
-        if (!empty($cart->id)) {
-            $data['quote']['id'] = $cart->id;
+        if (!empty($cartId)) {
+            $data['quote']['id'] = $cartId;
 
         } else {
             $data['quote']['id'] = $this->createEmpty();
