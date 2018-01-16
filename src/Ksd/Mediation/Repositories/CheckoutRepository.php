@@ -136,19 +136,24 @@ class CheckoutRepository extends BaseRepository
         $data = $this->tspgPostbackService->find($parameters->order_no);
 
         $orderFlag = ($parameters->ret_code === "00");
+        $updateData=[];
         //更新訂單狀態
         if ($data->order_source === "magento"){
             $this->magento->updateOrder($data,$parameters);
         }
-        elseif ($data->order_source === "ct_pass"){
+        else if ($data->order_source === "ct_pass"){
             $this->cityPass->authorization($this->generateToken())->updateOrder($parameters);
+        }else{
+            $updateData=[
+                'OrderMessage'=>'更新訂單失敗'
+            ];
         }
 
         //依需求是否實作錯誤訊息
         $requestData=[
             'ErrorMessage'=>'付款失敗'
         ];
-
+        $requestData=array_merge($updateData,$requestData);
         $lang = env('APP_LANG');
         $url = env('CITY_PASS_WEB') . $lang;
 

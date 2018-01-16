@@ -70,6 +70,7 @@ class ProductResult
                     ];
                 }
             }
+            $this->isBook = false;
         }
     }
 
@@ -182,7 +183,7 @@ class ProductResult
         ];
         if ($isDetail) {
             $detailColumns = [
-                'saleStatus', 'saleStatusCode', 'canUseCoupon', 'quantity', 'contents', 'additionals', 'purchase','imageUrls',
+                'saleStatus', 'saleStatusCode', 'canUseCoupon', 'quantity', 'contents', 'additionals', 'purchase','imageUrls', 'isBook'
             ];
             $columns = array_merge($columns, $detailColumns);
         }
