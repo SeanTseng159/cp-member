@@ -117,16 +117,13 @@ class Cart extends Client
     public function add($parameters)
     {
 
-        $response = $this->request('GET', 'V1/carts/mine');
-        $result = json_decode($response->getBody(), true);
-        $cartId = $result['id'];
+        $cart = $this->detail();
 
         $data = ['quote' => [
             'items' => []
         ]];
-        if (!empty($cartId)) {
-            $data['quote']['id'] = $cartId;
-
+        if (!empty($cart->id)) {
+            $data['quote']['id'] = $cart->id;
         } else {
             $data['quote']['id'] = $this->createEmpty();
         }
