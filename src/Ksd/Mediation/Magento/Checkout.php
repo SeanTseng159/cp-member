@@ -377,12 +377,14 @@ class Checkout extends Client
 
         $id = $data->order_id;
         $ret_code = $parameters->ret_code;
-
+        $str =  explode("_",$parameters->order_no);
+        $incrementId = $str[1];
         //付款成功
         if($ret_code === "00") {
             $parameter = [
                 'entity' => [
                     'entity_id' => $id,
+                    'increment_id' => $incrementId,
                     'status' => 'processing',
 
                 ]
@@ -391,6 +393,7 @@ class Checkout extends Client
             $parameter = [
                 'entity' => [
                     'entity_id' => $id,
+                    'increment_id' => $incrementId,
                     'status' => 'pending',
 
                 ]
