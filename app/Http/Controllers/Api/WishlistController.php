@@ -30,7 +30,6 @@ class WishlistController extends RestLaravelController
     /**
      * 根據商品id 增加商品至收藏清單
      * @param Request $request
-     * @param $id
      * @return \Illuminate\Http\JsonResponse
      */
     public function add(Request $request)

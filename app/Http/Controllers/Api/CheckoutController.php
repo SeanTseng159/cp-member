@@ -64,14 +64,6 @@ class CheckoutController extends RestLaravelController
         $parameters->laravelRequest($request);
         $result = $this->service->confirm($parameters);
 
-        if($result) {
-            // 清空ct_pass購物車快取
-            $this->cartService->cleanCacheCityPass();
-            if($parameters->source === 'magento' && $parameters->payment()->type === 'atm'){
-                // 清空ct_pass購物車快取
-                $this->cartService->cleanCacheMagento();
-            }
-        }
         return ($result) ? $this->success($result) : $this->failure('E9001', '結帳(取單號)失敗');
     }
 

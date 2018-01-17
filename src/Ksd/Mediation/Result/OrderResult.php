@@ -208,8 +208,8 @@ class OrderResult
             $this->orderAmount = $this->arrayDefault($result, 'orderAmount');
             $this->orderItemAmount = $this->arrayDefault($result, 'orderItemAmount');
             $this->orderDiscount = $this->arrayDefault($result, 'orderDiscount');
-            $this->status = $this->getStatus(ProjectConfig::CITY_PASS, $this->arrayDefault($result, 'orderStatus'));
-            $this->statusCode = $this->getStatusCode(ProjectConfig::CITY_PASS, $this->arrayDefault($result, 'orderStatus'), $this->arrayDefault($result, 'isRePayment'));
+            $this->orderStatus = $this->getStatus(ProjectConfig::CITY_PASS, $this->arrayDefault($result, 'orderStatus'));
+            $this->orderStatusCode = $this->getStatusCode(ProjectConfig::CITY_PASS, $this->arrayDefault($result, 'orderStatus'), $this->arrayDefault($result, 'isRePayment'));
             $this->orderDate = $this->arrayDefault($result, 'orderDate');
             $this->payment = $this->arrayDefault($result, 'payment');
             $this->shipment = $this->arrayDefault($result, 'shipment');
@@ -284,7 +284,7 @@ class OrderResult
                 case 'holded': # 退貨處理中
                     return "退貨處理中";
                     break;
-                case 'cancel': # 已退貨
+                case 'canceled': # 已退貨
                     return "已退貨";
                     break;
                 case 'processing': # 付款成功(前台顯示已完成)，尚未出貨
@@ -336,7 +336,7 @@ class OrderResult
                 case 'holded': # 退貨處理中
                     return "04";
                     break;
-                case 'cancel': # 已退貨
+                case 'canceled': # 已退貨
                     return "03";
                     break;
                 case 'processing': # 已完成(完成付款)
@@ -387,7 +387,10 @@ class OrderResult
                 'bankId' => $this->arrayDefault($additionalInformation, 1),
                 'virtualAccount' => $this->arrayDefault($additionalInformation, 2),
                 'amount' => $this->arrayDefault($additionalInformation, 3),
-                'paymentPeriod' => $this->arrayDefault($additionalInformation, 4)
+                'paymentPeriod' => $this->arrayDefault($additionalInformation, 4),
+                'gateway' => "tspg",
+                'method' => "atm",
+                'title' => "ATM虛擬帳號"
             ];
         }
 
@@ -488,7 +491,7 @@ class OrderResult
                 case 'holded': # 退貨處理中
                     return "退貨處理中";
                     break;
-                case 'cancel': # 已退貨
+                case 'canceled': # 已退貨
                     return "已退貨";
                     break;
                 case 'processing': # 付款成功(前台顯示已完成)，尚未出貨
@@ -598,7 +601,7 @@ class OrderResult
             case 'holded': # 退貨處理中
                 return "04";
                 break;
-            case 'cancel': # 已退貨
+            case 'canceled': # 已退貨
                 return "03";
                 break;
             case 'processing': # 處理中
