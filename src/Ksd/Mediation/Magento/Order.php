@@ -438,7 +438,6 @@ class Order extends Client
             $body = $response->getBody();
             $result = json_decode($body, true);
 
-            dd($result);
             //
             $member = $this->member->whereEmail($result['customer_email'])->first();
             if (isset($member)) {
