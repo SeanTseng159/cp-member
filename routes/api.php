@@ -35,8 +35,6 @@ Route::middleware(['cors', 'admin.jwt'])->namespace('Api')->group(function () {
     Route::prefix('notification')->group(function () {
         //後台發送推播訊息
         Route::post('send', 'NotificationController@send');
-        //取所有訊息
-        Route::get('all', 'NotificationController@allMessage');
         //訊息資料查詢
         Route::get('query/{id}', 'NotificationController@queryMessage');
     });
@@ -143,6 +141,8 @@ Route::middleware(['cors', 'auth.jwt'])->namespace('Api')->group(function () {
     Route::prefix('notification')->group(function () {
         //手機註冊推播token
         Route::post('register', 'NotificationController@register');
+        //取所有訊息
+        Route::get('all', 'NotificationController@allMessage');
     });
 
 });
@@ -226,6 +226,11 @@ Route::middleware('cors')->namespace('Api')->group(function () {
         Route::get('catalogIcon',   'MyTicketController@catalogIcon');
         //票券使用說明
         Route::get('help',   'MyTicketController@help');
+    });
+
+    Route::prefix('ipasspay')->group(function () {
+        //退款
+        Route::post('payNotify', 'IpassPayController@payNotify');
     });
 
 });

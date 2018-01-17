@@ -19,16 +19,13 @@ class IpassPayController extends RestLaravelController
 {
     protected $service;
 
-    const MAGENTO = 'magento';
-    const CITYPASS = 'ct_pass';
-
     public function __construct(PayService $service)
     {
         $this->service = $service;
     }
 
     /**
-     * refund
+     * refund 退款
      * @param Request $request
      * @return \Illuminate\Http\JsonResponse
      */
@@ -56,5 +53,15 @@ class IpassPayController extends RestLaravelController
 
         return $this->failure('E0102', '訂單退款失敗');
       }
+    }
+
+    /**
+     * payNotify 入帳通知
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function payNotify(Request $request)
+    {
+      return response()->json(['rtnCode' => -9999]);
     }
 }
