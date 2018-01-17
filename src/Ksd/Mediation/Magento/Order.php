@@ -465,15 +465,17 @@ class Order extends Client
     /**
      * 更改訂單狀態
      * @param $id
+     * @param $incrementId
      * @param $status
      * @return  bool
      */
-    public function updateOrderState($id,$status)
+    public function updateOrderState($id,$incrementId,$status)
     {
         if(!empty($id) && !empty($status)) {
             $parameter = [
                 'entity' => [
                     'entity_id' => $id,
+                    'increment_id' => $incrementId,
                     'status' => $status,
 
                 ]
