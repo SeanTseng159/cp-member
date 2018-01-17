@@ -55,6 +55,9 @@ class Cart extends Client
         $result = [];
         $totalResult = null;
         try {
+            $responseData = $this->request('GET', 'V1/carts/mine');
+            $resultData = json_decode($responseData->getBody(), true);
+            $this->updateCart($resultData['id']);
 
             $response = $this->request('GET', 'V1/carts/mine');
             $result = json_decode($response->getBody(), true);
@@ -114,21 +117,16 @@ class Cart extends Client
     public function add($parameters)
     {
 
- //       $cart = $this->detail();
+        $cart = $this->detail();
 
         $data = ['quote' => [
             'items' => []
         ]];
-
-        try {
-            $response = $this->request('GET', 'V1/carts/mine');
-            $result = json_decode($response->getBody(), true);
-            $cartId = $result['id'];
-            $data['quote']['id'] = $cartId;
-        }catch(ClientException $e) {
+        if (!empty($cart->id)) {
+            $data['quote']['id'] = $cart->id;
+        } else {
             $data['quote']['id'] = $this->createEmpty();
         }
-
         foreach ($parameters as $item) {
             $row = new \stdClass();
             $row->sku = $this->parameterItemId($item);
