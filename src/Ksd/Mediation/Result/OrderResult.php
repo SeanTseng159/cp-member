@@ -284,7 +284,7 @@ class OrderResult
                 case 'holded': # 退貨處理中
                     return "退貨處理中";
                     break;
-                case 'cancel': # 已退貨
+                case 'canceled': # 已退貨
                     return "已退貨";
                     break;
                 case 'processing': # 付款成功(前台顯示已完成)，尚未出貨
@@ -336,7 +336,7 @@ class OrderResult
                 case 'holded': # 退貨處理中
                     return "04";
                     break;
-                case 'cancel': # 已退貨
+                case 'canceled': # 已退貨
                     return "03";
                     break;
                 case 'processing': # 已完成(完成付款)
@@ -488,7 +488,7 @@ class OrderResult
                 case 'holded': # 退貨處理中
                     return "退貨處理中";
                     break;
-                case 'cancel': # 已退貨
+                case 'canceled': # 已退貨
                     return "已退貨";
                     break;
                 case 'processing': # 付款成功(前台顯示已完成)，尚未出貨
@@ -598,7 +598,7 @@ class OrderResult
             case 'holded': # 退貨處理中
                 return "04";
                 break;
-            case 'cancel': # 已退貨
+            case 'canceled': # 已退貨
                 return "03";
                 break;
             case 'processing': # 處理中
