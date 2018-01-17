@@ -208,8 +208,8 @@ class OrderResult
             $this->orderAmount = $this->arrayDefault($result, 'orderAmount');
             $this->orderItemAmount = $this->arrayDefault($result, 'orderItemAmount');
             $this->orderDiscount = $this->arrayDefault($result, 'orderDiscount');
-            $this->status = $this->getStatus(ProjectConfig::CITY_PASS, $this->arrayDefault($result, 'orderStatus'));
-            $this->statusCode = $this->getStatusCode(ProjectConfig::CITY_PASS, $this->arrayDefault($result, 'orderStatus'), $this->arrayDefault($result, 'isRePayment'));
+            $this->orderStatus = $this->getStatus(ProjectConfig::CITY_PASS, $this->arrayDefault($result, 'orderStatus'));
+            $this->orderStatusCode = $this->getStatusCode(ProjectConfig::CITY_PASS, $this->arrayDefault($result, 'orderStatus'), $this->arrayDefault($result, 'isRePayment'));
             $this->orderDate = $this->arrayDefault($result, 'orderDate');
             $this->payment = $this->arrayDefault($result, 'payment');
             $this->shipment = $this->arrayDefault($result, 'shipment');
