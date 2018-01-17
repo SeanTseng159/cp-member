@@ -387,7 +387,10 @@ class OrderResult
                 'bankId' => $this->arrayDefault($additionalInformation, 1),
                 'virtualAccount' => $this->arrayDefault($additionalInformation, 2),
                 'amount' => $this->arrayDefault($additionalInformation, 3),
-                'paymentPeriod' => $this->arrayDefault($additionalInformation, 4)
+                'paymentPeriod' => $this->arrayDefault($additionalInformation, 4),
+                'gateway' => "tspg",
+                'method' => "atm",
+                'title' => "ATM虛擬帳號"
             ];
         }
 
