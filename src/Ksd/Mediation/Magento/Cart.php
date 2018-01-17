@@ -51,15 +51,14 @@ class Cart extends Client
      */
     public function detail()
     {
+
         $result = [];
         $totalResult = null;
         try {
 
-            $totalResult = $this->totals();
-
             $response = $this->request('GET', 'V1/carts/mine');
             $result = json_decode($response->getBody(), true);
-
+            $totalResult = $this->totals();
 
         } catch (ClientException $e) {
             // TODO:處理抓取不到購物車資料
