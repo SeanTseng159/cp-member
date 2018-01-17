@@ -57,10 +57,11 @@ class Order extends Client
             $data = [];
             if (!empty($result['items'])) {
                 foreach ($result['items'] as $item) {
-                    if (!$item['state'] === "canceled") ;  //訂單狀態為canceled不顯示
-                    $order = new OrderResult();
-                    $order->magento($item);
-                    $data[] = (array)$order;
+                    if ($item['status'] !== "canceled") { //訂單狀態為canceled不顯示
+                        $order = new OrderResult();
+                        $order->magento($item);
+                        $data[] = (array)$order;
+                    }
                 }
             }
 
@@ -286,7 +287,6 @@ class Order extends Client
         $response = $this->request('GET', $path);
         $body = $response->getBody();
         $result = json_decode($body, true);
-
         $data = [];
         $order = new OrderResult();
         $order->magento($result,true);
@@ -431,13 +431,14 @@ class Order extends Client
      */
     public function getOrder($id)
     {
+
         if(!empty($id)) {
             $path = sprintf('V1/orders/%s', $id);
             $response = $this->request('GET', $path);
             $body = $response->getBody();
             $result = json_decode($body, true);
 
-
+            dd($result);
             //
             $member = $this->member->whereEmail($result['customer_email'])->first();
             if (isset($member)) {
