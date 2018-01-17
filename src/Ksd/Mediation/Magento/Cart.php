@@ -55,9 +55,9 @@ class Cart extends Client
         $result = [];
         $totalResult = null;
         try {
-//            $responseData = $this->request('GET', 'V1/carts/mine');
-//            $resultData = json_decode($responseData->getBody(), true);
-//            $this->updateCart($resultData['id']);
+            $responseData = $this->request('GET', 'V1/carts/mine');
+            $resultData = json_decode($responseData->getBody(), true);
+            $this->updateCart($resultData['id']);
 
             $response = $this->request('GET', 'V1/carts/mine');
             $result = json_decode($response->getBody(), true);
