@@ -45,6 +45,9 @@ class ProductResult
         $this->productId = $this->arrayDefault($result, 'id');
         $this->customAttributes = $this->arrayDefault($result, 'custom_attributes');
         $this->isWishlist = false;
+        $this->updatedAt = $this->arrayDefault($result, 'updated_at');
+        $this->status = $this->arrayDefault($result, 'status');
+
         if ($isDetail) {
             $this->contents = [
                 [
