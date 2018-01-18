@@ -45,6 +45,9 @@ class ProductResult
         $this->productId = $this->arrayDefault($result, 'id');
         $this->customAttributes = $this->arrayDefault($result, 'custom_attributes');
         $this->isWishlist = false;
+        $this->updatedAt = $this->arrayDefault($result, 'updated_at');
+        $this->status = $this->arrayDefault($result, 'status');
+
         if ($isDetail) {
             $this->contents = [
                 [
@@ -70,6 +73,7 @@ class ProductResult
                     ];
                 }
             }
+            $this->isBook = false;
         }
     }
 
@@ -182,7 +186,7 @@ class ProductResult
         ];
         if ($isDetail) {
             $detailColumns = [
-                'saleStatus', 'saleStatusCode', 'canUseCoupon', 'quantity', 'contents', 'additionals', 'purchase','imageUrls',
+                'saleStatus', 'saleStatusCode', 'canUseCoupon', 'quantity', 'contents', 'additionals', 'purchase','imageUrls', 'isBook'
             ];
             $columns = array_merge($columns, $detailColumns);
         }

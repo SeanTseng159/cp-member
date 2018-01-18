@@ -51,18 +51,17 @@ class Cart extends Client
      */
     public function detail()
     {
+
         $result = [];
         $totalResult = null;
         try {
             $responseData = $this->request('GET', 'V1/carts/mine');
             $resultData = json_decode($responseData->getBody(), true);
-            $totalResult = $this->totals();
-
             $this->updateCart($resultData['id']);
 
             $response = $this->request('GET', 'V1/carts/mine');
             $result = json_decode($response->getBody(), true);
-
+            $totalResult = $this->totals();
 
         } catch (ClientException $e) {
             // TODO:處理抓取不到購物車資料
@@ -105,7 +104,7 @@ class Cart extends Client
                     "country_id" => "TW",
                 ]
         ];
-        $response = $this->putParameters($parameter)->request('post', 'V1/carts/mine/billing-address');
+        $this->putParameters($parameter)->request('post', 'V1/carts/mine/billing-address');
 
         return true;
     }
@@ -119,12 +118,12 @@ class Cart extends Client
     {
 
         $cart = $this->detail();
+
         $data = ['quote' => [
             'items' => []
         ]];
         if (!empty($cart->id)) {
             $data['quote']['id'] = $cart->id;
-
         } else {
             $data['quote']['id'] = $this->createEmpty();
         }

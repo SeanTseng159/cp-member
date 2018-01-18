@@ -41,13 +41,13 @@ class Wishlist extends Client
 
     /**
      * 根據商品id 增加商品至收藏清單
-     * @param $sku
+     * @param $parameter
      * @return  bool
      */
-    public function add($sku)
+    public function add($parameter)
     {
-        $url = sprintf('wishlist/add/%s', $sku);
-        $response = $this->request('POST', $url);
+        $url = 'wishlist/add/';
+        $response = $this->putParameters($parameter)->request('POST', $url);
         $result = json_decode($response->getBody(), true);
         return $result['statusCode'] === 201 ? true : false;
     }
@@ -59,8 +59,7 @@ class Wishlist extends Client
      */
     public function delete($parameter)
     {
-
-        $response = $this->setJson(false)->putParameters($parameter)
+        $response = $this->putParameters($parameter)
             ->request('POST', 'wishlist/delete');
         $result = json_decode($response->getBody(), true);
 

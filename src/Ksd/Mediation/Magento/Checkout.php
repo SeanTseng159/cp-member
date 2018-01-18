@@ -18,6 +18,7 @@ use GuzzleHttp\Exception\ClientException;
 use Log;
 use App\Models\TspgPostback;
 use App\Models\TspgResultUrl;
+use Ksd\Mediation\Magento\Order;
 
 class Checkout extends Client
 {
@@ -123,8 +124,8 @@ class Checkout extends Client
         }else if($parameters->payment()->type === 'ipass_pay'){
             return $this->putPayment($parameters);
         }else if($parameters->payment()->type === 'credit_card'){
-            $response = $this->request('post', 'V1/ksd/mine/order');
-            return [ 'id' => trim($response->getBody(), '"')];
+            $id = date("YmdHis");
+            return [ 'id' => date($id)];
         }else{
             return null;
         }
@@ -316,7 +317,8 @@ class Checkout extends Client
                 'source' => $parameters->source
             ];
         }
-
+        Log::debug('===V1/carts/mine/payment-information ($parameter)===');
+        Log::debug($parameter);
 
         $body = [];
         $this->putParameters($parameter);
@@ -377,24 +379,30 @@ class Checkout extends Client
 
         $id = $data->order_id;
         $ret_code = $parameters->ret_code;
-
+        $str =  explode("_",$parameters->order_no);
+        $incrementId = $str[1];
         //付款成功
         if($ret_code === "00") {
             $parameter = [
                 'entity' => [
                     'entity_id' => $id,
+                    'increment_id' => $incrementId,
                     'status' => 'processing',
 
                 ]
             ];
         }else{
+            //3D驗證失敗，把訂單狀態改為canceled，並將原訂單重加回購物車
             $parameter = [
                 'entity' => [
                     'entity_id' => $id,
-                    'status' => 'pending',
+                    'increment_id' => $incrementId,
+                    'status' => 'canceled',
 
                 ]
             ];
+            $order = new Order();
+            $order->getOrder($id);
 
         }
 
@@ -442,6 +450,17 @@ class Checkout extends Client
 
 
         return true;
+    }
+
+    /**
+     * 建立隨機ID
+     * @param $key
+     * @return string
+     */
+    private function genCacheKey($key)
+    {
+        $date = new \DateTime();
+        return sprintf($key,$date->format('Ymd'));
     }
 
 

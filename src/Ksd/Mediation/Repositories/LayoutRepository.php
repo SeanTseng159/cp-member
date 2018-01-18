@@ -215,14 +215,31 @@ class LayoutRepository extends BaseRepository
     }
 
     /**
-     * 清除主分頁快取
-     * @param $id
-     * @return bool
-     */
+ * 清除主分頁快取
+ * @param $id
+ * @return bool
+ */
     public function clean($id)
     {
 
         $key = "category:id:" . $id;
+        $this->cacheKey(null,$key);
+        $this->genCache($key,$id,"c");
+
+
+        return true;
+
+    }
+
+    /**
+     * 清除主分類快取
+     * @param $id
+     * @return bool
+     */
+    public function mainClean($id)
+    {
+
+        $key = "maincategory:id:" . $id;
         $this->cacheKey(null,$key);
         $this->genCache($key,$id,"m");
 
@@ -232,14 +249,14 @@ class LayoutRepository extends BaseRepository
     }
 
     /**
-     * 清除子分頁快取
+     * 清除子分類快取
      * @param $id
      * @return bool
      */
     public function subClean($id)
     {
 
-        $key = "subCategory:id:" . $id;
+        $key = "subcategory:id:" . $id;
         $this->cacheKey(null,$key);
         $this->genCache($key,$id,"s");
 
@@ -287,11 +304,17 @@ class LayoutRepository extends BaseRepository
      */
     private function genCache($key,$id,$type)
     {
-        if($type === "m") {
+        if($type === "c") {
             $this->redis->remember($key, CacheConfig::LAYOUT_TIME, function () use ($id) {
                 return $this->cityPass->category($id);
             });
         }
+        if($type === "m") {
+            $this->redis->remember($key, CacheConfig::LAYOUT_TIME, function () use ($id) {
+                return $this->cityPass->maincategory($id);
+            });
+        }
+
         if($type === "s") {
             $this->redis->remember($key, CacheConfig::LAYOUT_TIME, function () use ($id) {
                 return $this->cityPass->subcategory($id);

@@ -35,7 +35,7 @@ class OrderResult
             $this->orderAmount = $this->arrayDefault($result, 'subtotal') + $this->arrayDefault($result, 'shipping_amount');
             $this->orderDiscountAmount = $this->arrayDefault($result, 'discount_amount');
             $this->orderStatus = $this->getStatus(ProjectConfig::MAGENTO,$this->arrayDefault($result, 'status'));
-            $this->orderStatusCode = $this->getStatusCode($this->arrayDefault($result, 'status'));
+            $this->orderStatusCode = $this->getStatusCode(ProjectConfig::MAGENTO,$this->arrayDefault($result, 'status'));
             $this->orderDate = date('Y-m-d H:i:s', strtotime('+8 hours', strtotime($this->arrayDefault($result, 'created_at'))));
             $payment = $this->arrayDefault($result, 'payment');
             $comment = $this->arrayDefault($result, 'status_histories');
@@ -99,11 +99,11 @@ class OrderResult
             $this->orderItemAmount = $this->arrayDefault($result, 'subtotal');
             $this->orderDiscount = $this->arrayDefault($result, 'discount_amount');
             $this->orderStatus = $this->getStatus(ProjectConfig::MAGENTO,$this->arrayDefault($result, 'status'));
-            $this->orderStatusCode = $this->getStatusCode($this->arrayDefault($result, 'status'));
+            $this->orderStatusCode = $this->getStatusCode(ProjectConfig::MAGENTO,$this->arrayDefault($result, 'status'));
             $this->orderDate = date('Y-m-d H:i:s', strtotime('+8 hours', strtotime($this->arrayDefault($result, 'created_at'))));
             $payment = $this->arrayDefault($result, 'payment');
             $comment = $this->arrayDefault($result, 'status_histories');
-            $this->payment = $this->putMagentoPayment($payment,$comment);
+            $this->payment = $this->putMagentoPayment($payment,$comment,$this->arrayDefault($result, 'entity_id'),$this->arrayDefault($result, 'increment_id'));
             $this->shipping = [];
             $ship = $this->arrayDefault($result, 'extension_attributes');
             foreach ($this->arrayDefault($ship, 'shipping_assignments', []) as $shipping) {
@@ -175,8 +175,8 @@ class OrderResult
             $this->orderNo = $this->arrayDefault($result, 'orderNo');
             $this->orderAmount = $this->arrayDefault($result, 'orderAmount');
             $this->orderDiscountAmount = $this->arrayDefault($result, 'orderDiscountAmount');
-            $this->orderStatus = $this->getStatus(ProjectConfig::CITY_PASS,$this->arrayDefault($result, 'orderStatus'));
-            $this->orderStatusCode = $this->arrayDefault($result, 'orderStatus');
+            $this->orderStatus = $this->getStatus(ProjectConfig::CITY_PASS,$this->arrayDefault($result, 'orderStatus'), $this->arrayDefault($result, 'isRePayment'));
+            $this->orderStatusCode = $this->getStatusCode(ProjectConfig::CITY_PASS,$this->arrayDefault($result, 'orderStatus'), $this->arrayDefault($result, 'isRePayment'));
             $this->isRePayment = $this->arrayDefault($result, 'isRePayment');
             $this->orderDate = $this->arrayDefault($result, 'orderDate');
             $this->payment = $this->arrayDefault($result, 'payment');
@@ -203,12 +203,13 @@ class OrderResult
 
             }
         } else {
+
             $this->orderNo = $this->arrayDefault($result, 'orderNo');
             $this->orderAmount = $this->arrayDefault($result, 'orderAmount');
             $this->orderItemAmount = $this->arrayDefault($result, 'orderItemAmount');
             $this->orderDiscount = $this->arrayDefault($result, 'orderDiscount');
-            $this->status = $this->getStatus(ProjectConfig::CITY_PASS, $this->arrayDefault($result, 'orderStatus'));
-            $this->statusCode = $this->arrayDefault($result, 'orderStatus');
+            $this->orderStatus = $this->getStatus(ProjectConfig::CITY_PASS, $this->arrayDefault($result, 'orderStatus'));
+            $this->orderStatusCode = $this->getStatusCode(ProjectConfig::CITY_PASS, $this->arrayDefault($result, 'orderStatus'), $this->arrayDefault($result, 'isRePayment'));
             $this->orderDate = $this->arrayDefault($result, 'orderDate');
             $this->payment = $this->arrayDefault($result, 'payment');
             $this->shipment = $this->arrayDefault($result, 'shipment');
@@ -269,7 +270,7 @@ class OrderResult
      * @param $key
      * @return string
      */
-    public function getStatus($source, $key)
+    public function getStatus($source, $key, $isRePayment = false)
     {
 
         if ($source ==='magento') {
@@ -283,7 +284,7 @@ class OrderResult
                 case 'holded': # 退貨處理中
                     return "退貨處理中";
                     break;
-                case 'cancel': # 已退貨
+                case 'canceled': # 已退貨
                     return "已退貨";
                     break;
                 case 'processing': # 付款成功(前台顯示已完成)，尚未出貨
@@ -293,8 +294,8 @@ class OrderResult
         } else if($source ==='ct_pass'){
             switch ($key) {
 
-                case '00': # 待付款
-                    return "待付款";
+                case '00': # 重新付款 || 待付款
+                    return ($isRePayment) ? "重新付款" : "待付款";
                     break;
                 case '01': # 已完成
                     return "已完成";
@@ -321,8 +322,9 @@ class OrderResult
      * @param $key
      * @return string
      */
-    public function getStatusCode($key)
+    public function getStatusCode($source, $key, $isRePayment = false)
     {
+        if ($source ==='magento') {
             switch ($key) {
 
                 case 'pending': # 待付款
@@ -334,13 +336,21 @@ class OrderResult
                 case 'holded': # 退貨處理中
                     return "04";
                     break;
-                case 'cancel': # 已退貨
+                case 'canceled': # 已退貨
                     return "03";
                     break;
                 case 'processing': # 已完成(完成付款)
                     return "01";
                     break;
             }
+        } else if($source ==='ct_pass'){
+            # 重新付款
+            if ($key === '00' && $isRePayment) return '07';
+            else return $key;
+        }
+        else {
+            return null;
+        }
 
     }
 
@@ -359,9 +369,10 @@ class OrderResult
      * 設定付款資訊
      * @param $payment
      * @param $comment
+     * @param $id
      * @return array
      */
-    private function putMagentoPayment($payment , $comment=null)
+    private function putMagentoPayment($payment , $comment=null, $id=null, $incrementId=null)
     {
 
         $result = [];
@@ -376,7 +387,10 @@ class OrderResult
                 'bankId' => $this->arrayDefault($additionalInformation, 1),
                 'virtualAccount' => $this->arrayDefault($additionalInformation, 2),
                 'amount' => $this->arrayDefault($additionalInformation, 3),
-                'paymentPeriod' => $this->arrayDefault($additionalInformation, 4)
+                'paymentPeriod' => $this->arrayDefault($additionalInformation, 4),
+                'gateway' => "tspg",
+                'method' => "atm",
+                'title' => "ATM虛擬帳號"
             ];
         }
 
@@ -389,9 +403,20 @@ class OrderResult
 
         if($method === 'ipasspay'){
             $data = !empty($comment) ? explode("&",$comment[0]['comment']) : null;
-            $result['gateway'] = "ipasspay";
-            $result['title'] = $this->paymentTypeTrans($additionalInformation[0], $data);
-            $result['method'] = $this->getPaymentMethod(isset($data[4]) ? $data[4] : null);
+            if(!empty($comment)) {
+                $result['gateway'] = "ipasspay";
+                $result['title'] = $this->paymentTypeTrans($additionalInformation[0], $data);
+                $result['method'] = $this->getPaymentMethod(isset($data[4]) ? $data[4] : null);
+            }else{
+                //comment沒資料，表示沒接受到ipassPay回饋訊息即離開付款，把此筆訂單取消，並將商品加回購物車
+                $order = new Order();
+                $order->getOrder($id);
+                $order->updateOrderState($id,$incrementId,"canceled");
+                $result['gateway'] = "";
+                $result['title'] = "";
+                $result['method'] = "";
+
+            }
         }
         return $result;
     }
@@ -466,7 +491,7 @@ class OrderResult
                 case 'holded': # 退貨處理中
                     return "退貨處理中";
                     break;
-                case 'cancel': # 已退貨
+                case 'canceled': # 已退貨
                     return "已退貨";
                     break;
                 case 'processing': # 付款成功(前台顯示已完成)，尚未出貨
@@ -576,7 +601,7 @@ class OrderResult
             case 'holded': # 退貨處理中
                 return "04";
                 break;
-            case 'cancel': # 已退貨
+            case 'canceled': # 已退貨
                 return "03";
                 break;
             case 'processing': # 處理中
@@ -615,7 +640,7 @@ class OrderResult
                     return "atm";
                     break;
                 case null: # iPassPay
-                    return "iPassPay未回傳付款方式(payment_type)";
+                    return "iPassPay";
                     break;
 
             }

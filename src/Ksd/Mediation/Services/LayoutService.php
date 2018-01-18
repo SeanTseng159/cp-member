@@ -122,7 +122,9 @@ class LayoutService
     }
 
     /**
-     * 清除主分類快取
+     * 清除分頁快取
+     * @param  $id
+     * @return bool
      */
     public function clean($id)
     {
@@ -130,7 +132,19 @@ class LayoutService
     }
 
     /**
+     * 清除主分類快取
+     * @param  $id
+     * @return bool
+     */
+    public function mainClean($id)
+    {
+        return $this->repository->mainClean($id);
+    }
+
+    /**
      * 清除子分類快取
+     * @param  $id
+     * @return bool
      */
     public function subClean($id)
     {

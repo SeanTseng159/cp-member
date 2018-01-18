@@ -139,8 +139,9 @@ class LayoutController extends RestLaravelController
 
     }
 
+
     /**
-     * 清除主分類快取
+     * 清除分頁快取
      * @param $id
      * @return \Illuminate\Http\JsonResponse
      */
@@ -148,6 +149,19 @@ class LayoutController extends RestLaravelController
     {
 
         $this->layoutService->clean($id);
+        return $this->success('刷新成功');
+
+    }
+
+    /**
+     * 清除主分類快取
+     * @param $id
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function mainClean($id)
+    {
+
+        $this->layoutService->mainClean($id);
         return $this->success('刷新成功');
 
     }

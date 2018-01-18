@@ -5,7 +5,7 @@
  * Time: 下午2:20
  */
 
-namespace Ksd\IPassPay\Http\Controllers;
+namespace App\Http\Controllers\Api;
 
 use Illuminate\Http\Request;
 use Ksd\Mediation\Core\Controller\RestLaravelController;
@@ -19,16 +19,13 @@ class IpassPayController extends RestLaravelController
 {
     protected $service;
 
-    const MAGENTO = 'magento';
-    const CITYPASS = 'ct_pass';
-
     public function __construct(PayService $service)
     {
         $this->service = $service;
     }
 
     /**
-     * refund
+     * refund 退款
      * @param Request $request
      * @return \Illuminate\Http\JsonResponse
      */
@@ -44,7 +41,7 @@ class IpassPayController extends RestLaravelController
         Log::debug('=== ipass pay refund back ===');
         Log::debug(print_r($result, true));
 
-        if (!$payStatusResult['status']) return $this->failure('E0102', '訂單退款失敗');
+        if (!$result['status']) return $this->failure('E0102', '訂單退款失敗');
 
         //成功
         $callbackParameter = (new RefundParameter)->callbackParameter($result['data']);
@@ -56,5 +53,15 @@ class IpassPayController extends RestLaravelController
 
         return $this->failure('E0102', '訂單退款失敗');
       }
+    }
+
+    /**
+     * payNotify 入帳通知
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function payNotify(Request $request)
+    {
+      return response()->json(['rtnCode' => -9999]);
     }
 }

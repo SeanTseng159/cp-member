@@ -62,15 +62,15 @@ class PaymentInfoResult
             case 'Check / Money order':
                 return "測試用";
             case 'Neweb Api Payment':
-                return "(藍新)信用卡一次付清";
+                return "信用卡一次付清";
             case 'Neweb Atm Payment':
-                return "(藍新)ATM虛擬帳號";
+                return "ATM虛擬帳號";
             case 'Ipass Pay':
-                return "Ipass Pay";
+                return "iPASSpay付款";
             case 'Tspg Api Payment':
-                return "(台新)信用卡一次付清";
+                return "信用卡一次付清";
             case 'Tspg Atm Payment':
-                return "(台新)ATM虛擬帳號";
+                return "ATM虛擬帳號";
         }
 
     }

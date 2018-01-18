@@ -9,6 +9,7 @@ namespace App\Services;
 
 use App\Traits\JWTTokenHelper;
 use Firebase\JWT\JWT;
+use Illuminate\Support\Facades\Log;
 
 class JWTTokenService
 {
@@ -105,5 +106,24 @@ class JWTTokenService
     public function checkToken($token)
     {
         return $this->JWTdecode($token);
+    }
+
+    /**
+     * 建立 city pass 後台 jwt token
+     * @return string
+     */
+    public function generateCityPassBackendToken()
+    {
+        $iat = time();
+        $exp = time() + 86400;
+
+        $token = [
+            'iss' => env('JWT_ISS', 'CityPass'),
+            'iat' => $iat,
+            'exp' => $exp,
+            'secret' => env('JWT_CITY_PASS_SECRET', 'a2f8b3503c2d66ea'),
+        ];
+
+        return $this->JWTencode($token);
     }
 }
