@@ -200,6 +200,7 @@ Route::middleware('cors')->namespace('Api')->group(function () {
         Route::get('menu/{categoryId?}', 'LayoutController@menu');
         Route::get('reload',   'LayoutController@cleanCache');
         Route::get('clean/{id}', 'LayoutController@clean');
+        Route::get('mainClean/{id}', 'LayoutController@mainClean');
         Route::get('subClean/{id}', 'LayoutController@subClean');
 
     });
