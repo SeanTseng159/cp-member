@@ -112,10 +112,11 @@ class ProductRepository extends BaseRepository
     public function search($parameter)
     {
 
-        $magento = $this->magento->search($parameter);
+//        $magento = $this->magento->search($parameter);
         $cityPass = $this->cityPass->search($parameter);
 
-        if (!$magento) $magento = [];
+//        if (!$magento) $magento = [];
+        $magento = [];
         if (!$cityPass) $cityPass = [];
 
         $data = array_filter(array_merge($magento, $cityPass));

@@ -35,7 +35,7 @@ class WishlistResult
         $this->characteristic = null;
         $this->storeName = null;
         $this->place = null;
-        $this->thumbnaiPath = $this->magentoImageUrl($this->arrayDefault($result['product'], 'thumbnail'));
+        $this->imageUrl = $this->magentoImageUrl($this->arrayDefault($result['product'], 'thumbnail'));
 
 /*
         foreach ($result['product'] as $item) {
