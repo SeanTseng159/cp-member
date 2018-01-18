@@ -31,7 +31,7 @@ class QueryParameter extends BaseParameter
     public function laravelRequest($no, $request = null)
     {
         parent::laravelRequest($request);
-        $this->no = $no;
+        $this->no = urldecode($no);
         $this->source = $request->input('source');
     }
 }
