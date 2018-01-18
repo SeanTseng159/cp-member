@@ -9,8 +9,6 @@
 namespace Ksd\Mediation\CityPass;
 
 
-use Illuminate\Support\Facades\Log;
-
 class Payment extends Client
 {
     public function tspgATMReturn($result)
@@ -18,9 +16,10 @@ class Payment extends Client
         if (!empty($result) && count($result) > 0) {
             try {
                 $response = $this->putParameters($result)
-                    ->request('POST', 'api/payment_tspg/parse_atm_writeoff');
+                    ->request('POST', 'payment_tspg/parse_atm_writeoff');
 
-                $data = json_decode($response->getBody(), true);
+                $body = $response->getBody();
+                $data = json_decode($body, true);
                 if ($data['statusCode'] == 200) {
                     return true;
                 }

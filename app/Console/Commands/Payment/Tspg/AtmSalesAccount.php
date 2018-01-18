@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands\Payment\Tspg;
 
+use App\Services\JWTTokenService;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Cache;
@@ -15,6 +16,8 @@ class AtmSalesAccount extends Command
 {
     const CITY_PASS_BUSINESS_CODE = '96681';
     const MAGENTO_BUSINESS_CODE = '96682';
+
+    private $jwtTokenService;
 
     /**
      * The name and signature of the console command.
@@ -35,9 +38,10 @@ class AtmSalesAccount extends Command
      *
      * @return void
      */
-    public function __construct()
+    public function __construct(JWTTokenService $jwtTokenService)
     {
         parent::__construct();
+        $this->jwtTokenService = $jwtTokenService;
     }
 
     /**
@@ -74,7 +78,10 @@ class AtmSalesAccount extends Command
                     }
                 }
                 $magentoPayment->tspgATMReturn($result[ProjectConfig::MAGENTO]);
-                if(!$cityPassPayment->tspgATMReturn($result[ProjectConfig::CITY_PASS])) {
+                $cityPassResult = $cityPassPayment->authorization($this->jwtTokenService->generateCityPassBackendToken())
+                    ->setJson(true)
+                    ->tspgATMReturn($result[ProjectConfig::CITY_PASS]);
+                if(!$cityPassResult) {
                     Log::error('city pass fail file:' . $filename);
                 }
                 fclose($fileResource);
@@ -86,7 +93,8 @@ class AtmSalesAccount extends Command
     public function fileTime($filename)
     {
         $prefix = 'TSAC53890045';
-        if(strpos($filename, $prefix) == 0) {
+        $pos = strpos($filename, $prefix);
+        if($pos !== false && strpos($filename, $prefix) == 0) {
             return Carbon::parse(mb_substr($filename, 12));
         }
         return null;
