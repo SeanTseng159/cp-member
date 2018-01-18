@@ -42,7 +42,7 @@ class CartResult
             $this->items[] = $row;
         }
 
-        $this->itemTotal = $this->arrayDefault($result, 'items_qty');
+        $this->itemTotal = $this->arrayDefault($result, 'items_count');
         $this->totalAmount = $this->arrayDefault($totalResult, 'subtotal');
         if(is_null($coupon)){
             $this->useCoupon=null;
