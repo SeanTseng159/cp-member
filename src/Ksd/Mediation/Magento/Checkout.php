@@ -317,7 +317,8 @@ class Checkout extends Client
                 'source' => $parameters->source
             ];
         }
-
+        Log::debug('===V1/carts/mine/payment-information ($parameter)===');
+        Log::debug($parameter);
 
         $body = [];
         $this->putParameters($parameter);
