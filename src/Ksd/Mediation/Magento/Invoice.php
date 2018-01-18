@@ -9,10 +9,9 @@
 namespace Ksd\Mediation\Magento;
 
 use App\Models\Member;
-use GuzzleHttp\Exception\ClientException;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
 use Ksd\Mediation\Helper\ObjectHelper;
-use App\Repositories\MemberRepository;
-use App\Services\MemberService;
 
 class Invoice extends Client
 {
@@ -21,23 +20,13 @@ class Invoice extends Client
     //bussiness setting
     const VAT_NUMBER = "53890045";              //賣方公司統編
     const BU_CODE     = "magento";               //賣方廠號
-    const RECIPIENT_DIR = 'recipient/';           //發票目錄
 
-    //sftp setting
-    const SFTP_SERVER_IP    = 'localhost';          //發票上傳伺服器
-    const SFTP_USER         = 'user';               //發票上傳帳號
-    const SFTP_PASSWORD    = 'password';           //發票上傳密碼
-    const UPLOAD_PATH      = 'Upload';             //發票上傳路徑
-    const DOWNLOAD_PATH  = 'Download';           //發票回復檔下載路徑
-    const BACKUP_PATH      = 'DownloadBackup';    //發票回復檔下載路徑
-
-    private $memberRepository;
-
-
+    private $businessNo;
     private $member;
 
     public function __construct()
     {
+        $this->businessNo = env('COMPANY_BUSINESS_NO', '53890045');
         $this->member = new Member();
         parent::__construct();
     }
@@ -49,29 +38,30 @@ class Invoice extends Client
      */
     public function getOrdersBeforeTenDay()
     {
+        $now = Carbon::now();
+        $now->subDays(10);
 
-        $admintoken = new Client();
-        $this->authorization($admintoken->token);
-
-        $date = date("Y-m-d" , mktime(0,0,0,date("m"),date("d")-10,date("Y")) );
+        $startDate = $now->format('Y-m-d');
+        $now->addDays(1);
+        $endDate = $now->format('Y-m-d');
         $result = [];
         try {
             $path = 'V1/orders';
-            $response = $this->putQuery('searchCriteria[filterGroups][0][filters][0][field]', 'status')
-                ->putQuery('searchCriteria[filterGroups][0][filters][0][value]', 'pending')
-                /*
-                ->putQuery('searchCriteria[filterGroups][4][filters][0][field]', 'updated_at ')
-                ->putQuery('searchCriteria[filterGroups][4][filters][0][value]', $date)
-                ->putQuery('searchCriteria[filterGroups][4][filters][0][condition_type]', 'from')
-                ->putQuery('searchCriteria[filterGroups][4][filters][0][field]', 'updated_at ')
-                ->putQuery('searchCriteria[filterGroups][4][filters][0][value]', $date)
-                ->putQuery('searchCriteria[filterGroups][4][filters][0][condition_type]', 'to')
-                */
+            $response = $this
+                ->putQuery('searchCriteria[filterGroups][0][filters][0][field]', 'status')
+                ->putQuery('searchCriteria[filterGroups][0][filters][0][value]', 'processing')
+                ->putQuery('searchCriteria[filterGroups][1][filters][0][field]', 'updated_at')
+                ->putQuery('searchCriteria[filterGroups][1][filters][0][value]', $startDate)
+                ->putQuery('searchCriteria[filterGroups][1][filters][0][condition_type]', 'from')
+                ->putQuery('searchCriteria[filterGroups][2][filters][0][field]', 'updated_at')
+                ->putQuery('searchCriteria[filterGroups][2][filters][0][value]', $endDate)
+                ->putQuery('searchCriteria[filterGroups][2][filters][0][condition_type]', 'to')
                 ->request('GET', $path);
             $body = $response->getBody();
             $result = json_decode($body, true);
-        } catch (ClientException $e) {
+        } catch (\Exception $e) {
             // TODO:抓不到MAGENTO API訂單資料
+            Log::debug($e);
         }
 
         $data = [];
@@ -80,7 +70,6 @@ class Invoice extends Client
                 $data[] = $this->transInvoiceFormat($item);
             }
         }
-        dd($data);
         return $data;
 
     }
@@ -116,17 +105,16 @@ class Invoice extends Client
 
         $record_str .= $this->arrayDefault($result, 'subtotal') + $this->arrayDefault($result, 'shipping_amount').'|';                //9.訂單金額(含稅)
 
-        $record_str .= self::VAT_NUMBER.'|';                  //10.賣方統一編號
+        $record_str .= $this->businessNo.'|';                  //10.賣方統一編號
 
         $record_str .= self::BU_CODE.'|';                      //11.賣方廠編
 
-        $record_str .= '53890045'.'|';           //12.買方統一編號
+        $record_str .= '|';           //12.買方統一編號
 
-        $record_str .= '高盛大'.'|';         //13.買受人公司名稱
+        $record_str .= '|';         //13.買受人公司名稱
 
 
         $member = $this->member->whereEmail($this->arrayDefault($result, 'customer_email'))->first();
-//        $member = $this->memberRepository->findByEmail($this->arrayDefault($result, 'customer_email'));
 
 
 
