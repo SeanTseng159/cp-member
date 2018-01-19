@@ -416,6 +416,8 @@ class OrderResult
                 $order = new Order();
                 $order->getOrder($id);
                 $order->updateOrderState($id,$incrementId,"canceled");
+                $this->orderStatus = "付款失敗";
+                $this->orderStatusCode = "03";
                 $result['gateway'] = "";
                 $result['title'] = "";
                 $result['method'] = "";
