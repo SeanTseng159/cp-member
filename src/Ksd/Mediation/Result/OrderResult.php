@@ -105,7 +105,7 @@ class OrderResult
             $this->orderDate = date('Y-m-d H:i:s', strtotime('+8 hours', strtotime($this->arrayDefault($result, 'created_at'))));
             $payment = $this->arrayDefault($result, 'payment');
             $comment = $this->arrayDefault($result, 'status_histories');
-            $this->payment = $this->putMagentoPayment($payment,$comment,$this->arrayDefault($result, 'entity_id'),$this->arrayDefault($result, 'increment_id'));
+            $this->payment = $this->putMagentoPayment($payment,$comment,$this->arrayDefault($result, 'entity_id'),$this->arrayDefault($result, 'increment_id'),true);
             $this->shipping = [];
             $ship = $this->arrayDefault($result, 'extension_attributes');
             foreach ($this->arrayDefault($ship, 'shipping_assignments', []) as $shipping) {
@@ -374,9 +374,11 @@ class OrderResult
      * @param $payment
      * @param $comment
      * @param $id
+     * @param $incrementId
+     * @param $isDetail
      * @return array
      */
-    private function putMagentoPayment($payment , $comment=null, $id=null, $incrementId=null)
+    private function putMagentoPayment($payment , $comment=null, $id=null, $incrementId=null, $isDetail=false)
     {
 
         $result = [];
@@ -413,14 +415,16 @@ class OrderResult
                 $result['method'] = $this->getPaymentMethod(isset($data[4]) ? $data[4] : null);
             }else{
                 //comment沒資料，表示沒接受到ipassPay回饋訊息即離開付款，把此筆訂單取消，並將商品加回購物車
-                $order = new Order();
-                $order->getOrder($id);
-                $order->updateOrderState($id,$incrementId,"canceled");
-                $this->orderStatus = "付款失敗";
-                $this->orderStatusCode = "03";
-                $result['gateway'] = "";
-                $result['title'] = "";
-                $result['method'] = "";
+                if($isDetail) {
+                    $order = new Order();
+                    $order->getOrder($id);
+                    $order->updateOrderState($id, $incrementId, "canceled");
+                    $this->orderStatus = "付款失敗";
+                    $this->orderStatusCode = "03";
+                    $result['gateway'] = "";
+                    $result['title'] = "";
+                    $result['method'] = "";
+                }
 
             }
         }
