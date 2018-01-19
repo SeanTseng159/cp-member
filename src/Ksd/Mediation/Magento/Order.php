@@ -57,7 +57,7 @@ class Order extends Client
             $data = [];
             if (!empty($result['items'])) {
                 foreach ($result['items'] as $item) {
-                    if ($item['status'] !== "canceled") { //訂單狀態為canceled不顯示
+                    if (isset($item['status']) && $item['status'] !== "canceled") { //訂單狀態為canceled不顯示
                         $order = new OrderResult();
                         $order->magento($item);
                         $data[] = (array)$order;
