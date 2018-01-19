@@ -58,11 +58,13 @@ class OrderResult
             foreach ($this->arrayDefault($result, 'items', []) as $item) {
                 if($this->arrayDefault($item, 'price') != 0) {
                     $row = [];
+                    $name = $this->arrayDefault($item, 'name');
+                    $nameSplit = mb_split('-', $name, 2);
                     $row['source'] = ProjectConfig::MAGENTO;
 //                    $row['no'] = $this->arrayDefault($item, 'item_id');
                     $row['itemId'] = $this->arrayDefault($item, 'sku');
-                    $row['name'] = $this->arrayDefault($item, 'name');
-                    $row['spec'] = $this->arrayDefault($item, 'product_type');
+                    $row['name'] = $nameSplit[0];
+                    $row['spec'] = isset($nameSplit[1]) ? $nameSplit[1] : '';
                     $row['quantity'] = $this->arrayDefault($item, 'qty_ordered');
                     $row['price'] = $this->arrayDefault($item, 'price');
                     $row['description'] = $this->arrayDefault($result, 'shipping_description');
@@ -128,8 +130,10 @@ class OrderResult
                     $row['source'] = ProjectConfig::MAGENTO;
                     $row['no'] = $this->arrayDefault($item, 'item_id');
                     $row['id'] = $this->arrayDefault($item, 'sku');
-                    $row['name'] = $this->arrayDefault($item, 'name');
-                    $row['spec'] = $this->arrayDefault($item, 'product_type');
+                    $name = $this->arrayDefault($item, 'name');
+                    $nameSplit = mb_split('-', $name, 2);
+                    $row['name'] = $nameSplit[0];
+                    $row['spec'] = isset($nameSplit[1]) ? $nameSplit[1] : '';
                     $row['quantity'] = $this->arrayDefault($item, 'qty_ordered');
                     $row['price'] = $this->arrayDefault($item, 'price');
                     $row['description'] = $this->arrayDefault($result, 'shipping_description');
