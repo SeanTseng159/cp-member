@@ -120,7 +120,11 @@ class MyTicketService
     public function gift($parameters)
     {
         $member = $this->memberService->findByCountryPhone($parameters->country,$parameters->countryCode,$parameters->memberPhone);
-        return $this->repository->gift($parameters,$member->id);
+        if(isset($member)) {
+            return $this->repository->gift($parameters, $member->id);
+        }else{
+            return "無此會員資訊";
+        }
     }
 
     /**
