@@ -57,7 +57,7 @@ class Order extends Client
             $data = [];
             if (!empty($result['items'])) {
                 foreach ($result['items'] as $item) {
-                    if ($item['status'] !== "canceled") { //訂單狀態為canceled不顯示
+                    if (isset($item['status']) && $item['status'] !== "canceled") { //訂單狀態為canceled不顯示
                         $order = new OrderResult();
                         $order->magento($item);
                         $data[] = (array)$order;
@@ -437,26 +437,28 @@ class Order extends Client
             $response = $this->request('GET', $path);
             $body = $response->getBody();
             $result = json_decode($body, true);
-
+            $result['status'];
             //
-            $member = $this->member->whereEmail($result['customer_email'])->first();
-            if (isset($member)) {
-                $token = $this->magentoCustomer->token($member);
-                $this->cart->authorization($token)->createEmpty();
-                $cart = [];
-                foreach ($result['items'] as $items) {
-                    $parameter = [
-                        'id' => $items['sku'],
-                        'source' => 'magento',
-                        'quantity' => $items['qty_ordered'],
-                        'additionals' => [],
-                        'purchase' => [],
+            if(isset($result['status']) && $result['status'] === "pending"){
+                $member = $this->member->whereEmail($result['customer_email'])->first();
+                if (isset($member)) {
+                    $token = $this->magentoCustomer->token($member);
+                    $this->cart->authorization($token)->createEmpty();
+                    $cart = [];
+                    foreach ($result['items'] as $items) {
+                        $parameter = [
+                            'id' => $items['sku'],
+                            'source' => 'magento',
+                            'quantity' => $items['qty_ordered'],
+                            'additionals' => [],
+                            'purchase' => [],
 
-                    ];
+                        ];
 
-                    array_push($cart, $parameter);
+                        array_push($cart, $parameter);
+                    }
+                    $this->cart->authorization($token)->add($cart);
                 }
-                $this->cart->authorization($token)->add($cart);
             }
         }
         return true;

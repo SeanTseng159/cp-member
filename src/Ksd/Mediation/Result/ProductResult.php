@@ -182,7 +182,7 @@ class ProductResult
         $data = new \stdClass();
         $columns = [
             'source', 'id', 'name',  'price', 'salePrice', 'discount', 'characteristic', 'category', 'storeName',
-            'storeTelephone', 'storeAddress', 'place', 'tags', 'imageUrl', 'isWishlist'
+            'storeTelephone', 'storeAddress', 'place', 'tags', 'imageUrl', 'isWishlist','updatedAt','status'
         ];
         if ($isDetail) {
             $detailColumns = [
