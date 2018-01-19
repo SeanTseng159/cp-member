@@ -123,7 +123,7 @@ class MyTicketService
         if(isset($member)) {
             return $this->repository->gift($parameters, $member->id);
         }else{
-            return "無此會員資訊";
+            return false;
         }
     }
 
