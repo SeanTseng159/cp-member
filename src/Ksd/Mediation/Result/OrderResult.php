@@ -59,7 +59,7 @@ class OrderResult
                 if($this->arrayDefault($item, 'price') != 0) {
                     $row = [];
                     $name = $this->arrayDefault($item, 'name');
-                    $nameSplit = mb_split('-', $name, 2);
+                    $nameSplit = $this->specName($name);
                     $row['source'] = ProjectConfig::MAGENTO;
 //                    $row['no'] = $this->arrayDefault($item, 'item_id');
                     $row['itemId'] = $this->arrayDefault($item, 'sku');
@@ -131,7 +131,7 @@ class OrderResult
                     $row['no'] = $this->arrayDefault($item, 'item_id');
                     $row['id'] = $this->arrayDefault($item, 'sku');
                     $name = $this->arrayDefault($item, 'name');
-                    $nameSplit = mb_split('-', $name, 2);
+                    $nameSplit = $this->specName($name);
                     $row['name'] = $nameSplit[0];
                     $row['spec'] = isset($nameSplit[1]) ? $nameSplit[1] : '';
                     $row['quantity'] = $this->arrayDefault($item, 'qty_ordered');
@@ -654,4 +654,16 @@ class OrderResult
 
     }
 
+    public function specName($name)
+    {
+        $posStart = strpos($name, '(');
+        $posEnd = strpos($name, ')');
+        $posLine = strpos($name, '-');
+        if ($posStart && $posEnd && $posLine > $posStart && $posEnd > $posLine) {
+            $nameSplit = [$name];
+        } else {
+            $nameSplit = mb_split('-', $name, 2);
+        }
+        return $nameSplit;
+    }
 }
