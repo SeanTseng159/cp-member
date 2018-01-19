@@ -40,6 +40,16 @@ class CartService
     }
 
     /**
+     * 取得購物車資訊
+     * @param $parameter
+     * @return mixed
+     */
+    public function mine($parameter)
+    {
+        return $this->repository->mine($parameter);
+    }
+
+    /**
      * 商品加入購物車
      * @param $parameters
      * @return bool

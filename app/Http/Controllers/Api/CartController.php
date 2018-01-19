@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use Illuminate\Http\Request;
 use Ksd\Mediation\Core\Controller\RestLaravelController;
 use Ksd\Mediation\Parameter\Cart\ProductParameter;
+use Ksd\Mediation\Parameter\Cart\CartParameter;
 use Ksd\Mediation\Services\CartService;
 
 class CartController extends RestLaravelController
@@ -32,6 +33,17 @@ class CartController extends RestLaravelController
     public function detail()
     {
         return $this->success($this->cartService->detail());
+    }
+
+    /**
+     * 取得購物車資訊(依來源)
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function mine(Request $request)
+    {
+        $parameter = new CartParameter();
+        $parameter->laravelRequest($request);
+        return $this->success($this->cartService->mine($parameter));
     }
 
     /**

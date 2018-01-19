@@ -100,6 +100,25 @@ class CartRepository extends BaseRepository
 */
     }
 
+
+    /**
+     * 取得購物車資訊(依來源)
+     * @param $parameter
+     * @return mixed
+     */
+    public function mine($parameter)
+    {
+        $source = $parameter->source;
+        if($source === ProjectConfig::MAGENTO) {
+            return $this->magento->userAuthorization($this->memberTokenService->magentoUserToken())->detail();
+        }else if($source === ProjectConfig::CITY_PASS) {
+            return $this->cityPass->authorization($this->memberTokenService->cityPassUserToken())->detail();
+        }else{
+            return "nodata";
+        }
+
+    }
+
     /**
      * 商品加入購物車
      * @param $parameters

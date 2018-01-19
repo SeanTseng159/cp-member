@@ -74,6 +74,8 @@ Route::middleware(['cors', 'auth.jwt'])->namespace('Api')->group(function () {
         Route::get('info', 'CartController@info');
         // 購物車詳細資訊
         Route::get('detail', 'CartController@detail');
+        // 購物車詳細資訊(依來源)
+        Route::get('mine', 'CartController@mine');
         // 增加商品至購物車
         Route::post('add', 'CartController@add');
         // 更新購物車內商品
