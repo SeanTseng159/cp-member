@@ -281,38 +281,27 @@ class OrderResult
             switch ($key) {
                 case 'pending': # 待付款
                     return "待付款";
-                    break;
                 case 'complete': # 訂單完成(已出貨)
                     return "已完成";
-                    break;
                 case 'holded': # 退貨處理中
                     return "退貨處理中";
-                    break;
                 case 'canceled': # 已退貨
                     return "已退貨";
-                    break;
                 case 'processing': # 付款成功(前台顯示已完成)，尚未出貨
                     return "已完成";
-                    break;
             }
         } else if($source ==='ct_pass'){
             switch ($key) {
-
                 case '00': # 重新付款 || 待付款
                     return ($isRePayment) ? "重新付款" : "待付款";
-                    break;
                 case '01': # 已完成
                     return "已完成";
-                    break;
                 case '02': # 部分退貨
                     return "部分退貨";
-                    break;
                 case '03': # 已退貨
                     return "已退貨";
-                    break;
                 case '04': # 處理中
                     return "處理中";
-                    break;
             }
         }else{
                 return null;
@@ -330,22 +319,15 @@ class OrderResult
     {
         if ($source ==='magento') {
             switch ($key) {
-
                 case 'pending': # 待付款
                     return "00";
-                    break;
                 case 'complete': # 已完成(完成出貨)
-                    return "01";
-                    break;
-                case 'holded': # 退貨處理中
-                    return "04";
-                    break;
-                case 'canceled': # 已退貨
-                    return "03";
-                    break;
                 case 'processing': # 已完成(完成付款)
                     return "01";
-                    break;
+                case 'holded': # 退貨處理中
+                    return "04";
+                case 'canceled': # 已退貨
+                    return "03";
             }
         } else if($source ==='ct_pass'){
             # 重新付款
@@ -491,41 +473,29 @@ class OrderResult
     {
         if ($source ==='magento') {
             switch ($key) {
-
                 case 'pending': # 待付款
                     return "待付款";
-                    break;
                 case 'complete': # 訂單完成(已出貨且開立發票)
                     return "已完成";
-                    break;
                 case 'holded': # 退貨處理中
                     return "退貨處理中";
-                    break;
                 case 'canceled': # 已退貨
                     return "已退貨";
-                    break;
                 case 'processing': # 付款成功(前台顯示已完成)，尚未出貨
                     return "已完成";
-                    break;
             }
         } else if($source ==='ct_pass'){
             switch ($key) {
-
                 case '00': # 待付款
                     return "待付款";
-                    break;
                 case '01': # 已完成
                     return "已完成";
-                    break;
                 case '02': # 部分退貨
                     return "部分退貨";
-                    break;
                 case '03': # 已退貨
                     return "已退貨";
-                    break;
                 case '04': # 處理中
                     return "處理中";
-                    break;
             }
         }else{
             return null;
@@ -544,47 +514,33 @@ class OrderResult
     {
         if ($source ==='magento') {
             switch ($key) {
-
                 case '00': # 保留中
                     return "保留中";
-                    break;
                 case '01': # 處理中
                     return "處理中";
-                    break;
                 case '02': # 已送達
                     return "已送達";
-                    break;
                 case '03': # 退貨中
                     return "退貨中";
-                    break;
                 case '04': # 已退貨
                     return "已退貨";
-                    break;
                 case '05': # 已轉贈
                     return "已轉贈";
-                    break;
             }
         } else if($source ==='ct_pass'){
             switch ($key) {
-
                 case '00': # 保留中
                     return "保留中";
-                    break;
                 case '01': # 未使用
                     return "未使用";
-                    break;
                 case '02': # 已使用
                     return "已使用";
-                    break;
                 case '03': # 退貨中
                     return "退貨中";
-                    break;
                 case '04': # 已退貨
                     return "已退貨";
-                    break;
                 case '05': # 已轉贈
                     return "已轉贈";
-                    break;
             }
         }else{
             return null;
@@ -601,24 +557,17 @@ class OrderResult
     public function getIpassPayStatus($key)
     {
         switch ($key) {
-
             case 'pending': # 待付款
                 return "00";
-                break;
             case 'complete': # 已完成
                 return "01";
-                break;
             case 'holded': # 退貨處理中
                 return "04";
-                break;
             case 'canceled': # 已退貨
                 return "03";
-                break;
             case 'processing': # 處理中
                 return "01";
-                break;
         }
-
     }
 
 
@@ -630,34 +579,28 @@ class OrderResult
     public function getPaymentMethod($key)
     {
             switch ($key) {
-
                 case 'ACCLINK': # 信用卡
                     return "acclink";
-                    break;
                 case 'CREDIT': #　ATM
                     return "credit_card";
-                    break;
                 case 'WEBATM': # iPassPay
                     return "atm";
-                    break;
                 case 'BARCODE': # iPassPay
                     return "barcode";
-                    break;
                 case 'ECAC': # iPassPay
                     return "ecac";
-                    break;
                 case 'VACC': # iPassPay
                     return "atm";
-                    break;
                 case null: # iPassPay
                     return "iPassPay";
-                    break;
-
             }
-
-
     }
 
+    /**
+     * 處理品項特殊規格顯示
+     * @param $name
+     * @return array
+     */
     public function specName($name)
     {
         $posStart = strpos($name, '(');
