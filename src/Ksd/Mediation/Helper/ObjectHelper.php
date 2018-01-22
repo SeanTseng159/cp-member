@@ -22,9 +22,10 @@ trait ObjectHelper
     {
         if (!$result) return $default;
 
-        if (array_key_exists($key, $result)) {
-            if ($result[$key]) return $result[$key];
-            else {
+        if (is_array($result) && array_key_exists($key, $result)) {
+            if ($result[$key]) {
+                return $result[$key];
+            } else {
                 return (!is_null($default)) ? $default : $this->changeNullType($result[$key]);
             }
         }
