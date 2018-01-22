@@ -9,6 +9,7 @@
 namespace Ksd\Mediation\Magento;
 
 
+use GuzzleHttp\Exception\ServerException;
 use Illuminate\Support\Facades\Log;
 
 class Payment extends Client
@@ -22,8 +23,7 @@ class Payment extends Client
                     $response = $this->putParameter('account', $row->customerVirtualAccount)
                         ->request('POST', 'V1/ksd/order/payment');
                     $body = $response->getBody()->getContents();
-                    $data = [];
-                    eval("\$data = $body;");
+                    $data = json_decode($body, true);
                     if (count($data) > 1) {
                         $parameter = [
                             'entity' => [
