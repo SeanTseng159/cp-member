@@ -172,7 +172,7 @@ class Order extends Client
                         ->putQuery('searchCriteria[filterGroups][4][filters][0][condition_type]', 'from')
                         ->putQuery('searchCriteria[filterGroups][5][filters][0][field]', 'created_at')
                         ->putQuery('searchCriteria[filterGroups][5][filters][0][value]', $endDate)
-                        ->putQuery('searchCriteria[filterGroups][45][filters][0][condition_type]', 'to');
+                        ->putQuery('searchCriteria[filterGroups][5][filters][0][condition_type]', 'to');
                 }
                $response = $this->putQuery('searchCriteria[filterGroups][0][filters][0][field]', 'customer_email')
                     ->putQuery('searchCriteria[filterGroups][0][filters][0][value]', $email)
