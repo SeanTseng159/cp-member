@@ -386,7 +386,7 @@ class OrderResult
 
             $result['gateway'] = "tspg";
             $result['method'] = "credit_card";
-            $result['title'] = $this->paymentTypeTrans(isset($additionalInformation[2]) ? $additionalInformation[2] : $additionalInformation[0]);
+            $result['title'] = "信用卡一次付清";
         }
 
         if($method === 'ipasspay'){

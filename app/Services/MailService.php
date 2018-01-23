@@ -36,6 +36,9 @@ class MailService
                 'name' => $member->name
             ];
 
+        $data['email'] = $member->email;
+        $data['isOauth'] = ($member->openPlateform !== 'citypass');
+        $data['plateform'] = ($member->openPlateform === 'ipass') ? '愛PASS' : '';
         $data['link'] = env('CITY_PASS_WEB') . $this->lang . '/validateEmail/' . $member->validEmailCode;
 
         return $this->send('歡迎使用 CityPass都會通 - 註冊成功認證', $recipient, 'emails/register', $data);
