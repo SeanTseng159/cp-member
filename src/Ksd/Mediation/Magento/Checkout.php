@@ -209,7 +209,7 @@ class Checkout extends Client
             Log::debug('===magento非信用卡結帳(atm)===');
             Log::debug($e);
         }
-
+/*
         //如有三聯式發票資訊 抬頭&統編 則存入order/comment
         if(!empty($body)) {
             $admintoken = new Client();
@@ -220,6 +220,7 @@ class Checkout extends Client
             ];
             $this->setInvoiceInfo(trim($body, '"'), $billingInfo);
         }
+*/
 
 
         return empty($body) ? [] : [ 'id' => trim($body, '"')];
@@ -384,14 +385,14 @@ class Checkout extends Client
             $pay = new TspgPostback();
             $pay->fill($data)->save();
 
-
+/*
             //如有三聯式發票資訊 抬頭&統編 則存入order/comment
             $billingInfo = [
                 'invoiceTitle' => $parameters->billing()->invoiceTitle,
                 'unifiedBusinessNo' => $parameters->billing()->unifiedBusinessNo
             ];
             $this->setInvoiceInfo($orderId, $billingInfo);
-
+*/
 
             return [ 'id' => $orderId, 'url' => $url];
 
