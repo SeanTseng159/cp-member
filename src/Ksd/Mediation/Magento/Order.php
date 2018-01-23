@@ -53,7 +53,6 @@ class Order extends Client
             } catch (ClientException $e) {
                 // TODO:抓不到MAGENTO API訂單資料
             }
-
             $data = [];
             if (!empty($result['items'])) {
                 foreach ($result['items'] as $item) {
@@ -352,6 +351,7 @@ class Order extends Client
     {
 
         $id = isset($parameters->id) ? $parameters->id :$parameters->order_id;
+        $incrementId = $this->orderIdToIncrementId($id);
         //將ipasspay回傳結果存入order comment
         if ($parameters->paySource === 'ipasspay') {
             $dataArray = [
@@ -390,6 +390,7 @@ class Order extends Client
                 $ipassParameter = [
                     'entity' => [
                         'entity_id' => $id,
+                        'increment_id' => $incrementId,
                         'status' => 'processing',
                     ]
                 ];
@@ -405,6 +406,7 @@ class Order extends Client
                     $ipassParameter = [
                         'entity' => [
                             'entity_id' => $id,
+                            'increment_id' => $incrementId,
                             'status' => 'canceled',
                         ]
                     ];
@@ -414,7 +416,17 @@ class Order extends Client
                     return (isset($result)) ? true : false;
 
                 }else{// VACC、WEBATM、BARCODE，parameters->status === "N"，訂單狀態為pending(待付款)，故不做處理
-                    return true;
+                    $ipassParameter = [
+                        'entity' => [
+                            'entity_id' => $id,
+                            'increment_id' => $incrementId,
+                            'status' => 'pending',
+                        ]
+                    ];
+                    $this->putParameters($ipassParameter);
+                    $response = $this->request('PUT', 'V1/orders/create');
+                    $result = json_decode($response->getBody(), true);
+                    return (isset($result)) ? true : false;
                 }
 
             }
@@ -423,8 +435,8 @@ class Order extends Client
             $parameter = [
                 'entity' => [
                     'entity_id' => $id,
+                    'increment_id' => $incrementId,
                     'status' => 'processing',
-
                 ]
             ];
 
@@ -527,5 +539,26 @@ class Order extends Client
             // TODO:抓不到訂單資料
         }
         return [];
+    }
+
+    /**
+     * 訂單ID轉換increment_id
+     * @param $orderId
+     * @return string
+     */
+    public function orderIdToIncrementId($orderId)
+    {
+        if(isset($orderId)) {
+            $path = sprintf('V1/orders/%s', $orderId);
+            $response = $this->request('GET', $path);
+            $body = $response->getBody();
+            $result = json_decode($body, true);
+
+            return isset($result) ?  $result['increment_id'] :  null;
+        }else{
+            return null;
+        }
+
+
     }
 }

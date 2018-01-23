@@ -209,7 +209,7 @@ class Checkout extends Client
             Log::debug('===magento非信用卡結帳(atm)===');
             Log::debug($e);
         }
-/*
+
         //如有三聯式發票資訊 抬頭&統編 則存入order/comment
         if(!empty($body)) {
             $admintoken = new Client();
@@ -220,7 +220,10 @@ class Checkout extends Client
             ];
             $this->setInvoiceInfo(trim($body, '"'), $billingInfo);
         }
-*/
+        //存入order/comment會有status的bug，須把狀態重新改為pending
+        $order = new Order();
+        $incrementId =  $order->orderIdToIncrementId(trim($body, '"'));
+        $order->updateOrderState(trim($body, '"'),$incrementId,'pending');
 
 
         return empty($body) ? [] : [ 'id' => trim($body, '"')];
