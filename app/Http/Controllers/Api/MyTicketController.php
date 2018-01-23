@@ -98,7 +98,7 @@ class MyTicketController extends RestLaravelController
         $parameters = new QueryParameter();
         $parameters->laravelRequest($request);
         $result = $this->myTicketService->gift($parameters);
-        return ($result) ? $this->success() : $this->failure('E0003', '更新失敗');
+        return ($result) ? $this->success() : $this->failure('E4003', '轉贈失敗');
 
     }
 

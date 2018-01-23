@@ -70,7 +70,7 @@ class Client extends BaseClient
     private function correspondingLang($lang)
     {
         $languages = [
-            'zh-TW' => 'zh_hant_tw'
+            'zh_TW' => 'zh_hant_tw'
         ];
         if (array_key_exists($lang, $languages)) {
             return $languages[$lang];

@@ -87,7 +87,10 @@ class MemberTokenService
             return '';
         }
         $member = $this->memberService->find($data->id);
-
-        return $member->email;
+        if(isset($member)) {
+            return $member->email;
+        }else{
+            return null;
+        }
     }
 }

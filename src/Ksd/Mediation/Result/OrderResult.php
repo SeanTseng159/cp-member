@@ -58,11 +58,13 @@ class OrderResult
             foreach ($this->arrayDefault($result, 'items', []) as $item) {
                 if($this->arrayDefault($item, 'price') != 0) {
                     $row = [];
+                    $name = $this->arrayDefault($item, 'name');
+                    $nameSplit = $this->specName($name);
                     $row['source'] = ProjectConfig::MAGENTO;
 //                    $row['no'] = $this->arrayDefault($item, 'item_id');
                     $row['itemId'] = $this->arrayDefault($item, 'sku');
-                    $row['name'] = $this->arrayDefault($item, 'name');
-                    $row['spec'] = $this->arrayDefault($item, 'product_type');
+                    $row['name'] = $nameSplit[0];
+                    $row['spec'] = isset($nameSplit[1]) ? $nameSplit[1] : '';
                     $row['quantity'] = $this->arrayDefault($item, 'qty_ordered');
                     $row['price'] = $this->arrayDefault($item, 'price');
                     $row['description'] = $this->arrayDefault($result, 'shipping_description');
@@ -103,7 +105,7 @@ class OrderResult
             $this->orderDate = date('Y-m-d H:i:s', strtotime('+8 hours', strtotime($this->arrayDefault($result, 'created_at'))));
             $payment = $this->arrayDefault($result, 'payment');
             $comment = $this->arrayDefault($result, 'status_histories');
-            $this->payment = $this->putMagentoPayment($payment,$comment,$this->arrayDefault($result, 'entity_id'),$this->arrayDefault($result, 'increment_id'));
+            $this->payment = $this->putMagentoPayment($payment,$comment,$this->arrayDefault($result, 'entity_id'),$this->arrayDefault($result, 'increment_id'),true);
             $this->shipping = [];
             $ship = $this->arrayDefault($result, 'extension_attributes');
             foreach ($this->arrayDefault($ship, 'shipping_assignments', []) as $shipping) {
@@ -128,8 +130,10 @@ class OrderResult
                     $row['source'] = ProjectConfig::MAGENTO;
                     $row['no'] = $this->arrayDefault($item, 'item_id');
                     $row['id'] = $this->arrayDefault($item, 'sku');
-                    $row['name'] = $this->arrayDefault($item, 'name');
-                    $row['spec'] = $this->arrayDefault($item, 'product_type');
+                    $name = $this->arrayDefault($item, 'name');
+                    $nameSplit = $this->specName($name);
+                    $row['name'] = $nameSplit[0];
+                    $row['spec'] = isset($nameSplit[1]) ? $nameSplit[1] : '';
                     $row['quantity'] = $this->arrayDefault($item, 'qty_ordered');
                     $row['price'] = $this->arrayDefault($item, 'price');
                     $row['description'] = $this->arrayDefault($result, 'shipping_description');
@@ -277,38 +281,27 @@ class OrderResult
             switch ($key) {
                 case 'pending': # 待付款
                     return "待付款";
-                    break;
                 case 'complete': # 訂單完成(已出貨)
                     return "已完成";
-                    break;
                 case 'holded': # 退貨處理中
                     return "退貨處理中";
-                    break;
                 case 'canceled': # 已退貨
                     return "已退貨";
-                    break;
                 case 'processing': # 付款成功(前台顯示已完成)，尚未出貨
                     return "已完成";
-                    break;
             }
         } else if($source ==='ct_pass'){
             switch ($key) {
-
                 case '00': # 重新付款 || 待付款
                     return ($isRePayment) ? "重新付款" : "待付款";
-                    break;
                 case '01': # 已完成
                     return "已完成";
-                    break;
                 case '02': # 部分退貨
                     return "部分退貨";
-                    break;
                 case '03': # 已退貨
                     return "已退貨";
-                    break;
                 case '04': # 處理中
                     return "處理中";
-                    break;
             }
         }else{
                 return null;
@@ -326,22 +319,15 @@ class OrderResult
     {
         if ($source ==='magento') {
             switch ($key) {
-
                 case 'pending': # 待付款
                     return "00";
-                    break;
                 case 'complete': # 已完成(完成出貨)
-                    return "01";
-                    break;
-                case 'holded': # 退貨處理中
-                    return "04";
-                    break;
-                case 'canceled': # 已退貨
-                    return "03";
-                    break;
                 case 'processing': # 已完成(完成付款)
                     return "01";
-                    break;
+                case 'holded': # 退貨處理中
+                    return "04";
+                case 'canceled': # 已退貨
+                    return "03";
             }
         } else if($source ==='ct_pass'){
             # 重新付款
@@ -370,9 +356,11 @@ class OrderResult
      * @param $payment
      * @param $comment
      * @param $id
+     * @param $incrementId
+     * @param $isDetail
      * @return array
      */
-    private function putMagentoPayment($payment , $comment=null, $id=null, $incrementId=null)
+    private function putMagentoPayment($payment , $comment=null, $id=null, $incrementId=null, $isDetail=false)
     {
 
         $result = [];
@@ -398,7 +386,7 @@ class OrderResult
 
             $result['gateway'] = "tspg";
             $result['method'] = "credit_card";
-            $result['title'] = $this->paymentTypeTrans(isset($additionalInformation[2]) ? $additionalInformation[2] : $additionalInformation[0]);
+            $result['title'] = "信用卡一次付清";
         }
 
         if($method === 'ipasspay'){
@@ -409,12 +397,16 @@ class OrderResult
                 $result['method'] = $this->getPaymentMethod(isset($data[4]) ? $data[4] : null);
             }else{
                 //comment沒資料，表示沒接受到ipassPay回饋訊息即離開付款，把此筆訂單取消，並將商品加回購物車
-                $order = new Order();
-                $order->getOrder($id);
-                $order->updateOrderState($id,$incrementId,"canceled");
-                $result['gateway'] = "";
-                $result['title'] = "";
-                $result['method'] = "";
+                if($isDetail) {
+                    $order = new Order();
+                    $order->getOrder($id);
+                    $order->updateOrderState($id, $incrementId, "canceled");
+                    $this->orderStatus = "付款失敗";
+                    $this->orderStatusCode = "03";
+                    $result['gateway'] = "";
+                    $result['title'] = "";
+                    $result['method'] = "";
+                }
 
             }
         }
@@ -481,41 +473,29 @@ class OrderResult
     {
         if ($source ==='magento') {
             switch ($key) {
-
                 case 'pending': # 待付款
                     return "待付款";
-                    break;
                 case 'complete': # 訂單完成(已出貨且開立發票)
                     return "已完成";
-                    break;
                 case 'holded': # 退貨處理中
                     return "退貨處理中";
-                    break;
                 case 'canceled': # 已退貨
                     return "已退貨";
-                    break;
                 case 'processing': # 付款成功(前台顯示已完成)，尚未出貨
                     return "已完成";
-                    break;
             }
         } else if($source ==='ct_pass'){
             switch ($key) {
-
                 case '00': # 待付款
                     return "待付款";
-                    break;
                 case '01': # 已完成
                     return "已完成";
-                    break;
                 case '02': # 部分退貨
                     return "部分退貨";
-                    break;
                 case '03': # 已退貨
                     return "已退貨";
-                    break;
                 case '04': # 處理中
                     return "處理中";
-                    break;
             }
         }else{
             return null;
@@ -534,47 +514,33 @@ class OrderResult
     {
         if ($source ==='magento') {
             switch ($key) {
-
                 case '00': # 保留中
                     return "保留中";
-                    break;
                 case '01': # 處理中
                     return "處理中";
-                    break;
                 case '02': # 已送達
                     return "已送達";
-                    break;
                 case '03': # 退貨中
                     return "退貨中";
-                    break;
                 case '04': # 已退貨
                     return "已退貨";
-                    break;
                 case '05': # 已轉贈
                     return "已轉贈";
-                    break;
             }
         } else if($source ==='ct_pass'){
             switch ($key) {
-
                 case '00': # 保留中
                     return "保留中";
-                    break;
                 case '01': # 未使用
                     return "未使用";
-                    break;
                 case '02': # 已使用
                     return "已使用";
-                    break;
                 case '03': # 退貨中
                     return "退貨中";
-                    break;
                 case '04': # 已退貨
                     return "已退貨";
-                    break;
                 case '05': # 已轉贈
                     return "已轉贈";
-                    break;
             }
         }else{
             return null;
@@ -591,24 +557,17 @@ class OrderResult
     public function getIpassPayStatus($key)
     {
         switch ($key) {
-
             case 'pending': # 待付款
                 return "00";
-                break;
             case 'complete': # 已完成
                 return "01";
-                break;
             case 'holded': # 退貨處理中
                 return "04";
-                break;
             case 'canceled': # 已退貨
                 return "03";
-                break;
             case 'processing': # 處理中
                 return "01";
-                break;
         }
-
     }
 
 
@@ -620,32 +579,38 @@ class OrderResult
     public function getPaymentMethod($key)
     {
             switch ($key) {
-
                 case 'ACCLINK': # 信用卡
                     return "acclink";
-                    break;
                 case 'CREDIT': #　ATM
                     return "credit_card";
-                    break;
                 case 'WEBATM': # iPassPay
                     return "atm";
-                    break;
                 case 'BARCODE': # iPassPay
                     return "barcode";
-                    break;
                 case 'ECAC': # iPassPay
                     return "ecac";
-                    break;
                 case 'VACC': # iPassPay
                     return "atm";
-                    break;
                 case null: # iPassPay
                     return "iPassPay";
-                    break;
-
             }
-
-
     }
 
+    /**
+     * 處理品項特殊規格顯示
+     * @param $name
+     * @return array
+     */
+    public function specName($name)
+    {
+        $posStart = strpos($name, '(');
+        $posEnd = strpos($name, ')');
+        $posLine = strpos($name, '-');
+        if ($posStart && $posEnd && $posLine > $posStart && $posEnd > $posLine) {
+            $nameSplit = [$name];
+        } else {
+            $nameSplit = mb_split('-', $name, 2);
+        }
+        return $nameSplit;
+    }
 }

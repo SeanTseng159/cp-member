@@ -106,8 +106,8 @@ class OrderRepository extends BaseRepository
                $parameters->status = "processing";
                    break;
            }
-
-            $magento = $this->magento->userAuthorization($this->memberTokenService->magentoUserToken())->search($parameters);
+            $email = $this->memberTokenService->getEmail();
+            $magento = $this->magento->search($parameters,$email);
             $cityPass = $this->cityPass->authorization($this->memberTokenService->cityPassUserToken())->search($parameters);
             $data = array_merge($magento, $cityPass);
 

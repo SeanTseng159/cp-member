@@ -16,12 +16,12 @@ class LayoutRepository extends BaseRepository
 {
     private $count = 0;
 
-    const HOME_KEY = 'layout:home:%s';
-    const ADS_KEY = 'layout:ads:%s';
-    const EXPLORATION_KEY = 'layout:exploration:%s';
-    const CUSTOMIZE_KEY = 'layout:customize:%s';
-    const BANNER_KEY = 'layout:banner:%s';
-    const MENU_KEY = 'layout:menu:%s';
+    const HOME_KEY = 'layout:home';
+    const ADS_KEY = 'layout:ads';
+    const EXPLORATION_KEY = 'layout:exploration';
+    const CUSTOMIZE_KEY = 'layout:customize';
+    const BANNER_KEY = 'layout:banner';
+    const MENU_KEY = 'layout:menu';
 
     public function __construct()
     {
@@ -274,12 +274,12 @@ class LayoutRepository extends BaseRepository
     private function cacheKey($key=null,$id=null)
     {
         if(!empty($key)) {
-            $index_key = "laravel:zh-TW:".$key;
+            $index_key = $key;
             $this->redis->delete($this->genCacheKey($index_key));
             $this->home();
         }
         if(!empty($id)) {
-            $index_key = "laravel:zh-TW:".$id;
+            $index_key = $id;
             $this->redis->delete($index_key);
         }
 
@@ -292,8 +292,7 @@ class LayoutRepository extends BaseRepository
      */
     private function genCacheKey($key)
     {
-        $date = new \DateTime();
-        return sprintf($key,$date->format('Ymd'));
+        return $key;
     }
 
     /**
