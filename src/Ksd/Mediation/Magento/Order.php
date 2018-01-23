@@ -53,7 +53,6 @@ class Order extends Client
             } catch (ClientException $e) {
                 // TODO:抓不到MAGENTO API訂單資料
             }
-
             $data = [];
             if (!empty($result['items'])) {
                 foreach ($result['items'] as $item) {
@@ -129,82 +128,81 @@ class Order extends Client
     /**
      * 根據 條件篩選 取得訂單
      * @param $parameters
+     * @param $email
      * @return array
      */
-    public function search($parameters)
+    public function search($parameters,$email)
     {
-        $email = $this->getEmail();
-        $admintoken = new Client();
-        $this->authorization($admintoken->token);
-
-
-        $status = $parameters->status;
-        $orderData = $parameters->orderData;
+        if(!empty($email)) {
+            $status = $parameters->status;
+            $orderData = $parameters->orderData;
 //        $orderNo = $parameters->orderNo;
 //        $name = $parameters->name;
-        $initDate = $parameters->initDate;
-        $endDate = $parameters->endDate;
+            $initDate = $parameters->initDate;
+            $endDate = $parameters->endDate;
 
-        $response =[];
-        try{
-            $path = 'V1/orders';
-            if(!empty($status)){
-                $this->putQuery('searchCriteria[filterGroups][1][filters][0][field]', 'status')
-                    ->putQuery('searchCriteria[filterGroups][1][filters][0][value]', $status);
+            $response = [];
+            try {
+                $path = 'V1/orders';
+                if (!empty($status)) {
+                    $this->putQuery('searchCriteria[filterGroups][1][filters][0][field]', 'status')
+                        ->putQuery('searchCriteria[filterGroups][1][filters][0][value]', $status);
 
-            }else if(!empty($orderData)){
-               $this->putQuery('searchCriteria[filterGroups][2][filters][0][field]', 'increment_id')
-                    ->putQuery('searchCriteria[filterGroups][2][filters][0][value]', '%'.$orderData.'%')
-                    ->putQuery('searchCriteria[filterGroups][2][filters][0][condition_type]', 'like');
-            }else if(!empty($initDate)&&!empty($endDate)) {
-               $this->putQuery('searchCriteria[filterGroups][4][filters][0][field]', 'created_at')
-                    ->putQuery('searchCriteria[filterGroups][4][filters][0][value]', $initDate)
-                    ->putQuery('searchCriteria[filterGroups][4][filters][0][condition_type]', 'from')
-                    ->putQuery('searchCriteria[filterGroups][4][filters][0][field]', 'created_at')
-                    ->putQuery('searchCriteria[filterGroups][4][filters][0][value]', $endDate)
-                    ->putQuery('searchCriteria[filterGroups][4][filters][0][condition_type]', 'to');
-                    }
-           $response = $this->putQuery('searchCriteria[filterGroups][0][filters][0][field]', 'customer_email')
-                ->putQuery('searchCriteria[filterGroups][0][filters][0][value]', $email)
-                ->request('GET', $path);
-        }catch (ClientException $e){
-            // TODO:抓不到訂單資料
-        }
-
-        $body = $response->getBody();
-        $data = [];
-        $result = json_decode($body, true);
-
-
-        foreach ($result['items'] as $item) {
-            $order = new OrderResult();
-            $order->magento($item);
-            $data[] = (array)$order;
-        }
-
-        //如有關鍵字搜尋則進行判斷是否有相似字
-        $flag = false;
-        $data1 = [];
-
-        if(!empty($orderData) && !substr($orderData,0,1) ==='0'){
-            foreach ($data as $item) {
-                $dataflag = false;
-                foreach ($item['items'] as $items) {
-                    if(preg_match("/".$orderData."/",$items['name'])){
-                        $flag = true;
-                        $dataflag =true;
-                    }
+                } else if (!empty($orderData) && substr($orderData,0,1) === '0') {
+                    $this->putQuery('searchCriteria[filterGroups][2][filters][0][field]', 'increment_id')
+                        ->putQuery('searchCriteria[filterGroups][2][filters][0][value]', '%' . $orderData . '%')
+                        ->putQuery('searchCriteria[filterGroups][2][filters][0][condition_type]', 'like');
+                } else if (!empty($initDate) && !empty($endDate)) {
+                    $this->putQuery('searchCriteria[filterGroups][4][filters][0][field]', 'created_at')
+                        ->putQuery('searchCriteria[filterGroups][4][filters][0][value]', $initDate)
+                        ->putQuery('searchCriteria[filterGroups][4][filters][0][condition_type]', 'from')
+                        ->putQuery('searchCriteria[filterGroups][4][filters][0][field]', 'created_at')
+                        ->putQuery('searchCriteria[filterGroups][4][filters][0][value]', $endDate)
+                        ->putQuery('searchCriteria[filterGroups][4][filters][0][condition_type]', 'to');
                 }
-                if($dataflag){
-                    $data1[] = (array)$item;
-                }
+                $response = $this->putQuery('searchCriteria[filterGroups][0][filters][0][field]', 'customer_email')
+                    ->putQuery('searchCriteria[filterGroups][0][filters][0][value]', $email)
+                    ->request('GET', $path);
+            } catch (ClientException $e) {
+                // TODO:抓不到訂單資料
             }
-        }else{
-            $flag = true;
-            $data1 = (array)$data;
-        }
 
-        return $flag ? $data1 : [];
+            $body = $response->getBody();
+            $data = [];
+            $result = json_decode($body, true);
+
+
+            foreach ($result['items'] as $item) {
+                $order = new OrderResult();
+                $order->magento($item);
+                $data[] = (array)$order;
+            }
+            //如有關鍵字搜尋則進行判斷是否有相似字
+            $flag = false;
+            $data1 = [];
+
+            if (!empty($orderData) && !substr($orderData, 0, 1) === '0') {
+                foreach ($data as $item) {
+                    $dataflag = false;
+                    foreach ($item['items'] as $items) {
+                        if (preg_match("/" . $orderData . "/", $items['name'])) {
+                            $flag = true;
+                            $dataflag = true;
+                        }
+                    }
+                    if ($dataflag) {
+                        $data1[] = (array)$item;
+                    }
+                }
+            } else {
+                $flag = true;
+                $data1 = (array)$data;
+            }
+
+            return $flag ? $data1 : [];
+        }else{
+            return [];
+        }
     }
 
 
