@@ -23,8 +23,8 @@
                         </td>
                     </tr>
                     <tr>
-                        <td >
-                            <span style="color:#DA4B3D;">※ 此信件為系統發出，請勿直接回覆，感謝您的配合。謝謝！</span>
+                        <td>
+                            <span style="color:#DA4B3D;">※ 此信件為系統發出，請勿直接回覆!<br>如果有任何疑問或建議事項，歡迎隨時寄信至 service@citypass.tw，我們將竭誠為您服務，感謝您的配合。謝謝！</span>
                         </td>
                     </tr>
                 </table>

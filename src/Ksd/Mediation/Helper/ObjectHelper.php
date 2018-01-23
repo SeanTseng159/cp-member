@@ -22,9 +22,10 @@ trait ObjectHelper
     {
         if (!$result) return $default;
 
-        if (array_key_exists($key, $result)) {
-            if ($result[$key]) return $result[$key];
-            else {
+        if (is_array($result) && array_key_exists($key, $result)) {
+            if ($result[$key]) {
+                return $result[$key];
+            } else {
                 return (!is_null($default)) ? $default : $this->changeNullType($result[$key]);
             }
         }
@@ -82,23 +83,17 @@ trait ObjectHelper
         switch (gettype($val)) {
             case 'boolean':
                 return false;
-                break;
             case 'integer':
             case 'double':
                 return 0;
-                break;
             case 'string':
                 return '';
-                break;
             case 'object':
                 return $val;
-                break;
             case 'array':
                 return $val;
-                break;
             default:
                 return null;
-                break;
         }
 
         return null;
