@@ -38,3 +38,7 @@ Route::get('privacy', function () {
 Route::get('terms', function () {
     return view('web.terms');
 });
+
+Route::get('contact', function () {
+    return view('web.contact');
+});
