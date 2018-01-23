@@ -46,6 +46,10 @@
                 color: #f44336;
             }
 
+            .color-orange {
+                color: #ff8209;
+            }
+
             ul {
                 list-style-type: none;
                 padding: 0;
