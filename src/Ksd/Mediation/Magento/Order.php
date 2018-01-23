@@ -152,7 +152,8 @@ class Order extends Client
                     $this->putQuery('searchCriteria[filterGroups][1][filters][0][field]', 'status')
                         ->putQuery('searchCriteria[filterGroups][1][filters][0][value]', $status);
 
-                }else if(!empty($orderData)){
+                }
+                if(!empty($orderData)){
                     $ids = [];
                     foreach ($orderItemResult['items'] as $item ) {
                         $ids[] = $this->arrayDefault($item, 'order_id', 0);
@@ -164,14 +165,15 @@ class Order extends Client
                         ->putQuery('searchCriteria[filterGroups][2][filters][1][field]', 'increment_id')
                         ->putQuery('searchCriteria[filterGroups][2][filters][1][value]', '%'.$orderData.'%')
                         ->putQuery('searchCriteria[filterGroups][2][filters][1][condition_type]', 'like');
-                }else if(!empty($initDate)&&!empty($endDate)) {
+                }
+                if(!empty($initDate)&&!empty($endDate)) {
                    $this->putQuery('searchCriteria[filterGroups][4][filters][0][field]', 'created_at')
                         ->putQuery('searchCriteria[filterGroups][4][filters][0][value]', $initDate)
                         ->putQuery('searchCriteria[filterGroups][4][filters][0][condition_type]', 'from')
-                        ->putQuery('searchCriteria[filterGroups][4][filters][0][field]', 'created_at')
-                        ->putQuery('searchCriteria[filterGroups][4][filters][0][value]', $endDate)
-                        ->putQuery('searchCriteria[filterGroups][4][filters][0][condition_type]', 'to');
-                        }
+                        ->putQuery('searchCriteria[filterGroups][5][filters][0][field]', 'created_at')
+                        ->putQuery('searchCriteria[filterGroups][5][filters][0][value]', $endDate)
+                        ->putQuery('searchCriteria[filterGroups][45][filters][0][condition_type]', 'to');
+                }
                $response = $this->putQuery('searchCriteria[filterGroups][0][filters][0][field]', 'customer_email')
                     ->putQuery('searchCriteria[filterGroups][0][filters][0][value]', $email)
                     ->request('GET', $path);
@@ -500,5 +502,30 @@ class Order extends Client
         return true;
     }
 
+    /**
+     * 搜尋訂單品項
+     * @param $parameters
+     * @return array|mixed
+     */
+    public function searchItem($parameters)
+    {
+        $orderData = $parameters->orderData;
+        if (empty($orderData)) {
+            return [];
+        }
 
+        try{
+            $path = 'V1/orders/items';
+            $this->putQuery('searchCriteria[filterGroups][2][filters][0][field]', 'name')
+                ->putQuery('searchCriteria[filterGroups][2][filters][0][value]', '%'.$orderData.'%')
+                ->putQuery('searchCriteria[filterGroups][2][filters][0][condition_type]', 'like');
+            $response = $this->request('GET', $path);
+            $body = $response->getBody();
+            $result = json_decode($body, true);
+            return $result;
+        }catch (ClientException $e){
+            // TODO:抓不到訂單資料
+        }
+        return [];
+    }
 }
