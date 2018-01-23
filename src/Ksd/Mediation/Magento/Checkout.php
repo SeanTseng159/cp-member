@@ -98,7 +98,20 @@ class Checkout extends Client
      */
     public function billingInfo()
     {
-        return [];
+        $info = [
+                [
+                    "id" => 1,
+                    "name" => "二聯式電子發票",
+                    "type" => "default"
+                ],
+                [
+                    "id" => 2,
+                    "name" => "三聯式電子發票",
+                    "type" => "employer_id"
+                ]
+
+        ];
+        return $info;
     }
 
     /**
@@ -187,15 +200,28 @@ class Checkout extends Client
                 ]
             ];
         }
-
         $body = [];
         $this->putParameters($parameter);
         try {
             $response = $this->request('POST', 'V1/carts/mine/payment-information');
             $body = $response->getBody();
         }catch (ClientException $e){
-
+            Log::debug('===magento非信用卡結帳(atm)===');
+            Log::debug($e);
         }
+
+        //如有三聯式發票資訊 抬頭&統編 則存入order/comment
+        if(!empty($body)) {
+            $admintoken = new Client();
+            $this->authorization($admintoken->token);
+            $billingInfo = [
+                'invoiceTitle' => $parameters->billing()->invoiceTitle,
+                'unifiedBusinessNo' => $parameters->billing()->unifiedBusinessNo
+            ];
+            $this->setInvoiceInfo(trim($body, '"'), $billingInfo);
+        }
+
+
         return empty($body) ? [] : [ 'id' => trim($body, '"')];
     }
 
@@ -317,8 +343,6 @@ class Checkout extends Client
                 'source' => $parameters->source
             ];
         }
-        Log::debug('===V1/carts/mine/payment-information ($parameter)===');
-        Log::debug($parameter);
 
         $body = [];
         $this->putParameters($parameter);
@@ -359,6 +383,15 @@ class Checkout extends Client
 
             $pay = new TspgPostback();
             $pay->fill($data)->save();
+
+
+            //如有三聯式發票資訊 抬頭&統編 則存入order/comment
+            $billingInfo = [
+                'invoiceTitle' => $parameters->billing()->invoiceTitle,
+                'unifiedBusinessNo' => $parameters->billing()->unifiedBusinessNo
+            ];
+            $this->setInvoiceInfo($orderId, $billingInfo);
+
 
             return [ 'id' => $orderId, 'url' => $url];
 
@@ -463,6 +496,29 @@ class Checkout extends Client
         return sprintf($key,$date->format('Ymd'));
     }
 
+
+    /**
+     * 儲存發票資訊
+     * @param $orderId
+     * @param $parameter
+     * @return string
+     */
+    private function setInvoiceInfo($orderId,$parameter=null)
+    {
+        if(isset($orderId) && isset($parameter)) {
+            $parameter = [
+                'statusHistory' => [
+                    "comment" => implode('&', $parameter)
+                ]
+            ];
+            $this->putParameters($parameter);
+            $this->request('POST', 'V1/orders/' . $orderId . '/comments');
+            return true;
+
+        }else{
+            return true;
+        }
+    }
 
 
 
