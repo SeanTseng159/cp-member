@@ -6,7 +6,6 @@ service cron restart;
 
 php $WEB_HOME/artisan optimize;
 php $WEB_HOME/artisan vendor:publish --all;
-php $WEB_HOME/artisan cache:clear;
 
 supervisorctl reread;
 supervisorctl update;
