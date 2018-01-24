@@ -9,7 +9,6 @@
 namespace App\Plugins;
 
 
-use Illuminate\Support\Facades\Log;
 
 class FtpClient
 {
@@ -113,7 +112,7 @@ class FtpClient
     public function mkDir($dir)
     {
         if ($this->connect()) {
-            if(ftp_nlist($this->client, $dir)) {
+            if(ftp_chdir($this->client, $dir) == false) {
                 ftp_mkdir($this->client, $dir);
             }
         }

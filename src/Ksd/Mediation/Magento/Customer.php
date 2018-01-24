@@ -25,7 +25,7 @@ class Customer extends Client
         if($member->openPlateform ==="citypass") {
             $customer->email = $member->email;
         }else{
-            $customer->email = $member->openId;
+            $customer->email = $member->openPlateform.'_'.$member->openId;
         }
         $customer->firstname = $firstName;
         $customer->lastname = $lastName;

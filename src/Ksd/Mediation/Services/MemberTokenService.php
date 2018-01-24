@@ -87,8 +87,13 @@ class MemberTokenService
             return '';
         }
         $member = $this->memberService->find($data->id);
+
         if(isset($member)) {
-            return $member->email;
+            if(empty($member->email)) {
+                return $member->openPlateform.'_'.$member->openId;
+            }else{
+                return $member->email;
+            }
         }else{
             return null;
         }
