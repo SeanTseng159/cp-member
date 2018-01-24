@@ -157,12 +157,14 @@ class Layout extends Client
      * @param $itemId
      * @return LayoutResult
      */
-    public function category($itemId)
+    public function category($parameter)
     {
 
         $result = [];
         try {
-            $response = $this->request('GET', 'layout/category/'.$itemId);
+            $itemId = $parameter->id;
+            $response = $this->putQuery('page', $parameter->page)
+                ->request('GET', 'layout/category/'.$itemId);
             $result = json_decode($response->getBody(), true);
 
         } catch (ClientException $e) {
@@ -204,12 +206,14 @@ class Layout extends Client
      * @param $itemId
      * @return LayoutResult
      */
-    public function maincategory($itemId)
+    public function maincategory($parameter)
     {
 
         $result = [];
         try {
-            $response = $this->request('GET', 'product/category/' . $itemId);
+            $itemId = $parameter->id;
+            $response = $this->putQuery('page', $parameter->page)
+                ->request('GET', 'product/category/' . $itemId);
             $result = json_decode($response->getBody(), true);
 
         } catch (ClientException $e) {
@@ -224,12 +228,14 @@ class Layout extends Client
      * @param $itemId
      * @return LayoutResult
      */
-    public function subcategory($itemId)
+    public function subcategory($parameter)
     {
 
         $result = [];
         try {
-            $response = $this->request('GET', 'product/subcategory/'.$itemId);
+            $itemId = $parameter->id;
+            $response = $this->putQuery('page', $parameter->page)
+                ->request('GET', 'product/subcategory/'.$itemId);
             $result = json_decode($response->getBody(), true);
 
         } catch (ClientException $e) {

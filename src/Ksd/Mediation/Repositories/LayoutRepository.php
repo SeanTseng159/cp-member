@@ -122,13 +122,10 @@ class LayoutRepository extends BaseRepository
     public function category($parameter)
     {
         $itemId = $parameter->id;
-        return $this->redis->remember("category:id:$itemId", CacheConfig::LAYOUT_TIME, function () use ($itemId) {
-            $cityPass = $this->cityPass->category($itemId);
-
+//        return $this->redis->remember("category:id:$itemId", CacheConfig::LAYOUT_TIME, function () use ($parameter) {
+            $cityPass = $this->cityPass->category($parameter);
             return  $cityPass;
-
-
-        });
+//        });
     }
 
     /**
@@ -154,27 +151,24 @@ class LayoutRepository extends BaseRepository
     public function maincategory($parameter)
     {
         $itemId = $parameter->id;
-        return $this->redis->remember("maincategory:id:$itemId", CacheConfig::LAYOUT_TIME, function () use ($itemId) {
-            return $this->cityPass->maincategory($itemId);
-        });
+//        return $this->redis->remember("maincategory:id:$itemId", CacheConfig::LAYOUT_TIME, function () use ($parameter) {
+            return $this->cityPass->maincategory($parameter);
+//        });
     }
 
-        /**
-         * 利用選單id取得商品資料
-         * @param parameter
-         * @return mixed
-         */
-        public function subcategory($parameter)
-        {
-            $itemId = $parameter->id;
-            return $this->redis->remember("subcategory:id:$itemId", CacheConfig::LAYOUT_TIME, function () use ($itemId) {
-                $cityPass = $this->cityPass->subcategory($itemId);
-
-                return  $cityPass;
-
-
-            });
-        }
+    /**
+     * 利用選單id取得商品資料
+     * @param parameter
+     * @return mixed
+     */
+    public function subcategory($parameter)
+    {
+        $itemId = $parameter->id;
+//        return $this->redis->remember("subcategory:id:$itemId", CacheConfig::LAYOUT_TIME, function () use ($parameter) {
+            $cityPass = $this->cityPass->subcategory($parameter);
+            return  $cityPass;
+//        });
+    }
 
 
     /**

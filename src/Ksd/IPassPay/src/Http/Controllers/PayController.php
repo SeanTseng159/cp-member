@@ -122,16 +122,8 @@ class PayController extends RestLaravelController
       Log::debug('=== update order ===');
       Log::debug(print_r($updateResult, true));
 
-      $result = false;
-      if ($callbackParameter->source === SELF::MAGENTO) {
-        $result = $updateResult;
-      }
-      elseif ($callbackParameter->source === SELF::CITYPASS) {
-        $result = ($updateResult && $updateResult['statusCode'] == 201);
-      }
-
       // 導回前端
-      return ($result) ? $this->successRedirect($callbackParameter) : $this->failureRedirect($callbackParameter);
+      return ($updateResult) ? $this->successRedirect($callbackParameter) : $this->failureRedirect($callbackParameter);
     }
 
     public function failureCallback(Request $request)
@@ -150,6 +142,7 @@ class PayController extends RestLaravelController
         $parameter = new \stdClass;
         $parameter->source = $callbackParameter->source;
         $parameter->id = $callbackParameter->orderNo;
+        $parameter->itemId = null;
         $this->orderService->find($parameter);
       }
 

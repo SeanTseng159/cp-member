@@ -9,7 +9,6 @@
 namespace App\Plugins;
 
 
-use Illuminate\Support\Facades\Log;
 
 class FtpClient
 {
@@ -17,6 +16,7 @@ class FtpClient
     private $port;
     private $username;
     private $password;
+    private $isSsl = true;
     private $client;
 
     public function __construct($host, $username, $password, $port = 21)
@@ -25,15 +25,34 @@ class FtpClient
         $this->port = $port;
         $this->username = $username;
         $this->password = $password;
-
-
     }
 
+    /**
+     * 設定 ssl連線
+     * @param $isSsl
+     */
+    public function setIsSsl($isSsl)
+    {
+        $this->isSsl = $isSsl;
+    }
+
+    /**
+     * 啟動連線
+     * @return bool
+     */
     public function connect() {
-        $this->client = ftp_ssl_connect($this->host, $this->port);
+        if ($this->isSsl) {
+            $this->client = ftp_ssl_connect($this->host, $this->port);
+        } else {
+            $this->client = ftp_connect($this->host, $this->port);
+        }
         return $this->login();
     }
 
+    /**
+     * 帳號登入
+     * @return bool
+     */
     public function login()
     {
         $isLogin = false;
@@ -49,20 +68,54 @@ class FtpClient
         return $isLogin;
     }
 
+    /**
+     * 關閉連線
+     */
     public function close()
     {
         ftp_close($this->client);
     }
 
+    /**
+     * 放置檔案
+     * @param $filePath
+     * @param $toPath
+     */
     public function putFile($filePath, $toPath)
     {
         if ($this->connect()) {
-            Log::debug('filePath:' . $filePath . ', toPath:' .  $toPath);
             $fp = fopen($filePath, 'r');
             ftp_fput($this->client, $toPath, $fp, FTP_BINARY);
             fclose($fp);
         }
         $this->close();
 
+    }
+
+    /**
+     * 移動檔案
+     * @param $filePath
+     * @param $toPath
+     */
+    public function moveFile($filePath, $toPath)
+    {
+        if ($this->connect()) {
+            ftp_rename($this->client, $filePath, $toPath);
+        }
+        $this->close();
+    }
+
+    /**
+     * 新增目錄
+     * @param $dir
+     */
+    public function mkDir($dir)
+    {
+        if ($this->connect()) {
+            if(ftp_chdir($this->client, $dir) == false) {
+                ftp_mkdir($this->client, $dir);
+            }
+        }
+        $this->close();
     }
 }

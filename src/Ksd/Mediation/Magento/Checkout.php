@@ -19,10 +19,12 @@ use Log;
 use App\Models\TspgPostback;
 use App\Models\TspgResultUrl;
 use Ksd\Mediation\Magento\Order;
+use Ksd\Mediation\Helper\EnvHelper;
 
 class Checkout extends Client
 {
     use StringHelper;
+    use EnvHelper;
 
     private $cart;
 
@@ -209,21 +211,23 @@ class Checkout extends Client
             Log::debug('===magento非信用卡結帳(atm)===');
             Log::debug($e);
         }
-
+        $orderId = !empty($body) ? (trim($body, '"')) : null;
         //如有三聯式發票資訊 抬頭&統編 則存入order/comment
-        if(!empty($body)) {
+        if(!empty($orderId)) {
             $admintoken = new Client();
             $this->authorization($admintoken->token);
             $billingInfo = [
                 'invoiceTitle' => $parameters->billing()->invoiceTitle,
                 'unifiedBusinessNo' => $parameters->billing()->unifiedBusinessNo
             ];
-            $this->setInvoiceInfo(trim($body, '"'), $billingInfo);
+            $this->setInvoiceInfo($orderId, $billingInfo);
+
+            //存入order/comment會有status的bug，須把狀態重新改為pending
+            $order = new Order();
+            $incrementId =  $order->orderIdToIncrementId(trim($body, '"'));
+            $order->updateOrderState($orderId,$incrementId,'pending');
         }
-        //存入order/comment會有status的bug，須把狀態重新改為pending
-        $order = new Order();
-        $incrementId =  $order->orderIdToIncrementId(trim($body, '"'));
-        $order->updateOrderState(trim($body, '"'),$incrementId,'pending');
+
 
 
         return empty($body) ? [] : [ 'id' => trim($body, '"')];
@@ -375,7 +379,7 @@ class Checkout extends Client
             $orderNo = $result['increment_id'];
             $device = $result['payment']['additional_information'][0];
             $source = $result['payment']['additional_information'][1];
-            $order_No = "TMA_".$orderNo;
+            $order_No = $this->env('MAGENTO_ORDER_PREFIX').$orderNo;
             $data = [
                 'order_id' => $orderId,
                 'order_no' => $order_No,
@@ -388,14 +392,20 @@ class Checkout extends Client
             $pay = new TspgPostback();
             $pay->fill($data)->save();
 
-/*
-            //如有三聯式發票資訊 抬頭&統編 則存入order/comment
-            $billingInfo = [
-                'invoiceTitle' => $parameters->billing()->invoiceTitle,
-                'unifiedBusinessNo' => $parameters->billing()->unifiedBusinessNo
-            ];
-            $this->setInvoiceInfo($orderId, $billingInfo);
-*/
+            if(!empty($parameters->billing()->unifiedBusinessNo)) {
+                //如有三聯式發票資訊 抬頭&統編 則存入order/comment
+                $billingInfo = [
+                    'invoiceTitle' => $parameters->billing()->invoiceTitle,
+                    'unifiedBusinessNo' => $parameters->billing()->unifiedBusinessNo
+                ];
+                $this->setInvoiceInfo($orderId, $billingInfo);
+
+                //存入order/comment會有status消失的bug，須把狀態重新改為pending
+                $order = new Order();
+                $incrementId = $order->orderIdToIncrementId($orderId);
+                $order->updateOrderState($orderId, $incrementId, 'processing');
+            }
+
 
             return [ 'id' => $orderId, 'url' => $url];
 
@@ -413,42 +423,42 @@ class Checkout extends Client
      */
     public function updateOrder($data,$parameters)
     {
+        if(isset($data) && isset($parameters)) {
+            $id = $data->order_id;
+            $ret_code = $parameters->ret_code;
+            $str = explode("_", $parameters->order_no);
+            $incrementId = $str[1];
+            //付款成功
+            if ($ret_code === "00") {
+                $parameter = [
+                    'entity' => [
+                        'entity_id' => $id,
+                        'increment_id' => $incrementId,
+                        'status' => 'processing',
 
-        $id = $data->order_id;
-        $ret_code = $parameters->ret_code;
-        $str =  explode("_",$parameters->order_no);
-        $incrementId = $str[1];
-        //付款成功
-        if($ret_code === "00") {
-            $parameter = [
-                'entity' => [
-                    'entity_id' => $id,
-                    'increment_id' => $incrementId,
-                    'status' => 'processing',
+                    ]
+                ];
+            } else {
+                //3D驗證失敗，把訂單狀態改為canceled，並將原訂單重加回購物車
+                $parameter = [
+                    'entity' => [
+                        'entity_id' => $id,
+                        'increment_id' => $incrementId,
+                        'status' => 'canceled',
 
-                ]
-            ];
-        }else{
-            //3D驗證失敗，把訂單狀態改為canceled，並將原訂單重加回購物車
-            $parameter = [
-                'entity' => [
-                    'entity_id' => $id,
-                    'increment_id' => $incrementId,
-                    'status' => 'canceled',
+                    ]
+                ];
+                $order = new Order();
+                $order->getOrder($id);
 
-                ]
-            ];
-            $order = new Order();
-            $order->getOrder($id);
+            }
 
+            $this->putParameters($parameter);
+            $response = $this->request('PUT', 'V1/orders/create');
+            $result = json_decode($response->getBody(), true);
+            Log::debug('===magento台新結果回傳更新訂單===');
+            Log::debug(print_r(json_decode($response->getBody(), true), true));
         }
-
-        $this->putParameters($parameter);
-        $response = $this->request('PUT', 'V1/orders/create');
-        $result = json_decode($response->getBody(), true);
-        Log::debug('===magento台新結果回傳更新訂單===');
-        Log::debug(print_r(json_decode($response->getBody(), true), true));
-
 
     }
 

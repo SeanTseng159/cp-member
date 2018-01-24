@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands\Payment\Tspg;
 
+use App\Plugins\FtpClient;
 use App\Services\JWTTokenService;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
@@ -11,6 +12,7 @@ use Illuminate\Support\Facades\Log;
 use Ksd\Mediation\Config\ProjectConfig;
 use Ksd\Mediation\Magento\Payment as MagentoPayment;
 use Ksd\Mediation\CityPass\Payment as CityPassPayment;
+use Psy\ExecutionLoop\Loop;
 
 class AtmSalesAccount extends Command
 {
@@ -52,7 +54,7 @@ class AtmSalesAccount extends Command
     public function handle()
     {
         $directory = env('TSPG_ATM_SALES_ACCOUNT_DIR', storage_path('app/tspg'));
-        $files = File::allFiles($directory);
+        $files = File::files($directory);
         $magentoPayment = new MagentoPayment();
         $cityPassPayment = new CityPassPayment();
 
@@ -65,6 +67,7 @@ class AtmSalesAccount extends Command
 
             $fileTime = $this->fileTime($filename);
             if (!empty($fileTime)) {
+                $isSuccess = true;
                 $fileResource  = fopen($file, "r");
                 if ($fileResource) {
                     $result = [ProjectConfig::MAGENTO => [], ProjectConfig::CITY_PASS => []];
@@ -82,10 +85,13 @@ class AtmSalesAccount extends Command
                     ->setJson(true)
                     ->tspgATMReturn($result[ProjectConfig::CITY_PASS]);
                 if(!$cityPassResult) {
+                    $isSuccess = false;
                     Log::error('city pass fail file:' . $filename);
                 }
                 fclose($fileResource);
+                $this->ftpMoveFiles($filename, $isSuccess);
             }
+
             Cache::forever($this->cacheKey($filename), true);
         }
     }
@@ -95,7 +101,10 @@ class AtmSalesAccount extends Command
         $prefix = 'TSAC53890045';
         $pos = strpos($filename, $prefix);
         if($pos !== false && strpos($filename, $prefix) == 0) {
-            return Carbon::parse(mb_substr($filename, 12));
+            $date = Carbon::parse(mb_substr($filename, 12));
+            if (!($date->format('H:i:s') == '00:00:00')) {
+                return $date;
+            }
         }
         return null;
     }
@@ -128,6 +137,14 @@ class AtmSalesAccount extends Command
         return $atm;
     }
 
+    /**
+     * 字串擷取功能
+     * @param $line
+     * @param $start
+     * @param $length
+     * @param bool $isTrim
+     * @return string
+     */
     private function mdSubstr($line, $start, $length, $isTrim = true)
     {
         $str = mb_substr($line, $start, $length);
@@ -137,8 +154,40 @@ class AtmSalesAccount extends Command
         return $str;
     }
 
+    /**
+     * 建立快取 key
+     * @param $filename
+     * @return string
+     */
     private function cacheKey($filename)
     {
         return sprintf('tspg:atm_sales_account:%s',$filename);
+    }
+
+    /**
+     * 搬移銷帳檔案
+     * @param $file
+     * @param bool $isSuccess
+     */
+    private function ftpMoveFiles($file, $isSuccess = true)
+    {
+        $host = env('TSPG_ATM_FTP_HOST');
+        $username = env('TSPG_ATM_FTP_USERNAME');
+        $password = env('TSPG_ATM_FTP_PASSWORD');
+
+        $client = new FtpClient($host, $username, $password);
+        $client->setIsSsl(false);
+        if ($isSuccess) {
+            $successDir = 'success';
+            $client->mkDir($successDir);
+            $successPath = sprintf('%s/%s', $successDir, $file);
+            $client->moveFile($file, $successPath);
+
+        } else {
+            $failDir = 'fail';
+            $client->mkDir($failDir);
+            $failPath = sprintf('%s/%s', $failDir, $file);
+            $client->moveFile($file, $failPath);
+        }
     }
 }

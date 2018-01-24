@@ -39,7 +39,7 @@ class OrderResult
             $this->orderDate = date('Y-m-d H:i:s', strtotime('+8 hours', strtotime($this->arrayDefault($result, 'created_at'))));
             $payment = $this->arrayDefault($result, 'payment');
             $comment = $this->arrayDefault($result, 'status_histories');
-            $this->payment = $this->putMagentoPayment($payment);
+            $this->payment = $this->putMagentoPayment($payment,$comment);
 //            $this->payment['username'] =   $this->arrayDefault($result, 'customer_firstname') . $this->arrayDefault($result, 'customer_lastname');
             $this->shipping = [];
             $ship = $this->arrayDefault($result, 'extension_attributes');
@@ -113,7 +113,8 @@ class OrderResult
                 $this->shipping['name'] = $shipping['address']['firstname'] . $shipping['address']['lastname'];
                 $this->shipping['phone'] = $shipping['address']['telephone'];
                 $this->shipping['code'] = $shipping['address']['postcode'];
-                $this->shipping['address'] = $shipping['address']['city'].$shipping['address']['street'][0];
+                $region = isset($shipping['address']['region']) ? $shipping['address']['region'] : null;
+                $this->shipping['address'] = $shipping['address']['city'].$region.$shipping['address']['street'][0];
 
             }
             $this->shipping['description'] = $this->arrayDefault($result, 'shipping_description');

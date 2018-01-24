@@ -186,9 +186,11 @@ class Order extends Client
 
 
             foreach ($result['items'] as $item) {
-                $order = new OrderResult();
-                $order->magento($item);
-                $data[] = (array)$order;
+                if (isset($item['status']) && $item['status'] !== "canceled") { //訂單狀態為canceled不顯示
+                    $order = new OrderResult();
+                    $order->magento($item);
+                    $data[] = (array)$order;
+                }
             }
 
             //如有關鍵字搜尋則進行判斷是否有相似字
@@ -293,7 +295,6 @@ class Order extends Client
     {
 
         $id = $parameters->id;
-        $itemId = $parameters->itemId;
 
         $path = sprintf('V1/orders/%s', $id);
         $response = $this->request('GET', $path);
@@ -304,18 +305,6 @@ class Order extends Client
         $order->magento($result,true);
         $data[] = $order;
 
-        //如有關鍵字搜尋則進行判斷是否有相似字
-        if(!empty($itemId)){
-            $count = 0;
-            foreach ($order->items as $items) {
-                if(!preg_match("/".$itemId."/",$items['id'])){
-                    array_splice($order->items,$count,1);
-                    $count--;
-                }
-                $count++;
-            }
-            $data[] = $order;
-        }
 
 
         return $data;

@@ -49,7 +49,7 @@ class Invoice extends Client
             $path = 'V1/orders';
             $response = $this
                 ->putQuery('searchCriteria[filterGroups][0][filters][0][field]', 'status')
-                ->putQuery('searchCriteria[filterGroups][0][filters][0][value]', 'processing')
+                ->putQuery('searchCriteria[filterGroups][0][filters][0][value]', 'complete')
                 ->putQuery('searchCriteria[filterGroups][1][filters][0][field]', 'updated_at')
                 ->putQuery('searchCriteria[filterGroups][1][filters][0][value]', $startDate)
                 ->putQuery('searchCriteria[filterGroups][1][filters][0][condition_type]', 'from')
@@ -109,16 +109,32 @@ class Invoice extends Client
 
         $record_str .= self::BU_CODE.'|';                      //11.賣方廠編
 
-        $record_str .= '|';           //12.買方統一編號
+        //判斷付款方式，將存到comment的發票資訊帶出來
+        $payment = $this->arrayDefault($result, 'payment');
+        $comment = $this->arrayDefault($result, 'status_histories');
+        $invoiceTitle = null;
+        $unifiedBusinessNo = null;
+        if(isset($payment) && isset($comment)){
+            if($payment['method'] === 'ipasspay'){
+                $data = !empty($comment) ? explode("&",$comment[1]['comment']) : null;
+                $invoiceTitle = $data[0];
+                $unifiedBusinessNo = $data[1];
+            }else{
+                $data = !empty($comment) ? explode("&",$comment[0]['comment']) : null;
+                $invoiceTitle = $data[0];
+                $unifiedBusinessNo = $data[1];
+            }
+        }
+        $record_str .= $unifiedBusinessNo .'|';           //12.買方統一編號
 
-        $record_str .= '|';         //13.買受人公司名稱
+        $record_str .= $invoiceTitle.'|';         //13.買受人公司名稱
 
 
         $member = $this->member->whereEmail($this->arrayDefault($result, 'customer_email'))->first();
 
 
 
-        if(!empty($member)){
+        if(isset($member)){
 
             $record_str .= $member->id.'|';                   //14.會員編號
 
