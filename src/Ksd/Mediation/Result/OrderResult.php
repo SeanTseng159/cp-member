@@ -39,7 +39,7 @@ class OrderResult
             $this->orderDate = date('Y-m-d H:i:s', strtotime('+8 hours', strtotime($this->arrayDefault($result, 'created_at'))));
             $payment = $this->arrayDefault($result, 'payment');
             $comment = $this->arrayDefault($result, 'status_histories');
-            $this->payment = $this->putMagentoPayment($payment);
+            $this->payment = $this->putMagentoPayment($payment,$comment);
 //            $this->payment['username'] =   $this->arrayDefault($result, 'customer_firstname') . $this->arrayDefault($result, 'customer_lastname');
             $this->shipping = [];
             $ship = $this->arrayDefault($result, 'extension_attributes');
