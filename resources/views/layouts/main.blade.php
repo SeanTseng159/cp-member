@@ -8,7 +8,7 @@
         <title>CityPass都會通</title>
 
         <!-- Latest compiled and minified CSS -->
-        <!--<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">-->
+        <link rel="stylesheet" href="{{ asset('css/bootstrap.min.css') }}">
 
         <style>
             html {
@@ -19,12 +19,6 @@
                 background-color: #fff;
                 font-family: '微軟正黑體', 'Microsoft JhengHei', 'Helvetica Neue', 'Helvetica', sans-serif;
                 padding-bottom: 30px;
-            }
-
-            .container {
-                width: 1170px;
-                max-width: 100%;
-                margin: 0 auto;
             }
 
             .main-title2 {
@@ -48,16 +42,6 @@
 
             .color-orange {
                 color: #ff8209;
-            }
-
-            .text-center {
-                text-align: center;
-            }
-
-            .img-responsive {
-                max-width: 100%;
-                height: auto;
-                display: block;
             }
 
             ul {
