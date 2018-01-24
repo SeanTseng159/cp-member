@@ -113,7 +113,8 @@ class OrderResult
                 $this->shipping['name'] = $shipping['address']['firstname'] . $shipping['address']['lastname'];
                 $this->shipping['phone'] = $shipping['address']['telephone'];
                 $this->shipping['code'] = $shipping['address']['postcode'];
-                $this->shipping['address'] = $shipping['address']['city'].$shipping['address']['street'][0];
+                $region = isset($shipping['address']['region']) ? $shipping['address']['region'] : null;
+                $this->shipping['address'] = $shipping['address']['city'].$region.$shipping['address']['street'][0];
 
             }
             $this->shipping['description'] = $this->arrayDefault($result, 'shipping_description');
