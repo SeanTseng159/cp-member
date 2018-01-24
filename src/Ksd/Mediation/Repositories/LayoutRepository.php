@@ -151,9 +151,9 @@ class LayoutRepository extends BaseRepository
     public function maincategory($parameter)
     {
         $itemId = $parameter->id;
-        return $this->redis->remember("maincategory:id:$itemId", CacheConfig::LAYOUT_TIME, function () use ($itemId) {
-            return $this->cityPass->maincategory($itemId);
-        });
+//        return $this->redis->remember("maincategory:id:$itemId", CacheConfig::LAYOUT_TIME, function () use ($parameter) {
+            return $this->cityPass->maincategory($parameter);
+//        });
     }
 
     /**

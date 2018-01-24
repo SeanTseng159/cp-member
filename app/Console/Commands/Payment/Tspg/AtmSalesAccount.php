@@ -172,8 +172,8 @@ class AtmSalesAccount extends Command
     private function ftpMoveFiles($file, $isSuccess = true)
     {
         $host = env('TSPG_ATM_FTP_HOST');
-        $username = 'taishin';
-        $password = 'chan3quieCh7';
+        $username = env('TSPG_ATM_FTP_USERNAME');
+        $password = env('TSPG_ATM_FTP_PASSWORD');
 
         $client = new FtpClient($host, $username, $password);
         $client->setIsSsl(false);
