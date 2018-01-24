@@ -8,7 +8,6 @@
 
 namespace Ksd\Mediation\Core\Client;
 
-use Illuminate\Support\Facades\Log;
 use Ksd\Mediation\Core\Logger;
 use Ksd\Mediation\Helper\LoggerHelper;
 use Ksd\Mediation\Helper\ObjectHelper;
@@ -165,8 +164,6 @@ class BaseClient
                 $option['form_params'] = $this->replaceNullToEmptyString($this->parameters);
             }
         }
-
-        Log::debug($option);
 
         return $option;
     }
