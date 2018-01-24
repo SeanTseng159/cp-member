@@ -206,12 +206,14 @@ class Layout extends Client
      * @param $itemId
      * @return LayoutResult
      */
-    public function maincategory($itemId)
+    public function maincategory($parameter)
     {
 
         $result = [];
         try {
-            $response = $this->request('GET', 'product/category/' . $itemId);
+            $itemId = $parameter->id;
+            $response = $this->putQuery('page', $parameter->page)
+                ->request('GET', 'product/category/' . $itemId);
             $result = json_decode($response->getBody(), true);
 
         } catch (ClientException $e) {
