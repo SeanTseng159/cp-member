@@ -128,9 +128,6 @@ class PayController extends RestLaravelController
 
     public function failureCallback(Request $request)
     {
-      Log::debug('=== ipass pay failure callback ===');
-      Log::debug(print_r($request->all(), true));
-
       $callbackParameter = new CallbackParameter;
       $callbackParameter->laravelRequest($request);
 
@@ -138,13 +135,13 @@ class PayController extends RestLaravelController
       $this->logService->update($callbackParameter->callback->order_id, ['bindPayCallback' => json_encode($request->all())]);
 
       //撈訂單詳細重新加入購物車
-      if ($callbackParameter->source === SELF::MAGENTO) {
+      /*if ($callbackParameter->source === SELF::MAGENTO) {
         $parameter = new \stdClass;
         $parameter->source = $callbackParameter->source;
         $parameter->id = $callbackParameter->orderNo;
         $parameter->itemId = null;
         $this->orderService->find($parameter);
-      }
+      }*/
 
       return $this->failureRedirect($callbackParameter);
     }
@@ -178,12 +175,13 @@ class PayController extends RestLaravelController
 
         $url = env('CITY_PASS_WEB') . $this->lang . '/checkout/complete/' . $s . '/' . $parameter->orderNo;
 
-        if ($parameter->source === SELF::MAGENTO) {
+        /*if ($parameter->source === SELF::MAGENTO) {
           $url = env('CITY_PASS_WEB') . $this->lang . '/checkout/failure/000';
         }
         else {
           $url = env('CITY_PASS_WEB') . $this->lang . '/checkout/complete/' . $s . '/' . $parameter->orderNo;
-        }
+        }*/
+        $url = env('CITY_PASS_WEB') . $this->lang . '/checkout/complete/' . $s . '/' . $parameter->orderNo;
 
         return redirect($url);
       }
