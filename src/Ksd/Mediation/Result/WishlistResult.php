@@ -30,8 +30,9 @@ class WishlistResult
         $this->tags['name']=null;
         $this->id = $this->arrayDefault($result['product'], 'sku');
         $this->name = $this->arrayDefault($result['product'], 'name');
-        $this->price = $this->arrayDefault($result['product'], 'price');
-        $this->salePrice = $this->arrayDefault($result['product'], 'price');
+        $this->price = intval($this->arrayDefault($result['product'], 'price'));
+        $this->salePrice = empty($this->arrayDefault($result['product'], 'price')) ? null : intval($this->price);
+
         $this->characteristic = null;
         $this->storeName = null;
         $this->place = null;
