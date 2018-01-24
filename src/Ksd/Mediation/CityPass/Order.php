@@ -177,6 +177,7 @@ class Order extends Client
         $result = json_decode($response->getBody(), true);
 
         Log::debug('=== ctpass update order ===');
+        Log::debug($parameters->orderNo);
         Log::debug(print_r($result, true));
 
         return ($result['statusCode'] === 201) ? true : false;
