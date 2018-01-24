@@ -54,6 +54,12 @@
                 text-align: center;
             }
 
+            .img-responsive {
+                max-width: 100%;
+                height: auto;
+                display: block;
+            }
+
             ul {
                 list-style-type: none;
                 padding: 0;
