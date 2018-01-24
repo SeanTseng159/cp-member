@@ -209,21 +209,23 @@ class Checkout extends Client
             Log::debug('===magento非信用卡結帳(atm)===');
             Log::debug($e);
         }
-
+        $orderId = !empty($body) ? (trim($body, '"')) : null;
         //如有三聯式發票資訊 抬頭&統編 則存入order/comment
-        if(!empty($body)) {
+        if(!empty($orderId)) {
             $admintoken = new Client();
             $this->authorization($admintoken->token);
             $billingInfo = [
                 'invoiceTitle' => $parameters->billing()->invoiceTitle,
                 'unifiedBusinessNo' => $parameters->billing()->unifiedBusinessNo
             ];
-            $this->setInvoiceInfo(trim($body, '"'), $billingInfo);
+            $this->setInvoiceInfo($orderId, $billingInfo);
+
+            //存入order/comment會有status的bug，須把狀態重新改為pending
+            $order = new Order();
+            $incrementId =  $order->orderIdToIncrementId(trim($body, '"'));
+            $order->updateOrderState($orderId,$incrementId,'pending');
         }
-        //存入order/comment會有status的bug，須把狀態重新改為pending
-        $order = new Order();
-        $incrementId =  $order->orderIdToIncrementId(trim($body, '"'));
-        $order->updateOrderState(trim($body, '"'),$incrementId,'pending');
+
 
 
         return empty($body) ? [] : [ 'id' => trim($body, '"')];
@@ -388,14 +390,20 @@ class Checkout extends Client
             $pay = new TspgPostback();
             $pay->fill($data)->save();
 
-/*
-            //如有三聯式發票資訊 抬頭&統編 則存入order/comment
-            $billingInfo = [
-                'invoiceTitle' => $parameters->billing()->invoiceTitle,
-                'unifiedBusinessNo' => $parameters->billing()->unifiedBusinessNo
-            ];
-            $this->setInvoiceInfo($orderId, $billingInfo);
-*/
+            if(!empty($parameters->billing()->unifiedBusinessNo)) {
+                //如有三聯式發票資訊 抬頭&統編 則存入order/comment
+                $billingInfo = [
+                    'invoiceTitle' => $parameters->billing()->invoiceTitle,
+                    'unifiedBusinessNo' => $parameters->billing()->unifiedBusinessNo
+                ];
+                $this->setInvoiceInfo($orderId, $billingInfo);
+
+                //存入order/comment會有status消失的bug，須把狀態重新改為pending
+                $order = new Order();
+                $incrementId = $order->orderIdToIncrementId($orderId);
+                $order->updateOrderState($orderId, $incrementId, 'processing');
+            }
+
 
             return [ 'id' => $orderId, 'url' => $url];
 
