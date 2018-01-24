@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Http\Requests\Api\Checkout\Shipment;
 use Illuminate\Http\Request;
 use Ksd\Mediation\Core\Controller\RestLaravelController;
 use Ksd\Mediation\Parameter\Checkout\ConfirmParameter;
@@ -45,7 +46,7 @@ class CheckoutController extends RestLaravelController
      * @param Request $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function shipment(Request $request)
+    public function shipment(Shipment $request)
     {
         $parameters = new ShipmentParameter();
         $parameters->laravelRequest($request);
