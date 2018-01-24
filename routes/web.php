@@ -42,3 +42,7 @@ Route::get('terms', function () {
 Route::get('contact', function () {
     return view('web.contact');
 });
+
+Route::get('about', function () {
+    return view('web.about');
+});
