@@ -9,6 +9,7 @@
 namespace Ksd\Mediation\Result;
 
 
+use Illuminate\Support\Facades\Log;
 use Ksd\Mediation\Config\ProjectConfig;
 use Ksd\Mediation\Helper\EnvHelper;
 use Ksd\Mediation\Helper\ObjectHelper;
@@ -142,7 +143,8 @@ class ProductResult
             if($discount===100){
                 return null;
             }else{
-                $discountText = (substr($discount,1,2)) !== 0 ? $discount : substr($discount,0,1);
+                $discount = strval($discount);
+                $discountText = (substr($discount,1,1)) !== '0' ? $discount : substr($discount,0,1);
                 return __('product.discount', ['discount' => $discountText]);
             }
         }
@@ -182,7 +184,7 @@ class ProductResult
         $data = new \stdClass();
         $columns = [
             'source', 'id', 'name',  'price', 'salePrice', 'discount', 'characteristic', 'category', 'storeName',
-            'storeTelephone', 'storeAddress', 'place', 'tags', 'imageUrl', 'isWishlist'
+            'storeTelephone', 'storeAddress', 'place', 'tags', 'imageUrl', 'isWishlist','updatedAt','status'
         ];
         if ($isDetail) {
             $detailColumns = [

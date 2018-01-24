@@ -6,6 +6,8 @@ use App\Exceptions\Api\Checkout\PayCreditCardFailException;
 use App\Traits\ApiResponseHelper;
 use Exception;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\ValidationException;
 
 class Handler extends ExceptionHandler
 {
@@ -63,6 +65,9 @@ class Handler extends ExceptionHandler
     {
         if ($exception instanceof PayCreditCardFailException) {
             return $this->apiRespFail($exception->getCode(), $exception->getMessage());
+        } else if($exception instanceof ValidationException) {
+            $errors = $exception->validator->errors();
+            return $this->apiRespFail('E0001','傳送參數錯誤', $errors);
         }
         return parent::render($request, $exception);
     }

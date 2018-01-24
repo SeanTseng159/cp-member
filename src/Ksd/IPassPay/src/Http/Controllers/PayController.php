@@ -75,12 +75,9 @@ class PayController extends RestLaravelController
           return $this->failureRedirect($parameter);
         }
 
-        Log::debug('=== ipass pay 送step 1 ===');
         $bindPayParameter = $parameter->bindPayReq($order);
         $result = $this->service->bindPayReq($bindPayParameter);
 
-        Log::debug('=== ipass pay step 1 ===');
-        Log::debug(print_r($result['data'], true));
         if (!$result['status']) {
           return $this->failureRedirect($parameter);
         }
@@ -88,8 +85,6 @@ class PayController extends RestLaravelController
         // 取得Token到ipass pay 付款介面 (步驟二)
         $bindPayParameter = $parameter->bindPayToken($result['data']);
 
-        Log::debug('=== ipass pay step 2 ===');
-        Log::debug(print_r($bindPayParameter, true));
         return view('ipass::pay', ['parameter' => $bindPayParameter]);
       }
       catch (\Exception $e) {
@@ -102,9 +97,6 @@ class PayController extends RestLaravelController
 
     public function successCallback(Request $request)
     {
-      Log::debug('=== ipass pay success callback ===');
-      Log::debug(print_r($request->all(), true));
-
       $callbackParameter = new CallbackParameter;
       $callbackParameter->laravelRequest($request);
 
@@ -116,30 +108,22 @@ class PayController extends RestLaravelController
       $bindPayStatusParameter = $payParameter->bindPayStatus($callbackParameter->callback);
       $payStatusResult = $this->service->bindPayStatus($bindPayStatusParameter);
 
-      Log::debug('=== ipass pay check pay success ===');
-      Log::debug(print_r($payStatusResult, true));
-
       // 失敗導回前端
       if (!$payStatusResult['status']) return $this->failureRedirect($callbackParameter);
 
-      // 送後端訂單更新
       $orderParameter = new OrderParameter;
       $updateOrderParameter = $orderParameter->updateParameter($payStatusResult['data'], $callbackParameter);
+
+      //Log寫入DB
+      $this->logService->update($updateOrderParameter->order_id, ['pay_type' => $updateOrderParameter->payment_type, 'pay_status' => ($updateOrderParameter->status === 'Y')]);
+      // 送後端訂單更新
       $updateResult = $this->orderService->update($callbackParameter->token, $updateOrderParameter);
 
       Log::debug('=== update order ===');
       Log::debug(print_r($updateResult, true));
 
-      $result = false;
-      if ($callbackParameter->source === SELF::MAGENTO) {
-        $result = $updateResult;
-      }
-      elseif ($callbackParameter->source === SELF::CITYPASS) {
-        $result = ($updateResult && $updateResult['statusCode'] == 201);
-      }
-
       // 導回前端
-      return ($result) ? $this->successRedirect($callbackParameter) : $this->failureRedirect($callbackParameter);
+      return ($updateResult) ? $this->successRedirect($callbackParameter) : $this->failureRedirect($callbackParameter);
     }
 
     public function failureCallback(Request $request)
@@ -152,6 +136,15 @@ class PayController extends RestLaravelController
 
       //Log寫入DB
       $this->logService->update($callbackParameter->callback->order_id, ['bindPayCallback' => json_encode($request->all())]);
+
+      //撈訂單詳細重新加入購物車
+      if ($callbackParameter->source === SELF::MAGENTO) {
+        $parameter = new \stdClass;
+        $parameter->source = $callbackParameter->source;
+        $parameter->id = $callbackParameter->orderNo;
+        $parameter->itemId = null;
+        $this->orderService->find($parameter);
+      }
 
       return $this->failureRedirect($callbackParameter);
     }
@@ -182,7 +175,15 @@ class PayController extends RestLaravelController
       }
       else {
         $s = ($parameter->source === SELF::CITYPASS) ? 'c' : 'm';
+
         $url = env('CITY_PASS_WEB') . $this->lang . '/checkout/complete/' . $s . '/' . $parameter->orderNo;
+
+        if ($parameter->source === SELF::MAGENTO) {
+          $url = env('CITY_PASS_WEB') . $this->lang . '/checkout/failure/000';
+        }
+        else {
+          $url = env('CITY_PASS_WEB') . $this->lang . '/checkout/complete/' . $s . '/' . $parameter->orderNo;
+        }
 
         return redirect($url);
       }
