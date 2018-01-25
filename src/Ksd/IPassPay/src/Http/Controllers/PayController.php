@@ -101,7 +101,7 @@ class PayController extends RestLaravelController
       $callbackParameter->laravelRequest($request);
 
       //Log寫入DB
-      $this->logService->update($callbackParameter->callback->order_id, ['bindPayCallback' => json_encode($request->all())]);
+      $this->logService->update($callbackParameter->callback->order_id, ['bindPayCallback' => 'success_' . json_encode($request->all())]);
 
       // 跟ipass確認付款
       $payParameter = new PayParameter;
@@ -132,7 +132,7 @@ class PayController extends RestLaravelController
       $callbackParameter->laravelRequest($request);
 
       //Log寫入DB
-      $this->logService->update($callbackParameter->callback->order_id, ['bindPayCallback' => json_encode($request->all())]);
+      $this->logService->update($callbackParameter->callback->order_id, ['bindPayCallback' => 'failure_' . json_encode($request->all())]);
 
       //撈訂單詳細重新加入購物車
       /*if ($callbackParameter->source === SELF::MAGENTO) {
