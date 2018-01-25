@@ -300,6 +300,7 @@ class Order extends Client
         $response = $this->request('GET', $path);
         $body = $response->getBody();
         $result = json_decode($body, true);
+        dd($result);
         $data = [];
         $order = new OrderResult();
         $order->magento($result,true);
@@ -364,17 +365,18 @@ class Order extends Client
                 'eci' => $parameters->eci
 
             ];
+            if(!empty($parameters->orderNo)) {
+                $parameter = [
+                    'statusHistory' => [
+                        "comment" => implode('&', $dataArray)
+                    ]
 
-            $parameter = [
-                'statusHistory' => [
-                    "comment" => implode('&', $dataArray)
-                ]
+                ];
 
-            ];
-
-            $this->putParameters($parameter);
-            $response = $this->request('POST', 'V1/orders/' . $id . '/comments');
-            $result = json_decode($response->getBody(), true);
+                $this->putParameters($parameter);
+                $response = $this->request('POST', 'V1/orders/' . $id . '/comments');
+                $result = json_decode($response->getBody(), true);
+            }
 
             //依ipasspay回傳結果 更改訂單狀態 成功:processing ; 失敗:canceled
 
