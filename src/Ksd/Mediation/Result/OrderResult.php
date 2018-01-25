@@ -143,7 +143,7 @@ class OrderResult
                     $refunded = $this->arrayDefault($item, '$qty_refunded');
 
                     if($shipped !== 0){
-                        $row['status'] = $this->shippingStatus($this->arrayDefault($item, 'order_id'),$this->arrayDefault($item, 'sku'));
+                        $row['status'] = $this->shippingStatus($this->arrayDefault($item, 'order_id'));
                         $row['statusCode'] = '01';
                     }else if($refunded != 0){
                         $row['status'] = '已退貨';
@@ -254,7 +254,10 @@ class OrderResult
             if(!empty($data)) {
                 $date = substr($data[0]['updated_at'], 0, 10);
                 $shipinfo = $date . ' 出貨';
-                $shipcode = $data[0]['tracks'][0]['title'] . ' ' . $data[0]['tracks'][0]['track_number'];
+                $shipcode = null;
+                if(!empty($data[0]['tracks'])) {
+                    $shipcode = $data[0]['tracks'][0]['title'] . ' ' . $data[0]['tracks'][0]['track_number'];
+                }
                 if(!$code) {
                     return $shipinfo;
                 }else{
@@ -391,8 +394,8 @@ class OrderResult
         }
 
         if($method === 'ipasspay'){
-            $data = !empty($comment) ? explode("&",$comment[0]['comment']) : null;
-            if(!empty($comment)) {
+            if(!empty($comment[1])) {
+                $data = !empty($comment) ? explode("&",$comment[0]['comment']) : null;
                 $result['gateway'] = "ipasspay";
                 $result['title'] = $this->paymentTypeTrans($additionalInformation[0], $data);
                 $result['method'] = $this->getPaymentMethod(isset($data[4]) ? $data[4] : null);
@@ -400,8 +403,9 @@ class OrderResult
                 //comment沒資料，表示沒接受到ipassPay回饋訊息即離開付款，把此筆訂單取消，並將商品加回購物車
                 if($isDetail) {
                     $order = new Order();
-                    $order->getOrder($id);
-                    $order->updateOrderState($id, $incrementId, "canceled");
+                    if($order->getOrder($id)) {
+                        $order->updateOrderState($id, $incrementId, "canceled");
+                    }
                     $this->orderStatus = "付款失敗";
                     $this->orderStatusCode = "03";
                     $result['gateway'] = "";
@@ -437,17 +441,17 @@ class OrderResult
             } else if ($key === "Ipass Pay") {
                 if (isset($data[4])) {
                     if ($data[4] === "ACCLINK") {
-                        return "IpassPay(約定帳戶付款)";
+                        return "IPASSPAY(約定帳戶付款)";
                     } else if ($data[4] === "CREDIT") {
-                        return "IpassPay(信用卡付款)";
+                        return "IPASSPAY(信用卡付款)";
                     } else if ($data[4] === "VACC") {
-                        return "IpassPay(ATM轉帳付款)";
+                        return "IPASSPAY實體ATM";
                     } else if ($data[4] === "WEBATM") {
-                        return "IpassPay(網路銀行轉帳付款)";
+                        return "IPASSPAY(網路銀行轉帳付款)";
                     } else if ($data[4] === "BARCODE") {
-                        return "IpassPay(超商條碼繳費)";
+                        return "IPASSPAY(超商條碼繳費)";
                     } else if ($data[4] === "ECAC") {
-                        return "IpassPay(電子支付帳戶付款)";
+                        return "IPASSPAY一卡通帳戶餘額";
                     } else {
                         return "IpassPay";
                     }

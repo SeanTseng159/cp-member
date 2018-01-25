@@ -339,6 +339,8 @@ class Order extends Client
     public function update($parameters)
     {
 
+        Log::debug('===iPassPay Update Order===');
+        Log::debug($parameters);
         $id = isset($parameters->id) ? $parameters->id :$parameters->order_id;
         $incrementId = $this->orderIdToIncrementId($id);
         //將ipasspay回傳結果存入order comment
@@ -362,16 +364,18 @@ class Order extends Client
                 'eci' => $parameters->eci
 
             ];
-            $parameter = [
-                'statusHistory' => [
-                    "comment" => implode('&', $dataArray)
-                ]
+            if(!empty($parameters->orderNo)) {
+                $parameter = [
+                    'statusHistory' => [
+                        "comment" => implode('&', $dataArray)
+                    ]
 
-            ];
+                ];
 
-            $this->putParameters($parameter);
-            $response = $this->request('POST', 'V1/orders/' . $id . '/comments');
-            $result = json_decode($response->getBody(), true);
+                $this->putParameters($parameter);
+                $response = $this->request('POST', 'V1/orders/' . $id . '/comments');
+                $result = json_decode($response->getBody(), true);
+            }
 
             //依ipasspay回傳結果 更改訂單狀態 成功:processing ; 失敗:canceled
 
@@ -454,7 +458,13 @@ class Order extends Client
             $result['status'];
             //
             if(isset($result['status']) && $result['status'] === "pending"){
-                $member = $this->member->whereEmail($result['customer_email'])->first();
+                if(!empty($this->member->whereEmail($result['customer_email'])->first())){
+                    $member = $this->member->whereEmail($result['customer_email'])->first();
+                }else{
+                    $email = explode("_",$result['customer_email']) ;
+                    $member = $this->member->whereOpenid($email[1])->first();
+                }
+
                 if (isset($member)) {
                     $token = $this->magentoCustomer->token($member);
                     $this->cart->authorization($token)->createEmpty();
@@ -474,8 +484,11 @@ class Order extends Client
                     $this->cart->authorization($token)->add($cart);
                 }
             }
+            return true;
+        }else{
+            return false;
         }
-        return true;
+
     }
 
     /**
