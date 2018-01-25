@@ -441,17 +441,17 @@ class OrderResult
             } else if ($key === "Ipass Pay") {
                 if (isset($data[4])) {
                     if ($data[4] === "ACCLINK") {
-                        return "IpassPay(約定帳戶付款)";
+                        return "IPASSPAY(約定帳戶付款)";
                     } else if ($data[4] === "CREDIT") {
-                        return "IpassPay(信用卡付款)";
+                        return "IPASSPAY(信用卡付款)";
                     } else if ($data[4] === "VACC") {
-                        return "IpassPay(ATM轉帳付款)";
+                        return "IPASSPAY實體ATM";
                     } else if ($data[4] === "WEBATM") {
-                        return "IpassPay(網路銀行轉帳付款)";
+                        return "IPASSPAY(網路銀行轉帳付款)";
                     } else if ($data[4] === "BARCODE") {
-                        return "IpassPay(超商條碼繳費)";
+                        return "IPASSPAY(超商條碼繳費)";
                     } else if ($data[4] === "ECAC") {
-                        return "IpassPay(電子支付帳戶付款)";
+                        return "IPASSPAY一卡通帳戶餘額";
                     } else {
                         return "IpassPay";
                     }
