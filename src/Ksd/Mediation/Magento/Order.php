@@ -339,6 +339,8 @@ class Order extends Client
     public function update($parameters)
     {
 
+        Log::debug('===iPassPay Update Order===');
+        Log::debug($parameters);
         $id = isset($parameters->id) ? $parameters->id :$parameters->order_id;
         $incrementId = $this->orderIdToIncrementId($id);
         //將ipasspay回傳結果存入order comment
@@ -362,6 +364,7 @@ class Order extends Client
                 'eci' => $parameters->eci
 
             ];
+
             $parameter = [
                 'statusHistory' => [
                     "comment" => implode('&', $dataArray)
