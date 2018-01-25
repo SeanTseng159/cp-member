@@ -143,7 +143,7 @@ class OrderResult
                     $refunded = $this->arrayDefault($item, '$qty_refunded');
 
                     if($shipped !== 0){
-                        $row['status'] = $this->shippingStatus($this->arrayDefault($item, 'order_id'),$this->arrayDefault($item, 'sku'));
+                        $row['status'] = $this->shippingStatus($this->arrayDefault($item, 'order_id'));
                         $row['statusCode'] = '01';
                     }else if($refunded != 0){
                         $row['status'] = '已退貨';
@@ -254,7 +254,10 @@ class OrderResult
             if(!empty($data)) {
                 $date = substr($data[0]['updated_at'], 0, 10);
                 $shipinfo = $date . ' 出貨';
-                $shipcode = $data[0]['tracks'][0]['title'] . ' ' . $data[0]['tracks'][0]['track_number'];
+                $shipcode = null;
+                if(!empty($data[0]['tracks'])) {
+                    $shipcode = $data[0]['tracks'][0]['title'] . ' ' . $data[0]['tracks'][0]['track_number'];
+                }
                 if(!$code) {
                     return $shipinfo;
                 }else{
@@ -400,8 +403,9 @@ class OrderResult
                 //comment沒資料，表示沒接受到ipassPay回饋訊息即離開付款，把此筆訂單取消，並將商品加回購物車
                 if($isDetail) {
                     $order = new Order();
-                    $order->getOrder($id);
-                    $order->updateOrderState($id, $incrementId, "canceled");
+                    if($order->getOrder($id)) {
+                        $order->updateOrderState($id, $incrementId, "canceled");
+                    }
                     $this->orderStatus = "付款失敗";
                     $this->orderStatusCode = "03";
                     $result['gateway'] = "";
