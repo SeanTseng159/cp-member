@@ -15,14 +15,9 @@ use App\Models\Member;
 
 use Ksd\Mediation\Magento\Customer;
 use Ksd\Mediation\Magento\Cart;
-use App\Traits\JWTTokenHelper;
-
 
 class Order extends Client
 {
-    use JWTTokenHelper;
-
-
     private $member;
     private $magentoCustomer;
     private $cart;
@@ -454,6 +449,7 @@ class Order extends Client
      */
     public function getOrder($id)
     {
+
         if(!empty($id)) {
             $path = sprintf('V1/orders/%s', $id);
             $response = $this->request('GET', $path);
@@ -462,27 +458,30 @@ class Order extends Client
             $result['status'];
             //
             if(isset($result['status']) && $result['status'] === "pending"){
-                $data = $this->JWTdecode();
-                if (empty($data)) {
-                    $member = $this->member->find($data->id);
-                    if (isset($member)) {
-                        $token = $this->magentoCustomer->token($member);
-                        $this->cart->authorization($token)->createEmpty();
-                        $cart = [];
-                        foreach ($result['items'] as $items) {
-                            $parameter = [
-                                'id' => $items['sku'],
-                                'source' => 'magento',
-                                'quantity' => $items['qty_ordered'],
-                                'additionals' => [],
-                                'purchase' => [],
+                if(!empty($this->member->whereEmail($result['customer_email'])->first())){
+                    $member = $this->member->whereEmail($result['customer_email'])->first();
+                }else{
+                    $email = explode("_",$result['customer_email']) ;
+                    $member = $this->member->whereOpenid($email[1])->first();
+                }
 
-                            ];
+                if (isset($member)) {
+                    $token = $this->magentoCustomer->token($member);
+                    $this->cart->authorization($token)->createEmpty();
+                    $cart = [];
+                    foreach ($result['items'] as $items) {
+                        $parameter = [
+                            'id' => $items['sku'],
+                            'source' => 'magento',
+                            'quantity' => $items['qty_ordered'],
+                            'additionals' => [],
+                            'purchase' => [],
 
-                            array_push($cart, $parameter);
-                        }
-                        $this->cart->authorization($token)->add($cart);
+                        ];
+
+                        array_push($cart, $parameter);
                     }
+                    $this->cart->authorization($token)->add($cart);
                 }
             }
             return true;
