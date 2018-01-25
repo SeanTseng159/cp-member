@@ -16,20 +16,19 @@ use App\Models\Member;
 use Ksd\Mediation\Magento\Customer;
 use Ksd\Mediation\Magento\Cart;
 use App\Traits\JWTTokenHelper;
-use App\Services\MemberService;
+
 
 class Order extends Client
 {
     use JWTTokenHelper;
 
-    private $memberService;
+
     private $member;
     private $magentoCustomer;
     private $cart;
 
-    public function __construct(MemberService $memberService)
+    public function __construct()
     {
-        $this->memberService = $memberService;
         $this->member = new Member();
         $this->magentoCustomer = new Customer();
         $this->cart = new Cart();
@@ -455,7 +454,6 @@ class Order extends Client
      */
     public function getOrder($id)
     {
-
         if(!empty($id)) {
             $path = sprintf('V1/orders/%s', $id);
             $response = $this->request('GET', $path);
@@ -466,7 +464,7 @@ class Order extends Client
             if(isset($result['status']) && $result['status'] === "pending"){
                 $data = $this->JWTdecode();
                 if (empty($data)) {
-                    $member = $this->memberService->find($data->id);
+                    $member = $this->member->find($data->id);
                     if (isset($member)) {
                         $token = $this->magentoCustomer->token($member);
                         $this->cart->authorization($token)->createEmpty();
