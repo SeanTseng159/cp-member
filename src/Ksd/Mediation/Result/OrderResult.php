@@ -394,8 +394,8 @@ class OrderResult
         }
 
         if($method === 'ipasspay'){
-            $data = !empty($comment) ? explode("&",$comment[0]['comment']) : null;
-            if(!empty($comment)) {
+            if(!empty($comment[1])) {
+                $data = !empty($comment) ? explode("&",$comment[0]['comment']) : null;
                 $result['gateway'] = "ipasspay";
                 $result['title'] = $this->paymentTypeTrans($additionalInformation[0], $data);
                 $result['method'] = $this->getPaymentMethod(isset($data[4]) ? $data[4] : null);
