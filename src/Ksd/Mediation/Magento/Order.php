@@ -474,8 +474,11 @@ class Order extends Client
                     $this->cart->authorization($token)->add($cart);
                 }
             }
+            return true;
+        }else{
+            return false;
         }
-        return true;
+
     }
 
     /**
