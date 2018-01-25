@@ -300,7 +300,6 @@ class Order extends Client
         $response = $this->request('GET', $path);
         $body = $response->getBody();
         $result = json_decode($body, true);
-        dd($result);
         $data = [];
         $order = new OrderResult();
         $order->magento($result,true);
