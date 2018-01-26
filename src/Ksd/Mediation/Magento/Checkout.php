@@ -123,6 +123,9 @@ class Checkout extends Client
      */
     public function shipment($parameters)
     {
+
+        $comment = $parameters->shipment()->remark;
+        $this->putComment($comment);
         return $this->putShipping($parameters->shipment());
     }
 
@@ -183,6 +186,26 @@ class Checkout extends Client
         $response = $this->request('POST', 'V1/carts/mine/shipping-information');
         $result = json_decode($response->getBody(), true);
         return isset($result['payment_methods']) ? true : false;
+
+    }
+
+    /**
+     * 儲存備註
+     * @param $parameter
+     * @return bool
+     */
+    public function putComment($parameter)
+    {
+
+        $this->putParameters([
+            "orderComment"=> [
+                "comment"=> $parameter,
+        ]]);
+
+        $response = $this->request('PUT', 'V1/carts/mine/set-order-comment');
+        $result = json_decode($response->getBody(), true);
+
+        return  true;
 
     }
 
