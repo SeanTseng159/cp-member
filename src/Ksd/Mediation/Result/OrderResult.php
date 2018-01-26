@@ -305,6 +305,8 @@ class OrderResult
                     return "已退貨";
                 case 'processing': # 付款成功(前台顯示已完成)，尚未出貨
                     return "已完成";
+                case 'closed': #  退款成功
+                    return "已退貨";
             }
         } else if($source ==='ct_pass'){
             switch ($key) {
@@ -343,6 +345,8 @@ class OrderResult
                 case 'holded': # 退貨處理中
                     return "04";
                 case 'canceled': # 已退貨
+                    return "03";
+                case 'closed': # 已退貨
                     return "03";
             }
         } else if($source ==='ct_pass'){
@@ -500,6 +504,8 @@ class OrderResult
                     return "已退貨";
                 case 'processing': # 付款成功(前台顯示已完成)，尚未出貨
                     return "已完成";
+                case 'closed': #  退款成功
+                    return "已退貨";
             }
         } else if($source ==='ct_pass'){
             switch ($key) {
@@ -584,6 +590,9 @@ class OrderResult
                 return "03";
             case 'processing': # 處理中
                 return "01";
+            case 'closed': #  退款成功
+                return "已退貨";
+
         }
     }
 
