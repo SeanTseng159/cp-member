@@ -33,6 +33,7 @@ class OrderResult
             $this->id = $this->arrayDefault($result, 'entity_id');
             $this->orderNo = $this->arrayDefault($result, 'increment_id');
             $this->orderAmount = $this->arrayDefault($result, 'subtotal') + $this->arrayDefault($result, 'shipping_amount');
+            $this->orderItemAmount = $this->arrayDefault($result, 'subtotal');
             $this->orderDiscountAmount = $this->arrayDefault($result, 'discount_amount');
             $this->orderStatus = $this->getStatus(ProjectConfig::MAGENTO,$this->arrayDefault($result, 'status'));
             $this->orderStatusCode = $this->getStatusCode(ProjectConfig::MAGENTO,$this->arrayDefault($result, 'status'));
@@ -42,6 +43,14 @@ class OrderResult
             $this->payment = $this->putMagentoPayment($payment,$comment);
 //            $this->payment['username'] =   $this->arrayDefault($result, 'customer_firstname') . $this->arrayDefault($result, 'customer_lastname');
             $this->shipping = [];
+            $this->shipping['name'] = null;
+            $this->shipping['phone'] = null;
+            $this->shipping['code'] = null;
+            $this->shipping['address'] = null;
+            $this->shipping['description'] = null;
+            $this->shipping['amount'] = null;
+
+/*
             $ship = $this->arrayDefault($result, 'extension_attributes');
             foreach ($this->arrayDefault($ship, 'shipping_assignments', []) as $shipping) {
                 $shipping = $this->arrayDefault($shipping, 'shipping');
@@ -53,6 +62,7 @@ class OrderResult
             }
             $this->shipping['description'] = $this->arrayDefault($result, 'shipping_description');
             $this->shipping['amount'] = $this->arrayDefault($result, 'shipping_amount');
+*/
 
             $this->items = [];
             foreach ($this->arrayDefault($result, 'items', []) as $item) {
@@ -71,14 +81,16 @@ class OrderResult
                     $ordered = $this->arrayDefault($item, 'qty_ordered');
                     $shipped = $this->arrayDefault($item, 'qty_shipped');
                     $refunded = $this->arrayDefault($item, '$qty_refunded');
-
-                    if($shipped !== 0){
-                        $row['status'] = $this->shippingStatus($this->arrayDefault($item, 'order_id'),$this->arrayDefault($item, 'sku'));
-                    }else if($refunded != 0){
-                        $row['status'] = '已退貨';
-                    }else{
-                        $row['status'] = '處理中';
-                    }
+                    $row['status'] = null;
+                    /*
+                                        if($shipped !== 0){
+                                            $row['status'] = $this->shippingStatus($this->arrayDefault($item, 'order_id'),$this->arrayDefault($item, 'sku'));
+                                        }else if($refunded != 0){
+                                            $row['status'] = '已退貨';
+                                        }else{
+                                            $row['status'] = '處理中';
+                                        }
+                    */
                     $row['discount'] = $this->arrayDefault($result, 'discount_amount');
                     $row['imageUrl'] = null;
                     /*
