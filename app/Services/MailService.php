@@ -129,7 +129,7 @@ class MailService
     public function send($subject, $recipient, $view, $viewData = [])
     {
         $from = [
-            'email' => 'noreply@citypass.tw',
+            'address' => 'noreply@citypass.tw',
             'name' => 'CityPass都會通',
             'subject' => $subject ?: 'CityPass都會通 - 通知信'
         ];
@@ -163,7 +163,7 @@ class MailService
     public function sendCityPass($subject, $recipient, $view, $viewData = [])
     {
         $from = [
-            'email' => 'noreply@citypass.tw',
+            'address' => 'noreply@citypass.tw',
             'name' => 'CityPass都會通',
             'subject' => $subject ?: 'CityPass都會通 - 通知信'
         ];
