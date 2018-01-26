@@ -33,6 +33,7 @@ class OrderResult
             $this->id = $this->arrayDefault($result, 'entity_id');
             $this->orderNo = $this->arrayDefault($result, 'increment_id');
             $this->orderAmount = $this->arrayDefault($result, 'subtotal') + $this->arrayDefault($result, 'shipping_amount');
+            $this->orderItemAmount = $this->arrayDefault($result, 'subtotal');
             $this->orderDiscountAmount = $this->arrayDefault($result, 'discount_amount');
             $this->orderStatus = $this->getStatus(ProjectConfig::MAGENTO,$this->arrayDefault($result, 'status'));
             $this->orderStatusCode = $this->getStatusCode(ProjectConfig::MAGENTO,$this->arrayDefault($result, 'status'));
