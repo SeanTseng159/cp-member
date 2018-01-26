@@ -139,7 +139,7 @@ class Order extends Client
 //        $orderNo = $parameters->orderNo;
 //        $name = $parameters->name;
             $initDate = $parameters->initDate;
-            $endDate = $parameters->endDate;
+            $endDate = date("Y-m-d",strtotime($parameters->endDate."+1 day"));
 
             $orderItemResult = $this->searchItem($parameters);
 
@@ -166,13 +166,30 @@ class Order extends Client
                         ->putQuery('searchCriteria[filterGroups][2][filters][1][condition_type]', 'like');
                 }
                 if(!empty($initDate)&&!empty($endDate)) {
-                   $this->putQuery('searchCriteria[filterGroups][4][filters][0][field]', 'created_at')
-                        ->putQuery('searchCriteria[filterGroups][4][filters][0][value]', $initDate)
-                        ->putQuery('searchCriteria[filterGroups][4][filters][0][condition_type]', 'from')
-                        ->putQuery('searchCriteria[filterGroups][4][filters][1][field]', 'created_at')
-                        ->putQuery('searchCriteria[filterGroups][4][filters][1][value]', $endDate)
-                        ->putQuery('searchCriteria[filterGroups][4][filters][1][condition_type]', 'to');
+                   $this->putQuery('searchCriteria[filterGroups][3][filters][0][field]', 'created_at')
+                        ->putQuery('searchCriteria[filterGroups][3][filters][0][value]', $initDate)
+                        ->putQuery('searchCriteria[filterGroups][3][filters][0][condition_type]', 'from')
+                        ->putQuery('searchCriteria[filterGroups][4][filters][0][field]', 'created_at')
+                        ->putQuery('searchCriteria[filterGroups][4][filters][0][value]', $endDate)
+                        ->putQuery('searchCriteria[filterGroups][4][filters][0][condition_type]', 'to');
                 }
+                if(!empty($initDate)&&empty($endDate)) {
+                    $this->putQuery('searchCriteria[filterGroups][3][filters][0][field]', 'created_at')
+                        ->putQuery('searchCriteria[filterGroups][3][filters][0][value]', $initDate)
+                        ->putQuery('searchCriteria[filterGroups][3][filters][0][condition_type]', 'from')
+                        ->putQuery('searchCriteria[filterGroups][4][filters][0][field]', 'created_at')
+                        ->putQuery('searchCriteria[filterGroups][4][filters][0][value]', $endDate)
+                        ->putQuery('searchCriteria[filterGroups][4][filters][0][condition_type]', 'to');
+                }
+                if(empty($initDate)&&!empty($endDate)) {
+                    $this->putQuery('searchCriteria[filterGroups][3][filters][0][field]', 'created_at')
+                        ->putQuery('searchCriteria[filterGroups][3][filters][0][value]', $initDate)
+                        ->putQuery('searchCriteria[filterGroups][3][filters][0][condition_type]', 'from')
+                        ->putQuery('searchCriteria[filterGroups][4][filters][0][field]', 'created_at')
+                        ->putQuery('searchCriteria[filterGroups][4][filters][0][value]', $endDate)
+                        ->putQuery('searchCriteria[filterGroups][4][filters][0][condition_type]', 'to');
+                }
+
                $response = $this->putQuery('searchCriteria[filterGroups][0][filters][0][field]', 'customer_email')
                     ->putQuery('searchCriteria[filterGroups][0][filters][0][value]', $email)
                     ->request('GET', $path);
