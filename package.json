@@ -1,7 +1,7 @@
 {
-  "name":"city-pass-member-center",
-  "version" : "0.0.1",
-  "description" : "city pass member center",
+  "name": "city-pass-member-center",
+  "version": "0.0.1",
+  "description": "city pass member center",
   "private": true,
   "scripts": {
     "dev": "npm run development",
