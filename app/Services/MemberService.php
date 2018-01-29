@@ -129,7 +129,7 @@ class MemberService
             $result = $this->update($member->id, ['token' => $token]);
         }
         else {
-            $result->token = $token;
+            $member->token = $token;
         }
 
         return ($result) ? $result : null;
