@@ -130,6 +130,7 @@ class MailService
     {
         $from = [
             'address' => 'noreply@citypass.tw',
+            'email' => 'noreply@citypass.tw',
             'name' => 'CityPass都會通',
             'subject' => $subject ?: 'CityPass都會通 - 通知信'
         ];
@@ -141,7 +142,8 @@ class MailService
 
         try {
             Mail::send($view, $viewData, function ($message) use ($from, $to) {
-                $message->from($from['email'], $from['name']);
+                $message->from($from['address'], $from['name']);
+                $message->sender($from['address'], $from['name']);
                 $message->to($to['email'], $to['name'])->subject($from['subject']);
             });
 
@@ -164,6 +166,7 @@ class MailService
     {
         $from = [
             'address' => 'noreply@citypass.tw',
+            'email' => 'noreply@citypass.tw',
             'name' => 'CityPass都會通',
             'subject' => $subject ?: 'CityPass都會通 - 通知信'
         ];
@@ -180,7 +183,8 @@ class MailService
 
         try {
             Mail::send($view, $viewData, function ($message) use ($from, $to, $toCityPass) {
-                $message->from($from['email'], $from['name']);
+                $message->from($from['address'], $from['name']);
+                $message->sender($from['address'], $from['name']);
                 $message->to($to['email'], $to['name'])->cc($toCityPass['email'], $toCityPass['name'])->subject($from['subject']);
             });
 
