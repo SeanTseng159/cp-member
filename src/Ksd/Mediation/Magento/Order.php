@@ -139,7 +139,7 @@ class Order extends Client
 //        $orderNo = $parameters->orderNo;
 //        $name = $parameters->name;
             $initDate = $parameters->initDate;
-            $endDate = $parameters->endDate;
+            $endDate = date("Y-m-d",strtotime($parameters->endDate."+1 day"));
 
             $orderItemResult = $this->searchItem($parameters);
 
@@ -166,13 +166,30 @@ class Order extends Client
                         ->putQuery('searchCriteria[filterGroups][2][filters][1][condition_type]', 'like');
                 }
                 if(!empty($initDate)&&!empty($endDate)) {
-                   $this->putQuery('searchCriteria[filterGroups][4][filters][0][field]', 'created_at')
-                        ->putQuery('searchCriteria[filterGroups][4][filters][0][value]', $initDate)
-                        ->putQuery('searchCriteria[filterGroups][4][filters][0][condition_type]', 'from')
-                        ->putQuery('searchCriteria[filterGroups][5][filters][0][field]', 'created_at')
-                        ->putQuery('searchCriteria[filterGroups][5][filters][0][value]', $endDate)
-                        ->putQuery('searchCriteria[filterGroups][5][filters][0][condition_type]', 'to');
+                   $this->putQuery('searchCriteria[filterGroups][3][filters][0][field]', 'created_at')
+                        ->putQuery('searchCriteria[filterGroups][3][filters][0][value]', $initDate)
+                        ->putQuery('searchCriteria[filterGroups][3][filters][0][condition_type]', 'from')
+                        ->putQuery('searchCriteria[filterGroups][4][filters][0][field]', 'created_at')
+                        ->putQuery('searchCriteria[filterGroups][4][filters][0][value]', $endDate)
+                        ->putQuery('searchCriteria[filterGroups][4][filters][0][condition_type]', 'to');
                 }
+                if(!empty($initDate)&&empty($endDate)) {
+                    $this->putQuery('searchCriteria[filterGroups][3][filters][0][field]', 'created_at')
+                        ->putQuery('searchCriteria[filterGroups][3][filters][0][value]', $initDate)
+                        ->putQuery('searchCriteria[filterGroups][3][filters][0][condition_type]', 'from')
+                        ->putQuery('searchCriteria[filterGroups][4][filters][0][field]', 'created_at')
+                        ->putQuery('searchCriteria[filterGroups][4][filters][0][value]', $endDate)
+                        ->putQuery('searchCriteria[filterGroups][4][filters][0][condition_type]', 'to');
+                }
+                if(empty($initDate)&&!empty($endDate)) {
+                    $this->putQuery('searchCriteria[filterGroups][3][filters][0][field]', 'created_at')
+                        ->putQuery('searchCriteria[filterGroups][3][filters][0][value]', $initDate)
+                        ->putQuery('searchCriteria[filterGroups][3][filters][0][condition_type]', 'from')
+                        ->putQuery('searchCriteria[filterGroups][4][filters][0][field]', 'created_at')
+                        ->putQuery('searchCriteria[filterGroups][4][filters][0][value]', $endDate)
+                        ->putQuery('searchCriteria[filterGroups][4][filters][0][condition_type]', 'to');
+                }
+
                $response = $this->putQuery('searchCriteria[filterGroups][0][filters][0][field]', 'customer_email')
                     ->putQuery('searchCriteria[filterGroups][0][filters][0][value]', $email)
                     ->request('GET', $path);
@@ -295,7 +312,6 @@ class Order extends Client
     {
 
         $id = $parameters->id;
-        $itemId = $parameters->itemId;
 
         $path = sprintf('V1/orders/%s', $id);
         $response = $this->request('GET', $path);
@@ -306,18 +322,6 @@ class Order extends Client
         $order->magento($result,true);
         $data[] = $order;
 
-        //如有關鍵字搜尋則進行判斷是否有相似字
-        if(!empty($itemId)){
-            $count = 0;
-            foreach ($order->items as $items) {
-                if(!preg_match("/".$itemId."/",$items['id'])){
-                    array_splice($order->items,$count,1);
-                    $count--;
-                }
-                $count++;
-            }
-            $data[] = $order;
-        }
 
 
         return $data;
@@ -352,6 +356,8 @@ class Order extends Client
     public function update($parameters)
     {
 
+        Log::debug('===iPassPay Update Order===');
+        Log::debug($parameters);
         $id = isset($parameters->id) ? $parameters->id :$parameters->order_id;
         $incrementId = $this->orderIdToIncrementId($id);
         //將ipasspay回傳結果存入order comment
@@ -375,16 +381,18 @@ class Order extends Client
                 'eci' => $parameters->eci
 
             ];
-            $parameter = [
-                'statusHistory' => [
-                    "comment" => implode('&', $dataArray)
-                ]
+            if(!empty($parameters->orderNo)) {
+                $parameter = [
+                    'statusHistory' => [
+                        "comment" => implode('&', $dataArray)
+                    ]
 
-            ];
+                ];
 
-            $this->putParameters($parameter);
-            $response = $this->request('POST', 'V1/orders/' . $id . '/comments');
-            $result = json_decode($response->getBody(), true);
+                $this->putParameters($parameter);
+                $response = $this->request('POST', 'V1/orders/' . $id . '/comments');
+                $result = json_decode($response->getBody(), true);
+            }
 
             //依ipasspay回傳結果 更改訂單狀態 成功:processing ; 失敗:canceled
 
@@ -467,7 +475,13 @@ class Order extends Client
             $result['status'];
             //
             if(isset($result['status']) && $result['status'] === "pending"){
-                $member = $this->member->whereEmail($result['customer_email'])->first();
+                if(!empty($this->member->whereEmail($result['customer_email'])->first())){
+                    $member = $this->member->whereEmail($result['customer_email'])->first();
+                }else{
+                    $email = explode("_",$result['customer_email']) ;
+                    $member = $this->member->whereOpenid($email[1])->first();
+                }
+
                 if (isset($member)) {
                     $token = $this->magentoCustomer->token($member);
                     $this->cart->authorization($token)->createEmpty();
@@ -487,8 +501,11 @@ class Order extends Client
                     $this->cart->authorization($token)->add($cart);
                 }
             }
+            return true;
+        }else{
+            return false;
         }
-        return true;
+
     }
 
     /**

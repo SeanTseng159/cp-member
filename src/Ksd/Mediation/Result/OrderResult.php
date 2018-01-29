@@ -33,15 +33,24 @@ class OrderResult
             $this->id = $this->arrayDefault($result, 'entity_id');
             $this->orderNo = $this->arrayDefault($result, 'increment_id');
             $this->orderAmount = $this->arrayDefault($result, 'subtotal') + $this->arrayDefault($result, 'shipping_amount');
+            $this->orderItemAmount = $this->arrayDefault($result, 'subtotal');
             $this->orderDiscountAmount = $this->arrayDefault($result, 'discount_amount');
             $this->orderStatus = $this->getStatus(ProjectConfig::MAGENTO,$this->arrayDefault($result, 'status'));
             $this->orderStatusCode = $this->getStatusCode(ProjectConfig::MAGENTO,$this->arrayDefault($result, 'status'));
             $this->orderDate = date('Y-m-d H:i:s', strtotime('+8 hours', strtotime($this->arrayDefault($result, 'created_at'))));
             $payment = $this->arrayDefault($result, 'payment');
             $comment = $this->arrayDefault($result, 'status_histories');
-            $this->payment = $this->putMagentoPayment($payment);
+            $this->payment = $this->putMagentoPayment($payment,$comment);
 //            $this->payment['username'] =   $this->arrayDefault($result, 'customer_firstname') . $this->arrayDefault($result, 'customer_lastname');
             $this->shipping = [];
+            $this->shipping['name'] = null;
+            $this->shipping['phone'] = null;
+            $this->shipping['code'] = null;
+            $this->shipping['address'] = null;
+            $this->shipping['description'] = null;
+            $this->shipping['amount'] = null;
+
+/*
             $ship = $this->arrayDefault($result, 'extension_attributes');
             foreach ($this->arrayDefault($ship, 'shipping_assignments', []) as $shipping) {
                 $shipping = $this->arrayDefault($shipping, 'shipping');
@@ -53,6 +62,7 @@ class OrderResult
             }
             $this->shipping['description'] = $this->arrayDefault($result, 'shipping_description');
             $this->shipping['amount'] = $this->arrayDefault($result, 'shipping_amount');
+*/
 
             $this->items = [];
             foreach ($this->arrayDefault($result, 'items', []) as $item) {
@@ -71,14 +81,16 @@ class OrderResult
                     $ordered = $this->arrayDefault($item, 'qty_ordered');
                     $shipped = $this->arrayDefault($item, 'qty_shipped');
                     $refunded = $this->arrayDefault($item, '$qty_refunded');
-
-                    if($shipped !== 0){
-                        $row['status'] = $this->shippingStatus($this->arrayDefault($item, 'order_id'),$this->arrayDefault($item, 'sku'));
-                    }else if($refunded != 0){
-                        $row['status'] = '已退貨';
-                    }else{
-                        $row['status'] = '處理中';
-                    }
+                    $row['status'] = null;
+                    /*
+                                        if($shipped !== 0){
+                                            $row['status'] = $this->shippingStatus($this->arrayDefault($item, 'order_id'),$this->arrayDefault($item, 'sku'));
+                                        }else if($refunded != 0){
+                                            $row['status'] = '已退貨';
+                                        }else{
+                                            $row['status'] = '處理中';
+                                        }
+                    */
                     $row['discount'] = $this->arrayDefault($result, 'discount_amount');
                     $row['imageUrl'] = null;
                     /*
@@ -143,7 +155,7 @@ class OrderResult
                     $refunded = $this->arrayDefault($item, '$qty_refunded');
 
                     if($shipped !== 0){
-                        $row['status'] = $this->shippingStatus($this->arrayDefault($item, 'order_id'),$this->arrayDefault($item, 'sku'));
+                        $row['status'] = $this->shippingStatus($this->arrayDefault($item, 'order_id'));
                         $row['statusCode'] = '01';
                     }else if($refunded != 0){
                         $row['status'] = '已退貨';
@@ -254,7 +266,10 @@ class OrderResult
             if(!empty($data)) {
                 $date = substr($data[0]['updated_at'], 0, 10);
                 $shipinfo = $date . ' 出貨';
-                $shipcode = $data[0]['tracks'][0]['title'] . ' ' . $data[0]['tracks'][0]['track_number'];
+                $shipcode = null;
+                if(!empty($data[0]['tracks'])) {
+                    $shipcode = $data[0]['tracks'][0]['title'] . ' ' . $data[0]['tracks'][0]['track_number'];
+                }
                 if(!$code) {
                     return $shipinfo;
                 }else{
@@ -290,6 +305,8 @@ class OrderResult
                     return "已退貨";
                 case 'processing': # 付款成功(前台顯示已完成)，尚未出貨
                     return "已完成";
+                case 'closed': #  退款成功
+                    return "已退貨";
             }
         } else if($source ==='ct_pass'){
             switch ($key) {
@@ -328,6 +345,8 @@ class OrderResult
                 case 'holded': # 退貨處理中
                     return "04";
                 case 'canceled': # 已退貨
+                    return "03";
+                case 'closed': # 已退貨
                     return "03";
             }
         } else if($source ==='ct_pass'){
@@ -391,8 +410,8 @@ class OrderResult
         }
 
         if($method === 'ipasspay'){
-            $data = !empty($comment) ? explode("&",$comment[0]['comment']) : null;
-            if(!empty($comment)) {
+            if(!empty($comment[1])) {
+                $data = !empty($comment) ? explode("&",$comment[0]['comment']) : null;
                 $result['gateway'] = "ipasspay";
                 $result['title'] = $this->paymentTypeTrans($additionalInformation[0], $data);
                 $result['method'] = $this->getPaymentMethod(isset($data[4]) ? $data[4] : null);
@@ -400,8 +419,9 @@ class OrderResult
                 //comment沒資料，表示沒接受到ipassPay回饋訊息即離開付款，把此筆訂單取消，並將商品加回購物車
                 if($isDetail) {
                     $order = new Order();
-                    $order->getOrder($id);
-                    $order->updateOrderState($id, $incrementId, "canceled");
+                    if($order->getOrder($id)) {
+                        $order->updateOrderState($id, $incrementId, "canceled");
+                    }
                     $this->orderStatus = "付款失敗";
                     $this->orderStatusCode = "03";
                     $result['gateway'] = "";
@@ -437,17 +457,17 @@ class OrderResult
             } else if ($key === "Ipass Pay") {
                 if (isset($data[4])) {
                     if ($data[4] === "ACCLINK") {
-                        return "IpassPay(約定帳戶付款)";
+                        return "IPASSPAY(約定帳戶付款)";
                     } else if ($data[4] === "CREDIT") {
-                        return "IpassPay(信用卡付款)";
+                        return "IPASSPAY(信用卡付款)";
                     } else if ($data[4] === "VACC") {
-                        return "IpassPay(ATM轉帳付款)";
+                        return "IPASSPAY實體ATM";
                     } else if ($data[4] === "WEBATM") {
-                        return "IpassPay(網路銀行轉帳付款)";
+                        return "IPASSPAY(網路銀行轉帳付款)";
                     } else if ($data[4] === "BARCODE") {
-                        return "IpassPay(超商條碼繳費)";
+                        return "IPASSPAY(超商條碼繳費)";
                     } else if ($data[4] === "ECAC") {
-                        return "IpassPay(電子支付帳戶付款)";
+                        return "IPASSPAY一卡通帳戶餘額";
                     } else {
                         return "IpassPay";
                     }
@@ -484,6 +504,8 @@ class OrderResult
                     return "已退貨";
                 case 'processing': # 付款成功(前台顯示已完成)，尚未出貨
                     return "已完成";
+                case 'closed': #  退款成功
+                    return "已退貨";
             }
         } else if($source ==='ct_pass'){
             switch ($key) {
@@ -568,6 +590,9 @@ class OrderResult
                 return "03";
             case 'processing': # 處理中
                 return "01";
+            case 'closed': #  退款成功
+                return "已退貨";
+
         }
     }
 

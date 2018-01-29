@@ -100,10 +100,10 @@ class OrderRepository extends BaseRepository
                $parameters->status = "holded";
                    break;
                case '03': # 已退貨
-               $parameters->status = "holded";
+               $parameters->status = "closed";
                    break;
                case '04': # 處理中
-               $parameters->status = "processing";
+               $parameters->status = "holded";
                    break;
            }
             $email = $this->memberTokenService->getEmail();

@@ -121,13 +121,18 @@ class MemberService
      * @param $platform
      * @return mixed
      */
-    public function generateToken($member, $platform)
+    public function generateToken($member, $platform = 'web')
     {
         $jwtTokenService = new JWTTokenService;
         $token = $jwtTokenService->generateToken($member, $platform);
-        $result = $this->update($member->id, ['token' => $token]);
+        if ($platform === 'app') {
+            $member = $this->update($member->id, ['token' => $token]);
+        }
+        else {
+            $member->token = $token;
+        }
 
-        return ($result) ? $result : null;
+        return ($member) ? $member : null;
     }
 
     /**

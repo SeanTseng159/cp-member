@@ -18,7 +18,7 @@ class FindParameter extends BaseParameter
         parent::laravelRequest($request);
         $this->source = $request->input('source');
         $this->id = $id;
-        $this->itemId = $request->input('id');
+
     }
 
 }

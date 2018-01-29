@@ -19,10 +19,12 @@ use Log;
 use App\Models\TspgPostback;
 use App\Models\TspgResultUrl;
 use Ksd\Mediation\Magento\Order;
+use Ksd\Mediation\Helper\EnvHelper;
 
 class Checkout extends Client
 {
     use StringHelper;
+    use EnvHelper;
 
     private $cart;
 
@@ -121,6 +123,9 @@ class Checkout extends Client
      */
     public function shipment($parameters)
     {
+
+        $comment = $parameters->shipment()->remark;
+        $this->putComment($comment);
         return $this->putShipping($parameters->shipment());
     }
 
@@ -181,6 +186,26 @@ class Checkout extends Client
         $response = $this->request('POST', 'V1/carts/mine/shipping-information');
         $result = json_decode($response->getBody(), true);
         return isset($result['payment_methods']) ? true : false;
+
+    }
+
+    /**
+     * 儲存備註
+     * @param $parameter
+     * @return bool
+     */
+    public function putComment($parameter)
+    {
+
+        $this->putParameters([
+            "orderComment"=> [
+                "comment"=> $parameter,
+        ]]);
+
+        $response = $this->request('PUT', 'V1/carts/mine/set-order-comment');
+        $result = json_decode($response->getBody(), true);
+
+        return  true;
 
     }
 
@@ -377,7 +402,7 @@ class Checkout extends Client
             $orderNo = $result['increment_id'];
             $device = $result['payment']['additional_information'][0];
             $source = $result['payment']['additional_information'][1];
-            $order_No = "TMA_".$orderNo;
+            $order_No = $this->env('MAGENTO_ORDER_PREFIX').$orderNo;
             $data = [
                 'order_id' => $orderId,
                 'order_no' => $order_No,
@@ -421,42 +446,42 @@ class Checkout extends Client
      */
     public function updateOrder($data,$parameters)
     {
+        if(isset($data) && isset($parameters)) {
+            $id = $data->order_id;
+            $ret_code = $parameters->ret_code;
+            $str = explode("_", $parameters->order_no);
+            $incrementId = $str[1];
+            //付款成功
+            if ($ret_code === "00") {
+                $parameter = [
+                    'entity' => [
+                        'entity_id' => $id,
+                        'increment_id' => $incrementId,
+                        'status' => 'processing',
 
-        $id = $data->order_id;
-        $ret_code = $parameters->ret_code;
-        $str =  explode("_",$parameters->order_no);
-        $incrementId = $str[1];
-        //付款成功
-        if($ret_code === "00") {
-            $parameter = [
-                'entity' => [
-                    'entity_id' => $id,
-                    'increment_id' => $incrementId,
-                    'status' => 'processing',
+                    ]
+                ];
+            } else {
+                //3D驗證失敗，把訂單狀態改為canceled，並將原訂單重加回購物車
+                $parameter = [
+                    'entity' => [
+                        'entity_id' => $id,
+                        'increment_id' => $incrementId,
+                        'status' => 'canceled',
 
-                ]
-            ];
-        }else{
-            //3D驗證失敗，把訂單狀態改為canceled，並將原訂單重加回購物車
-            $parameter = [
-                'entity' => [
-                    'entity_id' => $id,
-                    'increment_id' => $incrementId,
-                    'status' => 'canceled',
+                    ]
+                ];
+                $order = new Order();
+                $order->getOrder($id);
 
-                ]
-            ];
-            $order = new Order();
-            $order->getOrder($id);
+            }
 
+            $this->putParameters($parameter);
+            $response = $this->request('PUT', 'V1/orders/create');
+            $result = json_decode($response->getBody(), true);
+            Log::debug('===magento台新結果回傳更新訂單===');
+            Log::debug(print_r(json_decode($response->getBody(), true), true));
         }
-
-        $this->putParameters($parameter);
-        $response = $this->request('PUT', 'V1/orders/create');
-        $result = json_decode($response->getBody(), true);
-        Log::debug('===magento台新結果回傳更新訂單===');
-        Log::debug(print_r(json_decode($response->getBody(), true), true));
-
 
     }
 
