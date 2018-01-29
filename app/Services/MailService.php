@@ -130,7 +130,6 @@ class MailService
     {
         $from = [
             'address' => 'noreply@citypass.tw',
-            'email' => 'noreply@citypass.tw',
             'name' => 'CityPass都會通',
             'subject' => $subject ?: 'CityPass都會通 - 通知信'
         ];
@@ -166,7 +165,6 @@ class MailService
     {
         $from = [
             'address' => 'noreply@citypass.tw',
-            'email' => 'noreply@citypass.tw',
             'name' => 'CityPass都會通',
             'subject' => $subject ?: 'CityPass都會通 - 通知信'
         ];
