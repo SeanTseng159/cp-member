@@ -126,13 +126,13 @@ class MemberService
         $jwtTokenService = new JWTTokenService;
         $token = $jwtTokenService->generateToken($member, $platform);
         if ($platform === 'app') {
-            $result = $this->update($member->id, ['token' => $token]);
+            $member = $this->update($member->id, ['token' => $token]);
         }
         else {
             $member->token = $token;
         }
 
-        return ($result) ? $result : null;
+        return ($member) ? $member : null;
     }
 
     /**
