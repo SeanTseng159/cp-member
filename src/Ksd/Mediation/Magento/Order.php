@@ -140,7 +140,7 @@ class Order extends Client
                 $parameters->status = "pending";
                 break;
             case '01': # 已完成
-                $parameters->status = "complete";
+                $parameters->status = "processing";
                 break;
             case '02': # 部分退貨
                 $parameters->status = "holded";
@@ -336,6 +336,7 @@ class Order extends Client
         $response = $this->request('GET', $path);
         $body = $response->getBody();
         $result = json_decode($body, true);
+        dd($result);
         $data = [];
         $order = new OrderResult();
         $order->magento($result,true);
