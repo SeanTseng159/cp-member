@@ -215,4 +215,18 @@ class ProductRepository extends BaseRepository
         }
         return $products;
     }
+
+    /**
+     * 清除 layout 中 magento 商品
+     * @param $parameter
+     */
+    public function cleanLayoutProduct($parameter)
+    {
+        if($parameter->source == ProjectConfig::MAGENTO) {
+            $this->cityPass->updateMagentoProduct($parameter->no);
+        } else {
+
+        }
+
+    }
 }
