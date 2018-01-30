@@ -194,9 +194,9 @@ class ProductService
     public function cleanProductCache($parameter)
     {
         dispatch(new CacheReload(ProductRepository::CACHE_PRODUCT_ALL,ProductService::class, 'product', [$parameter, true]));
-        $this->cleanAllProductCache(60);
+        $this->cleanAllProductCache(30);
         dispatch(new CacheReload(ProductRepository::CACHE_PRODUCT_ALL,ProductService::class, 'cleanLayoutProduct', [$parameter]))
-            ->delay(120);
+            ->delay(60);
     }
 
     /**
