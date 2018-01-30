@@ -98,7 +98,7 @@ class Order extends Client
 
             }
             if(!empty($orderData)){
-                $this->putQuery('orderNo', $orderData);
+                $this->putQuery('orderData', $orderData);
 
             }
             if(!empty($initDate)&&!empty($endDate)) {
