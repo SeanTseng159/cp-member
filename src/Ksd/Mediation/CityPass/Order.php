@@ -81,7 +81,6 @@ class Order extends Client
     public function search($parameters=null)
     {
 
-
         $status = $parameters->status;
 //        $orderNo = $parameters->orderNo;
 //        $name = $parameters->name;
@@ -89,9 +88,7 @@ class Order extends Client
         $initDate = $parameters->initDate;
         $endDate = $parameters->endDate;
 
-        $this->putParameters($parameters);
-
-
+ //       $this->putParameters($parameters);
 
         $response =[];
         try{
@@ -99,12 +96,20 @@ class Order extends Client
             if(!empty($status)){
                 $this->putQuery('status', $status);
 
-            }else if(!empty($orderData)){
+            }
+            if(!empty($orderData)){
                 $this->putQuery('orderNo', $orderData);
 
-            }else if(!empty($initDate)&&!empty($endDate)) {
+            }
+            if(!empty($initDate)&&!empty($endDate)) {
                 $this->putQuery('initDate', $initDate)
                     ->putQuery('endDate', $endDate);
+            }
+            if(empty($initDate)&&!empty($endDate)) {
+                $this->putQuery('endDate', $endDate);
+            }
+            if(!empty($initDate)&&empty($endDate)) {
+                $this->putQuery('initDate', $initDate);
             }
             $response = $this->request('GET', $path);
         }catch (ClientException $e){
@@ -117,12 +122,13 @@ class Order extends Client
         $data = [];
 
         if(!empty($result['data'])) {
-            foreach ($result['data'] as $item) {
+            foreach ($result['data']['items'] as $item) {
                 $order = new OrderResult();
                 $order->cityPass($item);
                 $data[] = (array)$order;
             }
         }
+
         return $data;
 
 
