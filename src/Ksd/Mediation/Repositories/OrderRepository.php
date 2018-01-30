@@ -88,24 +88,7 @@ class OrderRepository extends BaseRepository
      */
     public function search($parameters)
     {
-           switch($parameters->status){
 
-               case '00': # 待付款
-               $parameters->status = "pending";
-                   break;
-               case '01': # 已完成
-               $parameters->status = "complete";
-                   break;
-               case '02': # 部分退貨
-               $parameters->status = "holded";
-                   break;
-               case '03': # 已退貨
-               $parameters->status = "closed";
-                   break;
-               case '04': # 處理中
-               $parameters->status = "holded";
-                   break;
-           }
             $email = $this->memberTokenService->getEmail();
             $magento = $this->magento->search($parameters,$email);
             $cityPass = $this->cityPass->authorization($this->memberTokenService->cityPassUserToken())->search($parameters);

@@ -133,6 +133,26 @@ class Order extends Client
      */
     public function search($parameters,$email)
     {
+
+        switch($parameters->status){
+
+            case '00': # 待付款
+                $parameters->status = "pending";
+                break;
+            case '01': # 已完成
+                $parameters->status = "complete";
+                break;
+            case '02': # 部分退貨
+                $parameters->status = "holded";
+                break;
+            case '03': # 已退貨
+                $parameters->status = "closed";
+                break;
+            case '04': # 處理中
+                $parameters->status = "holded";
+                break;
+        }
+
         if(!empty($email)) {
             $status = $parameters->status;
             $orderData = $parameters->orderData;
@@ -142,7 +162,6 @@ class Order extends Client
             $endDate = date("Y-m-d",strtotime($parameters->endDate."+1 day"));
 
             $orderItemResult = $this->searchItem($parameters);
-
             $response =[];
             try{
                 $path = 'V1/orders';
