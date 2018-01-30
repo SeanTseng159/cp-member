@@ -52,10 +52,6 @@ class AuthJWT
             $member = $this->memberService->find($tokenData->id);
             $status = ($member) ? $member->status : 0;
 
-            if ($platform === 'oauth') {
-                $status = 1;
-            }
-
             if ($status == 0) {
                 return $this->apiRespFail('E0022', '會員驗證失效');
             }
