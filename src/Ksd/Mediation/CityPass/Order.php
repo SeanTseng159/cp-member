@@ -82,8 +82,7 @@ class Order extends Client
     {
 
         $status = $parameters->status;
-//        $orderNo = $parameters->orderNo;
-//        $name = $parameters->name;
+
         $orderData = $parameters->orderData;
         $initDate = $parameters->initDate;
         $endDate = $parameters->endDate;
@@ -98,7 +97,7 @@ class Order extends Client
 
             }
             if(!empty($orderData)){
-                $this->putQuery('orderNo', $orderData);
+                $this->putQuery('orderData', $orderData);
 
             }
             if(!empty($initDate)&&!empty($endDate)) {

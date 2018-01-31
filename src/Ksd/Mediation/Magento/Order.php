@@ -133,16 +133,14 @@ class Order extends Client
      */
     public function search($parameters,$email)
     {
+
         if(!empty($email)) {
-            $status = $parameters->status;
+            $status = $this->orderStatusToMagento($parameters->status);
             $orderData = $parameters->orderData;
-//        $orderNo = $parameters->orderNo;
-//        $name = $parameters->name;
             $initDate = $parameters->initDate;
             $endDate = date("Y-m-d",strtotime($parameters->endDate."+1 day"));
 
             $orderItemResult = $this->searchItem($parameters);
-
             $response =[];
             try{
                 $path = 'V1/orders';
@@ -317,6 +315,7 @@ class Order extends Client
         $response = $this->request('GET', $path);
         $body = $response->getBody();
         $result = json_decode($body, true);
+
         $data = [];
         $order = new OrderResult();
         $order->magento($result,true);
@@ -578,6 +577,32 @@ class Order extends Client
             return null;
         }
 
+
+    }
+
+    /**
+     * 訂單status轉換
+     * @param $orderId
+     * @return string
+     */
+    public function orderStatusToMagento($orderId)
+    {
+        if(!empty($orderId)) {
+            switch ($orderId) {
+                case '00': # 待付款
+                    return "pending";
+                case '01': # 已完成
+                    return "processing";
+                case '02': # 部分退貨
+                    return "holded";
+                case '03': # 已退貨
+                    return "closed";
+                case '04': # 處理中
+                    return "holded";
+            }
+        }else{
+            return null;
+        }
 
     }
 }

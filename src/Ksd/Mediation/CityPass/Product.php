@@ -116,4 +116,16 @@ class Product extends Client
         return $data;
 
     }
+
+    /**
+     * 清除 layout 中 magento 商品
+     * @param $id
+     */
+    public function updateMagentoProduct($id)
+    {
+        $path = "Prod/updateMagentoProd/$id";
+        $response = $this->request('GET', $path);
+        $body = $response->getBody();
+        return json_encode($body, true);
+    }
 }

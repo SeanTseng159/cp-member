@@ -194,6 +194,17 @@ class ProductService
     public function cleanProductCache($parameter)
     {
         dispatch(new CacheReload(ProductRepository::CACHE_PRODUCT_ALL,ProductService::class, 'product', [$parameter, true]));
-        $this->cleanAllProductCache(60);
+        $this->cleanAllProductCache(30);
+        dispatch(new CacheReload(ProductRepository::CACHE_PRODUCT_ALL,ProductService::class, 'cleanLayoutProduct', [$parameter]))
+            ->delay(60);
+    }
+
+    /**
+     * 清除 layout 中 magento 商品
+     * @param $parameter
+     */
+    public function cleanLayoutProduct($parameter)
+    {
+        $this->repository->cleanLayoutProduct($parameter);
     }
 }

@@ -12,7 +12,7 @@ use Illuminate\Http\Request;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
-
+Route::get('test/regex', 'TestController@regex');
 // 需 管理者權限的token 認證的 route
 Route::middleware(['cors', 'admin.jwt'])->namespace('Api')->group(function () {
     Route::prefix('member')->group(function () {
