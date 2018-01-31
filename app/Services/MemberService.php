@@ -405,17 +405,16 @@ class MemberService
      * @param $member
      * @return mixed
      */
-    public function sendSMS($member)
+    public function sendRegisterSMS($member)
     {
         if ($member) {
             //發送簡訊
             $easyGoService = new EasyGoService;
             $phoneNumber = $member->countryCode . $member->cellphone;
-            $message = 'CityPass驗證碼： ' . $member->validPhoneCode;
+            $message = '您的 「CityPass都會通」 手機驗證碼：' . $member->validPhoneCode . '。 (注意：此驗證碼10分鐘內有效)';
 
             try {
-                return (env('APP_ENV') === 'production') ? $easyGoService->send($phoneNumber, $message) : true;
-                // return $easyGoService->send($phoneNumber, $message);
+                return $easyGoService->send($phoneNumber, $message);
             } catch (\Exception $e) {
                 Log::debug($e);
             }
