@@ -82,8 +82,7 @@ class Order extends Client
     {
 
         $status = $parameters->status;
-//        $orderNo = $parameters->orderNo;
-//        $name = $parameters->name;
+
         $orderData = $parameters->orderData;
         $initDate = $parameters->initDate;
         $endDate = $parameters->endDate;
