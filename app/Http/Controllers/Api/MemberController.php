@@ -111,6 +111,7 @@ class MemberController extends RestLaravelController
         $platform = $request->header('platform');
         $data = $request->except(['id']);
         $data['status'] = $data['isValidPhone'] = $data['isRegistered'] = 1;
+        $data['device'] = $platform ?: 'web';
 
         // 檢查Email是否使用
         $result = $this->memberService->checkEmailIsUse($data['email']);

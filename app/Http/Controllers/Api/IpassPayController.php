@@ -62,6 +62,8 @@ class IpassPayController extends RestLaravelController
      */
     public function payNotify(Request $request)
     {
-      return response()->json(['rtnCode' => -9999]);
+        $parameter = (new PayParameter)->payNotify($request);
+
+        // return response()->json(['rtnCode' => -9999]);
     }
 }

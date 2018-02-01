@@ -73,4 +73,24 @@ class PayService
 
         return ['status' => $status, 'data' => $data];
     }
+
+    /**
+     * 交易結果查詢
+     * @param $parameters
+     * @return mixed
+     */
+    public function bindPayResult($parameters)
+    {
+        $status = false;
+        $data = null;
+
+        if ($parameters) {
+            $data = $this->repository->bindPayResult($parameters);
+
+            // 成功
+            $status = ($data && $data->rtnCode == '0');
+        }
+
+        return ['status' => $status, 'data' => $data];
+    }
 }

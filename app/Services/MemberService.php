@@ -411,6 +411,7 @@ class MemberService
             //發送簡訊
             $easyGoService = new EasyGoService;
             $phoneNumber = $member->countryCode . $member->cellphone;
+            if ($member->countryCode !== '886') $phoneNumber = '+' . $phoneNumber;
             $message = '您的 「CityPass都會通」 手機驗證碼：' . $member->validPhoneCode . '。 (注意：此驗證碼10分鐘內有效)';
 
             try {
