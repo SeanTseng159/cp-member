@@ -32,6 +32,7 @@ class CartResult
             $row->source = ProjectConfig::MAGENTO;
             $row->itemId = $this->arrayDefault($item, 'item_id');
             $row->id = $this->arrayDefault($item, 'sku');
+            $row->redirectId = $this->getMainItemSku($this->arrayDefault($item, 'sku'));
             $row->name = $this->arrayDefault($item, 'name');
             $row->spec = $this->arrayDefault($item, 'spec');
             $row->qty = $this->arrayDefault($item, 'qty');
@@ -39,6 +40,7 @@ class CartResult
             $row->additionals = $this->arrayDefault($item, 'additionals') ==='' ? new \stdClass() : $this->arrayDefault($item, 'additionals');
             $row->imageUrl = $this->arrayDefault($item, 'extension_attributes', '')['image_url'];
             $row->purchase = $this->arrayDefault($item, ' purchase', '');
+
             $this->items[] = $row;
         }
 
@@ -69,6 +71,7 @@ class CartResult
             $row = new ProductResult();
             $row->source = ProjectConfig::CITY_PASS;
             $row->id = $this->arrayDefault($item, 'id');
+            $row->redirectId = $this->arrayDefault($item, 'id');
             $row->name = $this->arrayDefault($item, 'name');
             $row->spec = $this->arrayDefault($item, 'spec');
             $row->qty = $this->arrayDefault($item, 'quantity');
@@ -92,7 +95,19 @@ class CartResult
         $this->shipmentFree = $this->arrayDefault($result, 'shipmentFree');
     }
 
+    /**
+     * magento 組合商品之主商品sku獲取
+     * @param $key
+     * @return string
+     */
+    public function getMainItemSku($key)
+    {
+        if(!empty($key)) {
+            $mainKey = explode("-", $key);
+            return $mainKey[0];
+        }
 
+    }
 
 
 }
