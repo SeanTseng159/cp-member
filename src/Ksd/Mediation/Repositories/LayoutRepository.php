@@ -57,10 +57,10 @@ class LayoutRepository extends BaseRepository
     public function ads()
     {
 
-        return $this->redis->remember($this->genCacheKey(self::ADS_KEY), CacheConfig::LAYOUT_TIME, function () {
+//        return $this->redis->remember($this->genCacheKey(self::ADS_KEY), CacheConfig::LAYOUT_TIME, function () {
             $cityPass = $this->cityPass->ads();
             return $cityPass ;
-        });
+//        });
     }
 
     /**
@@ -70,10 +70,10 @@ class LayoutRepository extends BaseRepository
     public function exploration()
     {
 
-        return $this->redis->remember($this->genCacheKey(self::EXPLORATION_KEY), CacheConfig::LAYOUT_TIME, function () {
+//        return $this->redis->remember($this->genCacheKey(self::EXPLORATION_KEY), CacheConfig::LAYOUT_TIME, function () {
             $cityPass = $this->cityPass->exploration();
             return $cityPass ;
-        });
+//        });
     }
 
     /**
@@ -83,10 +83,10 @@ class LayoutRepository extends BaseRepository
     public function customize()
     {
 
-        return $this->redis->remember($this->genCacheKey(self::CUSTOMIZE_KEY), CacheConfig::LAYOUT_TIME, function () {
+//        return $this->redis->remember($this->genCacheKey(self::CUSTOMIZE_KEY), CacheConfig::LAYOUT_TIME, function () {
             $cityPass = $this->cityPass->customize();
             return $cityPass ;
-        });
+//        });
     }
 
     /**
@@ -96,10 +96,10 @@ class LayoutRepository extends BaseRepository
     public function banner()
     {
 
-        return $this->redis->remember($this->genCacheKey(self::BANNER_KEY), CacheConfig::LAYOUT_TIME, function () {
+//        return $this->redis->remember($this->genCacheKey(self::BANNER_KEY), CacheConfig::LAYOUT_TIME, function () {
             $cityPass = $this->cityPass->banner();
             return $cityPass ;
-        });
+//        });
     }
 
     /**
