@@ -27,4 +27,9 @@ class IpasspayLogService
     {
         return $this->repository->update($orderId, $data);
     }
+
+    public function queryOnlyOrderId($data, $datetime)
+    {
+        return $this->repository->queryOnlyOrderId($data, $datetime);
+    }
 }

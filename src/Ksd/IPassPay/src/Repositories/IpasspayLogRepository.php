@@ -59,4 +59,14 @@ class IpasspayLogRepository
             return false;
         }
     }
+
+    /**
+     * query
+     * @param $data
+     * @return mixed
+     */
+     public function queryOnlyOrderId($data, $datetime)
+     {
+         return $this->model->select('order_id')->where($data)->where('created_at', '>=', $datetime)->get();
+     }
 }
