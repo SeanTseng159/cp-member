@@ -85,4 +85,27 @@ class PayRepository extends BaseClient
             return false;
         }
     }
+
+    /**
+     * 交易結果查詢
+     * @param $parameters
+     * @return mixed
+     */
+    public function bindPayResult($parameters)
+    {
+        try {
+            $response = $this->putParameters($parameters)
+                ->request('POST', 'api/BindPayResult');
+            $responseQueryString = urldecode($response->getBody()->getContents());
+
+            \Log::debug('=== ipaypass PayResult ===');
+            \Log::debug(print_r($this->parseQueryString($responseQueryString), true));
+
+            $this->repository->update($parameters->order_id, ['bindPayResult' => $responseQueryString]);
+
+            return $this->parseQueryString($responseQueryString);
+        } catch (\Exception $e) {
+            return false;
+        }
+    }
 }
