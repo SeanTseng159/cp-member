@@ -51,7 +51,7 @@ class Payment extends Client
         $now->subDays(15);
 
         $startDate = $now->format('Y-m-d');
-        $now->addDays(2);
+        $now->addDays(15);
         $endDate = $now->format('Y-m-d');
         $result = [];
 
@@ -76,18 +76,20 @@ class Payment extends Client
 
         if (!empty($result['items'])){
             foreach ($result['items'] as $item) {
-                if($item['payment']['additional_information'][0] === 'Tspg Atm Payment'){
-                    $parameter = [
-                        'entity' => [
-                            'entity_id' => intval($item['entity_id']),
-                            'increment_id' => $item['increment_id'],
-                            'status' => 'closed',
-                        ]
-                    ];
-                    $this->clear();
-                    $this->putParameters($parameter);
-                    $this->request('PUT', 'V1/orders/create');
+                if(isset($item['payment']['additional_information'])) {
+                    if ($item['payment']['additional_information'][0] === 'Tspg Atm Payment') {
+                        $parameter = [
+                            'entity' => [
+                                'entity_id' => intval($item['entity_id']),
+                                'increment_id' => $item['increment_id'],
+                                'status' => 'closed',
+                            ]
+                        ];
+                        $this->clear();
+                        $this->putParameters($parameter);
+                        $this->request('PUT', 'V1/orders/create');
 
+                    }
                 }
             }
         }
