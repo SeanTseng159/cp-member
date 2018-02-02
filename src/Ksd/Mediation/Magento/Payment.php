@@ -82,7 +82,7 @@ class Payment extends Client
                             'entity' => [
                                 'entity_id' => intval($item['entity_id']),
                                 'increment_id' => $item['increment_id'],
-                                'status' => 'closed',
+                                'status' => 'canceled',
                             ]
                         ];
                         $this->clear();
