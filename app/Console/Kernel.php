@@ -41,7 +41,8 @@ class Kernel extends ConsoleKernel
         $schedule->command(AtmSalesAccount::class)->cron('25 * * * * *');
         $schedule->command(AutoUploadInvoice::class)->cron('0 3 * * * *');
         $schedule->command(PayResult::class)->cron('10 * * * * *');
-        $schedule->command(AtmOrderCheck::class )->dailyAt('02:00');
+        $schedule->command(AtmOrderCheck::class )->everyMinute();
+//            ->dailyAt('01:00')
 
     }
 
