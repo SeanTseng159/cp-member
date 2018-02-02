@@ -48,10 +48,10 @@ class Payment extends Client
 
     public function tspgATMOrderStatusProcess(){
         $now = Carbon::now();
-        $now->subDays(15);
+        $now->subDays(3);
 
         $startDate = $now->format('Y-m-d');
-        $now->addDays(15);
+        $now->addDays(2);
         $endDate = $now->format('Y-m-d');
         $result = [];
 
