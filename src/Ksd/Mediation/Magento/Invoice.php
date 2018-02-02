@@ -39,7 +39,7 @@ class Invoice extends Client
     public function getOrdersBeforeTenDay()
     {
         $now = Carbon::now();
-        $now->subDays(10);
+        $now->subDays(7);
 
         $startDate = $now->format('Y-m-d');
         $now->addDays(1);
