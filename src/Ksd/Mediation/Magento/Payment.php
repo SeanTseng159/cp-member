@@ -59,7 +59,7 @@ class Payment extends Client
             $path = 'V1/orders';
             $response = $this
                 ->putQuery('searchCriteria[filterGroups][0][filters][0][field]', 'status')
-                ->putQuery('searchCriteria[filterGroups][0][filters][0][value]', 'closed')
+                ->putQuery('searchCriteria[filterGroups][0][filters][0][value]', 'pending')
                 ->putQuery('searchCriteria[filterGroups][1][filters][0][field]', 'updated_at')
                 ->putQuery('searchCriteria[filterGroups][1][filters][0][value]', $startDate)
                 ->putQuery('searchCriteria[filterGroups][1][filters][0][condition_type]', 'from')
