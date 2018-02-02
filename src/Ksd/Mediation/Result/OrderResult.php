@@ -35,15 +35,17 @@ class OrderResult
             $this->orderAmount = $this->arrayDefault($result, 'subtotal') + $this->arrayDefault($result, 'shipping_amount');
             $this->orderItemAmount = $this->arrayDefault($result, 'subtotal');
             $this->orderDiscountAmount = $this->arrayDefault($result, 'discount_amount');
-            $this->orderStatus = $this->getStatus(ProjectConfig::MAGENTO,$this->arrayDefault($result, 'status'));
+            $payment = $this->arrayDefault($result, 'payment');
+            $this->orderStatus = $this->getStatus(ProjectConfig::MAGENTO,$this->arrayDefault($result, 'status'),false,$payment['method']);
             $this->orderStatusCode = $this->getStatusCode(ProjectConfig::MAGENTO,$this->arrayDefault($result, 'status'));
             $this->orderDate = date('Y-m-d H:i:s', strtotime('+8 hours', strtotime($this->arrayDefault($result, 'created_at'))));
-            $payment = $this->arrayDefault($result, 'payment');
+
             $comment = $this->arrayDefault($result, 'status_histories');
             $this->payment = $this->putMagentoPayment($payment,$comment);
 //            $this->payment['username'] =   $this->arrayDefault($result, 'customer_firstname') . $this->arrayDefault($result, 'customer_lastname');
             $this->shipping = [];
             $this->shipping['name'] = null;
+            $this->shipping['phone'] = null;
             $this->shipping['phone'] = null;
             $this->shipping['code'] = null;
             $this->shipping['address'] = null;
@@ -112,10 +114,11 @@ class OrderResult
             $this->orderAmount = $this->arrayDefault($result, 'grand_total');
             $this->orderItemAmount = $this->arrayDefault($result, 'subtotal');
             $this->orderDiscount = $this->arrayDefault($result, 'discount_amount');
-            $this->orderStatus = $this->getStatus(ProjectConfig::MAGENTO,$this->arrayDefault($result, 'status'));
+            $payment = $this->arrayDefault($result, 'payment');
+            $this->orderStatus = $this->getStatus(ProjectConfig::MAGENTO,$this->arrayDefault($result, 'status'),false,$payment['method']);
             $this->orderStatusCode = $this->getStatusCode(ProjectConfig::MAGENTO,$this->arrayDefault($result, 'status'));
             $this->orderDate = date('Y-m-d H:i:s', strtotime('+8 hours', strtotime($this->arrayDefault($result, 'created_at'))));
-            $payment = $this->arrayDefault($result, 'payment');
+
             $comment = $this->arrayDefault($result, 'status_histories');
             $this->payment = $this->putMagentoPayment($payment,$comment,$this->arrayDefault($result, 'entity_id'),$this->arrayDefault($result, 'increment_id'),true);
             $this->shipping = [];
@@ -288,26 +291,38 @@ class OrderResult
      * 狀態轉換
      * @param $source
      * @param $key
+     * @param $isRePayment
+     * @param $paymentType
      * @return string
      */
-    public function getStatus($source, $key, $isRePayment = false)
+    public function getStatus($source, $key, $isRePayment = false , $paymentType=null)
     {
 
         if ($source ==='magento') {
-            switch ($key) {
-                case 'pending': # 待付款
-                    return "待付款";
-                case 'complete': # 訂單完成(已出貨)
-                    return "已完成";
-                case 'holded': # 退貨處理中
-                    return "退貨處理中";
-                case 'canceled': # 已退貨
-                    return "已退貨";
-                case 'processing': # 付款成功(前台顯示已完成)，尚未出貨
-                    return "已完成";
-                case 'closed': #  退款成功
-                    return "已退貨";
+            if($key === 'pending'){ # 待付款
+                return "待付款";
             }
+            if($key === 'complete'){ # 訂單完成(已出貨)
+                return "已完成";
+            }
+            if($key === 'holded'){  # 退貨處理中
+                return "退貨處理中";
+            }
+            if($key === 'canceled'){# 已退貨
+                return "已退貨";
+            }
+            if($key === 'processing'){  # 付款成功(前台顯示已完成)，尚未出貨
+                return "已完成";
+            }
+            if($key === 'closed'){
+                if($paymentType === 'tspg_atm'){
+                    return "付款失敗";
+                }else {
+                    return "已退貨";
+                }
+            }
+
+
         } else if($source ==='ct_pass'){
             switch ($key) {
                 case '00': # 重新付款 || 待付款
@@ -377,7 +392,7 @@ class OrderResult
      * @param $comment
      * @param $id
      * @param $incrementId
-     * @param $isDetail
+     * @param $isDetailf
      * @return array
      */
     private function putMagentoPayment($payment , $comment=null, $id=null, $incrementId=null, $isDetail=false)
