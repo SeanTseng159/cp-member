@@ -62,6 +62,7 @@ class MemberRepository
                 if (isset($data['email'])) $member->validEmailCode = Crypt::encrypt($data['email']);
                 $member->validPhoneCode = strval(mt_rand(100000, 999999));
                 if (!isset($data['birthday']) || !$data['birthday']) unset($member->birthday);
+                if (isset($data['socialId'])) $member->socialId = strtoupper($member->socialId);
                 $member->save();
                 return $member;
             } else {
