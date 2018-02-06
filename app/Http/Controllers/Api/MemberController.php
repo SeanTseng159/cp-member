@@ -137,8 +137,16 @@ class MemberController extends RestLaravelController
             return $this->success([
                 'id' => $member->id,
                 'token' => $member->token,
+                'email' => $member->email,
                 'name' => $member->name,
-                'avatar' => $member->avatar
+                'avatar' => $member->avatar,
+                'countryCode' => $member->countryCode,
+                'cellphone' => $member->cellphone,
+                'country' => $member->country,
+                'gender' => $member->gender,
+                'zipcode' => $member->zipcode,
+                'address' => $member->address,
+                'openPlateform' => $member->openPlateform
             ]);
         }
         else {
