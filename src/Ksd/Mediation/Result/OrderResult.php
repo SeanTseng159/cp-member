@@ -386,7 +386,7 @@ class OrderResult
      * @param $comment
      * @param $id
      * @param $incrementId
-     * @param $isDetailf
+     * @param $isDetail
      * @return array
      */
     private function putMagentoPayment($payment , $comment=null, $id=null, $incrementId=null, $isDetail=false)
@@ -400,15 +400,27 @@ class OrderResult
 
             $result['gateway'] = "tspg";
             $result['method'] = "atm";
-            $result = [
-                'bankId' => $this->arrayDefault($additionalInformation, 1),
-                'virtualAccount' => $this->arrayDefault($additionalInformation, 2),
-                'amount' => $this->arrayDefault($additionalInformation, 3),
-                'paymentPeriod' => $this->arrayDefault($additionalInformation, 4),
-                'gateway' => "tspg",
-                'method' => "atm",
-                'title' => "ATM虛擬帳號"
-            ];
+            if($this->arrayDefault($additionalInformation, 1) !== 'magento') {
+                $result = [
+                    'bankId' => $this->arrayDefault($additionalInformation, 1),
+                    'virtualAccount' => $this->arrayDefault($additionalInformation, 2),
+                    'amount' => $this->arrayDefault($additionalInformation, 3),
+                    'paymentPeriod' => $this->arrayDefault($additionalInformation, 4),
+                    'gateway' => "tspg",
+                    'method' => "atm",
+                    'title' => "ATM虛擬帳號"
+                ];
+            }else{
+                $result = [
+                    'bankId' => $this->arrayDefault($additionalInformation, 3),
+                    'virtualAccount' => $this->arrayDefault($additionalInformation, 4),
+                    'amount' => $this->arrayDefault($additionalInformation, 5),
+                    'paymentPeriod' => $this->arrayDefault($additionalInformation, 6),
+                    'gateway' => "tspg",
+                    'method' => "atm",
+                    'title' => "ATM虛擬帳號"
+                ];
+            }
         }
 
         if ($method === 'tspg_transmit') {
