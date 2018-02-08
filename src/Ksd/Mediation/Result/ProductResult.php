@@ -99,6 +99,7 @@ class ProductResult
         $this->description = $this->arrayDefault($result, 'description');
         $this->imageUrl = $this->arrayDefault($result, 'imageUrl');
         $this->createdAt = $this->arrayDefault($result, 'createdAt');
+        $this->isWishlist = $this->arrayDefault($result, 'isWishlist');
 
         if ($isDetail) {
             $this->saleStatusCode = $this->arrayDefault($result, 'saleStatus');
