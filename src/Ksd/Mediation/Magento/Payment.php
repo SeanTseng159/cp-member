@@ -11,6 +11,7 @@ namespace Ksd\Mediation\Magento;
 
 use GuzzleHttp\Exception\ServerException;
 use Illuminate\Support\Facades\Log;
+use Carbon\Carbon;
 
 class Payment extends Client
 {
@@ -43,5 +44,57 @@ class Payment extends Client
             }
         }
         return true;
+    }
+
+    public function tspgATMOrderStatusProcess(){
+        $now = Carbon::now();
+        $now->subDays(3);
+
+        $startDate = $now->format('Y-m-d');
+        $now->addDays(2);
+        $endDate = $now->format('Y-m-d');
+        $result = [];
+
+        try {
+            $path = 'V1/orders';
+            $response = $this
+                ->putQuery('searchCriteria[filterGroups][0][filters][0][field]', 'status')
+                ->putQuery('searchCriteria[filterGroups][0][filters][0][value]', 'pending')
+                ->putQuery('searchCriteria[filterGroups][1][filters][0][field]', 'updated_at')
+                ->putQuery('searchCriteria[filterGroups][1][filters][0][value]', $startDate)
+                ->putQuery('searchCriteria[filterGroups][1][filters][0][condition_type]', 'from')
+                ->putQuery('searchCriteria[filterGroups][2][filters][0][field]', 'updated_at')
+                ->putQuery('searchCriteria[filterGroups][2][filters][0][value]', $endDate)
+                ->putQuery('searchCriteria[filterGroups][2][filters][0][condition_type]', 'to')
+                ->request('GET', $path);
+            $body = $response->getBody();
+            $result = json_decode($body, true);
+
+        } catch (\Exception $e) {
+            Log::error('Magento tspgATMOrderCheck fail');
+        }
+
+        if (!empty($result['items'])){
+            foreach ($result['items'] as $item) {
+                if(isset($item['payment']['additional_information'])) {
+                    if ($item['payment']['additional_information'][0] === 'Tspg Atm Payment') {
+                        $parameter = [
+                            'entity' => [
+                                'entity_id' => intval($item['entity_id']),
+                                'increment_id' => $item['increment_id'],
+                                'status' => 'canceled',
+                            ]
+                        ];
+                        $this->clear();
+                        $this->putParameters($parameter);
+                        $this->request('PUT', 'V1/orders/create');
+
+                    }
+                }
+            }
+        }
+        return true;
+
+
     }
 }

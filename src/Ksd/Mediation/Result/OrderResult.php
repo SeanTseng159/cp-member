@@ -35,6 +35,7 @@ class OrderResult
             $this->orderAmount = $this->arrayDefault($result, 'subtotal') + $this->arrayDefault($result, 'shipping_amount');
             $this->orderItemAmount = $this->arrayDefault($result, 'subtotal');
             $this->orderDiscountAmount = $this->arrayDefault($result, 'discount_amount');
+
             $this->orderStatus = $this->getStatus(ProjectConfig::MAGENTO,$this->arrayDefault($result, 'status'));
             $this->orderStatusCode = $this->getStatusCode(ProjectConfig::MAGENTO,$this->arrayDefault($result, 'status'));
             $this->orderDate = date('Y-m-d H:i:s', strtotime('+8 hours', strtotime($this->arrayDefault($result, 'created_at'))));
@@ -44,6 +45,7 @@ class OrderResult
 //            $this->payment['username'] =   $this->arrayDefault($result, 'customer_firstname') . $this->arrayDefault($result, 'customer_lastname');
             $this->shipping = [];
             $this->shipping['name'] = null;
+            $this->shipping['phone'] = null;
             $this->shipping['phone'] = null;
             $this->shipping['code'] = null;
             $this->shipping['address'] = null;
@@ -288,26 +290,33 @@ class OrderResult
      * 狀態轉換
      * @param $source
      * @param $key
+     * @param $isRePayment
      * @return string
      */
     public function getStatus($source, $key, $isRePayment = false)
     {
 
         if ($source ==='magento') {
-            switch ($key) {
-                case 'pending': # 待付款
-                    return "待付款";
-                case 'complete': # 訂單完成(已出貨)
-                    return "已完成";
-                case 'holded': # 退貨處理中
-                    return "退貨處理中";
-                case 'canceled': # 已退貨
-                    return "已退貨";
-                case 'processing': # 付款成功(前台顯示已完成)，尚未出貨
-                    return "已完成";
-                case 'closed': #  退款成功
-                    return "已退貨";
+            if ($key === 'pending') { # 待付款
+                return "待付款";
             }
+            if ($key === 'complete') { # 訂單完成(已出貨)
+                return "已完成";
+            }
+            if ($key === 'holded') {  # 退貨處理中
+                return "退貨處理中";
+            }
+            if ($key === 'canceled') {# 已退貨
+                return "已退貨";
+            }
+            if ($key === 'processing') {  # 付款成功(前台顯示已完成)，尚未出貨
+                return "已完成";
+            }
+            if ($key === 'closed') {  #退款成功
+                return "已退貨";
+            }
+
+
         } else if($source ==='ct_pass'){
             switch ($key) {
                 case '00': # 重新付款 || 待付款
@@ -391,15 +400,27 @@ class OrderResult
 
             $result['gateway'] = "tspg";
             $result['method'] = "atm";
-            $result = [
-                'bankId' => $this->arrayDefault($additionalInformation, 1),
-                'virtualAccount' => $this->arrayDefault($additionalInformation, 2),
-                'amount' => $this->arrayDefault($additionalInformation, 3),
-                'paymentPeriod' => $this->arrayDefault($additionalInformation, 4),
-                'gateway' => "tspg",
-                'method' => "atm",
-                'title' => "ATM虛擬帳號"
-            ];
+            if($this->arrayDefault($additionalInformation, 1) !== 'magento') {
+                $result = [
+                    'bankId' => $this->arrayDefault($additionalInformation, 1),
+                    'virtualAccount' => $this->arrayDefault($additionalInformation, 2),
+                    'amount' => $this->arrayDefault($additionalInformation, 3),
+                    'paymentPeriod' => $this->arrayDefault($additionalInformation, 4),
+                    'gateway' => "tspg",
+                    'method' => "atm",
+                    'title' => "ATM虛擬帳號"
+                ];
+            }else{
+                $result = [
+                    'bankId' => $this->arrayDefault($additionalInformation, 3),
+                    'virtualAccount' => $this->arrayDefault($additionalInformation, 4),
+                    'amount' => $this->arrayDefault($additionalInformation, 5),
+                    'paymentPeriod' => $this->arrayDefault($additionalInformation, 6),
+                    'gateway' => "tspg",
+                    'method' => "atm",
+                    'title' => "ATM虛擬帳號"
+                ];
+            }
         }
 
         if ($method === 'tspg_transmit') {

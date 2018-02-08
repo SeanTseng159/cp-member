@@ -58,7 +58,7 @@ class ProductResult
             ];
             $this->saleStatusCode = $result['extension_attributes']['stock_item']['is_in_stock'] ? '11' : '10';
             $this->saleStatus = $this->getSaleStatus($this->saleStatusCode);
-            $this->canUseCoupon = false;
+            $this->canUseCoupon = '1';
             $this->storeTelephone = null;
             $this->storeAddress = null;
             $this->quantity = $result['extension_attributes']['stock_item']['qty'];
@@ -99,6 +99,7 @@ class ProductResult
         $this->description = $this->arrayDefault($result, 'description');
         $this->imageUrl = $this->arrayDefault($result, 'imageUrl');
         $this->createdAt = $this->arrayDefault($result, 'createdAt');
+        $this->isWishlist = $this->arrayDefault($result, 'isWishlist');
 
         if ($isDetail) {
             $this->saleStatusCode = $this->arrayDefault($result, 'saleStatus');

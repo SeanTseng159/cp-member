@@ -4,6 +4,7 @@ namespace App\Console;
 
 use App\Console\Commands\AutoUploadInvoice;
 use App\Console\Commands\Payment\Tspg\AtmSalesAccount;
+use App\Console\Commands\Payment\Tspg\AtmOrderCheck;
 use App\Console\Commands\Payment\Ipasspay\PayResult;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
@@ -20,7 +21,8 @@ class Kernel extends ConsoleKernel
     protected $commands = [
         AtmSalesAccount::class,
         AutoUploadInvoice::class,
-        PayResult::class
+        PayResult::class,
+        AtmOrderCheck::class
     ];
 
     /**
@@ -39,6 +41,8 @@ class Kernel extends ConsoleKernel
         $schedule->command(AtmSalesAccount::class)->cron('25 * * * * *');
         $schedule->command(AutoUploadInvoice::class)->cron('0 3 * * * *');
         $schedule->command(PayResult::class)->cron('10 * * * * *');
+        $schedule->command(AtmOrderCheck::class )->dailyAt('02:00');
+
     }
 
     /**

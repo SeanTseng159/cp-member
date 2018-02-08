@@ -39,7 +39,7 @@ class Invoice extends Client
     public function getOrdersBeforeTenDay()
     {
         $now = Carbon::now();
-        $now->subDays(10);
+        $now->subDays(7);
 
         $startDate = $now->format('Y-m-d');
         $now->addDays(1);
@@ -129,10 +129,13 @@ class Invoice extends Client
 
         $record_str .= $invoiceTitle.'|';         //13.買受人公司名稱
 
-
-        $member = $this->member->whereEmail($this->arrayDefault($result, 'customer_email'))->first();
-
-
+        //增加判斷，考量到第三方登錄的到magento有帶前綴magento_xxx@xxx.com
+        if(!empty($this->member->whereEmail($this->arrayDefault($result, 'customer_email'))->first())){
+            $member = $this->member->whereEmail($this->arrayDefault($result, 'customer_email'))->first();
+        }else{
+            $email = explode("_",$this->arrayDefault($result, 'customer_email')) ;
+            $member = $this->member->whereOpenid($email[1])->first();
+        }
 
         if(isset($member)){
 

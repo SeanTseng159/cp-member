@@ -89,8 +89,6 @@ class PayController extends RestLaravelController
       }
       catch (\Exception $e) {
         Log::debug('=== ipass pay error ===');
-        Log::debug(print_r($e, true));
-
         return $this->failureRedirect($parameter);
       }
     }

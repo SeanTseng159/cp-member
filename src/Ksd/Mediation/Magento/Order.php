@@ -47,6 +47,10 @@ class Order extends Client
                     ->putQuery('searchCriteria[filterGroups][0][filters][0][value]', $email)
                     //               ->putQuery('searchCriteria[sortOrders][0][field]', 'created_at')
                     //               ->putQuery('searchCriteria[sortOrders][0][direction]', 'DESC')
+//                    ->putQuery('searchCriteria[pageSize]',500)
+//                    ->putQuery('fields','items[entity_id,increment_id,subtotal,shipping_amount,discount_amount,status,created_at,payment,status_histories,items[price,name,sku,qty_ordered,shipping_description,qty_shipped,qty_refunded,discount_amount]]')
+
+
                     ->request('GET', $path);
                 $body = $response->getBody();
                 $result = json_decode($body, true);
