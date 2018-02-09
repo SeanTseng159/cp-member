@@ -360,7 +360,7 @@ class Order extends Client
     {
 
         Log::debug('===iPassPay Update Order===');
-        Log::debug($parameters);
+        Log::debug($parameters->paySource);
         $id = isset($parameters->id) ? $parameters->id :$parameters->order_id;
         $incrementId = $this->orderIdToIncrementId($id);
         //將ipasspay回傳結果存入order comment
