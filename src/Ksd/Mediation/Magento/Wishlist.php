@@ -33,7 +33,7 @@ class Wishlist extends Client
         foreach ($result as $item) {
             $wish = new WishlistResult();
             $wish->magento($item);
-            $data[] = $wish;
+            $data[] = (array)$wish;
         }
         return $data;
     }

@@ -44,7 +44,8 @@ class WishlistRepository extends BaseRepository
 
         $data = array_filter(array_merge($magento, $cityPass));
 
-        return ($data) ?: null;
+        return ($data) ? $this->multi_array_sort($data,'addAt') : null;
+
     }
 
     /**
@@ -81,6 +82,24 @@ class WishlistRepository extends BaseRepository
 
     }
 
+    /**
+     * 資料依日期做排序
+     * @param $arr
+     *  @param$key
+     *  @param $type
+     *  @param $short
+     * @return array
+     */
+    public function multi_array_sort($arr,$key,$type=SORT_REGULAR,$short=SORT_DESC){
+        if(!empty($arr)) {
+            foreach ($arr as $k => $v) {
+                $name[$k] = $v[$key];
+            }
+            array_multisort($name, $type, $short, $arr);
+
+        }
+        return $arr;
+    }
 
 
 

@@ -37,6 +37,7 @@ class WishlistResult
         $this->storeName = null;
         $this->place = null;
         $this->imageUrl = $this->magentoImageUrl($this->arrayDefault($result['product'], 'thumbnail'));
+        $this->addAt = $this->arrayDefault($result, 'added_at');
 
 /*
         foreach ($result['product'] as $item) {
