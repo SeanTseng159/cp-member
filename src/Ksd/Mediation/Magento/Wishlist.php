@@ -87,11 +87,10 @@ class Wishlist extends Client
     public function find($sku)
     {
         $wishlist = $this->items();
-
         if(isset($wishlist)){
             foreach ($wishlist as $items) {
-                if(preg_match("/".$sku."/",$items->id)){
-                    return $items->wishlistItemId;
+                if(preg_match("/".$sku."/",$items['id'])){
+                    return $items['wishlistItemId'];
                 }
             }
         }else{
