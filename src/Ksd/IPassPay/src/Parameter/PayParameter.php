@@ -172,14 +172,14 @@ class PayParameter
      * 入帳通知
      * @param $data
      */
-    public function bindPayResult($order)
+    public function bindPayResult($order_id)
     {
         $parameter = new \stdClass;
         $parameter->client_id = env('IPASS_PAY_CLIENT_ID');
         $parameter->client_pw = env('IPASS_PAY_CLIENT_PW');
         $parameter->respond_type = env('IPASS_PAY_RESPOND_TYPE', 'json');
         $parameter->version = env('IPASS_PAY_VERSION', '1.0');
-        $parameter->order_id = $order->order_id;
+        $parameter->order_id = $order_id;
         $parameter->timestamp = Carbon\Carbon::now()->timestamp;
         $parameter->signature = '';
 
