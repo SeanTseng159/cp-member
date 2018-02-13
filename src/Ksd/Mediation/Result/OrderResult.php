@@ -408,7 +408,8 @@ class OrderResult
                     'paymentPeriod' => $this->arrayDefault($additionalInformation, 4),
                     'gateway' => "tspg",
                     'method' => "atm",
-                    'title' => "ATM虛擬帳號"
+                    'title' => "ATM虛擬帳號",
+                    'bankName' => "台新銀行"
                 ];
             }else{
                 $result = [
@@ -418,7 +419,8 @@ class OrderResult
                     'paymentPeriod' => $this->arrayDefault($additionalInformation, 6),
                     'gateway' => "tspg",
                     'method' => "atm",
-                    'title' => "ATM虛擬帳號"
+                    'title' => "ATM虛擬帳號",
+                    'bankName' => "台新銀行"
                 ];
             }
         }

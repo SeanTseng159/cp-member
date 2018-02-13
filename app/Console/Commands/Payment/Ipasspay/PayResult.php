@@ -56,7 +56,7 @@ class PayResult extends Command
         $payParameter = new PayParameter;
 
         foreach ($orders as $order) {
-            $parameter = $payParameter->bindPayResult($order);
+            $parameter = $payParameter->bindPayResult($order->order_id);
             $result = $this->service->bindPayResult($parameter);
 
             # todo

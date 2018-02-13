@@ -341,7 +341,7 @@ class Order extends Client
         $parameter = [
             'entity' => [
                 'entity_id'=> $orderId,
-                'status'=> 'holded'
+                'status'=> 'processing'
             ]
         ];
         $this->putParameters($parameter);
@@ -361,7 +361,7 @@ class Order extends Client
 
         Log::debug('===iPassPay Update Order===');
         Log::debug($parameters->paySource);
-        $id = isset($parameters->id) ? $parameters->id :$parameters->order_id;
+        $id = isset($parameters->id) ? $parameters->id : $parameters->orderNo;
         $incrementId = $this->orderIdToIncrementId($id);
         //將ipasspay回傳結果存入order comment
         if ($parameters->paySource === 'ipasspay') {
@@ -609,4 +609,33 @@ class Order extends Client
         }
 
     }
+
+    /**
+     * 更改訂單狀態(ipassPay ATM結果回傳)
+     * @param $parameters
+     * @return  bool
+     */
+    public function updateIpassPayATM($parameters)
+    {
+        if(!empty($parameters->orderNo)){
+            $id = $parameters->orderNo;
+            $incrementId = $this->orderIdToIncrementId($id);
+
+            $parameter = [
+                'entity' => [
+                    'entity_id' => $id,
+                    'increment_id' => $incrementId,
+                    'status' => 'processing',
+                ]
+            ];
+            $this->putParameters($parameter);
+            $response =$this->request('PUT', 'V1/orders/create');
+            $result = json_decode($response->getBody(), true);
+
+            return true;
+        }else{
+            return false;
+        }
+    }
+
 }

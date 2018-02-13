@@ -91,7 +91,7 @@ class WishlistRepository extends BaseRepository
      * @return array
      */
     public function multi_array_sort($arr,$key,$type=SORT_REGULAR,$short=SORT_DESC){
-        if(!empty($arr)) {
+        if(!empty($arr) && !empty($key)) {
             foreach ($arr as $k => $v) {
                 $name[$k] = $v[$key];
             }

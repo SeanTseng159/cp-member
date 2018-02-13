@@ -25,6 +25,7 @@ class PayParameter
     private $bindPayStatusSignatureOptions = ['client_id', 'respond_type', 'version', 'order_id', 'token', 'timestamp', 'client_pw'];
     private $bindRefundOptions = ['client_id', 'amt', 'timestamp', 'client_pw'];
     private $bindPayResultOptions = ['client_id', 'order_id', 'timestamp', 'client_pw'];
+    private $bindPayNotifyOptions = ['client_id', 'timestamp', 'client_pw'];
 
     /**
      * laravel request 參數處理
@@ -169,21 +170,55 @@ class PayParameter
     }
 
     /**
-     * 入帳通知
-     * @param $data
+     * 交易結果查詢
+     * @param $order_id
      */
-    public function bindPayResult($order)
+    public function bindPayResult($order_id)
     {
         $parameter = new \stdClass;
         $parameter->client_id = env('IPASS_PAY_CLIENT_ID');
         $parameter->client_pw = env('IPASS_PAY_CLIENT_PW');
         $parameter->respond_type = env('IPASS_PAY_RESPOND_TYPE', 'json');
         $parameter->version = env('IPASS_PAY_VERSION', '1.0');
-        $parameter->order_id = $order->order_id;
+        $parameter->order_id = $order_id;
         $parameter->timestamp = Carbon\Carbon::now()->timestamp;
         $parameter->signature = '';
 
         foreach ($this->bindPayResultOptions as $key) {
+            $parameter->signature .= $parameter->{$key};
+        }
+
+        $parameter->signature = hash('sha256', $parameter->signature);
+
+        unset($parameter->client_pw);
+
+        return $parameter;
+    }
+
+    /**
+     * 入帳通知
+     * @param $status
+     */
+    public function bindPayNotify($status = 0)
+    {
+        $rtnCode = -810;
+        $rtnMsg = '查無此訂單';
+
+        // 成功
+        if ($status === 1) {
+            $rtnCode = 0;
+            $rtnMsg = '成功';
+        }
+
+        $parameter = new \stdClass;
+        $parameter->rtnCode = $rtnCode;
+        $parameter->rtnMsg = $rtnMsg;
+        $parameter->client_id = env('IPASS_PAY_CLIENT_ID');
+        $parameter->client_pw = env('IPASS_PAY_CLIENT_PW');
+        $parameter->timestamp = Carbon\Carbon::now()->timestamp;
+        $parameter->signature = '';
+
+        foreach ($this->bindPayNotifyOptions as $key) {
             $parameter->signature .= $parameter->{$key};
         }
 

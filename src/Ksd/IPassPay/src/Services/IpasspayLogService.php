@@ -32,4 +32,9 @@ class IpasspayLogService
     {
         return $this->repository->queryOnlyOrderId($data, $datetime);
     }
+
+    public function findByOrderId($order_id)
+    {
+        return $this->repository->findByOrderId($order_id);
+    }
 }
