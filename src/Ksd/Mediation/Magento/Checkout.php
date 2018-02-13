@@ -10,6 +10,7 @@ namespace Ksd\Mediation\Magento;
 
 
 use App\Exceptions\Api\Checkout\PayCreditCardFailException;
+use App\Exceptions\Api\Checkout\ShipmentFailException;
 use Ksd\Mediation\Helper\StringHelper;
 use Ksd\Mediation\Result\Checkout\PaymentInfoResult;
 use Ksd\Mediation\Result\Checkout\ShippingInfoResult;
@@ -40,6 +41,8 @@ class Checkout extends Client
      */
     public function info()
     {
+        //刷新購物車，檢查商品是否下架
+        $this->itemStatus();
         $checkout = new CheckoutResult();
         $checkout->magneto($this->paymentInfo(), $this->shippingInfo(), $this->billingInfo());
         return $checkout;
@@ -182,9 +185,12 @@ class Checkout extends Client
             'shipping_method_code' => $methods[0],
             'shipping_carrier_code' => $methods[1],
         ]);
-
-        $response = $this->request('POST', 'V1/carts/mine/shipping-information');
-        $result = json_decode($response->getBody(), true);
+        try {
+            $response = $this->request('POST', 'V1/carts/mine/shipping-information');
+            $result = json_decode($response->getBody(), true);
+        }catch (ClientException $e){
+            throw new ShipmentFailException();
+        }
         return isset($result['payment_methods']) ? true : false;
 
     }
@@ -196,16 +202,21 @@ class Checkout extends Client
      */
     public function putComment($parameter)
     {
-
-        $this->putParameters([
-            "orderComment"=> [
-                "comment"=> $parameter,
-        ]]);
-
-        $response = $this->request('PUT', 'V1/carts/mine/set-order-comment');
-        $result = json_decode($response->getBody(), true);
-
-        return  true;
+        if(!empty($parameter)) {
+            $this->putParameters([
+                "orderComment" => [
+                    "comment" => $parameter,
+                ]]);
+            try {
+                $response = $this->request('PUT', 'V1/carts/mine/set-order-comment');
+                $result = json_decode($response->getBody(), true);
+            }catch (ClientException $e){
+                throw new ShipmentFailException();
+            }
+            return true;
+        }else{
+            return false;
+        }
 
     }
 
@@ -555,6 +566,30 @@ class Checkout extends Client
         }else{
             return true;
         }
+    }
+
+    /**
+     * 商品狀態判斷
+     * @return bool
+     */
+    public function itemStatus()
+    {
+        $result = [];
+        try {
+
+            $response = $this->request('GET', 'V1/carts/mine');
+            $result = json_decode($response->getBody(), true);
+
+
+        } catch (ClientException $e) {
+            // TODO:處理抓取不到購物車資料
+        }
+        if(empty($result['items'])){
+            return true;
+        }else{
+            return false;
+        }
+
     }
 
 
