@@ -253,6 +253,24 @@ class OrderRepository extends BaseRepository
     }
 
     /**
+     * ipasspay atm 訂單更新
+     * @param $parameters
+     * @return  bool
+     */
+    public function updateByIpasspayATM($parameters)
+    {
+        if ($parameters->source === ProjectConfig::MAGENTO) {
+            return $this->magento->updateIpassPayATM($parameters);
+        } else if ($parameters->source === ProjectConfig::CITY_PASS) {
+            $member_id = $parameters->member_id;
+            $order_id = $parameters->order_id;
+            return false;
+            // return $this->cityPass->authorization($this->memberTokenService->cityPassUserTokenForIpasspayByMemberId($member_id, $order_id))->update($parameters);
+        }
+
+    }
+
+    /**
      * 資料依日期做排序
      * @param $arr
      *  @param$key
