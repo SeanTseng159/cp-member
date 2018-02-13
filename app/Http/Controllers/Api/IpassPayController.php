@@ -71,7 +71,7 @@ class IpassPayController extends RestLaravelController
      * @param Request $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function payResult(Request $request)
+    public function result(Request $request)
     {
         $order_id = $request->input('order_id');
 

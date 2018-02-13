@@ -42,6 +42,8 @@ Route::middleware(['cors', 'admin.jwt'])->namespace('Api')->group(function () {
     Route::prefix('ipasspay')->group(function () {
         //退款
         Route::post('refund', 'IpassPayController@refund');
+        //交易結果查詢
+        Route::post('result', 'IpassPayController@result');
     });
 
 });
@@ -234,8 +236,6 @@ Route::middleware('cors')->namespace('Api')->group(function () {
     Route::prefix('ipasspay')->group(function () {
         //退款
         Route::post('payNotify', 'IpassPayController@payNotify');
-        //交易結果查詢
-        Route::post('payResult', 'IpassPayController@payResult');
     });
 
 });
