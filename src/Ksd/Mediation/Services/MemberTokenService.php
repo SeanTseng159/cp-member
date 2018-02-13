@@ -75,6 +75,29 @@ class MemberTokenService
         return $this->JWTencode($data);
     }
 
+    /**
+     * city pass 直接轉拋 token
+     * @return mixed
+     */
+    public function cityPassUserTokenForIpasspayByMemberId($member_id, $order_id)
+    {
+        if (!$member_id) return '';
+
+        $iat = time();
+        $exp = time() + 600;
+        $signature = $order_id . '_' . $exp;
+
+        $data = [
+            'iss' => env('JWT_ISS', 'CityPass'),
+            'iat' => $iat,
+            'exp' => $exp,
+            'id' => $member_id,
+            'signature' => $signature
+        ];
+
+        return $this->JWTencode($data);
+    }
+
 
     /**
      * 取得 member email for magento order

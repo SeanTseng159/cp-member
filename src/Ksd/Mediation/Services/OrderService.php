@@ -98,5 +98,15 @@ class OrderService
         }
         return $this->repository->update($token, $parameters);
     }
+
+    /**
+     * ipasspay atm 訂單更新
+     * @param $parameters
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function updateByIpasspayATM($parameters)
+    {
+        return $this->repository->updateByIpasspayATM($parameters);
+    }
 }
 
