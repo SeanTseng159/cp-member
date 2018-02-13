@@ -628,7 +628,9 @@ class Order extends Client
                     'status' => 'processing',
                 ]
             ];
-            $this->putParameters($parameter)->request('PUT', 'V1/orders/create');
+            $this->putParameters($parameter);
+            $response =$this->request('PUT', 'V1/orders/create');
+            $result = json_decode($response->getBody(), true);
 
             return true;
         }else{
