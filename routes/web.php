@@ -46,3 +46,7 @@ Route::get('contact', function () {
 Route::get('about', function () {
     return view('web.about');
 });
+
+Route::get('e-ticket-use', function () {
+    return view('web.e-ticket-use');
+});

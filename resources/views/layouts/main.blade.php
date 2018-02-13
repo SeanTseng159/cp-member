@@ -44,6 +44,15 @@
                 color: #ff8209;
             }
 
+            .btn-link {
+                color: #ff0101;
+                text-decoration: underline;
+            }
+
+            .btn-link:hover {
+                color: #ff0101;
+            }
+
             ul {
                 list-style-type: none;
                 padding: 0;
@@ -60,6 +69,12 @@
               float: left;
               width: 100%;
               list-style-type: circle;
+            }
+
+            ul.disc-list {
+              float: left;
+              width: 100%;
+              list-style-type: disc;
             }
 
             ul.lower-latin-list {
@@ -186,9 +201,18 @@
                 margin-bottom: 15px;
               }
 
+            .bell {
+                color: #ff8209;
+                border-radius: 50%;
+                border: 1px solid #ff8209;
+                padding: 3px 3.5px 3px 4px;
+                text-align: center;
+                font-size: 0.65rem;
+                margin-right: 5px;
+            }
 
-            @media only screen and (max-width: 480px) {
-
+            .ul-li-15 li {
+                margin-bottom: 10px;
             }
         </style>
     </head>
@@ -196,9 +220,6 @@
         <div class="container">
             @yield('content')
         </div>
-
-        <!--<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
-        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>-->
         @yield('script')
     </body>
 </html>
