@@ -32,6 +32,10 @@
               font-size: 1.875rem;
             }
 
+            .margin-top-30 {
+            	margin-top: 30px;
+            }
+
             .color-blue {
                 color: #009ce1;
             }
