@@ -446,13 +446,12 @@ class OrderResult
 //                    if($order->getOrder($id)) {
 //                        $order->updateOrderState($id, $incrementId, "canceled");
 //                    }
-                    $this->orderStatus = "付款失敗";
-                    $this->orderStatusCode = "03";
-                    $result['gateway'] = "ipasspay";
-                    $result['title'] = "IPASSPAY(付款失敗)";
-                    $result['method'] = "";
                 }
-
+                $this->orderStatus = "付款失敗";
+                $this->orderStatusCode = "03";
+                $result['gateway'] = "ipasspay";
+                $result['title'] = "IPASSPAY(付款失敗)";
+                $result['method'] = "";
             }
         }
         return $result;
