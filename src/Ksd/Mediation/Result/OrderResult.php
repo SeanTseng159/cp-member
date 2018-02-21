@@ -439,16 +439,17 @@ class OrderResult
                 $result['title'] = $this->paymentTypeTrans($additionalInformation[0], $data);
                 $result['method'] = $this->getPaymentMethod(isset($data[4]) ? $data[4] : null);
             }else{
-                //comment沒資料，表示沒接受到ipassPay回饋訊息即離開付款，把此筆訂單取消，並將商品加回購物車
+                //comment沒資料，表示沒接受到ipassPay回饋訊息即離開付款，並將商品加回購物車
                 if($isDetail) {
                     $order = new Order();
+                    $order->getOrder($id);
 //                    if($order->getOrder($id)) {
 //                        $order->updateOrderState($id, $incrementId, "canceled");
 //                    }
                     $this->orderStatus = "付款失敗";
                     $this->orderStatusCode = "03";
-                    $result['gateway'] = "";
-                    $result['title'] = "";
+                    $result['gateway'] = "ipasspay";
+                    $result['title'] = "IPASSPAY(付款失敗)";
                     $result['method'] = "";
                 }
 
