@@ -442,9 +442,9 @@ class OrderResult
                 //comment沒資料，表示沒接受到ipassPay回饋訊息即離開付款，把此筆訂單取消，並將商品加回購物車
                 if($isDetail) {
                     $order = new Order();
-                    if($order->getOrder($id)) {
-                        $order->updateOrderState($id, $incrementId, "canceled");
-                    }
+//                    if($order->getOrder($id)) {
+//                        $order->updateOrderState($id, $incrementId, "canceled");
+//                    }
                     $this->orderStatus = "付款失敗";
                     $this->orderStatusCode = "03";
                     $result['gateway'] = "";
