@@ -297,20 +297,26 @@ class LayoutRepository extends BaseRepository
      */
     private function genCache($key,$id,$type)
     {
+
+        $parameter = new \stdClass();
+        $parameter->id = $id;
+        $parameter->page = "";
+
         if($type === "c") {
-            $this->redis->remember($key, CacheConfig::LAYOUT_TIME, function () use ($id) {
-                return $this->cityPass->category($id);
+
+            $this->redis->remember($key, CacheConfig::LAYOUT_TIME, function () use ($parameter) {
+                return $this->cityPass->category($parameter);
             });
         }
         if($type === "m") {
-            $this->redis->remember($key, CacheConfig::LAYOUT_TIME, function () use ($id) {
-                return $this->cityPass->maincategory($id);
+            $this->redis->remember($key, CacheConfig::LAYOUT_TIME, function () use ($parameter) {
+                return $this->cityPass->maincategory($parameter);
             });
         }
 
         if($type === "s") {
-            $this->redis->remember($key, CacheConfig::LAYOUT_TIME, function () use ($id) {
-                return $this->cityPass->subcategory($id);
+            $this->redis->remember($key, CacheConfig::LAYOUT_TIME, function () use ($parameter) {
+                return $this->cityPass->subcategory($parameter);
             });
         }
     }
