@@ -22,6 +22,7 @@ class Wishlist extends Client
      */
     public function items()
     {
+
         if (empty($this->userToken)) {
             return [];
         }
@@ -31,9 +32,11 @@ class Wishlist extends Client
 
         $data=[];
         foreach ($result as $item) {
-            $wish = new WishlistResult();
-            $wish->magento($item);
-            $data[] = (array)$wish;
+            if($this->ItemStatus($item['product']['sku'])){
+                $wish = new WishlistResult();
+                $wish->magento($item);
+                $data[] = (array)$wish;
+            }
         }
         return $data;
     }
@@ -97,6 +100,29 @@ class Wishlist extends Client
             return null;
         }
 
+    }
+
+    /**
+     * 判斷商品是否下架
+     * @param $sku
+     * @return bool
+     */
+    public function ItemStatus($sku)
+    {
+        if(!empty($sku)) {
+            $path = "V1/products/$sku";
+
+            $response = $this->authorization($this->env('MAGENTO_ADMIN_TOKEN'))->request('GET', $path);
+            $body = $response->getBody();
+            $result = json_decode($body, true);
+            if ($result['status'] === 2) {
+                return false;
+            } else {
+                return true;
+            }
+        }else{
+            return false;
+        }
     }
 
 
