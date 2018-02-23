@@ -143,8 +143,10 @@ class ProductService
      */
     private function process($product, $isDetail = false)
     {
+        if (!$product) return null;
+
         $product = $this->wishProduct($product);
-        if($product->source === ProjectConfig::MAGENTO) {
+        if(isset($product->source) && $product->source === ProjectConfig::MAGENTO) {
             $categoryIds = $product->customAttributes($product->customAttributes, 'category_ids', []);
             $categories = [];
             foreach ($categoryIds as $categoryId) {
