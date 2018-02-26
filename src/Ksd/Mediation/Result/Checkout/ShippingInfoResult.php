@@ -25,7 +25,7 @@ class ShippingInfoResult
         $this->source = ProjectConfig::MAGENTO;
         $this->id = sprintf('%s_%s', $this->arrayDefault($result, 'method_code'), $this->arrayDefault($result, 'carrier_code'));
         $this->name = $this->arrayDefault($result, 'carrier_title');
-        $this->description = $this->arrayDefault($result, 'carrier_title');
+        $this->description = $this->arrayDefault($result, 'method_title');
         $this->type = $this->getStatus(sprintf('%s_%s', $this->arrayDefault($result, 'method_code'), $this->arrayDefault($result, 'carrier_code')));
     }
 
