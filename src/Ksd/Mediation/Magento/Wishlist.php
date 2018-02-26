@@ -71,14 +71,21 @@ class Wishlist extends Client
 
         $id = $this->find($sku);
 
-        $result = [];
-        try {
+/*
             $url = sprintf('V1/ipwishlist/delete/%s', $id);
-            $response = $this->request('DELETE', $url);
+            $response = $this->request('delete', $url);
             $result = json_decode($response->getBody(), true);
-        }catch (ClientException $e) {
 
-        }
+*/
+        $ch = curl_init("http://devstore.citypass.tw/index.php/zh_hant_tw/rest/default/V1/ipwishlist/delete/".$id);
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "DELETE");
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array("Content-Type: application/json", "Authorization: Bearer " . $this->userToken));
+
+        $data = curl_exec($ch);
+        $result = json_decode($data);
+
+
         return $result == 'true' ? true : false ;
     }
 
