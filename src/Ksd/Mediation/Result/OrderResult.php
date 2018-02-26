@@ -151,7 +151,7 @@ class OrderResult
                     $row['spec'] = isset($nameSplit[1]) ? $nameSplit[1] : '';
                     $row['quantity'] = $this->arrayDefault($item, 'qty_ordered');
                     $row['price'] = $this->arrayDefault($item, 'price');
-                    $row['description'] = $this->arrayDefault($result, 'shipping_description');
+                    $row['description'] =  $this->shipping['description'];
                     $ordered = $this->arrayDefault($item, 'qty_ordered');
                     $shipped = $this->arrayDefault($item, 'qty_shipped');
                     $refunded = $this->arrayDefault($item, '$qty_refunded');
