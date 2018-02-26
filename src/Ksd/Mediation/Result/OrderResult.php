@@ -129,9 +129,9 @@ class OrderResult
                 $this->shipping['code'] = $shipping['address']['postcode'];
                 $region = isset($shipping['address']['region']) ? $shipping['address']['region'] : null;
                 $this->shipping['address'] = $shipping['address']['city'].$region.$shipping['address']['street'][0];
-
+                $this->shipping['description'] = $this->getShipName($this->arrayDefault($shipping, 'method'));
             }
-            $this->shipping['description'] = $this->arrayDefault($result, 'shipping_description');
+
             $this->shipping['amount'] = $this->arrayDefault($result, 'shipping_amount');
             $this->shipping['status'] = $this->shippingStatus($this->arrayDefault($result, 'entity_id'));
             $this->shipping['traceCode'] = $this->shippingStatus($this->arrayDefault($result,'entity_id'),true);
@@ -643,6 +643,24 @@ class OrderResult
                 case null: # iPassPay
                     return "iPassPay";
             }
+    }
+
+    /**
+     * magento物流顯示名稱轉換
+     * @param $key
+     * @return string
+     */
+    public function getShipName($key)
+    {
+        if(!empty($key)) {
+            switch ($key) {
+                case 'flatrate_flatrate':
+                    return "宅配到府";
+            }
+        }else{
+
+            return "宅配到府";
+        }
     }
 
     /**
