@@ -161,7 +161,7 @@ class MyTicket extends Client
     public function hide($parameters)
     {
         if(!empty($parameters->serialNumber)) {
-            $response = $this->putParameters($parameters->serialNumber)->request('POST', 'ticket/hide');
+            $response = $this->putParameter('serialNumber',$parameters->serialNumber)->request('POST', 'ticket/hide');
             $result = json_decode($response->getBody(), true);
 
             return ($result['statusCode'] === 202) ? true : false;
