@@ -137,5 +137,15 @@ class MyTicketService
         return $this->repository->refund($parameters);
     }
 
+    /**
+     * 隱藏票券
+     * @param  $parameters
+     * @return  bool
+     */
+    public function hide($parameters)
+    {
+        return $this->repository->hide($parameters);
+    }
+
 
 }

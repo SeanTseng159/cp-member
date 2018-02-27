@@ -111,6 +111,18 @@ class MyTicketRepository extends BaseRepository
 
     }
 
+    /**
+     *  隱藏票券
+     * @param parameters
+     * @return  bool
+     */
+    public function hide($parameters)
+    {
+        $this->result = $this->cityPass->authorization($this->memberTokenService->cityPassUserToken())->hide($parameters);
+        return $this->result;
+
+    }
+
 
 
 }

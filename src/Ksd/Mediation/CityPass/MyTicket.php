@@ -153,5 +153,23 @@ class MyTicket extends Client
         return ($result['statusCode'] === 202) ? true : false;
     }
 
+    /**
+     * 隱藏票券
+     *  @param $parameters
+     * @return bool
+     */
+    public function hide($parameters)
+    {
+        if(!empty($parameters->serialNumber)) {
+            $response = $this->putParameters($parameters->serialNumber)->request('POST', 'ticket/hide');
+            $result = json_decode($response->getBody(), true);
+
+            return ($result['statusCode'] === 202) ? true : false;
+        }else{
+            return false;
+        }
+
+    }
+
 
 }
