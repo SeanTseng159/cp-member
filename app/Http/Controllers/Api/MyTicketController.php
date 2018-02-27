@@ -117,4 +117,19 @@ class MyTicketController extends RestLaravelController
     }
 
 
+    /**
+     * 票券隱藏
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function hide(Request $request)
+    {
+        $parameters = new QueryParameter();
+        $parameters->laravelRequest($request);
+        $result = $this->myTicketService->hide($parameters);
+        return ($result) ? $this->success() : $this->failure('E4004', '票券隱藏失敗');
+
+    }
+
+
 }

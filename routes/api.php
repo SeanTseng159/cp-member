@@ -117,6 +117,8 @@ Route::middleware(['cors', 'auth.jwt'])->namespace('Api')->group(function () {
         Route::post('gift', 'MyTicketController@gift');
         // 票券轉贈
         Route::post('refund', 'MyTicketController@refund');
+        // 隱藏票券
+        Route::post('hide', 'MyTicketController@hide');
     });
 
     Route::prefix('coupon')->group(function () {
