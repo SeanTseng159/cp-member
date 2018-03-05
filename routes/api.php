@@ -195,6 +195,15 @@ Route::middleware('cors')->namespace('Api')->group(function () {
         Route::get('cache/clean/{id}', 'ProductController@cleanProductCache');
     });
 
+    // 處理magento相關
+    Route::prefix('magento')->group(function () {
+        // 取得magento所有商品
+        Route::get('products', 'MagentoProductController@all');
+        Route::get('products/{id}', 'MagentoProductController@find');
+        Route::get('query', 'MagentoProductController@query');
+        // Route::get('syncAll', 'MagentoProductController@syncAll');
+    });
+
     Route::prefix('layout')->group(function () {
         Route::get('home',   'LayoutController@home');
         Route::get('ads',   'LayoutController@ads');
