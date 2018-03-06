@@ -200,7 +200,7 @@ Route::middleware('cors')->namespace('Api')->group(function () {
         // 取得magento所有商品
         Route::get('products', 'MagentoProductController@all');
         Route::get('products/{id}', 'MagentoProductController@find');
-        Route::get('query', 'MagentoProductController@query');
+        Route::post('query', 'MagentoProductController@query');
         // Route::get('syncAll', 'MagentoProductController@syncAll');
     });
 

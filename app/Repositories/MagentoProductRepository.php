@@ -56,7 +56,7 @@ class MagentoProductRepository
 
         if ($products) {
             foreach ($products as $p) {
-                $data[] = json_decode($p->data);
+                $data[$p->sku] = json_decode($p->data);
             }
             return $data;
         }
@@ -83,19 +83,16 @@ class MagentoProductRepository
      */
     public function query($parameter)
     {
-        $list = explode(',', $parameter->products);
-        if (!is_array($list)) return null;
+        if (!is_array($parameter->products)) return null;
 
-        $products = $this->model->whereIn('sku', $list)->get();
+        $data = null;
 
-        if ($products) {
-            foreach ($products as $p) {
-                $data[] = json_decode($p->data);
-            }
-            return $data;
+        foreach ($parameter->products as $p) {
+            $product = $this->find($p);
+            if ($product) $data[$product->id] = $product;
         }
 
-        return null;
+        return $data;
     }
 
     /**
