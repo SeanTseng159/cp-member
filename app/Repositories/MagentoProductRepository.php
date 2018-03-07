@@ -56,8 +56,12 @@ class MagentoProductRepository
 
         $page = ($page - 1) * $limit;
 
-        if ($parameter->type) $this->model->where('type', $parameter->type);
-        $products = $this->model->offset($page)->limit($limit)->get();
+        if ($parameter->type) {
+            $products = $this->model->where('type', $parameter->type)->offset($page)->limit($limit)->get();
+        }
+        else {
+            $products = $this->model->offset($page)->limit($limit)->get();
+        }
 
         if ($products) {
             foreach ($products as $p) {
