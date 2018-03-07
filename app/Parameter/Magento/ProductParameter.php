@@ -16,6 +16,7 @@ class ProductParameter
     public function all($request)
     {
         $parameter = new \stdClass;
+        $parameter->type = $request->input('type');
         $parameter->page = $request->input('page');
         $parameter->limit = $request->input('limit');
 

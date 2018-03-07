@@ -11,14 +11,17 @@ use Illuminate\Database\QueryException;
 
 use App\Models\MagentoProduct;
 use Ksd\Mediation\Magento\Product as Magento;
+use Ksd\Mediation\Result\ProductResult;
 
 class MagentoProductRepository
 {
     protected $model;
+    protected $result;
 
     public function __construct(MagentoProduct $model)
     {
         $this->model = $model;
+        $this->result = new ProductResult;
     }
 
     /**
@@ -33,6 +36,7 @@ class MagentoProductRepository
                 'sku' => $sku
             ], [
                 'sku' => $sku,
+                'type' => (isset($data->category) && isset($data->category['id'])) ? $data->category['id'] : '',
                 'data' => json_encode($data)
             ]);
         } catch (QueryException $e) {
@@ -52,11 +56,12 @@ class MagentoProductRepository
 
         $page = ($page - 1) * $limit;
 
+        if ($parameter->type) $this->model->where('type', $parameter->type);
         $products = $this->model->offset($page)->limit($limit)->get();
 
         if ($products) {
             foreach ($products as $p) {
-                $data[$p->sku] = json_decode($p->data);
+                $data[$p->sku] = $this->result->magentoFormat(json_decode($p->data));
             }
             return $data;
         }
@@ -73,7 +78,7 @@ class MagentoProductRepository
     {
         $product = $this->model->where('sku', $id)->first();
 
-        return ($product) ? json_decode($product->data) : null;
+        return ($product) ? $this->result->magentoFormat(json_decode($product->data)) : null;
     }
 
     /**
