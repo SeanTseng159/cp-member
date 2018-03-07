@@ -65,7 +65,12 @@ class CheckoutController extends RestLaravelController
         $parameters->laravelRequest($request);
         $result = $this->service->confirm($parameters);
 
-        return ($result) ? $this->success($result) : $this->failure('E9001', '結帳(取單號)失敗');
+        if ($result['code'] === '00000' || $result['code'] === 201) {
+            return $this->success($result['data']);
+        }
+        else {
+            return $this->failureCode($result['code']);
+        }
     }
 
     /**

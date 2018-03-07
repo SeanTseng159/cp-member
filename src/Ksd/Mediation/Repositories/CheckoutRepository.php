@@ -73,10 +73,25 @@ class CheckoutRepository extends BaseRepository
     public function confirm($parameters)
     {
         if($parameters->checkSource(ProjectConfig::MAGENTO)) {
-            return $this->magento->userAuthorization($this->memberTokenService->magentoUserToken())->confirm($parameters);
-        } else if ($parameters->checkSource(ProjectConfig::CITY_PASS)) {
+            $result = $this->magento->userAuthorization($this->memberTokenService->magentoUserToken())->confirm($parameters);
 
-            return $this->cityPass->authorization($this->memberTokenService->cityPassUserToken())->confirm($parameters);
+            return [
+                'code' => ($result) ? '00000' : 'E9001',
+                'data' => $result
+            ];
+        } else if ($parameters->checkSource(ProjectConfig::CITY_PASS)) {
+            $result = $this->cityPass->authorization($this->memberTokenService->cityPassUserToken())->confirm($parameters);
+
+            if ($result) {
+                return [
+                    'code' => $result['statusCode'],
+                    'data' => $result['data']
+                ];
+            }
+
+            return [
+                'code' => 'E9001'
+            ];
         }
     }
 
