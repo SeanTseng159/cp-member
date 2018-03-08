@@ -10,6 +10,8 @@ use App\Console\Commands\Payment\Tspg\AtmSalesAccount;
 use App\Console\Commands\Payment\Tspg\AtmOrderCheck;
 use App\Console\Commands\Payment\Ipasspay\PayResult;
 use App\Console\Commands\SyncMagentoProduct;
+use App\Console\Commands\UpdateMagentoCreditCardOrder;
+use App\Console\Commands\UpdateMagentoATMOrder;
 
 use App\Jobs\SendNotification;
 
@@ -25,7 +27,9 @@ class Kernel extends ConsoleKernel
         AutoUploadInvoice::class,
         PayResult::class,
         AtmOrderCheck::class,
-        SyncMagentoProduct::class
+        SyncMagentoProduct::class,
+        UpdateMagentoCreditCardOrder::class,
+        UpdateMagentoATMOrder::class
     ];
 
     /**
@@ -49,6 +53,11 @@ class Kernel extends ConsoleKernel
         // $schedule->command(PayResult::class)->cron('10 * * * * *');
         // 更新magento商品
         $schedule->command(SyncMagentoProduct::class)->cron('0 4 * * * *');
+
+        // 移除magento過期信用卡訂單
+        $schedule->command(UpdateMagentoCreditCardOrder::class)->cron('*/11 * * * * *');
+        // 移除magento過期ATM訂單
+        $schedule->command(UpdateMagentoATMOrder::class)->cron('1 0 * * * *');
     }
 
     /**

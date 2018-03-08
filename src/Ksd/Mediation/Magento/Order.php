@@ -74,6 +74,40 @@ class Order extends Client
         }
     }
 
+    /**
+     * 取得所有訂單列表\
+     * @param $email
+     * @return array
+     */
+    public function pendingOrders()
+    {
+        $data = null;
+
+        try {
+            $path = 'V1/orders';
+
+            $response = $this->putQuery('searchCriteria[filterGroups][0][filters][0][field]', 'status')
+            ->putQuery('searchCriteria[filterGroups][0][filters][0][value]', 'pending')
+            ->request('GET', $path);
+            $body = $response->getBody();
+            $result = json_decode($body, true);
+
+            if (!empty($result['items'])) {
+                foreach ($result['items'] as $item) {
+                    if (isset($item['status'])) { //訂單狀態為canceled不顯示
+                        $order = new OrderResult();
+                        $order->magento($item);
+                        $data[] = $order;
+                    }
+                }
+            }
+        } catch (ClientException $e) {
+            // TODO:抓不到MAGENTO API訂單資料
+        }
+
+        return $data;
+    }
+
 
     /**
      * 根據訂單id 取得訂單細項資訊
@@ -521,17 +555,21 @@ class Order extends Client
     public function updateOrderState($id,$incrementId,$status)
     {
         if(!empty($id) && !empty($status)) {
-            $parameter = [
-                'entity' => [
-                    'entity_id' => $id,
-                    'increment_id' => $incrementId,
-                    'status' => $status,
-
-                ]
-            ];
-            $this->putParameters($parameter);
-            $response = $this->request('PUT', 'V1/orders/create');
-            $result = json_decode($response->getBody(), true);
+            try {
+                $parameter = [
+                    'entity' => [
+                        'entity_id' => $id,
+                        'increment_id' => $incrementId,
+                        'status' => $status,
+    
+                    ]
+                ];
+                $this->putParameters($parameter);
+                $response = $this->request('PUT', 'V1/orders/create');
+                $result = json_decode($response->getBody(), true);
+            } catch (ClientException $e){
+                
+            }
         }
         return true;
     }

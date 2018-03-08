@@ -44,7 +44,9 @@ class OrderRepository extends BaseRepository
      */
     public function info()
     {
-        $email = $this->memberTokenService->getEmail();
+        var_dump($this->magento->pendingOrders());
+        //$this->cleanCache();
+        /*$email = $this->memberTokenService->getEmail();
         $key = $this->genCacheKey(OrderKey::INFO_KEY);
         $orders = $this->redis->remember($key, CacheConfig::TEST_TIME, function () use ($email) {
             $magento = $this->magento->info($email);
@@ -54,7 +56,8 @@ class OrderRepository extends BaseRepository
             return ($data) ? $this->multi_array_sort($data, 'orderDate') : null;
         });
 
-        return $orders;
+        return $orders;*/
+        return null;
     }
 
     /**
