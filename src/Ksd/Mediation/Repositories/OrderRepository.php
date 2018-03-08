@@ -16,14 +16,13 @@ use Ksd\Mediation\Config\ProjectConfig;
 use Ksd\Mediation\Config\CacheConfig;
 use Ksd\Mediation\Services\MemberTokenService;
 
-use App\Models\PayReceive;
+use Ksd\Mediation\Cache\Key\OrderKey;
 
+use App\Models\PayReceive;
 use App\Models\Member;
 
 class OrderRepository extends BaseRepository
 {
-    const INFO_KEY = 'order:user:info:%s:%s';
-
     private $memberTokenService;
     protected $model;
 
@@ -33,6 +32,8 @@ class OrderRepository extends BaseRepository
         $this->cityPass = new CityPassOrder();
         parent::__construct();
         $this->memberTokenService = $memberTokenService;
+        $this->setToken($this->memberTokenService->cityPassUserToken());
+        $this->setMemberId($this->memberTokenService->getId());
 
         $this->model = new PayReceive();
     }
@@ -43,20 +44,17 @@ class OrderRepository extends BaseRepository
      */
     public function info()
     {
-          $email = $this->memberTokenService->getEmail();
-//        $key = $this->genCacheKey(self::INFO_KEY);
-//        $allData = $this->redis->remember($key, CacheConfig::ORDER_TEST_TIME, function () {
+        $email = $this->memberTokenService->getEmail();
+        $key = $this->genCacheKey(OrderKey::INFO_KEY);
+        $orders = $this->redis->remember($key, CacheConfig::TEST_TIME, function () use ($email) {
             $magento = $this->magento->info($email);
-            $cityPass = $this->cityPass->authorization($this->memberTokenService->cityPassUserToken())->info();
+            $cityPass = $this->cityPass->authorization($this->token)->info();
             $data = array_merge($magento, $cityPass);
 
             return ($data) ? $this->multi_array_sort($data, 'orderDate') : null;
-//        });
+        });
 
-        // 空值就砍掉快取
-//        if (!$allData) $this->cacheKey($key);
-
-//        return $allData;
+        return $orders;
     }
 
     /**
@@ -73,7 +71,7 @@ class OrderRepository extends BaseRepository
                 $magento = $this->magento->userAuthorization($this->memberTokenService->magentoUserToken())->order($parameter);
                 return $magento;
             }else {
-                $cityPass = $this->cityPass->authorization($this->memberTokenService->cityPassUserToken())->order($parameter->itemId);
+                $cityPass = $this->cityPass->authorization($this->token)->order($parameter->itemId);
                 return $cityPass;
             }
 
@@ -89,18 +87,12 @@ class OrderRepository extends BaseRepository
     public function search($parameters)
     {
 
-            $email = $this->memberTokenService->getEmail();
-            $magento = $this->magento->search($parameters,$email);
-            $cityPass = $this->cityPass->authorization($this->memberTokenService->cityPassUserToken())->search($parameters);
-            $data = array_merge($magento, $cityPass);
+        $email = $this->memberTokenService->getEmail();
+        $magento = $this->magento->search($parameters,$email);
+        $cityPass = $this->cityPass->authorization($this->token)->search($parameters);
+        $data = array_merge($magento, $cityPass);
 
-            return ($data) ? $this->multi_array_sort($data,'orderDate') : null;
-/*
-        return [
-            ProjectConfig::MAGENTO => $magento,
-            ProjectConfig::CITY_PASS => $cityPass
-        ];
-*/
+        return ($data) ? $this->multi_array_sort($data,'orderDate') : null;
     }
 
     /**
@@ -108,8 +100,7 @@ class OrderRepository extends BaseRepository
      */
     public function cleanCache()
     {
-        $this->cacheKey(self::INFO_KEY);
-
+        $this->cacheKey(OrderKey::INFO_KEY);
     }
 
     /**
@@ -128,9 +119,7 @@ class OrderRepository extends BaseRepository
      */
     private function genCacheKey($key)
     {
-        $date = new \DateTime();
-        $this->token = $this->memberTokenService->cityPassUserToken();
-        return sprintf($key, $this->token,$date->format('Ymd'));
+        return sprintf($key, $this->memberId);
     }
 
     /**
@@ -147,7 +136,7 @@ class OrderRepository extends BaseRepository
             if ($parameters->source === ProjectConfig::MAGENTO) {
                 return $this->magento->find($parameters);
             } else if ($parameters->source === ProjectConfig::CITY_PASS) {
-                return $this->cityPass->authorization($this->memberTokenService->cityPassUserToken())->find($parameters->id);
+                return $this->cityPass->authorization($this->token)->find($parameters->id);
             }
 //        });
     }
@@ -177,7 +166,7 @@ class OrderRepository extends BaseRepository
     public function writeoff($parameters)
     {
 
-        $this->cityPass->authorization($this->memberTokenService->cityPassUserToken())->writeoff($parameters);
+        $this->cityPass->authorization($this->token)->writeoff($parameters);
 
 
         $code               = "abcd1234";

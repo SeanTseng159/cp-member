@@ -20,11 +20,24 @@ class MemberTokenService
 
     private $memberService;
     private $magentoCustomer;
+    private $jwtData;
 
     public function __construct(MemberService $memberService, MagentoCustomer $magentoCustomer)
     {
         $this->memberService = $memberService;
         $this->magentoCustomer = $magentoCustomer;
+
+        $this->jwtData = $this->getJwtData();
+    }
+
+    /**
+     * 取得 Jwt Data
+     * @return string
+     */
+    private function getJwtData()
+    {
+        $data = $this->JWTdecode();
+        return $data ?: null;
     }
 
     /**
@@ -33,12 +46,9 @@ class MemberTokenService
      */
     public function magentoUserToken()
     {
-        $data = $this->JWTdecode();
-        if (empty($data)) {
-            return '';
-        }
-        $member = $this->memberService->find($data->id);
-
+        if (!$this->jwtData) return '';
+        
+        $member = $this->memberService->find($this->jwtData->id);
         return $this->magentoCustomer->token($member);
     }
 
@@ -98,6 +108,14 @@ class MemberTokenService
         return $this->JWTencode($data);
     }
 
+    /**
+     * 取得 member id
+     * @return string
+     */
+    public function getId()
+    {
+        return ($this->jwtData) ? $this->jwtData->id : 0;
+    }
 
     /**
      * 取得 member email for magento order
@@ -105,11 +123,9 @@ class MemberTokenService
      */
     public function getEmail()
     {
-        $data = $this->JWTdecode();
-        if (empty($data)) {
-            return '';
-        }
-        $member = $this->memberService->find($data->id);
+        if (!$this->jwtData) return '';
+
+        $member = $this->memberService->find($this->jwtData->id);
 
         if(isset($member)) {
             if(empty($member->email)) {

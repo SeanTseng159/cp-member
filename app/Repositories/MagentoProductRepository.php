@@ -66,6 +66,9 @@ class MagentoProductRepository
                             if ($visibility === '1') {
                                 return $query->whereNotIn('visibility', [0, 1]);
                             }
+                            elseif ($visibility === '0') {
+                                return $query->whereIn('visibility', [0, 1]);
+                            }
                         })
                         ->offset($page)
                         ->limit($limit)

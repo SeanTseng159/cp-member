@@ -17,6 +17,7 @@ class BaseRepository
     protected $magento;
     protected $cityPass;
     protected $token;
+    protected $memberId;
 
     public function __construct()
     {
@@ -26,6 +27,12 @@ class BaseRepository
     public function setToken($token)
     {
         $this->token = $token;
+        return $this;
+    }
+
+    public function setMemberId($memberId)
+    {
+        $this->memberId = $memberId;
         return $this;
     }
 }
