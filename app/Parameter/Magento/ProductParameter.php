@@ -17,6 +17,7 @@ class ProductParameter
     {
         $parameter = new \stdClass;
         $parameter->type = $request->input('type');
+        $parameter->visibility = $request->input('visibility');
         $parameter->page = $request->input('page');
         $parameter->limit = $request->input('limit');
 

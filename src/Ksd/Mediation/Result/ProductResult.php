@@ -48,6 +48,7 @@ class ProductResult
         $this->isWishlist = false;
         $this->updatedAt = $this->arrayDefault($result, 'updated_at');
         $this->status = $this->arrayDefault($result, 'status');
+        $this->visibility = $this->arrayDefault($result, 'visibility');
 
         if ($isDetail) {
             $this->contents = [

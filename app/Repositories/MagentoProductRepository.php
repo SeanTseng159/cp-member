@@ -37,6 +37,7 @@ class MagentoProductRepository
             ], [
                 'sku' => $sku,
                 'type' => (isset($data->category) && isset($data->category['id'])) ? $data->category['id'] : '',
+                'visibility' => (isset($data->visibility)) ? $data->visibility : 1,
                 'data' => json_encode($data)
             ]);
         } catch (QueryException $e) {
@@ -51,17 +52,24 @@ class MagentoProductRepository
      */
     public function all($parameter)
     {
+        $type = $parameter->type;
+        $visibility = $parameter->visibility;
         $page = $parameter->page ?: 1;
         $limit = $parameter->limit ?: 9999999;
 
         $page = ($page - 1) * $limit;
 
-        if ($parameter->type) {
-            $products = $this->model->where('type', $parameter->type)->offset($page)->limit($limit)->get();
-        }
-        else {
-            $products = $this->model->offset($page)->limit($limit)->get();
-        }
+        $products = MagentoProduct::when($type, function ($query) use ($type) {
+                            return $query->where('type', $type);
+                        })
+                        ->when($visibility, function ($query) use ($visibility) {
+                            if ($visibility === '1') {
+                                return $query->whereNotIn('visibility', [0, 1]);
+                            }
+                        })
+                        ->offset($page)
+                        ->limit($limit)
+                        ->get();
 
         if ($products) {
             foreach ($products as $p) {
