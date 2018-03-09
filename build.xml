@@ -14,15 +14,15 @@
     <property name="phpunit" value="${basedir}/vendor/bin/phpunit"/>
 
     <target name="full-build"
-            depends="prepare,composer,phpunit"
+            depends="prepare,composer"
             description="Performs static analysis, runs the tests, and generates project documentation"/>
 
     <target name="full-build-parallel"
-            depends="prepare,composer,phpunit"
+            depends="prepare,composer"
             description="Performs static analysis (executing the tools in parallel), runs the tests, and generates project documentation"/>
 
     <target name="quick-build"
-            depends="prepare,composer,phpunit-no-coverage"
+            depends="prepare,composer"
             description="Runs the tests (without generating code coverage reports)"/>
 
 
@@ -55,6 +55,37 @@
 
             <env key="SYMFONY_ENV" value="test"/>
         </exec>
+    </target>
+
+    <target name="phpunit"
+            unless="phpunit.done"
+            depends="prepare"
+            description="Run unit tests with PHPUnit">
+        <exec executable="${phpunit}" resultproperty="result.phpunit" taskname="phpunit">
+            <arg value="--log-junit"/>
+            <arg path="results/phpunit/phpunit.xml"/>
+            <arg value="--configuration"/>
+            <arg path="${basedir}/phpunit.xml"/>
+        </exec>
+
+
+
+        <property name="phpunit.done" value="true"/>
+    </target>
+
+    <target name="phpunit-no-coverage"
+            unless="phpunit.done"
+            depends="prepare"
+            description="Run unit tests with PHPUnit (without generating code coverage reports)">
+        <exec executable="${phpunit}" failonerror="true" taskname="phpunit">
+            <arg value="--log-junit"/>
+            <arg path="results/phpunit/phpunit.xml"/>
+            <arg value="--configuration"/>
+            <arg path="${basedir}/phpunit.xml"/>
+            <arg value="--no-coverage"/>
+        </exec>
+
+        <property name="phpunit.done" value="true"/>
     </target>
 
 </project>
