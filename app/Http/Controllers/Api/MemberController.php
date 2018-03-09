@@ -195,8 +195,11 @@ class MemberController extends RestLaravelController
             }
 
             //確認手機是否使用
-            if ($this->memberService->checkPhoneIsUse($country, $countryCode, $cellphone)) {
-                return $this->failure('A0031', '該手機號碼已使用');
+            $member = $this->memberService->find($id);
+            if ($member->country !== $country || $member->countryCode !== $countryCode || $member->cellphone !== $cellphone) {
+                if ($this->memberService->checkPhoneIsUse($country, $countryCode, $cellphone)) {
+                    return $this->failure('A0031', '該手機號碼已使用');
+                }
             }
         }
 
