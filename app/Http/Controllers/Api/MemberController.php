@@ -190,16 +190,13 @@ class MemberController extends RestLaravelController
                     return $this->failure('E0301', '手機格式錯誤');
                 }
             } catch (\libphonenumber\NumberParseException $e) {
-                Log::debug($e);
+                Log::error('手機格式錯誤');
                 return $this->failure('E0301', '手機格式錯誤');
             }
 
             //確認手機是否使用
-            $member = $this->memberService->find($id);
-            if ($member->country !== $country || $member->countryCode !== $countryCode || $member->cellphone !== $cellphone) {
-                if ($this->memberService->checkPhoneIsUse($country, $countryCode, $cellphone)) {
-                    return $this->failure('A0031', '該手機號碼已使用');
-                }
+            if ($this->memberService->checkPhoneIsUseForUpdate($country, $countryCode, $cellphone)) {
+                return $this->failure('A0031', '該手機號碼已使用');
             }
         }
 

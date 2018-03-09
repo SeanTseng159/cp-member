@@ -221,6 +221,21 @@ class MemberService
     }
 
     /**
+     * 確認手機號碼是否被是否被使用
+     * @param $countryCode
+     * @param $cellphone
+     * @return bool
+     */
+    public function checkPhoneIsUseForUpdate($country, $countryCode, $cellphone)
+    {
+        $member = $this->repository->findByCountryPhone($country, $countryCode, $cellphone);
+        if ($member) {
+            return ($member->isRegistered == 1 && $member->isValidPhone == 1);
+        }
+        return false;
+    }
+
+    /**
      * 確認手機號碼是否在資料庫,但未註冊完成
      * @param $countryCode
      * @param $cellphone
