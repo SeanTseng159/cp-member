@@ -52,12 +52,12 @@ class Kernel extends ConsoleKernel
         // ipaypass 更新ATM狀態
         // $schedule->command(PayResult::class)->cron('10 * * * * *');
         // 更新magento商品
-        $schedule->command(SyncMagentoProduct::class)->cron('0 4 * * * *');
+        $schedule->command(SyncMagentoProduct::class)->dailyAt('04:00');
 
         // 移除magento過期信用卡訂單
-        $schedule->command(UpdateMagentoCreditCardOrder::class)->cron('*/11 * * * * *');
+        $schedule->command(UpdateMagentoCreditCardOrder::class)->everyTenMinutes();
         // 移除magento過期ATM訂單
-        $schedule->command(UpdateMagentoATMOrder::class)->cron('1 0 * * * *');
+        $schedule->command(UpdateMagentoATMOrder::class)->dailyAt('00:00');
     }
 
     /**

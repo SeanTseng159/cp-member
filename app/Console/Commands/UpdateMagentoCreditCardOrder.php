@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use Carbon\Carbon;
 use Illuminate\Console\Command;
+use Log;
 
 use Ksd\Mediation\Magento\Order as MagentoOrder;
 
@@ -43,6 +44,8 @@ class UpdateMagentoCreditCardOrder extends Command
      */
     public function handle()
     {
+        Log::info('====== Update_magento_cc_order Start ======');
+
         $orders = $this->magentoOrder->pendingOrders();
         $now = Carbon::now();
 
@@ -63,6 +66,8 @@ class UpdateMagentoCreditCardOrder extends Command
                 }
             }
         }
+
+        Log::info('====== Update_magento_cc_order End ======');
     }
 
     /**

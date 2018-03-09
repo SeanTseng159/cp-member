@@ -43,6 +43,8 @@ class UpdateMagentoATMOrder extends Command
      */
     public function handle()
     {
+        Log::info('====== Update_magento_atm_order Start ======');
+
         $orders = $this->magentoOrder->pendingOrders();
         $now = Carbon::now();
         $nowa = Carbon::now()->addDays(1);
@@ -60,6 +62,8 @@ class UpdateMagentoATMOrder extends Command
                 }
             }
         }
+
+        Log::info('====== Update_magento_atm_order End ======');
     }
 
     /**
