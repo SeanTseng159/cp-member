@@ -36,19 +36,9 @@ class LayoutRepository extends BaseRepository
      */
     public function home()
     {
-//        $key = $this->genCacheKey(self::HOME_KEY);
         return $this->redis->remember($this->genCacheKey(LayoutKey::HOME_KEY), CacheConfig::LAYOUT_TIME, function () {
             return $this->cityPass->home();
         });
-/*
-        if (!$data && $this->count < 3) {
-            $this->cacheKey($key);
-            $this->count++;
-
-            return $this->home();
-        }
-*/
-//        return $data;
     }
 
     /**
@@ -180,7 +170,7 @@ class LayoutRepository extends BaseRepository
      */
     public function cleanCache()
     {
-        $this->cacheKey($this->genCacheKey(LayoutKey::HOME_KEY),null);
+        $this->cacheKey($this->genCacheKey(LayoutKey::HOME_KEY));
         return true;
     }
 
@@ -281,9 +271,9 @@ class LayoutRepository extends BaseRepository
      * @param $key
      * @return string
      */
-    private function genCacheKey($key, $id)
+    private function genCacheKey($key, $id = null)
     {
-        return sprintf($key, $id);
+        return ($id) ? sprintf($key, $id) : $key;
     }
 
     /**
