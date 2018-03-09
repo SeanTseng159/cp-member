@@ -38,40 +38,38 @@ class Order extends Client
      */
     public function info($email)
     {
+        $data = [];
+        
         if(!empty($email)) {
-            $result = [];
             try {
                 $path = 'V1/orders';
 
                 $response = $this->putQuery('searchCriteria[filterGroups][0][filters][0][field]', 'customer_email')
                     ->putQuery('searchCriteria[filterGroups][0][filters][0][value]', $email)
-                    //               ->putQuery('searchCriteria[sortOrders][0][field]', 'created_at')
-                    //               ->putQuery('searchCriteria[sortOrders][0][direction]', 'DESC')
-//                    ->putQuery('searchCriteria[pageSize]',500)
-//                    ->putQuery('fields','items[entity_id,increment_id,subtotal,shipping_amount,discount_amount,status,created_at,payment,status_histories,items[price,name,sku,qty_ordered,shipping_description,qty_shipped,qty_refunded,discount_amount]]')
-
-
+                    ->putQuery('searchCriteria[filterGroups][1][filters][1][field]', 'status')
+                    ->putQuery('searchCriteria[filterGroups][1][filters][1][value]', 'canceled')
+                    ->putQuery('searchCriteria[filterGroups][1][filters][1][condition_type]', 'neq')
                     ->request('GET', $path);
                 $body = $response->getBody();
                 $result = json_decode($body, true);
-            } catch (ClientException $e) {
-                // TODO:抓不到MAGENTO API訂單資料
-            }
-            $data = [];
-            if (!empty($result['items'])) {
-                foreach ($result['items'] as $item) {
-                    if (isset($item['status']) && $item['status'] !== "canceled") { //訂單狀態為canceled不顯示
-                        $order = new OrderResult();
-                        $order->magento($item);
-                        $data[] = (array)$order;
+
+                if (!empty($result['items'])) {
+                    foreach ($result['items'] as $item) {
+                        if (isset($item['status'])) {
+                            $order = new OrderResult();
+                            $order->magento($item);
+                            $data[] = (array)$order;
+                        }
                     }
                 }
+            } catch (ClientException $e) {
+                // TODO:抓不到MAGENTO API訂單資料
+            } catch (\Exception $e) {
+                // TODO:抓不到MAGENTO API訂單資料
             }
-
-            return $data;
-        }else{
-            return [];
         }
+
+        return $data;
     }
 
     /**

@@ -6,7 +6,6 @@
  * Time: 下午 02:57
  */
 
-
 namespace Ksd\Mediation\Repositories;
 
 use Ksd\Mediation\Magento\Order as MagentoOrder;
@@ -44,11 +43,9 @@ class OrderRepository extends BaseRepository
      */
     public function info()
     {
-        var_dump($this->magento->pendingOrders());
-        //$this->cleanCache();
-        /*$email = $this->memberTokenService->getEmail();
+        $email = $this->memberTokenService->getEmail();
         $key = $this->genCacheKey(OrderKey::INFO_KEY);
-        $orders = $this->redis->remember($key, CacheConfig::TEST_TIME, function () use ($email) {
+        $orders = $this->redis->remember($key, CacheConfig::ORDER_TIME, function () use ($email) {
             $magento = $this->magento->info($email);
             $cityPass = $this->cityPass->authorization($this->token)->info();
             $data = array_merge($magento, $cityPass);
@@ -56,8 +53,7 @@ class OrderRepository extends BaseRepository
             return ($data) ? $this->multi_array_sort($data, 'orderDate') : null;
         });
 
-        return $orders;*/
-        return null;
+        return $orders;
     }
 
     /**
@@ -89,7 +85,6 @@ class OrderRepository extends BaseRepository
      */
     public function search($parameters)
     {
-
         $email = $this->memberTokenService->getEmail();
         $magento = $this->magento->search($parameters,$email);
         $cityPass = $this->cityPass->authorization($this->token)->search($parameters);

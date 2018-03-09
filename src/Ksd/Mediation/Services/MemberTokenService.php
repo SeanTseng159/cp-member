@@ -123,13 +123,13 @@ class MemberTokenService
      */
     public function getEmail()
     {
-        if (!$this->jwtData) return '';
+        if (!$this->jwtData) return null;
 
         $member = $this->memberService->find($this->jwtData->id);
 
         if(isset($member)) {
-            if(empty($member->email)) {
-                return $member->openPlateform.'_'.$member->openId;
+            if($member->openPlateform !== 'citypass') {
+                return $member->openPlateform . '_' . $member->openId;
             }else{
                 return $member->email;
             }
