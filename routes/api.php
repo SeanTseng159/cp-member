@@ -217,7 +217,7 @@ Route::middleware('cors')->namespace('Api')->group(function () {
         Route::get('clean/{id}', 'LayoutController@clean');
         Route::get('mainClean/{id}', 'LayoutController@mainClean');
         Route::get('subClean/{id}', 'LayoutController@subClean');
-
+        Route::get('cache/clean/menu', 'LayoutController@cleanMenu');
     });
 
     Route::prefix('newsletter')->group(function () {

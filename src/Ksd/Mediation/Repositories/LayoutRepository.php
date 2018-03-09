@@ -11,6 +11,7 @@ namespace Ksd\Mediation\Repositories;
 use Ksd\Mediation\CityPass\Layout;
 use Ksd\Mediation\Config\ProjectConfig;
 use Ksd\Mediation\Config\CacheConfig;
+use Ksd\Mediation\Cache\Key\LayoutKey;
 
 class LayoutRepository extends BaseRepository
 {
@@ -36,7 +37,7 @@ class LayoutRepository extends BaseRepository
     public function home()
     {
 //        $key = $this->genCacheKey(self::HOME_KEY);
-        return $this->redis->remember($this->genCacheKey(self::HOME_KEY), CacheConfig::LAYOUT_TIME, function () {
+        return $this->redis->remember($this->genCacheKey(LayoutKey::HOME_KEY), CacheConfig::LAYOUT_TIME, function () {
             return $this->cityPass->home();
         });
 /*
@@ -136,11 +137,13 @@ class LayoutRepository extends BaseRepository
     public function menu($parameter)
     {
         $itemId = $parameter->id;
-//        return $this->redis->remember("menu:id:$itemId", CacheConfig::LAYOUT_TIME, function () use ($itemId) {
+        $itemId = $itemId ?: 'all';
+
+        $key = $this->genCacheKey(LayoutKey::MENU_KEY, $itemId);
+        return $this->redis->remember($key, CacheConfig::LAYOUT_TIME, function () use ($itemId) {
             $cityPass = $this->cityPass->menu($itemId);
             return  $cityPass;
-
-//        });
+        });
     }
 
     /**
@@ -177,52 +180,22 @@ class LayoutRepository extends BaseRepository
      */
     public function cleanCache()
     {
-
-        $this->cacheKey($this->genCacheKey(self::HOME_KEY),null);
-
-/*
-        $categoryId = $this->cityPass->getCategoryId();
-        $subCategoryId = $this->cityPass->getSubCategoryId();
-
-        $category = [];
-        if (isset($categoryId)) {
-            foreach ($categoryId as $id) {
-                $category[] = "category:id:" . $id;
-            }
-            foreach ($category as $item) {
-                $this->cacheKey(null,$item);
-            }
-        }
-
-        $subCategory = [];
-        if (isset($subCategoryId)) {
-            foreach ($subCategoryId as $id) {
-                $subCategory[] = "subcategory:id:" . $id;
-            }
-            foreach ($subCategory as $item) {
-                $this->cacheKey(null,$item);
-            }
-        }
-*/
+        $this->cacheKey($this->genCacheKey(LayoutKey::HOME_KEY),null);
         return true;
-
     }
 
     /**
- * 清除主分頁快取
- * @param $id
- * @return bool
- */
+     * 清除主分頁快取
+     * @param $id
+     * @return bool
+     */
     public function clean($id)
     {
-
         $key = "category:id:" . $id;
         $this->cacheKey(null,$key);
         $this->genCache($key,$id,"c");
 
-
         return true;
-
     }
 
     /**
@@ -232,14 +205,11 @@ class LayoutRepository extends BaseRepository
      */
     public function mainClean($id)
     {
-
         $key = "maincategory:id:" . $id;
         $this->cacheKey(null,$key);
         $this->genCache($key,$id,"m");
 
-
         return true;
-
     }
 
     /**
@@ -249,14 +219,41 @@ class LayoutRepository extends BaseRepository
      */
     public function subClean($id)
     {
-
         $key = "subcategory:id:" . $id;
         $this->cacheKey(null,$key);
         $this->genCache($key,$id,"s");
 
-
         return true;
+    }
 
+    /**
+     * 清除選單快取
+     * @param $id
+     * @return bool
+     */
+    public function cleanMenu()
+    {
+        $allkey = $this->genCacheKey(LayoutKey::MENU_KEY, 'all');
+        
+        // 刪除快取，重新建立
+        $this->redis->delete($allkey);
+        $menus = $this->redis->remember($allkey, CacheConfig::LAYOUT_TIME, function () {
+            return $this->cityPass->menu();
+        });
+
+        foreach ($menus as $menu) {
+            foreach ($menu as $m) {
+                $id = $m['id'];
+                $key = $this->genCacheKey(LayoutKey::MENU_KEY, $id);
+
+                $this->redis->delete($key);
+                $this->redis->remember($key, CacheConfig::LAYOUT_TIME, function () use ($id) {
+                    return $this->cityPass->menu($id);
+                });
+            }
+        }
+
+        return false;
     }
 
 
@@ -284,9 +281,9 @@ class LayoutRepository extends BaseRepository
      * @param $key
      * @return string
      */
-    private function genCacheKey($key)
+    private function genCacheKey($key, $id)
     {
-        return $key;
+        return sprintf($key, $id);
     }
 
     /**

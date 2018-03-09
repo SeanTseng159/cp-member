@@ -147,10 +147,8 @@ class LayoutController extends RestLaravelController
      */
     public function clean($id)
     {
-
         $this->layoutService->clean($id);
         return $this->success('刷新成功');
-
     }
 
     /**
@@ -160,10 +158,8 @@ class LayoutController extends RestLaravelController
      */
     public function mainClean($id)
     {
-
         $this->layoutService->mainClean($id);
         return $this->success('刷新成功');
-
     }
 
     /**
@@ -175,8 +171,16 @@ class LayoutController extends RestLaravelController
     {
         $this->layoutService->subClean($id);
         return $this->success('刷新成功');
-
     }
 
-
+    /**
+     * 清除選單快取
+     * @param $id
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function cleanMenu()
+    {
+        $this->layoutService->cleanMenu();
+        return $this->success('刷新成功');
+    }
 }
