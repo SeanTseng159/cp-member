@@ -57,7 +57,8 @@
         </exec>
     </target>
 
-    <!-- <target name="phpunit"
+    <!--
+       <target name="phpunit"
             unless="phpunit.done"
             depends="prepare"
             description="Run unit tests with PHPUnit">
@@ -86,6 +87,7 @@
         </exec>
 
         <property name="phpunit.done" value="true"/>
-    </target> -->
+    </target>
+    -->
 
 </project>
