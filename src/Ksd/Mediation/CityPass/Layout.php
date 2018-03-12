@@ -207,7 +207,6 @@ class Layout extends Client
      */
     public function maincategory($parameter)
     {
-
         $result = [];
         try {
             $itemId = $parameter->id;
@@ -229,7 +228,6 @@ class Layout extends Client
      */
     public function subcategory($parameter)
     {
-
         $result = [];
         try {
             $itemId = $parameter->id;

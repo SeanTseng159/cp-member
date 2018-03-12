@@ -32,6 +32,5 @@ class LayoutParameter extends  BaseParameter
     {
         parent::laravelRequest($request);
         $this->id = $id;
-
     }
 }
