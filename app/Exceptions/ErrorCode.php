@@ -64,6 +64,7 @@ class ErrorCode
 
     public static function message($code)
     {
-        return (isset($this->errorCodes[$code])) ? $this->errorCodes[$code] : '未知錯誤訊息';
+        $self = new static;
+        return (isset($self->errorCodes[$code])) ? $self->errorCodes[$code] : '未知錯誤訊息';
     }
 }
