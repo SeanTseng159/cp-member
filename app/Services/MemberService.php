@@ -236,6 +236,18 @@ class MemberService
     }
 
     /**
+     * 確認身分證/護照是否被是否被使用
+     * @param $countryCode
+     * @param $cellphone
+     * @return bool
+     */
+    public function checkSocialIdIsUse($socialId)
+    {
+        $member = $this->repository->findBySocialId($socialId);
+        return ($member);
+    }
+
+    /**
      * 確認手機號碼是否在資料庫,但未註冊完成
      * @param $countryCode
      * @param $cellphone

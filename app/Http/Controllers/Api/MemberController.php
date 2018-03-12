@@ -172,6 +172,7 @@ class MemberController extends RestLaravelController
         $countryCode = $request->input('countryCode');
         $cellphone = $request->input('cellphone');
         $country = $request->input('country');
+        $socialId = $request->input('socialId');
 
         if ($countryCode && $cellphone && $country) {
             try {
@@ -187,21 +188,26 @@ class MemberController extends RestLaravelController
 
                 if (!$phoneUtil->isValidNumber($phoneNumber) || $phoneUtil->getNumberType($phoneNumber) != 1) {
                     Log::error('不是手機格式');
-                    return $this->failure('E0301', '手機格式錯誤');
+                    return $this->failureCode('E0301');
                 }
             } catch (\libphonenumber\NumberParseException $e) {
                 Log::error('手機格式錯誤');
-                return $this->failure('E0301', '手機格式錯誤');
+                return $this->failureCode('E0301');
             }
 
-            //確認手機是否使用
+            // 確認手機是否使用
             if ($this->memberService->checkPhoneIsUseForUpdate($country, $countryCode, $cellphone)) {
-                return $this->failure('A0031', '該手機號碼已使用');
+                return $this->failureCode('A0031');
             }
         }
 
+        // 確認身分證/護照是否使用
+        if ($socialId && !$this->memberService->checkSocialIdIsUse($socialId)) {
+            return $this->failureCode('A0033');
+        }
+
         $member = $this->memberService->update($id, $data);
-        if (!$member) return $this->failure('E0003', '更新失敗');
+        if (!$member) return $this->failureCode('E0003');
 
         $member->newsletter = $this->newsletterService->findByEmail($member->email);
 

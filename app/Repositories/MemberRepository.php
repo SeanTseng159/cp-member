@@ -187,6 +187,17 @@ class MemberRepository
     }
 
     /**
+     * 依據身分證/護照,查詢使用者
+     * @param $countryCode
+     * @param $cellphone
+     * @return mixed
+     */
+    public function findBySocialId($socialId)
+    {
+        return $this->model->where(['socialId' => $socialId])->first();
+    }
+
+    /**
      * 依據OpenId,查詢使用者
      * @param $countryCode
      * @param $cellphone
