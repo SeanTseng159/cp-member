@@ -13,7 +13,6 @@ use Ksd\Mediation\Services\MemberTokenService;
 
 class MyTicketRepository extends BaseRepository
 {
-
     private $result = false;
     private $memberTokenService;
 
@@ -79,7 +78,6 @@ class MyTicketRepository extends BaseRepository
      */
     public function record($parameter)
     {
-
         $id = $parameter->id;
         $cityPass = $this->cityPass->authorization($this->memberTokenService->cityPassUserToken())->record($id);
         return $cityPass;
@@ -93,7 +91,6 @@ class MyTicketRepository extends BaseRepository
      */
     public function gift($parameters,$id)
     {
-
         $this->result = $this->cityPass->authorization($this->memberTokenService->cityPassUserToken())->gift($parameters,$id);
         return $this->result;
 

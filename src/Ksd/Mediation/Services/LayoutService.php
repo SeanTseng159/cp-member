@@ -151,5 +151,12 @@ class LayoutService
         return $this->repository->subClean($id);
     }
 
-
+    /**
+     * 清除選單快取
+     * @return bool
+     */
+    public function cleanMenu()
+    {
+        return $this->repository->cleanMenu();
+    }
 }

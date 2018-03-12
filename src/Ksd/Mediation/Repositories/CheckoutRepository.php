@@ -17,6 +17,8 @@ use App\Traits\JWTTokenHelper;
 use Firebase\JWT\JWT;
 use App\Models\TspgPostbackRecord;
 
+use Ksd\Mediation\Cache\Key\OrderKey;
+
 class CheckoutRepository extends BaseRepository
 {
     use JWTTokenHelper;
@@ -32,6 +34,8 @@ class CheckoutRepository extends BaseRepository
         parent::__construct();
         $this->memberTokenService = $memberTokenService;
         $this->tspgPostbackService = $tspgPostbackService;
+
+        $this->setMemberId($this->memberTokenService->getId());
     }
 
     /**
@@ -72,11 +76,29 @@ class CheckoutRepository extends BaseRepository
      */
     public function confirm($parameters)
     {
-        if($parameters->checkSource(ProjectConfig::MAGENTO)) {
-            return $this->magento->userAuthorization($this->memberTokenService->magentoUserToken())->confirm($parameters);
-        } else if ($parameters->checkSource(ProjectConfig::CITY_PASS)) {
+        // 清掉訂單快取
+        $this->redis->delete(sprintf(OrderKey::INFO_KEY, $this->memberId));
 
-            return $this->cityPass->authorization($this->memberTokenService->cityPassUserToken())->confirm($parameters);
+        if($parameters->checkSource(ProjectConfig::MAGENTO)) {
+            $result = $this->magento->userAuthorization($this->memberTokenService->magentoUserToken())->confirm($parameters);
+
+            return [
+                'code' => ($result) ? '00000' : 'E9001',
+                'data' => $result
+            ];
+        } else if ($parameters->checkSource(ProjectConfig::CITY_PASS)) {
+            $result = $this->cityPass->authorization($this->memberTokenService->cityPassUserToken())->confirm($parameters);
+
+            if ($result) {
+                return [
+                    'code' => $result['statusCode'],
+                    'data' => $result['data']
+                ];
+            }
+
+            return [
+                'code' => 'E9001'
+            ];
         }
     }
 

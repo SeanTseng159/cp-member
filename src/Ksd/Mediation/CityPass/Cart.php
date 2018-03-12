@@ -44,7 +44,6 @@ class Cart extends Client
         try {
             $response = $this->request('GET', 'cart/detail');
             $result = json_decode($response->getBody(), true);
-
         } catch (ClientException $e) {
             // TODO:處理抓取不到購物車資料
         }

@@ -40,7 +40,6 @@ class OrderService
      */
     public function order($parameter)
     {
-
           return $this->repository->order($parameter);
     }
 

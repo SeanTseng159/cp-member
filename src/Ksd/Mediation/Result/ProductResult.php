@@ -48,6 +48,7 @@ class ProductResult
         $this->isWishlist = false;
         $this->updatedAt = $this->arrayDefault($result, 'updated_at');
         $this->status = $this->arrayDefault($result, 'status');
+        $this->visibility = $this->arrayDefault($result, 'visibility');
 
         if ($isDetail) {
             $this->contents = [
@@ -200,6 +201,29 @@ class ProductResult
             }
         }
         return $data;
+    }
+
+    /**
+     * magento 資料格式化
+     * @param bool $isDetail
+     * @return \stdClass
+     */
+    public function magentoFormat($data = null)
+    {
+        $new_data = new \stdClass();
+        if ($data) {
+            $columns = [
+                'source', 'id', 'name',  'price', 'salePrice', 'discount', 'characteristic', 'category', 'storeName',
+                'storeTelephone', 'storeAddress', 'place', 'tags', 'imageUrl', 'isWishlist','updatedAt','status', 'saleStatus', 'saleStatusCode', 'canUseCoupon', 'quantity', 'contents', 'additionals', 'purchase','imageUrls', 'isBook'
+            ];
+
+            foreach ($columns as $column) {
+                if (isset($data->$column)) {
+                    $new_data->$column = $data->$column;
+                }
+            }
+        }
+        return $new_data;
     }
 
     /**

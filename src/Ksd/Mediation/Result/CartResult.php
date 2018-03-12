@@ -78,7 +78,9 @@ class CartResult
             $row->price = $this->arrayDefault($item, 'price');
             $row->additionals = $this->arrayDefault($item, 'additionals');
             $row->imageUrl = $this->arrayDefault($item, 'imageUrl');
-            $row->purchase = $this->arrayDefault($item, ' purchase');
+            $row->purchase = $this->arrayDefault($item, 'purchase');
+            $row->statusCode = $this->arrayDefault($item['status'], 'code');
+            $row->statusDesc = $this->arrayDefault($item['status'], 'desc');
             $this->items[] = $row;
         }
         $this->itemTotal = $this->arrayDefault($result, 'itemTotal');
@@ -108,6 +110,4 @@ class CartResult
         }
 
     }
-
-
 }

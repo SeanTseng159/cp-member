@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="city-pass-member-center" default="full-build" basedir=".">
+<project name="city-pass-member-center" default="easy-build" basedir=".">
     <!-- By default, we assume all tools to be on the $PATH
     <property name="phpunit" value="phpunit"/>-->
 
@@ -24,6 +24,10 @@
     <target name="quick-build"
             depends="prepare,composer,phpunit-no-coverage"
             description="Runs the tests (without generating code coverage reports)"/>
+
+    <target name="easy-build"
+            depends="prepare,composer"
+            description="Not runs the tests (without generating code coverage reports)"/>
 
 
     <target name="clean"

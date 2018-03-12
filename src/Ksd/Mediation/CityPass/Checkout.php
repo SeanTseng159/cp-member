@@ -38,13 +38,20 @@ class Checkout extends Client
      */
     public function confirm($parameters)
     {
-        $response = $this->putParameters($parameters)->request('POST', 'checkout/confirm');
-        $result = json_decode($response->getBody(), true);
+        try {
+            $response = $this->putParameters($parameters)->request('POST', 'checkout/confirm');
+            $result = json_decode($response->getBody(), true);
 
-        Log::debug('===結帳===');
-        Log::debug(print_r($result, true));
+            Log::debug('===結帳===');
+            Log::debug(print_r($result, true));
 
-        return ($result['statusCode'] === 201) ? $result['data'] : false;
+            return $result;
+        } catch (\Exception $e) {
+            Log::debug('===結帳失敗===');
+            Log::debug(print_r($e->getMessage(), true));
+        }
+
+        return false;
     }
 
     /**

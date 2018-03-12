@@ -10,6 +10,7 @@ namespace Ksd\Mediation\Core\Controller;
 
 
 use App\Http\Controllers\Controller;
+use App\Exceptions\ErrorCode;
 
 class RestLaravelController extends Controller
 {
@@ -36,6 +37,19 @@ class RestLaravelController extends Controller
     public function failure($code, $message, $data = [], $httpCode = 200)
     {
         return $this->responseFormat($data, $code, $message, $httpCode);
+    }
+
+    /**
+     * 回傳指定的失敗 json 訊息
+     * @param $code
+     * @param $message
+     * @param array $data
+     * @param int $httpCode
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function failureCode($code, $data = [], $httpCode = 200)
+    {
+        return $this->responseFormat($data, $code, ErrorCode::message($code), $httpCode);
     }
 
     /**

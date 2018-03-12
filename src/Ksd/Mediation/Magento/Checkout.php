@@ -146,9 +146,9 @@ class Checkout extends Client
             return $this->putPayment($parameters);
         }else if($parameters->payment()->type === 'credit_card'){
             $id = date("YmdHis");
-            return [ 'id' => date($id)];
+            return ['id' => date($id)];
         }else{
-            return null;
+            return false;
         }
 
     }

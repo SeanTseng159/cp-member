@@ -115,7 +115,7 @@ Route::middleware(['cors', 'auth.jwt'])->namespace('Api')->group(function () {
         Route::get('record/{id}', 'MyTicketController@record');
         // 票券轉贈
         Route::post('gift', 'MyTicketController@gift');
-        // 票券轉贈
+        // 票券退還
         Route::post('refund', 'MyTicketController@refund');
         // 隱藏票券
         Route::post('hide', 'MyTicketController@hide');
@@ -195,6 +195,15 @@ Route::middleware('cors')->namespace('Api')->group(function () {
         Route::get('cache/clean/{id}', 'ProductController@cleanProductCache');
     });
 
+    // 處理magento相關
+    Route::prefix('magento')->group(function () {
+        // 取得magento所有商品
+        Route::get('products', 'MagentoProductController@all');
+        Route::get('products/{id}', 'MagentoProductController@find');
+        Route::post('query', 'MagentoProductController@query');
+        // Route::get('syncAll', 'MagentoProductController@syncAll');
+    });
+
     Route::prefix('layout')->group(function () {
         Route::get('home',   'LayoutController@home');
         Route::get('ads',   'LayoutController@ads');
@@ -208,7 +217,7 @@ Route::middleware('cors')->namespace('Api')->group(function () {
         Route::get('clean/{id}', 'LayoutController@clean');
         Route::get('mainClean/{id}', 'LayoutController@mainClean');
         Route::get('subClean/{id}', 'LayoutController@subClean');
-
+        Route::get('cache/clean/menu', 'LayoutController@cleanMenu');
     });
 
     Route::prefix('newsletter')->group(function () {

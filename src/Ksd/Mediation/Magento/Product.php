@@ -15,6 +15,8 @@ use Ksd\Mediation\Helper\ObjectHelper;
 use Ksd\Mediation\Result\ProductCategoryResult;
 use Ksd\Mediation\Result\ProductResult;
 
+use App\Services\MagentoProductService;
+
 class Product extends Client
 {
     use EnvHelper;
@@ -109,6 +111,10 @@ class Product extends Client
             $product = new ProductResult();
             $product->magento($result, true);
             $product->magentoConfigurableProduct($this->additional($result));
+            
+            // 資料寫入索引DB
+            $magentoProductService = app()->build(MagentoProductService::class);
+            $magentoProductService->createOrUpdate($sku, $product);
         } catch (ClientException $clientException) {
             $this->logger->error($clientException);
         }
