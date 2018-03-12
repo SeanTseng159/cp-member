@@ -202,7 +202,7 @@ class MemberController extends RestLaravelController
         }
 
         // 確認身分證/護照是否使用
-        if ($socialId && !$this->memberService->checkSocialIdIsUse($socialId)) {
+        if ($socialId && $this->memberService->checkSocialIdIsUse($socialId)) {
             return $this->failureCode('A0033');
         }
 
