@@ -64,6 +64,8 @@ class MemberRepository
                 if (!isset($data['birthday']) || !$data['birthday']) unset($member->birthday);
                 if (isset($data['socialId'])) $member->socialId = strtoupper($member->socialId);
                 $member->save();
+
+                if ($member->openPlateform != 'citypass') $member->email = $member->openId;
                 return $member;
             } else {
                 Log::error('找不到使用者，無法更新');
