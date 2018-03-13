@@ -21,6 +21,7 @@ class MyTicketRepository extends BaseRepository
         $this->cityPass = new MyTicket();
         parent::__construct();
         $this->memberTokenService = $memberTokenService;
+        $this->setToken($this->memberTokenService->cityPassUserToken());
     }
 
     /**
@@ -30,9 +31,8 @@ class MyTicketRepository extends BaseRepository
      */
     public function catalogIcon($parameter)
     {
-        $cityPass = $this->cityPass->authorization($this->memberTokenService->cityPassUserToken())->catalogIcon($parameter->hash);
+        $cityPass = $this->cityPass->authorization($this->token)->catalogIcon($parameter->hash);
         return  $cityPass;
-
     }
 
     /**
@@ -41,9 +41,8 @@ class MyTicketRepository extends BaseRepository
      */
     public function help()
     {
-        $cityPass = $this->cityPass->authorization($this->memberTokenService->cityPassUserToken())->help();
+        $cityPass = $this->cityPass->authorization($this->token)->help();
         return  $cityPass;
-
     }
 
     /**
@@ -53,9 +52,8 @@ class MyTicketRepository extends BaseRepository
      */
     public function info($parameter)
     {
-
         $statusId = $parameter->id;
-        $cityPass = $this->cityPass->authorization($this->memberTokenService->cityPassUserToken())->info($statusId);
+        $cityPass = $this->cityPass->authorization($this->token)->info($statusId);
         return $cityPass ;
     }
 
@@ -67,7 +65,7 @@ class MyTicketRepository extends BaseRepository
     public function detail($parameter)
     {
         $id = $parameter->id;
-            $cityPass = $this->cityPass->authorization($this->memberTokenService->cityPassUserToken())->detail($id);
+            $cityPass = $this->cityPass->authorization($this->token)->detail($id);
             return $cityPass;
     }
 
@@ -79,7 +77,7 @@ class MyTicketRepository extends BaseRepository
     public function record($parameter)
     {
         $id = $parameter->id;
-        $cityPass = $this->cityPass->authorization($this->memberTokenService->cityPassUserToken())->record($id);
+        $cityPass = $this->cityPass->authorization($this->token)->record($id);
         return $cityPass;
     }
 
@@ -91,9 +89,8 @@ class MyTicketRepository extends BaseRepository
      */
     public function gift($parameters,$id)
     {
-        $this->result = $this->cityPass->authorization($this->memberTokenService->cityPassUserToken())->gift($parameters,$id);
+        $this->result = $this->cityPass->authorization($this->token)->gift($parameters,$id);
         return $this->result;
-
     }
 
     /**
@@ -103,9 +100,8 @@ class MyTicketRepository extends BaseRepository
      */
     public function refund($parameters)
     {
-        $this->result = $this->cityPass->authorization($this->memberTokenService->cityPassUserToken())->refund($parameters);
+        $this->result = $this->cityPass->authorization($this->token)->refund($parameters);
         return $this->result;
-
     }
 
     /**
@@ -115,11 +111,7 @@ class MyTicketRepository extends BaseRepository
      */
     public function hide($parameters)
     {
-        $this->result = $this->cityPass->authorization($this->memberTokenService->cityPassUserToken())->hide($parameters);
+        $this->result = $this->cityPass->authorization($this->token)->hide($parameters);
         return $this->result;
-
     }
-
-
-
 }

@@ -119,12 +119,15 @@ class MyTicketService
      */
     public function gift($parameters)
     {
-        $member = $this->memberService->findByCountryPhone($parameters->country,$parameters->countryCode,$parameters->memberPhone);
-        if(isset($member)) {
-            return $this->repository->gift($parameters, $member->id);
-        }else{
-            return false;
-        }
+        $member = $this->memberService->findByCountryPhone($parameters->country, $parameters->countryCode, $parameters->memberPhone);
+
+        // 會員不存在
+        if (!$member) return 2;
+        // 會員手機未驗證
+        if ($member->isValidPhone != 1) return 3;
+        
+        $result = $this->repository->gift($parameters, $member->id);
+        return ($result) ? 1 : 0;
     }
 
     /**
