@@ -54,7 +54,7 @@ class MyTicketController extends RestLaravelController
         $parameter->laravelRequest($statusId, $request);
         $data = $this->myTicketService->info($parameter);
 
-        return ($data !== 'nodata') ? $this->success($data) : $this->failure('E0005', '資料無法取得');
+        return ($data !== 'nodata') ? $this->success($data) : $this->failureCode('E0005');
     }
 
 
@@ -70,7 +70,7 @@ class MyTicketController extends RestLaravelController
         $parameter->laravelRequest($id, $request);
         $data = $this->myTicketService->detail($parameter);
 
-        return ($data !== 'nodata') ? $this->success($data) : $this->failure('E0005', '資料無法取得');
+        return ($data !== 'nodata') ? $this->success($data) : $this->failureCode('E0005');
     }
 
 
@@ -98,7 +98,11 @@ class MyTicketController extends RestLaravelController
         $parameters = new QueryParameter();
         $parameters->laravelRequest($request);
         $result = $this->myTicketService->gift($parameters);
-        return ($result) ? $this->success() : $this->failure('E4003', '轉贈失敗');
+
+        if ($result === 1) return $this->success();
+        else if ($result === 2) return $this->failureCode('E0061');
+        else if ($result === 3) return $this->failureCode('E4002');
+        else return $this->failureCode('E4003');
     }
 
     /**
@@ -111,7 +115,7 @@ class MyTicketController extends RestLaravelController
         $parameters = new QueryParameter();
         $parameters->laravelRequest($request);
         $result = $this->myTicketService->refund($parameters);
-        return ($result) ? $this->success() : $this->failure('E0003', '更新失敗');
+        return ($result) ? $this->success() : $this->failureCode('E4011');
 
     }
 
@@ -126,7 +130,7 @@ class MyTicketController extends RestLaravelController
         $parameters = new QueryParameter();
         $parameters->laravelRequest($request);
         $result = $this->myTicketService->hide($parameters);
-        return ($result) ? $this->success() : $this->failure('E4004', '票券隱藏失敗');
+        return ($result) ? $this->success() : $this->failureCode('E4004');
 
     }
 
