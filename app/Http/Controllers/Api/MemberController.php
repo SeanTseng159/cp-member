@@ -174,6 +174,8 @@ class MemberController extends RestLaravelController
         $country = $request->input('country');
         $socialId = $request->input('socialId');
 
+        $member = $this->memberService->find($id);
+
         if ($countryCode && $cellphone && $country) {
             try {
                 $phoneUtil = \libphonenumber\PhoneNumberUtil::getInstance();
@@ -202,7 +204,7 @@ class MemberController extends RestLaravelController
         }
 
         // 確認身分證/護照是否使用
-        if ($socialId && $this->memberService->checkSocialIdIsUse($socialId)) {
+        if ($socialId && $socialId !== $member->socialId && $this->memberService->checkSocialIdIsUse($socialId)) {
             return $this->failureCode('A0033');
         }
 
