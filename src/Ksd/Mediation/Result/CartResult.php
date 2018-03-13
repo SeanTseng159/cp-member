@@ -79,8 +79,11 @@ class CartResult
             $row->additionals = $this->arrayDefault($item, 'additionals');
             $row->imageUrl = $this->arrayDefault($item, 'imageUrl');
             $row->purchase = $this->arrayDefault($item, 'purchase');
-            // $row->statusCode = $this->arrayDefault($item['status'], 'code');
-            // $row->statusDesc = $this->arrayDefault($item['status'], 'desc');
+            // 先判斷status存不存在，以免跟backend api不同步
+            if (isset($item['status'])) {
+                $row->statusCode = $this->arrayDefault($item['status'], 'code');
+                $row->statusDesc = $this->arrayDefault($item['status'], 'desc');
+            }
             $this->items[] = $row;
         }
         $this->itemTotal = $this->arrayDefault($result, 'itemTotal');
