@@ -10,18 +10,19 @@ namespace Ksd\Mediation\Services;
 
 use App\Services\MemberService;
 use Ksd\Mediation\Repositories\MyTicketRepository;
+use Ksd\Mediation\Services\MemberTokenService;
 
 class MyTicketService
 {
-
-
     private $repository;
     private $memberService;
+    private $memberTokenService;
 
-    public function __construct(MemberService $memberService,MemberTokenService $memberTokenService)
+    public function __construct(MyTicketRepository $myTicketRepository, MemberService $memberService, MemberTokenService $memberTokenService)
     {
+        $this->repository = $myTicketRepository;
         $this->memberService = $memberService;
-        $this->repository = new MyTicketRepository($memberTokenService);
+        $this->memberTokenService = $memberTokenService;
     }
 
     /**
@@ -119,6 +120,11 @@ class MyTicketService
      */
     public function gift($parameters)
     {
+        $memberId = $this->memberTokenService->getId();
+        $myMemberIsValid = $this->memberService->checkPhoneIsValidById($memberId);
+
+        if (!$myMemberIsValid) return 4;
+
         $member = $this->memberService->findByCountryPhone($parameters->country, $parameters->countryCode, $parameters->memberPhone);
 
         // 會員不存在

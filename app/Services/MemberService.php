@@ -248,6 +248,18 @@ class MemberService
     }
 
     /**
+     * 確認手機號碼是否已驗證
+     * @param $countryCode
+     * @param $cellphone
+     * @return bool
+     */
+    public function checkPhoneIsValidById($id)
+    {
+        $member = $this->repository->find($id);
+        return ($member && $member->isValidPhone == 1);
+    }
+
+    /**
      * 確認身分證/護照是否被是否被使用
      * @param $countryCode
      * @param $cellphone
