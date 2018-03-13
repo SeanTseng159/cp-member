@@ -16,6 +16,7 @@ use Ksd\Mediation\Result\ProductCategoryResult;
 use Ksd\Mediation\Result\ProductResult;
 
 use App\Services\MagentoProductService;
+use Ksd\Mediation\Services\ProductService;
 
 class Product extends Client
 {
@@ -114,7 +115,8 @@ class Product extends Client
             
             // 資料寫入索引DB
             $magentoProductService = app()->build(MagentoProductService::class);
-            $magentoProductService->createOrUpdate($sku, $product);
+            $productService = app()->build(ProductService::class);
+            $magentoProductService->createOrUpdate($sku, $productService->process($product, true));
         } catch (ClientException $clientException) {
             $this->logger->error($clientException);
         }

@@ -204,29 +204,6 @@ class ProductResult
     }
 
     /**
-     * magento 資料格式化
-     * @param bool $isDetail
-     * @return \stdClass
-     */
-    public function magentoFormat($data = null)
-    {
-        $new_data = new \stdClass();
-        if ($data) {
-            $columns = [
-                'source', 'id', 'name',  'price', 'salePrice', 'discount', 'characteristic', 'category', 'storeName',
-                'storeTelephone', 'storeAddress', 'place', 'tags', 'imageUrl', 'isWishlist','updatedAt','status', 'saleStatus', 'saleStatusCode', 'canUseCoupon', 'quantity', 'contents', 'additionals', 'purchase','imageUrls', 'isBook'
-            ];
-
-            foreach ($columns as $column) {
-                if (isset($data->$column)) {
-                    $new_data->$column = $data->$column;
-                }
-            }
-        }
-        return $new_data;
-    }
-
-    /**
      * 建立規格商品
      * @param $configurableProductResult
      */

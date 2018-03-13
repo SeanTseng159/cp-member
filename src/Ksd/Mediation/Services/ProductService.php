@@ -141,7 +141,7 @@ class ProductService
      * @param bool $isDetail
      * @return mixed
      */
-    private function process($product, $isDetail = false)
+    public function process($product, $isDetail = false)
     {
         if (!$product) return null;
 
