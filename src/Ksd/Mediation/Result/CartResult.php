@@ -66,7 +66,6 @@ class CartResult
     public function cityPass($result)
     {
         $this->id = $this->arrayDefault($result, 'id');
-        $this->canCheckout = true;
         $this->items = [];
         foreach ($this->arrayDefault($result, 'items', []) as $item) {
             $row = new ProductResult();
@@ -84,8 +83,6 @@ class CartResult
             if (isset($item['status'])) {
                 $row->statusCode = $this->arrayDefault($item['status'], 'code');
                 $row->statusDesc = $this->arrayDefault($item['status'], 'desc');
-
-                if ($row->statusCode !== 0) $this->canCheckout = false;
             }
             $this->items[] = $row;
         }
@@ -101,6 +98,7 @@ class CartResult
         $this->payAmount = $this->arrayDefault($result, 'payAmount');
         $this->shipmentAmount = $this->arrayDefault($result, 'shipmentAmount');
         $this->shipmentFree = $this->arrayDefault($result, 'shipmentFree');
+        $this->canCheckout = $this->arrayDefault($result, 'canCheckout');
     }
 
     /**
