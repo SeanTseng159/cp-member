@@ -121,14 +121,13 @@ class MyTicketService
     public function gift($parameters)
     {
         $memberId = $this->memberTokenService->getId();
-        $myMemberIsValid = $this->memberService->checkPhoneIsValidById($memberId);
 
+        $myMemberIsValid = $this->memberService->checkPhoneIsValidById($memberId);
         if (!$myMemberIsValid) return 4;
 
         $member = $this->memberService->findByCountryPhone($parameters->country, $parameters->countryCode, $parameters->memberPhone);
-
         // 會員不存在
-        if (!$member) return 2;
+        if (!$member || $member->isRegistered == 0) return 2;
         // 會員手機未驗證
         if ($member->isValidPhone != 1) return 3;
         
