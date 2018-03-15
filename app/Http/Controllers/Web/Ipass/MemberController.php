@@ -69,8 +69,6 @@ class MemberController extends Controller
         $ipassMember = $this->service->member($parameter);
 
         Log::info('=== ipass 登入 ===');
-        Log::debug(print_r($ipassMember, true));
-        Log::debug(print_r(session()->getId(), true));
 
         try {
             if ($ipassMember->statusCode !== 200) return redirect('ipass/login/' . $this->platform);
@@ -110,7 +108,7 @@ class MemberController extends Controller
                 $cellphone = $phoneNumber->getNationalNumber();
                     
                 $parameter = $memberParameter->member($memberData);
-                if(!$this->memberService->checkPhoneIsUse('tw', $countryCode, $cellphone))
+                if(!$this->memberService->checkPhoneIsUseForUpdate('tw', $countryCode, $cellphone))
                 {  
                     $parameter['country'] = 'tw';
                     $parameter['cellphone'] = $cellphone;
