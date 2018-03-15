@@ -101,6 +101,7 @@ class ProductResult
         $this->imageUrl = $this->arrayDefault($result, 'imageUrl');
         $this->createdAt = $this->arrayDefault($result, 'createdAt');
         $this->isWishlist = $this->arrayDefault($result, 'isWishlist');
+        $this->visibility = 4;
 
         if ($isDetail) {
             $this->saleStatusCode = $this->arrayDefault($result, 'saleStatus');
@@ -186,7 +187,7 @@ class ProductResult
         $data = new \stdClass();
         $columns = [
             'source', 'id', 'name',  'price', 'salePrice', 'discount', 'characteristic', 'category', 'storeName',
-            'storeTelephone', 'storeAddress', 'place', 'tags', 'imageUrl', 'isWishlist','updatedAt','status'
+            'storeTelephone', 'storeAddress', 'place', 'tags', 'imageUrl', 'isWishlist','updatedAt','status', 'visibility'
         ];
         if ($isDetail) {
             $detailColumns = [
