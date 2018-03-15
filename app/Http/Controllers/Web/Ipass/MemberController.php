@@ -100,10 +100,33 @@ class MemberController extends Controller
                     $member = $this->memberService->create($parameter);
                     if (!$member) return $this->failureRedirect();
                 }*/
+
+                $phoneUtil = \libphonenumber\PhoneNumberUtil::getInstance();
+                
+                // TODO
+                $phoneNumber = $phoneUtil->parse('886' . $memberData->m_tel, strtoupper('tw'));
+                    
+                $countryCode = $phoneNumber->getCountryCode();
+                $cellphone = $phoneNumber->getNationalNumber();
+                    
                 $parameter = $memberParameter->member($memberData);
+                if(!$this->memberService->checkPhoneIsUse('tw', $countryCode, $cellphone))
+                {  
+                    $parameter['country'] = 'tw';
+                    $parameter['cellphone'] = $cellphone;
+                    $parameter['countryCode'] = $countryCode;
+                    $parameter['isTw'] = 1;
+                    $parameter['isValidPhone'] = 1;
+                }
+                
                 Log::info('=== ipass 會員註冊 ===');
                 Log::debug(print_r($parameter, true));
                 $member = $this->memberService->create($parameter);
+
+                // $parameter = $memberParameter->member($memberData);
+                // Log::info('=== ipass 會員註冊 ===');
+                // Log::debug(print_r($parameter, true));
+                // $member = $this->memberService->create($parameter);
 
                 if (!$member) return $this->failureRedirect();
 
