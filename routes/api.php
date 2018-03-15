@@ -201,7 +201,7 @@ Route::middleware('cors')->namespace('Api')->group(function () {
         Route::get('products', 'MagentoProductController@all');
         Route::get('products/{id}', 'MagentoProductController@find');
         Route::post('query', 'MagentoProductController@query');
-        Route::post('update/product/{id}', 'MagentoProductController@update');
+        Route::get('update/product/{id}', 'MagentoProductController@update');
         // Route::get('syncAll', 'MagentoProductController@syncAll');
     });
 
