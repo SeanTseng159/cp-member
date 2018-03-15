@@ -21,7 +21,8 @@ Route::middleware(['cors', 'admin.jwt'])->namespace('Api')->group(function () {
         //會員資料查詢
         Route::get('query', 'MemberController@queryMember');
         //更新會員資料
-        Route::post('update/{id}', 'MemberController@updateMember');
+        Route::post('update/{id}', 'MemberController@updateMember')
+            ->middleware('verify.member.update.data');
         //刪除會員
         Route::post('delete/{id}', 'MemberController@deleteMember');
 
@@ -54,7 +55,8 @@ Route::middleware(['cors', 'auth.jwt'])->namespace('Api')->group(function () {
         //單一會員資料查詢
         Route::get('single/{id}', 'MemberController@singleMember');
         //更新會員資料
-        Route::post('update/{id}', 'MemberController@updateMember');
+        Route::post('update/{id}', 'MemberController@updateMember')
+            ->middleware('verify.member.update.data');
         //會員密碼修改
         Route::post('password/{id}', 'MemberController@changePassword');
         //發送-Email驗證信

@@ -8,6 +8,7 @@
 namespace App\Traits;
 
 use Log;
+use App\Exceptions\ErrorCode;
 
 trait ApiResponseHelper
 {
@@ -21,6 +22,11 @@ trait ApiResponseHelper
     public function apiRespFail($code, $message, $data = [])
     {
         return $this->apiRespDetail($code, $message, $data);
+    }
+
+    public function apiRespFailCode($code, $data = [])
+    {
+        return $this->apiRespDetail($code, ErrorCode::message($code), $data);
     }
 
     public function apiRespDetail($code, $message, $data = [])
