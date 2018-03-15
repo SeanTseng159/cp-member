@@ -98,6 +98,7 @@ class CartResult
         $this->payAmount = $this->arrayDefault($result, 'payAmount');
         $this->shipmentAmount = $this->arrayDefault($result, 'shipmentAmount');
         $this->shipmentFree = $this->arrayDefault($result, 'shipmentFree');
+        $this->canCheckout = $this->arrayDefault($result, 'canCheckout');
     }
 
     /**
