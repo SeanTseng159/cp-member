@@ -115,7 +115,6 @@ class MagentoProductRepository
 
     /**
      * 同步magento所有商品資料
-     * @param $data
      * @return mixed
      */
     public function syncAll()
