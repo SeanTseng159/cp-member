@@ -33,19 +33,20 @@ class MemberUpdateData
 
     public function handle($request, Closure $next)
     {
-        $data = $request->all();
         $id = $request->id;
+        $isTw = $request->input('isTw');
+        $socialId = $request->input('socialId');
 
         $member = $this->memberService->find($id);
 
         if (!$member) return $this->apiRespFailCode('E0061');
 
         // 確認身分證格式
-        if ($data['isTw'] && $data['socialId']) {
-            if (!$this->checkPid($data['socialId'])) return $this->apiRespFailCode('A0034');
+        if ($isTw && $socialId) {
+            if (!$this->checkPid($socialId)) return $this->apiRespFailCode('A0034');
         }
         // 確認身分證/護照是否使用
-        if ($data['socialId'] && $data['socialId'] !== $member->socialId && $this->memberService->checkSocialIdIsUse($data['socialId'])) {
+        if ($socialId && $socialId !== $member->socialId && $this->memberService->checkSocialIdIsUse($socialId)) {
             return $this->apiRespFailCode('A0033');
         }
         
