@@ -26,11 +26,11 @@ trait JWTTokenHelper
         try {
             return JWT::decode($token, env('JWT_KEY', '53890045'), ['HS256']);
         } catch (\Firebase\JWT\ExpiredException $exception) {
-            throw $exception;
+            return null;
         } catch (\Firebase\JWT\SignatureInvalidException $exception) {
-            throw $exception;
+            return null;
         } catch (\Exception $exception) {
-            throw $exception;
+            return null;
         }
 
         return null;
