@@ -56,4 +56,36 @@ trait ValidatorHelper
 
         return true;
     }
+
+    /**
+     * 驗證手機
+     * @param country $country [國家代碼]
+     * @param countryCode $countryCode [國碼]
+     * @param cellphone $cellphone [號碼]
+     * @return mixd
+     */
+    public function VerifyPhoneNumber($country, $countryCode, $cellphone)
+    {
+        if (!$country || !$countryCode || !$cellphone) return false;
+
+        try {
+            $phoneUtil = \libphonenumber\PhoneNumberUtil::getInstance();
+            $phoneNumber = $phoneUtil->parse($countryCode . $cellphone, strtoupper($country));
+
+            $countryCode = $phoneNumber->getCountryCode();
+            $cellphone = $phoneNumber->getNationalNumber();
+
+            if (!$phoneUtil->isValidNumber($phoneNumber) || $phoneUtil->getNumberType($phoneNumber) != 1) {
+                return false;
+            }
+        } catch (\libphonenumber\NumberParseException $e) {
+            return false;
+        }
+
+        return [
+            'country' => $country,
+            'countryCode' => $countryCode,
+            'cellphone' => $cellphone,
+        ];
+    }
 }

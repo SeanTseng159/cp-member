@@ -159,7 +159,8 @@ Route::middleware('cors')->namespace('Api')->group(function () {
 
     Route::prefix('member')->group(function () {
         //新增會員
-        Route::post('create', 'MemberController@createMember');
+        Route::post('create', 'MemberController@createMember')
+            ->middleware('verify.member.create');
         //驗證-手機驗證碼
         Route::post('validate/cellphone/{id}', 'MemberController@validateCellphone');
         //發送手機驗證碼

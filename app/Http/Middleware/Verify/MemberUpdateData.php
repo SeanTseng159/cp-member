@@ -34,12 +34,12 @@ class MemberUpdateData
     public function handle($request, Closure $next)
     {
         $id = $request->id;
-        $isTw = $request->input('isTw');
-        $socialId = $request->input('socialId');
-
         $member = $this->memberService->find($id);
 
         if (!$member) return $this->apiRespFailCode('E0061');
+
+        $isTw = $request->input('isTw');
+        $socialId = $request->input('socialId');
 
         // 確認身分證格式
         if ($isTw && $socialId) {
@@ -49,7 +49,24 @@ class MemberUpdateData
         if ($socialId && $socialId !== $member->socialId && $this->memberService->checkSocialIdIsUse($socialId)) {
             return $this->apiRespFailCode('A0033');
         }
-        
+
+        $country = $request->input('country');
+        $countryCode = $request->input('countryCode');
+        $cellphone = $request->input('cellphone');
+
+        // 確認手機格式
+        if ($countryCode || $cellphone || $country) {
+            $phoneNumber = $this->VerifyPhoneNumber($country, $countryCode, $cellphone);
+            if (!$phoneNumber) return $this->apiRespFailCode('E0301');
+
+            // 確認手機是否使用
+            if ($this->memberService->checkPhoneIsUseForUpdate($phoneNumber['country'], $phoneNumber['countryCode'], $phoneNumber['cellphone'])) {
+                return $this->apiRespFailCode('A0031');
+            }
+
+            $request->phoneNumber = $phoneNumber;
+        }
+
         return $next($request);
     }
 }
