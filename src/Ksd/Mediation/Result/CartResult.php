@@ -40,6 +40,8 @@ class CartResult
             $row->additionals = $this->arrayDefault($item, 'additionals') ==='' ? new \stdClass() : $this->arrayDefault($item, 'additionals');
             $row->imageUrl = $this->arrayDefault($item, 'extension_attributes', '')['image_url'];
             $row->purchase = $this->arrayDefault($item, ' purchase', '');
+            $row->statusCode = 0;
+            $row->statusDesc = null;
 
             $this->items[] = $row;
         }
