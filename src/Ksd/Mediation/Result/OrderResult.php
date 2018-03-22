@@ -247,6 +247,8 @@ class OrderResult
                 $row['status'] = $this->arrayDefault($item, 'status');
                 $row['discount'] = $this->arrayDefault($item, 'discount');
                 $row['imageUrl'] = $this->arrayDefault($item, 'imageUrl');
+                $row['qrcode'] = $this->arrayDefault($item, 'qrcode');
+                $row['show'] = $this->arrayDefault($item, 'show');
 
                 $this->items[] = $row;
 
