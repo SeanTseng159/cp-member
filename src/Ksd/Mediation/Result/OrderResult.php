@@ -249,6 +249,7 @@ class OrderResult
                 $row['imageUrl'] = $this->arrayDefault($item, 'imageUrl');
                 $row['qrcode'] = $this->arrayDefault($item, 'qrcode');
                 $row['show'] = $this->arrayDefault($item, 'show');
+                $row['pinCode'] = $this->arrayDefault($item, 'pinCode');
 
                 $this->items[] = $row;
 
