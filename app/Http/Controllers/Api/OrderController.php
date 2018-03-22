@@ -28,7 +28,6 @@ class OrderController extends RestLaravelController
     public function info()
     {
         return $this->success($this->orderService->info());
-
     }
 
     /**
@@ -94,4 +93,13 @@ class OrderController extends RestLaravelController
         return ($result) ? $this->success() : $this->failure('E0003', '更新失敗');
     }
 
+    /**
+     * 清除並更新會員的訂單
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function cleanMemberOrders(Request $request, $id)
+    {
+        $result = $this->orderService->cleanMemberOrders($id);
+        return $this->success('刷新成功');
+    }
 }

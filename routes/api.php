@@ -25,7 +25,6 @@ Route::middleware(['cors', 'admin.jwt'])->namespace('Api')->group(function () {
             ->middleware('verify.member.update.data');
         //刪除會員
         Route::post('delete/{id}', 'MemberController@deleteMember');
-
     });
 
     Route::prefix('newsletter')->group(function () {
@@ -95,7 +94,6 @@ Route::middleware(['cors', 'auth.jwt'])->namespace('Api')->group(function () {
         Route::post('shipment', 'CheckoutController@shipment');
         // 確定結帳 (回傳訂單號，非信用卡)
         Route::post('confirm', 'CheckoutController@confirm');
-
     });
 
     Route::prefix('order')->group(function () {
@@ -105,7 +103,6 @@ Route::middleware(['cors', 'auth.jwt'])->namespace('Api')->group(function () {
         Route::get('detail/{id}', 'OrderController@find');
         Route::post('writeoff', 'OrderController@writeoff');
         Route::post('update', 'OrderController@update');
-
     });
 
     Route::prefix('ticket')->group(function () {
@@ -227,6 +224,10 @@ Route::middleware('cors')->namespace('Api')->group(function () {
     Route::prefix('newsletter')->group(function () {
         //新增電子報名單
         Route::post('order', 'NewsletterController@orderNewsletter');
+    });
+
+    Route::prefix('order')->group(function () {
+        Route::get('cache/clean/member/{id}', 'OrderController@cleanMemberOrders');
     });
 
     Route::prefix('tspg')->group(function () {

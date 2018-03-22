@@ -94,6 +94,34 @@ class OrderRepository extends BaseRepository
     }
 
     /**
+     * 清除並更新會員的訂單
+     * @param $id
+     * @return boolean
+     */
+    public function cleanMemberOrders($id)
+    {
+        $this->memberId = $id;
+        $this->token = $this->memberTokenService->generateToken($this->memberId);
+        
+        $email = $this->memberTokenService->getEmail($this->memberId);
+        $key = $this->genCacheKey(OrderKey::INFO_KEY);
+
+        // 清除快取
+        $this->cacheKey($key);
+
+        // 重建快取
+        $orders = $this->redis->remember($key, CacheConfig::ORDER_TIME, function () use ($email) {
+            $magento = $this->magento->info($email);
+            $cityPass = $this->cityPass->authorization($this->token)->info();
+            $data = array_merge($magento, $cityPass);
+
+            return ($data) ? $this->multi_array_sort($data, 'orderDate') : null;
+        });
+
+        return true;
+    }
+
+    /**
      * 清除快取
      */
     public function cleanCache()
