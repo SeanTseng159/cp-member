@@ -525,8 +525,8 @@ class OrderResult
                     return "待付款";
                 case 'complete': # 訂單完成(已出貨且開立發票)
                     return "已完成";
-                case 'holded': # 退貨處理中
-                    return "退貨處理中";
+                case 'holded': # 退貨中
+                    return "退貨中";
                 case 'canceled': # 已退貨
                     return "已退貨";
                 case 'processing': # 付款成功(前台顯示已完成)，尚未出貨
