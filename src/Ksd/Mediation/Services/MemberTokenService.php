@@ -158,4 +158,23 @@ class MemberTokenService
             return $member->email;
         }
     }
+
+    /**
+     * 取得 member name
+     * @return string
+     */
+    public function getName($id = null)
+    {
+        $memberId = $id;
+
+        if (!$memberId && !$this->jwtData) return null;
+
+        if (!$memberId) $memberId = $this->jwtData->id;
+
+        $member = $this->memberService->find($memberId);
+
+        if (!$member) return '';
+
+        return $member->name;
+    }
 }

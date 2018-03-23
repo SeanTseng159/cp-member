@@ -20,8 +20,12 @@ use Ksd\Mediation\Cache\Key\OrderKey;
 use App\Models\PayReceive;
 use App\Models\Member;
 
+use App\Traits\StringHelper;
+
 class OrderRepository extends BaseRepository
 {
+    use StringHelper;
+
     private $memberTokenService;
     protected $model;
 
@@ -160,11 +164,17 @@ class OrderRepository extends BaseRepository
 
 //        return $this->redis->remember("$source:order:$id", CacheConfig::ORDER_TEST_TIME, function () use ($source,$parameters) {
             if ($parameters->source === ProjectConfig::MAGENTO) {
-                return $this->magento->find($parameters);
+                $order = $this->magento->find($parameters);
             } else if ($parameters->source === ProjectConfig::CITY_PASS) {
-                return $this->cityPass->authorization($this->token)->find($parameters->id);
+                $order = $this->cityPass->authorization($this->token)->find($parameters->id);
             }
 //        });
+
+        if (isset($order[0]) && $order[0]) {
+            $order[0]->orderer = $this->hideName($this->memberTokenService->getName($this->memberId));
+        }
+
+        return $order;
     }
 
     /**

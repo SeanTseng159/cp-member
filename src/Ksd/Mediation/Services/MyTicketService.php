@@ -11,9 +11,12 @@ namespace Ksd\Mediation\Services;
 use App\Services\MemberService;
 use Ksd\Mediation\Repositories\MyTicketRepository;
 use Ksd\Mediation\Services\MemberTokenService;
+use App\Traits\StringHelper;
 
 class MyTicketService
 {
+    use StringHelper;
+
     private $repository;
     private $memberService;
     private $memberTokenService;
@@ -58,8 +61,8 @@ class MyTicketService
 
                 if ($member) {
                     $memberData = new \stdClass;
-                    $memberData->name = $member->name;
-                    $memberData->phone = '+' . $member->countryCode . $member->cellphone;
+                    $memberData->name = $this->hideName($member->name);
+                    $memberData->phone = '+' . $member->countryCode . $this->hidePhoneNumber($member->cellphone);
 
                     $member = $memberData;
                 }
@@ -89,8 +92,8 @@ class MyTicketService
 
                 if ($member) {
                     $memberData = new \stdClass;
-                    $memberData->name = $member->name;
-                    $memberData->phone = '+' . $member->countryCode . $member->cellphone;
+                    $memberData->name = $this->hideName($member->name);
+                    $memberData->phone = '+' . $member->countryCode . $this->hidePhoneNumber($member->cellphone);
 
                     $member = $memberData;
                 }

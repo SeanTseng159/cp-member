@@ -12,12 +12,13 @@ use Ksd\Mediation\Helper\ObjectHelper;
 use Ksd\Mediation\Config\ProjectConfig;
 use Ksd\Mediation\Magento\Order;
 use Ksd\Mediation\Helper\EnvHelper;
+use App\Traits\StringHelper;
 
 class OrderResult
 {
+    use StringHelper;
     use ObjectHelper;
     use EnvHelper;
-
 
     /**
      * 處理 magento 訂單資料建置
@@ -124,11 +125,11 @@ class OrderResult
             $ship = $this->arrayDefault($result, 'extension_attributes');
             foreach ($this->arrayDefault($ship, 'shipping_assignments', []) as $shipping) {
                 $shipping = $this->arrayDefault($shipping, 'shipping');
-                $this->shipping['name'] = $shipping['address']['firstname'] . $shipping['address']['lastname'];
-                $this->shipping['phone'] = $shipping['address']['telephone'];
+                $this->shipping['name'] = $this->hideName($shipping['address']['firstname'] . $shipping['address']['lastname']);
+                $this->shipping['phone'] = $this->hidePhoneNumber($shipping['address']['telephone']);
                 $this->shipping['code'] = $shipping['address']['postcode'];
                 $region = isset($shipping['address']['region']) ? $shipping['address']['region'] : null;
-                $this->shipping['address'] = $shipping['address']['city'].$region.$shipping['address']['street'][0];
+                $this->shipping['address'] = $shipping['address']['city'] . $this->hideAddress($region.$shipping['address']['street'][0]);
                 $this->shipping['description'] = $this->getShipName($this->arrayDefault($shipping, 'method'));
             }
 
