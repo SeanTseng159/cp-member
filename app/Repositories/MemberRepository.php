@@ -104,16 +104,23 @@ class MemberRepository
      */
      public function query($data)
      {
-         $members = $this->model->where($data)->get();
+        $query = $this->model->where($data);
+        // 如果搜尋email也要連同第三方帳號一起搜尋
+        if (isset($data['email'])) {
+            $members = $query->orWhere('openId', $data['email'])->get();
+        }
+        else {
+            $members = $query->get();
+        }
 
-         // 將第三方登入openId對到email
-         if ($members) {
+        // 將第三方登入openId對到email
+        if ($members) {
             foreach ($members as $key => $member) {
                 if ($member['openPlateform'] != 'citypass') $members[$key]['email'] = $member['openId'];
             }
-         }
+        }
 
-         return $members;
+        return $members;
      }
 
      /**
