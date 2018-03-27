@@ -196,6 +196,18 @@ class MemberRepository
     }
 
     /**
+     * 查詢已驗證手機的使用者
+     * @param $country
+     * @param $countryCode
+     * @param $cellphone
+     * @return mixed
+     */
+    public function findValidByCountryPhone($country, $countryCode, $cellphone)
+    {
+        return $this->model->where(['country' => $country, 'countryCode' => $countryCode, 'cellphone' => $cellphone, 'isValidPhone' => 1, 'isRegistered' => 1])->first();
+    }
+
+    /**
      * 依據身分證/護照,查詢使用者
      * @param $countryCode
      * @param $cellphone

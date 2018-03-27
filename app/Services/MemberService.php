@@ -515,6 +515,18 @@ class MemberService
     }
 
     /**
+     * 查詢已驗證手機的使用者
+     * @param $country
+     * @param $countryCode
+     * @param $cellphone
+     * @return mixed
+     */
+    public function findValidByCountryPhone($country, $countryCode, $cellphone)
+    {
+        return $this->repository->findValidByCountryPhone($country, $countryCode, $cellphone);
+    }
+
+    /**
      * 產生第三方登入Token
      * @param $data
      * @return mixed

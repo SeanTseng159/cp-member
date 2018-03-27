@@ -128,11 +128,11 @@ class MyTicketService
         $myMemberIsValid = $this->memberService->checkPhoneIsValidById($memberId);
         if (!$myMemberIsValid) return 4;
 
-        $member = $this->memberService->findByCountryPhone($parameters->country, $parameters->countryCode, $parameters->memberPhone);
+        $member = $this->memberService->findValidByCountryPhone($parameters->country, $parameters->countryCode, $parameters->memberPhone);
         // 會員不存在
-        if (!$member || $member->isRegistered == 0) return 2;
+        if (!$member) return 3;
         // 會員手機未驗證
-        if ($member->isValidPhone != 1) return 3;
+        // if ($member->isValidPhone != 1) return 3;
         
         $result = $this->repository->gift($parameters, $member->id);
         return ($result) ? 1 : 0;
