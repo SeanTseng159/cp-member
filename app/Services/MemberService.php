@@ -314,6 +314,8 @@ class MemberService
     {
         $member = $this->repository->find($id);
         if ($member) {
+            if ($member->isValidPhone === 1) return true;
+
             $now = Carbon\Carbon::now()->timestamp;
             $updated_at = strtotime($member->updated_at);
             $minutes = round(abs($updated_at - $now) / 60);
