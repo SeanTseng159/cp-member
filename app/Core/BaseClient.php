@@ -101,7 +101,9 @@ class BaseClient
     protected function buildOption()
     {
         $option = [];
-        $option['headers'] = $this->headers;
+        if (!empty($this->headers)) {
+            $option['headers'] = $this->headers;
+        }
 
         if (!empty($this->query)) {
             $option['query'] = $this->query;
