@@ -41,6 +41,25 @@ class MemberTokenService
     }
 
     /**
+     * 產生暫時token
+     * @return string
+     */
+    public function generateToken($id = null)
+    {
+        $iat = time();
+        $exp = time() + 60;
+
+        $token = [
+            'iss' => env('JWT_ISS', 'CityPass'),
+            'iat' => $iat,
+            'exp' => $exp,
+            'id' => $id
+        ];
+
+        return $this->JWTencode($token);
+    }
+
+    /**
      * 取得 magento customer token
      * @return string
      */
@@ -121,20 +140,41 @@ class MemberTokenService
      * 取得 member email for magento order
      * @return string
      */
-    public function getEmail()
+    public function getEmail($id = null)
     {
-        if (!$this->jwtData) return null;
+        $memberId = $id;
 
-        $member = $this->memberService->find($this->jwtData->id);
+        if (!$memberId && !$this->jwtData) return null;
 
-        if(isset($member)) {
-            if($member->openPlateform !== 'citypass') {
-                return $member->openPlateform . '_' . $member->openId;
-            }else{
-                return $member->email;
-            }
-        }else{
-            return null;
+        if (!$memberId) $memberId = $this->jwtData->id;
+
+        $member = $this->memberService->find($memberId);
+
+        if (!$member) return null;
+
+        if ($member->openPlateform !== 'citypass') {
+            return $member->openPlateform . '_' . $member->openId;
+        } else {
+            return $member->email;
         }
+    }
+
+    /**
+     * 取得 member name
+     * @return string
+     */
+    public function getName($id = null)
+    {
+        $memberId = $id;
+
+        if (!$memberId && !$this->jwtData) return null;
+
+        if (!$memberId) $memberId = $this->jwtData->id;
+
+        $member = $this->memberService->find($memberId);
+
+        if (!$member) return '';
+
+        return $member->name;
     }
 }

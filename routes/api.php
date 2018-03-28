@@ -21,10 +21,10 @@ Route::middleware(['cors', 'admin.jwt'])->namespace('Api')->group(function () {
         //會員資料查詢
         Route::get('query', 'MemberController@queryMember');
         //更新會員資料
-        Route::post('update/{id}', 'MemberController@updateMember');
+        Route::post('update/{id}', 'MemberController@updateMember')
+            ->middleware('verify.member.update.data');
         //刪除會員
         Route::post('delete/{id}', 'MemberController@deleteMember');
-
     });
 
     Route::prefix('newsletter')->group(function () {
@@ -54,7 +54,8 @@ Route::middleware(['cors', 'auth.jwt'])->namespace('Api')->group(function () {
         //單一會員資料查詢
         Route::get('single/{id}', 'MemberController@singleMember');
         //更新會員資料
-        Route::post('update/{id}', 'MemberController@updateMember');
+        Route::post('update/{id}', 'MemberController@updateMember')
+            ->middleware('verify.member.update.data');
         //會員密碼修改
         Route::post('password/{id}', 'MemberController@changePassword');
         //發送-Email驗證信
@@ -93,7 +94,6 @@ Route::middleware(['cors', 'auth.jwt'])->namespace('Api')->group(function () {
         Route::post('shipment', 'CheckoutController@shipment');
         // 確定結帳 (回傳訂單號，非信用卡)
         Route::post('confirm', 'CheckoutController@confirm');
-
     });
 
     Route::prefix('order')->group(function () {
@@ -103,7 +103,6 @@ Route::middleware(['cors', 'auth.jwt'])->namespace('Api')->group(function () {
         Route::get('detail/{id}', 'OrderController@find');
         Route::post('writeoff', 'OrderController@writeoff');
         Route::post('update', 'OrderController@update');
-
     });
 
     Route::prefix('ticket')->group(function () {
@@ -157,11 +156,13 @@ Route::middleware('cors')->namespace('Api')->group(function () {
 
     Route::prefix('member')->group(function () {
         //新增會員
-        Route::post('create', 'MemberController@createMember');
+        Route::post('create', 'MemberController@createMember')
+            ->middleware('verify.member.create');
         //驗證-手機驗證碼
         Route::post('validate/cellphone/{id}', 'MemberController@validateCellphone');
         //發送手機驗證碼
-        Route::post('sendValidPhoneCode', 'MemberController@sendValidPhoneCode');
+        Route::post('sendValidPhoneCode', 'MemberController@sendValidPhoneCode')
+            ->middleware('verify.send.validPhoneCode');
         //確認Email是否已使用
         Route::post('checkEmail', 'MemberController@checkEmail');
         //註冊-更新會員資料
@@ -201,6 +202,7 @@ Route::middleware('cors')->namespace('Api')->group(function () {
         Route::get('products', 'MagentoProductController@all');
         Route::get('products/{id}', 'MagentoProductController@find');
         Route::post('query', 'MagentoProductController@query');
+        Route::get('update/product/{id}', 'MagentoProductController@update');
         // Route::get('syncAll', 'MagentoProductController@syncAll');
     });
 
@@ -223,6 +225,10 @@ Route::middleware('cors')->namespace('Api')->group(function () {
     Route::prefix('newsletter')->group(function () {
         //新增電子報名單
         Route::post('order', 'NewsletterController@orderNewsletter');
+    });
+
+    Route::prefix('order')->group(function () {
+        Route::get('cache/clean/member/{id}', 'OrderController@cleanMemberOrders');
     });
 
     Route::prefix('tspg')->group(function () {

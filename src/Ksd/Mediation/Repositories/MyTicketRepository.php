@@ -87,9 +87,9 @@ class MyTicketRepository extends BaseRepository
      * @param $id
      * @return  bool
      */
-    public function gift($parameters,$id)
+    public function gift($parameters, $id)
     {
-        $this->result = $this->cityPass->authorization($this->token)->gift($parameters,$id);
+        $this->result = $this->cityPass->authorization($this->token)->gift($parameters, $id);
         return $this->result;
     }
 

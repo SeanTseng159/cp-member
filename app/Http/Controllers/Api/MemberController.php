@@ -11,6 +11,7 @@ use Ksd\Mediation\Core\Controller\RestLaravelController;
 use App\Services\MemberService;
 use App\Services\JWTTokenService;
 use App\Services\NewsletterService;
+use App\Parameter\MemberParameter;
 use GuzzleHttp\Client;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -40,64 +41,23 @@ class MemberController extends RestLaravelController
      */
     public function createMember(Request $request)
     {
-        $data = $request->only([
-            'countryCode',
-            'cellphone',
-            'openPlateform',
-            'openId',
-            'country'
-        ]);
-
-        $validator = Validator::make($data, [
-            'countryCode' => 'required|max:6',
-            'cellphone' => 'required|alpha_num|max:12',
-            'openPlateform' => 'required',
-            'country' => 'required'
-        ]);
-
-        if ($validator->fails()) {
-            return $this->failure('E0001', '傳送參數錯誤');
-        }
-
-        $country = strtoupper($data['country']);
-
-        try {
-            $phoneUtil = \libphonenumber\PhoneNumberUtil::getInstance();
-            $phoneNumber = $phoneUtil->parse($data['countryCode'] . $data['cellphone'], $country);
-
-            $countryCode = $data['countryCode'] = $phoneNumber->getCountryCode();
-            $cellphone = $data['cellphone'] = $phoneNumber->getNationalNumber();
-            $intlNumber = $phoneUtil->format($phoneNumber, \libphonenumber\PhoneNumberFormat::E164);
-
-            $isValid = $phoneUtil->isValidNumber($phoneNumber);
-            $getNumberType = $phoneUtil->getNumberType($phoneNumber);
-
-            if (!$phoneUtil->isValidNumber($phoneNumber) || $phoneUtil->getNumberType($phoneNumber) != 1) {
-                Log::error('不是手機格式');
-                return $this->failure('E0301', '手機格式錯誤');
-            }
-        } catch (\libphonenumber\NumberParseException $e) {
-            Log::debug($e);
-            return $this->failure('E0301', '手機格式錯誤');
-        }
-
-        //確認手機是否使用
-        if ($this->memberService->checkPhoneIsUse($data['country'], $countryCode, $cellphone)) {
-            return $this->failure('A0031', '該手機號碼已使用');
-        }
+        $data = (new MemberParameter)->create($request);
 
         //驗證可否註冊
-        if (!$this->memberService->canReRegister($data['country'], $countryCode, $cellphone)) {
-            return $this->failure('A0030', '請15分鐘後再註冊');
+        if (!$this->memberService->canReRegister($data['country'], $data['countryCode'], $data['cellphone'])) {
+            return $this->failureCode('A0030');
         }
 
-        $member = $this->memberService->checkHasPhoneAndNotRegistered($data['country'], $countryCode, $cellphone);
+        $member = $this->memberService->checkHasPhoneAndNotRegistered($data['country'], $data['countryCode'], $data['cellphone']);
 
         $member = ($member) ? $this->memberService->update($member->id, $data) : $this->memberService->create($data);
 
         //傳送簡訊認證
         $this->memberService->sendRegisterSMS($member);
-        return ($member) ? $this->success(['id' => $member->id, 'validPhoneCode' => $member->validPhoneCode]) : $this->failure('E0011', '建立會員失敗');
+        return ($member) ? $this->success([
+                                'id' => $member->id,
+                                'validPhoneCode' => $member->validPhoneCode
+                            ]) : $this->failureCode('E0011');
     }
 
     /**
@@ -162,49 +122,7 @@ class MemberController extends RestLaravelController
      */
      public function updateMember(Request $request, $id)
      {
-         $data = $request->except([
-                    'id',
-                    'password',
-                    'email',
-                    'newsletter'
-                ]);
-
-        $countryCode = $request->input('countryCode');
-        $cellphone = $request->input('cellphone');
-        $country = $request->input('country');
-        $socialId = $request->input('socialId');
-
-        if ($countryCode && $cellphone && $country) {
-            try {
-                $phoneUtil = \libphonenumber\PhoneNumberUtil::getInstance();
-                $phoneNumber = $phoneUtil->parse($countryCode . $cellphone, strtoupper($country));
-
-                $countryCode = $data['countryCode'] = $phoneNumber->getCountryCode();
-                $cellphone = $data['cellphone'] = $phoneNumber->getNationalNumber();
-                $intlNumber = $phoneUtil->format($phoneNumber, \libphonenumber\PhoneNumberFormat::E164);
-
-                $isValid = $phoneUtil->isValidNumber($phoneNumber);
-                $getNumberType = $phoneUtil->getNumberType($phoneNumber);
-
-                if (!$phoneUtil->isValidNumber($phoneNumber) || $phoneUtil->getNumberType($phoneNumber) != 1) {
-                    Log::error('不是手機格式');
-                    return $this->failureCode('E0301');
-                }
-            } catch (\libphonenumber\NumberParseException $e) {
-                Log::error('手機格式錯誤');
-                return $this->failureCode('E0301');
-            }
-
-            // 確認手機是否使用
-            if ($this->memberService->checkPhoneIsUseForUpdate($country, $countryCode, $cellphone)) {
-                return $this->failureCode('A0031');
-            }
-        }
-
-        // 確認身分證/護照是否使用
-        if ($socialId && $this->memberService->checkSocialIdIsUse($socialId)) {
-            return $this->failureCode('A0033');
-        }
+        $data = (new MemberParameter)->update($request);
 
         $member = $this->memberService->update($id, $data);
         if (!$member) return $this->failureCode('E0003');
@@ -259,7 +177,7 @@ class MemberController extends RestLaravelController
 
         $result = $this->memberService->validateCellphone($id, $validPhoneCode);
 
-        return ($result) ? $this->success(['id' => $id]) : $this->failure('E0013', '電話驗證碼錯誤');
+        return ($result) ? $this->success(['id' => $id]) : $this->failureCode('E0013');
     }
 
     /**
@@ -390,36 +308,7 @@ class MemberController extends RestLaravelController
     public function sendValidPhoneCode(Request $request)
     {
         $id = $request->input('id');
-        $countryCode = $request->input('countryCode');
-        $cellphone = $request->input('cellphone');
-        $country = $request->input('country');
-
-        if ($countryCode && $cellphone && $country) {
-            try {
-                $phoneUtil = \libphonenumber\PhoneNumberUtil::getInstance();
-                $phoneNumber = $phoneUtil->parse($countryCode . $cellphone, strtoupper($country));
-
-                $countryCode = $phoneNumber->getCountryCode();
-                $cellphone = $phoneNumber->getNationalNumber();
-                $intlNumber = $phoneUtil->format($phoneNumber, \libphonenumber\PhoneNumberFormat::E164);
-
-                $isValid = $phoneUtil->isValidNumber($phoneNumber);
-                $getNumberType = $phoneUtil->getNumberType($phoneNumber);
-
-                if (!$phoneUtil->isValidNumber($phoneNumber) || $phoneUtil->getNumberType($phoneNumber) != 1) {
-                    Log::error('不是手機格式');
-                    return $this->failure('E0301', '手機格式錯誤');
-                }
-            } catch (\libphonenumber\NumberParseException $e) {
-                Log::debug($e);
-                return $this->failure('E0301', '手機格式錯誤');
-            }
-
-            //確認手機是否使用
-            if ($this->memberService->checkPhoneIsUse($country, $countryCode, $cellphone)) {
-                return $this->failure('A0031', '該手機號碼已使用');
-            }
-
+        /*if ($request->phoneNumber) {
             $member = $this->memberService->update($id, [
                     'countryCode' => $countryCode,
                     'cellphone' => $cellphone,
@@ -430,11 +319,15 @@ class MemberController extends RestLaravelController
             $member = $this->memberService->update($id, [
                     'validPhoneCode' => strval(mt_rand(100000, 999999))
                 ]);
-        }
+        }*/
+        
+        $member = $this->memberService->update($id, [
+            'validPhoneCode' => strval(mt_rand(100000, 999999))
+        ]);
 
         //傳送簡訊認證
         $this->memberService->sendRegisterSMS($member);
-        return ($member) ? $this->success(['id' => $member->id, 'validPhoneCode' => $member->validPhoneCode]) : $this->failure('E0052', '簡訊發送失敗');
+        return ($member) ? $this->success(['id' => $member->id, 'validPhoneCode' => $member->validPhoneCode]) : $this->failureCode('E0052');
     }
 
     /**

@@ -46,6 +46,18 @@ class MagentoProductController extends RestLaravelController
     }
 
     /**
+     * 更新 magento索引商品資料及更新商品快取
+     * @param Request $request
+     * @param $id
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function update(Request $request, $id)
+    {
+        $this->productService->update($id);
+        return $this->success('刷新成功');
+    }
+
+    /**
      * 根據 所有id 取得對應商品明細
      * @param Request $request
      * @param $id

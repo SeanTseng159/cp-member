@@ -11,7 +11,6 @@ use Illuminate\Database\QueryException;
 
 use App\Models\MagentoProduct;
 use Ksd\Mediation\Magento\Product as Magento;
-use Ksd\Mediation\Result\ProductResult;
 
 class MagentoProductRepository
 {
@@ -21,7 +20,6 @@ class MagentoProductRepository
     public function __construct(MagentoProduct $model)
     {
         $this->model = $model;
-        $this->result = new ProductResult;
     }
 
     /**
@@ -76,7 +74,7 @@ class MagentoProductRepository
 
         if ($products) {
             foreach ($products as $p) {
-                $data[$p->sku] = $this->result->magentoFormat(json_decode($p->data));
+                $data[$p->sku] = json_decode($p->data);
             }
             return $data;
         }
@@ -93,7 +91,7 @@ class MagentoProductRepository
     {
         $product = $this->model->where('sku', $id)->first();
 
-        return ($product) ? $this->result->magentoFormat(json_decode($product->data)) : null;
+        return ($product) ? json_decode($product->data) : null;
     }
 
     /**
@@ -117,7 +115,6 @@ class MagentoProductRepository
 
     /**
      * 同步magento所有商品資料
-     * @param $data
      * @return mixed
      */
     public function syncAll()

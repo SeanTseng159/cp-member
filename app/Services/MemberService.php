@@ -248,6 +248,18 @@ class MemberService
     }
 
     /**
+     * 確認手機號碼是否已驗證
+     * @param $countryCode
+     * @param $cellphone
+     * @return bool
+     */
+    public function checkPhoneIsValidById($id)
+    {
+        $member = $this->repository->find($id);
+        return ($member && $member->isValidPhone == 1);
+    }
+
+    /**
      * 確認身分證/護照是否被是否被使用
      * @param $countryCode
      * @param $cellphone
@@ -302,6 +314,8 @@ class MemberService
     {
         $member = $this->repository->find($id);
         if ($member) {
+            if ($member->isValidPhone === 1) return true;
+
             $now = Carbon\Carbon::now()->timestamp;
             $updated_at = strtotime($member->updated_at);
             $minutes = round(abs($updated_at - $now) / 60);
@@ -500,6 +514,18 @@ class MemberService
     public function findByCountryPhone($country, $countryCode, $cellphone)
     {
         return $this->repository->findByCountryPhone($country, $countryCode, $cellphone);
+    }
+
+    /**
+     * 查詢已驗證手機的使用者
+     * @param $country
+     * @param $countryCode
+     * @param $cellphone
+     * @return mixed
+     */
+    public function findValidByCountryPhone($country, $countryCode, $cellphone)
+    {
+        return $this->repository->findValidByCountryPhone($country, $countryCode, $cellphone);
     }
 
     /**

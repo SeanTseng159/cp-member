@@ -8,6 +8,7 @@
 namespace App\Services;
 
 use App\Repositories\MagentoProductRepository;
+use Ksd\Mediation\Services\ProductService;
 
 class MagentoProductService
 {
@@ -57,6 +58,22 @@ class MagentoProductService
     public function query($parameter)
     {
         return $this->repository->query($parameter);
+    }
+
+    /**
+     * 更新 magento索引商品資料及更新商品快取
+     * @param $data
+     * @return \App\Models\MagentoProduct
+     */
+    public function update($id)
+    {
+        $productService = app()->build(ProductService::class);
+
+        $parameter = new \stdClass;
+        $parameter->no = $id;
+        $parameter->source = 'magento';
+        $productService->cleanProductCache($parameter);
+        return true;
     }
 
     /**

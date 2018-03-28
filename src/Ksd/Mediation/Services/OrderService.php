@@ -107,5 +107,15 @@ class OrderService
     {
         return $this->repository->updateByIpasspayATM($parameters);
     }
+
+    /**
+     * 清除並更新會員的訂單
+     * @param $id
+     * @return boolean
+     */
+    public function cleanMemberOrders($id)
+    {
+        return $this->repository->cleanMemberOrders($id);
+    }
 }
 

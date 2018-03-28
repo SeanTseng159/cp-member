@@ -102,6 +102,7 @@ class MyTicketController extends RestLaravelController
         if ($result === 1) return $this->success();
         else if ($result === 2) return $this->failureCode('E0061');
         else if ($result === 3) return $this->failureCode('E4002');
+        else if ($result === 4) return $this->failureCode('E4001');
         else return $this->failureCode('E4003');
     }
 

@@ -50,8 +50,8 @@ class MemberController extends Controller
             $data['cancel_url'] = ($platform === 'app') ? 'app://ipassLogin?result=false' : $this->citypassUrl . $this->lang . '/oauth/failure';
             return view('ipass.login', $data);
         }
-        catch (Exception $e) {
-            return ($platform === 'app') ? 'app://ipassLogin?result=false' : $this->citypassUrl . $this->lang . '/oauth/failure';
+        catch (\Exception $e) {
+            return $this->failureRedirect();
         }
     }
 
@@ -69,8 +69,6 @@ class MemberController extends Controller
         $ipassMember = $this->service->member($parameter);
 
         Log::info('=== ipass 登入 ===');
-        Log::debug(print_r($ipassMember, true));
-        Log::debug(print_r(session()->getId(), true));
 
         try {
             if ($ipassMember->statusCode !== 200) return redirect('ipass/login/' . $this->platform);
@@ -100,10 +98,37 @@ class MemberController extends Controller
                     $member = $this->memberService->create($parameter);
                     if (!$member) return $this->failureRedirect();
                 }*/
+
+                // 檢查手機是否已使用，未使用自動帶入
+                $phoneUtil = \libphonenumber\PhoneNumberUtil::getInstance();
+
+                $phoneNumber = $phoneUtil->parse('886' . $memberData->m_tel, strtoupper('tw'));
+                    
+                $countryCode = $phoneNumber->getCountryCode();
+                $cellphone = $phoneNumber->getNationalNumber();
+                    
                 $parameter = $memberParameter->member($memberData);
+                if (!$this->memberService->checkPhoneIsUseForUpdate('tw', $countryCode, $cellphone))
+                {  
+                    $parameter['country'] = 'tw';
+                    $parameter['cellphone'] = $cellphone;
+                    $parameter['countryCode'] = $countryCode;
+                    $parameter['isValidPhone'] = 1;
+                }
+
+                // 檢查身份證是否使用，未使用自動帶入
+                if (!$this->memberService->checkSocialIdIsUse($memberData->idn)) {
+                    $parameter['socialId'] = $memberData->idn;
+                }
+                
                 Log::info('=== ipass 會員註冊 ===');
                 Log::debug(print_r($parameter, true));
                 $member = $this->memberService->create($parameter);
+
+                // $parameter = $memberParameter->member($memberData);
+                // Log::info('=== ipass 會員註冊 ===');
+                // Log::debug(print_r($parameter, true));
+                // $member = $this->memberService->create($parameter);
 
                 if (!$member) return $this->failureRedirect();
 

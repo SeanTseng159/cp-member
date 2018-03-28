@@ -40,6 +40,8 @@ class CartResult
             $row->additionals = $this->arrayDefault($item, 'additionals') ==='' ? new \stdClass() : $this->arrayDefault($item, 'additionals');
             $row->imageUrl = $this->arrayDefault($item, 'extension_attributes', '')['image_url'];
             $row->purchase = $this->arrayDefault($item, ' purchase', '');
+            $row->statusCode = 0;
+            $row->statusDesc = null;
 
             $this->items[] = $row;
         }
@@ -79,8 +81,11 @@ class CartResult
             $row->additionals = $this->arrayDefault($item, 'additionals');
             $row->imageUrl = $this->arrayDefault($item, 'imageUrl');
             $row->purchase = $this->arrayDefault($item, 'purchase');
-            // $row->statusCode = $this->arrayDefault($item['status'], 'code');
-            // $row->statusDesc = $this->arrayDefault($item['status'], 'desc');
+            // 先判斷status存不存在，以免跟backend api不同步
+            if (isset($item['status'])) {
+                $row->statusCode = $this->arrayDefault($item['status'], 'code');
+                $row->statusDesc = $this->arrayDefault($item['status'], 'desc');
+            }
             $this->items[] = $row;
         }
         $this->itemTotal = $this->arrayDefault($result, 'itemTotal');
@@ -95,6 +100,7 @@ class CartResult
         $this->payAmount = $this->arrayDefault($result, 'payAmount');
         $this->shipmentAmount = $this->arrayDefault($result, 'shipmentAmount');
         $this->shipmentFree = $this->arrayDefault($result, 'shipmentFree');
+        $this->canCheckout = $this->arrayDefault($result, 'canCheckout');
     }
 
     /**

@@ -12,12 +12,13 @@ use Ksd\Mediation\Helper\ObjectHelper;
 use Ksd\Mediation\Config\ProjectConfig;
 use Ksd\Mediation\Magento\Order;
 use Ksd\Mediation\Helper\EnvHelper;
+use App\Traits\StringHelper;
 
 class OrderResult
 {
+    use StringHelper;
     use ObjectHelper;
     use EnvHelper;
-
 
     /**
      * 處理 magento 訂單資料建置
@@ -124,11 +125,11 @@ class OrderResult
             $ship = $this->arrayDefault($result, 'extension_attributes');
             foreach ($this->arrayDefault($ship, 'shipping_assignments', []) as $shipping) {
                 $shipping = $this->arrayDefault($shipping, 'shipping');
-                $this->shipping['name'] = $shipping['address']['firstname'] . $shipping['address']['lastname'];
-                $this->shipping['phone'] = $shipping['address']['telephone'];
+                $this->shipping['name'] = $this->hideName($shipping['address']['firstname'] . $shipping['address']['lastname']);
+                $this->shipping['phone'] = $this->hidePhoneNumber($shipping['address']['telephone']);
                 $this->shipping['code'] = $shipping['address']['postcode'];
                 $region = isset($shipping['address']['region']) ? $shipping['address']['region'] : null;
-                $this->shipping['address'] = $shipping['address']['city'].$region.$shipping['address']['street'][0];
+                $this->shipping['address'] = $shipping['address']['city'] . $this->hideAddress($region.$shipping['address']['street'][0]);
                 $this->shipping['description'] = $this->getShipName($this->arrayDefault($shipping, 'method'));
             }
 
@@ -247,6 +248,9 @@ class OrderResult
                 $row['status'] = $this->arrayDefault($item, 'status');
                 $row['discount'] = $this->arrayDefault($item, 'discount');
                 $row['imageUrl'] = $this->arrayDefault($item, 'imageUrl');
+                $row['qrcode'] = $this->arrayDefault($item, 'qrcode');
+                $row['show'] = $this->arrayDefault($item, 'show');
+                $row['pinCode'] = $this->arrayDefault($item, 'pinCode');
 
                 $this->items[] = $row;
 
@@ -521,8 +525,8 @@ class OrderResult
                     return "待付款";
                 case 'complete': # 訂單完成(已出貨且開立發票)
                     return "已完成";
-                case 'holded': # 退貨處理中
-                    return "退貨處理中";
+                case 'holded': # 退貨中
+                    return "退貨中";
                 case 'canceled': # 已退貨
                     return "已退貨";
                 case 'processing': # 付款成功(前台顯示已完成)，尚未出貨

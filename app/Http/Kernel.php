@@ -80,5 +80,9 @@ class Kernel extends HttpKernel
         'admin.jwt' => \App\Http\Middleware\Api\AdminJWT::class,
         'auth.jwt' => \App\Http\Middleware\Api\AuthJWT::class,
         'cors' => \Barryvdh\Cors\HandleCors::class,
+
+        'verify.member.create' => \App\Http\Middleware\Verify\MemberCreate::class,
+        'verify.member.update.data' => \App\Http\Middleware\Verify\MemberUpdateData::class,
+        'verify.send.validPhoneCode' => \App\Http\Middleware\Verify\SendValidPhoneCode::class,
     ];
 }

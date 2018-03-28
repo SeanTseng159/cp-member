@@ -113,6 +113,7 @@ class Cart extends Client
      */
     public function add($parameters)
     {
+        $isAdd = false;
 
         $cart = $this->detail();
 
@@ -132,8 +133,16 @@ class Cart extends Client
         }
 
         $this->putParameters($data);
-        $this->request('PUT', 'V1/carts/mine');
-        return true;
+
+        try{
+            $this->request('PUT', 'V1/carts/mine');
+            $isAdd = true;
+        } catch (ClientException $e) {
+            // TODO:加入購物車失敗
+            $isAdd = false;
+        }
+        
+        return $isAdd;
     }
 
     /**
@@ -143,6 +152,7 @@ class Cart extends Client
      */
     public function update($parameters)
     {
+        $isUpdate = false;
 
         $cart = $this->detail();
         $items = $cart->items;
@@ -170,10 +180,19 @@ class Cart extends Client
                 ['id' => $item->id]
             ]);
             $this->putParameters($data);
-            $this->request('POST', 'V1/carts/mine/items');
+            
+            try{
+                $this->request('POST', 'V1/carts/mine/items');
+                $isUpdate = true;
+            }
+            catch (ClientException $e) {
+                // TODO:更新購物車失敗
+                $isAdd = false;
+                break;
+            }
         }
 
-        return true;
+        return $isAdd;
     }
 
     /**

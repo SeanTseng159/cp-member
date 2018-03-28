@@ -64,6 +64,8 @@ class MemberRepository
                 if (!isset($data['birthday']) || !$data['birthday']) unset($member->birthday);
                 if (isset($data['socialId'])) $member->socialId = strtoupper($member->socialId);
                 $member->save();
+
+                if ($member->openPlateform != 'citypass') $member->email = $member->openId;
                 return $member;
             } else {
                 Log::error('找不到使用者，無法更新');
@@ -102,16 +104,23 @@ class MemberRepository
      */
      public function query($data)
      {
-         $members = $this->model->where($data)->get();
+        $query = $this->model->where($data);
+        // 如果搜尋email也要連同第三方帳號一起搜尋
+        if (isset($data['email'])) {
+            $members = $query->orWhere('openId', $data['email'])->get();
+        }
+        else {
+            $members = $query->get();
+        }
 
-         // 將第三方登入openId對到email
-         if ($members) {
+        // 將第三方登入openId對到email
+        if ($members) {
             foreach ($members as $key => $member) {
                 if ($member['openPlateform'] != 'citypass') $members[$key]['email'] = $member['openId'];
             }
-         }
+        }
 
-         return $members;
+        return $members;
      }
 
      /**
@@ -184,6 +193,18 @@ class MemberRepository
     public function findByCountryPhone($country, $countryCode, $cellphone)
     {
         return $this->model->where(['country' => $country, 'countryCode' => $countryCode, 'cellphone' => $cellphone])->first();
+    }
+
+    /**
+     * 查詢已驗證手機的使用者
+     * @param $country
+     * @param $countryCode
+     * @param $cellphone
+     * @return mixed
+     */
+    public function findValidByCountryPhone($country, $countryCode, $cellphone)
+    {
+        return $this->model->where(['country' => $country, 'countryCode' => $countryCode, 'cellphone' => $cellphone, 'isValidPhone' => 1, 'isRegistered' => 1])->first();
     }
 
     /**
