@@ -117,8 +117,8 @@ class MemberController extends Controller
                 }
 
                 // 檢查身份證是否使用，未使用自動帶入
-                if (!$this->memberService->checkSocialIdIsUse($memberData->idn)) {
-                    $parameter['socialId'] = $memberData->idn;
+                if ($this->memberService->checkSocialIdIsUse($memberData->idn)) {
+                    unset($parameter['socialId']);
                 }
                 
                 Log::info('=== ipass 會員註冊 ===');
