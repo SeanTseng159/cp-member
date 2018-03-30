@@ -10,6 +10,9 @@ namespace Ksd\IPassPay\Repositories;
 use Ksd\IPassPay\Core\Client\BaseClient;
 use Ksd\IPassPay\Repositories\IpasspayLogRepository;
 use Ksd\IPassPay\Helper\ObjectHelper;
+use GuzzleHttp\Exception\ClientException;
+use Exception;
+use Log;
 
 class PayRepository extends BaseClient
 {
@@ -38,7 +41,11 @@ class PayRepository extends BaseClient
             $this->repository->update($parameters->order_id, ['bindPayReq' => $responseQueryString]);
 
             return $this->parseQueryString($responseQueryString);
-        } catch (\Exception $e) {
+        } catch (ClientException $e) {
+            Log::debug('=== ipaypass api error ===');
+            return false;
+        } catch (Exception $e) {
+            Log::debug('=== ipaypass api unknown error ===');
             return false;
         }
     }
@@ -58,7 +65,11 @@ class PayRepository extends BaseClient
             $this->repository->update($parameters->order_id, ['bindPayStatus' => $responseQueryString]);
 
             return $this->parseQueryString($responseQueryString);
-        } catch (\Exception $e) {
+        } catch (ClientException $e) {
+            Log::debug('=== ipaypass api error ===');
+            return false;
+        } catch (Exception $e) {
+            Log::debug('=== ipaypass api unknown error ===');
             return false;
         }
     }
@@ -75,13 +86,17 @@ class PayRepository extends BaseClient
                 ->request('POST', 'api/BindRefund');
             $responseQueryString = urldecode($response->getBody()->getContents());
 
-            \Log::debug('=== ipaypass refund ===');
-            \Log::debug(print_r($this->parseQueryString($responseQueryString), true));
+            Log::debug('=== ipaypass refund ===');
+            Log::debug(print_r($this->parseQueryString($responseQueryString), true));
 
             $this->repository->update($parameters->order_id, ['bindRefund' => $responseQueryString]);
 
             return $this->parseQueryString($responseQueryString);
-        } catch (\Exception $e) {
+        } catch (ClientException $e) {
+            Log::debug('=== ipaypass api error ===');
+            return false;
+        } catch (Exception $e) {
+            Log::debug('=== ipaypass api unknown error ===');
             return false;
         }
     }
@@ -98,13 +113,17 @@ class PayRepository extends BaseClient
                 ->request('POST', 'api/BindPayResult');
             $responseQueryString = urldecode($response->getBody()->getContents());
 
-            \Log::debug('=== ipaypass PayResult ===');
-            \Log::debug(print_r($this->parseQueryString($responseQueryString), true));
+            Log::debug('=== ipaypass PayResult ===');
+            Log::debug(print_r($this->parseQueryString($responseQueryString), true));
 
             $this->repository->update($parameters->order_id, ['bindPayResult' => $responseQueryString]);
 
             return $this->parseQueryString($responseQueryString);
-        } catch (\Exception $e) {
+        } catch (ClientException $e) {
+            Log::debug('=== ipaypass api error ===');
+            return false;
+        } catch (Exception $e) {
+            Log::debug('=== ipaypass api unknown error ===');
             return false;
         }
     }

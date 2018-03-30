@@ -70,6 +70,9 @@ class PayController extends RestLaravelController
       try {
         Log::debug('=== ipass pay 訂單查詢 ===');
         $order = $this->orderService->findOneByIpassPay($parameter);
+
+        Log::info('=== ipass pay 訂單 ===');
+        Log::debug(print_r($order, true));
         if (!$order) {
           Log::debug('=== ipass pay 訂單不存在 ===');
           return $this->failureRedirect($parameter);
