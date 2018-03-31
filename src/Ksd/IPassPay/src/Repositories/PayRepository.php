@@ -36,6 +36,7 @@ class PayRepository extends BaseClient
         try {
             $response = $this->putParameters($parameters)
                 ->request('POST', 'api/BindPayReq');
+
             $responseQueryString = urldecode($response->getBody()->getContents());
 
             $this->repository->update($parameters->order_id, ['bindPayReq' => $responseQueryString]);
@@ -43,9 +44,11 @@ class PayRepository extends BaseClient
             return $this->parseQueryString($responseQueryString);
         } catch (ClientException $e) {
             Log::debug('=== ipaypass api error ===');
+            Log::debug(print_r($e->getMessage(), true));
             return false;
         } catch (Exception $e) {
             Log::debug('=== ipaypass api unknown error ===');
+            Log::debug(print_r($e->getMessage(), true));
             return false;
         }
     }
@@ -67,6 +70,7 @@ class PayRepository extends BaseClient
             return $this->parseQueryString($responseQueryString);
         } catch (ClientException $e) {
             Log::debug('=== ipaypass api error ===');
+            Log::debug(print_r($e->getMessage(), true));
             return false;
         } catch (Exception $e) {
             Log::debug('=== ipaypass api unknown error ===');
@@ -94,6 +98,7 @@ class PayRepository extends BaseClient
             return $this->parseQueryString($responseQueryString);
         } catch (ClientException $e) {
             Log::debug('=== ipaypass api error ===');
+            Log::debug(print_r($e->getMessage(), true));
             return false;
         } catch (Exception $e) {
             Log::debug('=== ipaypass api unknown error ===');
@@ -121,6 +126,7 @@ class PayRepository extends BaseClient
             return $this->parseQueryString($responseQueryString);
         } catch (ClientException $e) {
             Log::debug('=== ipaypass api error ===');
+            Log::debug(print_r($e->getMessage(), true));
             return false;
         } catch (Exception $e) {
             Log::debug('=== ipaypass api unknown error ===');
