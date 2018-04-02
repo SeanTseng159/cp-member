@@ -108,12 +108,13 @@ class Invoice extends Client
         $record_str .= $this->businessNo.'|';                  //10.賣方統一編號
 
         $record_str .= self::BU_CODE.'|';                      //11.賣方廠編
-
+        
         //判斷付款方式，將存到comment的發票資訊帶出來
         $payment = $this->arrayDefault($result, 'payment');
         $comment = $this->arrayDefault($result, 'status_histories');
-        $invoiceTitle = null;
-        $unifiedBusinessNo = null;
+
+        $invoiceTitle = '';
+        $unifiedBusinessNo = '';
         if(isset($payment) && isset($comment)){
             if($payment['method'] === 'ipasspay'){
                 $data = !empty($comment) ? explode("&",$comment[1]['comment']) : null;
@@ -128,7 +129,7 @@ class Invoice extends Client
         $record_str .= $unifiedBusinessNo .'|';           //12.買方統一編號
 
         $record_str .= $invoiceTitle.'|';         //13.買受人公司名稱
-
+        
         //增加判斷，考量到第三方登錄的到magento有帶前綴magento_xxx@xxx.com
         if(!empty($this->member->whereEmail($this->arrayDefault($result, 'customer_email'))->first())){
             $member = $this->member->whereEmail($this->arrayDefault($result, 'customer_email'))->first();
@@ -212,10 +213,7 @@ class Invoice extends Client
 
         $record_str .= "\r\n"; //CR+LF
 
-
         return $record_str;
-
-
     }
 
     /**
