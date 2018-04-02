@@ -250,11 +250,13 @@ class Checkout extends Client
         if(!empty($orderId)) {
             $admintoken = new Client();
             $this->authorization($admintoken->token);
-            $billingInfo = [
-                'invoiceTitle' => $parameters->billing()->invoiceTitle,
-                'unifiedBusinessNo' => $parameters->billing()->unifiedBusinessNo
-            ];
-            $this->setInvoiceInfo($orderId, $billingInfo);
+            if ($parameters->billing()->invoiceTitle && $parameters->billing()->unifiedBusinessNo) {
+                $billingInfo = [
+                    'invoiceTitle' => $parameters->billing()->invoiceTitle,
+                    'unifiedBusinessNo' => $parameters->billing()->unifiedBusinessNo
+                ];
+                $this->setInvoiceInfo($orderId, $billingInfo);
+            }
 
             //存入order/comment會有status的bug，須把狀態重新改為pending
             $order = new Order();
@@ -553,19 +555,20 @@ class Checkout extends Client
      */
     private function setInvoiceInfo($orderId,$parameter=null)
     {
-        if(isset($orderId) && isset($parameter)) {
+        if (isset($orderId) && isset($parameter)) {
             $parameter = [
                 'statusHistory' => [
+                    "entity_name" => 'invoiceInfo',
                     "comment" => implode('&', $parameter)
                 ]
             ];
             $this->putParameters($parameter);
             $this->request('POST', 'V1/orders/' . $orderId . '/comments');
-            return true;
 
-        }else{
             return true;
         }
+
+        return false;
     }
 
     /**
