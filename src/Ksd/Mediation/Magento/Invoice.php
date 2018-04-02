@@ -39,11 +39,14 @@ class Invoice extends Client
     public function getOrdersBeforeTenDay()
     {
         $now = Carbon::now();
-        $now->subDays(7);
+        //$now->subDays(7);
+        $now->subDays(2);
 
         $startDate = $now->format('Y-m-d');
-        $now->addDays(1);
+        // $now->addDays(1);
+        $now->addDays(4);
         $endDate = $now->format('Y-m-d');
+
         $result = [];
         try {
             $path = 'V1/orders';
@@ -82,7 +85,6 @@ class Invoice extends Client
      */
     public function transInvoiceFormat($result)
     {
-
         $record_str = "M|";                                     //1.主檔代號(M)
 
         $record_str .= $this->arrayDefault($result, 'increment_id').'|';                    //2.訂單編號
@@ -110,22 +112,27 @@ class Invoice extends Client
         $record_str .= self::BU_CODE.'|';                      //11.賣方廠編
         
         //判斷付款方式，將存到comment的發票資訊帶出來
-        $payment = $this->arrayDefault($result, 'payment');
-        $comment = $this->arrayDefault($result, 'status_histories');
+        // $payment = $this->arrayDefault($result, 'payment');
+        $comments = $this->arrayDefault($result, 'status_histories');
 
         $invoiceTitle = '';
         $unifiedBusinessNo = '';
-        if(isset($payment) && isset($comment)){
-            if($payment['method'] === 'ipasspay'){
-                $data = !empty($comment) ? explode("&",$comment[1]['comment']) : null;
-                $invoiceTitle = $data[0];
-                $unifiedBusinessNo = $data[1];
-            }else{
-                $data = !empty($comment) ? explode("&",$comment[0]['comment']) : null;
-                $invoiceTitle = $data[0];
-                $unifiedBusinessNo = $data[1];
+        if(isset($comments) && is_array($comments)){
+            $invoiceInfo = collect($comments)->filter(function ($comment) {
+                return (isset($comment['entity_name']) && $comment['entity_name'] === 'invoiceInfo');
+            });
+
+            if (!$invoiceInfo->isEmpty()) {
+                $invoiceInfo = $invoiceInfo->first();
+                $invoiceAry = (!empty($invoiceInfo['comment'])) ? explode("&", $invoiceInfo['comment']) : null;
+
+                if ($invoiceAry) {
+                    $invoiceTitle = isset($invoiceAry[0]) ? $invoiceAry[0] : '';
+                    $unifiedBusinessNo = isset($invoiceAry[1]) ? $invoiceAry[1] : '';
+                }
             }
         }
+
         $record_str .= $unifiedBusinessNo .'|';           //12.買方統一編號
 
         $record_str .= $invoiceTitle.'|';         //13.買受人公司名稱
@@ -149,9 +156,9 @@ class Invoice extends Client
             $record_str .= $member->county.                //17.會員地址
                 $member->district.$member->address.'|';
 
-            $record_str .= $member->cellphone.'|';         //18.會員電話
+            $record_str .= '+' . $member->countryCode . $member->cellphone . '|';         //18.會員電話
 
-            $record_str .= $member->cellphone.'|';         //19.會員行動電話
+            $record_str .= '+' . $member->countryCode . $member->cellphone . '|';         //19.會員行動電話
 
             $record_str .= $member->email.'|';             //20.會員電子郵件
 
@@ -185,7 +192,7 @@ class Invoice extends Client
         $payment_method = $this->paymentTypeTrans($payment['method']);
 
 
-        $record_str .= $payment_method.'|';                     //25.付款方式
+        $record_str .= $payment_method . '|';                     //25.付款方式
 
         $record_str .= '|';                                     //26.相關號碼 1(出貨單號),出貨單號顯示在紙本發票列印樣式右邊
 
@@ -212,7 +219,7 @@ class Invoice extends Client
         $record_str .= '|';                                     //35.隨機碼
 
         $record_str .= "\r\n"; //CR+LF
-
+        
         return $record_str;
     }
 
