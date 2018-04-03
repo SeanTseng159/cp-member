@@ -47,7 +47,9 @@ class AutoUploadInvoice extends Command
         $magentoResult = $this->magentoInvoice->getOrdersBeforeTenDay();
         if (count($magentoResult) === 0) return ;
 
-        $businessNo = env('COMPANY_BUSINESS_NO', '53890045');
+        var_dump($magentoResult);
+
+        /*$businessNo = env('COMPANY_BUSINESS_NO', '53890045');
         $now = Carbon::now();
         $fileName = sprintf('%s-O-M-%s.txt',$businessNo, $now->format('Ymd-His'));
         $tempDir = storage_path('order/invoice');
@@ -66,6 +68,6 @@ class AutoUploadInvoice extends Command
 
         $uploadDir = 'Upload';
         $uploadPath = sprintf('%s/%s', $uploadDir, $fileName);
-        $ftpClient->putFile($tempPath, $uploadPath);
+        $ftpClient->putFile($tempPath, $uploadPath);*/
     }
 }

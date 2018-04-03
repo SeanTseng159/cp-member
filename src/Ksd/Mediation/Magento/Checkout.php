@@ -19,6 +19,7 @@ use GuzzleHttp\Exception\ClientException;
 use Log;
 use App\Models\TspgPostback;
 use App\Models\TspgResultUrl;
+use App\Services\MagentoInvoiceService;
 use Ksd\Mediation\Magento\Order;
 use Ksd\Mediation\Helper\EnvHelper;
 
@@ -160,9 +161,7 @@ class Checkout extends Client
      */
     public function creditCard($parameters)
     {
-
-            return $this->putPayment($parameters);
-
+        return $this->putPayment($parameters);
     }
 
     /**
@@ -248,7 +247,7 @@ class Checkout extends Client
         $orderId = !empty($body) ? (trim($body, '"')) : null;
         //如有三聯式發票資訊 抬頭&統編 則存入order/comment
         if(!empty($orderId)) {
-            $admintoken = new Client();
+            /*$admintoken = new Client();
             $this->authorization($admintoken->token);
             if ($parameters->billing()->invoiceTitle && $parameters->billing()->unifiedBusinessNo) {
                 $billingInfo = [
@@ -261,10 +260,19 @@ class Checkout extends Client
             //存入order/comment會有status的bug，須把狀態重新改為pending
             $order = new Order();
             $incrementId =  $order->orderIdToIncrementId(trim($body, '"'));
-            $order->updateOrderState($orderId,$incrementId,'pending');
+            $order->updateOrderState($orderId,$incrementId,'pending');*/
+
+            // 成立發票
+            $magentoInvoiceService = app()->build(MagentoInvoiceService::class);
+
+            $billing = $parameters->billing();
+            $magentoInvoiceService->create([
+                'order_id' => $orderId,
+                'method' => $billing->id,
+                'title' => $billing->invoiceTitle,
+                'ubn' => $billing->unifiedBusinessNo
+            ]);
         }
-
-
 
         return empty($body) ? [] : [ 'id' => trim($body, '"')];
     }
@@ -428,7 +436,7 @@ class Checkout extends Client
             $pay = new TspgPostback();
             $pay->fill($data)->save();
 
-            if(!empty($parameters->billing()->unifiedBusinessNo)) {
+            /*if(!empty($parameters->billing()->unifiedBusinessNo)) {
                 //如有三聯式發票資訊 抬頭&統編 則存入order/comment
                 $billingInfo = [
                     'invoiceTitle' => $parameters->billing()->invoiceTitle,
@@ -440,13 +448,22 @@ class Checkout extends Client
                 $order = new Order();
                 $incrementId = $order->orderIdToIncrementId($orderId);
                 $order->updateOrderState($orderId, $incrementId, 'processing');
-            }
+            }*/
 
+            // 成立發票
+            $magentoInvoiceService = app()->build(MagentoInvoiceService::class);
+
+            $billing = $parameters->billing();
+            $magentoInvoiceService->create([
+                'order_id' => $orderId,
+                'method' => $billing->id,
+                'title' => $billing->invoiceTitle,
+                'ubn' => $billing->unifiedBusinessNo
+            ]);
 
             return [ 'id' => $orderId, 'url' => $url];
 
         }else{
-
             return [];
         }
 
@@ -594,7 +611,4 @@ class Checkout extends Client
         }
 
     }
-
-
-
 }

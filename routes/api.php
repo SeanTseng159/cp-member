@@ -238,7 +238,7 @@ Route::middleware('cors')->namespace('Api')->group(function () {
     });
 
     Route::prefix('service')->group(function () {
-        //台新信用卡回傳
+        //
         Route::get('qa', 'ServiceController@qa');
         Route::post('suggestion', 'ServiceController@suggestion');
     });
