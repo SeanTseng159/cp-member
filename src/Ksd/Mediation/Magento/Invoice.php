@@ -12,6 +12,7 @@ use App\Models\Member;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 use Ksd\Mediation\Helper\ObjectHelper;
+use App\Services\MagentoInvoiceService;
 
 class Invoice extends Client
 {
@@ -23,12 +24,15 @@ class Invoice extends Client
 
     private $businessNo;
     private $member;
+    private $invoiceService;
 
     public function __construct()
     {
         $this->businessNo = env('COMPANY_BUSINESS_NO', '53890045');
         $this->member = new Member();
         parent::__construct();
+
+        $this->invoiceService = app()->build(MagentoInvoiceService::class);
     }
 
 
@@ -39,13 +43,14 @@ class Invoice extends Client
     public function getOrdersBeforeTenDay()
     {
         $now = Carbon::now();
-        //$now->subDays(7);
-        $now->subDays(2);
+        $now->subDays(10);
 
         $startDate = $now->format('Y-m-d');
-        // $now->addDays(1);
-        $now->addDays(4);
+        $now->addDays(1);
         $endDate = $now->format('Y-m-d');
+
+        var_dump($startDate);
+        var_dump($endDate);
 
         $result = [];
         try {
@@ -70,7 +75,8 @@ class Invoice extends Client
         $data = [];
         if (!empty($result['items'])){
             foreach ($result['items'] as $item) {
-                $data[] = $this->transInvoiceFormat($item);
+                $invoice = $this->transInvoiceFormat($item);
+                if ($invoice) $data[] = $invoice;
             }
         }
         return $data;
@@ -85,6 +91,11 @@ class Invoice extends Client
      */
     public function transInvoiceFormat($result)
     {
+        // 檢查發票是否已寄送，送過就pass
+        $orderId = $this->arrayDefault($result, 'entity_id');
+        $check = $this->invoiceService->checkIsCreated($orderId);
+        if ($check) return '';
+
         $record_str = "M|";                                     //1.主檔代號(M)
 
         $record_str .= $this->arrayDefault($result, 'increment_id').'|';                    //2.訂單編號
@@ -110,72 +121,47 @@ class Invoice extends Client
         $record_str .= $this->businessNo.'|';                  //10.賣方統一編號
 
         $record_str .= self::BU_CODE.'|';                      //11.賣方廠編
-        
-        //判斷付款方式，將存到comment的發票資訊帶出來
-        // $payment = $this->arrayDefault($result, 'payment');
-        $comments = $this->arrayDefault($result, 'status_histories');
 
         $invoiceTitle = '';
         $unifiedBusinessNo = '';
-        if(isset($comments) && is_array($comments)){
-            $invoiceInfo = collect($comments)->filter(function ($comment) {
-                return (isset($comment['entity_name']) && $comment['entity_name'] === 'invoiceInfo');
-            });
-
-            if (!$invoiceInfo->isEmpty()) {
-                $invoiceInfo = $invoiceInfo->first();
-                $invoiceAry = (!empty($invoiceInfo['comment'])) ? explode("&", $invoiceInfo['comment']) : null;
-
-                if ($invoiceAry) {
-                    $invoiceTitle = isset($invoiceAry[0]) ? $invoiceAry[0] : '';
-                    $unifiedBusinessNo = isset($invoiceAry[1]) ? $invoiceAry[1] : '';
-                }
-            }
+        // 找出三聯式發票
+        $invoice = $this->invoiceService->find($orderId);
+        if($invoice && $invoice->method == 2) {
+            $invoiceTitle = $invoice->title;
+            $unifiedBusinessNo = $invoice->ubn;
         }
 
-        $record_str .= $unifiedBusinessNo .'|';           //12.買方統一編號
-
+        $record_str .= $unifiedBusinessNo .'|';   //12.買方統一編號
         $record_str .= $invoiceTitle.'|';         //13.買受人公司名稱
         
-        //增加判斷，考量到第三方登錄的到magento有帶前綴magento_xxx@xxx.com
-        if(!empty($this->member->whereEmail($this->arrayDefault($result, 'customer_email'))->first())){
-            $member = $this->member->whereEmail($this->arrayDefault($result, 'customer_email'))->first();
-        }else{
-            $email = explode("_",$this->arrayDefault($result, 'customer_email')) ;
-            $member = $this->member->whereOpenid($email[1])->first();
+        // 找出會員資料
+        $customer_email = $this->arrayDefault($result, 'customer_email');
+        $member = $this->member->where('email', $customer_email)->first();
+
+        // 找不到會員資料，找第三方登入帳號
+        if (!$member) {
+            $oauthAcc = explode("_", $customer_email);
+            $member = $this->member->where('openPlateform', $oauthAcc[0])->where('openId', $oauthAcc[1])->first();
         }
 
-        if(isset($member)){
+        if($member){
+            $email = $member->email ?: $member->openId;
 
-            $record_str .= $member->id.'|';                   //14.會員編號
+            $record_str .= $member->id . '|';                //14.會員編號
 
-            $record_str .= $member->name.'|';              //15.會員姓名
+            $record_str .= $member->name . '|';              //15.會員姓名
 
-            $record_str .= $member->zipcode.'|';           //16.會員郵遞區號
+            $record_str .= $member->zipcode . '|';           //16.會員郵遞區號
 
-            $record_str .= $member->county.                //17.會員地址
-                $member->district.$member->address.'|';
+            $record_str .= $member->address . '|';           //17.會員地址
 
-            $record_str .= '+' . $member->countryCode . $member->cellphone . '|';         //18.會員電話
+            $record_str .= '+' . $member->countryCode . $member->cellphone . '|';  //18.會員電話
 
-            $record_str .= '+' . $member->countryCode . $member->cellphone . '|';         //19.會員行動電話
+            $record_str .= '+' . $member->countryCode . $member->cellphone . '|';  //19.會員行動電話
 
-            $record_str .= $member->email.'|';             //20.會員電子郵件
-
-        }else{
-
-            $record_str .= '|';                                 //15.會員姓名
-
-            $record_str .= '|';                                 //16.會員郵遞區號
-
-            $record_str .= '|';                                 //17.會員地址
-
-            $record_str .= '|';                                 //18.會員電話
-
-            $record_str .= '|';                                 //19.會員行動電話
-
-            $record_str .= '|';                                 //20.會員電子郵件
-
+            $record_str .= $email . '|';             //20.會員電子郵件
+        } else {
+            return '';
         }
 
 
@@ -219,6 +205,11 @@ class Invoice extends Client
         $record_str .= '|';                                     //35.隨機碼
 
         $record_str .= "\r\n"; //CR+LF
+
+        // 註記該發票已開立
+        $this->invoiceService->update($orderId, [
+            'status' => 1
+        ]);
         
         return $record_str;
     }
@@ -243,8 +234,4 @@ class Invoice extends Client
         }
 
     }
-
-
-
-
 }

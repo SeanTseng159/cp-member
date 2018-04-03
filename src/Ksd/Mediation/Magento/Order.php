@@ -616,8 +616,6 @@ class Order extends Client
         }else{
             return null;
         }
-
-
     }
 
     /**
