@@ -63,6 +63,6 @@ class MagentoInvoiceService
             return ($invoice->status !== 0);
         }
 
-        return false;
+        return true;
     }
 }
