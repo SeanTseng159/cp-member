@@ -49,9 +49,6 @@ class Invoice extends Client
         $now->addDays(1);
         $endDate = $now->format('Y-m-d');
 
-        var_dump($startDate);
-        var_dump($endDate);
-
         $result = [];
         try {
             $path = 'V1/orders';
