@@ -16,7 +16,8 @@ use App\Services\TspgPostbackService;
 use App\Traits\JWTTokenHelper;
 use Firebase\JWT\JWT;
 use App\Models\TspgPostbackRecord;
-
+use App\Jobs\Mail\OrderCreatedMail;
+use App\Jobs\Mail\OrderPaymentCompleteMail;
 use Ksd\Mediation\Cache\Key\OrderKey;
 
 class CheckoutRepository extends BaseRepository
@@ -82,6 +83,9 @@ class CheckoutRepository extends BaseRepository
         if($parameters->checkSource(ProjectConfig::MAGENTO)) {
             $result = $this->magento->userAuthorization($this->memberTokenService->magentoUserToken())->confirm($parameters);
 
+            // 寄送訂單成立mail
+            if ($parameters->repay !== 'true' && $result) dispatch(new OrderCreatedMail($this->memberId, $parameters->source, $result->orderNo))->delay(5);
+
             return [
                 'code' => ($result) ? '00000' : 'E9001',
                 'data' => $result
@@ -90,6 +94,9 @@ class CheckoutRepository extends BaseRepository
             $result = $this->cityPass->authorization($this->memberTokenService->cityPassUserToken())->confirm($parameters);
 
             if ($result) {
+
+                if ($parameters->repay !== 'true' && $result['statusCode'] === 201) dispatch(new OrderCreatedMail($this->memberId, $parameters->source, $result['data']->orderNo))->delay(5);
+
                 return [
                     'code' => $result['statusCode'],
                     'data' => $result['data']
@@ -153,17 +160,15 @@ class CheckoutRepository extends BaseRepository
         $pay = new TspgPostbackRecord();
         $pay->fill($record)->save();
 
-
-
         $data = $this->tspgPostbackService->find($parameters->order_no);
 
         $orderFlag = ($parameters->ret_code === "00");
         $updateData=[];
         //更新訂單狀態
-        if ($data->order_source === "magento"){
+        if ($data->order_source === ProjectConfig::MAGENTO){
             $this->magento->updateOrder($data,$parameters);
         }
-        else if ($data->order_source === "ct_pass"){
+        else if ($data->order_source === ProjectConfig::CITY_PASS){
             $this->cityPass->authorization($this->generateToken())->updateOrder($parameters);
         }else{
             $updateData=[
@@ -193,6 +198,9 @@ class CheckoutRepository extends BaseRepository
                 $url .= '/checkout/complete/' . $s . '/' . $data->order_id ;
             }
         }
+
+        // 請求寄送訂單付款完成通知 (如付款失敗，則不發送)
+        dispatch(new OrderPaymentCompleteMail($this->memberId, $data->order_source, $data->order_id))->delay(5);
 
         return ['urlData' => $url, 'platform' => $data->order_device, 'orderFlag' => $orderFlag];
 

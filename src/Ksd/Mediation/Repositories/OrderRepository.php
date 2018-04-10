@@ -162,13 +162,11 @@ class OrderRepository extends BaseRepository
         $source = $parameters->source;
         $id = $parameters->id;
 
-//        return $this->redis->remember("$source:order:$id", CacheConfig::ORDER_TEST_TIME, function () use ($source,$parameters) {
-            if ($parameters->source === ProjectConfig::MAGENTO) {
-                $order = $this->magento->find($parameters);
-            } else if ($parameters->source === ProjectConfig::CITY_PASS) {
-                $order = $this->cityPass->authorization($this->token)->find($parameters->id);
-            }
-//        });
+        if ($parameters->source === ProjectConfig::MAGENTO) {
+            $order = $this->magento->find($parameters);
+        } else if ($parameters->source === ProjectConfig::CITY_PASS) {
+            $order = $this->cityPass->authorization($this->token)->find($parameters->id);
+        }
 
         if (isset($order[0]) && $order[0]) {
             $order[0]->orderer = $this->hideName($this->memberTokenService->getName($this->memberId));
@@ -178,18 +176,26 @@ class OrderRepository extends BaseRepository
     }
 
     /**
+     * 查單一訂單
+     * [需自己帶token]
+     * @param $parameters [source, id, token]
+     * @return \Ksd\Mediation\Result\OrderResult
+     */
+    public function findOne($parameters)
+    {
+        $this->token = $parameters->token;
+        return $this->find($parameters);
+    }
+
+    /**
      * 根據 id 查訂單
      * @param $parameters
      * @return \Ksd\Mediation\Result\OrderResult
      */
     public function findOneByIpassPay($parameters)
     {
-        if ($parameters->source === ProjectConfig::MAGENTO) {
-            return $this->magento->find($parameters);
-        } else if ($parameters->source === ProjectConfig::CITY_PASS) {
-            return $this->cityPass->authorization($parameters->token)->find($parameters->id);
-        }
-        return null;
+        $this->token = $parameters->token;
+        return $this->find($parameters);
     }
 
 

@@ -64,6 +64,17 @@ class OrderService
     }
 
     /**
+     * 查單一訂單
+     * [需自己帶token]
+     * @param $parameters [source, id, token]
+     * @return \Ksd\Mediation\Result\OrderResult
+     */
+    public function findOne($parameters)
+    {
+        return $this->repository->findOne($parameters);
+    }
+
+    /**
      * 根據 id 查詢訂單
      * @param $parameters
      * @return \Ksd\Mediation\Result\OrderResult

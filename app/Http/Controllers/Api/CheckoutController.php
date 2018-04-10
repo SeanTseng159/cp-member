@@ -15,6 +15,7 @@ use Ksd\Mediation\Parameter\Checkout\ResultParameter;
 use Ksd\Mediation\Services\CheckoutService;
 use Ksd\Mediation\Services\CartService;
 use App\Services\Card3dLogService as LogService;
+use App\Jobs\Mail\OrderCreatedMail;
 use Log;
 
 class CheckoutController extends RestLaravelController
@@ -236,6 +237,4 @@ class CheckoutController extends RestLaravelController
         $result = $this->service->result($parameters);
         return $this->success($result);
     }
-
-
 }
