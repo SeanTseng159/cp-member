@@ -45,6 +45,7 @@ class Kernel extends ConsoleKernel
 
         //發送推播訊息
         $schedule->job(new SendNotification())->everyMinute()->withoutOverlapping();
+        
         $schedule->command(AtmSalesAccount::class)->cron('25 * * * * *');
         $schedule->command(AutoUploadInvoice::class)->cron('0 3 * * * *');
         $schedule->command(AtmOrderCheck::class )->dailyAt('02:00');
