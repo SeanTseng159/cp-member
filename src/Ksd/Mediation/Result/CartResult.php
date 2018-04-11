@@ -96,7 +96,7 @@ class CartResult
             $this->useCoupon = $this->arrayDefault($result, 'useCoupon');
         }
         $this->discountAmount = $this->arrayDefault($result, 'discountAmount');
-        $this->discountTotal = $this->arrayDefault($result, 'discountTotal');
+        $this->discountTotal = $this->arrayDefault($result, 'discountTotal') ?: $this->arrayDefault($result, 'payAmount');
         $this->payAmount = $this->arrayDefault($result, 'payAmount');
         $this->shipmentAmount = $this->arrayDefault($result, 'shipmentAmount');
         $this->shipmentFree = $this->arrayDefault($result, 'shipmentFree');
