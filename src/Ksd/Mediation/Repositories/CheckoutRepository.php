@@ -95,7 +95,10 @@ class CheckoutRepository extends BaseRepository
 
             if ($result) {
 
-                if ($parameters->repay !== 'true' && $result['statusCode'] === 201) dispatch(new OrderCreatedMail($this->memberId, $parameters->source, $result['data']->orderNo))->delay(5);
+                /*if ($parameters->repay !== 'true' && $result['statusCode'] === 201) dispatch(new OrderCreatedMail($this->memberId, $parameters->source, $result['data']->orderNo))->delay(5);*/
+
+                \Log::info('=== confirm ===');
+                \Log::debug(print_r($result['data'], true));
 
                 return [
                     'code' => $result['statusCode'],
