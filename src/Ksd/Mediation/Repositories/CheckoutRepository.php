@@ -131,7 +131,7 @@ class CheckoutRepository extends BaseRepository
     public function transmit($parameters)
     {
         if($parameters->checkSource(ProjectConfig::MAGENTO)) {
-            $result = $this->magento->userAuthorization($this->memberTokenService->magentoUserToken())->transmit($parameters);
+            $result = $this->magento->userAuthorization($this->memberTokenService->magentoUserToken())->transmit($this->memberId, $parameters);
 
             // 信用卡結帳此時才拿到真正訂單ＩＤ，所以在這才寄送訂單成立mail
             if ($result) {
@@ -140,7 +140,7 @@ class CheckoutRepository extends BaseRepository
 
             return $result;
         } else if ($parameters->checkSource(ProjectConfig::CITY_PASS)) {
-            return $this->cityPass->authorization($this->generateToken())->transmit($parameters);
+            return $this->cityPass->authorization($this->generateToken())->transmit($this->memberId, $parameters);
         }
     }
 
@@ -206,7 +206,7 @@ class CheckoutRepository extends BaseRepository
         }
 
         // 請求寄送訂單付款完成通知 (如付款失敗，則不發送)
-        if ($orderFlag) dispatch(new OrderPaymentCompleteMail($this->memberId, $data->order_source, $data->order_id))->delay(5);
+        if ($orderFlag) dispatch(new OrderPaymentCompleteMail($data->member_id, $data->order_source, $data->order_id))->delay(5);
 
         return ['urlData' => $url, 'platform' => $data->order_device, 'orderFlag' => $orderFlag];
 
