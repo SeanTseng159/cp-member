@@ -13,6 +13,8 @@ use GuzzleHttp\Exception\ServerException;
 use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
 
+use App\Jobs\Mail\MagentoOrderATMCompleteMail;
+
 class Payment extends Client
 {
     public function tspgATMReturn($result)
@@ -26,9 +28,10 @@ class Payment extends Client
                     $body = $response->getBody()->getContents();
                     $data = json_decode($body, true);
                     if (count($data) > 1) {
+                        $orderId = intval($data[0]);
                         $parameter = [
                             'entity' => [
-                                'entity_id' => intval($data[0]),
+                                'entity_id' => $orderId,
                                 'increment_id' => $data[1],
                                 'status' => 'processing',
                             ]
@@ -37,6 +40,8 @@ class Payment extends Client
                         $this->clear();
                         $this->putParameters($parameter);
                         $this->request('PUT', 'V1/orders/create');
+
+                        dispatch(new MagentoOrderATMCompleteMail($orderId))->delay(5);
                     }
                 } catch (\Exception $e) {
                     Log::error('Magento tspgATMReturn fail: account='. $row->customerVirtualAccount);

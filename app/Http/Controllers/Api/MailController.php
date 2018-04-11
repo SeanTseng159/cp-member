@@ -8,6 +8,8 @@ use Ksd\Mediation\Core\Controller\RestLaravelController;
 
 use App\Jobs\Mail\OrderPaymentCompleteMail;
 
+use App\Jobs\Mail\MagentoOrderATMCompleteMail;
+
 class MailController extends RestLaravelController
 {
 

@@ -73,7 +73,7 @@ class Order extends Client
     }
 
     /**
-     * 取得所有訂單列表\
+     * 取得所有待付款訂單列表
      * @param $email
      * @return array
      */
@@ -340,11 +340,11 @@ class Order extends Client
     /**
      * 根據訂單 id 查詢訂單資訊
      * @param $parameters
+     * @param $useMergeResult [是否輸出整合後結果]
      * @return array
      */
-    public function find($parameters)
+    public function find($parameters, $useMergeResult = true)
     {
-
         $id = $parameters->id;
 
         $path = sprintf('V1/orders/%s', $id);
@@ -352,14 +352,17 @@ class Order extends Client
         $body = $response->getBody();
         $result = json_decode($body, true);
 
-        $data = [];
-        $order = new OrderResult();
-        $order->magento($result,true);
-        $data[] = $order;
+        if ($useMergeResult) {
+            $data = [];
+            $order = new OrderResult();
+            $order->magento($result,true);
+            $data[] = $order;
 
-
-
-        return $data;
+            return $data;
+        }
+        else {
+            return $result;
+        }
     }
 
     /**

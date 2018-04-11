@@ -149,7 +149,9 @@ class MemberRepository
      */
     public function find($id)
     {
-        return $this->model->find($id);
+        $member = $this->model->find($id);
+
+        return $this->memberEmailMapping($member);
     }
 
     /**
@@ -169,7 +171,9 @@ class MemberRepository
      */
     public function findByToken($token)
     {
-        return $this->model->whereToken($token)->first();
+        $member = $this->model->whereToken($token)->first();
+
+        return $this->memberEmailMapping($member);
     }
 
     /**
@@ -180,7 +184,9 @@ class MemberRepository
      */
     public function findByPhone($countryCode, $cellphone)
     {
-        return $this->model->where(['countryCode' => $countryCode, 'cellphone' => $cellphone])->first();
+        $member = $this->model->where(['countryCode' => $countryCode, 'cellphone' => $cellphone])->first();
+
+        return $this->memberEmailMapping($member);
     }
 
     /**
@@ -192,7 +198,9 @@ class MemberRepository
      */
     public function findByCountryPhone($country, $countryCode, $cellphone)
     {
-        return $this->model->where(['country' => $country, 'countryCode' => $countryCode, 'cellphone' => $cellphone])->first();
+        $member = $this->model->where(['country' => $country, 'countryCode' => $countryCode, 'cellphone' => $cellphone])->first();
+
+        return $this->memberEmailMapping($member);
     }
 
     /**
@@ -204,7 +212,9 @@ class MemberRepository
      */
     public function findValidByCountryPhone($country, $countryCode, $cellphone)
     {
-        return $this->model->where(['country' => $country, 'countryCode' => $countryCode, 'cellphone' => $cellphone, 'isValidPhone' => 1, 'isRegistered' => 1])->first();
+        $member = $this->model->where(['country' => $country, 'countryCode' => $countryCode, 'cellphone' => $cellphone, 'isValidPhone' => 1, 'isRegistered' => 1])->first();
+
+        return $this->memberEmailMapping($member);
     }
 
     /**
@@ -215,7 +225,9 @@ class MemberRepository
      */
     public function findBySocialId($socialId)
     {
-        return $this->model->where(['socialId' => $socialId])->first();
+        $member = $this->model->where(['socialId' => $socialId])->first();
+
+        return $this->memberEmailMapping($member);
     }
 
     /**
@@ -226,8 +238,22 @@ class MemberRepository
      */
     public function findByOpenId($openId, $openPlateform)
     {
-        return $this->model->where(['openId' => $openId, 'openPlateform' => $openPlateform])->first();
+        $member = $this->model->where(['openId' => $openId, 'openPlateform' => $openPlateform])->first();
+
+        return $this->memberEmailMapping($member);
     }
 
+    /**
+     * 對應第三方登入使用者的Email
+     * @param $member
+     * @return mixed
+     */
+    private function memberEmailMapping($member)
+    {
+        if ($member && $member->openPlateform != 'citypass') {
+            $member->email = $member->openId;
+        }
 
+        return $member;
+    }
 }
