@@ -80,7 +80,7 @@ class OrderPaymentCompleteMail implements ShouldQueue
         ];
 
         $data = [
-            'order' => $order,
+            'orderNo' => $order->orderNo,
             'url' => env('CITY_PASS_WEB') . 'zh-TW/orders'
         ];
 
