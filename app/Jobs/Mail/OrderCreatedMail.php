@@ -17,6 +17,7 @@ use App\Services\MailService;
 use App\Services\MemberService;
 use Ksd\Mediation\Services\MemberTokenService;
 use Ksd\Mediation\Services\OrderService;
+use Log;
 
 class OrderCreatedMail implements ShouldQueue
 {
@@ -53,6 +54,9 @@ class OrderCreatedMail implements ShouldQueue
         // get member
         $member = $memberService->find($this->memberId);
 
+        Log::info('=== 寄送訂單成立信 - 會員 ===');
+        Log::debug(print_r($member, true));
+
         // 假如會員不存在，則離開
         if (!$member) return;
 
@@ -63,6 +67,9 @@ class OrderCreatedMail implements ShouldQueue
         $parameters->token = $MemberTokenService->generateToken($this->memberId);
         $order = $orderService->findOne($parameters);
         $order = (isset($order[0]) && $order[0]) ? $order[0] : null;
+
+        Log::info('=== 寄送訂單成立信 - 訂單 ===');
+        Log::debug(print_r($order, true));
 
         // 假如訂單不存，則離開
         if (!$order) return;
@@ -77,6 +84,6 @@ class OrderCreatedMail implements ShouldQueue
             'url' => env('CITY_PASS_WEB') . 'zh-TW/orders'
         ];
 
-        $mailService->send("CityPass都會通 - 訂單成立通知(訂單編號：{$this->orderNo}))", $recipient, 'emails/orderCreated', $data);
+        $mailService->send("CityPass都會通 - 訂單成立通知(訂單編號：{$order->orderNo}))", $recipient, 'emails/orderCreated', $data);
     }
 }

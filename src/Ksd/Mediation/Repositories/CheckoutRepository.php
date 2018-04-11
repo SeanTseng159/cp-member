@@ -83,8 +83,8 @@ class CheckoutRepository extends BaseRepository
         if($parameters->checkSource(ProjectConfig::MAGENTO)) {
             $result = $this->magento->userAuthorization($this->memberTokenService->magentoUserToken())->confirm($parameters);
 
-            // 寄送訂單成立mail
-            if ($parameters->repay !== 'true' && $result) dispatch(new OrderCreatedMail($this->memberId, $parameters->source, $result['id']))->delay(5);
+            // 寄送訂單成立mail，信用卡結帳不在此寄信
+            if ($parameters->repay !== 'true' && $parameters->payment()->type !== 'credit_card' && $result) dispatch(new OrderCreatedMail($this->memberId, $parameters->source, $result['id']))->delay(5);
 
             return [
                 'code' => ($result) ? '00000' : 'E9001',
@@ -131,7 +131,14 @@ class CheckoutRepository extends BaseRepository
     public function transmit($parameters)
     {
         if($parameters->checkSource(ProjectConfig::MAGENTO)) {
-            return $this->magento->userAuthorization($this->memberTokenService->magentoUserToken())->transmit($parameters);
+            $result = $this->magento->userAuthorization($this->memberTokenService->magentoUserToken())->transmit($parameters);
+
+            // 信用卡結帳此時才拿到真正訂單ＩＤ，所以在這才寄送訂單成立mail
+            if ($result) {
+                dispatch(new OrderCreatedMail($this->memberId, $parameters->source, $result['id']))->delay(5);
+            }
+
+            return $result;
         } else if ($parameters->checkSource(ProjectConfig::CITY_PASS)) {
             return $this->cityPass->authorization($this->generateToken())->transmit($parameters);
         }
@@ -199,7 +206,7 @@ class CheckoutRepository extends BaseRepository
         }
 
         // 請求寄送訂單付款完成通知 (如付款失敗，則不發送)
-        dispatch(new OrderPaymentCompleteMail($this->memberId, $data->order_source, $data->order_id))->delay(5);
+        if ($orderFlag) dispatch(new OrderPaymentCompleteMail($this->memberId, $data->order_source, $data->order_id))->delay(5);
 
         return ['urlData' => $url, 'platform' => $data->order_device, 'orderFlag' => $orderFlag];
 

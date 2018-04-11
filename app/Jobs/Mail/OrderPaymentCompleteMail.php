@@ -17,6 +17,7 @@ use App\Services\MailService;
 use App\Services\MemberService;
 use Ksd\Mediation\Services\MemberTokenService;
 use Ksd\Mediation\Services\OrderService;
+use Log;
 
 class OrderPaymentCompleteMail implements ShouldQueue
 {
@@ -53,6 +54,9 @@ class OrderPaymentCompleteMail implements ShouldQueue
         // get member
         $member = $memberService->find($this->memberId);
 
+        Log::info('=== 寄送訂單付款完成信 - 會員 ===');
+        Log::debug(print_r($member, true));
+
         // 假如會員不存在，則離開
         if (!$member) return;
 
@@ -63,6 +67,9 @@ class OrderPaymentCompleteMail implements ShouldQueue
         $parameters->token = $MemberTokenService->generateToken($this->memberId);
         $order = $orderService->findOne($parameters);
         $order = (isset($order[0]) && $order[0]) ? $order[0] : null;
+
+        Log::info('=== 寄送訂單付款完成信 - 訂單 ===');
+        Log::debug(print_r($order, true));
 
         // 假如訂單不存或未付款完成，則離開
         if (!$order || $order->StatusCode !== '01') return;
@@ -77,6 +84,6 @@ class OrderPaymentCompleteMail implements ShouldQueue
             'url' => env('CITY_PASS_WEB') . 'zh-TW/orders'
         ];
 
-        $mailService->send("CityPass都會通 - 訂單繳費完成通知(訂單編號：{$this->orderNo}))", $recipient, 'emails/orderPaymentComplete', $data);
+        $mailService->send("CityPass都會通 - 訂單繳費完成通知(訂單編號：{$order->orderNo}))", $recipient, 'emails/orderPaymentComplete', $data);
     }
 }
