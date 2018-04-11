@@ -46,6 +46,11 @@ Route::middleware(['cors', 'admin.jwt'])->namespace('Api')->group(function () {
         Route::post('result', 'IpassPayController@result');
     });
 
+    Route::prefix('mail')->group(function () {
+        //發送繳款完成通知信
+        Route::post('paymentComplete', 'MailController@paymentComplete');
+    });
+
 });
 
 // 需 token 認證的 route
