@@ -376,7 +376,7 @@ class Checkout extends Client
      * @param $parameters
      * @return array
      */
-    public function transmit($parameters)
+    public function transmit($memberId, $parameters)
     {
         $parameter = [
             'paymentMethod' => [
@@ -425,6 +425,7 @@ class Checkout extends Client
             $source = $result['payment']['additional_information'][1];
             $order_No = $this->env('MAGENTO_ORDER_PREFIX').$orderNo;
             $data = [
+                'member_id' => $memberId,
                 'order_id' => $orderId,
                 'order_no' => $order_No,
                 'order_device' => $device,

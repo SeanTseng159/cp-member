@@ -98,7 +98,7 @@ class Checkout extends Client
      * @param $parameters
      * @return mixed
      */
-    public function transmit($parameters)
+    public function transmit($memberId, $parameters)
     {
 
         $parameter = [
@@ -121,6 +121,7 @@ class Checkout extends Client
             $url = $result['data']['result_url'];
 
             $data = [
+                'member_id' => $memberId,
                 'order_id' => $orderId,
                 'order_no' => $webpayOrderNo,
                 'order_device' => $parameters->device,
