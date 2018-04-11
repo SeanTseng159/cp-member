@@ -50,3 +50,10 @@ Route::get('about', function () {
 Route::get('e-ticket-use', function () {
     return view('web.e-ticket-use');
 });
+
+Route::get('mailtest', function () {
+    return view('emails.orderPaymentComplete', [
+        'orderNo' => '20183737833',
+        'url' => env('CITY_PASS_WEB') . 'zh-TW/orders'
+    ]);
+});
