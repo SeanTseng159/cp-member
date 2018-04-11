@@ -72,7 +72,7 @@ class OrderPaymentCompleteMail implements ShouldQueue
         Log::debug(print_r($order, true));
 
         // 假如訂單不存或未付款完成，則離開
-        if (!$order || $order->StatusCode !== '01') return;
+        if (!$order || $order->orderStatusCode !== '01') return;
 
         $recipient = [
             'email' => $member->email,
