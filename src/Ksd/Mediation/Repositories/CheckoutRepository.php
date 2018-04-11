@@ -84,7 +84,7 @@ class CheckoutRepository extends BaseRepository
             $result = $this->magento->userAuthorization($this->memberTokenService->magentoUserToken())->confirm($parameters);
 
             // 寄送訂單成立mail
-            if ($parameters->repay !== 'true' && $result) dispatch(new OrderCreatedMail($this->memberId, $parameters->source, $result->orderNo))->delay(5);
+            if ($parameters->repay !== 'true' && $result) dispatch(new OrderCreatedMail($this->memberId, $parameters->source, $result['id']))->delay(5);
 
             return [
                 'code' => ($result) ? '00000' : 'E9001',
@@ -94,8 +94,7 @@ class CheckoutRepository extends BaseRepository
             $result = $this->cityPass->authorization($this->memberTokenService->cityPassUserToken())->confirm($parameters);
 
             if ($result) {
-
-                if ($parameters->repay !== 'true' && $result['statusCode'] === 201) dispatch(new OrderCreatedMail($this->memberId, $parameters->source, $result['data']->orderNo))->delay(5);
+                if ($parameters->repay !== 'true' && $result['statusCode'] === 201) dispatch(new OrderCreatedMail($this->memberId, $parameters->source, $result['data']['orderNo']))->delay(5);
 
                 return [
                     'code' => $result['statusCode'],
