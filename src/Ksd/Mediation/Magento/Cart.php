@@ -187,12 +187,12 @@ class Cart extends Client
             }
             catch (ClientException $e) {
                 // TODO:更新購物車失敗
-                $isAdd = false;
+                $isUpdate = false;
                 break;
             }
         }
 
-        return $isAdd;
+        return $isUpdate;
     }
 
     /**
