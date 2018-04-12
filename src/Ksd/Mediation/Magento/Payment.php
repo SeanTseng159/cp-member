@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
 
 use App\Jobs\Mail\MagentoOrderATMCompleteMail;
+use Ksd\Mediation\Magento\Invoice as MagentoInvoice;
 
 class Payment extends Client
 {
@@ -41,7 +42,13 @@ class Payment extends Client
                         $this->putParameters($parameter);
                         $this->request('PUT', 'V1/orders/create');
 
+                        // 寄送訂單繳費完成信
                         dispatch(new MagentoOrderATMCompleteMail($orderId))->delay(5);
+                        // 自動開立magento發票
+                        $invoice = new MagentoInvoice;
+                        $parameters = new \stdClass;
+                        $parameters->id = $orderId;
+                        $invoice->createMagentoInvoice($parameters);
                     }
                 } catch (\Exception $e) {
                     Log::error('Magento tspgATMReturn fail: account='. $row->customerVirtualAccount);
