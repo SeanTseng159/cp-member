@@ -51,6 +51,7 @@ class MemberParameter
     {
         $parameter['openPlateform'] = 'ipass';
         $parameter['openId'] = $member->email;
+        $parameter['isTw'] = $member->local;
         $parameter['socialId'] = $member->idn;
         $parameter['name'] = $member->name;
         $parameter['zipcode'] = $member->zipcode;
