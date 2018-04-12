@@ -19,6 +19,7 @@ use App\Models\TspgPostbackRecord;
 use App\Jobs\Mail\OrderCreatedMail;
 use App\Jobs\Mail\OrderPaymentCompleteMail;
 use Ksd\Mediation\Cache\Key\OrderKey;
+use Ksd\Mediation\Magento\Invoice as MagentoInvoice;
 
 class CheckoutRepository extends BaseRepository
 {
@@ -206,7 +207,14 @@ class CheckoutRepository extends BaseRepository
         }
 
         // 請求寄送訂單付款完成通知 (如付款失敗，則不發送)
-        if ($orderFlag) dispatch(new OrderPaymentCompleteMail($data->member_id, $data->order_source, $data->order_id))->delay(5);
+        if ($orderFlag) {
+            dispatch(new OrderPaymentCompleteMail($data->member_id, $data->order_source, $data->order_id))->delay(5);
+
+            $invoice = new MagentoInvoice;
+            $parameters = new \stdClass;
+            $parameters->id = $data->order_id;
+            $invoice->createMagentoInvoice($parameters);
+        }
 
         return ['urlData' => $url, 'platform' => $data->order_device, 'orderFlag' => $orderFlag];
 
