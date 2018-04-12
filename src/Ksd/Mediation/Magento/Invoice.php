@@ -8,11 +8,13 @@
 
 namespace Ksd\Mediation\Magento;
 
+use GuzzleHttp\Exception\ClientException;
 use App\Models\Member;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 use Ksd\Mediation\Helper\ObjectHelper;
 use App\Services\MagentoInvoiceService;
+use Ksd\Mediation\Magento\Order;
 
 class Invoice extends Client
 {
@@ -230,5 +232,39 @@ class Invoice extends Client
             return "";
         }
 
+    }
+
+    /**
+     * 自動開立magento發票
+     * @param $parameters
+     * @return boolean
+     */
+    public function createMagentoInvoice($parameters)
+    {
+        try {
+            \Log::info('=== 自動開立magento發票 ===');
+            
+            $order = (new Order)->find($parameters);
+            $order = (isset($order[0]) && $order[0]) ? $order[0] : null;
+
+            if (!$order || $order->orderStatusCode !== '01') return false;
+
+            $parameter = [
+                'capture' => true,
+                'notify' => false
+            ];
+            $this->putParameters($parameter);
+
+            $path = sprintf('V1/order/%s/invoice', $parameters->id);
+            $response = $this->request('POST', $path);
+            $body = $response->getBody();
+            $result = json_decode($body, true);
+
+            \Log::debug(print_r($result, true));
+
+            return (isset($result));
+        } catch (ClientException $e){
+            return false;
+        }
     }
 }
