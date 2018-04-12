@@ -260,8 +260,6 @@ class Invoice extends Client
             $body = $response->getBody();
             $result = json_decode($body, true);
 
-            \Log::debug(print_r($result, true));
-
             return (isset($result));
         } catch (ClientException $e){
             return false;
