@@ -74,11 +74,11 @@ class MemberController extends Controller
             if ($ipassMember->statusCode !== 200) return redirect('ipass/login/' . $this->platform);
             $memberData = $ipassMember->data;
 
+            Log::info('=== ipass 會員資料 ===');
+            Log::debug(print_r($memberData, true));
+
             // 檢查openId是否存在 (已註冊)
             $member = $this->memberService->findByOpenId($memberData->email, self::OPEN_PLATEFORM);
-
-            Log::info('=== ipass 檢查openId是否存在 ===');
-            Log::debug(print_r($member, true));
 
             // 會員已註冊，登入會員
             if ($member && $member->status && $member->isRegistered) {
@@ -87,18 +87,6 @@ class MemberController extends Controller
                 Log::info('=== ipass 會員已註冊，登入會員 ===');
             }
             else {
-                // 檢查帳號是否一樣並合併
-                /*$member = $this->memberService->findByEmail($memberData->email);
-
-                if ($member && $member->isRegistered) {
-                    // 帳號存在並已註冊citypass會員，做合併
-                }
-                else {
-                    // 帳號存在但未完成註冊citypass會員 or 帳號不存在
-                    $member = $this->memberService->create($parameter);
-                    if (!$member) return $this->failureRedirect();
-                }*/
-
                 // 檢查手機是否已使用，未使用自動帶入
                 $phoneUtil = \libphonenumber\PhoneNumberUtil::getInstance();
 
