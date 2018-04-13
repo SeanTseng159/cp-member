@@ -44,8 +44,10 @@ class AutoUploadInvoice extends Command
      */
     public function handle()
     {
-        $magentoResult = $this->magentoInvoice->getOrdersBeforeTenDay();
-        if (count($magentoResult) === 0) return ;
+        $generationInvoices = $this->magentoInvoice->generationInvoice();
+        $invalidInvoices = $this->magentoInvoice->invalidInvoice();
+        $invoices = array_merge($generationInvoices, $invalidInvoices);
+        if (count($invoices) === 0) return;
 
         $businessNo = env('COMPANY_BUSINESS_NO', '53890045');
         $now = Carbon::now();
@@ -56,7 +58,7 @@ class AutoUploadInvoice extends Command
             File::makeDirectory($tempDir, 0755, true);
         }
 
-        File::put($tempPath, $magentoResult);
+        File::put($tempPath, $invoices);
 
         // 金財通 ftp 設定
         $ftpHost = env('BPSCM_INVOICE_FTP_HOST','61.57.227.80');

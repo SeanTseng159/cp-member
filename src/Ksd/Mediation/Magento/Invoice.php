@@ -37,10 +37,10 @@ class Invoice extends Client
 
 
     /**
-     * 取得十天前Complete訂單並組成發票格式
+     * 取得十天前Complete訂單並組成發票格式 (開立)
      * @return array
      */
-    public function getOrdersBeforeTenDay()
+    public function generationInvoice()
     {
         $now = Carbon::now();
         $now->subDays(10);
@@ -72,7 +72,49 @@ class Invoice extends Client
         $data = [];
         if (!empty($result['items'])){
             foreach ($result['items'] as $item) {
-                $invoice = $this->transInvoiceFormat($item);
+                $invoice = $this->transInvoiceFormat($item, '0');
+                if ($invoice) $data[] = $invoice;
+            }
+        }
+        return $data;
+
+    }
+
+    /**
+     * 取得一天前Complete訂單並組成發票格式 (作廢、折讓)
+     * @return array
+     */
+    public function invalidInvoice()
+    {
+        $now = Carbon::now();
+
+        $startDate = $now->subDays(2)->format('Y-m-d');
+        $endDate = $now->addDays(3)->format('Y-m-d');
+
+        $result = [];
+        try {
+            $path = 'V1/orders';
+            $response = $this
+                ->putQuery('searchCriteria[filterGroups][0][filters][0][field]', 'status')
+                ->putQuery('searchCriteria[filterGroups][0][filters][0][value]', 'closed')
+                ->putQuery('searchCriteria[filterGroups][1][filters][0][field]', 'updated_at')
+                ->putQuery('searchCriteria[filterGroups][1][filters][0][value]', $startDate)
+                ->putQuery('searchCriteria[filterGroups][1][filters][0][condition_type]', 'from')
+                ->putQuery('searchCriteria[filterGroups][2][filters][0][field]', 'updated_at')
+                ->putQuery('searchCriteria[filterGroups][2][filters][0][value]', $endDate)
+                ->putQuery('searchCriteria[filterGroups][2][filters][0][condition_type]', 'to')
+                ->request('GET', $path);
+            $body = $response->getBody();
+            $result = json_decode($body, true);
+        } catch (\Exception $e) {
+            // TODO:抓不到MAGENTO API訂單資料
+            Log::debug($e);
+        }
+
+        $data = [];
+        if (!empty($result['items'])){
+            foreach ($result['items'] as $item) {
+                $invoice = $this->transInvoiceFormat($item, '2');
                 if ($invoice) $data[] = $invoice;
             }
         }
@@ -86,18 +128,31 @@ class Invoice extends Client
      * @return string
      *
      */
-    public function transInvoiceFormat($result)
+    public function transInvoiceFormat($result, $status = null)
     {
+        if (!is_string($status)) return '';
+
         // 檢查發票是否已寄送，送過就pass
         $orderId = $this->arrayDefault($result, 'entity_id');
-        $check = $this->invoiceService->checkIsCreated($orderId);
-        if ($check) return '';
+
+        // 開立發票
+        if ($status === '0') {
+            // 檢查是否已開立
+            if ($this->invoiceService->checkIsCreated($orderId)) return '';
+        }
+        elseif ($status === '2' || $status === '3') {
+            // 檢查是否已作廢
+            if ($this->invoiceService->checkIsInvalid($orderId)) return '';
+            // 判斷該寫入 作廢 或 折讓
+            $status = $this->invoiceService->getStatusIsInvalidOrDebit($orderId);
+            if (!$status) return '';
+        }
 
         $record_str = "M|";                                     //1.主檔代號(M)
 
         $record_str .= $this->arrayDefault($result, 'increment_id').'|';                    //2.訂單編號
 
-        $record_str .= '0|';                                    //3.訂單狀態:0.新增 1.修單 2.刪除 3.折讓
+        $record_str .= $status . '|';                                    //3.訂單狀態:0.新增 1.修單 2.刪除 3.折讓
 
         $date_time = explode(" ",$this->arrayDefault($result, 'created_at'));
         $order_date = str_replace("-","/",$date_time[0]);
@@ -203,12 +258,36 @@ class Invoice extends Client
 
         $record_str .= "\r\n"; //CR+LF
 
-        // 註記該發票已開立
+        // 更新發票狀態
         $this->invoiceService->update($orderId, [
-            'status' => 1
+            'status' => $this->invoiceStatus($status)
         ]);
         
         return $record_str;
+    }
+
+    /**
+     * 轉換發票狀態
+     * @param $key
+     * @return string
+     */
+    public function invoiceStatus($status)
+    {
+        switch ($status) {
+            case '0':
+                $updateStatus = 1;
+                break;
+            case '2':
+                $updateStatus = 2;
+                break;
+            case '3':
+                $updateStatus = 3;
+                break;
+            default:
+                $updateStatus = 0;
+        }
+
+        return $updateStatus;
     }
 
     /**
