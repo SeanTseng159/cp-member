@@ -43,12 +43,17 @@ class Kernel extends ConsoleKernel
         // $schedule->command('inspire')
         //          ->hourly();
 
-        //發送推播訊息
+        // 發送推播訊息
         $schedule->job(new SendNotification())->everyMinute()->withoutOverlapping();
-        
+
+        // 撈取ftp atm檔案，更新訂單
         $schedule->command(AtmSalesAccount::class)->cron('25 * * * * *');
-        $schedule->command(AutoUploadInvoice::class)->cron('10 9 * * * *');
-        $schedule->command(AtmOrderCheck::class )->dailyAt('02:00');
+
+        // 處理開立發票
+        $schedule->command(AutoUploadInvoice::class)->dailyAt('08:00');
+
+        // 移除magento過期ATM訂單
+        $schedule->command(AtmOrderCheck::class)->dailyAt('02:00');
 
         // ipaypass 更新ATM狀態
         // $schedule->command(PayResult::class)->cron('10 * * * * *');
