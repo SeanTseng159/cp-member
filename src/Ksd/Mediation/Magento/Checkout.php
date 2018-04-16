@@ -127,9 +127,10 @@ class Checkout extends Client
      */
     public function shipment($parameters)
     {
-
         $comment = $parameters->shipment()->remark;
-        $this->putComment($comment);
+        $resultPutComment = $this->putComment($comment);
+        if ($resultPutComment !== '00000') return $resultPutComment;
+
         return $this->putShipping($parameters->shipment());
     }
 
@@ -188,9 +189,10 @@ class Checkout extends Client
             $response = $this->request('POST', 'V1/carts/mine/shipping-information');
             $result = json_decode($response->getBody(), true);
         }catch (ClientException $e){
-            throw new ShipmentFailException();
+            // throw new ShipmentFailException();
+            return 'E9009';
         }
-        return isset($result['payment_methods']) ? true : false;
+        return isset($result['payment_methods']) ? '00000' : 'E9002';
 
     }
 
@@ -209,14 +211,15 @@ class Checkout extends Client
             try {
                 $response = $this->request('PUT', 'V1/carts/mine/set-order-comment');
                 $result = json_decode($response->getBody(), true);
-            }catch (ClientException $e){
-                throw new ShipmentFailException();
+
+                return '00000';
+            } catch (ClientException $e) {
+                // throw new ShipmentFailException();
+                return 'E9009';
             }
-            return true;
-        }else{
-            return false;
         }
 
+        return 'E0001';
     }
 
     /**
