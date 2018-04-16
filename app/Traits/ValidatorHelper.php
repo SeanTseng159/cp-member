@@ -88,4 +88,14 @@ trait ValidatorHelper
             'cellphone' => $cellphone,
         ];
     }
+
+    /**
+     * 驗證地址
+     * @param address $address
+     * @return boolean
+     */
+    public function VerifyAddress($address)
+    {
+        return (preg_match("/([0-9]+[號号])|([nN][oO])/", $address));
+    }
 }

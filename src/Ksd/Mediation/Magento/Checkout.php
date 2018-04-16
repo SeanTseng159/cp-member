@@ -243,6 +243,8 @@ class Checkout extends Client
         }catch (ClientException $e){
             Log::debug('===magento非信用卡結帳(atm)===');
             Log::debug($e);
+
+            return false;
         }
         $orderId = !empty($body) ? (trim($body, '"')) : null;
         //如有三聯式發票資訊 抬頭&統編 則存入order/comment
