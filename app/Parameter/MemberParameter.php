@@ -42,7 +42,8 @@ class MemberParameter
             'id',
             'password',
             'email',
-            'newsletter'
+            'newsletter',
+            'checkCellphone'
         ]);
 
         if ($request->phoneNumber) {
