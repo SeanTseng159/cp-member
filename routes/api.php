@@ -91,7 +91,8 @@ Route::middleware(['cors', 'auth.jwt'])->namespace('Api')->group(function () {
         // 取得結帳資訊
         Route::get('info/{source}', 'CheckoutController@info');
         // 設定物流方式
-        Route::post('shipment', 'CheckoutController@shipment');
+        Route::post('shipment', 'CheckoutController@shipment')
+            ->middleware('verify.checkout.shipment');
         // 確定結帳 (回傳訂單號，非信用卡)
         Route::post('confirm', 'CheckoutController@confirm');
     });
