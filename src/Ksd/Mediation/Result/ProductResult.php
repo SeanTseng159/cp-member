@@ -64,6 +64,7 @@ class ProductResult
             $this->storeAddress = null;
             $this->quantity = $result['extension_attributes']['stock_item']['qty'];
             $this->maxQuantity = $result['extension_attributes']['stock_item']['max_sale_qty'];
+            $this->combos = null;
             $this->additionals = null;
             $this->purchase = null;
             if (array_key_exists('media_gallery_entries', $result)) {
@@ -112,6 +113,7 @@ class ProductResult
             $this->quantity = $this->arrayDefault($result, 'quantity');
             $this->maxQuantity = $this->arrayDefault($result, 'quantity');
             $this->contents = $this->arrayDefault($result, 'contents');
+            $this->combos = $this->arrayDefault($result, 'combos');
             $this->additionals = $this->arrayDefault($result, 'additionals');
             $this->purchase = $this->arrayDefault($result, 'purchase');
             $this->imageUrls = $this->arrayDefault($result, 'imageUrls');
@@ -191,7 +193,7 @@ class ProductResult
         ];
         if ($isDetail) {
             $detailColumns = [
-                'saleStatus', 'saleStatusCode', 'canUseCoupon', 'quantity', 'contents', 'additionals', 'purchase','imageUrls', 'isBook'
+                'saleStatus', 'saleStatusCode', 'canUseCoupon', 'quantity', 'contents', 'combos', 'additionals', 'purchase','imageUrls', 'isBook'
             ];
             $columns = array_merge($columns, $detailColumns);
         }
