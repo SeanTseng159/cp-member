@@ -308,10 +308,20 @@ class MemberController extends RestLaravelController
     public function sendValidPhoneCode(Request $request)
     {
         $id = $request->input('id');
+        $phoneNumber = $request->phoneNumber;
 
-        $member = $this->memberService->update($id, [
-            'validPhoneCode' => strval(mt_rand(100000, 999999))
-        ]);
+        if ($phoneNumber) {
+            $member = $this->memberService->update($id, [
+                    'countryCode' => $phoneNumber['countryCode'],
+                    'cellphone' => $phoneNumber['cellphone'],
+                    'country' => $phoneNumber['country']
+                ]);
+        }
+        else {
+            $member = $this->memberService->update($id, [
+                    'validPhoneCode' => strval(mt_rand(100000, 999999))
+                ]);
+        }
 
         //傳送簡訊認證
         $this->memberService->sendRegisterSMS($member);

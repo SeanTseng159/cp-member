@@ -52,13 +52,13 @@ class SendValidPhoneCode
             if (!$phoneNumber) return $this->apiRespFailCode('E0301');
 
             // 確認手機是否使用
-            if ($this->memberService->checkPhoneIsUseForUpdate($phoneNumber['country'], $phoneNumber['countryCode'], $phoneNumber['cellphone'])) {
+            if ($this->memberService->checkPhoneIsUse($phoneNumber['country'], $phoneNumber['countryCode'], $phoneNumber['cellphone'])) {
                 return $this->apiRespFailCode('A0031');
             }
 
             $request->phoneNumber = $phoneNumber;
         }
-        
+
         return $next($request);
     }
 }
