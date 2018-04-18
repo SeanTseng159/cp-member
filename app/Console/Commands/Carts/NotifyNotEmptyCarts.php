@@ -3,13 +3,18 @@
 namespace App\Console\Commands\Carts;
 
 use Illuminate\Console\Command;
-use Ksd\Mediation\Magento\Cart as MagentoCart;
-use Ksd\Mediation\CityPass\Cart as CityPassCart;
-use Log;
+use Ksd\Mediation\Config\ProjectConfig;
+use Ksd\Mediation\Services\CartService;
+use Ksd\Mediation\Services\MemberTokenService;
+use App\Services\MailService;
+use App\Services\MemberService;
+use App\Models\Carts;
 
 class NotifyNotEmptyCarts extends Command
 {
 
+    private $cartService;
+    
     /**
      * The name and signature of the console command.
      *
@@ -29,9 +34,17 @@ class NotifyNotEmptyCarts extends Command
      *
      * @return void
      */
-    public function __construct()
+    public function __construct(
+            CartService $cartService,
+            MemberTokenService $memberTokenService,
+            MailService $mailService,
+            MemberService $memberService)
     {
         parent::__construct();
+        $this->cartService = $cartService;
+        $this->memberTokenService = $memberTokenService;
+        $this->mailService = $mailService;
+        $this->memberService = $memberService;
     }
 
     /**
@@ -41,12 +54,36 @@ class NotifyNotEmptyCarts extends Command
      */
     public function handle()
     {
+        // 超過多少天進行提醒
+        $notifyIntervalDays = 15;
+        
+        // email顯示的商品筆數
+        $emailItemLimit = 10;
         
         // 取得符合寄信提醒條件的購物車
+        $needNotifyCarts = Carts::whereRaw('last_notified_at <= DATE_ADD(NOW(), INTERVAL -' . $notifyIntervalDays . ' DAY)')
+                ->get();
         
-        // 取得目標會員購物車中所有商品id
-        
-        // 通知消費者尚有商品未結帳並紀錄此次寄信時間點
+        foreach ($needNotifyCarts as $needNotifyCart) {
+            switch ($needNotifyCart->type) {
+                case ProjectConfig::MAGENTO:
+                    $source = ProjectConfig::MAGENTO;
+                    break;
+                
+                default:
+                    $source = ProjectConfig::CITY_PASS;
+                    break;
+            }
+            $token = $this->memberTokenService->getUserTokenByMemberId($source, $needNotifyCart->member_id);
+            $params = new \stdClass();
+            $params->source = $source;
+            $cart = $this->cartService->mine($params, $token);
+            $member = $this->memberService->find($needNotifyCart->member_id);
+            $cartItems = array_slice($cart->items, 0, $emailItemLimit);
+            $this->mailService->sendNotEmptyCart($member, $cartItems);
+            $needNotifyCart->last_notified_at = date('Y-m-d h:i:s');
+            $needNotifyCart->save();
+        }
         
     }
 }

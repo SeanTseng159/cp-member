@@ -194,10 +194,10 @@ class MailService
     }
     
     /**
-     * 
-     * @param array $member
-     * @param array $parameters
-     * @return type
+     * 購物車商品轉入追蹤清單
+     * @param object $member
+     * @param array $cartItems
+     * @return bool
      */
     public function sendCleanCart($member, $cartItems = null)
     {
@@ -214,6 +214,29 @@ class MailService
         Log::info($recipient, $data);
 
         return $this->send('CityPass都會通 - 商品移至收藏清單通知', $recipient, 'emails/expiredCart', $data);
+    }
+    
+    /**
+     * 提醒購物車內商品尚未結帳
+     * @param object $member
+     * @param array $cartItems
+     * @return bool
+     */
+    public function sendNotEmptyCart($member, $cartItems = null)
+    {
+        $recipient = [
+            'email' => $member->email,
+            'name' => $member->name,
+        ];
+        
+        $data = [
+            'name' => $member->name,
+            'link' => env('CITY_PASS_WEB') . $this->lang . '/cart',
+            'items' => $cartItems,
+        ];
+        Log::info($recipient, $data);
+
+        return $this->send('CityPass都會通 - 未結帳提醒通知，請您儘快完成結帳~', $recipient, 'emails/notEmptyCart', $data);
     }
 
 
