@@ -105,6 +105,28 @@ class ProductRepository extends BaseRepository
     }
 
     /**
+     * 根據 商品 id 取得加購商品
+     * @param $parameter
+     * @return mixed
+     */
+    public function purchase($parameter, $isRefresh = false)
+    {
+        $id = $parameter->id;
+        $source = $parameter->source;
+        $purchase = $this->redis->remember("$source:purchase:id:$id", CacheConfig::TEST_TIME, function () use ($source, $id) {
+            $purchase = null;
+            if ($source == ProjectConfig::MAGENTO) {
+                // $product = $this->magento->purchase($id);
+            } else {
+                $purchase = $this->cityPass->purchase($id);
+            }
+            return $purchase;
+        }, $isRefresh);
+
+        return $purchase;
+    }
+
+    /**
      * 根據 關鍵字 搜尋 取得商品列表
      * @param $parameter
      * @return array
