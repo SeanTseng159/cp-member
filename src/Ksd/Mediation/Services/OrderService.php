@@ -91,7 +91,7 @@ class OrderService
     public function update($token=null, $parameters)
     {
         // ipasspay付款成功清除購物車
-        if($parameters->status==="Y");
+        if($parameters->status==="Y")
         {
             $this->cartRepository->cleanCacheMagento();
         }

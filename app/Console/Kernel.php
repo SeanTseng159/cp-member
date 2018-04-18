@@ -12,6 +12,8 @@ use App\Console\Commands\Payment\Ipasspay\PayResult;
 use App\Console\Commands\SyncMagentoProduct;
 use App\Console\Commands\UpdateMagentoCreditCardOrder;
 use App\Console\Commands\UpdateMagentoATMOrder;
+use App\Console\Commands\Carts\NotifyNotEmptyCarts;
+use App\Console\Commands\Carts\CleanExpiredCarts;
 
 use App\Jobs\SendNotification;
 
@@ -29,7 +31,9 @@ class Kernel extends ConsoleKernel
         AtmOrderCheck::class,
         SyncMagentoProduct::class,
         UpdateMagentoCreditCardOrder::class,
-        UpdateMagentoATMOrder::class
+        UpdateMagentoATMOrder::class,
+        CleanExpiredCarts::class,
+        NotifyNotEmptyCarts::class,
     ];
 
     /**

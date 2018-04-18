@@ -12,6 +12,7 @@ namespace Ksd\Mediation\Services;
 use App\Services\MemberService;
 use App\Traits\JWTTokenHelper;
 use Ksd\Mediation\Magento\Customer as MagentoCustomer;
+use Ksd\Mediation\Config\ProjectConfig;
 use Request;
 
 class MemberTokenService
@@ -68,6 +69,23 @@ class MemberTokenService
         if (!$this->jwtData) return '';
         
         $member = $this->memberService->find($this->jwtData->id);
+        return $this->magentoCustomer->token($member);
+    }
+    
+    public function getUserTokenByMemberId($source, $memberId)
+    {
+        return ($source == ProjectConfig::MAGENTO)
+                ? $this->magentoUserTokenByMemberId($memberId)
+                : $this->generateToken($memberId);
+    }
+    
+    /**
+     * 取得 magento customer token
+     * @return string
+     */
+    public function magentoUserTokenByMemberId($memberId)
+    {
+        $member = $this->memberService->find($memberId);
         return $this->magentoCustomer->token($member);
     }
 

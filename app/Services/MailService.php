@@ -192,6 +192,29 @@ class MailService
             return false;
         }
     }
+    
+    /**
+     * 
+     * @param array $member
+     * @param array $parameters
+     * @return type
+     */
+    public function sendCleanCart($member, $cartItems = null)
+    {
+        $recipient = [
+            'email' => $member->email,
+            'name' => $member->name,
+        ];
+        
+        $data = [
+            'name' => $member->name,
+            'link' => env('CITY_PASS_WEB') . $this->lang . '/member/wishlist',
+            'items' => $cartItems,
+        ];
+        Log::info($recipient, $data);
+
+        return $this->send('CityPass都會通 - 商品移至收藏清單通知', $recipient, 'emails/expiredCart', $data);
+    }
 
 
 }
