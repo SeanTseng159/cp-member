@@ -59,7 +59,7 @@ class MemberCreate
 
             $request->phoneNumber = $phoneNumber;
         }
-        
+
         return $next($request);
     }
 }

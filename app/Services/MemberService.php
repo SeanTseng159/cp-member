@@ -215,7 +215,7 @@ class MemberService
     {
         $member = $this->repository->findByCountryPhone($country, $countryCode, $cellphone);
         if ($member) {
-            return ($member->isRegistered == 1);
+            return ($member->isValidPhone == 1);
         }
         return false;
     }

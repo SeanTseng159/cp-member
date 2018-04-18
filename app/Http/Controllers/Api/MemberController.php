@@ -308,19 +308,7 @@ class MemberController extends RestLaravelController
     public function sendValidPhoneCode(Request $request)
     {
         $id = $request->input('id');
-        /*if ($request->phoneNumber) {
-            $member = $this->memberService->update($id, [
-                    'countryCode' => $countryCode,
-                    'cellphone' => $cellphone,
-                    'country' => $country
-                ]);
-        }
-        else {
-            $member = $this->memberService->update($id, [
-                    'validPhoneCode' => strval(mt_rand(100000, 999999))
-                ]);
-        }*/
-        
+
         $member = $this->memberService->update($id, [
             'validPhoneCode' => strval(mt_rand(100000, 999999))
         ]);
@@ -370,7 +358,7 @@ class MemberController extends RestLaravelController
         $platform = $request->header('platform');
 
         $member = $this->memberService->findOnly($email, $password);
-        
+
         if (!$member) {
             return $this->failure('E0020','輸入的帳號密碼有誤，請重試');
         }
