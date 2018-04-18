@@ -218,18 +218,6 @@ class MemberService
     }
 
     /**
-     * 確認手機號碼是否被是否被使用
-     * @param $countryCode
-     * @param $cellphone
-     * @return bool
-     */
-    public function checkPhoneIsUseForUpdate($country, $countryCode, $cellphone)
-    {
-        $member = $this->repository->findValidByCountryPhone($country, $countryCode, $cellphone);
-        return ($member);
-    }
-
-    /**
      * 確認手機號碼是否已驗證
      * @param $countryCode
      * @param $cellphone

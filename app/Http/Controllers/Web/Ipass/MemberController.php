@@ -108,7 +108,7 @@ class MemberController extends Controller
                 $cellphone = $phoneNumber->getNationalNumber();
                     
                 $parameter = $memberParameter->member($memberData);
-                if (!$this->memberService->checkPhoneIsUseForUpdate('tw', $countryCode, $cellphone))
+                if (!$this->memberService->checkPhoneIsUse('tw', $countryCode, $cellphone))
                 {  
                     $parameter['country'] = 'tw';
                     $parameter['cellphone'] = $cellphone;

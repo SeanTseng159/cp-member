@@ -59,12 +59,15 @@ class MemberUpdateData
             $phoneNumber = $this->VerifyPhoneNumber($country, $countryCode, $cellphone);
             if (!$phoneNumber) return $this->apiRespFailCode('E0301');
 
+            // 確認手機是否跟原本的相同
+            $checkPhoneIsNotSame = ($phoneNumber['country'] != $member->country || $phoneNumber['countryCode'] != $member->countryCode || $phoneNumber['cellphone'] != $member->cellphone);
+
             $checkCellphone = $request->input('checkCellphone') ?: 'true';
 
             // 是否需判斷手機已使用
-            if ($checkCellphone === 'true') {
+            if ($checkCellphone === 'true' && $checkPhoneIsNotSame) {
                 // 確認手機是否使用
-                if ($this->memberService->checkPhoneIsUseForUpdate($phoneNumber['country'], $phoneNumber['countryCode'], $phoneNumber['cellphone'])) {
+                if ($this->memberService->checkPhoneIsUse($phoneNumber['country'], $phoneNumber['countryCode'], $phoneNumber['cellphone'])) {
                     return $this->apiRespFailCode('A0031');
                 }
             }
