@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use Ksd\Mediation\Core\Controller\RestLaravelController;
 use Ksd\Mediation\Parameter\Product\AllParameter;
 use Ksd\Mediation\Parameter\Product\QueryParameter;
+use Ksd\Mediation\Parameter\Product\PurchaseParameter;
 use Ksd\Mediation\Parameter\Product\TagsParameter;
 use Ksd\Mediation\Parameter\Product\SearchParameter;
 use Ksd\Mediation\Services\ProductService;
@@ -64,6 +65,19 @@ class ProductController extends RestLaravelController
         $parameter = new QueryParameter();
         $parameter->laravelRequest($id, $request);
         return $this->success($this->productService->product($parameter));
+    }
+
+    /**
+     * 根據 id 取得加購商品
+     * @param Request $request
+     * @param $id
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function purchase(Request $request, $id)
+    {
+        $parameter = new PurchaseParameter();
+        $parameter->laravelRequest($id, $request);
+        return $this->success($this->productService->purchase($parameter));
     }
 
     /**

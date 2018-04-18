@@ -93,6 +93,26 @@ class Product extends Client
     }
 
     /**
+     * 根據 id 取得加購商品
+     * @param $id
+     * @return ProductResult
+     */
+    public function purchase($id)
+    {
+        $path = "product/purchase/$id";
+
+        $response = $this->request('GET', $path);
+        $body = $response->getBody();
+        $result = json_decode($body, true);
+        $this->logger->info($body);
+        $product = null;
+        if ($result['status']) {
+            $product = $result['data'];
+        }
+        return $product;
+    }
+
+    /**
      * 根據 關鍵字 做模糊搜尋 取得商品列表
      * @param $key
      * @return array

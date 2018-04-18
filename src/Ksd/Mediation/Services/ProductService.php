@@ -70,6 +70,18 @@ class ProductService
     }
 
     /**
+     * 根據 商品 id 取得加購商品
+     * @param $parameter
+     * @param bool $isRefresh
+     * @return mixed
+     */
+    public function purchase($parameter, $isRefresh = false)
+    {
+        $product = $this->repository->purchase($parameter, $isRefresh);
+        return $product;
+    }
+
+    /**
      * 根據 關鍵字 搜尋 取得商品列表
      * @param $parameter
      * @return array

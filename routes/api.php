@@ -190,6 +190,8 @@ Route::middleware('cors')->namespace('Api')->group(function () {
         Route::get('tags', 'ProductController@tags');
         // 根據 id 取得商品明細
         Route::get('query/{id}', 'ProductController@query');
+        // 根據 id 取得加購商品
+        Route::get('purchase/{id}', 'ProductController@purchase');
         // 商品搜尋
         Route::get('search', 'ProductController@search');
         //主分類搜尋（商品）
