@@ -324,7 +324,7 @@ class MemberController extends RestLaravelController
         }
 
         //傳送簡訊認證
-        $this->memberService->sendRegisterSMS($member);
+        //$this->memberService->sendRegisterSMS($member);
         return ($member) ? $this->success(['id' => $member->id, 'validPhoneCode' => $member->validPhoneCode]) : $this->failureCode('E0052');
     }
 

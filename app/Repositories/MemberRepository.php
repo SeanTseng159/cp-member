@@ -212,9 +212,7 @@ class MemberRepository
      */
     public function findValidByCountryPhone($country, $countryCode, $cellphone)
     {
-        $member = $this->model->where(['country' => $country, 'countryCode' => $countryCode, 'cellphone' => $cellphone, 'isValidPhone' => 1, 'isRegistered' => 1])->first();
-
-        return $this->memberEmailMapping($member);
+        return $this->model->where(['country' => $country, 'countryCode' => $countryCode, 'cellphone' => $cellphone, 'isValidPhone' => 1])->first();
     }
 
     /**

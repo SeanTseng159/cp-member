@@ -213,11 +213,8 @@ class MemberService
      */
     public function checkPhoneIsUse($country, $countryCode, $cellphone)
     {
-        $member = $this->repository->findByCountryPhone($country, $countryCode, $cellphone);
-        if ($member) {
-            return ($member->isValidPhone == 1);
-        }
-        return false;
+        $member = $this->repository->findValidByCountryPhone($country, $countryCode, $cellphone);
+        return ($member);
     }
 
     /**
@@ -228,11 +225,8 @@ class MemberService
      */
     public function checkPhoneIsUseForUpdate($country, $countryCode, $cellphone)
     {
-        $member = $this->repository->findByCountryPhone($country, $countryCode, $cellphone);
-        if ($member) {
-            return ($member->isRegistered == 1 && $member->isValidPhone == 1);
-        }
-        return false;
+        $member = $this->repository->findValidByCountryPhone($country, $countryCode, $cellphone);
+        return ($member);
     }
 
     /**
