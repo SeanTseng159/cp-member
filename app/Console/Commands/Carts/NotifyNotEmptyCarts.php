@@ -9,6 +9,7 @@ use Ksd\Mediation\Services\MemberTokenService;
 use App\Services\MailService;
 use App\Services\MemberService;
 use App\Models\Carts;
+use Log;
 
 class NotifyNotEmptyCarts extends Command
 {
@@ -54,36 +55,46 @@ class NotifyNotEmptyCarts extends Command
      */
     public function handle()
     {
-        // 超過多少天進行提醒
-        $notifyIntervalDays = 15;
-        
-        // email顯示的商品筆數
-        $emailItemLimit = 10;
-        
-        // 取得符合寄信提醒條件的購物車
-        $needNotifyCarts = Carts::whereRaw('last_notified_at <= DATE_ADD(NOW(), INTERVAL -' . $notifyIntervalDays . ' DAY)')
-                ->get();
-        
-        foreach ($needNotifyCarts as $needNotifyCart) {
-            switch ($needNotifyCart->type) {
-                case ProjectConfig::MAGENTO:
-                    $source = ProjectConfig::MAGENTO;
-                    break;
+        try {
+            Log::info('=== 購物車未結帳提醒 ===');
+
+            // 超過多少天進行提醒
+            $notifyIntervalDays = 15;
+
+            // email顯示的商品筆數
+            $emailItemLimit = 10;
+
+            // 取得符合寄信提醒條件的購物車
+            $needNotifyCarts = Carts::whereRaw('last_notified_at <= DATE_ADD(NOW(), INTERVAL -' . $notifyIntervalDays . ' DAY)')
+                    ->get();
+
+            foreach ($needNotifyCarts as $needNotifyCart) {
+                Log::debug([$needNotifyCart->member_id, $needNotifyCart->type]);
+                switch ($needNotifyCart->type) {
+                    case ProjectConfig::MAGENTO:
+                        $source = ProjectConfig::MAGENTO;
+                        break;
+
+                    default:
+                        $source = ProjectConfig::CITY_PASS;
+                        break;
+                }
+                $token = $this->memberTokenService->getUserTokenByMemberId($source, $needNotifyCart->member_id);
+                $params = new \stdClass();
+                $params->source = $source;
+                $member = $this->memberService->find($needNotifyCart->member_id);
                 
-                default:
-                    $source = ProjectConfig::CITY_PASS;
-                    break;
+                if (empty($member)) continue;
+                
+                $cart = $this->cartService->mine($params, $token);
+                $cartItems = array_slice($cart->items, 0, $emailItemLimit);
+                $this->mailService->sendNotEmptyCart($member, $cartItems);
+                $needNotifyCart->last_notified_at = date('Y-m-d h:i:s');
+                $needNotifyCart->save();
             }
-            $token = $this->memberTokenService->getUserTokenByMemberId($source, $needNotifyCart->member_id);
-            $params = new \stdClass();
-            $params->source = $source;
-            $cart = $this->cartService->mine($params, $token);
-            $member = $this->memberService->find($needNotifyCart->member_id);
-            $cartItems = array_slice($cart->items, 0, $emailItemLimit);
-            $this->mailService->sendNotEmptyCart($member, $cartItems);
-            $needNotifyCart->last_notified_at = date('Y-m-d h:i:s');
-            $needNotifyCart->save();
+            
+        } catch (Exception $e) {
+            Log::error($e->getMessage());
         }
-        
     }
 }

@@ -7,6 +7,7 @@ use Ksd\Mediation\Config\ProjectConfig;
 use Ksd\Mediation\Services\CartService;
 use App\Console\Commands\Carts\Classes\CleanExpiredCarts\Magento;
 use App\Console\Commands\Carts\Classes\CleanExpiredCarts\Citypass;
+use Log;
 
 class CleanExpiredCarts extends Command
 {
@@ -44,6 +45,7 @@ class CleanExpiredCarts extends Command
      */
     public function handle()
     {
+        Log::info('=== 清除過期購物車 ===');
         $source = $this->argument('source');
         switch ($source)
         {
@@ -62,8 +64,13 @@ class CleanExpiredCarts extends Command
         
         $memberIds = $this->cartService->expiredCartMemberIds($source, $expiredDays);
         foreach ($memberIds as $id) {
-            $expiredCart = new $cartClassName($id);
-            $expiredCart->handle();
+            try {
+                Log::debug([$id, $source]);
+                $expiredCart = new $cartClassName($id);
+                $expiredCart->handle();
+            } catch (Exception $e) {
+                Log::error('=== 清除過期購物車失敗 ===' . $e->getMessage());
+            }
         }
     }
     
