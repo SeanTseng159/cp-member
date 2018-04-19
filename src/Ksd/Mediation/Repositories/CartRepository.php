@@ -15,6 +15,8 @@ use Ksd\Mediation\Magento\Cart as MagentoCart;
 use Ksd\Mediation\CityPass\Cart as CityPassCart;
 
 use Ksd\Mediation\Services\MemberTokenService;
+use App\Models\Carts;
+use Illuminate\Support\Carbon;
 
 class CartRepository extends BaseRepository
 {
@@ -39,6 +41,7 @@ class CartRepository extends BaseRepository
         $this->cityPass = new CityPassCart();
         parent::__construct();
         $this->memberTokenService = $memberTokenService;
+        $this->carts = new Carts();
     }
 
     /**
@@ -106,19 +109,21 @@ class CartRepository extends BaseRepository
      * @param $parameter
      * @return mixed
      */
-    public function mine($parameter)
+    public function mine($parameter, $token = null)
     {
         $source = $parameter->source;
         if($source === ProjectConfig::MAGENTO) {
-            return $this->magento->userAuthorization($this->memberTokenService->magentoUserToken())->detail();
+            $token = empty($token) ? $this->memberTokenService->magentoUserToken() : $token;
+            return $this->magento->userAuthorization($token)->detail();
         }else if($source === ProjectConfig::CITY_PASS) {
-            return $this->cityPass->authorization($this->memberTokenService->cityPassUserToken())->detail();
+            $token = empty($token) ? $this->memberTokenService->cityPassUserToken() : $token;
+            return $this->cityPass->authorization($token)->detail();
         }else{
             return "nodata";
         }
 
     }
-
+    
     /**
      * 商品加入購物車
      * @param $parameters
@@ -157,6 +162,32 @@ class CartRepository extends BaseRepository
 
         return $this->result;
     }
+    
+    /**
+     * 更新購物車過期時間
+     * @param $parameters
+     * @return bool
+     */
+    public function updateExpiredDate($parameters)
+    {
+        $member_id = $this->memberTokenService->getId();
+        $filter_params['member_id'] = $member_id;
+        $update_params = [
+            'last_notified_at' => Carbon::now(),
+            'began_at' => Carbon::now(),
+        ];
+        if ( ! empty($parameters->magento()) ) {
+            $filter_params['type'] = ProjectConfig::MAGENTO;
+        } else if(!empty($parameters->cityPass())) {
+            $filter_params['type'] = ProjectConfig::CITY_PASS;
+        }
+        try {
+            Carts::updateOrCreate($filter_params, $update_params);
+            return true;
+        } catch (Exception $exc) {
+            return false;
+        }
+    }
 
     /**
      * 刪除購物車內商品
@@ -177,7 +208,46 @@ class CartRepository extends BaseRepository
 
         return $this->result;
     }
-
+    
+    /**
+     * 刪除購物車內指定商品
+     * @param string $source
+     * @param array $itemIds
+     * @param string $token
+     * @return mixed
+     */
+    public function deleteByItemIds($source, $memberId, $itemIds)
+    {
+        $token = $this->memberTokenService->getUserTokenByMemberId($source, $memberId);
+        if($source === ProjectConfig::MAGENTO) {
+            foreach ($itemIds as $id) {
+                $items[] = ['id' => $id];
+            }
+            $this->result = $this->magento->userAuthorization($token)->delete($items);
+        }else if($source === ProjectConfig::CITY_PASS) {
+            foreach ($itemIds as $id) {
+                $item = ['id' => $id];
+                $this->result = $this->cityPass->authorization($token)->delete($item);
+            }
+        }
+        $this->cleanCache();
+        
+        return $this->result;
+    }
+    
+    /**
+     * 刪除過期購物車紀錄
+     * @param string $source
+     * @param int $memberId
+     * @return bool
+     */
+    public function deleteExpiredRecord($source, $memberId)
+    {
+        return $this->carts->where('type', $source)
+                ->where('member_id', $memberId)
+                ->delete();
+    }
+    
     /**
      * 清除快取
      */
@@ -204,6 +274,20 @@ class CartRepository extends BaseRepository
     {
         $this->cacheKey(self::INFO_KEY_C);
         $this->cacheKey(self::DETAIL_KEY_C);
+    }
+    
+    /**
+     * 取得過期購物車會員 id
+     * @param string $source
+     * @param int $expire_days 過期天數
+     * @return array
+     */
+    public function expiredCartMemberIds($source, $expire_days)
+    {
+        return $this->carts->whereRaw('began_at <= DATE_ADD(NOW(), INTERVAL -' . $expire_days . ' DAY)')
+                ->where('type', $source)
+                ->pluck('member_id')
+                ->toArray();
     }
 
 
