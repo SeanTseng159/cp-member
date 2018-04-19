@@ -5,6 +5,7 @@ namespace App\Console\Commands\Carts\Classes\CleanExpiredCarts;
 use Ksd\Mediation\Config\ProjectConfig;
 use App\Console\Commands\Carts\Classes\CleanExpiredCarts\Abstraction\ExpiredCart;
 use Ksd\Mediation\Magento\Wishlist;
+use Log;
 
 /**
  * Description of Magento
@@ -53,7 +54,12 @@ class Magento extends ExpiredCart
     {
         foreach ($this->cartDetail->items as $item)
         {
-            (new Wishlist())->userAuthorization($this->token)->add($item->id);
+            (new Wishlist())->userAuthorization($this->token)->add($this->mainItemId($item->id));
         }
+    }
+    
+    private function mainItemId($itemId)
+    {
+        return explode('-', $itemId)[0];
     }
 }
