@@ -251,6 +251,7 @@ class OrderResult
                 $row['qrcode'] = $this->arrayDefault($item, 'qrcode');
                 $row['show'] = $this->arrayDefault($item, 'show');
                 $row['pinCode'] = $this->arrayDefault($item, 'pinCode');
+                $row['combos'] = $this->arrayDefault($item, 'combos');
 
                 $this->items[] = $row;
 
