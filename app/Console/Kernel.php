@@ -12,6 +12,9 @@ use App\Console\Commands\Payment\Ipasspay\PayResult;
 use App\Console\Commands\SyncMagentoProduct;
 use App\Console\Commands\UpdateMagentoCreditCardOrder;
 use App\Console\Commands\UpdateMagentoATMOrder;
+use App\Console\Commands\Carts\NotifyNotEmptyCarts;
+use App\Console\Commands\Carts\CleanExpiredCarts;
+use Ksd\Mediation\Config\ProjectConfig;
 
 use App\Jobs\SendNotification;
 
@@ -29,7 +32,9 @@ class Kernel extends ConsoleKernel
         AtmOrderCheck::class,
         SyncMagentoProduct::class,
         UpdateMagentoCreditCardOrder::class,
-        UpdateMagentoATMOrder::class
+        UpdateMagentoATMOrder::class,
+        CleanExpiredCarts::class,
+        NotifyNotEmptyCarts::class,
     ];
 
     /**
@@ -64,6 +69,15 @@ class Kernel extends ConsoleKernel
         $schedule->command(UpdateMagentoCreditCardOrder::class)->everyTenMinutes();
         // 移除magento過期ATM訂單
         $schedule->command(UpdateMagentoATMOrder::class)->dailyAt('00:00');
+        
+        // 清除過期購物車
+        $schedule->command(CleanExpiredCarts::class, [ProjectConfig::MAGENTO])->dailyAt('03:00');
+        $schedule->command(CleanExpiredCarts::class, [ProjectConfig::CITY_PASS])->dailyAt('04:30');
+        
+        //定期提醒購物車中尚有商品
+        $schedule->command(NotifyNotEmptyCarts::class)->dailyAt('05:30');
+        
+        
     }
 
     /**

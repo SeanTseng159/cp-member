@@ -16,7 +16,6 @@ use Ksd\Mediation\Result\CartResult;
 use Ksd\Mediation\Result\ProductResult;
 use Ksd\Mediation\Magento\SalesRule;
 
-
 class Cart extends Client
 {
     use EnvHelper;
@@ -47,11 +46,15 @@ class Cart extends Client
 
     /**
      * 取得購物車資訊
+     * @param int $memberId
      * @return CartResult
      */
-    public function detail()
+    public function detail($token = '')
     {
-
+        if ( ! empty($token)) {
+            $this->userAuthorization($token);
+        }
+        
         $result = [];
         $totalResult = null;
         try {
@@ -247,7 +250,7 @@ class Cart extends Client
 
         return json_decode($response->getBody(), true);
     }
-
+    
     /**
      * 處理規格商品 id 轉換
      * @param $item

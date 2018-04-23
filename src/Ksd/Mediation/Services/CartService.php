@@ -10,6 +10,7 @@ namespace Ksd\Mediation\Services;
 
 
 use Ksd\Mediation\Repositories\CartRepository;
+use Ksd\Mediation\Config\ProjectConfig;
 
 
 class CartService
@@ -44,9 +45,9 @@ class CartService
      * @param $parameter
      * @return mixed
      */
-    public function mine($parameter)
+    public function mine($parameter, $token = null)
     {
-        return $this->repository->mine($parameter);
+        return $this->repository->mine($parameter, $token);
     }
 
     /**
@@ -56,7 +57,9 @@ class CartService
      */
     public function add($parameters)
     {
-        return $this->repository->add($parameters);
+        $result = $this->repository->add($parameters);
+        ($result) ? $this->updateExpiredDate($parameters) : '';
+        return $result;
     }
 
     /**
@@ -102,4 +105,45 @@ class CartService
     {
         return $this->repository->cleanCacheCityPass();
     }
+    
+    /**
+     * 取得過期購物車會員 id
+     * @param type $expire_days 過期天數
+     * @return array
+     */
+    public function expiredCartMemberIds($source, $expire_days)
+    {
+        return $this->repository->expiredCartMemberIds($source, $expire_days);
+    }
+    
+    /**
+     * 刪除過期購物車紀錄
+     * @param string $source
+     * @param int $memberId
+     */
+    public function deleteExpiredCart($source, $memberId, $itemIds)
+    {
+        try {
+            $this->deleteByItemIds($source, $memberId, $itemIds);
+            $this->repository->deleteExpiredRecord($source, $memberId);
+            $result = true;
+        } catch (Exception $ex) {
+            $result = false;
+        }
+        return $result;
+    }
+    
+    private function deleteByItemIds($source, $memberId, $itemIds)
+    {
+        return $this->repository->deleteByItemIds($source, $memberId, $itemIds);
+    }
+    
+    /**
+     * 更新購物車有效時間
+     */
+    private function updateExpiredDate($parameters)
+    {
+        return $this->repository->updateExpiredDate($parameters);
+    }
+    
 }
