@@ -201,12 +201,12 @@ class Checkout extends Client
      * @param $parameter
      * @return bool
      */
-    public function putComment($parameter)
+    public function putComment($comment)
     {
-        if(!empty($parameter)) {
+        if(!empty($comment)) {
             $this->putParameters([
                 "orderComment" => [
-                    "comment" => $parameter,
+                    "comment" => $comment,
                 ]]);
             try {
                 $response = $this->request('PUT', 'V1/carts/mine/set-order-comment');
@@ -219,7 +219,7 @@ class Checkout extends Client
             }
         }
 
-        return 'E0001';
+        return '00000';
     }
 
     /**
