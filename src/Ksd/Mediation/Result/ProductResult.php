@@ -111,7 +111,7 @@ class ProductResult
             $this->storeTelephone = $this->arrayDefault($result, 'storeTelephone');
             $this->storeAddress = $this->arrayDefault($result, 'storeAddress');
             $this->quantity = $this->arrayDefault($result, 'quantity');
-            $this->maxQuantity = $this->arrayDefault($result, 'quantity');
+            $this->maxQuantity = $this->arrayDefault($result, 'maxQuantity');
             $this->contents = $this->arrayDefault($result, 'contents');
             $this->combos = $this->arrayDefault($result, 'combos');
             $this->additionals = $this->arrayDefault($result, 'additionals');
@@ -193,7 +193,7 @@ class ProductResult
         ];
         if ($isDetail) {
             $detailColumns = [
-                'saleStatus', 'saleStatusCode', 'canUseCoupon', 'quantity', 'contents', 'combos', 'additionals', 'purchase','imageUrls', 'isBook'
+                'saleStatus', 'saleStatusCode', 'canUseCoupon', 'quantity', 'maxQuantity', 'contents', 'combos', 'additionals', 'purchase','imageUrls', 'isBook'
             ];
             $columns = array_merge($columns, $detailColumns);
         }
