@@ -67,6 +67,7 @@ class ProductResult
             $this->combos = null;
             $this->additionals = null;
             $this->purchase = null;
+            $this->maxPurchase = null;
             if (array_key_exists('media_gallery_entries', $result)) {
                 $this->imageUrls = [];
                 foreach ($result['media_gallery_entries'] as $mediaEntry) {
@@ -116,6 +117,7 @@ class ProductResult
             $this->combos = $this->arrayDefault($result, 'combos');
             $this->additionals = $this->arrayDefault($result, 'additionals');
             $this->purchase = $this->arrayDefault($result, 'purchase');
+            $this->maxPurchase = $this->arrayDefault($result, 'maxPurchase');
             $this->imageUrls = $this->arrayDefault($result, 'imageUrls');
             $this->isBook = $this->arrayDefault($result, 'isBook');
         }
@@ -193,7 +195,7 @@ class ProductResult
         ];
         if ($isDetail) {
             $detailColumns = [
-                'saleStatus', 'saleStatusCode', 'canUseCoupon', 'quantity', 'contents', 'combos', 'additionals', 'purchase','imageUrls', 'isBook'
+                'saleStatus', 'saleStatusCode', 'canUseCoupon', 'quantity', 'contents', 'combos', 'additionals', 'purchase', 'maxPurchase', 'imageUrls', 'isBook'
             ];
             $columns = array_merge($columns, $detailColumns);
         }
