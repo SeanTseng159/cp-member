@@ -15,11 +15,14 @@ use Illuminate\Http\Request;
 Route::get('test/regex', 'TestController@regex');
 // 需 管理者權限的token 認證的 route
 Route::middleware(['cors', 'admin.jwt'])->namespace('Api')->group(function () {
+    Route::prefix('oauth/member')->group(function () {
+        //單一會員資料查詢
+        Route::get('single/{id}', 'MemberController@singleMember');
+    });
+
     Route::prefix('member')->group(function () {
         //取所有會員
         Route::get('all', 'MemberController@allMember');
-        //單一會員資料查詢
-        Route::get('single/{id}', 'MemberController@singleMember');
         //會員資料查詢
         Route::get('query', 'MemberController@queryMember');
         //更新會員資料
