@@ -85,6 +85,8 @@ class LayoutResult
 */
                 $this->customize[] = $item;
             }
+
+            $this->hasActivity = true;
         }
                 else{
 
