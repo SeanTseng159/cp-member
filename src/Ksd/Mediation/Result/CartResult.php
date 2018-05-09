@@ -34,6 +34,7 @@ class CartResult
             $row->id = $this->arrayDefault($item, 'sku');
             $row->redirectId = $this->getMainItemSku($this->arrayDefault($item, 'sku'));
             $row->name = $this->arrayDefault($item, 'name');
+            $row->type = 'general';
             $row->spec = $this->arrayDefault($item, 'spec');
             $row->qty = $this->arrayDefault($item, 'qty');
             $row->price = $this->arrayDefault($item, 'price');
@@ -75,6 +76,7 @@ class CartResult
             $row->id = $this->arrayDefault($item, 'id');
             $row->redirectId = $this->arrayDefault($item, 'id');
             $row->name = $this->arrayDefault($item, 'name');
+            $row->type = $this->arrayDefault($item, 'type');
             $row->spec = $this->arrayDefault($item, 'spec');
             $row->qty = $this->arrayDefault($item, 'quantity');
             $row->price = $this->arrayDefault($item, 'price');
