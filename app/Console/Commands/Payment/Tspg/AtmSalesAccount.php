@@ -58,12 +58,24 @@ class AtmSalesAccount extends Command
         $magentoPayment = new MagentoPayment();
         $cityPassPayment = new CityPassPayment();
 
+        $today = Carbon::today();
+
         foreach ($files as $file) {
             $filename = $file->getBasename();
+
+            // 處理過期的檔案
+            if (strpos($filename, $today->format('Ymd')) === false) {
+                $this->ftpMoveExpiredFiles($filename);
+                continue;
+            }
+
             if(Cache::has($this->cacheKey($filename))) {
                 Log::debug("$filename is run");
                 continue;
             }
+
+            // copy到payment getaway
+            $this->moveFilesToPayment($filename);
 
             $fileTime = $this->fileTime($filename);
             if (!empty($fileTime)) {
@@ -189,5 +201,43 @@ class AtmSalesAccount extends Command
             $failPath = sprintf('%s/%s', $failDir, $file);
             $client->moveFile($file, $failPath);
         }
+    }
+
+    /**
+     * 搬移過期銷帳檔案
+     * @param $file
+     * @param bool $isSuccess
+     */
+    private function ftpMoveExpiredFiles($file)
+    {
+        $host = env('TSPG_ATM_FTP_HOST');
+        $username = env('TSPG_ATM_FTP_USERNAME');
+        $password = env('TSPG_ATM_FTP_PASSWORD');
+
+        $client = new FtpClient($host, $username, $password);
+        $client->setIsSsl(false);
+        $dir = 'expired';
+
+        $client->mkDir($dir);
+        $filePath = sprintf('%s/%s', $dir, $file);
+        $client->moveFile($file, $filePath);
+    }
+
+    /**
+     * 搬移銷帳檔案到payment
+     * [之後會撤掉middleare ftp]
+     * @param $file
+     * @param bool $isSuccess
+     */
+    private function moveFilesToPayment($file)
+    {
+        $host = env('PAYMENT_TSPG_ATM_FTP_HOST');
+        $username = env('PAYMENT_TSPG_ATM_FTP_USERNAME');
+        $password = env('PAYMENT_TSPG_ATM_FTP_PASSWORD');
+
+        $client = new FtpClient($host, $username, $password);
+        $client->setIsSsl(false);
+
+        $client->moveFile($file, sprintf('%s', $file));
     }
 }
