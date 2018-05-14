@@ -75,7 +75,7 @@ class AtmSalesAccount extends Command
             }
 
             // copy到payment getaway
-            $this->moveFilesToPayment($filename);
+            $this->moveFilesToPayment($directory, $filename);
 
             $fileTime = $this->fileTime($filename);
             if (!empty($fileTime)) {
@@ -229,7 +229,7 @@ class AtmSalesAccount extends Command
      * @param $file
      * @param bool $isSuccess
      */
-    private function moveFilesToPayment($file)
+    private function moveFilesToPayment($directory, $file)
     {
         $host = env('PAYMENT_TSPG_ATM_FTP_HOST');
         $username = env('PAYMENT_TSPG_ATM_FTP_USERNAME');
@@ -238,6 +238,9 @@ class AtmSalesAccount extends Command
         $client = new FtpClient($host, $username, $password);
         $client->setIsSsl(false);
 
-        $client->moveFile($file, sprintf('%s', $file));
+        $tempPath = sprintf('%s/%s', $directory, $file);
+        $filePath = sprintf('./%s', $file);
+
+        $client->putFile($tempPath, $filePath);
     }
 }
