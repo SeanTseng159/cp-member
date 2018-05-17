@@ -45,9 +45,9 @@ trait ValidatorHelper
             $my = $mx * $i;//N*$i
             $ms = $ms + $my;//ms為加總
             $j+=1;
-            $i--;	
+            $i--;
         }
-        
+
         //最後再加上 N9 及 N10
         $ms = $ms + substr($cardid,8,1) + substr($cardid,9,1);
         //最後驗證除10
@@ -75,9 +75,11 @@ trait ValidatorHelper
             $countryCode = $phoneNumber->getCountryCode();
             $cellphone = $phoneNumber->getNationalNumber();
 
-            if (!$phoneUtil->isValidNumber($phoneNumber) || $phoneUtil->getNumberType($phoneNumber) != 1) {
-                return false;
-            }
+            if (!$phoneUtil->isValidNumber($phoneNumber)) return false;
+
+            if ($phoneUtil->getNumberType($phoneNumber) != 1 && $phoneUtil->getNumberType($phoneNumber) != 2) return false;
+
+            return false;
         } catch (\libphonenumber\NumberParseException $e) {
             return false;
         }
