@@ -78,8 +78,6 @@ trait ValidatorHelper
             if (!$phoneUtil->isValidNumber($phoneNumber)) return false;
 
             if ($phoneUtil->getNumberType($phoneNumber) != 1 && $phoneUtil->getNumberType($phoneNumber) != 2) return false;
-
-            return false;
         } catch (\libphonenumber\NumberParseException $e) {
             return false;
         }
