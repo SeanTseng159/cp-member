@@ -32,6 +32,8 @@ class NewsletterRepository
             $newsletter->save();
             return $newsletter;
         } catch (QueryException $e) {
+            \Log::debug('=== Newsletter Create Error ===');
+            \Log::debug(print_r($e->getMessage() ,true));
             return false;
         }
     }
