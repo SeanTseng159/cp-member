@@ -86,7 +86,7 @@ class LayoutResult
                 $this->customize[] = $item;
             }
 
-            $this->hasActivity = true;
+            $this->hasActivity = env('HAS_ACTIVITY', true);
         }
                 else{
 
