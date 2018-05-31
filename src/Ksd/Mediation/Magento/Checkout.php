@@ -268,6 +268,7 @@ class Checkout extends Client
             $order->updateOrderState($orderId,$incrementId,'pending');*/
 
             // 成立發票
+            Log::debug('===DB成立發票 其他===');
             $magentoInvoiceService = app()->build(MagentoInvoiceService::class);
 
             $billing = $parameters->billing();
@@ -457,6 +458,7 @@ class Checkout extends Client
             }*/
 
             // 成立發票
+            Log::debug('===DB成立發票 信用卡===');
             $magentoInvoiceService = app()->build(MagentoInvoiceService::class);
 
             $billing = $parameters->billing();
