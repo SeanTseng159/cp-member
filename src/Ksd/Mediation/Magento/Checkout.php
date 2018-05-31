@@ -245,7 +245,6 @@ class Checkout extends Client
             $body = $response->getBody();
         }catch (ClientException $e){
             Log::debug('===magento非信用卡結帳(atm)===');
-            Log::debug($e);
 
             return false;
         }
@@ -410,7 +409,6 @@ class Checkout extends Client
 
         }catch (ClientException $e){
             Log::debug('===magento結帳信用卡(台新)===');
-            Log::debug($e);
             throw new PayCreditCardFailException();
         }
 
