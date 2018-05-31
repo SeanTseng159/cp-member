@@ -33,6 +33,8 @@ class MagentoInvoiceRepository
             $magentoInvoice->save();
             return $magentoInvoice;
         } catch (QueryException $e) {
+            \Log::debug('=== magento invoice create error ===');
+            \Log::debug(print_r($e->getMessage(), true));
             return false;
         }
     }
@@ -57,6 +59,8 @@ class MagentoInvoiceRepository
                 return false;
             }
         } catch (QueryException $e) {
+            \Log::debug('=== magento invoice update error ===');
+            \Log::debug(print_r($e->getMessage(), true));
             return false;
         }
     }
