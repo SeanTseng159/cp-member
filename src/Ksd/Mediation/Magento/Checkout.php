@@ -245,7 +245,6 @@ class Checkout extends Client
             $body = $response->getBody();
         }catch (ClientException $e){
             Log::debug('===magento非信用卡結帳(atm)===');
-            Log::debug($e);
 
             return false;
         }
@@ -268,6 +267,7 @@ class Checkout extends Client
             $order->updateOrderState($orderId,$incrementId,'pending');*/
 
             // 成立發票
+            Log::debug('===DB成立發票 其他===');
             $magentoInvoiceService = app()->build(MagentoInvoiceService::class);
 
             $billing = $parameters->billing();
@@ -409,7 +409,6 @@ class Checkout extends Client
 
         }catch (ClientException $e){
             Log::debug('===magento結帳信用卡(台新)===');
-            Log::debug($e);
             throw new PayCreditCardFailException();
         }
 
@@ -457,6 +456,7 @@ class Checkout extends Client
             }*/
 
             // 成立發票
+            Log::debug('===DB成立發票 信用卡===');
             $magentoInvoiceService = app()->build(MagentoInvoiceService::class);
 
             $billing = $parameters->billing();
