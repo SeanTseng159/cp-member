@@ -86,5 +86,15 @@ class MagentoOrderATMCompleteMail implements ShouldQueue
         ];
 
         $mailService->send("CityPass都會通 - 訂單繳費完成通知(訂單編號：{$orderNo}))", $recipient, 'emails/orderPaymentComplete', $data);
+
+        // 20180601 通知出貨人員
+        if (env('APP_ENV') === 'production') {
+            $customerService = [
+                'email' => env('CUSTOMER_SERVICE_MAIL', 'candy.tsai@touchcity.tw'),
+                'name' => '出貨人員'
+            ];
+
+            $mailService->send("CityPass都會通 - 準備出貨通知 - (訂單編號：{$orderNo}))", $customerService, 'emails/orderPaymentComplete', $data);
+        }
     }
 }
