@@ -85,7 +85,7 @@ class OrderPaymentCompleteMail implements ShouldQueue
         $mailService->send("CityPass都會通 - 訂單繳費完成通知(訂單編號：{$order->orderNo}))", $recipient, 'emails/orderPaymentComplete', $data);
 
         // 20180601 通知出貨人員
-        if ($this->source === 'magento') {
+        if (env('APP_ENV') === 'production' && $this->source === 'magento') {
             $customerService = [
                 'email' => env('CUSTOMER_SERVICE_MAIL', 'candy.tsai@touchcity.tw'),
                 'name' => '出貨人員'
