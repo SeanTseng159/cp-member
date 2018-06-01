@@ -45,25 +45,41 @@ class Invoice extends Client
     public function generationInvoice()
     {
         $now = Carbon::now();
-        $now->subDays(10);
 
-        $startDate = $now->format('Y-m-d');
-        $now->addDays(1);
-        $endDate = $now->format('Y-m-d');
+        if (env('APP_ENV') === 'production') {
+            $now->subDays(10);
+
+            $startDate = $now->format('Y-m-d');
+            $now->addDays(1);
+            $endDate = $now->format('Y-m-d');
+        }
+        else {
+            $startDate = $now->format('Y-m-d');
+        }
+
 
         $result = [];
         try {
             $path = 'V1/orders';
-            $response = $this
-                ->putQuery('searchCriteria[filterGroups][0][filters][0][field]', 'status')
-                ->putQuery('searchCriteria[filterGroups][0][filters][0][value]', 'complete')
-                ->putQuery('searchCriteria[filterGroups][1][filters][0][field]', 'updated_at')
+            $this->putQuery('searchCriteria[filterGroups][0][filters][0][field]', 'status')
+                ->putQuery('searchCriteria[filterGroups][0][filters][0][value]', 'complete');
+
+            if (env('APP_ENV') === 'production') {
+                $this->putQuery('searchCriteria[filterGroups][1][filters][0][field]', 'updated_at')
                 ->putQuery('searchCriteria[filterGroups][1][filters][0][value]', $startDate)
                 ->putQuery('searchCriteria[filterGroups][1][filters][0][condition_type]', 'from')
                 ->putQuery('searchCriteria[filterGroups][2][filters][0][field]', 'updated_at')
                 ->putQuery('searchCriteria[filterGroups][2][filters][0][value]', $endDate)
-                ->putQuery('searchCriteria[filterGroups][2][filters][0][condition_type]', 'to')
-                ->request('GET', $path);
+                ->putQuery('searchCriteria[filterGroups][2][filters][0][condition_type]', 'to');
+            }
+            else {
+                $this->putQuery('searchCriteria[filterGroups][1][filters][0][field]', 'updated_at')
+                ->putQuery('searchCriteria[filterGroups][1][filters][0][value]', $startDate)
+                ->putQuery('searchCriteria[filterGroups][1][filters][0][condition_type]', 'gt');
+            }
+
+            $response = $this->request('GET', $path);
+
             $body = $response->getBody();
             $result = json_decode($body, true);
         } catch (\Exception $e) {
@@ -90,22 +106,37 @@ class Invoice extends Client
     {
         $now = Carbon::now();
 
-        $startDate = $now->subDays(2)->format('Y-m-d');
-        $endDate = $now->addDays(3)->format('Y-m-d');
+        if (env('APP_ENV') === 'production') {
+            $startDate = $now->subDays(2)->format('Y-m-d');
+            $endDate = $now->addDays(3)->format('Y-m-d');
+        }
+        else {
+            $startDate = $now->format('Y-m-d');
+        }
 
         $result = [];
         try {
             $path = 'V1/orders';
-            $response = $this
+            $this
                 ->putQuery('searchCriteria[filterGroups][0][filters][0][field]', 'status')
-                ->putQuery('searchCriteria[filterGroups][0][filters][0][value]', 'closed')
-                ->putQuery('searchCriteria[filterGroups][1][filters][0][field]', 'updated_at')
+                ->putQuery('searchCriteria[filterGroups][0][filters][0][value]', 'closed');
+
+            if (env('APP_ENV') === 'production') {
+                $this->putQuery('searchCriteria[filterGroups][1][filters][0][field]', 'updated_at')
                 ->putQuery('searchCriteria[filterGroups][1][filters][0][value]', $startDate)
                 ->putQuery('searchCriteria[filterGroups][1][filters][0][condition_type]', 'from')
                 ->putQuery('searchCriteria[filterGroups][2][filters][0][field]', 'updated_at')
                 ->putQuery('searchCriteria[filterGroups][2][filters][0][value]', $endDate)
-                ->putQuery('searchCriteria[filterGroups][2][filters][0][condition_type]', 'to')
-                ->request('GET', $path);
+                ->putQuery('searchCriteria[filterGroups][2][filters][0][condition_type]', 'to');
+            }
+            else {
+                $this->putQuery('searchCriteria[filterGroups][1][filters][0][field]', 'updated_at')
+                ->putQuery('searchCriteria[filterGroups][1][filters][0][value]', $startDate)
+                ->putQuery('searchCriteria[filterGroups][1][filters][0][condition_type]', 'gt');
+            }
+
+            $response = $this->request('GET', $path);
+
             $body = $response->getBody();
             $result = json_decode($body, true);
         } catch (\Exception $e) {
@@ -187,7 +218,7 @@ class Invoice extends Client
 
         $record_str .= $unifiedBusinessNo .'|';   //12.買方統一編號
         $record_str .= $invoiceTitle.'|';         //13.買受人公司名稱
-        
+
         // 找出會員資料
         $customer_email = $this->arrayDefault($result, 'customer_email');
         $member = $this->member->where('email', $customer_email)->first();
@@ -264,7 +295,7 @@ class Invoice extends Client
         $this->invoiceService->update($orderId, [
             'status' => $this->invoiceStatus($status)
         ]);
-        
+
         return $record_str;
     }
 
@@ -322,7 +353,7 @@ class Invoice extends Client
     {
         try {
             \Log::info('=== 自動開立magento發票 ===');
-            
+
             $order = (new Order)->find($parameters);
             $order = (isset($order[0]) && $order[0]) ? $order[0] : null;
 
