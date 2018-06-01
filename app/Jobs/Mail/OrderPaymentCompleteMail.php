@@ -55,7 +55,6 @@ class OrderPaymentCompleteMail implements ShouldQueue
         $member = $memberService->find($this->memberId);
 
         Log::info('=== 寄送訂單付款完成信 - 會員 ===');
-        Log::debug(print_r($member, true));
 
         // 假如會員不存在，則離開
         if (!$member) return;
@@ -69,7 +68,6 @@ class OrderPaymentCompleteMail implements ShouldQueue
         $order = (isset($order[0]) && $order[0]) ? $order[0] : null;
 
         Log::info('=== 寄送訂單付款完成信 - 訂單 ===');
-        Log::debug(print_r($order, true));
 
         // 假如訂單不存或未付款完成，則離開
         if (!$order || $order->orderStatusCode !== '01') return;
@@ -85,5 +83,15 @@ class OrderPaymentCompleteMail implements ShouldQueue
         ];
 
         $mailService->send("CityPass都會通 - 訂單繳費完成通知(訂單編號：{$order->orderNo}))", $recipient, 'emails/orderPaymentComplete', $data);
+
+        // 20180601 通知出貨人員
+        if ($this->source === 'magento') {
+            $customerService = [
+                'email' => env('CUSTOMER_SERVICE_MAIL', 'candy.tsai@touchcity.tw'),
+                'name' => '出貨人員'
+            ];
+
+            $mailService->send("CityPass都會通 - 準備出貨通知 - (訂單編號：{$order->orderNo}))", $customerService, 'emails/orderPaymentComplete', $data);
+        }
     }
 }
