@@ -11,14 +11,14 @@ use App\Models\Ticket\BaseModel;
 
 class Product extends BaseModel
 {
-		protected $table = 'prods';
-		protected $primaryKey = 'prod_id';
+	protected $table = 'prods';
+	protected $primaryKey = 'prod_id';
 
-		/**
+	/**
      * 取得商品圖片
      */
   	public function imgs()
     {
         return $this->hasMany('App\Models\Ticket\ProductImg', 'prod_id');
-		}
+	}
 }

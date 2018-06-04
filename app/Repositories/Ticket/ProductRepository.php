@@ -12,12 +12,19 @@ use App\Models\Ticket\Product;
 use App\Models\Ticket\ProductWishlist;
 use App\Models\Ticket\ProductTag;
 use App\Models\Ticket\ProductSpec;
+use App\Repositories\Ticket\ProductAdditionalRepository;
+use App\Repositories\Ticket\ProductGroupRepository;
 
 class ProductRepository extends BaseRepository
 {
-    public function __construct(Product $model)
+    protected $productAdditionalRepository;
+    protected $productGroupRepository;
+
+    public function __construct(Product $model, ProductAdditionalRepository $productAdditionalRepository, ProductGroupRepository $productGroupRepository)
     {
         $this->model = $model;
+        $this->productAdditionalRepository = $productAdditionalRepository;
+        $this->productGroupRepository = $productGroupRepository;
     }
 
     /**
@@ -26,15 +33,21 @@ class ProductRepository extends BaseRepository
      * @param $memberId
      * @return mixed
      */
-    public function find($id, $memberId)
+    public function find($id, $memberId = 0)
     {
         $prod = $this->model->with(['imgs'])->find($id);
 
-        $prod->isWishlist = $this->isWishlist($id, $memberId);
-
-        $prod->tags = $this->productTags($id);
+        $isMainProd = in_array($prod->prod_type, [1, 2]);
 
         $prod->spec = $this->productSpec($id);
+
+        $prod->tags = ($isMainProd) ? $this->productTags($id) : null;
+
+        $prod->isWishlist = ($isMainProd) ? $this->isWishlist($id, $memberId) : false;
+
+        $prod->combos = ($isMainProd) ? $this->productGroup($id) : null;
+
+        $prod->purchase = ($isMainProd) ? $this->productAdditional($id) : null;
 
         return $prod;
     }
@@ -70,5 +83,25 @@ class ProductRepository extends BaseRepository
     public function productSpec($id)
     {
         return ProductSpec::with('specPrices')->where('prod_id', $id)->get();
+    }
+
+    /**
+     * 取得產品底下所有加購商品
+     * @param $id
+     * @return boolean
+     */
+    public function productAdditional($id)
+    {
+        return $this->productAdditionalRepository->getAllByProdId($id);
+    }
+
+    /**
+     * 取得產品底下所有組合商品
+     * @param $id
+     * @return boolean
+     */
+    public function productGroup($id)
+    {
+        return $this->productGroupRepository->getAllByProdId($id);
     }
 }

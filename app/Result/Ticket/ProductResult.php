@@ -54,8 +54,8 @@ class ProductResult extends BaseResult
             // $this->quantity = $this->quantity;
             $this->maxQuantity = $this->arrayDefault($product, 'prod_limit_num', 0);
             $this->contents = $this->getContents($product);
-            $this->combos = null; // 組合
-            $this->purchase = null; // 加購
+            $this->combos = $this->getCombo($this->arrayDefault($product, 'combos')); // 組合
+            $this->purchase = $this->getPurchase($this->arrayDefault($product, 'purchase')); // 加購
             $saleStatus = $this->getSaleStatus($this->arrayDefault($product, 'prod_onsale_time'), $this->arrayDefault($product, 'prod_offsale_time'), $this->quantity);
             $this->saleStatusCode = $saleStatus['code'];
             $this->saleStatus = $saleStatus['status'];
@@ -73,9 +73,9 @@ class ProductResult extends BaseResult
      */
     private function getAddress($product)
     {
-        return  $this->arrayDefault($product, 'prod_zipcode', '') . 
-                $this->arrayDefault($product, 'prod_county', '') . 
-                $this->arrayDefault($product, 'prod_district', '') . 
+        return  $this->arrayDefault($product, 'prod_zipcode', '') .
+                $this->arrayDefault($product, 'prod_county', '') .
+                $this->arrayDefault($product, 'prod_district', '') .
                 $this->arrayDefault($product, 'prod_address', '');
     }
 
@@ -88,7 +88,7 @@ class ProductResult extends BaseResult
     {
         $content = new \stdClass;
 
-        for ($i=1; $i <= 3; $i++) { 
+        for ($i=1; $i <= 3; $i++) {
             $content->title = $this->arrayDefault($product, 'prod_tabs' . $i, '');
             $content->description = $this->arrayDefault($product, 'prod_desc' . $i, '');
             $contents[] = $content;
@@ -110,16 +110,20 @@ class ProductResult extends BaseResult
     /**
      * 取得圖片
      * @param $imgs
-     * @return string
+     * @return array | null
      */
     private function getImgs($imgs)
     {
-        $img = new \stdClass;
+        $imgsAry = [];
 
-        foreach ($imgs as $row) { 
-            $img->generalPath = ProcuctConfig::BACKEND_HOST_TEST . $this->arrayDefault($row, 'img_path', '');
-            $img->thumbnailPath = ProcuctConfig::BACKEND_HOST_TEST . $this->arrayDefault($row, 'img_thumbnail_path', '');
-            $imgsAry[] = $img;
+        if ($imgs) {
+            $img = new \stdClass;
+
+            foreach ($imgs as $row) {
+                $img->generalPath = ProcuctConfig::BACKEND_HOST_TEST . $this->arrayDefault($row, 'img_path', '');
+                $img->thumbnailPath = ProcuctConfig::BACKEND_HOST_TEST . $this->arrayDefault($row, 'img_thumbnail_path', '');
+                $imgsAry[] = $img;
+            }
         }
 
         return $imgsAry;
@@ -128,10 +132,12 @@ class ProductResult extends BaseResult
     /**
      * 取得標籤
      * @param $tags
-     * @return array | null
+     * @return array
      */
     private function getTags($tags)
     {
+        $tagsAry = [];
+
         if ($tags) {
             foreach ($tags as $t) {
                 $tag = new \stdClass;
@@ -139,11 +145,9 @@ class ProductResult extends BaseResult
                 $tag->name = $t->tag->tag_name;
                 $tagsAry[] = $tag;
             }
-
-            return $tagsAry;
         }
 
-        return null;
+        return $tagsAry;
     }
 
     /**
@@ -180,21 +184,25 @@ class ProductResult extends BaseResult
     /**
      * 取得規格
      * @param $spec
-     * @return array | null
+     * @return object | null
      */
     private function getAdditional($spec)
     {
-        $additional = new \stdClass;
-        $additional->label = trans('ticket/product.spec');
-        $additional->code = 'spec';
+        $additional = null;
 
-        foreach ($spec as $s) {
-            $newSpec = new \stdClass;
-            $newSpec->value = $s->prod_spec_name;
-            $newSpec->value_index = $s->prod_spec_id;
-            $newSpec->additionals = $this->getFare($s->specPrices);
+        if ($spec) {
+            $additional = new \stdClass;
+            $additional->label = trans('ticket/product.spec');
+            $additional->code = 'spec';
 
-            $additional->spec[] = $newSpec;
+            foreach ($spec as $s) {
+                $newSpec = new \stdClass;
+                $newSpec->value = $s->prod_spec_name;
+                $newSpec->value_index = $s->prod_spec_id;
+                $newSpec->additionals = $this->getFare($s->specPrices);
+
+                $additional->spec[] = $newSpec;
+            }
         }
 
         return $additional;
@@ -203,34 +211,79 @@ class ProductResult extends BaseResult
     /**
      * 取得票種
      * @param $fare
-     * @return array | null
+     * @return object | null
      */
     private function getFare($fare)
     {
-        $additional = new \stdClass;
-        $additional->label = trans('ticket/product.fare');
-        $additional->code = 'ticket';
+        $additional = null;
 
-        foreach ($fare as $f) {
-            $newFare = new \stdClass;
-            $newFare->value = $f->prod_spec_price_name;
-            $newFare->value_index = $f->prod_spec_price_id;
-            $newFare->id = $f->prod_spec_price_id;
-            $newFare->sticker = $f->prod_spec_price_list;
-            $newFare->retail = $f->prod_spec_price_value;
-            $newFare->stock = $f->prod_spec_price_stock;
+        if ($fare) {
+            $additional = new \stdClass;
+            $additional->label = trans('ticket/product.fare');
+            $additional->code = 'ticket';
 
-            $saleStatus = $this->getSaleStatus($f->prod_spec_price_onsale_time, $f->prod_spec_price_offsale_time, $f->prod_spec_price_stock);
-            $newFare->saleStatus = $saleStatus['code'];
-            $newFare->saleStatusCode = $saleStatus['status'];
+            foreach ($fare as $f) {
+                $newFare = new \stdClass;
+                $newFare->value = $f->prod_spec_price_name;
+                $newFare->value_index = $f->prod_spec_price_id;
+                $newFare->id = $f->prod_spec_price_id;
+                $newFare->sticker = $f->prod_spec_price_list;
+                $newFare->retail = $f->prod_spec_price_value;
+                $newFare->stock = $f->prod_spec_price_stock;
 
-            $additional->spec[] = $newFare;
+                $saleStatus = $this->getSaleStatus($f->prod_spec_price_onsale_time, $f->prod_spec_price_offsale_time, $f->prod_spec_price_stock);
+                $newFare->saleStatus = $saleStatus['code'];
+                $newFare->saleStatusCode = $saleStatus['status'];
 
-            // 加總數量
-            $this->quantity += $f->prod_spec_price_stock;
+                $additional->spec[] = $newFare;
+
+                // 加總數量
+                $this->quantity += $f->prod_spec_price_stock;
+            }
         }
 
         return $additional;
+    }
+
+    /**
+     * 取得加購
+     * @param $additionals
+     * @return array
+     */
+    private function getPurchase($additionals)
+    {
+        $purchaseAry = [];
+
+        if ($additionals) {
+            foreach ($additionals as $additional) {
+                $purchase = (new ProductResult)->get($additional->product, true);
+                if ($purchase->saleStatusCode === ProcuctConfig::SALE_STATUS[ProcuctConfig::SALE_STATUS_ON_SALE]) $purchaseAry[] = $purchase;
+            }
+        }
+
+        return $purchaseAry;
+    }
+
+    /**
+     * 取得組合
+     * @param $combos
+     * @return array
+     */
+    private function getCombo($combos)
+    {
+        $combosAry = [];
+
+        if ($combos) {
+            foreach ($combos as $combo) {
+                $newCombo = new \stdClass();
+                $newCombo->source = ProcuctConfig::SOURCE_TICKET;
+                $newCombo->id = $combo->prod_group_prod_id;
+                $newCombo->name = $combo->product->prod_name;
+                $combosAry[] = $newCombo;
+            }
+        }
+
+        return $combosAry;
     }
 
     /**
@@ -247,7 +300,7 @@ class ProductResult extends BaseResult
         ];
         if ($isDetail) {
             $detailColumns = [
-                'saleStatus', 'saleStatusCode', 'canUseCoupon', 'quantity', 'maxQuantity', 'contents', 'combos', 'additionals', 'purchase','imageUrls', 'isBook'
+                'saleStatus', 'saleStatusCode', 'quantity', 'maxQuantity', 'additionals', 'contents', 'combos', 'purchase', 'imageUrls', 'canUseCoupon', 'isBook'
             ];
             $columns = array_merge($columns, $detailColumns);
         }
