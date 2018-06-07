@@ -45,10 +45,8 @@ class ProductResult extends BaseResult
         $this->category = null;
         $this->storeName = $this->arrayDefault($product, 'prod_store');
         $this->place = $this->arrayDefault($product, 'prod_store');
-        $this->tags = $this->getTags($this->arrayDefault($product, 'tags'), []);
-        $this->description = $this->arrayDefault($product, 'description');
+        $this->tags = $this->getTags($this->arrayDefault($product, 'tags', []));
         $this->imageUrl = $this->getImg($this->arrayDefault($product, 'imgs'));
-        $this->createdAt = $this->arrayDefault($product, 'created_at');
         $this->isWishlist = $this->arrayDefault($product, 'isWishlist');
         ////$this->visibility = 4;
 
@@ -413,7 +411,7 @@ class ProductResult extends BaseResult
         $data = new \stdClass();
         $columns = [
             'source', 'id', 'name',  'price', 'salePrice', 'discount', 'characteristic', 'category', 'storeName',
-            'storeTelephone', 'storeAddress', 'place', 'tags', 'imageUrl', 'isWishlist','updatedAt','status'
+            'storeTelephone', 'storeAddress', 'place', 'tags', 'imageUrl', 'isWishlist','status'
         ];
         if ($isDetail) {
             $detailColumns = [
