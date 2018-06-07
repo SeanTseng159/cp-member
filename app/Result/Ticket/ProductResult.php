@@ -66,6 +66,7 @@ class ProductResult extends BaseResult
             $this->contents = $this->getContents($product);
             $this->combos = $this->getCombo($this->arrayDefault($product, 'combos')); // 組合
             $this->purchase = $this->getPurchase($this->arrayDefault($product, 'purchase')); // 加購
+            $this->maxPurchase = $this->arrayDefault($product, 'prod_plus_limit', null);
             $saleStatus = $this->getSaleStatus($this->arrayDefault($product, 'prod_onsale_time'), $this->arrayDefault($product, 'prod_offsale_time'), $this->quantity);
             $this->saleStatusCode = $saleStatus['code'];
             $this->saleStatus = $saleStatus['status'];
@@ -152,9 +153,8 @@ class ProductResult extends BaseResult
         $imgsAry = [];
 
         if ($imgs) {
-            $img = new \stdClass;
-
             foreach ($imgs as $row) {
+                $img = new \stdClass;
                 $img->generalPath = $this->backendHost . $this->arrayDefault($row, 'img_path', '');
                 $img->thumbnailPath = $this->backendHost . $this->arrayDefault($row, 'img_thumbnail_path', '');
                 $imgsAry[] = $img;
@@ -417,7 +417,7 @@ class ProductResult extends BaseResult
         ];
         if ($isDetail) {
             $detailColumns = [
-                'saleStatus', 'saleStatusCode', 'quantity', 'maxQuantity', 'additionals', 'contents', 'combos', 'purchase', 'imageUrls', 'canUseCoupon', 'isBook'
+                'saleStatus', 'saleStatusCode', 'quantity', 'maxQuantity', 'additionals', 'contents', 'combos', 'purchase', 'maxPurchase', 'imageUrls', 'canUseCoupon', 'isBook'
             ];
             $columns = array_merge($columns, $detailColumns);
         }

@@ -42,6 +42,12 @@ class ProductRepository extends BaseRepository
                             })
                             ->find($id);
 
+        if (!$prod) return null;
+
+        $prod->imgs = $prod->imgs->sortBy(function($img) {
+                        return $img->img_sort;
+                    });
+
         $isMainProd = in_array($prod->prod_type, [1, 2]);
 
         $prod->spec = $this->productSpec($id);
