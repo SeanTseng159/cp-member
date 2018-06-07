@@ -17,6 +17,12 @@ class ProductResult extends BaseResult
     use ObjectHelper;
 
     private $quantity = 0;
+    private $backendHost;
+
+    public function __construct()
+    {
+        $this->backendHost = (env('APP_ENV') === 'production') ? ProcuctConfig::BACKEND_HOST : ProcuctConfig::BACKEND_HOST_TEST;
+    }
 
     /**
      * 取得資料
@@ -30,10 +36,10 @@ class ProductResult extends BaseResult
         $product = $product->toArray();
 
         $this->source = ProcuctConfig::SOURCE_TICKET;
-        $this->id = $this->arrayDefault($product, 'prod_id');
+        $this->id = (string) $this->arrayDefault($product, 'prod_id');
         $this->name = $this->arrayDefault($product, 'prod_name');
-        $this->price = $this->arrayDefault($product, 'prod_price_sticker');
-        $this->salePrice = $this->arrayDefault($product, 'prod_price_retail');
+        $this->price = (string) $this->arrayDefault($product, 'prod_price_sticker');
+        $this->salePrice = (string) $this->arrayDefault($product, 'prod_price_retail');
         $this->discount = $this->arrayDefault($product, 'discount');
         $this->characteristic = $this->arrayDefault($product, 'prod_short');
         $this->category = null;
@@ -50,7 +56,11 @@ class ProductResult extends BaseResult
             $this->storeTelephone = '';
             $this->storeAddress = $this->getAddress($product);
             $this->imageUrls = $this->getImgs($this->arrayDefault($product, 'imgs'));
-            $this->additionals = $this->getAdditional($this->arrayDefault($product, 'spec')); // 規格
+            $this->additionals = $this->getAdditional($this->arrayDefault($product, 'spec'), $product['prod_price_type']); // 規格
+            if ($this->additionals) {
+                $this->additionals->expire = $this->getExpire($product);
+                $this->additionals->bookable = $this->getBookable($product);
+            }
             // $this->quantity = $this->quantity;
             $this->maxQuantity = $this->arrayDefault($product, 'prod_limit_num', 0);
             $this->contents = $this->getContents($product);
@@ -64,6 +74,31 @@ class ProductResult extends BaseResult
         }
 
         return $this->apiFormat($isDetail);
+    }
+
+    /**
+     * 取得資料
+     * @param $product
+     * @param bool $isDetail
+     */
+    public function getPurchaseFormat($product)
+    {
+        if (!$product) return null;
+
+        $product = $product->toArray();
+
+        $this->id = (string) $this->arrayDefault($product, 'prod_id');
+        $this->name = $this->arrayDefault($product, 'prod_name');
+        $this->price = (string) $this->arrayDefault($product, 'prod_price_sticker');
+        $this->salePrice = (string) $this->arrayDefault($product, 'prod_price_retail');
+        $this->imageUrl = $this->getImg($this->arrayDefault($product, 'imgs'));
+        $this->additionals = $this->getAdditional($this->arrayDefault($product, 'spec'), $product['prod_price_type']); // 規格
+
+        $saleStatus = $this->getSaleStatus($this->arrayDefault($product, 'prod_onsale_time'), $this->arrayDefault($product, 'prod_offsale_time'), $this->quantity);
+        $this->saleStatusCode = $saleStatus['code'];
+        $this->saleStatus = $saleStatus['status'];
+
+        return $this->apiPurchaseFormat();
     }
 
     /**
@@ -104,7 +139,7 @@ class ProductResult extends BaseResult
      */
     private function getImg($imgs)
     {
-        return isset($imgs[0]['img_thumbnail_path']) ? ProcuctConfig::BACKEND_HOST_TEST . $imgs[0]['img_thumbnail_path'] : '';
+        return isset($imgs[0]['img_thumbnail_path']) ? $this->backendHost . $imgs[0]['img_thumbnail_path'] : '';
     }
 
     /**
@@ -120,8 +155,8 @@ class ProductResult extends BaseResult
             $img = new \stdClass;
 
             foreach ($imgs as $row) {
-                $img->generalPath = ProcuctConfig::BACKEND_HOST_TEST . $this->arrayDefault($row, 'img_path', '');
-                $img->thumbnailPath = ProcuctConfig::BACKEND_HOST_TEST . $this->arrayDefault($row, 'img_thumbnail_path', '');
+                $img->generalPath = $this->backendHost . $this->arrayDefault($row, 'img_path', '');
+                $img->thumbnailPath = $this->backendHost . $this->arrayDefault($row, 'img_thumbnail_path', '');
                 $imgsAry[] = $img;
             }
         }
@@ -159,19 +194,24 @@ class ProductResult extends BaseResult
      */
     private function getSaleStatus($onSaleTime, $offSaleTime, $stock = 0)
     {
-        $onSaleTime = Carbon::parse($onSaleTime);
-        $offSaleTime = Carbon::parse($offSaleTime);
-        $now = Carbon::now();
+        if ($onSaleTime && $offSaleTime) {
+            $onSaleTime = Carbon::parse($onSaleTime);
+            $offSaleTime = Carbon::parse($offSaleTime);
+            $now = Carbon::now();
 
-        // 預設: 暫停銷售
-        $saleStatus = ProcuctConfig::SALE_STATUS_STOP_SALE;
+            // 預設: 暫停銷售
+            $saleStatus = ProcuctConfig::SALE_STATUS_STOP_SALE;
 
-        if ($now->lte($onSaleTime)) {
-            // 現在時間小於開賣時間: 尚未銷售
-            $saleStatus = ProcuctConfig::SALE_STATUS_NOT_YET;
+            if ($now->lte($onSaleTime)) {
+                // 現在時間小於開賣時間: 尚未銷售
+                $saleStatus = ProcuctConfig::SALE_STATUS_NOT_YET;
+            }
+            else if ($now->gte($onSaleTime) && $now->lte($offSaleTime)) {
+                // 現在時間於銷售時間內: 熱賣中
+                $saleStatus = ($stock > 0) ? ProcuctConfig::SALE_STATUS_ON_SALE : ProcuctConfig::SALE_STATUS_OFF_SALE;
+            }
         }
-        else if ($now->gte($onSaleTime) && $now->lte($offSaleTime)) {
-            // 現在時間於銷售時間內: 熱賣中
+        else {
             $saleStatus = ($stock > 0) ? ProcuctConfig::SALE_STATUS_ON_SALE : ProcuctConfig::SALE_STATUS_OFF_SALE;
         }
 
@@ -184,9 +224,10 @@ class ProductResult extends BaseResult
     /**
      * 取得規格
      * @param $spec
+     * @param $prodPriceType
      * @return object | null
      */
-    private function getAdditional($spec)
+    private function getAdditional($spec, $prodPriceType)
     {
         $additional = null;
 
@@ -194,14 +235,44 @@ class ProductResult extends BaseResult
             $additional = new \stdClass;
             $additional->label = trans('ticket/product.spec');
             $additional->code = 'spec';
+            $additional->spec = [];
 
             foreach ($spec as $s) {
                 $newSpec = new \stdClass;
                 $newSpec->value = $s->prod_spec_name;
                 $newSpec->value_index = $s->prod_spec_id;
-                $newSpec->additionals = $this->getFare($s->specPrices);
 
-                $additional->spec[] = $newSpec;
+                // 無票種
+                if ($prodPriceType == 0) {
+                    if ($s->specPrices) {
+                        foreach ($s->specPrices as $specPrices) {
+                            $newSpec->value_index = (string) $specPrices->prod_spec_price_id;
+                            $newSpec->id = (string) $specPrices->prod_spec_price_id;
+                            $newSpec->sticker = (string) $specPrices->prod_spec_price_list;
+                            $newSpec->retail = (string) $specPrices->prod_spec_price_value;
+                            $newSpec->stock = $specPrices->prod_spec_price_stock;
+                            $saleStatus = $this->getSaleStatus($specPrices->prod_spec_price_onsale_time, $specPrices->prod_spec_price_offsale_time, $specPrices->prod_spec_price_stock);
+                            $newSpec->saleStatus = $saleStatus['code'];
+                            $newSpec->saleStatusCode = $saleStatus['status'];
+
+                            if ($newSpec->saleStatus != '11') break;
+
+                            // 加總數量
+                            $this->quantity += $specPrices->prod_spec_price_stock;
+
+                            $additional->spec[] = $newSpec;
+                        }
+
+                        // 無內容，移除全部
+                        if (!$additional->spec) $additional = null;
+                    }
+                }
+                else {
+                    $newSpec->additionals = $this->getFare($s->specPrices);
+
+                    // 有內容再加入
+                    if ($newSpec->additionals->spec) $additional->spec[] = $newSpec;
+                }
             }
         }
 
@@ -221,28 +292,74 @@ class ProductResult extends BaseResult
             $additional = new \stdClass;
             $additional->label = trans('ticket/product.fare');
             $additional->code = 'ticket';
+            $additional->spec = [];
 
             foreach ($fare as $f) {
                 $newFare = new \stdClass;
                 $newFare->value = $f->prod_spec_price_name;
-                $newFare->value_index = $f->prod_spec_price_id;
-                $newFare->id = $f->prod_spec_price_id;
-                $newFare->sticker = $f->prod_spec_price_list;
-                $newFare->retail = $f->prod_spec_price_value;
+                $newFare->value_index = (string) $f->prod_spec_price_id;
+                $newFare->id = (string) $f->prod_spec_price_id;
+                $newFare->sticker = (string) $f->prod_spec_price_list;
+                $newFare->retail = (string) $f->prod_spec_price_value;
                 $newFare->stock = $f->prod_spec_price_stock;
 
                 $saleStatus = $this->getSaleStatus($f->prod_spec_price_onsale_time, $f->prod_spec_price_offsale_time, $f->prod_spec_price_stock);
                 $newFare->saleStatus = $saleStatus['code'];
                 $newFare->saleStatusCode = $saleStatus['status'];
 
-                $additional->spec[] = $newFare;
+                // 不在販賣時間，移除
+                if ($newFare->saleStatus != '11') break;
 
+                $additional->spec[] = $newFare;
                 // 加總數量
                 $this->quantity += $f->prod_spec_price_stock;
             }
         }
 
         return $additional;
+    }
+
+    /**
+     * 取得使用時間
+     * @param $product
+     * @return array
+     */
+    private function getExpire($product)
+    {
+
+        $expire = new \stdClass;
+        $expire->type = $product['prod_price_type'];
+        $expire->value = '';
+
+        if ($expire->type == 1) {
+            $expire->value = (string) $product['prod_expire_daycount'];
+        }
+        else if ($expire->type == 2) {
+            $expire->value = $product['prod_expire_due'];
+        }
+        else if ($expire->type == 3) {
+            $expire->value = $product['prod_expire_start'] . ',' . $product['prod_expire_due'];
+        }
+
+        return $expire;
+    }
+
+    /**
+     * 取得使用時間
+     * @param $product
+     * @return array
+     */
+    private function getBookable($product)
+    {
+        $bookable = null;
+
+        if ($product['prod_bookable'] == 1) {
+            $bookable = new \stdClass;
+            $bookable->dateStart = Carbon::today()->format('Y-m-d');
+            $bookable->dateEnd = Carbon::parse($product['prod_expire_due'])->format('Y-m-d');
+        }
+
+        return $bookable;
     }
 
     /**
@@ -256,7 +373,7 @@ class ProductResult extends BaseResult
 
         if ($additionals) {
             foreach ($additionals as $additional) {
-                $purchase = (new ProductResult)->get($additional->product, true);
+                $purchase = (new ProductResult)->getPurchaseFormat($additional->product, true);
                 if ($purchase->saleStatusCode === ProcuctConfig::SALE_STATUS[ProcuctConfig::SALE_STATUS_ON_SALE]) $purchaseAry[] = $purchase;
             }
         }
@@ -277,7 +394,7 @@ class ProductResult extends BaseResult
             foreach ($combos as $combo) {
                 $newCombo = new \stdClass();
                 $newCombo->source = ProcuctConfig::SOURCE_TICKET;
-                $newCombo->id = $combo->prod_group_prod_id;
+                $newCombo->id = (string) $combo->prod_group_prod_id;
                 $newCombo->name = $combo->product->prod_name;
                 $combosAry[] = $newCombo;
             }
@@ -310,6 +427,27 @@ class ProductResult extends BaseResult
                 $data->$column = $this->$column;
             }
         }
+        return $data;
+    }
+
+    /**
+     * api response 資料格式化
+     * @param bool $isDetail
+     * @return \stdClass
+     */
+    private function apiPurchaseFormat()
+    {
+        $data = new \stdClass();
+        $columns = [
+            'id', 'name', 'saleStatus', 'saleStatusCode', 'price', 'salePrice', 'imageUrl', 'quantity', 'additionals'
+        ];
+
+        foreach ($columns as $column) {
+            if (property_exists($this, $column)) {
+                $data->$column = $this->$column;
+            }
+        }
+
         return $data;
     }
 }

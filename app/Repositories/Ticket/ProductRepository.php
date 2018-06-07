@@ -30,12 +30,17 @@ class ProductRepository extends BaseRepository
     /**
      * 根據 商品 id 取得商品明細
      * @param $id
+     * @param $onShelf
      * @param $memberId
      * @return mixed
      */
-    public function find($id, $memberId = 0)
+    public function find($id, $onShelf = false, $memberId = 0)
     {
-        $prod = $this->model->with(['imgs'])->find($id);
+        $prod = $this->model->with(['imgs'])
+                            ->when($onShelf, function($query){
+                                $query->where('prod_onshelf', 1);
+                            })
+                            ->find($id);
 
         $isMainProd = in_array($prod->prod_type, [1, 2]);
 

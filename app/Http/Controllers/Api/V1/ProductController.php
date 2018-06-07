@@ -35,8 +35,19 @@ class ProductController extends RestLaravelController
      */
     public function query(Request $request, $id)
     {
-        $data = $this->productService->find($id, $this->getMemberId());
-        $result = (new ProductResult)->get($data, true);
+        $source = $request->input('source');
+
+        if ($source === 'magento') {
+            $productService = app()->build(\Ksd\Mediation\Services\ProductService::class);
+
+            $parameter = new \Ksd\Mediation\Parameter\Product\QueryParameter();
+            $parameter->laravelRequest($id, $request);
+            $result = $productService->product($parameter);
+        } else {
+            $data = $this->productService->findOnShelf($id, $this->getMemberId());
+            $result = (new ProductResult)->get($data, true);
+        }
+
         return $this->success($result);
     }
 }

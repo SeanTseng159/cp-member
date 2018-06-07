@@ -23,8 +23,9 @@ class ProductService extends BaseService
      * @param $memberId
      * @return mixed
      */
-    public function find($id, $memberId = NULL)
+    public function findOnShelf($id, $memberId = NULL)
     {
-        return $this->repository->find($id, $memberId);
+        $onShelf = true;
+        return $this->repository->find($id, $onShelf, $memberId);
     }
 }
