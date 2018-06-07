@@ -51,6 +51,39 @@ class MagentoProductService
     }
 
     /**
+     * 取得單一 商品資料
+     * @param $data
+     * @param $memberId
+     * @return \App\Models\MagentoProduct
+     */
+    public function findOnShelf($id, $memberId)
+    {
+        $product = $this->repository->find($id);
+        if ($memberId && $product) {
+            $wishlistService = app()->build(\Ksd\Mediation\Services\WishlistService::class);
+            $product->isWishlist = $this->isWishlist($wishlistService->items(), $id);
+        }
+
+        return $product;
+    }
+
+    /**
+     * 產品收藏判斷
+     * @param $items
+     * @return boolean
+     */
+    private function isWishlist($items, $id)
+    {
+        if($items) {
+            foreach ($items as $wishRow) {
+                if ($id == $wishRow['id']) return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
      * 根據 所有id 取得對應商品明細
      * @param $data
      * @return \App\Models\MagentoProduct

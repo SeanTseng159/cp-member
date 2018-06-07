@@ -15,16 +15,21 @@ use App\Parameter\Ticket\Product\QueryParameter;
 use App\Result\Ticket\ProductResult;
 use App\Traits\MemberHelper;
 
+use App\Services\MagentoProductService;
+use App\Result\MagentoProductResult;
+
 class ProductController extends RestLaravelController
 {
     use MemberHelper;
 
     protected $productService;
+    protected $magentoProductService;
     protected $memberId;
 
-    public function __construct(ProductService $productService)
+    public function __construct(ProductService $productService, MagentoProductService $magentoProductService)
     {
         $this->productService = $productService;
+        $this->magentoProductService = $magentoProductService;
     }
 
     /**
@@ -38,11 +43,8 @@ class ProductController extends RestLaravelController
         $source = $request->input('source');
 
         if ($source === 'magento') {
-            $productService = app()->build(\Ksd\Mediation\Services\ProductService::class);
-
-            $parameter = new \Ksd\Mediation\Parameter\Product\QueryParameter();
-            $parameter->laravelRequest($id, $request);
-            $result = $productService->product($parameter);
+            $data = $this->magentoProductService->findOnShelf(urldecode($id), $this->getMemberId());
+            $result = (new MagentoProductResult)->get($data, true);
         } else {
             $data = $this->productService->findOnShelf($id, $this->getMemberId());
             $result = (new ProductResult)->get($data, true);
