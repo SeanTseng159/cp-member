@@ -253,7 +253,7 @@ class ProductResult extends BaseResult
                             $newSpec->saleStatus = $saleStatus['code'];
                             $newSpec->saleStatusCode = $saleStatus['status'];
 
-                            if ($newSpec->saleStatus == '11') {
+                            if ($newSpec->saleStatus == '11' || $newSpec->saleStatus == '10') {
                                 // 加總數量
                                 $this->quantity += $specPrices->prod_spec_price_stock;
 
@@ -306,7 +306,7 @@ class ProductResult extends BaseResult
                 $newFare->saleStatusCode = $saleStatus['status'];
 
                 // 不在販賣時間，移除
-                if ($newFare->saleStatus == '11') {
+                if ($newFare->saleStatus == '11' || $newSpec->saleStatus == '10') {
                     // 加總數量
                     $this->quantity += $f->prod_spec_price_stock;
 
