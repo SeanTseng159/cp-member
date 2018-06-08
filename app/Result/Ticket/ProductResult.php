@@ -253,12 +253,12 @@ class ProductResult extends BaseResult
                             $newSpec->saleStatus = $saleStatus['code'];
                             $newSpec->saleStatusCode = $saleStatus['status'];
 
-                            if ($newSpec->saleStatus != '11') break;
+                            if ($newSpec->saleStatus == '11') {
+                                // 加總數量
+                                $this->quantity += $specPrices->prod_spec_price_stock;
 
-                            // 加總數量
-                            $this->quantity += $specPrices->prod_spec_price_stock;
-
-                            $additional->spec[] = $newSpec;
+                                $additional->spec[] = $newSpec;
+                            }
                         }
 
                         // 無內容，移除全部
@@ -306,11 +306,12 @@ class ProductResult extends BaseResult
                 $newFare->saleStatusCode = $saleStatus['status'];
 
                 // 不在販賣時間，移除
-                if ($newFare->saleStatus != '11') break;
+                if ($newFare->saleStatus == '11') {
+                    // 加總數量
+                    $this->quantity += $f->prod_spec_price_stock;
 
-                $additional->spec[] = $newFare;
-                // 加總數量
-                $this->quantity += $f->prod_spec_price_stock;
+                    $additional->spec[] = $newFare;
+                }
             }
         }
 
@@ -337,6 +338,9 @@ class ProductResult extends BaseResult
         }
         else if ($expire->type == 3) {
             $expire->value = $product['prod_expire_start'] . ',' . $product['prod_expire_due'];
+        }
+        else {
+            $expire->value = '';
         }
 
         return $expire;
