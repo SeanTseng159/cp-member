@@ -67,8 +67,15 @@ class MagentoProductResult extends BaseResult
     private function getAdditional($additionals)
     {
         if (isset($additionals->spec)) {
-            foreach ($additionals->spec as $k => $spec) {
-                $additionals->spec[$k]->salePrice = $spec->salePrice ?: $spec->price;
+            foreach ($additionals->spec as $key => $spec) {
+                if (isset($spec->additionals)) {
+                    foreach ($spec->additionals->spec as $k => $s) {
+                        $spec->additionals->spec[$k]->salePrice = $s->salePrice ?: $s->price;
+                    }
+                }
+                else {
+                    $additionals->spec[$key]->salePrice = $spec->salePrice ?: $spec->price;
+                }
             }
         }
         else {
