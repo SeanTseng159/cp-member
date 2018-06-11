@@ -260,9 +260,6 @@ class ProductResult extends BaseResult
                                 $additional->spec[] = $newSpec;
                             }
                         }
-
-                        // 無內容，移除全部
-                        if (!$additional->spec) $additional = null;
                     }
                 }
                 else {
@@ -273,6 +270,9 @@ class ProductResult extends BaseResult
                 }
             }
         }
+
+        // 無內容，移除全部
+        if (!$additional->spec) $additional = null;
 
         return $additional;
     }
