@@ -39,23 +39,17 @@ Route::middleware('cors')->group(function () {
 
 Route::middleware('cors')->namespace('V1')->group(function () {
     Route::prefix('product')->group(function () {
-        // 取得所有商品列表
-        Route::get('all', 'ProductController@all');
-        // 根據商品分類取得商品列表
-        Route::get('tags', 'ProductController@tags');
         // 根據 id 取得商品明細
         Route::get('query/{id}', 'ProductController@query');
         // 根據 id 取得加購商品
-        Route::get('purchase/{id}', 'ProductController@purchase');
-        // 商品搜尋
-        Route::get('search', 'ProductController@search');
-        //主分類搜尋（商品）
-        Route::get('category/{categoryId}', 'LayoutController@maincategory');
-        //子分類搜尋（商品）
-        Route::get('subcategory/{subcategoryId}', 'LayoutController@subcategory');
+        // Route::get('purchase/{id}', 'ProductController@purchase');
+    });
+});
 
-        Route::get('cache/clean/all', 'ProductController@cleanAllProductCache');
-
-        Route::get('cache/clean/{id}', 'ProductController@cleanProductCache');
+// 需 token 認證的 route
+Route::middleware(['cors', 'auth.jwt'])->namespace('V1')->group(function () {
+    Route::prefix('order')->group(function () {
+        // 取得訂單列表
+        Route::get('info', 'OrderController@info');
     });
 });

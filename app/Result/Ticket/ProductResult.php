@@ -306,7 +306,7 @@ class ProductResult extends BaseResult
                 $newFare->saleStatusCode = $saleStatus['status'];
 
                 // 不在販賣時間，移除
-                if ($newFare->saleStatus == '11' || $newSpec->saleStatus == '10') {
+                if ($newFare->saleStatus == '11' || $newFare->saleStatus == '10') {
                     // 加總數量
                     $this->quantity += $f->prod_spec_price_stock;
 
@@ -371,7 +371,7 @@ class ProductResult extends BaseResult
      */
     private function getPurchase($additionals)
     {
-        $purchaseAry = [];
+        $purchaseAry = null;
 
         if ($additionals) {
             foreach ($additionals as $additional) {
@@ -390,7 +390,7 @@ class ProductResult extends BaseResult
      */
     private function getCombo($combos)
     {
-        $combosAry = [];
+        $combosAry = null;
 
         if ($combos) {
             foreach ($combos as $combo) {

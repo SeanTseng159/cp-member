@@ -91,4 +91,23 @@ trait ObjectHelper
 
         return null;
     }
+
+    /**
+     * 資料依日期做排序
+     * @param $arr
+     * @param$key
+     * @param $type
+     * @param $short
+     * @return array
+     */
+    public function multiArraySort($arr, $key , $type = SORT_REGULAR, $short = SORT_DESC)
+    {
+        if (!empty($arr)) {
+            foreach ($arr as $k => $v) {
+                $name[$k] = $v[$key];
+            }
+            array_multisort($name, $type, $short, $arr);
+        }
+        return $arr;
+    }
 }
