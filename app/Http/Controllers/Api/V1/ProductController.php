@@ -13,18 +13,14 @@ use Ksd\Mediation\Core\Controller\RestLaravelController;
 use App\Services\Ticket\ProductService;
 use App\Parameter\Ticket\Product\QueryParameter;
 use App\Result\Ticket\ProductResult;
-use App\Traits\MemberHelper;
 
 use App\Services\MagentoProductService;
 use App\Result\MagentoProductResult;
 
 class ProductController extends RestLaravelController
 {
-    use MemberHelper;
-
     protected $productService;
     protected $magentoProductService;
-    protected $memberId;
 
     public function __construct(ProductService $productService, MagentoProductService $magentoProductService)
     {
@@ -40,13 +36,13 @@ class ProductController extends RestLaravelController
      */
     public function query(Request $request, $id)
     {
-        $source = $request->input('source');
+        $parameter = new QueryParameter($request);
 
-        if ($source === 'magento') {
+        if ($parameter->source === 'magento') {
             $data = $this->magentoProductService->findOnShelf(urldecode($id), $this->getMemberId());
             $result = (new MagentoProductResult)->get($data, true);
         } else {
-            $data = $this->productService->findOnShelf($id, $this->getMemberId());
+            $data = $this->productService->findOnShelf($id, $parameter->memberId);
             $result = (new ProductResult)->get($data, true);
         }
 

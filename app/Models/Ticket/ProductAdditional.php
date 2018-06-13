@@ -13,9 +13,4 @@ class ProductAdditional extends BaseModel
 {
     protected $table = 'prod_additionals';
     protected $primaryKey = 'prod_additional_id';
-
-    public function scopeNotDeleted($query)
-    {
-    	return $query->where('deleted_at', 0);
-    }
 }

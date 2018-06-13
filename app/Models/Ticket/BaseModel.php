@@ -12,4 +12,12 @@ use Illuminate\Database\Eloquent\Model;
 class BaseModel extends Model
 {
 	protected $connection = 'backend';
+
+	/**
+     * 未被刪除的
+     */
+	public function scopeNotDeleted($query)
+    {
+    	return $query->where('deleted_at', 0);
+    }
 }

@@ -16,6 +16,8 @@ use App\Models\Member;
 use Ksd\Mediation\Magento\Customer;
 use Ksd\Mediation\Magento\Cart;
 
+use Carbon\Carbon;
+
 class Order extends Client
 {
     private $member;
@@ -39,9 +41,13 @@ class Order extends Client
     public function info($email)
     {
         $data = [];
-        
+
         if(!empty($email)) {
             try {
+                $today = Carbon::today();
+                $startDate = $today->format('Y-m-d');
+                $endDate = $today->subMonths(3)->format('Y-m-d'); // 往後推三個月
+
                 $path = 'V1/orders';
 
                 $response = $this->putQuery('searchCriteria[filterGroups][0][filters][0][field]', 'customer_email')
@@ -49,6 +55,12 @@ class Order extends Client
                     ->putQuery('searchCriteria[filterGroups][1][filters][1][field]', 'status')
                     ->putQuery('searchCriteria[filterGroups][1][filters][1][value]', 'canceled')
                     ->putQuery('searchCriteria[filterGroups][1][filters][1][condition_type]', 'neq')
+                    ->putQuery('searchCriteria[filterGroups][2][filters][0][field]', 'created_at')
+                    ->putQuery('searchCriteria[filterGroups][2][filters][0][value]', $endDate)
+                    ->putQuery('searchCriteria[filterGroups][2][filters][0][condition_type]', 'from')
+                    ->putQuery('searchCriteria[filterGroups][3][filters][0][field]', 'created_at')
+                    ->putQuery('searchCriteria[filterGroups][3][filters][0][value]', $startDate)
+                    ->putQuery('searchCriteria[filterGroups][3][filters][0][condition_type]', 'to')
                     ->request('GET', $path);
                 $body = $response->getBody();
                 $result = json_decode($body, true);
@@ -562,14 +574,14 @@ class Order extends Client
                         'entity_id' => $id,
                         'increment_id' => $incrementId,
                         'status' => $status,
-    
+
                     ]
                 ];
                 $this->putParameters($parameter);
                 $response = $this->request('PUT', 'V1/orders/create');
                 $result = json_decode($response->getBody(), true);
             } catch (ClientException $e){
-                
+
             }
         }
         return true;

@@ -7,9 +7,12 @@
 
 namespace App\Parameter;
 
+use App\Traits\MemberHelper;
 
 class BaseParameter
 {
+    use MemberHelper;
+
     public $request;
 
     public $sort;
@@ -18,6 +21,7 @@ class BaseParameter
 
     public $source;
     public $id;
+    public $memberId;
 
     public function __construct($request)
     {
@@ -29,16 +33,7 @@ class BaseParameter
 
         $this->source = $this->request->input('source');
         $this->id = $this->request->input('id');
-    }
-
-    public function __set($name, $value)
-    {
-        $this->$name = $value;
-    }
-
-    public function __get($name)
-    {
-        return $this->$name;
+        $this->memberId = $this->getMemberId();
     }
 
     public function offset()

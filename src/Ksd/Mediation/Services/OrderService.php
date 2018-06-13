@@ -34,6 +34,15 @@ class OrderService
     }
 
     /**
+     * 取得訂單資訊
+     * @return mixed
+     */
+    public function magentoInfo()
+    {
+        return $this->repository->magentoInfo();
+    }
+
+    /**
      * 取得訂單細項資訊
      * @param  $parameter
      * @return mixed
