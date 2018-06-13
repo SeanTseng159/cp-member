@@ -39,7 +39,7 @@ class ProductController extends RestLaravelController
         $parameter = new QueryParameter($request);
 
         if ($parameter->source === 'magento') {
-            $data = $this->magentoProductService->findOnShelf(urldecode($id), $this->getMemberId());
+            $data = $this->magentoProductService->findOnShelf(urldecode($id), $parameter->memberId);
             $result = (new MagentoProductResult)->get($data, true);
         } else {
             $data = $this->productService->findOnShelf($id, $parameter->memberId);
