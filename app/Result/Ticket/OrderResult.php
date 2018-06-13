@@ -201,7 +201,7 @@ class OrderResult extends BaseResult
                     $items[$detail['prod_cust_id']] = $this->getItem($detail);
                 }
                 else {
-                    $items[$detail['prod_cust_id']]->quantity += $detail['price_company_qty'];
+                    $items[$detail['prod_cust_id']]->quantity++;
                 }
             }
 
@@ -225,7 +225,7 @@ class OrderResult extends BaseResult
         $newDetail->no = null;
         $newDetail->name = $detail['prod_name'];
         $newDetail->spec = $detail['prod_spec_name'];
-        $newDetail->quantity = $detail['price_company_qty'];
+        $newDetail->quantity = 1;
         $newDetail->price = $detail['price_off'];
         $newDetail->description = trans('common.ticket');
         $newDetail->statusCode = $this->itemUsedStatusCode($detail);

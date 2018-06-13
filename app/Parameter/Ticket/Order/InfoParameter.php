@@ -20,7 +20,7 @@ class InfoParameter extends BaseParameter
     	parent::__construct($request);
 
     	$today = Carbon::today();
-		$endDate = $today->format('Y-m-d');
+		$endDate = $today->addDays(1)->format('Y-m-d');
 		$startDate = $today->subMonths(3)->format('Y-m-d'); // 往後推三個月
 
 		$this->startDate = $this->request->input('startDate', $startDate);

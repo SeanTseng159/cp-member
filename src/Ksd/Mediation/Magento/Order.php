@@ -45,7 +45,7 @@ class Order extends Client
         if(!empty($email)) {
             try {
                 $today = Carbon::today();
-                $startDate = $today->format('Y-m-d');
+                $startDate = $today->addDays(1)->format('Y-m-d');
                 $endDate = $today->subMonths(3)->format('Y-m-d'); // 往後推三個月
 
                 $path = 'V1/orders';
