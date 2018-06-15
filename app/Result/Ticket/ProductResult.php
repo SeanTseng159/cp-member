@@ -120,9 +120,8 @@ class ProductResult extends BaseResult
      */
     private function getContents($product)
     {
-        $content = new \stdClass;
-
         for ($i=1; $i <= 3; $i++) {
+            $content = new \stdClass;
             $content->title = $this->arrayDefault($product, 'prod_tabs' . $i, '');
             $content->description = $this->arrayDefault($product, 'prod_desc' . $i, '');
             $contents[] = $content;
