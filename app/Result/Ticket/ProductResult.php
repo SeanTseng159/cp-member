@@ -94,8 +94,8 @@ class ProductResult extends BaseResult
         $this->additionals = $this->getAdditional($this->arrayDefault($product, 'spec'), $product['prod_price_type']); // 規格
 
         $saleStatus = $this->getSaleStatus($this->arrayDefault($product, 'prod_onsale_time'), $this->arrayDefault($product, 'prod_offsale_time'), $this->quantity);
-        $this->saleStatusCode = $saleStatus['code'];
-        $this->saleStatus = $saleStatus['status'];
+        $this->saleStatusCode = $saleStatus['status'];
+        $this->saleStatus = $saleStatus['code'];
 
         return $this->apiPurchaseFormat();
     }
@@ -375,7 +375,7 @@ class ProductResult extends BaseResult
         if ($additionals) {
             foreach ($additionals as $additional) {
                 $purchase = (new ProductResult)->getPurchaseFormat($additional->product, true);
-                if ($purchase->saleStatusCode === ProcuctConfig::SALE_STATUS[ProcuctConfig::SALE_STATUS_ON_SALE]) $purchaseAry[] = $purchase;
+                if ($purchase->saleStatus === ProcuctConfig::SALE_STATUS[ProcuctConfig::SALE_STATUS_ON_SALE]) $purchaseAry[] = $purchase;
             }
         }
 
