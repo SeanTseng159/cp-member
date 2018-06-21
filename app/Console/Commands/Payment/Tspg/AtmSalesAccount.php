@@ -62,9 +62,13 @@ class AtmSalesAccount extends Command
 
         foreach ($files as $file) {
             $filename = $file->getBasename();
+            $fileTime = $this->fileTime($filename);
+
+            // 不符合格式，不處理
+            if (!$fileTime) continue;
 
             // 處理過期的檔案
-            if (strpos($filename, $today->format('Ymd')) === false) {
+            if (!$fileTime->isToday() && !$fileTime->isYesterday()) {
                 $this->ftpMoveExpiredFiles($filename);
                 continue;
             }
@@ -77,7 +81,6 @@ class AtmSalesAccount extends Command
             // copy到payment getaway
             $this->moveFilesToPayment($directory, $filename);
 
-            $fileTime = $this->fileTime($filename);
             if (!empty($fileTime)) {
                 $isSuccess = true;
                 $fileResource  = fopen($file, "r");
