@@ -93,7 +93,7 @@ class ProductRepository extends BaseRepository
      */
     public function productSpec($id)
     {
-        return ProductSpec::with('specPrices')->where('prod_id', $id)->get();
+        return ProductSpec::with('specPrices')->where('prod_id', $id)->notDeleted()->get();
     }
 
     /**
