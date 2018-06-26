@@ -326,7 +326,7 @@ class ProductResult extends BaseResult
     {
 
         $expire = new \stdClass;
-        $expire->type = $product['prod_price_type'];
+        $expire->type = $product['prod_expire_type'];
         $expire->value = '';
 
         if ($expire->type == 1) {
