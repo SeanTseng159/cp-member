@@ -370,7 +370,7 @@ class ProductResult extends BaseResult
      */
     private function getPurchase($additionals)
     {
-        $purchaseAry = null;
+        $purchaseAry = [];
 
         if ($additionals) {
             foreach ($additionals as $additional) {
