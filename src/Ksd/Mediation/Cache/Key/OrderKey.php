@@ -10,4 +10,5 @@ namespace Ksd\Mediation\Cache\Key;
 class OrderKey
 {
   const INFO_KEY = 'order:info:user:%s';
+  const MAGENTO_INFO_KEY = 'magento:order:info:user:%s';
 }

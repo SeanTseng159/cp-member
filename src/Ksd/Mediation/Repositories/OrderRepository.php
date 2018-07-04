@@ -61,6 +61,22 @@ class OrderRepository extends BaseRepository
     }
 
     /**
+     * 取得所有訂單列表
+     * @return mixed
+     */
+    public function magentoInfo()
+    {
+        $email = $this->memberTokenService->getEmail();
+        $key = $this->genCacheKey(OrderKey::MAGENTO_INFO_KEY);
+
+        $orders = $this->redis->remember($key, CacheConfig::ORDER_TIME, function () use ($email) {
+            return $this->magento->info($email);
+        });
+
+        return $orders;
+    }
+
+    /**
      * 根據訂單id 取得訂單細項資訊
      * @param parameter
      * @return mixed
@@ -106,20 +122,31 @@ class OrderRepository extends BaseRepository
     {
         $this->memberId = $id;
         $this->token = $this->memberTokenService->generateToken($this->memberId);
-        
+
         $email = $this->memberTokenService->getEmail($this->memberId);
         $key = $this->genCacheKey(OrderKey::INFO_KEY);
 
         // 清除快取
         $this->cacheKey($key);
 
+        $magentoOrders = $this->magento->info($email);
+
         // 重建快取
-        $orders = $this->redis->remember($key, CacheConfig::ORDER_TIME, function () use ($email) {
-            $magento = $this->magento->info($email);
+        $this->redis->remember($key, CacheConfig::ORDER_TIME, function () use ($magentoOrders) {
+            // $magento = $this->magento->info($email);
             $cityPass = $this->cityPass->authorization($this->token)->info();
-            $data = array_merge($magento, $cityPass);
+            $data = array_merge($magentoOrders, $cityPass);
 
             return ($data) ? $this->multi_array_sort($data, 'orderDate') : null;
+        });
+
+        // 清掉magento order
+        $key = $this->genCacheKey(OrderKey::MAGENTO_INFO_KEY);
+        // 清除快取
+        $this->cacheKey($key);
+        // 重建快取
+        $this->redis->remember($key, CacheConfig::ORDER_TIME, function () use ($magentoOrders) {
+            return $magentoOrders;
         });
 
         return true;
