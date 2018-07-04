@@ -65,10 +65,11 @@ class Cart extends Client
             ->request('POST', 'cart/add');
         $result = json_decode($response->getBody(), true);
 
-        Log::debug('===購物車===');
-        Log::debug(print_r(json_decode($response->getBody(), true), true));
+        //Log::debug('===購物車===');
+        //Log::debug(print_r(json_decode($response->getBody(), true), true));
 
-        return ($result['statusCode'] === 201);
+        //return ($result['statusCode'] === 201);
+        return $result;
     }
 
     /**
@@ -82,10 +83,11 @@ class Cart extends Client
             ->request('POST', 'cart/update');
         $result = json_decode($response->getBody(), true);
 
-        Log::debug('===購物車===');
-        Log::debug(print_r(json_decode($response->getBody(), true), true));
+        //Log::debug('===購物車===');
+        //Log::debug(print_r(json_decode($response->getBody(), true), true));
 
-        return ($result['statusCode'] === 202);
+        //return ($result['statusCode'] === 202);
+        return $result;
     }
 
     /**

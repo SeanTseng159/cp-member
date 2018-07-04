@@ -7,6 +7,7 @@ use Ksd\Mediation\Core\Controller\RestLaravelController;
 use Ksd\Mediation\Parameter\Cart\ProductParameter;
 use Ksd\Mediation\Parameter\Cart\CartParameter;
 use Ksd\Mediation\Services\CartService;
+use Ksd\Mediation\Config\ProjectConfig;
 
 class CartController extends RestLaravelController
 {
@@ -53,10 +54,22 @@ class CartController extends RestLaravelController
      */
     public function add(Request $request)
     {
+        $source = $request->input('source');
+
         $parameters = new ProductParameter();
         $parameters->laravelRequest($request);
         $result = $this->cartService->add($parameters);
-        return ($result) ? $this->success() : $this->failure('E0002', '新增失敗');
+
+        if ($source === ProjectConfig::MAGENTO) {
+            return ($result) ? $this->success() : $this->failure('E0002', '新增失敗');
+        } else if ($source === ProjectConfig::CITY_PASS) {
+            if ($result['statusCode'] === 201) {
+                return $this->success();
+            }
+            else {
+                return (isset($result['message'])) ? $this->failure('E9999', $result['message']) : $this->failure('E0003', '更新失敗');
+            }
+        }
     }
 
     /**
@@ -66,10 +79,22 @@ class CartController extends RestLaravelController
      */
     public function update(Request $request)
     {
+        $source = $request->input('source');
+
         $parameters = new ProductParameter();
         $parameters->laravelRequest($request);
         $result = $this->cartService->update($parameters);
-        return ($result) ? $this->success() : $this->failure('E0003', '更新失敗');
+
+        if ($source === ProjectConfig::MAGENTO) {
+            return ($result) ? $this->success() : $this->failure('E0003', '更新失敗');
+        } else if ($source === ProjectConfig::CITY_PASS) {
+            if ($result['statusCode'] === 202) {
+                return $this->success();
+            }
+            else {
+                return (isset($result['message'])) ? $this->failure('E9999', $result['message']) : $this->failure('E0003', '更新失敗');
+            }
+        }
     }
 
     /**
