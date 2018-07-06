@@ -69,7 +69,7 @@ class ProductResult extends BaseResult
             $this->saleStatusCode = $saleStatus['code'];
             $this->saleStatus = $saleStatus['status'];
             $this->canUseCoupon = '1';
-            $this->isBook = ($this->arrayDefault($product, 'prod_kind', 1) === 2) ? true : false;
+            $this->isBook = ($this->arrayDefault($product, 'prod_bookable', 0) === 1) ? true : false;
         }
 
         return $this->apiFormat($isDetail);
