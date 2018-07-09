@@ -23,7 +23,7 @@ class CartResult
      * @param $totalResult
      * @param $coupon
      */
-    public function magento($result, $totalResult, $coupon=null)
+    public function magento($result, $totalResult, $coupon = null, $isDetail = true)
     {
         $this->id = $this->arrayDefault($result, 'id');
         $this->items = [];
@@ -47,21 +47,24 @@ class CartResult
             $this->items[] = $row;
         }
 
-        $this->itemTotal = $this->arrayDefault($result, 'items_count');
-        $this->totalAmount = $this->arrayDefault($totalResult, 'subtotal');
-        if(is_null($coupon)){
-            $this->useCoupon=null;
-        }else {
-            $this->useCoupon['id'] = $this->arrayDefault($coupon, 'rule_id');
-            $this->useCoupon['name'] = $this->arrayDefault($coupon, 'name');
-            $this->useCoupon['method'] = $this->arrayDefault($coupon, 'name');
+        if ($isDetail) {
+            $this->itemTotal = $this->arrayDefault($result, 'items_count');
+            $this->totalAmount = $this->arrayDefault($totalResult, 'subtotal');
+            if(is_null($coupon)){
+                $this->useCoupon=null;
+            }else {
+                $this->useCoupon['id'] = $this->arrayDefault($coupon, 'rule_id');
+                $this->useCoupon['name'] = $this->arrayDefault($coupon, 'name');
+                $this->useCoupon['method'] = $this->arrayDefault($coupon, 'name');
+            }
+            $this->discountAmount = ceil($this->arrayDefault($totalResult, 'discount_amount'));
+            $this->discountTotal = $this->arrayDefault($totalResult, 'subtotal') + ceil($this->arrayDefault($totalResult, 'discount_amount'));
+            $this->payAmount = $this->arrayDefault($totalResult, 'grand_total');
+            $this->shipmentAmount = $this->arrayDefault($totalResult, 'shipping_amount');
+            $this->shipmentFree = $this->arrayDefault($totalResult, 'shipping_discount_amount');
         }
-        $this->discountAmount = ceil($this->arrayDefault($totalResult, 'discount_amount'));
-        $this->discountTotal = $this->arrayDefault($totalResult, 'subtotal') + ceil($this->arrayDefault($totalResult, 'discount_amount'));
-        $this->payAmount = $this->arrayDefault($totalResult, 'grand_total');
-        $this->shipmentAmount = $this->arrayDefault($totalResult, 'shipping_amount');
-        $this->shipmentFree = $this->arrayDefault($totalResult, 'shipping_discount_amount');
     }
+
     /**
      * 處理 city pass 資料建置
      * @param $result
