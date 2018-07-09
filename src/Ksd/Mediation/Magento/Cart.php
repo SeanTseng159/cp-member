@@ -49,35 +49,37 @@ class Cart extends Client
      * @param int $memberId
      * @return CartResult
      */
-    public function detail($token = '')
+    public function detail($get = false, $token = '')
     {
-        if ( ! empty($token)) {
-            $this->userAuthorization($token);
-        }
-        
         $result = [];
         $totalResult = null;
-        /*try {
 
-            $response = $this->request('GET', 'V1/carts/mine');
-            $result = json_decode($response->getBody(), true);
-            $totalResult = $this->totals();
+        $cart = new CartResult();
 
-        } catch (ClientException $e) {
-            // TODO:處理抓取不到購物車資料
+        if ($get) {
+            if ( ! empty($token)) {
+                $this->userAuthorization($token);
+            }
+
+            try {
+
+                $response = $this->request('GET', 'V1/carts/mine');
+                $result = json_decode($response->getBody(), true);
+                $totalResult = $this->totals();
+
+            } catch (ClientException $e) {
+                // TODO:處理抓取不到購物車資料
+            }
+
+            // $coupon = new SalesRule();
+            if(!empty($totalResult['coupon_code'])) {
+                $coupon = $this->salesRule->authorization($this->env('MAGENTO_ADMIN_TOKEN'))->salesRuleFindByCode($totalResult['coupon_code']);
+                $cart->magento($result, $totalResult, $coupon);
+            }
         }
 
- //       $coupon = new SalesRule();
-        $cart = new CartResult();
-        if(!empty($totalResult['coupon_code'])) {
-            $coupon = $this->salesRule->authorization($this->env('MAGENTO_ADMIN_TOKEN'))->salesRuleFindByCode($totalResult['coupon_code']);
-            $cart->magento($result, $totalResult, $coupon);
-        }*/
-
-        $cart = new CartResult();
         $cart->magento($result, $totalResult);
         $cart = $this->processItem($cart);
-
 
         return $cart;
     }
@@ -301,7 +303,7 @@ class Cart extends Client
 
         return json_decode($response->getBody(), true);
     }
-    
+
     /**
      * 處理規格商品 id 轉換
      * @param $item

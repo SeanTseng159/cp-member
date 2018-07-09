@@ -114,7 +114,7 @@ class CartRepository extends BaseRepository
         $source = $parameter->source;
         if($source === ProjectConfig::MAGENTO) {
             $token = empty($token) ? $this->memberTokenService->magentoUserToken() : $token;
-            return $this->magento->userAuthorization($token)->detail();
+            return $this->magento->userAuthorization($token)->detail(true, $token);
         }else if($source === ProjectConfig::CITY_PASS) {
             $token = empty($token) ? $this->memberTokenService->cityPassUserToken() : $token;
             return $this->cityPass->authorization($token)->detail();
@@ -123,7 +123,7 @@ class CartRepository extends BaseRepository
         }
 
     }
-    
+
     /**
      * 商品加入購物車
      * @param $parameters
@@ -162,7 +162,7 @@ class CartRepository extends BaseRepository
 
         return $this->result;
     }
-    
+
     /**
      * 更新購物車過期時間
      * @param $parameters
@@ -208,7 +208,7 @@ class CartRepository extends BaseRepository
 
         return $this->result;
     }
-    
+
     /**
      * 刪除購物車內指定商品
      * @param string $source
@@ -231,10 +231,10 @@ class CartRepository extends BaseRepository
             }
         }
         $this->cleanCache();
-        
+
         return $this->result;
     }
-    
+
     /**
      * 刪除過期購物車紀錄
      * @param string $source
@@ -247,7 +247,7 @@ class CartRepository extends BaseRepository
                 ->where('member_id', $memberId)
                 ->delete();
     }
-    
+
     /**
      * 清除快取
      */
@@ -275,7 +275,7 @@ class CartRepository extends BaseRepository
         $this->cacheKey(self::INFO_KEY_C);
         $this->cacheKey(self::DETAIL_KEY_C);
     }
-    
+
     /**
      * 取得過期購物車會員 id
      * @param string $source
