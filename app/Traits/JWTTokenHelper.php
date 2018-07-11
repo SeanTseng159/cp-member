@@ -12,9 +12,11 @@ use Illuminate\Support\Facades\Request;
 
 trait JWTTokenHelper
 {
-    public function JWTencode($token)
+    public function JWTencode($token, $key = null)
     {
-      return JWT::encode($token, env('JWT_KEY', '53890045'));
+        if (!$key) $key = env('JWT_KEY');
+
+        return JWT::encode($token, $key);
     }
 
     public function JWTdecode($token = null)
