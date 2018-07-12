@@ -84,8 +84,8 @@ class OrderResult extends BaseResult
 
         $orderPayMethod = $orderPayMethod ?: 0;
 
-        if (OrderConfig::PAYMENT_METHOD[$orderPayMethod] === 'atm' && empty($atmVirtualAccount)) {
-            $isRepay = true;
+        if (OrderConfig::PAYMENT_METHOD[$orderPayMethod] === 'atm') {
+            $isRepay = empty($atmVirtualAccount);
         }
         else {
             $isRepay = ($orderStatus === 0) ? true : false;
