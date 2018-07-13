@@ -39,7 +39,8 @@ class CheckoutController extends RestLaravelController
      */
     public function info($source)
     {
-        return $this->success($this->service->info($source));
+        $this->service->info($source);
+        //return $this->success($this->service->info($source));
     }
 
     /**

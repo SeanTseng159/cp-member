@@ -63,6 +63,16 @@ class Redis
     }
 
     /**
+     * 根據 key 取得快取資料並刪除
+     * @param $key
+     * @return mixed
+     */
+    public function pull($key)
+    {
+        return Cache::pull($this->i18nKey($key));
+    }
+
+    /**
      * 根據 key 取得快取資料, 若無法取得執行 call function
      * @param $key
      * @param $expire

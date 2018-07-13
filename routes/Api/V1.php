@@ -52,4 +52,9 @@ Route::middleware(['cors', 'auth.jwt'])->namespace('V1')->group(function () {
         // 取得訂單列表
         Route::get('info', 'OrderController@info');
     });
+
+    Route::prefix('cart')->group(function () {
+        // 取得一次性購物車資訊並加入購物車(依來源)
+        Route::get('one-off', 'CartController@oneOff');
+    });
 });

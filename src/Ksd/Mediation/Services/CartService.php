@@ -50,6 +50,16 @@ class CartService
     }
 
     /**
+     * 取得一次性購物車資訊並加入購物車(依來源)
+     * @param $parameter
+     * @return mixed
+     */
+    public function oneOff($parameter)
+    {
+        return $this->repository->oneOff($parameter);
+    }
+
+    /**
      * 商品加入購物車
      * @param $parameters
      * @return bool
