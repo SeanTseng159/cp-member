@@ -16,6 +16,8 @@ use Ksd\Mediation\Result\CartResult;
 use Ksd\Mediation\Result\ProductResult;
 use Ksd\Mediation\Magento\SalesRule;
 
+use Ksd\Mediation\Cache\Redis;
+
 class Cart extends Client
 {
     use EnvHelper;
@@ -176,6 +178,37 @@ class Cart extends Client
         }
 
         return $isAdd;
+    }
+
+    /**
+     * 增加商品至購物車
+     * @param $parameters
+     * @return bool
+     */
+    public function addCacheCart($memberId, $parameters)
+    {
+        $redis = new Redis();
+        $key = sprintf('magentoCart.%s', $memberId);
+        $redis->set($key, $parameters);
+
+        return true;
+    }
+
+
+    /**
+     * 取得商品至購物車
+     * @param $parameters
+     * @return bool
+     */
+    public function getOneOffCart($memberId)
+    {
+        $redis = new Redis;
+        $key = sprintf('magentoCart.%s', $memberId);
+        $val = $redis->pull($key);
+
+        if ($val) $this->add($val);
+
+        return $this->detail(true);
     }
 
     /**

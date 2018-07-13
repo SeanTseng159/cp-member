@@ -48,7 +48,7 @@ class CheckoutRepository extends BaseRepository
     public function info($source)
     {
         if($source === ProjectConfig::MAGENTO) {
-            return $this->magento->userAuthorization($this->memberTokenService->magentoUserToken())->info();
+            return $this->magento->userAuthorization($this->memberTokenService->magentoUserToken())->info($this->memberTokenService->getId());
         } else if ($source === ProjectConfig::CITY_PASS) {
             return $this->cityPass->authorization($this->memberTokenService->cityPassUserToken())->info();
         }
