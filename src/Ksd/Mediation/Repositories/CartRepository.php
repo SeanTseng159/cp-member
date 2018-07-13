@@ -86,12 +86,7 @@ class CartRepository extends BaseRepository
     {
         $source = $parameter->source;
         if($source === ProjectConfig::MAGENTO) {
-<<<<<<< HEAD
-            $token = empty($token) ? $this->memberTokenService->magentoUserToken() : $token;
-            return $this->magento->userAuthorization($token)->detail(true, $token);
-=======
             return $this->magento->userAuthorization($this->memberTokenService->magentoUserToken())->detail();
->>>>>>> dev_magento_change_buy
         }else if($source === ProjectConfig::CITY_PASS) {
             $token = empty($token) ? $this->memberTokenService->cityPassUserToken() : $token;
             return $this->cityPass->authorization($token)->detail();
