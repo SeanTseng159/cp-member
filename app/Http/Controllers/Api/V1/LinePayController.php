@@ -9,6 +9,7 @@ namespace App\Http\Controllers\Api\V1;
 
 use Illuminate\Http\Request;
 use Ksd\Mediation\Core\Controller\RestLaravelController;
+use Ksd\Payment\Services\LinePayService;
 
 class LinePayController extends RestLaravelController
 {
@@ -29,9 +30,12 @@ class LinePayController extends RestLaravelController
         \Log::debug(print_r($request->all(), true));
 
         $device = $request->input('device');
+        
+        (new LinePayService())->feedback($request->all());
+        
 
         if ($device === 'app') {
-            return "<script> location.href = 'LinePayTest://' </script>";;
+            return "<script> location.href = 'LinePayTest://' </script>";
         }
         else {
             return redirect('https://dev.citypass.tw');

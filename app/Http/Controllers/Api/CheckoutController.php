@@ -66,28 +66,19 @@ class CheckoutController extends RestLaravelController
     {
         $parameters = new ConfirmParameter();
         $parameters->laravelRequest($request);
-
-        if ($parameters->payment->type === 'linepay') {
-            $linePayService = app()->build(LinePayService::class);
-            $result = $linePayService->reserve([
-                    "orderId" => "RW_122" . rand(10000, 100000),
-                    "productName" => "CityPass商品",
-                    "amount" => rand(100, 1000),
-                    "successUrl" => url('api/v1/linepay/confirm/callback?device=' . $parameters->device),
-                    "cancelUrl" => url('api/v1/linepay/confirm/callback?device=' . $parameters->device)
-                ]);
-
+        
+        $result = $this->service->confirm($parameters);
+        
+        if ($result['code'] === '00000' || $result['code'] === 201) {
+            
+            if ($parameters->payment->type === 'linepay') {
+                $linePayService = app()->build(LinePayService::class);
+                $result['data'] = $linePayService->reserve($result['data'], $parameters);
+            }
+            
             return $this->success($result['data']);
-        }
-        else {
-            $result = $this->service->confirm($parameters);
-
-            if ($result['code'] === '00000' || $result['code'] === 201) {
-                return $this->success($result['data']);
-            }
-            else {
-                return $this->failureCode($result['code']);
-            }
+        } else {
+            return $this->failureCode($result['code']);
         }
     }
 
