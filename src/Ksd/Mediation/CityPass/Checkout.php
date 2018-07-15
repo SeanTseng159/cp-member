@@ -151,15 +151,27 @@ class Checkout extends Client
         Log::debug(print_r(json_decode($response->getBody(), true), true));
 
     }
-    
+
     public function linepayFeedback($parameters)
     {
         $this->putParameters($parameters);
         $response = $this->request('POST', 'payment/feedbackLinepay');
-        return json_decode($response->getBody(), true);
 
         Log::debug('===Citypass linepay結果回傳更新訂單===');
         Log::debug(print_r(json_decode($response->getBody(), true), true));
+
+        return json_decode($response->getBody(), true);
+
+        /*$ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, 'https://devbackend.citypass.tw/api/payment/feedbackLinepay');
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($parameters));
+        $output = curl_exec($ch);
+        curl_close($ch);
+
+        Log::debug('===linepayFeedback===');
+        Log::debug(print_r($output, true));
+        return false;*/
     }
 
 }

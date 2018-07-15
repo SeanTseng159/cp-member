@@ -66,18 +66,25 @@ class CheckoutController extends RestLaravelController
     {
         $parameters = new ConfirmParameter();
         $parameters->laravelRequest($request);
-        
+
         $result = $this->service->confirm($parameters);
-        
-        if ($result['code'] === '00000' || $result['code'] === 201) {
-            
-            if ($parameters->payment->type === 'linepay') {
-                $linePayService = app()->build(LinePayService::class);
-                $result['data'] = $linePayService->reserve($result['data'], $parameters);
+
+        if ($parameters->payment->type === 'linepay' && $result['code'] === 201) {
+            $linePayService = app()->build(LinePayService::class);
+            $reserveResult = $linePayService->reserve($result['data'], $parameters);
+
+            if ($reserveResult['code'] === '00000') {
+                $result['data']['paymentUrl'] = $reserveResult['data']['paymentUrl'];
             }
-            
+            else {
+                return $this->failure($reserveResult['code'], $reserveResult['message']);
+            }
+        }
+
+        if ($result['code'] === '00000' || $result['code'] === 201) {
             return $this->success($result['data']);
-        } else {
+        }
+        else {
             return $this->failureCode($result['code']);
         }
     }

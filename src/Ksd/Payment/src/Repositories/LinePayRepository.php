@@ -44,7 +44,7 @@ class LinePayRepository extends Client
             return false;
         }
     }
-    
+
     /**
      * 接收linepay前台通知程式
      * @param $parameters
@@ -52,39 +52,13 @@ class LinePayRepository extends Client
      */
     public function feedback($parameters)
     {
-        \Log::debug('=== linepay回來 ===');
-        \Log::debug(print_r($parameters, true));
-
-        $record = [
-            'order_no' => $parameters['data']->orderNo,
-            'amount'   => $parameters['data']->amount,
-            'status'   => $parameters['code'] === '00000' ? 1 : 0,
-            'transactionId' => $parameters['data']->transactionId,
-            'device'   => $parameters['device'],
-        ];
-
 //        $pay = new LinepayFeedbackRecord();
 //        $pay->fill($record)->save();
 
-        //更新訂單狀態
-        $response = (new CityPassCheckout())->authorization($this->generateToken())->linepayFeedback($parameters);
-        
-return $response;
-        
-        // 請求寄送訂單付款完成通知 (如付款失敗，則不發送)
-        if ($orderFlag) {
-            dispatch(new OrderPaymentCompleteMail($data->member_id, $data->order_source, $data->order_id))->delay(5);
-
-            $invoice = new MagentoInvoice;
-            $parameters = new \stdClass;
-            $parameters->id = $data->order_id;
-            $invoice->createMagentoInvoice($parameters);
-        }
-
-        return [];
-
+        // 更新訂單狀態
+        return (new CityPassCheckout())->authorization($this->generateToken())->linepayFeedback($parameters);
     }
-    
+
     /**
      * 建立 token for citypass金流
      * @return string

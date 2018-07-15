@@ -30,12 +30,12 @@ class LinePayService
     public function reserve($order_info, $request)
     {
         $order_no = $order_info['orderNo'];
-        
+
         $parameters = new \stdClass();
         $parameters->source = $request->source;
         $parameters->id = $order_no;
         $order = $this->orderRepo->find($parameters);
-        
+
         $line_reserve_params = [
             "orderId" => $order[0]->orderNo,
             "productName" => "CityPass商品",
@@ -43,10 +43,10 @@ class LinePayService
             "successUrl" => url('api/v1/linepay/confirm/callback?device=' . $request->device),
             "cancelUrl" => url('api/v1/linepay/confirm/callback?device=' . $request->device),
         ];
-        
+
     	return $this->repository->reserve($line_reserve_params);
     }
-    
+
     public function feedback($parameters)
     {
         return $this->repository->feedback($parameters);
