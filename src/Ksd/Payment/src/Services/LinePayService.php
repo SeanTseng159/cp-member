@@ -37,11 +37,13 @@ class LinePayService
         $order = $this->orderRepo->find($parameters);
 
         if ($order) {
+            $hasLinePayApp = $request->hasLinePayApp;
             // 導向路徑
             $redirect = url('api/v1/linepay/confirm/callback?device=' . $request->device);
-            if ($request->hasLinePayApp) {
+            if ($hasLinePayApp) {
                 if ($request->device === 'ios') {
-                    $redirect = 'CityPass://linepay/' . $order[0]->orderNo;
+                    $successUrl = env('LINEPAY_ISO_REDIRECT') . 'success/' . $order[0]->orderNo;
+                    $cancelUrl = env('LINEPAY_ISO_REDIRECT') . 'failure/' . $order[0]->orderNo;
                 }
             }
 
@@ -49,9 +51,9 @@ class LinePayService
                 "orderId" => $order[0]->orderNo,
                 "productName" => "CityPass商品",
                 "amount" => $order[0]->orderAmount,
-                "successUrl" =>  $redirect,
-                "cancelUrl" =>  $redirect,
-                "hasApp" => $request->hasLinePayApp
+                "successUrl" =>  ($hasLinePayApp) ? $successUrl : $redirect,
+                "cancelUrl" =>  ($hasLinePayApp) ? $cancelUrl : $redirect,
+                "hasApp" => $hasLinePayApp
             ];
 
         	return $this->repository->reserve($line_reserve_params);
@@ -64,13 +66,13 @@ class LinePayService
     }
 
     /**
-     * comfirm
+     * confirm
      * @param $parameters
      * @return mixed
      */
-    public function comfirm($parameters)
+    public function confirm($parameters)
     {
-        return $this->repository->comfirm($parameters);
+        return $this->repository->confirm($parameters);
     }
 
     public function feedback($parameters)
