@@ -29,7 +29,7 @@ class LinePayRepository extends Client
     {
         try {
             $response = $this->putParameters($parameters)
-                ->request('POST', 'linepay/reserve');
+                ->request('POST', 'v1/linepay/reserve');
 
             $result = json_decode($response->getBody(), true);
 
@@ -40,6 +40,31 @@ class LinePayRepository extends Client
             return false;
         } catch (Exception $e) {
             Log::debug('=== linepay reserve unknown error ===');
+            Log::debug(print_r($e->getMessage(), true));
+            return false;
+        }
+    }
+
+    /**
+     * comfirm
+     * @param $parameters
+     * @return mixed
+     */
+    public function comfirm($parameters)
+    {
+        try {
+            $response = $this->putParameters($parameters)
+                ->request('GET', 'v1/linepay/confirmToApi');
+
+            $result = json_decode($response->getBody(), true);
+
+            return $result;
+        } catch (ClientException $e) {
+            Log::debug('=== linepay comfirm error ===');
+            Log::debug(print_r($e->getMessage(), true));
+            return false;
+        } catch (Exception $e) {
+            Log::debug('=== linepay comfirm unknown error ===');
             Log::debug(print_r($e->getMessage(), true));
             return false;
         }

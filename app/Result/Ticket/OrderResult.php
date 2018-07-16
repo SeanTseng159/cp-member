@@ -88,7 +88,7 @@ class OrderResult extends BaseResult
             $isRepay = true;
         }
         else {
-            $isRepay = ($orderStatus == 1) ? true : false;
+            $isRepay = ($orderStatus === 0) ? true : false;
         }
 
         return $isRepay;

@@ -36,15 +36,41 @@ class LinePayService
         $parameters->id = $order_no;
         $order = $this->orderRepo->find($parameters);
 
-        $line_reserve_params = [
-            "orderId" => $order[0]->orderNo,
-            "productName" => "CityPass商品",
-            "amount" => $order[0]->orderAmount,
-            "successUrl" => url('api/v1/linepay/confirm/callback?device=' . $request->device),
-            "cancelUrl" => url('api/v1/linepay/confirm/callback?device=' . $request->device),
-        ];
+        if ($order) {
+            // 導向路徑
+            $redirect = url('api/v1/linepay/confirm/callback?device=' . $request->device);
+            if ($request->hasLinePayApp) {
+                if ($request->device === 'ios') {
+                    $redirect = 'CityPass://linepay/' . $order[0]->orderNo;
+                }
+            }
 
-    	return $this->repository->reserve($line_reserve_params);
+            $line_reserve_params = [
+                "orderId" => $order[0]->orderNo,
+                "productName" => "CityPass商品",
+                "amount" => $order[0]->orderAmount,
+                "successUrl" =>  $redirect,
+                "cancelUrl" =>  $redirect,
+                "hasApp" => $request->hasLinePayApp
+            ];
+
+        	return $this->repository->reserve($line_reserve_params);
+        }
+
+        return [
+                'code' => 'E0101',
+                'message' => '訂單不存在'
+            ];
+    }
+
+    /**
+     * comfirm
+     * @param $parameters
+     * @return mixed
+     */
+    public function comfirm($parameters)
+    {
+        return $this->repository->comfirm($parameters);
     }
 
     public function feedback($parameters)

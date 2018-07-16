@@ -17,7 +17,7 @@ class LinePayParameter
     	$parameters['device'] = $request->input('device');
 
     	$parameters['record'] = [
-            'order_no' => $parameters['data']['orderId'],
+            'orderNo' => $parameters['data']['orderId'],
             'amount'   => $parameters['data']['amount'],
             'status'   => $parameters['code'] === '00000' ? 1 : 0,
             'transactionId' => $parameters['data']['transactionId'],

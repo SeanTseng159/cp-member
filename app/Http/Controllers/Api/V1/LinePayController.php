@@ -47,9 +47,9 @@ class LinePayController extends RestLaravelController
 
     private function successRedirect($parameters)
     {
-        $orderNo = $parameters['record']['order_no'];
+        $orderNo = $parameters['record']['orderNo'];
 
-        if ($parameters['device'] === 'app') {
+        if ($parameters['device'] === 'ios') {
             $url = sprintf('app://order?id=%s&source=ct_pass&result=true&msg=success', $orderNo);
 
             return sprintf('<script>location.href="%s";</script>', $url);
@@ -64,9 +64,9 @@ class LinePayController extends RestLaravelController
 
     private function failureRedirect($parameters)
     {
-        $orderNo = $parameters['record']['order_no'];
+        $orderNo = $parameters['record']['orderNo'];
 
-        if ($parameters['device'] === 'app') {
+        if ($parameters['device'] === 'ios') {
             $url = sprintf('app://order?id=%s&source=ct_pass&result=failure&msg=failure', $orderNo);
 
             return sprintf('<script>location.href="%s";</script>', $url);

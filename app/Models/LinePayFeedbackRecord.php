@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class TspgPostbackRecord extends Model
+class LinePayFeedbackRecord extends Model
 {
     protected $guarded = ['id'];
     public $table = "linepay_feedback_record";

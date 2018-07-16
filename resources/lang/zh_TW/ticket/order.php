@@ -26,13 +26,15 @@ return [
     	'gateway' => [
     		'unknown' => '未知',
     		'ipasspay' => 'iPassPay',
-    		'tspg' => '台新'
+    		'tspg' => '台新',
+            'LinePay' => 'LinePay'
     	],
     	'method' => [
     		'unknown' => '未知',
     		'credit_card' => '信用卡一次付清',
     		'atm' => 'ATM虛擬帳號',
-    		'ipasspay' => 'iPassPay'
+    		'ipasspay' => 'iPassPay',
+            'LinePay' => 'LinePay'
     	],
     	'ipasspay' => [
     		'ACCLINK' => '約定連結帳戶付款',

@@ -14,8 +14,8 @@ use Ksd\Mediation\Parameter\Checkout\ResultParameter;
 
 use Ksd\Mediation\Services\CheckoutService;
 use Ksd\Mediation\Services\CartService;
+use Ksd\Mediation\Services\OrderService;
 use App\Services\Card3dLogService as LogService;
-use App\Jobs\Mail\OrderCreatedMail;
 use Log;
 
 use Ksd\Payment\Services\LinePayService;
@@ -83,6 +83,9 @@ class CheckoutController extends RestLaravelController
 
         if ($result['code'] === '00000' || $result['code'] === 201) {
             return $this->success($result['data']);
+        }
+        else if ($result['code'] === 402) {
+            return $this->failureCode('E9007');
         }
         else {
             return $this->failureCode($result['code']);
@@ -251,5 +254,48 @@ class CheckoutController extends RestLaravelController
         $parameters->laravelRequest($request);
         $result = $this->service->result($parameters);
         return $this->success($result);
+    }
+
+    /**
+     * LinePay comfirm
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function linepayUpdateOrder(Request $request)
+    {
+        $orderId = $request->input('orderId');
+
+        if (!$orderId) return $this->failureCode('E0001');
+
+        $parameters['orderId'] = $orderId;
+
+        $linePayService = app()->build(LinePayService::class);
+        $confirmResult = $linePayService->confirm($parameters);
+
+        \Log::debug('=== confirm ===');
+        \Log::debug(print_r($confirmResult, true));
+
+        if ($confirmResult['code'] === '00000') {
+
+            $record = [
+                'orderNo' => $confirmResult['data']->orderId,
+                'amount'   => $confirmResult['data']->amount,
+                'status'   => 1,
+                'transactionId' => $confirmResult['data']->transactionId
+            ];
+
+            // 更新訂單
+            $result = $linePayService->feedback($record);
+        }
+
+        // 撈取訂單
+        $orderService = app()->build(OrderService::class);
+
+        $params = new \stdClass();
+        $params->source = 'ct_pass';
+        $params->id = $orderId;
+        $order = $orderService->find($params);
+
+        return $this->success($order);
     }
 }
