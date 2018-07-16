@@ -39,7 +39,9 @@ class LinePayService
         if ($order) {
             $hasLinePayApp = $request->hasLinePayApp;
             // 導向路徑
-            $redirect = url('api/v1/linepay/confirm/callback?device=' . $request->device);
+            $successUrl = url('api/v1/linepay/confirm/callback?device=' . $request->device);
+            $cancelUrl = url('api/v1/linepay/confirm/failure?device=' . $request->device . '&orderNo=' . $order[0]->orderNo);
+
             if ($hasLinePayApp) {
                 if ($request->device === 'ios') {
                     $successUrl = env('LINEPAY_ISO_REDIRECT') . 'success/' . $order[0]->orderNo;
@@ -51,8 +53,8 @@ class LinePayService
                 }
             }
 
-            foreach ($$order[0]->items as $item) {
-                $productNameAry[] = $item->name;
+            foreach ($order[0]->items as $item) {
+                $productNameAry[] = $item['name'];
             }
 
             $productName = implode("/", $productNameAry);
@@ -62,8 +64,8 @@ class LinePayService
                 "productName" => $productName,
                 "productImageUrl" => asset('img/icon-app.png'),
                 "amount" => $order[0]->orderAmount,
-                "successUrl" =>  ($hasLinePayApp) ? $successUrl : $redirect,
-                "cancelUrl" =>  ($hasLinePayApp) ? $cancelUrl : $redirect,
+                "successUrl" =>  $successUrl,
+                "cancelUrl" =>  $cancelUrl,
                 "hasApp" => $hasLinePayApp
             ];
 

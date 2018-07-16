@@ -45,6 +45,19 @@ class LinePayController extends RestLaravelController
         }
     }
 
+    /**
+     * linepay 付款完成 callback, 更新訂單
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function confirmCallbackFailure(Request $request)
+    {
+        $parameters['record']['orderNo'] = $request->input('orderNo');
+        $parameters['device'] = $request->input('device');
+
+        return $this->failureRedirect($parameters);
+    }
+
     private function successRedirect($parameters)
     {
         $orderNo = $parameters['record']['orderNo'];
