@@ -278,10 +278,10 @@ class CheckoutController extends RestLaravelController
         if ($confirmResult['code'] === '00000') {
 
             $record = [
-                'orderNo' => $confirmResult['data']->orderId,
-                'amount'   => $confirmResult['data']->amount,
+                'orderNo' => $confirmResult['data']['orderId'],
+                'amount'   => $confirmResult['data']['amount'],
                 'status'   => 1,
-                'transactionId' => $confirmResult['data']->transactionId
+                'transactionId' => $confirmResult['data']['transactionId']
             ];
 
             // 更新訂單
