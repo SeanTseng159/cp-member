@@ -45,11 +45,22 @@ class LinePayService
                     $successUrl = env('LINEPAY_ISO_REDIRECT') . 'success/' . $order[0]->orderNo;
                     $cancelUrl = env('LINEPAY_ISO_REDIRECT') . 'failure/' . $order[0]->orderNo;
                 }
+                else if ($request->device === 'android') {
+                    $successUrl = 'intent://linepay/#Intent;scheme=citypass;package=tw.ksd.citypass;i.orderId=' . $order[0]->orderNo . ';B.success=true;end;';
+                    $cancelUrl = 'intent://linepay/#Intent;scheme=citypass;package=tw.ksd.citypass;i.orderId=' . $order[0]->orderNo . ';B.success=false;end;';
+                }
             }
+
+            foreach ($$order[0]->items as $item) {
+                $productNameAry[] = $item->name;
+            }
+
+            $productName = implode("/", $productNameAry);
 
             $line_reserve_params = [
                 "orderId" => $order[0]->orderNo,
-                "productName" => "CityPass商品",
+                "productName" => $productName,
+                "productImageUrl" => asset('img/icon-app.png'),
                 "amount" => $order[0]->orderAmount,
                 "successUrl" =>  ($hasLinePayApp) ? $successUrl : $redirect,
                 "cancelUrl" =>  ($hasLinePayApp) ? $cancelUrl : $redirect,
