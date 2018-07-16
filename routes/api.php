@@ -152,6 +152,9 @@ Route::middleware(['cors', 'auth.jwt'])->namespace('Api')->group(function () {
         Route::post('creditCard', 'CheckoutController@creditCard');
         // 信用卡送金流(台新)
         Route::post('transmit', 'CheckoutController@transmit');
+
+        // 信用卡送金流(台新)
+        Route::post('linepay/updateOrder', 'CheckoutController@linepayUpdateOrder');
     });
 
     Route::prefix('notification')->group(function () {

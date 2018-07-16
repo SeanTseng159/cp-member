@@ -171,6 +171,7 @@ return [
          Barryvdh\Cors\ServiceProvider::class,
          Ksd\OAuth\Providers\OAuthServiceProvider::class,
          Ksd\IPassPay\Providers\IPassPayServiceProvider::class,
+         Ksd\Payment\Providers\PaymentServiceProvider::class,
         /*
          * Application Service Providers...
          */
