@@ -48,7 +48,7 @@ class MemberController extends RestLaravelController
             return $this->failureCode('A0030');
         }
 
-        $member = $this->memberService->checkHasPhoneAndNotRegistered($data['country'], $data['countryCode'], $data['cellphone']);
+        $member = $this->memberService->findByCountryPhone($data['country'], $data['countryCode'], $data['cellphone']);
 
         $member = ($member) ? $this->memberService->update($member->id, $data) : $this->memberService->create($data);
 
