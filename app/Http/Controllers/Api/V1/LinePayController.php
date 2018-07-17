@@ -39,8 +39,8 @@ class LinePayController extends RestLaravelController
             return ($result['code'] === 201) ? $this->successRedirect($parameters) : $this->failureRedirect($parameters);
         }
         else {
-            // Error
-            $webSite = env('CITY_PASS_WEB') . $this->lang;
+            // Error 跳轉頁
+            $webSite = env('CITY_PASS_WEB') . $this->lang . '/checkout/failure/000';
             return redirect($webSite);
         }
     }
