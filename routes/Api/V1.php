@@ -48,7 +48,9 @@ Route::middleware('cors')->namespace('V1')->group(function () {
 
     Route::prefix('linepay')->group(function () {
         Route::post('confirm/callback', 'LinePayController@confirmCallback');
+
         Route::get('confirm/failure', 'LinePayController@confirmCallbackFailure');
+        Route::post('confirm/failure', 'LinePayController@confirmCallbackFailure');
     });
 });
 
