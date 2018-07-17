@@ -27,14 +27,14 @@ return [
     		'unknown' => '未知',
     		'ipasspay' => 'iPassPay',
     		'tspg' => '台新',
-            'LinePay' => 'LinePay'
+            'LinePay' => 'LINE Pay'
     	],
     	'method' => [
     		'unknown' => '未知',
     		'credit_card' => '信用卡一次付清',
     		'atm' => 'ATM虛擬帳號',
     		'ipasspay' => 'iPassPay',
-            'LinePay' => 'LinePay'
+            'LinePay' => 'LINE Pay'
     	],
     	'ipasspay' => [
     		'ACCLINK' => '約定連結帳戶付款',
