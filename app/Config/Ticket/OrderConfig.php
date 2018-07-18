@@ -92,7 +92,7 @@ class OrderConfig extends BaseConfig
         0 => 'unknown',
         2 => 'ipasspay',
         3 => 'tspg',
-        4 => 'LINE Pay'
+        4 => 'linepay'
     ];
 
     # 訂單金流方式
@@ -101,7 +101,7 @@ class OrderConfig extends BaseConfig
         111 => 'credit_card',
         211 => 'atm',
         411 => 'ipasspay',
-        611 => 'LINE Pay'
+        611 => 'linepay'
     ];
 
     # 銀行名稱
