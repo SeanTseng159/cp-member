@@ -266,6 +266,18 @@ class MemberService
     }
 
     /**
+     * 確認手機號碼是否在資料庫,但未註冊完成
+     * @param $countryCode
+     * @param $cellphone
+     * @return mixed
+     */
+    public function checkHasPhoneAndisRegistered($country, $countryCode, $cellphone)
+    {
+        $member = $this->repository->findByCountryPhone($country, $countryCode, $cellphone);
+        return ($member && $member->isRegistered == 1) ? $member : null;
+    }
+
+    /**
      * 確認是否可重新註冊
      * @param $countryCode
      * @param $cellphone
