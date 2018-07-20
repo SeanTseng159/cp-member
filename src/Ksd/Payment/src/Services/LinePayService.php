@@ -69,6 +69,8 @@ class LinePayService
                 "hasApp" => $hasLinePayApp
             ];
 
+            if ($request->device === 'android') $line_reserve_params['packageName'] = 'tw.ksd.citypass';
+
         	return $this->repository->reserve($line_reserve_params);
         }
 
