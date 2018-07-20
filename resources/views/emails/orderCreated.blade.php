@@ -79,11 +79,6 @@
                             若付款方式選擇【ATM虛擬帳號】，繳款帳號與期限，請於CityPass都會通 訂單專區中查看。
                         </td>
                     </tr>
-                    <tr>
-                        <td colspan="2" style="font-size: 14px;">
-                            付款方式選擇【一卡通付 iPASSpay】，則須繳費的資訊與狀態，請於一卡通付 iPASSpay APP上查詢。
-                        </td>
-                    </tr>
                 </table>
             </div>
 
