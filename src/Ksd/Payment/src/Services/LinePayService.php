@@ -48,8 +48,8 @@ class LinePayService
                     $cancelUrl = env('LINEPAY_ISO_REDIRECT') . 'failure/' . $order[0]->orderNo;
                 }
                 else if ($request->device === 'android') {
-                    $successUrl = 'intent://linepay/#Intent;scheme=citypass;package=tw.ksd.citypass;S.orderId=' . $order[0]->orderNo . ';B.success=true;end;';
-                    $cancelUrl = 'intent://linepay/#Intent;scheme=citypass;package=tw.ksd.citypass;S.orderId=' . $order[0]->orderNo . ';B.success=false;end;';
+                    $successUrl = env('LINEPAY_ANDROID_REDIRECT') . 'success/' . $order[0]->orderNo;
+                    $cancelUrl = env('LINEPAY_ANDROID_REDIRECT') . 'success/' . $order[0]->orderNo;
                 }
             }
 
