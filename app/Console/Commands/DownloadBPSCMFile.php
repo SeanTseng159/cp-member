@@ -46,8 +46,7 @@ class DownloadBPSCMFile extends Command
         /*
          BPSCM: Processing flow
          * 1. 至 [金財通FTP] Download 資料夾，取得檔案列表
-         * 2. 將 [符合檔名]檔案 下載到本機 Download 資料夾做處理
-         *    檔名：53890045-O-k-20180708-153001-20180708-112136.txt
+         * 2. 判斷後，將[符合檔名]檔案，轉至 DownloadBackup 資料夾
          */
 
         // 設定本機資料夾(Middleware 測試主機)
@@ -56,12 +55,13 @@ class DownloadBPSCMFile extends Command
         $dir_upload    = "/home/krtmarket/Download/";
         $dir_upload_ok = "/home/krtmarket/Download_OK/";
 
-         // 測試金財通取得目錄檔案列表
+        // 連線至金財通FTP取得目錄檔案列表
         $ftp_server = '61.57.227.80';
         $ftp_user = '53890045p';
         $ftp_pass = 'b350538$P';
 
         $remote_folder = '/Download/';
+        $remote_backup = '/DownloadBackup/';
 
         // set up a connection or die
         $conn_id = ftp_ssl_connect($ftp_server) or die("Couldn't connect to $ftp_server");
@@ -82,7 +82,6 @@ class DownloadBPSCMFile extends Command
 
         ftp_pasv($conn_id, true);
         $filenames = ftp_nlist($conn_id, ".");
-
         foreach($filenames as $fkey => $filename){
             // echo "$fkey => $filename \n";
             if (strpos($filename, './') === 0) {
@@ -93,17 +92,21 @@ class DownloadBPSCMFile extends Command
                 if(preg_match("/^(53890045-O-k-)\d{4}(0[1-9]|1[012])(0[1-9]|[12][0-9]|3[01])(.)+.txt$/", $filename)) {
                     echo 'filename match = '.$filename."\n";
 
-                    // 檔案絕對路徑
-                    echo 'local file: '.$dir_upload.$filename."\n";
-                    echo 'remote file: '.$remote_folder.'/'.$filename."\n";
+                    // 檢查檔案絕對路徑
+                    // echo 'local file: '.$dir_upload.$filename."\n";
+                    // echo 'remote file: '.$remote_folder.'/'.$filename."\n";
 
-                    if (ftp_get($conn_id, $dir_upload.$filename, $remote_folder.$filename, FTP_ASCII)) {
-                        echo "download success: ".$filename."\n\n";
+                    // FTP server file moveTo
+                    if (ftp_rename($conn_id, $remote_folder.$filename, $remote_backup.$filename)) {
+                        // rename success
+                        echo 'rename success'.$filename."\n\n";
                     } else {
-                        echo "download failed: ".$filename."\n\n";
+                        // rename failed
+                        echo 'rename failed'.$filename."\n\n";
                     }
                 }
             }
         }
+        ftp_close($conn_id);
     }
 }
