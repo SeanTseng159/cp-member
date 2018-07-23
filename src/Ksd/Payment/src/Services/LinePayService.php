@@ -49,7 +49,7 @@ class LinePayService
                 }
                 else if ($request->device === 'android') {
                     $successUrl = env('LINEPAY_ANDROID_REDIRECT') . 'success/' . $order[0]->orderNo;
-                    $cancelUrl = env('LINEPAY_ANDROID_REDIRECT') . 'success/' . $order[0]->orderNo;
+                    $cancelUrl = env('LINEPAY_ANDROID_REDIRECT') . 'failure/' . $order[0]->orderNo;
                 }
             }
 
@@ -68,8 +68,6 @@ class LinePayService
                 "cancelUrl" =>  $cancelUrl,
                 "hasApp" => $hasLinePayApp
             ];
-
-            if ($request->device === 'android') $line_reserve_params['packageName'] = 'tw.ksd.citypass';
 
         	return $this->repository->reserve($line_reserve_params);
         }
