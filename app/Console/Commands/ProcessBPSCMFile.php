@@ -55,8 +55,8 @@ class ProcessBPSCMFile extends Command
         // 設定本機資料夾(Middleware 測試主機)
         // $dir_download = "/home/vagrant/code/Download/";
         // $dir_download_ok = "/home/vagrant/code/Download_OK/";
-        $dir_upload    = "/home/krtmarket/Download/";
-        $dir_upload_ok = "/home/krtmarket/Download_OK/";
+        $dir_download    = "/home/krtmarket/Download/";
+        $dir_download_ok = "/home/krtmarket/Download_OK/";
 
         // 連線至金財通FTP取得目錄檔案列表
         $ftp_server = '61.57.227.80';
