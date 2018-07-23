@@ -14,6 +14,9 @@ use App\Console\Commands\UpdateMagentoCreditCardOrder;
 use App\Console\Commands\UpdateMagentoATMOrder;
 use App\Console\Commands\Carts\NotifyNotEmptyCarts;
 use App\Console\Commands\Carts\CleanExpiredCarts;
+use App\Console\Commands\ProcessKrtmarketInvoice;
+use App\Console\Commands\DownloadBPSCMFile;
+use App\Console\Commands\ProcessBPSCMFile;
 use Ksd\Mediation\Config\ProjectConfig;
 
 use App\Jobs\SendNotification;
