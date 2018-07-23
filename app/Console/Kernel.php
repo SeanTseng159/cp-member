@@ -29,7 +29,10 @@ class Kernel extends ConsoleKernel
         AtmOrderCheck::class,
         SyncMagentoProduct::class,
         UpdateMagentoCreditCardOrder::class,
-        UpdateMagentoATMOrder::class
+        UpdateMagentoATMOrder::class,
+        ProcessKrtmarketInvoice::class,
+        DownloadBPSCMFile::class,
+        ProcessBPSCMFile::class
     ];
 
     /**
@@ -64,6 +67,15 @@ class Kernel extends ConsoleKernel
         $schedule->command(UpdateMagentoCreditCardOrder::class)->everyTenMinutes();
         // 移除magento過期ATM訂單
         $schedule->command(UpdateMagentoATMOrder::class)->dailyAt('00:00');
+
+        // upload 高捷市集發票 to 金財通FTP
+        $schedule->command(ProcessKrtmarketInvoice::class)->dailyAt('01:00');
+        // process 金財通FTP Download 資料夾資料
+        $schedule->command(DownloadBPSCMFile::class)->dailyAt('05:00');
+        // download 金財通FTP DownloadBackup 資料至本機處理
+        $schedule->command(ProcessBPSCMFile::class)->dailyAt('05:02');
+        $schedule->command(ProcessBPSCMFile::class)->dailyAt('05:04');
+        $schedule->command(ProcessBPSCMFile::class)->dailyAt('05:06');
     }
 
     /**
