@@ -34,8 +34,8 @@ class LayoutResult extends BaseResult
 
         $result['slide'] = $this->transformAds($data['slide']);
         $result['banner'] = $this->transformAds($data['banner']);
-        $result['explorations'] = $this->transformExplorations($data['explorations']);
-        $result['customizes'] = $this->transformCustomizes($data['customizes']);
+        $result['exploration'] = $this->transformExplorations($data['explorations']);
+        $result['customize'] = $this->transformCustomizes($data['customizes']);
         $result['alert'] = $this->getAlert();
         $result['hasActivity'] = env('HAS_ACTIVITY', true);
 
