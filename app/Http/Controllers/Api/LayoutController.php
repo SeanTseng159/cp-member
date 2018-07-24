@@ -8,9 +8,14 @@ use Ksd\Mediation\Core\Controller\RestLaravelController;
 use Ksd\Mediation\Services\LayoutService;
 use Ksd\Mediation\Parameter\Layout\LayoutParameter;
 
+use App\Services\Ticket\LayoutService as TicketLayoutService;
+use App\Result\Ticket\LayoutResult;
+use App\Cache\Config as CacheConfig;
+use App\Cache\Key\LayoutKey;
 
 class LayoutController extends RestLaravelController
 {
+    protected $lang = 'zh-TW';
     private $layoutService;
 
     public function __construct(LayoutService $layoutService)
@@ -133,10 +138,18 @@ class LayoutController extends RestLaravelController
      */
     public function cleanCache()
     {
-
         $this->layoutService->cleanCache();
-        return $this->success('刷新成功');
 
+        // 新的首頁api
+        $redis = new \App\Cache\Redis;
+
+        $redis->refesh(LayoutKey::HOME_KEY, CacheConfig::LAYOUT_TIME, function () {
+                $ticketLayoutService = app()->build(TicketLayoutService::class);
+                $data = $ticketLayoutService->home($this->lang);
+                return (new LayoutResult)->home($data);
+            });
+
+        return $this->success('刷新成功');
     }
 
 
