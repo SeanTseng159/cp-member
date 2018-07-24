@@ -14,6 +14,16 @@ class Product extends BaseModel
 	protected $table = 'prods';
 	protected $primaryKey = 'prod_id';
 
+	protected $appends = ['source'];
+
+	/**
+     * 加入來源
+     */
+	public function getSourceAttribute($value)
+    {
+    	return 'ct_pass';
+    }
+
 	/**
      * 取得商品圖片
      */

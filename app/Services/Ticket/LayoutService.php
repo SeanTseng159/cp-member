@@ -8,25 +8,35 @@
 namespace App\Services\Ticket;
 
 use App\Services\BaseService;
-use App\Repositories\Ticket\LayoutAdRepository;
+use App\Repositories\Ticket\LayoutAdRepository as AdRepository;
+use App\Repositories\Ticket\LayoutExplorationRepository as ExplorationRepository;
+use App\Repositories\Ticket\LayoutHomeRepository as HomeRepository;
 
 class LayoutService extends BaseService
 {
-    protected $layoutAdRepository;
+    protected $adRepository;
+    protected $explorationRepository;
+    protected $homeRepository;
 
-    public function __construct(LayoutAdRepository $layoutAdRepository)
+    public function __construct(AdRepository $adRepository, ExplorationRepository $explorationRepository, HomeRepository $homeRepository)
     {
-        $this->layoutAdRepository = $layoutAdRepository;
+        $this->adRepository = $adRepository;
+        $this->explorationRepository = $explorationRepository;
+        $this->homeRepository = $homeRepository;
     }
 
     /**
      * 取首頁資料
-     * @param $id
-     * @param $memberId
+     * @param $lang
      * @return mixed
      */
-    public function home()
+    public function home($lang = 'zh-TW')
     {
-        return $this->layoutAdRepository->getSlide();
+        $data['slide'] = $this->adRepository->getByArea(1, $lang);
+        $data['banner'] = $this->adRepository->getByArea(2, $lang);
+        $data['explorations'] = $this->explorationRepository->all($lang);
+        $data['customizes'] = $this->homeRepository->all($lang);
+
+        return $data;
     }
 }

@@ -12,4 +12,14 @@ use Illuminate\Database\Eloquent\Model;
 class MagentoProduct extends Model
 {
     protected $guarded = ['id'];
+
+    protected $appends = ['source'];
+
+	/**
+     * 加入來源
+     */
+	public function getSourceAttribute($value)
+    {
+    	return 'magento';
+    }
 }

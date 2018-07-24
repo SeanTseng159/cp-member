@@ -100,6 +100,14 @@ class MemberService
             unset($member->password);
             unset($member->validPhoneCode);
             unset($member->validEmailCode);
+
+            // 加入uber
+            $uber = new \stdClass;
+            $uber->status = env('START_UBER', false);
+            $uber->img = asset('img/uber_app_banner.jpg');
+            $uber->description = '限高屏地區上或下車使用,期限至 ' . env('UBER_LIMIT_DATE');
+            $uber->link = 'http://bit.ly/UBERKSD';
+            $member->uber = $uber;
         }
 
         return $member;
