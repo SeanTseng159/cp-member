@@ -219,6 +219,16 @@ class MemberController extends RestLaravelController
             // 檢查是否是第三方登入
             if ($member->openPlateform != 'citypass') $member->email = $member->openId;
             $member->newsletter = $this->newsletterService->findByEmail($member->email);
+
+
+            // 加入uber
+            $platform = $request->header('platform', 'web');
+            $uber = new \stdClass;
+            $uber->status = env('START_UBER', false);
+            $uber->img = ($platform === 'app') ? asset('img/uber_app_banner_2.jpg') : asset('img/uber_web_banner.jpg');
+            $uber->description = '限高屏地區上或下車使用,期限至 ' . env('UBER_LIMIT_DATE');
+            $uber->link = 'http://bit.ly/UBERKSD';
+            $member->uber = $uber;
         }
 
         return $this->success($member);
