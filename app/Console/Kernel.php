@@ -14,6 +14,9 @@ use App\Console\Commands\UpdateMagentoCreditCardOrder;
 use App\Console\Commands\UpdateMagentoATMOrder;
 use App\Console\Commands\Carts\NotifyNotEmptyCarts;
 use App\Console\Commands\Carts\CleanExpiredCarts;
+use App\Console\Commands\ProcessKrtmarketInvoice;
+use App\Console\Commands\DownloadBPSCMFile;
+use App\Console\Commands\ProcessBPSCMFile;
 use Ksd\Mediation\Config\ProjectConfig;
 
 use App\Jobs\SendNotification;
@@ -35,6 +38,9 @@ class Kernel extends ConsoleKernel
         UpdateMagentoATMOrder::class,
         CleanExpiredCarts::class,
         NotifyNotEmptyCarts::class,
+        ProcessKrtmarketInvoice::class,
+        DownloadBPSCMFile::class,
+        ProcessBPSCMFile::class
     ];
 
     /**
@@ -69,15 +75,22 @@ class Kernel extends ConsoleKernel
         $schedule->command(UpdateMagentoCreditCardOrder::class)->everyTenMinutes();
         // 移除magento過期ATM訂單
         $schedule->command(UpdateMagentoATMOrder::class)->dailyAt('00:00');
-        
+
         // 清除過期購物車
         $schedule->command(CleanExpiredCarts::class, [ProjectConfig::MAGENTO])->dailyAt('03:00');
         $schedule->command(CleanExpiredCarts::class, [ProjectConfig::CITY_PASS])->dailyAt('04:30');
-        
+
         //定期提醒購物車中尚有商品
         $schedule->command(NotifyNotEmptyCarts::class)->dailyAt('05:30');
-        
-        
+
+        // upload 高捷市集發票 to 金財通FTP
+        $schedule->command(ProcessKrtmarketInvoice::class)->dailyAt('01:00');
+        // process 金財通FTP Download 資料夾資料
+        $schedule->command(DownloadBPSCMFile::class)->dailyAt('05:00');
+        // download 金財通FTP DownloadBackup 資料至本機處理
+        $schedule->command(ProcessBPSCMFile::class)->dailyAt('05:02');
+        $schedule->command(ProcessBPSCMFile::class)->dailyAt('05:04');
+        $schedule->command(ProcessBPSCMFile::class)->dailyAt('05:06');
     }
 
     /**
