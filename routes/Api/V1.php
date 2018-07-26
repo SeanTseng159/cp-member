@@ -38,6 +38,11 @@ Route::middleware('cors')->group(function () {
 });
 
 Route::middleware('cors')->namespace('V1')->group(function () {
+    Route::prefix('layout')->group(function () {
+        // 取首頁資料
+        Route::get('home', 'LayoutController@home');
+    });
+
     Route::prefix('product')->group(function () {
         // 根據 id 取得商品明細
         Route::get('query/{id}', 'ProductController@query');

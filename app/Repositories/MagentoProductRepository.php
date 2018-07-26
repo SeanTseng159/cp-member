@@ -95,6 +95,26 @@ class MagentoProductRepository
     }
 
     /**
+     * 根據 商品 ids 取得所有商品明細
+     * @param $idArray
+     * @return mixed
+     */
+    public function allById($idArray = [])
+    {
+        $prods = $this->model->whereIn('sku', $idArray)->get();
+
+        if ($prods) {
+            $prods->transform(function ($item, $key) {
+                $item->data = json_decode($item->data);
+
+                return $item;
+            });
+        }
+
+        return $prods;
+    }
+
+    /**
      * 根據 所有id 取得對應商品明細
      * @param $data
      * @return \App\Models\MagentoProduct

@@ -42,15 +42,14 @@ class ProductResult extends BaseResult
         $this->salePrice = (string) $this->arrayDefault($product, 'prod_price_retail');
         $this->discount = $this->arrayDefault($product, 'discount');
         $this->characteristic = $this->arrayDefault($product, 'prod_short');
-        $this->category = null;
         $this->storeName = $this->arrayDefault($product, 'prod_store');
         $this->place = $this->arrayDefault($product, 'prod_store');
-        $this->tags = $this->getTags($this->arrayDefault($product, 'tags', []));
         $this->imageUrl = $this->getImg($this->arrayDefault($product, 'imgs'));
-        $this->isWishlist = $this->arrayDefault($product, 'isWishlist');
-        ////$this->visibility = 4;
+        $this->isWishlist = $this->arrayDefault($product, 'isWishlist', false);
 
         if ($isDetail) {
+            $this->category = null;
+            $this->tags = $this->getTags($this->arrayDefault($product, 'tags', []));
             $this->storeTelephone = '';
             $this->storeAddress = $this->getAddress($product);
             $this->imageUrls = $this->getImgs($this->arrayDefault($product, 'imgs'));
@@ -413,12 +412,12 @@ class ProductResult extends BaseResult
     {
         $data = new \stdClass();
         $columns = [
-            'source', 'id', 'name',  'price', 'salePrice', 'discount', 'characteristic', 'category', 'storeName',
-            'storeTelephone', 'storeAddress', 'place', 'tags', 'imageUrl', 'isWishlist','status'
+            'source', 'id', 'name',  'price', 'salePrice', 'characteristic', 'storeName',
+             'storeAddress', 'place', 'imageUrl', 'isWishlist', 'discount'
         ];
         if ($isDetail) {
             $detailColumns = [
-                'saleStatus', 'saleStatusCode', 'quantity', 'maxQuantity', 'additionals', 'contents', 'combos', 'purchase', 'maxPurchase', 'imageUrls', 'canUseCoupon', 'isBook'
+                'category', 'tags', 'storeTelephone', 'saleStatus', 'saleStatusCode', 'quantity', 'maxQuantity', 'additionals', 'contents', 'combos', 'purchase', 'maxPurchase', 'imageUrls', 'canUseCoupon', 'isBook'
             ];
             $columns = array_merge($columns, $detailColumns);
         }
