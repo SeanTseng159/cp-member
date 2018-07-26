@@ -39,6 +39,7 @@ class CartRepository extends BaseRepository
         $this->cityPass = new CityPassCart();
         parent::__construct();
         $this->memberTokenService = $memberTokenService;
+        $this->setMemberId($this->memberTokenService->getId());
     }
 
     /**
@@ -47,15 +48,6 @@ class CartRepository extends BaseRepository
      */
     public function info()
     {
-/*
-        $this->magentoInfo = $this->redis->remember($this->genCacheKey(self::INFO_KEY_M), CacheConfig::CART_TEST_TIME, function () {
-            // $this->magento->authorization($this->token);
-                return $this->magento->userAuthorization($this->memberTokenService->magentoUserToken())->info();
-           });
-        $this->cityPassInfo = $this->redis->remember($this->genCacheKey(self::INFO_KEY_C), CacheConfig::CART_TEST_TIME, function () {
-                return  $this->cityPass->authorization($this->memberTokenService->cityPassUserToken())->info();
-            });
-*/
         $this->magentoInfo = $this->magento->userAuthorization($this->memberTokenService->magentoUserToken())->info();
         $this->cityPassInfo = $this->cityPass->authorization($this->memberTokenService->cityPassUserToken())->info();
 
@@ -72,14 +64,6 @@ class CartRepository extends BaseRepository
      */
     public function detail()
     {
-/*
-        $this->magentoDetail = $this->redis->remember($this->genCacheKey(self::DETAIL_KEY_M), CacheConfig::CART_TEST_TIME, function () {
-            return $this->magento->userAuthorization($this->memberTokenService->magentoUserToken())->detail();
-        });
-        $this->cityPassDetail = $this->redis->remember($this->genCacheKey(self::DETAIL_KEY_C), CacheConfig::CART_TEST_TIME, function () {
-            return  $this->cityPass->authorization($this->memberTokenService->cityPassUserToken())->detail();
-        });
-*/
         $this->magentoDetail  = $this->magento->userAuthorization($this->memberTokenService->magentoUserToken())->detail();
         $this->cityPassDetail = $this->cityPass->authorization($this->memberTokenService->cityPassUserToken())->detail();
 
@@ -87,17 +71,6 @@ class CartRepository extends BaseRepository
             ProjectConfig::MAGENTO => $this->magentoDetail,
             ProjectConfig::CITY_PASS => $this->cityPassDetail
         ];
-/*
-        return $this->redis->remember($this->genCacheKey(self::DETAIL_KEY), CacheConfig::CART_TEST_TIME, function () {
-//            $this->magento->authorization($this->token);
-            $magento = $this->magento->userAuthorization($this->memberTokenService->magentoUserToken())->detail();
-            $cityPass = $this->cityPass->authorization($this->memberTokenService->cityPassUserToken())->detail();
-            return [
-                ProjectConfig::MAGENTO => $magento,
-                ProjectConfig::CITY_PASS => $cityPass
-            ];
-        });
-*/
     }
 
 
@@ -120,6 +93,23 @@ class CartRepository extends BaseRepository
     }
 
     /**
+     * 取得一次性購物車資訊並加入購物車(依來源)
+     * @param $parameter
+     * @return mixed
+     */
+    public function oneOff($parameter)
+    {
+        $source = $parameter->source;
+        if($source === ProjectConfig::MAGENTO) {
+            return $this->magento->userAuthorization($this->memberTokenService->magentoUserToken())->getOneOffCart($this->memberId);
+        } else if ($source === ProjectConfig::CITY_PASS) {
+            return $this->cityPass->authorization($this->memberTokenService->cityPassUserToken())->detail();
+        } else {
+            return "nodata";
+        }
+    }
+
+    /**
      * 商品加入購物車
      * @param $parameters
      * @return bool
@@ -128,13 +118,13 @@ class CartRepository extends BaseRepository
     {
 
         if (!empty($parameters->magento())) {
-            $this->result = $this->magento->userAuthorization($this->memberTokenService->magentoUserToken())->add($parameters->magento());
+            $this->result = $this->magento->addCacheCart($this->memberId, $parameters->magento());
         } else if(!empty($parameters->cityPass())) {
             foreach ($parameters->cityPass() as $item) {
                 $this->result = $this->cityPass->authorization($this->memberTokenService->cityPassUserToken())->add($item);
             }
         }
-        $this->cleanCache();
+        // $this->cleanCache();
 
         return $this->result;
     }
@@ -153,7 +143,7 @@ class CartRepository extends BaseRepository
                 $this->result = $this->cityPass->authorization($this->memberTokenService->cityPassUserToken())->update($item);
             }
         }
-        $this->cleanCache();
+        // $this->cleanCache();
 
         return $this->result;
     }
@@ -173,7 +163,7 @@ class CartRepository extends BaseRepository
             }
 
         }
-        $this->cleanCache();
+        //$this->cleanCache();
 
         return $this->result;
     }

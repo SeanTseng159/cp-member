@@ -16,6 +16,8 @@ use Ksd\Mediation\Result\CartResult;
 use Ksd\Mediation\Result\ProductResult;
 use Ksd\Mediation\Magento\SalesRule;
 
+use Ksd\Mediation\Cache\Redis;
+
 
 class Cart extends Client
 {
@@ -49,31 +51,58 @@ class Cart extends Client
      * 取得購物車資訊
      * @return CartResult
      */
-    public function detail()
+    public function detail($get = false)
     {
 
         $result = [];
         $totalResult = null;
-        try {
 
-            $response = $this->request('GET', 'V1/carts/mine');
-            $result = json_decode($response->getBody(), true);
-            $totalResult = $this->totals();
-
-        } catch (ClientException $e) {
-            // TODO:處理抓取不到購物車資料
-        }
-
- //       $coupon = new SalesRule();
         $cart = new CartResult();
-        if(!empty($totalResult['coupon_code'])) {
-            $coupon = $this->salesRule->authorization($this->env('MAGENTO_ADMIN_TOKEN'))->salesRuleFindByCode($totalResult['coupon_code']);
-            $cart->magento($result, $totalResult, $coupon);
+
+        if ($get) {
+            try {
+
+                $response = $this->request('GET', 'V1/carts/mine');
+                $result = json_decode($response->getBody(), true);
+                $totalResult = $this->totals();
+
+            } catch (ClientException $e) {
+                // TODO:處理抓取不到購物車資料
+            }
+
+            // $coupon = new SalesRule();
+            if(!empty($totalResult['coupon_code'])) {
+                $coupon = $this->salesRule->authorization($this->env('MAGENTO_ADMIN_TOKEN'))->salesRuleFindByCode($totalResult['coupon_code']);
+                $cart->magento($result, $totalResult, $coupon);
+            }
         }
 
         $cart->magento($result, $totalResult);
         $cart = $this->processItem($cart);
 
+        return $cart;
+    }
+
+    /**
+     * 取得購物車資訊
+     * @return CartResult
+     */
+    public function mine()
+    {
+        $result = [];
+        $totalResult = null;
+
+        try {
+            $response = $this->request('GET', 'V1/carts/mine');
+            $result = json_decode($response->getBody(), true);
+            $totalResult = $this->totals();
+        } catch (ClientException $e) {
+            // TODO:處理抓取不到購物車資料
+        }
+
+        $cart = new CartResult();
+        $cart->magento($result, $totalResult, null, false);
+        $cart = $this->processItem($cart);
 
         return $cart;
     }
@@ -115,11 +144,14 @@ class Cart extends Client
     {
         $isAdd = false;
 
-        $cart = $this->detail();
+        $cart = $this->mine();
+        // 先移除全部
+        $this->deleteAll($cart->id, $cart->items);
 
         $data = ['quote' => [
             'items' => []
         ]];
+
         if (!empty($cart->id)) {
             $data['quote']['id'] = $cart->id;
         } else {
@@ -141,8 +173,39 @@ class Cart extends Client
             // TODO:加入購物車失敗
             $isAdd = false;
         }
-        
+
         return $isAdd;
+    }
+
+    /**
+     * 增加商品至購物車
+     * @param $parameters
+     * @return bool
+     */
+    public function addCacheCart($memberId, $parameters)
+    {
+        $redis = new Redis();
+        $key = sprintf('magentoCart.%s', $memberId);
+        $redis->set($key, $parameters);
+
+        return true;
+    }
+
+
+    /**
+     * 取得商品至購物車
+     * @param $parameters
+     * @return bool
+     */
+    public function getOneOffCart($memberId)
+    {
+        $redis = new Redis;
+        $key = sprintf('magentoCart.%s', $memberId);
+        $val = $redis->pull($key);
+
+        if ($val) $this->add($val);
+
+        return $this->detail(true);
     }
 
     /**
@@ -180,7 +243,7 @@ class Cart extends Client
                 ['id' => $item->id]
             ]);
             $this->putParameters($data);
-            
+
             try{
                 $this->request('POST', 'V1/carts/mine/items');
                 $isUpdate = true;
@@ -213,6 +276,29 @@ class Cart extends Client
                 $this->putParameter('cartId', $cart->id);
                 $response = $this->request('delete', $path);
                 $result = $response->getStatusCode() === 200;
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * 刪除購物車內商品
+     * @param $parameters
+     * @return bool
+     */
+    public function deleteAll($cartId, $items = [])
+    {
+        if (!$items) return true;
+
+        $result = false;
+        foreach ($items as $item) {
+            try {
+                $path = sprintf('V1/carts/mine/items/%s', $item->itemId);
+                $this->putParameter('cartId', $cartId);
+                $response = $this->request('delete', $path);
+                $result = $response->getStatusCode() === 200;
+            } catch (ClientException $e) {
             }
         }
 

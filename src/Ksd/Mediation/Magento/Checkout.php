@@ -43,7 +43,7 @@ class Checkout extends Client
     public function info()
     {
         //刷新購物車，檢查商品是否下架
-        $this->itemStatus();
+        // $this->itemStatus();
         $checkout = new CheckoutResult();
         $checkout->magneto($this->paymentInfo(), $this->shippingInfo(), $this->billingInfo());
         return $checkout;
