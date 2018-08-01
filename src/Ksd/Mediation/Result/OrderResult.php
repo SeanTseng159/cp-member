@@ -315,7 +315,7 @@ class OrderResult
                 return "已退貨";
             }
             if ($key === 'processing') {  # 付款成功(前台顯示已完成)，尚未出貨
-                return "已完成";
+                return "待出貨";
             }
             if ($key === 'closed') {  #退款成功
                 return "已退貨";
@@ -354,8 +354,9 @@ class OrderResult
                 case 'pending': # 待付款
                     return "00";
                 case 'complete': # 已完成(完成出貨)
-                case 'processing': # 已完成(完成付款)
                     return "01";
+                case 'processing': # 已完成(完成付款)
+                    return "02";
                 case 'holded': # 退貨處理中
                     return "04";
                 case 'canceled': # 已退貨
@@ -531,7 +532,7 @@ class OrderResult
                 case 'canceled': # 已退貨
                     return "已退貨";
                 case 'processing': # 付款成功(前台顯示已完成)，尚未出貨
-                    return "已完成";
+                    return "待出貨";
                 case 'closed': #  退款成功
                     return "已退貨";
             }
@@ -617,7 +618,7 @@ class OrderResult
             case 'canceled': # 已退貨
                 return "03";
             case 'processing': # 處理中
-                return "01";
+                return "02";
             case 'closed': #  退款成功
                 return "已退貨";
 
