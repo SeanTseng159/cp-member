@@ -49,6 +49,14 @@ Route::middleware('cors')->namespace('V1')->group(function () {
         // 根據 id 取得加購商品
         // Route::get('purchase/{id}', 'ProductController@purchase');
     });
+
+
+    Route::prefix('linepay')->group(function () {
+        Route::post('confirm/callback', 'LinePayController@confirmCallback');
+
+        Route::get('confirm/failure', 'LinePayController@confirmCallbackFailure');
+        Route::post('confirm/failure', 'LinePayController@confirmCallbackFailure');
+    });
 });
 
 // 需 token 認證的 route
