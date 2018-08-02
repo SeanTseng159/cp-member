@@ -108,6 +108,6 @@ class Redis
         if (empty($this->lang)) {
             $local = App::getLocale();
         }
-        return sprintf('%s:%s', $local, $key);
+        return sprintf('%s:%s:%s', env('APP_ENV'), $local, $key);
     }
 }
