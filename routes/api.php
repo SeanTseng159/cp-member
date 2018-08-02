@@ -153,7 +153,7 @@ Route::middleware(['cors', 'auth.jwt'])->namespace('Api')->group(function () {
         // 信用卡送金流(台新)
         Route::post('transmit', 'CheckoutController@transmit');
 
-        // 信用卡送金流(台新)
+        // 更新Linepay
         Route::post('linepay/updateOrder', 'CheckoutController@linepayUpdateOrder');
     });
 

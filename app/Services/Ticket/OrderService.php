@@ -18,6 +18,16 @@ class OrderService extends BaseService
     }
 
     /**
+     * 根據 No 找單一訂單
+     * @param $orderNo
+     * @return mixed
+     */
+    public function findByOrderNo($orderNo)
+    {
+        return $this->repository->findByOrderNo($orderNo);
+    }
+
+    /**
      * 根據 會員 id 取得訂單列表
      * @param $memberId
      * @param $startDate
