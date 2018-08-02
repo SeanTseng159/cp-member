@@ -39,11 +39,12 @@ class LinePayController extends RestLaravelController
 
         if ($parameters['code'] === '00000') {
             $result = $this->service->feedback($parameters['record']);
+            \Log::debug(print_r($result, true));
 
             // 寄送linepay付款完成通知信
             if ($result['code'] === 201) {
                 \Log::debug('=== 寄送linepay付款完成通知信 ===');
-                \Log::debug($parameters['record']['orderNo']);
+                //\Log::debug($parameters['record']['orderNo']);
                 $order = $this->orderService->findByOrderNo($parameters['record']['orderNo']);
                 \Log::debug(print_r($order, true));
                 dispatch(new OrderPaymentCompleteMail($order->member_id, 'ct_pass', $order->order_no))->delay(5);
