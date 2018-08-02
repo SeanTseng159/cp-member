@@ -46,7 +46,7 @@ class Invoice extends Client
     {
         $now = Carbon::now();
 
-        if (env('APP_ENV') === 'production') {
+        if (env('APP_ENV') === 'production' || env('APP_ENV') === 'beta') {
             $now->subDays(10);
 
             $startDate = $now->format('Y-m-d');
@@ -64,7 +64,7 @@ class Invoice extends Client
             $this->putQuery('searchCriteria[filterGroups][0][filters][0][field]', 'status')
                 ->putQuery('searchCriteria[filterGroups][0][filters][0][value]', 'complete');
 
-            if (env('APP_ENV') === 'production') {
+            if (env('APP_ENV') === 'production' || env('APP_ENV') === 'beta') {
                 $this->putQuery('searchCriteria[filterGroups][1][filters][0][field]', 'updated_at')
                 ->putQuery('searchCriteria[filterGroups][1][filters][0][value]', $startDate)
                 ->putQuery('searchCriteria[filterGroups][1][filters][0][condition_type]', 'from')
@@ -106,7 +106,7 @@ class Invoice extends Client
     {
         $now = Carbon::now();
 
-        if (env('APP_ENV') === 'production') {
+        if (env('APP_ENV') === 'production' || env('APP_ENV') === 'beta') {
             $startDate = $now->subDays(2)->format('Y-m-d');
             $endDate = $now->addDays(3)->format('Y-m-d');
         }
@@ -121,7 +121,7 @@ class Invoice extends Client
                 ->putQuery('searchCriteria[filterGroups][0][filters][0][field]', 'status')
                 ->putQuery('searchCriteria[filterGroups][0][filters][0][value]', 'closed');
 
-            if (env('APP_ENV') === 'production') {
+            if (env('APP_ENV') === 'production' || env('APP_ENV') === 'beta') {
                 $this->putQuery('searchCriteria[filterGroups][1][filters][0][field]', 'updated_at')
                 ->putQuery('searchCriteria[filterGroups][1][filters][0][value]', $startDate)
                 ->putQuery('searchCriteria[filterGroups][1][filters][0][condition_type]', 'from')

@@ -16,6 +16,8 @@ use Ksd\Mediation\Services\CheckoutService;
 use Ksd\Mediation\Services\CartService;
 use Ksd\Mediation\Services\OrderService;
 use App\Services\Card3dLogService as LogService;
+use App\Services\Ticket\OrderService as TicketOrderService;
+use App\Jobs\Mail\OrderPaymentCompleteMail;
 use Log;
 
 use Ksd\Payment\Services\LinePayService;
@@ -156,7 +158,7 @@ class CheckoutController extends RestLaravelController
         $log = new LogService;
         $log->create($requestData);
 
-        $url = (env('APP_ENV') === 'production') ? env('CITY_PASS_WEB') : 'http://localhost:3000/';
+        $url = env('CITY_PASS_WEB');
         $url .= $this->lang;
 
         // 失敗
@@ -286,6 +288,13 @@ class CheckoutController extends RestLaravelController
 
             // 更新訂單
             $result = $linePayService->feedback($record);
+
+            // 寄送linepay付款完成通知信
+            if ($result['code'] === 201) {
+                $ticketOrderService = app()->build(TicketOrderService::class);
+                $order = $ticketOrderService->findByOrderNo($record['orderNo']);
+                dispatch(new OrderPaymentCompleteMail($order->member_id, 'ct_pass', $order->order_no))->delay(5);
+            }
         }
 
         // 撈取訂單

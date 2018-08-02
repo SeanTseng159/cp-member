@@ -21,7 +21,7 @@ class OrderResult extends BaseResult
 
     public function __construct()
     {
-        $this->backendHost = (env('APP_ENV') === 'production') ? OrderConfig::BACKEND_HOST : OrderConfig::BACKEND_HOST_TEST;
+        $this->backendHost = (env('APP_ENV') === 'production' || env('APP_ENV') === 'beta') ? OrderConfig::BACKEND_HOST : OrderConfig::BACKEND_HOST_TEST;
     }
 
     /**

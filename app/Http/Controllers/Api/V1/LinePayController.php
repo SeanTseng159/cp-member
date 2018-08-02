@@ -11,15 +11,19 @@ use Illuminate\Http\Request;
 use Ksd\Mediation\Core\Controller\RestLaravelController;
 use Ksd\Payment\Services\LinePayService;
 use Ksd\Payment\Parameter\LinePayParameter;
+use App\Services\Ticket\OrderService;
+use App\Jobs\Mail\OrderPaymentCompleteMail;
 
 class LinePayController extends RestLaravelController
 {
     protected $lang;
     protected $service;
+    protected $orderService;
 
-    public function __construct(LinePayService $service)
+    public function __construct(LinePayService $service, OrderService $orderService)
     {
         $this->service = $service;
+        $this->orderService = $orderService;
 
         $this->lang = env('APP_LANG');
     }
@@ -35,6 +39,12 @@ class LinePayController extends RestLaravelController
 
         if ($parameters['code'] === '00000') {
             $result = $this->service->feedback($parameters['record']);
+
+            // 寄送linepay付款完成通知信
+            if ($result['code'] === 201) {
+                $order = $this->orderService->findByOrderNo($parameters['record']['orderNo']);
+                dispatch(new OrderPaymentCompleteMail($order->member_id, 'ct_pass', $order->order_no))->delay(5);
+            }
 
             return ($result['code'] === 201) ? $this->successRedirect($parameters) : $this->failureRedirect($parameters);
         }

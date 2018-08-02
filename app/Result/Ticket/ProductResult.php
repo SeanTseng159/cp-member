@@ -21,7 +21,7 @@ class ProductResult extends BaseResult
 
     public function __construct()
     {
-        $this->backendHost = (env('APP_ENV') === 'production') ? ProcuctConfig::BACKEND_HOST : ProcuctConfig::BACKEND_HOST_TEST;
+        $this->backendHost = (env('APP_ENV') === 'production' || env('APP_ENV') === 'beta') ? ProcuctConfig::BACKEND_HOST : ProcuctConfig::BACKEND_HOST_TEST;
     }
 
     /**
