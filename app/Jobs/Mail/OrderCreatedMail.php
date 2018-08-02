@@ -55,7 +55,6 @@ class OrderCreatedMail implements ShouldQueue
         $member = $memberService->find($this->memberId);
 
         Log::info('=== 寄送訂單成立信 - 會員 ===');
-        Log::debug(print_r($member, true));
 
         // 假如會員不存在，則離開
         if (!$member) return;
@@ -69,7 +68,6 @@ class OrderCreatedMail implements ShouldQueue
         $order = (isset($order[0]) && $order[0]) ? $order[0] : null;
 
         Log::info('=== 寄送訂單成立信 - 訂單 ===');
-        Log::debug(print_r($order, true));
 
         // 假如訂單不存，則離開
         if (!$order) return;
