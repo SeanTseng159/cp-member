@@ -49,7 +49,7 @@ class LinePayController extends RestLaravelController
                 $order = $this->orderService->findByOrderNo($parameters['record']['orderNo']);
                 dispatch(new OrderPaymentCompleteMail($order->member_id, 'ct_pass', $order->order_no))->delay(5);
 
-                return ($result['code'] === 201) ? $this->successRedirect($parameters) : $this->failureRedirect($parameters);
+                return ($result['statusCode'] === 201) ? $this->successRedirect($parameters) : $this->failureRedirect($parameters);
             }
         } catch (Exception $e) {
 
