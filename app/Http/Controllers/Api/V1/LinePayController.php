@@ -44,8 +44,6 @@ class LinePayController extends RestLaravelController
 
             if ($parameters['code'] === '00000') {
                 $result = $this->checkoutService->feedback($parameters['record']);
-                \Log::debug('=== line feedback ===');
-                \Log::debug(print_r($result, true));
 
                 // 寄送linepay付款完成通知信
                 $order = $this->orderService->findByOrderNo($parameters['record']['orderNo']);

@@ -287,14 +287,12 @@ class CheckoutController extends RestLaravelController
             ];
 
             // 更新訂單
-            $result = $linePayService->feedback($record);
+            $result = $this->service->feedback($record);
 
             // 寄送linepay付款完成通知信
-            if ($result['code'] === 201) {
-                $ticketOrderService = app()->build(TicketOrderService::class);
-                $order = $ticketOrderService->findByOrderNo($record['orderNo']);
-                dispatch(new OrderPaymentCompleteMail($order->member_id, 'ct_pass', $order->order_no))->delay(5);
-            }
+            $ticketOrderService = app()->build(TicketOrderService::class);
+            $order = $ticketOrderService->findByOrderNo($record['orderNo']);
+            dispatch(new OrderPaymentCompleteMail($order->member_id, 'ct_pass', $order->order_no))->delay(5);
         }
 
         // 撈取訂單
