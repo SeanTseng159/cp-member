@@ -82,6 +82,16 @@ class CheckoutService
     }
 
     /**
+     * 接收linepay前台通知程式
+     * @param $parameters
+     * @return array|mixed
+     */
+    public function feedback($parameters)
+    {
+        return $this->repository->feedback($parameters);
+    }
+
+    /**
      * 接收台新信用卡後台通知程式 result_url
      * @param $parameters
      * @return array|mixed

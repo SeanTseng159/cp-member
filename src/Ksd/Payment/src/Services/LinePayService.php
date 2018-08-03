@@ -87,9 +87,4 @@ class LinePayService
     {
         return $this->repository->confirm($parameters);
     }
-
-    public function feedback($parameters)
-    {
-        return $this->repository->feedback($parameters);
-    }
 }

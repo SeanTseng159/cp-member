@@ -218,7 +218,17 @@ class CheckoutRepository extends BaseRepository
         }
 
         return ['urlData' => $url, 'platform' => $data->order_device, 'orderFlag' => $orderFlag];
+    }
 
+    /**
+     * 接收linepay前台通知程式
+     * @param $parameters
+     * @return array|mixed
+     */
+    public function feedback($parameters)
+    {
+        // 更新訂單狀態
+        return $this->cityPass->authorization($this->generateToken())->linepayFeedback($parameters);
     }
 
     /**

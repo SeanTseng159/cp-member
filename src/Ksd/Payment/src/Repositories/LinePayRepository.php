@@ -69,32 +69,4 @@ class LinePayRepository extends Client
             return false;
         }
     }
-
-    /**
-     * 接收linepay前台通知程式
-     * @param $parameters
-     * @return array|mixed
-     */
-    public function feedback($parameters)
-    {
-//        $pay = new LinepayFeedbackRecord();
-//        $pay->fill($record)->save();
-
-        // 更新訂單狀態
-        return (new CityPassCheckout())->authorization($this->generateToken())->linepayFeedback($parameters);
-    }
-
-    /**
-     * 建立 token for citypass金流
-     * @return string
-     */
-    public function generateToken()
-    {
-        $token = [
-            'exp' => time() + 120,
-            'secret' => 'a2f8b3503c2d66ea'
-        ];
-
-        return $this->JWTencode($token);
-    }
 }

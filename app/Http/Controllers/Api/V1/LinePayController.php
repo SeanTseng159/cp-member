@@ -12,17 +12,21 @@ use Ksd\Mediation\Core\Controller\RestLaravelController;
 use Ksd\Payment\Services\LinePayService;
 use Ksd\Payment\Parameter\LinePayParameter;
 use App\Services\Ticket\OrderService;
+use Ksd\Mediation\Services\CheckoutService;
 use App\Jobs\Mail\OrderPaymentCompleteMail;
+use Exception;
 
 class LinePayController extends RestLaravelController
 {
     protected $lang;
     protected $service;
+    protected $checkoutService;
     protected $orderService;
 
-    public function __construct(LinePayService $service, OrderService $orderService)
+    public function __construct(LinePayService $service, CheckoutService $checkoutService, OrderService $orderService)
     {
         $this->service = $service;
+        $this->checkoutService = $checkoutService;
         $this->orderService = $orderService;
 
         $this->lang = env('APP_LANG');
@@ -35,24 +39,26 @@ class LinePayController extends RestLaravelController
      */
     public function confirmCallback(Request $request)
     {
-        $parameters = (new LinePayParameter)->feedback($request);
+        try {
+            $parameters = (new LinePayParameter)->feedback($request);
 
-        if ($parameters['code'] === '00000') {
-            $result = $this->service->feedback($parameters['record']);
-            \Log::debug('=== line feedback ===');
-            \Log::debug(print_r($result, true));
+            if ($parameters['code'] === '00000') {
+                $result = $this->checkoutService->feedback($parameters['record']);
+                \Log::debug('=== line feedback ===');
+                \Log::debug(print_r($result, true));
 
-            // 寄送linepay付款完成通知信
-            $order = $this->orderService->findByOrderNo($parameters['record']['orderNo']);
-            dispatch(new OrderPaymentCompleteMail($order->member_id, 'ct_pass', $order->order_no))->delay(5);
+                // 寄送linepay付款完成通知信
+                $order = $this->orderService->findByOrderNo($parameters['record']['orderNo']);
+                dispatch(new OrderPaymentCompleteMail($order->member_id, 'ct_pass', $order->order_no))->delay(5);
 
-            return ($result['code'] === 201) ? $this->successRedirect($parameters) : $this->failureRedirect($parameters);
+                return ($result['code'] === 201) ? $this->successRedirect($parameters) : $this->failureRedirect($parameters);
+            }
+        } catch (Exception $e) {
+
         }
-        else {
-            // Error 跳轉頁
-            $webSite = env('CITY_PASS_WEB') . $this->lang . '/checkout/failure/000';
-            return redirect($webSite);
-        }
+
+        $webSite = env('CITY_PASS_WEB') . $this->lang . '/checkout/failure/000';
+        return redirect($webSite);
     }
 
     /**
