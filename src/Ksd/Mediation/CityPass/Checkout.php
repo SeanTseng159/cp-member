@@ -155,7 +155,7 @@ class Checkout extends Client
     public function linepayFeedback($parameters)
     {
         $this->putParameters($parameters);
-        $response = $this->request('POST', 'payment/feedbackLinepay');
+        $response = $this->request('POST', 'linepay/feedback');
 
         Log::debug('===Citypass linepay結果回傳更新訂單===');
         Log::debug(print_r(json_decode($response->getBody(), true), true));
