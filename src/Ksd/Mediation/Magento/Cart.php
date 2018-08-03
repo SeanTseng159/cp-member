@@ -71,13 +71,13 @@ class Cart extends Client
             }
 
             // $coupon = new SalesRule();
-            if(!empty($totalResult['coupon_code'])) {
+            /*if(!empty($totalResult['coupon_code'])) {
                 $coupon = $this->salesRule->authorization($this->env('MAGENTO_ADMIN_TOKEN'))->salesRuleFindByCode($totalResult['coupon_code']);
                 $cart->magento($result, $totalResult, $coupon);
-            }
+            }*/
         }
 
-        $cart->magento($result, $totalResult);
+        $cart->magento($result, $totalResult, null, true);
         $cart = $this->processItem($cart);
 
         return $cart;
