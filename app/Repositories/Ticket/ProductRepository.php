@@ -79,6 +79,10 @@ class ProductRepository extends BaseRepository
                             })
                             ->find($id);
 
+        if (!$prod) return null;
+
+        $prod->spec = $this->productSpec($id);
+
         return $prod;
     }
 
