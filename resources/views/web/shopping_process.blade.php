@@ -36,7 +36,7 @@
             </div>
         </ul>
         <div class="title styel2">付款方式</div>
-        <p>目前提供付款方式：「信用卡一次付清」、「ATM虛擬帳號轉帳」、「iPASSPAY一卡通付」。各項商品可用付款方式以商品說明與結帳頁標示為主。</p>
+        <p>目前提供付款方式：「信用卡一次付清」、「ATM虛擬帳號轉帳」、「LINEPay付款」。各項商品可用付款方式以商品說明與結帳頁標示為主。</p>
         <ul class="padding-left-15">
             <li>
                 <p><span class="color-blue">「信用卡一次付清」</span>：</p>
@@ -52,11 +52,11 @@
                 <p>· 若您有二筆以上的訂單，請依各別的專用匯款帳號轉帳，無法合併付款。</p>
                 <p>· 繳費後CityPass都會通將確認訂單並傳送繳費完成通知信。</p>
                 <p>· 確實完成繳費動作後，本平台將處理傳送電子票券至APP票匣內，或準備商品出貨事宜。</p>
-                <p><span class="color-blue">「iPASSPAY一卡通付」</span>：</p>
-                <p>本網站提供iPASSPay一卡通付的付款方式，點擊進入支付頁面。目前支付方式有兩種，「電子支付帳戶餘額」、「實體ATM」。</p>
-                <p>· 若選擇電子支付帳戶餘額，將扣除您帳戶內的餘額以支付訂單款項。</p>
-                <p>· 若選擇實體ATM轉帳，即產生虛擬帳號並請於指定日期前完成繳款，毋須支付再確認。繳款完成後可透過iPASSPay一卡通付APP確認付款交易成功狀態。</p>
-                <p>· 確實完成繳費動作後，本平台將處理傳送電子票券至APP票匣內，或準備商品出貨事宜。</p>
+                <p><span class="color-blue">「LINE Pay」</span>：</p>
+                <p>本網站提供LINE Pay的付款方式。</p>
+                <p>· 請先於您的LINE APP中註冊您的信用卡相關資訊後，再選擇以LINE Pay方式付款。</p>
+                <p>· 當您選擇以LINE Pay方式付款，畫面將會切換至LINE Pay的付款頁面，請您依照LINE Pay的頁面引導進行付款認證動作。</p>
+                <p>· 若有LINE Pay相關問題例如註冊、條碼使用、LINE Points折抵失敗、使用紀錄釐清等)，您可至以下連結查詢<a class="btn-link" href="https://line.me/zh-hant/pay/howto">https://line.me/zh-hant/pay/howto</p>
             </li>
         </ul>
         <div class="title styel2">開立發票</div>
@@ -64,6 +64,7 @@
         <p>· 根據財政部令「<a class="btn-link" href="http://gazette.nat.gov.tw/EG_FileManager/eguploadpub/eg019159/ch04/type2/gov30/num8/Eg.htm">電子發票實施作業要點</a>」，於CityPass都會通 消費開立之「二聯式電子發票」、「三聯式電子發票」，不直接郵寄紙本發票，並以Email發送發票開立通知信給您，以茲證明。相關資料請參考<a class="btn-link" href="https://www.einvoice.nat.gov.tw/wSite/mp?mp=1">財政部電子發票整合服務平台</a>。</p>
         <p>· 二聯式電子發票：訂單成立完成結帳後，發票開立通知信將會寄到您的電子信箱，請至信箱內確認。</p>
         <p>· 三聯式電子發票：訂單成立完成結帳後，開立通知信與附件三聯發票證明聯與將會寄到您的電子信箱，可下載附件列印即可透過此證明聯向公司報帳。</p>
+        <p>· 交通類型商品不開立發票，僅提供購買證明單。</p>
         <p>· 票券商品發票於付款後3天內完成Email發送；實體商品發票將於出貨日期+7日Email發送。如超過10天仍未收到，請至客服信箱留言，將有專人為您協助處理。</p>
     </div>
 </div>
