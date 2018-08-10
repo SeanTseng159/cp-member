@@ -237,7 +237,7 @@ class ProductResult extends BaseResult
             else {
                 if ($k === 0) $salePrice = $item->retail;
                 else {
-                    if ($salePrice < $item->retail) $salePrice = $item->retail;
+                    if ($salePrice > $item->retail) $salePrice = $item->retail;
                 }
             }
         }
