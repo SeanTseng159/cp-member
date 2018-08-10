@@ -36,13 +36,13 @@ class Shipment
             'shipment.userName' => 'required|min:2',
             'shipment.userPhone' => 'required|min:5',
             'shipment.userPostalCode' => 'required',
-            'shipment.userAddress' => ['required', 'regex:/([0-9]+[號号])|([nN][oO])/']
+            'shipment.userAddress' => ['required', 'regex:/([號号])|([nN][oO])/']
         ]);
 
         if ($validator->fails()) {
             return $this->apiRespFail('E0001', join(' ', $validator->errors()->all()));
         }
-        
+
         return $next($request);
     }
 }

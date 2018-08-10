@@ -47,13 +47,16 @@ class ProductResult extends BaseResult
         $this->imageUrl = $this->getImg($this->arrayDefault($product, 'imgs'));
         $this->isWishlist = $this->arrayDefault($product, 'isWishlist', false);
 
+        $this->additionals = $this->getAdditional($this->arrayDefault($product, 'spec'), $product['prod_price_type']); // 規格
+        if ($this->additionals) $this->salePrice = $this->getSalePrice($this->additionals, $this->salePrice);
+
         if ($isDetail) {
             $this->category = null;
             $this->tags = $this->getTags($this->arrayDefault($product, 'tags', []));
             $this->storeTelephone = '';
             $this->storeAddress = $this->getAddress($product);
             $this->imageUrls = $this->getImgs($this->arrayDefault($product, 'imgs'));
-            $this->additionals = $this->getAdditional($this->arrayDefault($product, 'spec'), $product['prod_price_type']); // 規格
+            //$this->additionals = $this->getAdditional($this->arrayDefault($product, 'spec'), $product['prod_price_type']); // 規格
             if ($this->additionals) {
                 $this->additionals->expire = $this->getExpire($product);
                 $this->additionals->bookable = $this->getBookable($product);
@@ -215,6 +218,31 @@ class ProductResult extends BaseResult
             'code' => ProcuctConfig::SALE_STATUS[$saleStatus],
             'status' => trans('ticket/product.sale_status.' . $saleStatus)
         ];
+    }
+
+    /**
+     * 取得規格
+     * @param $spec
+     * @param $prodPriceType
+     * @return object | null
+     */
+    private function getSalePrice($additional, $salePrice)
+    {
+        if (!$additional && $additional->spec) return $salePrice;
+
+        foreach ($additional->spec as $k => $item) {
+            if (isset($item->additionals)) {
+                $salePrice = $this->getSalePrice($item->additionals, $salePrice);
+            }
+            else {
+                if ($k === 0) $salePrice = $item->retail;
+                else {
+                    if ($salePrice < $item->retail) $salePrice = $item->retail;
+                }
+            }
+        }
+
+        return $salePrice;
     }
 
     /**
