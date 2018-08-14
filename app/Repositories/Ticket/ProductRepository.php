@@ -14,14 +14,18 @@ use App\Models\Ticket\ProductTag;
 use App\Models\Ticket\ProductSpec;
 use App\Repositories\Ticket\ProductAdditionalRepository;
 use App\Repositories\Ticket\ProductGroupRepository;
+use Carbon\Carbon;
 
 class ProductRepository extends BaseRepository
 {
+    protected $date;
     protected $productAdditionalRepository;
     protected $productGroupRepository;
 
     public function __construct(Product $model, ProductAdditionalRepository $productAdditionalRepository, ProductGroupRepository $productGroupRepository)
     {
+        $this->date = Carbon::now()->toDateTimeString();
+
         $this->model = $model;
         $this->productAdditionalRepository = $productAdditionalRepository;
         $this->productGroupRepository = $productGroupRepository;
@@ -40,6 +44,8 @@ class ProductRepository extends BaseRepository
                             ->when($onShelf, function($query){
                                 $query->where('prod_onshelf', 1);
                             })
+                            ->where('prod_onshelf_time', '<=', $this->date)
+                            ->where('prod_offshelf_time', '>=', $this->date)
                             ->find($id);
 
         if (!$prod) return null;
@@ -77,6 +83,8 @@ class ProductRepository extends BaseRepository
                             ->when($onShelf, function($query){
                                 $query->where('prod_onshelf', 1);
                             })
+                            ->where('prod_onshelf_time', '<=', $this->date)
+                            ->where('prod_offshelf_time', '>=', $this->date)
                             ->find($id);
 
         if (!$prod) return null;
@@ -100,6 +108,8 @@ class ProductRepository extends BaseRepository
                             ->when($onShelf, function($query){
                                 $query->where('prod_onshelf', 1);
                             })
+                            ->where('prod_onshelf_time', '<=', $this->date)
+                            ->where('prod_offshelf_time', '>=', $this->date)
                             ->whereIn('prod_id', $idArray)
                             ->get();
 

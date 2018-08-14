@@ -10,9 +10,9 @@ namespace App\Cache\Key;
 class LayoutKey
 {
     const HOME_KEY = 'layout.home';
-    const ADS_KEY = 'layout.ads';
-    const EXPLORATION_KEY = 'layout.exploration';
-    const CUSTOMIZE_KEY = 'layout.customize';
-    const BANNER_KEY = 'layout.banner';
-    const MENU_KEY = 'layout.menu.id.%s';
+    const MENU_KEY = 'layout.menu';
+    const ONE_MENU_KEY = 'layout.menu.%s';
+    const CATEGORY_KEY = 'layout.category.%s';
+    const CATEGORY_PRODUCTS_KEY = 'layout.categoryProducts.%s';
+    const SUB_CATEGORY_PRODUCTS_KEY = 'layout.subCategoryProducts.%s';
 }

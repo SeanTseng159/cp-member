@@ -11,18 +11,27 @@ use App\Services\BaseService;
 use App\Repositories\Ticket\LayoutAdRepository as AdRepository;
 use App\Repositories\Ticket\LayoutExplorationRepository as ExplorationRepository;
 use App\Repositories\Ticket\LayoutHomeRepository as HomeRepository;
+use App\Repositories\Ticket\TagRepository;
+use App\Repositories\Ticket\LayoutCategoryRepository as CategoryRepository;
+use App\Repositories\Ticket\MenuProductRepository;
 
 class LayoutService extends BaseService
 {
     protected $adRepository;
     protected $explorationRepository;
     protected $homeRepository;
+    protected $tagRepository;
+    protected $categoryRepository;
+    protected $menuProductRepository;
 
-    public function __construct(AdRepository $adRepository, ExplorationRepository $explorationRepository, HomeRepository $homeRepository)
+    public function __construct(AdRepository $adRepository, ExplorationRepository $explorationRepository, HomeRepository $homeRepository, TagRepository $tagRepository, CategoryRepository $categoryRepository, MenuProductRepository $menuProductRepository)
     {
         $this->adRepository = $adRepository;
         $this->explorationRepository = $explorationRepository;
         $this->homeRepository = $homeRepository;
+        $this->tagRepository = $tagRepository;
+        $this->categoryRepository = $categoryRepository;
+        $this->menuProductRepository = $menuProductRepository;
     }
 
     /**
@@ -38,5 +47,62 @@ class LayoutService extends BaseService
         $data['customizes'] = $this->homeRepository->all($lang);
 
         return $data;
+    }
+
+    /**
+     * 取選單資料
+     * @param $lang
+     * @return mixed
+     */
+    public function menu($lang = 'zh-TW')
+    {
+        return $this->tagRepository->all($lang);
+    }
+
+    /**
+     * 取單一選單資料
+     * @param $lang
+     * @param $id
+     * @return mixed
+     */
+    public function oneMenu($lang = 'zh-TW', $id = 0)
+    {
+        return $this->tagRepository->one($lang, $id);
+    }
+
+    /**
+     * 取單一熱門探索分類資料
+     * @param $lang
+     * @param $id
+     * @return mixed
+     */
+    public function category($lang = 'zh-TW', $id = 0)
+    {
+        $data['category'] = $this->tagRepository->oneWithUpperId($lang, $id);
+        $data['customizes'] = ($data['category']) ? $this->categoryRepository->allById($lang, $id) : [];
+
+        return $data;
+    }
+
+    /**
+     * 取熱門探索分類下所有商品
+     * @param $lang
+     * @param $id
+     * @return mixed
+     */
+    public function categoryProducts($lang = 'zh-TW', $id = 0)
+    {
+        return $this->menuProductRepository->allByTagUpperId($lang = 'zh-TW', $id);
+    }
+
+    /**
+     * 取熱門探索子分類下所有商品
+     * @param $lang
+     * @param $id
+     * @return mixed
+     */
+    public function subCategoryProducts($lang = 'zh-TW', $id = 0)
+    {
+        return $this->menuProductRepository->allByTagId($lang = 'zh-TW', $id);
     }
 }

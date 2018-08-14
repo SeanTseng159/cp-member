@@ -35,7 +35,7 @@ class LayoutResult extends BaseResult
         $result['slide'] = $this->transformAds($data['slide']);
         $result['banner'] = $this->transformAds($data['banner']);
         $result['exploration'] = $this->transformExplorations($data['explorations']);
-        $result['customize'] = $this->transformCustomizes($data['customizes']);
+        $result['customize'] = $this->transformCustomizes($data['customizes'], 'layout_home');
         $result['alert'] = $this->getAlert();
         $result['hasActivity'] = env('HAS_ACTIVITY', true);
 
@@ -114,11 +114,11 @@ class LayoutResult extends BaseResult
      * 取得customizes
      * @param $data
      */
-    public function transformCustomizes($customizes)
+    public function transformCustomizes($customizes, $dbPrefix = '')
     {
         $newCustomizes = [];
         foreach ($customizes as $customize) {
-            $newCustomizes[] = $this->getCustomize($customize);
+            $newCustomizes[] = $this->getCustomize($customize, $dbPrefix);
         }
 
         return $newCustomizes;
@@ -128,13 +128,13 @@ class LayoutResult extends BaseResult
      * 取得customize
      * @param $data
      */
-    public function getCustomize($customize)
+    public function getCustomize($customize, $dbPrefix)
     {
         $customize = $customize->toArray();
 
-        $result['id'] = (string) $this->arrayDefault($customize, 'layout_home_id');
-        $result['name'] = $this->arrayDefault($customize, 'layout_home_name');
-        $result['style'] = (string) $this->arrayDefault($customize, 'layout_home_style');
+        $result['id'] = (string) $this->arrayDefault($customize, $dbPrefix . '_id');
+        $result['name'] = $this->arrayDefault($customize, $dbPrefix . '_name');
+        $result['style'] = (string) $this->arrayDefault($customize, $dbPrefix . '_style');
         $items = $this->arrayDefault($customize, 'items');
         $result['items'] = $this->products($items);
 
@@ -175,5 +175,121 @@ class LayoutResult extends BaseResult
         $alert->message = '限量優惠，凡購買高捷票券商品，可享Uber乘車折扣優惠';
 
         return $alert;
+    }
+
+    /**
+     * 取得menu
+     * @param $data
+     */
+    public function menu($menus, $isSub = false)
+    {
+        $newMenus = [];
+        foreach ($menus as $menu) {
+            $newMenus[] = $this->getMenu($menu, $isSub);
+        }
+
+        return $newMenus;
+    }
+
+    /**
+     * 取得menu
+     * @param $data
+     */
+    public function getMenu($menu, $isSub = false)
+    {
+        if (!$isSub) $menu = $menu->toArray();
+
+        $result = new \stdClass;
+        $result->id = (string) $this->arrayDefault($menu, 'tag_id');
+        $result->name = $this->arrayDefault($menu, 'tag_name');
+        if (!$isSub) $result->items = $this->menu($menu['sub_menus'], true);
+
+        return $result;
+    }
+
+    /**
+     * 取得category
+     * @param $data
+     */
+    public function category($data)
+    {
+        $result = new \stdClass;
+        $result->category = ($data['category']) ? $this->getCategory($data['category']) : null;
+        $result->place = null;
+        $result->keyword = null;
+        $result->customizes = $this->transformCustomizes($data['customizes'], 'layout_category');
+
+        return $result;
+    }
+
+    /**
+     * 取得category
+     * @param $data
+     */
+    public function getCategory($menu)
+    {
+        $menu = $menu->toArray();
+
+        $result = new \stdClass;
+        $result->id = (string) $this->arrayDefault($menu, 'tag_id');
+        $result->name = $this->arrayDefault($menu, 'tag_name');
+
+        $tag_img = $this->arrayDefault($menu, 'tag_img');
+        $result->imageUrlWeb = ($tag_img) ? $this->backendHost . $tag_img : null;
+
+        $tag_img_app = $this->arrayDefault($menu, 'tag_img_app');
+        $result->imageUrlApp = ($tag_img_app) ? $this->backendHost . $tag_img_app : null;
+
+        $result->items = $this->menu($menu['sub_menus'], true);
+
+        return $result;
+    }
+
+    /**
+     * 取得categoryProducts
+     * @param $data
+     * @param $page
+     */
+    public function categoryProducts($data, $page = 1)
+    {
+        $limit = 20;
+        $result = new \stdClass;
+
+        if ($data->count()) {
+            $result->total = $data->count();
+            $records = array_chunk($this->processCategoryProduct($data), $limit);
+            $result->records = (isset($records[$page])) ? $records[$page] : [];
+        }
+        else {
+            $result->total = 0;
+            $result->records = [];
+        }
+
+        return $result;
+    }
+
+    /**
+     * 處理CategoryProduct
+     * @param $data
+     */
+    private function processCategoryProduct($items)
+    {
+        if (!$items) return [];
+
+        $newItems = [];
+
+        $productResult = app()->build(ProductResult::class);
+        $magentoProductResult = app()->build(MagentoProductResult::class);
+
+        foreach ($items as $item) {
+            if ($item->source === 1) {
+                $newItems[] = $productResult->getCategoryProduct($item->product);
+            }
+            elseif ($item->source === 2) {
+                $newItems[] = $magentoProductResult->getCategoryProduct($item->product);
+            }
+        }
+
+        return $newItems;
     }
 }
