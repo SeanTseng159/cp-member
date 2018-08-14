@@ -59,6 +59,35 @@ class MagentoProductResult extends BaseResult
     }
 
     /**
+     * 取得資料
+     * @param $product
+     * @param bool $isDetail
+     */
+    public function getCategoryProduct($product)
+    {
+        if (!$product) return null;
+
+        $this->source = ProcuctConfig::SOURCE_COMMODITY;
+        $this->id = $product->id;
+        $this->name = $product->name;
+        $this->price = (string) $product->price;
+        $this->salePrice = ($product->salePrice) ? (string) $product->salePrice : $this->price;
+        $this->discount = $product->discount;
+        $this->characteristic = $product->characteristic;
+        $this->category = null;
+        $this->storeName = $product->storeName;
+        $this->place = $product->place;
+        $this->tags = $product->tags;
+        $this->imageUrl = $product->imageUrl;
+        $this->isWishlist = $product->isWishlist;
+
+        $this->category = $this->getCategories($product->categories, true);
+        $this->tags = $this->getTags($product->tags, true);
+
+        return $this->apiCategoryFormat();
+    }
+
+    /**
      * 取得規格
      * @param $spec
      * @param $additionals
@@ -85,6 +114,60 @@ class MagentoProductResult extends BaseResult
         return $additionals;
     }
 
+        /**
+     * 取得父標籤
+     * @param $tags
+     * @return array
+     */
+    private function getCategories($categories, $isAry = false)
+    {
+        $categoriesAry = [];
+
+        if ($categories) {
+            foreach ($categories as $c) {
+                $category = new \stdClass;
+                if ($isAry) {
+                    $category->id = $c->upperTag['tag_id'];
+                    $category->name = $c->upperTag['tag_name'];
+                }
+                else {
+                    $tag->id = $c->upperTag->tag_id;
+                    $tag->name = $c->upperTag->tag_name;
+                }
+                $categoriesAry[] = $category;
+            }
+        }
+
+        return $categoriesAry;
+    }
+
+    /**
+     * 取得標籤
+     * @param $tags
+     * @return array
+     */
+    private function getTags($tags, $isAry = false)
+    {
+        $tagsAry = [];
+
+        if ($tags) {
+            foreach ($tags as $t) {
+                $tag = new \stdClass;
+                if ($isAry) {
+                    $tag->id = $t->tag['tag_id'];
+                    $tag->name = $t->tag['tag_name'];
+                }
+                else {
+                    $tag->id = $t->tag->tag_id;
+                    $tag->name = $t->tag->tag_name;
+                }
+                $tagsAry[] = $tag;
+            }
+        }
+
+        return $tagsAry;
+    }
+
     /**
      * api response 資料格式化
      * @param bool $isDetail
@@ -103,6 +186,27 @@ class MagentoProductResult extends BaseResult
             ];
             $columns = array_merge($columns, $detailColumns);
         }
+
+        foreach ($columns as $column) {
+            if (property_exists($this, $column)) {
+                $data->$column = $this->$column;
+            }
+        }
+        return $data;
+    }
+
+    /**
+     * api response 資料格式化
+     * @param bool $isDetail
+     * @return \stdClass
+     */
+    private function apiCategoryFormat()
+    {
+        $data = new \stdClass();
+        $columns = [
+            'source', 'id', 'name',  'price', 'salePrice', 'characteristic', 'category', 'tags', 'storeName',
+             'storeAddress', 'place', 'imageUrl', 'isWishlist', 'discount'
+        ];
 
         foreach ($columns as $column) {
             if (property_exists($this, $column)) {

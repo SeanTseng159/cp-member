@@ -41,6 +41,16 @@ Route::middleware('cors')->namespace('V1')->group(function () {
     Route::prefix('layout')->group(function () {
         // 取首頁資料
         Route::get('home', 'LayoutController@home');
+        // 取選單
+        Route::get('menu', 'LayoutController@menu');
+        // 取子選單
+        Route::get('menu/{id}', 'LayoutController@oneMenu');
+        // 取熱門探索分類
+        Route::get('category/{id}', 'LayoutController@category');
+        // 取熱門探索分類下所有商品
+        Route::get('category/{id}/products', 'LayoutController@categoryProducts');
+        // 取子熱門探索分類下所有商品
+        Route::get('subCategory/{id}/products', 'LayoutController@subCategoryProducts');
     });
 
     Route::prefix('product')->group(function () {

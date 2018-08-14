@@ -82,6 +82,37 @@ class ProductResult extends BaseResult
      * @param $product
      * @param bool $isDetail
      */
+    public function getCategoryProduct($product)
+    {
+        if (!$product) return null;
+
+        $product = $product->toArray();
+
+        $this->source = ProcuctConfig::SOURCE_TICKET;
+        $this->id = (string) $this->arrayDefault($product, 'prod_id');
+        $this->name = $this->arrayDefault($product, 'prod_name');
+        $this->price = (string) $this->arrayDefault($product, 'prod_price_sticker');
+        $this->salePrice = (string) $this->arrayDefault($product, 'prod_price_retail');
+        $this->discount = $this->arrayDefault($product, 'discount');
+        $this->characteristic = $this->arrayDefault($product, 'prod_short');
+        $this->storeName = $this->arrayDefault($product, 'prod_store');
+        $this->place = $this->arrayDefault($product, 'prod_store');
+        $this->imageUrl = $this->getImg($this->arrayDefault($product, 'imgs'));
+        $this->isWishlist = $this->arrayDefault($product, 'isWishlist', false);
+
+        $this->additionals = $this->getAdditional($this->arrayDefault($product, 'spec'), $product['prod_price_type']); // 規格
+        if ($this->additionals) $this->salePrice = $this->getSalePrice($this->additionals, $this->salePrice);
+        $this->category = $this->getCategories($this->arrayDefault($product, 'categories', []), true);
+        $this->tags = $this->getTags($this->arrayDefault($product, 'tags', []), true);
+
+        return $this->apiCategoryFormat();
+    }
+
+    /**
+     * 取得資料
+     * @param $product
+     * @param bool $isDetail
+     */
     public function getPurchaseFormat($product)
     {
         if (!$product) return null;
@@ -164,19 +195,52 @@ class ProductResult extends BaseResult
     }
 
     /**
+     * 取得父標籤
+     * @param $tags
+     * @return array
+     */
+    private function getCategories($categories, $isAry = false)
+    {
+        $categoriesAry = [];
+
+        if ($categories) {
+            foreach ($categories as $c) {
+                $category = new \stdClass;
+                if ($isAry) {
+                    $category->id = $c->upperTag['tag_id'];
+                    $category->name = $c->upperTag['tag_name'];
+                }
+                else {
+                    $tag->id = $c->upperTag->tag_id;
+                    $tag->name = $c->upperTag->tag_name;
+                }
+                $categoriesAry[] = $category;
+            }
+        }
+
+        return $categoriesAry;
+    }
+
+    /**
      * 取得標籤
      * @param $tags
      * @return array
      */
-    private function getTags($tags)
+    private function getTags($tags, $isAry = false)
     {
         $tagsAry = [];
 
         if ($tags) {
             foreach ($tags as $t) {
                 $tag = new \stdClass;
-                $tag->id = $t->tag->tag_id;
-                $tag->name = $t->tag->tag_name;
+                if ($isAry) {
+                    $tag->id = $t->tag['tag_id'];
+                    $tag->name = $t->tag['tag_name'];
+                }
+                else {
+                    $tag->id = $t->tag->tag_id;
+                    $tag->name = $t->tag->tag_name;
+                }
                 $tagsAry[] = $tag;
             }
         }
@@ -449,6 +513,27 @@ class ProductResult extends BaseResult
             ];
             $columns = array_merge($columns, $detailColumns);
         }
+
+        foreach ($columns as $column) {
+            if (property_exists($this, $column)) {
+                $data->$column = $this->$column;
+            }
+        }
+        return $data;
+    }
+
+    /**
+     * api response 資料格式化
+     * @param bool $isDetail
+     * @return \stdClass
+     */
+    private function apiCategoryFormat()
+    {
+        $data = new \stdClass();
+        $columns = [
+            'source', 'id', 'name',  'price', 'salePrice', 'characteristic', 'category', 'tags', 'storeName',
+             'storeAddress', 'place', 'imageUrl', 'isWishlist', 'discount'
+        ];
 
         foreach ($columns as $column) {
             if (property_exists($this, $column)) {
