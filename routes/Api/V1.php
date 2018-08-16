@@ -54,6 +54,8 @@ Route::middleware('cors')->namespace('V1')->group(function () {
     });
 
     Route::prefix('cache')->group(function () {
+        // 清所有快取
+        Route::get('clean/all', 'CacheController@all');
         // 清首頁資料
         Route::get('clean/home', 'CacheController@home');
         // 清選單資料

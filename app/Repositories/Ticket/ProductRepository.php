@@ -98,9 +98,7 @@ class ProductRepository extends BaseRepository
      */
     public function allById($idArray = [], $onShelf = false)
     {
-        $prods = $this->model->with(['specs.specPrices', 'imgs' => function($query) {
-                                return $query->orderBy('img_sort')->first();
-                            }])
+        $prods = $this->model->with(['specs.specPrices', 'img'])
                             ->when($onShelf, function($query){
                                 $query->where('prod_onshelf', 1);
                             })

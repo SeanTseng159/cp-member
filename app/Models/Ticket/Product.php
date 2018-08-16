@@ -35,6 +35,14 @@ class Product extends BaseModel
     /**
      * 取得商品圖片
      */
+    public function img()
+    {
+        return $this->hasOne('App\Models\Ticket\ProductImg', 'prod_id')->orderBy('img_sort');
+    }
+
+    /**
+     * 取得商品圖片
+     */
     public function specs()
     {
         return $this->hasMany('App\Models\Ticket\ProductSpec', 'prod_id');
