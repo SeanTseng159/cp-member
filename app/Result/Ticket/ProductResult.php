@@ -331,35 +331,25 @@ class ProductResult extends BaseResult
         foreach ($additional->spec as $item) {
             if (isset($item->additionals)) {
                 foreach ($item->additionals->spec as $fare) {
-                    if ($k === 0) {
-                        $return['price'] = $fare->sticker;
-                        $return['salePrice'] = $fare->retail;
-                    }
-                    else {
-                        if ($return['salePrice'] > $fare->retail) {
-                            $return['price'] = $fare->sticker;
-                            $return['salePrice'] = $fare->retail;
-                        }
-                    }
+                    $lowestPrice[$k]['price'] = $fare->sticker;
+                    $lowestPrice[$k]['salePrice'] = $fare->retail;
+
+                    $k++;
                 }
             }
             else {
-                if ($k === 0) {
-                    $return['price'] = $item->sticker;
-                    $return['salePrice'] = $item->retail;
-                }
-                else {
-                    if ($return['salePrice'] > $item->retail) {
-                        $return['price'] = $item->sticker;
-                        $return['salePrice'] = $item->retail;
-                    }
-                }
+                $lowestPrice[$k]['price'] = $item->sticker;
+                $lowestPrice[$k]['salePrice'] = $item->retail;
             }
 
             $k++;
         }
 
-        return $return;
+        $result = collect($lowestPrice)->sortBy(function ($item) {
+            return $item['salePrice'];
+        })->first();
+
+        return $result;
     }
 
     /**
