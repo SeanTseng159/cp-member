@@ -53,6 +53,19 @@ Route::middleware('cors')->namespace('V1')->group(function () {
         Route::get('subCategory/{id}/products', 'LayoutController@subCategoryProducts');
     });
 
+    Route::prefix('cache')->group(function () {
+        // 清首頁資料
+        Route::get('clean/home', 'CacheController@home');
+        // 清選單資料
+        Route::get('clean/menu', 'CacheController@menu');
+        // 清熱門探索分類
+        Route::get('clean/category/{id}', 'CacheController@category');
+        // 清熱門探索分類下所有商品
+        Route::get('clean/category/{id}/products', 'CacheController@categoryProducts');
+        // 清子熱門探索分類下所有商品
+        Route::get('clean/subCategory/{id}/products', 'CacheController@subCategoryProducts');
+    });
+
     Route::prefix('product')->group(function () {
         // 根據 id 取得商品明細
         Route::get('query/{id}', 'ProductController@query');

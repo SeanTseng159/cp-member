@@ -60,6 +60,10 @@ class LayoutCategoryRepository extends BaseRepository
 
                 return $row;
             });
+
+            $data = $data->reject(function ($row) {
+                return (!$row->items);
+            });
         }
 
         return $data;

@@ -40,7 +40,7 @@ class ProductRepository extends BaseRepository
      */
     public function find($id, $onShelf = false, $memberId = 0)
     {
-        $prod = $this->model->with(['imgs'])
+        $prod = $this->model->with(['imgs', 'specs.specPrices'])
                             ->when($onShelf, function($query){
                                 $query->where('prod_onshelf', 1);
                             })
@@ -56,7 +56,7 @@ class ProductRepository extends BaseRepository
 
         $isMainProd = in_array($prod->prod_type, [1, 2]);
 
-        $prod->spec = $this->productSpec($id);
+        //$prod->spec = $this->productSpec($id);
 
         $prod->tags = ($isMainProd) ? $this->productTags($id) : null;
 
@@ -77,7 +77,7 @@ class ProductRepository extends BaseRepository
      */
     public function easyFind($id, $onShelf = false)
     {
-        $prod = $this->model->with(['imgs' => function($query) {
+        $prod = $this->model->with(['specs.specPrices', 'imgs' => function($query) {
                                 return $query->orderBy('img_sort')->first();
                             }])
                             ->when($onShelf, function($query){
@@ -86,10 +86,6 @@ class ProductRepository extends BaseRepository
                             ->where('prod_onshelf_time', '<=', $this->date)
                             ->where('prod_offshelf_time', '>=', $this->date)
                             ->find($id);
-
-        if (!$prod) return null;
-
-        $prod->spec = $this->productSpec($id);
 
         return $prod;
     }
@@ -102,7 +98,7 @@ class ProductRepository extends BaseRepository
      */
     public function allById($idArray = [], $onShelf = false)
     {
-        $prods = $this->model->with(['imgs' => function($query) {
+        $prods = $this->model->with(['specs.specPrices', 'imgs' => function($query) {
                                 return $query->orderBy('img_sort')->first();
                             }])
                             ->when($onShelf, function($query){

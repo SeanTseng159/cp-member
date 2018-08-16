@@ -92,7 +92,7 @@ class LayoutService extends BaseService
      */
     public function categoryProducts($lang = 'zh-TW', $id = 0)
     {
-        return $this->menuProductRepository->allByTagUpperId($lang = 'zh-TW', $id);
+        return $this->menuProductRepository->productsByTagUpperId($lang = 'zh-TW', $id);
     }
 
     /**
@@ -103,6 +103,6 @@ class LayoutService extends BaseService
      */
     public function subCategoryProducts($lang = 'zh-TW', $id = 0)
     {
-        return $this->menuProductRepository->allByTagId($lang = 'zh-TW', $id);
+        return $this->menuProductRepository->productsByTagId($lang = 'zh-TW', $id);
     }
 }
