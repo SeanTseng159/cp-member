@@ -102,7 +102,7 @@ class ProductResult extends BaseResult
         $this->characteristic = $this->arrayDefault($product, 'prod_short');
         $this->storeName = $this->arrayDefault($product, 'prod_store');
         $this->place = $this->arrayDefault($product, 'prod_store');
-        $this->imageUrl = $this->getImg($this->arrayDefault($product, 'imgs'));
+        $this->imageUrl = $this->getMainImg($this->arrayDefault($product, 'img'));
         $this->isWishlist = $this->arrayDefault($product, 'isWishlist', false);
         $this->category = [];
         $this->tags = [];
@@ -190,6 +190,16 @@ class ProductResult extends BaseResult
     private function getImg($imgs)
     {
         return isset($imgs[0]['img_thumbnail_path']) ? $this->backendHost . $imgs[0]['img_thumbnail_path'] : '';
+    }
+
+    /**
+     * 取得圖片
+     * @param $imgs
+     * @return string
+     */
+    private function getMainImg($img)
+    {
+        return ($img) ? $this->backendHost . $img['img_thumbnail_path'] : '';
     }
 
     /**
