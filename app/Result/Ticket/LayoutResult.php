@@ -149,15 +149,12 @@ class LayoutResult extends BaseResult
     {
         $newItems = [];
 
-        $productResult = app()->build(ProductResult::class);
-        $magentoProductResult = app()->build(MagentoProductResult::class);
-
         foreach ($items as $item) {
             if ($item->source === BaseConfig::SOURCE_TICKET) {
-                $newItems[] = $productResult->get($item);
+                $newItems[] = (new ProductResult)->get($item);
             }
             elseif ($item->source === BaseConfig::SOURCE_COMMODITY) {
-                $newItems[] = $magentoProductResult->get($item);
+                $newItems[] = (new MagentoProductResult)->get($item);
             }
         }
 
@@ -205,6 +202,20 @@ class LayoutResult extends BaseResult
         if (!$isSub) $result->items = $this->menu($menu['sub_menus'], true);
 
         return $result;
+    }
+
+    /**
+     * 取得menu
+     * @param $data
+     */
+    public function oneMenu($menus)
+    {
+        $newMenus = [];
+        foreach ($menus as $menu) {
+            $newMenus[] = $menu;
+        }
+
+        return $newMenus;
     }
 
     /**
@@ -272,24 +283,21 @@ class LayoutResult extends BaseResult
      * 處理CategoryProduct
      * @param $data
      */
-    private function processCategoryProduct($items)
+    private function processCategoryProduct($products)
     {
-        if (!$items) return [];
+        if (!$products) return [];
 
-        $newItems = [];
+        $newProducts = [];
 
-        $productResult = app()->build(ProductResult::class);
-        $magentoProductResult = app()->build(MagentoProductResult::class);
-
-        foreach ($items as $item) {
-            if ($item->source === 1) {
-                $newItems[] = $productResult->getCategoryProduct($item->product);
+        foreach ($products as $product) {
+            if ($product->source === BaseConfig::SOURCE_TICKET) {
+                $newProducts[] = (new ProductResult)->getCategoryProduct($product);
             }
-            elseif ($item->source === 2) {
-                $newItems[] = $magentoProductResult->getCategoryProduct($item->product);
+            elseif ($product->source === BaseConfig::SOURCE_COMMODITY) {
+                $newProducts[] = (new MagentoProductResult)->getCategoryProduct($product);
             }
         }
 
-        return $newItems;
+        return $newProducts;
     }
 }

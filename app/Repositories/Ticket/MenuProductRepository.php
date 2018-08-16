@@ -29,39 +29,53 @@ class MenuProductRepository extends BaseRepository
      * @param $tags
      * @return mixed
      */
-    public function allByTagUpperId($lang, $id)
+    public function productsByTagUpperId($lang, $id)
     {
-        $data = $this->model->notDeleted()
+        $data = $this->model->select('source', 'prod_id')
+                            ->notDeleted()
                             ->where('tag_upper_id', $id)
-                            ->orderBy('created_at', 'desc')
-                            ->get();
+                            ->get()
+                            ->unique('prod_id')
+                            ->groupBy('source');
+
+        $products = collect([]);
 
         if ($data) {
-            $data->transform(function ($row, $key) {
-                if ($row->source === 1) {
-                    $prod = $this->productRepository->easyFind($row->prod_id, true);
-                }
-                elseif ($row->source === 2) {
-                    $prod = $this->MagentoProductRepository->find($row->prod_id);
-                }
 
-                if ($prod) {
-                    // 取相關標籤
-                    $prod->categories = $this->productCategories($row->prod_id);
-                    $prod->tags = $this->productTags($row->prod_id);
-                }
+            $ticketProducts = $commodityProducts = [];
 
-                $row->product = $prod;
+            foreach ($data as $source => $item) {
+                if ($source === 1) $ticketProducts = $item->pluck('prod_id');
+                elseif ($source === 2) $commodityProducts = $item->pluck('prod_id');
+            }
 
-                return $row;
-            });
+            // 票卷
+            if ($ticketProducts) {
+                $ticketProducts = $this->productRepository->allById($ticketProducts, true);
+                /*$ticketProducts->transform(function ($prod) {
+                    $prod->categories = $this->productCategories($prod->prod_id);
+                    $prod->tags = $this->productTags($prod->prod_id);
 
-            $data = $data->reject(function ($row) {
-                return (!$row->product);
-            });
+                    return $prod;
+                });*/
+
+                $products->push($ticketProducts);
+            }
+            // 實體
+            if ($commodityProducts) {
+                $commodityProducts = $this->MagentoProductRepository->allById($commodityProducts);
+                /*$commodityProducts->transform(function ($prod) {
+                    $prod->categories = $this->productCategories($prod->data->id);
+                    $prod->tags = $this->productTags($prod->data->id);
+
+                    return $prod;
+                });*/
+
+                $products->push($commodityProducts);
+            }
         }
 
-        return $data;
+        return $products->flatten()->sortByDesc('created_at');
     }
 
     /**
@@ -69,39 +83,53 @@ class MenuProductRepository extends BaseRepository
      * @param $tags
      * @return mixed
      */
-    public function allByTagId($lang, $id)
+    public function productsByTagId($lang, $id)
     {
-        $data = $this->model->notDeleted()
+        $data = $this->model->select('source', 'prod_id')
+                            ->notDeleted()
                             ->where('tag_id', $id)
-                            ->orderBy('created_at', 'desc')
-                            ->get();
+                            ->get()
+                            ->unique('prod_id')
+                            ->groupBy('source');
+
+        $products = collect([]);
 
         if ($data) {
-            $data->transform(function ($row, $key) {
-                if ($row->source === 1) {
-                    $prod = $this->productRepository->easyFind($row->prod_id, true);
-                }
-                elseif ($row->source === 2) {
-                    $prod = $this->MagentoProductRepository->find($row->prod_id);
-                }
 
-                if ($prod) {
-                    // 取相關標籤
-                    $prod->categories = $this->productCategories($row->prod_id);
-                    $prod->tags = $this->productTags($row->prod_id);
-                }
+            $ticketProducts = $commodityProducts = [];
 
-                $row->product = $prod;
+            foreach ($data as $source => $item) {
+                if ($source === 1) $ticketProducts = $item->pluck('prod_id');
+                elseif ($source === 2) $commodityProducts = $item->pluck('prod_id');
+            }
 
-                return $row;
-            });
+            // 票卷
+            if ($ticketProducts) {
+                $ticketProducts = $this->productRepository->allById($ticketProducts, true);
+                /*$ticketProducts->transform(function ($prod) {
+                    $prod->categories = $this->productCategories($prod->prod_id);
+                    $prod->tags = $this->productTags($prod->prod_id);
 
-            $data = $data->reject(function ($row) {
-                return (!$row->product);
-            });
+                    return $prod;
+                });*/
+
+                $products->push($ticketProducts);
+            }
+            // 實體
+            if ($commodityProducts) {
+                $commodityProducts = $this->MagentoProductRepository->allById($commodityProducts);
+                /*$commodityProducts->transform(function ($prod) {
+                    $prod->categories = $this->productCategories($prod->data->id);
+                    $prod->tags = $this->productTags($prod->data->id);
+
+                    return $prod;
+                });*/
+
+                $products->push($commodityProducts);
+            }
         }
 
-        return $data;
+        return $products->flatten()->sortByDesc('created_at');
     }
 
     /**
@@ -111,7 +139,7 @@ class MenuProductRepository extends BaseRepository
      */
     public function productCategories($id)
     {
-        return $this->model->with('upperTag')->where('prod_id', $id)->get();
+        return $this->model->with('upperTag')->notDeleted()->where('prod_id', $id)->get();
     }
 
     /**
@@ -121,6 +149,6 @@ class MenuProductRepository extends BaseRepository
      */
     public function productTags($id)
     {
-        return $this->model->with('tag')->where('prod_id', $id)->get();
+        return $this->model->with('tag')->notDeleted()->where('prod_id', $id)->get();
     }
 }

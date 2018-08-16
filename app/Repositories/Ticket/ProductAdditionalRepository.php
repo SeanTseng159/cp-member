@@ -9,7 +9,6 @@ namespace App\Repositories\Ticket;
 
 use App\Repositories\BaseRepository;
 use App\Models\Ticket\ProductAdditional;
-use App\Repositories\Ticket\ProductRepository;
 
 class ProductAdditionalRepository extends BaseRepository
 {
@@ -25,18 +24,17 @@ class ProductAdditionalRepository extends BaseRepository
      */
     public function getAllByProdId($id)
     {
-        $additionals = $this->model->notDeleted()->where('prod_id', $id)->orderBy('prod_additional_sort', 'asc')->get();
+        $additionals = $this->model->with(['product.specs.specPrices', 'product.imgs' => function($query) {
+                                        return $query->orderBy('img_sort')->first();
+                                    }])
+                                    ->whereHas('product', function($query) {
+                                        return $query->where('prod_onshelf', 1);
+                                    })
+                                    ->notDeleted()
+                                    ->where('prod_id', $id)
+                                    ->orderBy('prod_additional_sort', 'asc')
+                                    ->get();
 
-        if ($additionals) {
-            $productRepository = app()->build(ProductRepository::class);
-
-            foreach ($additionals as $k => $additional) {
-                $additionals[$k]->product = $productRepository->find($additional->prod_additional_prod_id);
-            }
-
-            return $additionals;
-        }
-
-        return null;
+        return $additionals ?: null;
     }
 }

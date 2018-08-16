@@ -143,7 +143,7 @@ class LayoutController extends RestLaravelController
         // 新的首頁api
         $redis = new \App\Cache\Redis;
 
-        $redis->refesh(LayoutKey::HOME_KEY, CacheConfig::LAYOUT_TIME, function () {
+        $redis->refesh(LayoutKey::HOME_KEY, CacheConfig::ONE_DAY, function () {
                 $ticketLayoutService = app()->build(TicketLayoutService::class);
                 $data = $ticketLayoutService->home($this->lang);
                 return (new LayoutResult)->home($data);
@@ -154,35 +154,66 @@ class LayoutController extends RestLaravelController
 
 
     /**
-     * 清除分頁快取
+     * 清除探索分類快取
      * @param $id
      * @return \Illuminate\Http\JsonResponse
      */
     public function clean($id)
     {
         $this->layoutService->clean($id);
+
+        // 新的探索分類api
+        $redis = new \App\Cache\Redis;
+
+        $key = sprintf(LayoutKey::CATEGORY_KEY, $id);
+        $redis->refesh($key, CacheConfig::ONE_DAY, function () use ($id) {
+                $ticketLayoutService = app()->build(TicketLayoutService::class);
+                $data = $ticketLayoutService->category($this->lang, $id);
+                return (new LayoutResult)->category($data);
+            });
+
         return $this->success('刷新成功');
     }
 
     /**
-     * 清除主分類快取
+     * 清除探索分類商品快取
      * @param $id
      * @return \Illuminate\Http\JsonResponse
      */
     public function mainClean($id)
     {
         $this->layoutService->mainClean($id);
+
+        // 新api
+        $redis = new \App\Cache\Redis;
+
+        $key = sprintf(LayoutKey::CATEGORY_PRODUCTS_KEY, $id);
+        $redis->refesh($key, CacheConfig::ONE_DAY, function () use ($id) {
+                $ticketLayoutService = app()->build(TicketLayoutService::class);
+                return $ticketLayoutService->categoryProducts($this->lang, $id);
+            });
+
         return $this->success('刷新成功');
     }
 
     /**
-     * 清除子分類快取
+     * 清除探索子分類商品快取
      * @param $id
      * @return \Illuminate\Http\JsonResponse
      */
     public function subClean($id)
     {
         $this->layoutService->subClean($id);
+
+        // 新api
+        $redis = new \App\Cache\Redis;
+
+        $key = sprintf(LayoutKey::SUB_CATEGORY_PRODUCTS_KEY, $id);
+        $redis->refesh($key, CacheConfig::ONE_DAY, function () use ($id) {
+                $ticketLayoutService = app()->build(TicketLayoutService::class);
+                return $ticketLayoutService->subCategoryProducts($this->lang, $id);
+            });
+
         return $this->success('刷新成功');
     }
 
@@ -194,6 +225,16 @@ class LayoutController extends RestLaravelController
     public function cleanMenu()
     {
         $this->layoutService->cleanMenu();
+
+        // 新的選單api
+        $redis = new \App\Cache\Redis;
+
+        $menus = $redis->refesh(LayoutKey::MENU_KEY, CacheConfig::ONE_DAY, function () {
+                $ticketLayoutService = app()->build(TicketLayoutService::class);
+                $data = $ticketLayoutService->menu($this->lang);
+                return (new LayoutResult)->menu($data);
+            });
+
         return $this->success('刷新成功');
     }
 }

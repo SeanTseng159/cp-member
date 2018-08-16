@@ -41,7 +41,7 @@ class LayoutController extends RestLaravelController
     public function home(Request $request)
     {
         try {
-            $result = $this->redis->remember(LayoutKey::HOME_KEY, CacheConfig::ONE_HOUR, function () {
+            $result = $this->redis->remember(LayoutKey::HOME_KEY, CacheConfig::ONE_DAY, function () {
                 $data = $this->layoutService->home($this->lang);
                 return (new LayoutResult)->home($data);
             });
@@ -84,11 +84,13 @@ class LayoutController extends RestLaravelController
     public function oneMenu(Request $request, $id)
     {
         try {
-            $key = sprintf(LayoutKey::ONE_MENU_KEY, $id);
-            $result = $this->redis->remember($key, CacheConfig::ONE_DAY, function () use ($id) {
-                $data = $this->layoutService->oneMenu($this->lang, $id);
+            $menus = $this->redis->remember(LayoutKey::MENU_KEY, CacheConfig::ONE_DAY, function () {
+                $data = $this->layoutService->menu($this->lang);
                 return (new LayoutResult)->menu($data);
             });
+
+            $data = collect($menus)->where('id', $id);
+            $result = (new LayoutResult)->oneMenu($data);
 
             return $this->success($result);
         } catch (Exception $e) {

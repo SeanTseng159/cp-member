@@ -13,4 +13,12 @@ class ProductAdditional extends BaseModel
 {
     protected $table = 'prod_additionals';
     protected $primaryKey = 'prod_additional_id';
+
+    /**
+     * 取得標籤
+     */
+    public function product()
+    {
+        return $this->hasOne('App\Models\Ticket\Product', 'prod_id', 'prod_additional_prod_id');
+    }
 }

@@ -34,11 +34,11 @@ class MagentoProductResult extends BaseResult
         $this->category = null;
         $this->storeName = $product->storeName;
         $this->place = $product->place;
-        $this->tags = $product->tags;
         $this->imageUrl = $product->imageUrl;
         $this->isWishlist = $product->isWishlist;
 
         if ($isDetail) {
+            $this->tags = $product->tags;
             $this->storeTelephone = $product->storeTelephone;
             $this->storeAddress = $product->storeAddress;
             $this->imageUrls = $product->imageUrls;
@@ -68,18 +68,18 @@ class MagentoProductResult extends BaseResult
         if (!$product) return null;
 
         $this->source = ProcuctConfig::SOURCE_COMMODITY;
-        $this->id = $product->id;
-        $this->name = $product->name;
-        $this->price = (string) $product->price;
-        $this->salePrice = ($product->salePrice) ? (string) $product->salePrice : $this->price;
-        $this->discount = $product->discount;
-        $this->characteristic = $product->characteristic;
-        $this->category = null;
-        $this->storeName = $product->storeName;
-        $this->place = $product->place;
-        $this->tags = $product->tags;
-        $this->imageUrl = $product->imageUrl;
-        $this->isWishlist = $product->isWishlist;
+        $this->id = $product->data->id;
+        $this->name = $product->data->name;
+        $this->price = (string) $product->data->price;
+        $this->salePrice = ($product->data->salePrice) ? (string) $product->data->salePrice : $this->price;
+        $this->discount = $product->data->discount;
+        $this->characteristic = $product->data->characteristic;
+        $this->category = [];
+        $this->storeName = $product->data->storeName;
+        $this->place = $product->data->place;
+        $this->tags = [];
+        $this->imageUrl = $product->data->imageUrl;
+        $this->isWishlist = $product->data->isWishlist;
 
         $this->category = $this->getCategories($product->categories, true);
         $this->tags = $this->getTags($product->tags, true);
@@ -125,6 +125,8 @@ class MagentoProductResult extends BaseResult
 
         if ($categories) {
             foreach ($categories as $c) {
+                if (!$c->upperTag) continue;
+
                 $category = new \stdClass;
                 if ($isAry) {
                     $category->id = $c->upperTag['tag_id'];
@@ -138,7 +140,7 @@ class MagentoProductResult extends BaseResult
             }
         }
 
-        return $categoriesAry;
+        return collect($categoriesAry)->unique('id');
     }
 
     /**
@@ -152,6 +154,8 @@ class MagentoProductResult extends BaseResult
 
         if ($tags) {
             foreach ($tags as $t) {
+                if (!$t->tag) continue;
+
                 $tag = new \stdClass;
                 if ($isAry) {
                     $tag->id = $t->tag['tag_id'];
@@ -165,7 +169,7 @@ class MagentoProductResult extends BaseResult
             }
         }
 
-        return $tagsAry;
+        return collect($tagsAry)->unique('id');
     }
 
     /**
@@ -178,11 +182,11 @@ class MagentoProductResult extends BaseResult
         $data = new \stdClass();
         $columns = [
             'source', 'id', 'name',  'price', 'salePrice', 'discount', 'characteristic', 'category', 'storeName',
-            'storeTelephone', 'storeAddress', 'place', 'tags', 'imageUrl', 'isWishlist','status'
+            'storeTelephone', 'storeAddress', 'place', 'imageUrl', 'isWishlist','status'
         ];
         if ($isDetail) {
             $detailColumns = [
-                'saleStatus', 'saleStatusCode', 'quantity', 'maxQuantity', 'additionals', 'contents', 'combos', 'purchase', 'maxPurchase', 'imageUrls', 'canUseCoupon', 'isBook'
+                'saleStatus', 'saleStatusCode', 'quantity', 'maxQuantity', 'additionals', 'contents', 'combos', 'purchase', 'maxPurchase', 'tags', 'imageUrls', 'canUseCoupon', 'isBook'
             ];
             $columns = array_merge($columns, $detailColumns);
         }

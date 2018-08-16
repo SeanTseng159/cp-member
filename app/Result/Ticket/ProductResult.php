@@ -47,8 +47,13 @@ class ProductResult extends BaseResult
         $this->imageUrl = $this->getImg($this->arrayDefault($product, 'imgs'));
         $this->isWishlist = $this->arrayDefault($product, 'isWishlist', false);
 
-        $this->additionals = $this->getAdditional($this->arrayDefault($product, 'spec'), $product['prod_price_type']); // 規格
-        if ($this->additionals) $this->salePrice = $this->getSalePrice($this->additionals, $this->salePrice);
+        // 規格
+        $this->additionals = $this->getAdditional($this->arrayDefault($product, 'specs'), $product['prod_price_type']);
+        if ($this->additionals) {
+            $lowestPrice = $this->getLowestPrice($this->additionals, $this->price, $this->salePrice);
+            $this->price = $lowestPrice['price'];
+            $this->salePrice = $lowestPrice['salePrice'];
+        }
 
         if ($isDetail) {
             $this->category = null;
@@ -99,11 +104,19 @@ class ProductResult extends BaseResult
         $this->place = $this->arrayDefault($product, 'prod_store');
         $this->imageUrl = $this->getImg($this->arrayDefault($product, 'imgs'));
         $this->isWishlist = $this->arrayDefault($product, 'isWishlist', false);
+        $this->category = [];
+        $this->tags = [];
 
-        $this->additionals = $this->getAdditional($this->arrayDefault($product, 'spec'), $product['prod_price_type']); // 規格
-        if ($this->additionals) $this->salePrice = $this->getSalePrice($this->additionals, $this->salePrice);
-        $this->category = $this->getCategories($this->arrayDefault($product, 'categories', []), true);
-        $this->tags = $this->getTags($this->arrayDefault($product, 'tags', []), true);
+        // 規格
+        $this->additionals = $this->getAdditional($this->arrayDefault($product, 'specs'), $product['prod_price_type']);
+        if ($this->additionals) {
+            $lowestPrice = $this->getLowestPrice($this->additionals, $this->price, $this->salePrice);
+            $this->price = $lowestPrice['price'];
+            $this->salePrice = $lowestPrice['salePrice'];
+        }
+
+        //$this->category = $this->getCategories($this->arrayDefault($product, 'categories', []), true);
+        //$this->tags = $this->getTags($this->arrayDefault($product, 'tags', []), true);
 
         return $this->apiCategoryFormat();
     }
@@ -113,7 +126,7 @@ class ProductResult extends BaseResult
      * @param $product
      * @param bool $isDetail
      */
-    public function getPurchaseFormat($product)
+    public function getPurchaseProduct($product)
     {
         if (!$product) return null;
 
@@ -124,7 +137,13 @@ class ProductResult extends BaseResult
         $this->price = (string) $this->arrayDefault($product, 'prod_price_sticker');
         $this->salePrice = (string) $this->arrayDefault($product, 'prod_price_retail');
         $this->imageUrl = $this->getImg($this->arrayDefault($product, 'imgs'));
-        $this->additionals = $this->getAdditional($this->arrayDefault($product, 'spec'), $product['prod_price_type']); // 規格
+        // 規格
+        $this->additionals = $this->getAdditional($this->arrayDefault($product, 'specs'), $product['prod_price_type']);
+        if ($this->additionals) {
+            $lowestPrice = $this->getLowestPrice($this->additionals, $this->price, $this->salePrice);
+            $this->price = $lowestPrice['price'];
+            $this->salePrice = $lowestPrice['salePrice'];
+        }
 
         $saleStatus = $this->getSaleStatus($this->arrayDefault($product, 'prod_onsale_time'), $this->arrayDefault($product, 'prod_offsale_time'), $this->quantity);
         $this->saleStatusCode = $saleStatus['status'];
@@ -205,6 +224,8 @@ class ProductResult extends BaseResult
 
         if ($categories) {
             foreach ($categories as $c) {
+                if (!$c->upperTag) continue;
+
                 $category = new \stdClass;
                 if ($isAry) {
                     $category->id = $c->upperTag['tag_id'];
@@ -218,7 +239,7 @@ class ProductResult extends BaseResult
             }
         }
 
-        return $categoriesAry;
+        return collect($categoriesAry)->unique('id');
     }
 
     /**
@@ -232,6 +253,8 @@ class ProductResult extends BaseResult
 
         if ($tags) {
             foreach ($tags as $t) {
+                if (!$t->tag) continue;
+
                 $tag = new \stdClass;
                 if ($isAry) {
                     $tag->id = $t->tag['tag_id'];
@@ -245,7 +268,7 @@ class ProductResult extends BaseResult
             }
         }
 
-        return $tagsAry;
+        return collect($tagsAry)->unique('id');
     }
 
     /**
@@ -285,67 +308,87 @@ class ProductResult extends BaseResult
     }
 
     /**
-     * 取得規格
+     * 取得最低規格價錢
      * @param $spec
      * @param $prodPriceType
      * @return object | null
      */
-    private function getSalePrice($additional, $salePrice)
+    private function getLowestPrice($additional, $price, $salePrice)
     {
-        if (!$additional && $additional->spec) return $salePrice;
+        if (!$additional && !isset($additional->spec)) return ['price' => $price, 'salePrice' => $salePrice];
 
-        foreach ($additional->spec as $k => $item) {
+        $k = 0;
+        foreach ($additional->spec as $item) {
             if (isset($item->additionals)) {
-                $salePrice = $this->getSalePrice($item->additionals, $salePrice);
-            }
-            else {
-                if ($k === 0) $salePrice = $item->retail;
-                else {
-                    if ($salePrice > $item->retail) $salePrice = $item->retail;
+                foreach ($item->additionals->spec as $fare) {
+                    if ($k === 0) {
+                        $return['price'] = $fare->sticker;
+                        $return['salePrice'] = $fare->retail;
+                    }
+                    else {
+                        if ($return['salePrice'] > $fare->retail) {
+                            $return['price'] = $fare->sticker;
+                            $return['salePrice'] = $fare->retail;
+                        }
+                    }
                 }
             }
+            else {
+                if ($k === 0) {
+                    $return['price'] = $item->sticker;
+                    $return['salePrice'] = $item->retail;
+                }
+                else {
+                    if ($return['salePrice'] > $item->retail) {
+                        $return['price'] = $item->sticker;
+                        $return['salePrice'] = $item->retail;
+                    }
+                }
+            }
+
+            $k++;
         }
 
-        return $salePrice;
+        return $return;
     }
 
     /**
      * 取得規格
-     * @param $spec
+     * @param $specs
      * @param $prodPriceType
      * @return object | null
      */
-    private function getAdditional($spec, $prodPriceType)
+    private function getAdditional($specs, $prodPriceType)
     {
         $additional = null;
 
-        if ($spec) {
+        if ($specs) {
             $additional = new \stdClass;
             $additional->label = trans('ticket/product.spec');
             $additional->code = 'spec';
             $additional->spec = [];
 
-            foreach ($spec as $s) {
+            foreach ($specs as $s) {
                 $newSpec = new \stdClass;
-                $newSpec->value = $s->prod_spec_name;
-                $newSpec->value_index = $s->prod_spec_id;
+                $newSpec->value = $s['prod_spec_name'];
+                $newSpec->value_index = $s['prod_spec_id'];
 
                 // 無票種
                 if ($prodPriceType == 0) {
-                    if ($s->specPrices) {
-                        foreach ($s->specPrices as $specPrices) {
-                            $newSpec->value_index = (string) $specPrices->prod_spec_price_id;
-                            $newSpec->id = (string) $specPrices->prod_spec_price_id;
-                            $newSpec->sticker = (string) $specPrices->prod_spec_price_list;
-                            $newSpec->retail = (string) $specPrices->prod_spec_price_value;
-                            $newSpec->stock = $specPrices->prod_spec_price_stock;
-                            $saleStatus = $this->getSaleStatus($specPrices->prod_spec_price_onsale_time, $specPrices->prod_spec_price_offsale_time, $specPrices->prod_spec_price_stock);
+                    if ($s['spec_prices']) {
+                        foreach ($s['spec_prices'] as $specPrices) {
+                            $newSpec->value_index = (string) $specPrices['prod_spec_price_id'];
+                            $newSpec->id = (string) $specPrices['prod_spec_price_id'];
+                            $newSpec->sticker = (string) $specPrices['prod_spec_price_list'];
+                            $newSpec->retail = (string) $specPrices['prod_spec_price_value'];
+                            $newSpec->stock = $specPrices['prod_spec_price_stock'];
+                            $saleStatus = $this->getSaleStatus($specPrices['prod_spec_price_onsale_time'], $specPrices['prod_spec_price_offsale_time'], $specPrices['prod_spec_price_stock']);
                             $newSpec->saleStatus = $saleStatus['code'];
                             $newSpec->saleStatusCode = $saleStatus['status'];
 
                             if ($newSpec->saleStatus == '11' || $newSpec->saleStatus == '10') {
                                 // 加總數量
-                                $this->quantity += $specPrices->prod_spec_price_stock;
+                                $this->quantity += $specPrices['prod_spec_price_stock'];
 
                                 $additional->spec[] = $newSpec;
                             }
@@ -353,7 +396,7 @@ class ProductResult extends BaseResult
                     }
                 }
                 else {
-                    $newSpec->additionals = $this->getFare($s->specPrices);
+                    $newSpec->additionals = $this->getFare($s['spec_prices']);
 
                     // 有內容再加入
                     if ($newSpec->additionals->spec) $additional->spec[] = $newSpec;
@@ -384,21 +427,21 @@ class ProductResult extends BaseResult
 
             foreach ($fare as $f) {
                 $newFare = new \stdClass;
-                $newFare->value = $f->prod_spec_price_name;
-                $newFare->value_index = (string) $f->prod_spec_price_id;
-                $newFare->id = (string) $f->prod_spec_price_id;
-                $newFare->sticker = (string) $f->prod_spec_price_list;
-                $newFare->retail = (string) $f->prod_spec_price_value;
-                $newFare->stock = $f->prod_spec_price_stock;
+                $newFare->value = $f['prod_spec_price_name'];
+                $newFare->value_index = (string) $f['prod_spec_price_id'];
+                $newFare->id = (string) $f['prod_spec_price_id'];
+                $newFare->sticker = (string) $f['prod_spec_price_list'];
+                $newFare->retail = (string) $f['prod_spec_price_value'];
+                $newFare->stock = $f['prod_spec_price_stock'];
 
-                $saleStatus = $this->getSaleStatus($f->prod_spec_price_onsale_time, $f->prod_spec_price_offsale_time, $f->prod_spec_price_stock);
+                $saleStatus = $this->getSaleStatus($f['prod_spec_price_onsale_time'], $f['prod_spec_price_offsale_time'], $f['prod_spec_price_stock']);
                 $newFare->saleStatus = $saleStatus['code'];
                 $newFare->saleStatusCode = $saleStatus['status'];
 
                 // 不在販賣時間，移除
                 if ($newFare->saleStatus == '11' || $newFare->saleStatus == '10') {
                     // 加總數量
-                    $this->quantity += $f->prod_spec_price_stock;
+                    $this->quantity += $f['prod_spec_price_stock'];
 
                     $additional->spec[] = $newFare;
                 }
@@ -465,7 +508,8 @@ class ProductResult extends BaseResult
 
         if ($additionals) {
             foreach ($additionals as $additional) {
-                $purchase = (new ProductResult)->getPurchaseFormat($additional->product, true);
+                $purchase = (new ProductResult)->getPurchaseProduct($additional->product, true);
+
                 if ($purchase->saleStatus === ProcuctConfig::SALE_STATUS[ProcuctConfig::SALE_STATUS_ON_SALE]) $purchaseAry[] = $purchase;
             }
         }

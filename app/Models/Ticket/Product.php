@@ -31,4 +31,12 @@ class Product extends BaseModel
     {
         return $this->hasMany('App\Models\Ticket\ProductImg', 'prod_id');
 	}
+
+    /**
+     * 取得商品圖片
+     */
+    public function specs()
+    {
+        return $this->hasMany('App\Models\Ticket\ProductSpec', 'prod_id');
+    }
 }
