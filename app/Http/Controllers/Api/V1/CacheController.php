@@ -17,6 +17,13 @@ use App\Cache\Redis;
 use App\Cache\Config as CacheConfig;
 use App\Cache\Key\LayoutKey;
 
+use App\Jobs\Cache\RefreshLayoutAllCache;
+use App\Jobs\Cache\RefreshLayoutHomeCache;
+use App\Jobs\Cache\RefreshLayoutMenuCache;
+use App\Jobs\Cache\RefreshLayoutCategoryCache;
+use App\Jobs\Cache\RefreshLayoutCategoryProductsCache;
+use App\Jobs\Cache\RefreshLayoutSubCategoryProductsCache;
+
 use Exception;
 
 class CacheController extends RestLaravelController
@@ -40,37 +47,7 @@ class CacheController extends RestLaravelController
      */
     public function all(Request $request)
     {
-        // 首頁
-        $this->redis->refesh(LayoutKey::HOME_KEY, CacheConfig::ONE_DAY, function () {
-                $data = $this->layoutService->home($this->lang);
-                return (new LayoutResult)->home($data);
-            });
-
-        $menus = $this->redis->refesh(LayoutKey::MENU_KEY, CacheConfig::ONE_DAY, function () {
-                $data = $this->layoutService->menu($this->lang);
-                return (new LayoutResult)->menu($data);
-            });
-
-        if ($menus) {
-            foreach ($menus as $menu) {
-                // 主分類
-                $id = $menu->id;
-                $key = sprintf(LayoutKey::CATEGORY_PRODUCTS_KEY, $id);
-                $this->redis->refesh($key, CacheConfig::ONE_DAY, function () use ($id) {
-                    return $this->layoutService->categoryProducts($this->lang, $id);
-                });
-                // 次分類
-                if ($menu->items) {
-                    foreach ($menu->items as $m) {
-                        $id = $m->id;
-                        $key = sprintf(LayoutKey::SUB_CATEGORY_PRODUCTS_KEY, $id);
-                        $data = $this->redis->refesh($key, CacheConfig::ONE_DAY, function () use ($id) {
-                            return $this->layoutService->subCategoryProducts($this->lang, $id);
-                        });
-                    }
-                }
-            }
-        }
+       dispatch(new RefreshLayoutAllCache);
 
         return $this->success('刷新成功');
     }
@@ -84,10 +61,7 @@ class CacheController extends RestLaravelController
     public function home(Request $request)
     {
         // 首頁
-        $this->redis->refesh(LayoutKey::HOME_KEY, CacheConfig::ONE_DAY, function () {
-                $data = $this->layoutService->home($this->lang);
-                return (new LayoutResult)->home($data);
-            });
+        dispatch(new RefreshLayoutHomeCache);
 
         return $this->success('刷新成功');
     }
@@ -99,10 +73,7 @@ class CacheController extends RestLaravelController
      */
     public function menu(Request $request)
     {
-        $this->redis->refesh(LayoutKey::MENU_KEY, CacheConfig::ONE_DAY, function () {
-                $data = $this->layoutService->menu($this->lang);
-                return (new LayoutResult)->menu($data);
-            });
+        dispatch(new RefreshLayoutMenuCache);
 
         return $this->success('刷新成功');
     }

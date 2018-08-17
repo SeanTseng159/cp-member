@@ -11,6 +11,7 @@ use App\Console\Commands\Payment\Tspg\AtmOrderCheck;
 use App\Console\Commands\SyncMagentoProduct;
 use App\Console\Commands\UpdateMagentoCreditCardOrder;
 use App\Console\Commands\UpdateMagentoATMOrder;
+use App\Console\Commands\RefreshLayoutCache;
 
 use App\Jobs\SendNotification;
 
@@ -27,7 +28,8 @@ class Kernel extends ConsoleKernel
         AtmOrderCheck::class,
         SyncMagentoProduct::class,
         UpdateMagentoCreditCardOrder::class,
-        UpdateMagentoATMOrder::class
+        UpdateMagentoATMOrder::class,
+        RefreshLayoutCache::class
     ];
 
     /**
@@ -60,6 +62,9 @@ class Kernel extends ConsoleKernel
         $schedule->command(UpdateMagentoCreditCardOrder::class)->everyTenMinutes();
         // 移除magento過期ATM訂單
         $schedule->command(UpdateMagentoATMOrder::class)->dailyAt('00:00');
+
+        // 重刷快取
+        $schedule->command(RefreshLayoutCache::class)->dailyAt('04:30');
     }
 
     /**

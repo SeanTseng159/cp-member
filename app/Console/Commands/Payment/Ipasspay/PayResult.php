@@ -47,7 +47,7 @@ class PayResult extends Command
      */
     public function handle()
     {
-        $where = [
+        /*$where = [
             'pay_type' => 'VACC',
             'pay_status' => 0
         ];
@@ -61,11 +61,6 @@ class PayResult extends Command
 
             # todo
             # 更新兩邊訂單
-            /*if ($result['status']) {
-              // dd($result['data']);
-                //Log寫入DB
-                $this->logService->update($order->order_id, ['pay_type' => $result['data']->payment_type, 'pay_status' => $result['data']->trade_status]);
-            }*/
-        }
+        }*/
     }
 }
