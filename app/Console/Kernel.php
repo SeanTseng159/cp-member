@@ -11,12 +11,15 @@ use App\Console\Commands\Payment\Tspg\AtmOrderCheck;
 use App\Console\Commands\SyncMagentoProduct;
 use App\Console\Commands\UpdateMagentoCreditCardOrder;
 use App\Console\Commands\UpdateMagentoATMOrder;
+
 use App\Console\Commands\Carts\NotifyNotEmptyCarts;
 use App\Console\Commands\Carts\CleanExpiredCarts;
 use App\Console\Commands\ProcessKrtmarketInvoice;
 use App\Console\Commands\DownloadBPSCMFile;
 use App\Console\Commands\ProcessBPSCMFile;
 use Ksd\Mediation\Config\ProjectConfig;
+
+use App\Console\Commands\RefreshLayoutCache;
 
 use App\Jobs\SendNotification;
 
@@ -38,7 +41,8 @@ class Kernel extends ConsoleKernel
         NotifyNotEmptyCarts::class,
         ProcessKrtmarketInvoice::class,
         DownloadBPSCMFile::class,
-        ProcessBPSCMFile::class
+        ProcessBPSCMFile::class,
+        RefreshLayoutCache::class
     ];
 
     /**
@@ -89,6 +93,10 @@ class Kernel extends ConsoleKernel
         // download 金財通FTP DownloadBackup 資料至本機處理
         // 將排程移至 /etc/crontab 處理
         // $schedule->command(ProcessBPSCMFile::class)->dailyAt('05:02');
+
+        // 重刷快取
+        $schedule->command(RefreshLayoutCache::class)->dailyAt('04:30');
+
     }
 
     /**
