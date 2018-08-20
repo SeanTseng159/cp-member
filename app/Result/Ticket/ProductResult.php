@@ -148,6 +148,7 @@ class ProductResult extends BaseResult
         $this->storeName = $this->arrayDefault($product, 'prod_store');
         $this->place = $this->arrayDefault($product, 'prod_store');
         $this->imageUrl = $this->getImg($this->arrayDefault($product, 'imgs'));
+        $this->imageUrls = $this->getImgs($this->arrayDefault($product, 'imgs'));
         $this->contents = $this->getContents($product);
 
         return $this->apiFormatForComboItem();
@@ -677,7 +678,7 @@ class ProductResult extends BaseResult
     {
         $data = new \stdClass();
         $columns = [
-            'source', 'id', 'name', 'characteristic', 'storeName', 'place', 'imageUrl', 'contents'
+            'source', 'id', 'name', 'characteristic', 'storeName', 'place', 'imageUrl', 'imageUrls', 'contents'
         ];
 
         foreach ($columns as $column) {
