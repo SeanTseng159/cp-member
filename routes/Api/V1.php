@@ -72,7 +72,7 @@ Route::middleware('cors')->namespace('V1')->group(function () {
         // 根據 id 取得商品明細
         Route::get('query/{id}', 'ProductController@query');
         // 根據 id 取得加購商品
-        // Route::get('purchase/{id}', 'ProductController@purchase');
+        Route::get('purchase/{id}', 'ProductController@purchase');
         // 根據 id 取得組合項目商品
         Route::get('combo/{id}', 'ProductController@findComboItem');
     });

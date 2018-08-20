@@ -83,6 +83,23 @@ class ProductResult extends BaseResult
     }
 
     /**
+     * 取得資料
+     * @param $product
+     * @param bool $isDetail
+     */
+    public function getOnlyPurchase($product)
+    {
+        if (!$product) return null;
+
+        $product = $product->toArray();
+
+        $this->purchase = $this->getPurchase($this->arrayDefault($product, 'purchase')); // 加購
+        $this->maxPurchase = $this->arrayDefault($product, 'prod_plus_limit', null);
+
+        return $this->apiFormatForOnlyPurchase();
+    }
+
+    /**
      * 取得加購商品資料
      * @param $product
      * @param bool $isDetail
@@ -398,37 +415,40 @@ class ProductResult extends BaseResult
 
                 // 無票種
                 if ($prodPriceType == 0) {
-                    if ($s['spec_prices']) {
-                        foreach ($s['spec_prices'] as $specPrices) {
-                            $newSpec->value_index = (string) $specPrices['prod_spec_price_id'];
-                            $newSpec->id = (string) $specPrices['prod_spec_price_id'];
-                            $newSpec->sticker = (string) $specPrices['prod_spec_price_list'];
-                            $newSpec->retail = (string) $specPrices['prod_spec_price_value'];
-                            $newSpec->stock = $specPrices['prod_spec_price_stock'];
-                            $saleStatus = $this->getSaleStatus($specPrices['prod_spec_price_onsale_time'], $specPrices['prod_spec_price_offsale_time'], $specPrices['prod_spec_price_stock']);
-                            $newSpec->saleStatus = $saleStatus['code'];
-                            $newSpec->saleStatusCode = $saleStatus['status'];
+                    if (!$s['spec_prices']) continue;
 
-                            if ($newSpec->saleStatus == '11' || $newSpec->saleStatus == '10') {
-                                // 加總數量
-                                $this->quantity += $specPrices['prod_spec_price_stock'];
+                    foreach ($s['spec_prices'] as $specPrices) {
+                        $newSpec->value_index = (string) $specPrices['prod_spec_price_id'];
+                        $newSpec->id = (string) $specPrices['prod_spec_price_id'];
+                        $newSpec->sticker = (string) $specPrices['prod_spec_price_list'];
+                        $newSpec->retail = (string) $specPrices['prod_spec_price_value'];
+                        $newSpec->stock = $specPrices['prod_spec_price_stock'];
+                        $saleStatus = $this->getSaleStatus($specPrices['prod_spec_price_onsale_time'], $specPrices['prod_spec_price_offsale_time'], $specPrices['prod_spec_price_stock']);
+                        $newSpec->saleStatus = $saleStatus['code'];
+                        $newSpec->saleStatusCode = $saleStatus['status'];
 
-                                $additional->spec[] = $newSpec;
-                            }
+                        if ($newSpec->saleStatus == '11' || $newSpec->saleStatus == '10') {
+                            // 加總數量
+                            $this->quantity += $specPrices['prod_spec_price_stock'];
+
+                            $additional->spec[] = $newSpec;
                         }
                     }
+
                 }
                 else {
+                    if (!$s['spec_prices']) continue;
+
                     $newSpec->additionals = $this->getFare($s['spec_prices']);
 
                     // 有內容再加入
                     if ($newSpec->additionals->spec) $additional->spec[] = $newSpec;
                 }
             }
-        }
 
-        // 無內容，移除全部
-        if (!$additional->spec) $additional = null;
+            // 無內容，移除全部
+            if (!$additional->spec) $additional = null;
+        }
 
         return $additional;
     }
@@ -580,6 +600,23 @@ class ProductResult extends BaseResult
             ];
             $columns = array_merge($columns, $detailColumns);
         }
+
+        foreach ($columns as $column) {
+            if (property_exists($this, $column)) {
+                $data->$column = $this->$column;
+            }
+        }
+        return $data;
+    }
+
+    /**
+     * api response 資料格式化
+     * @return \stdClass
+     */
+    private function apiFormatForOnlyPurchase()
+    {
+        $data = new \stdClass();
+        $columns = ['purchase', 'maxPurchase'];
 
         foreach ($columns as $column) {
             if (property_exists($this, $column)) {

@@ -57,13 +57,36 @@ class ProductRepository extends BaseRepository
 
         $isMainProd = in_array($prod->prod_type, [1, 2]);
 
-        //$prod->spec = $this->productSpec($id);
-
         $prod->tags = ($isMainProd) ? $this->productTags($id) : null;
 
         $prod->isWishlist = ($isMainProd) ? $this->isWishlist($id, $memberId) : false;
 
         $prod->combos = ($isMainProd) ? $this->productGroup($id) : null;
+
+        $prod->purchase = ($isMainProd) ? $this->productAdditional($id) : null;
+
+        return $prod;
+    }
+
+    /**
+     * 根據 商品 id 取得所有加購商品明細
+     * @param $id
+     * @param $onShelf
+     * @return mixed
+     */
+    public function findPurchase($id, $onShelf = false)
+    {
+        $prod = $this->model->when($onShelf, function($query){
+                                $query->where('prod_onshelf', 1);
+                            })
+                            ->where('prod_type', '!=', 4)
+                            ->where('prod_onshelf_time', '<=', $this->date)
+                            ->where('prod_offshelf_time', '>=', $this->date)
+                            ->find($id);
+
+        if (!$prod) return null;
+
+        $isMainProd = in_array($prod->prod_type, [1, 2]);
 
         $prod->purchase = ($isMainProd) ? $this->productAdditional($id) : null;
 
