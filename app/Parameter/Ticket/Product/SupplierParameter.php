@@ -19,7 +19,7 @@ class SupplierParameter extends BaseParameter
                 'characteristic' => $item->prod_short,
                 'category' => $item->product_tags->first()['tag_id'],
                 'storeName' => $item->prod_store,
-                'place' => $item->prod_store,
+                'place' => $item->full_address,
                 'imagUrls' => collect([
                     'generalPath' => $item->imgs->first()['img_path'],
                     'thumbonallPath' => $item->imgs->first()['img_thumbnail_path'],
