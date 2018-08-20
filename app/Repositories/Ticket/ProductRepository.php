@@ -185,10 +185,10 @@ class ProductRepository extends BaseRepository
         
         return Product::where('supplier_id', $supplierId)
                     ->with(['imgs' => function($query) {
-                        $query->select('prod_id', 'img_path', 'img_thumbnail_path')->orderBy('img_sort')->first();
+                        $query->where('img_sort', 1);
                     }])
                     ->with(['product_tags' => function($query){
-                        $query->where('is_main', 1)->first();
+                        $query->where('is_main', 1);
                     }])
                     ->select(
                             'prod_id',
