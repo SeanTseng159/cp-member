@@ -19,6 +19,6 @@ class ProductSpec extends BaseModel
      */
   	public function specPrices()
     {
-        return $this->hasMany('App\Models\Ticket\ProductSpecPrice', 'prod_spec_id');
+        return $this->hasMany('App\Models\Ticket\ProductSpecPrice', 'prod_spec_id')->notDeleted();
     }
 }
