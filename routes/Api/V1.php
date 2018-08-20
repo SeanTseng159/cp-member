@@ -73,6 +73,13 @@ Route::middleware('cors')->namespace('V1')->group(function () {
         Route::get('query/{id}', 'ProductController@query');
         // 根據 id 取得加購商品
         // Route::get('purchase/{id}', 'ProductController@purchase');
+        // 根據 id 取得組合項目商品
+        Route::get('combo/{id}', 'ProductController@findComboItem');
+    });
+
+    Route::prefix('service')->group(function () {
+        // 常見問題
+        Route::get('qa', 'ServiceController@qa');
     });
 
 

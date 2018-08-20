@@ -44,6 +44,7 @@ class ProductRepository extends BaseRepository
                             ->when($onShelf, function($query){
                                 $query->where('prod_onshelf', 1);
                             })
+                            ->where('prod_type', '!=', 4)
                             ->where('prod_onshelf_time', '<=', $this->date)
                             ->where('prod_offshelf_time', '>=', $this->date)
                             ->find($id);
@@ -65,6 +66,28 @@ class ProductRepository extends BaseRepository
         $prod->combos = ($isMainProd) ? $this->productGroup($id) : null;
 
         $prod->purchase = ($isMainProd) ? $this->productAdditional($id) : null;
+
+        return $prod;
+    }
+
+    /**
+     * 根據 組合商品(內容物) id 取得商品明細
+     * @param $id
+     * @param $onShelf
+     * @return mixed
+     */
+    public function findComboItem($id, $onShelf = false)
+    {
+        $prod = $this->model->with(['imgs' => function($query) {
+                                return $query->orderBy('img_sort')->get();
+                            }])
+                            ->when($onShelf, function($query){
+                                $query->where('prod_onshelf', 1);
+                            })
+                            ->where('prod_type', 4)
+                            ->find($id);
+
+        if (!$prod) return null;
 
         return $prod;
     }

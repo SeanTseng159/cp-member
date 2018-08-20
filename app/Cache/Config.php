@@ -15,5 +15,5 @@ class Config
     const ONE_HOUR = 60;
     const TWO_HOUR = 120;
     const ONE_DAY = 1440;
-
+    const ONE_MONTH = 43200;
 }
