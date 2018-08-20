@@ -65,6 +65,31 @@ class Redis
 
         return Cache::remember($this->i18nKey($key), $expire, $callFunction);
     }
+    
+    /**
+     * @param type $tags
+     * @param type $key
+     * @param type $expire
+     * @param type $callFunction
+     * @return type
+     */
+    public function rememberByTags($tags, $key, $expire, $callFunction)
+    {
+        $tags = is_array($tags) ? implode(',', $tags) : $tags;
+        
+        return Cache::tags($tags)->remember($this->i18nKey($key), $expire, $callFunction);
+    }
+
+    /**
+     * @param type $tags
+     * @return type
+     */
+    public function delByTags($tags)
+    {
+        $tags = is_array($tags) ? implode(',', $tags) : $tags;
+        
+        return Cache::tags($tags)::flush();
+    }
 
     /**
      * 根據 key 刪除快取

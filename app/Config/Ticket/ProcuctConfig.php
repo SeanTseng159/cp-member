@@ -30,4 +30,7 @@ class ProcuctConfig extends BaseConfig
         SELF::SALE_STATUS_OFF_SALE => '10',
         SELF::SALE_STATUS_STOP_SALE => '20'
     ];
+    
+    const DEFAULT_PAGE_SIZE = 20;
+    const DEFAULT_PAGE = 1;
 }

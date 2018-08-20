@@ -14,12 +14,14 @@ use App\Models\Ticket\ProductTag;
 use App\Models\Ticket\ProductSpec;
 use App\Repositories\Ticket\ProductAdditionalRepository;
 use App\Repositories\Ticket\ProductGroupRepository;
+use Illuminate\Pagination\Paginator;
+use App\Config\Ticket\ProcuctConfig;
 
 class ProductRepository extends BaseRepository
 {
     protected $productAdditionalRepository;
     protected $productGroupRepository;
-
+    
     public function __construct(Product $model, ProductAdditionalRepository $productAdditionalRepository, ProductGroupRepository $productGroupRepository)
     {
         $this->model = $model;
@@ -157,5 +159,46 @@ class ProductRepository extends BaseRepository
     public function productGroup($id)
     {
         return $this->productGroupRepository->getAllByProdId($id);
+    }
+    
+    public function productMainTag($id)
+    {
+        return ProductTag::with('tag')
+            ->where('prod_id', $id)
+            ->where('is_main', 1)
+            ->get();
+    }
+    
+    /**
+     * 取得根據
+     * @params $suppliedId
+     * @return Collections
+     */
+    public function supplierProducts(int $supplierId, $page_info)
+    {
+        $currentPage = $page_info['page'] ?? ProcuctConfig::DEFAULT_PAGE;
+        $pageSize = $page_info['limit'] ?? ProcuctConfig::DEFAULT_PAGE_SIZE;
+        
+        Paginator::currentPageResolver(function () use ($currentPage) {
+            return $currentPage;
+        });
+        
+        return Product::where('supplier_id', $supplierId)
+                    ->with(['imgs' => function($query) {
+                        $query->select('prod_id', 'img_path', 'img_thumbnail_path')->orderBy('img_sort')->first();
+                    }])
+                    ->with(['product_tags' => function($query){
+                        $query->where('is_main', 1)->first();
+                    }])
+                    ->select(
+                            'prod_id',
+                            'prod_name', 
+                            'prod_price_sticker',
+                            'prod_price_retail',
+                            'prod_short',
+                            'prod_store'
+                            )
+                    ->paginate($pageSize)
+                    ->getCollection();
     }
 }

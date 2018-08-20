@@ -41,6 +41,7 @@ Route::middleware('cors')->namespace('V1')->group(function () {
     Route::prefix('layout')->group(function () {
         // 取首頁資料
         Route::get('home', 'LayoutController@home');
+        Route::get('supplier/{supplierId}/products', 'LayoutController@supplier')->name('v1.layout.supplier');
     });
 
     Route::prefix('product')->group(function () {

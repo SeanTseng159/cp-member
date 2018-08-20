@@ -31,4 +31,9 @@ class Product extends BaseModel
     {
         return $this->hasMany('App\Models\Ticket\ProductImg', 'prod_id');
 	}
+    
+    public function product_tags()
+    {
+        return $this->hasMany('App\Models\Ticket\ProductTag', 'prod_id');
+    }
 }
