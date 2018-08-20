@@ -83,6 +83,60 @@ class ProductResult extends BaseResult
     }
 
     /**
+     * 取得加購商品資料
+     * @param $product
+     * @param bool $isDetail
+     */
+    public function getPurchaseProduct($product)
+    {
+        if (!$product) return null;
+
+        $product = $product->toArray();
+
+        $this->id = (string) $this->arrayDefault($product, 'prod_id');
+        $this->name = $this->arrayDefault($product, 'prod_name');
+        $this->price = (string) $this->arrayDefault($product, 'prod_price_sticker');
+        $this->salePrice = (string) $this->arrayDefault($product, 'prod_price_retail');
+        $this->imageUrl = $this->getImg($this->arrayDefault($product, 'imgs'));
+        // 規格
+        $this->additionals = $this->getAdditional($this->arrayDefault($product, 'specs'), $product['prod_price_type']);
+        if ($this->additionals) {
+            $lowestPrice = $this->getLowestPrice($this->additionals, $this->price, $this->salePrice);
+            $this->price = $lowestPrice['price'];
+            $this->salePrice = $lowestPrice['salePrice'];
+        }
+
+        $saleStatus = $this->getSaleStatus($this->arrayDefault($product, 'prod_onsale_time'), $this->arrayDefault($product, 'prod_offsale_time'), $this->quantity);
+        $this->saleStatusCode = $saleStatus['status'];
+        $this->saleStatus = $saleStatus['code'];
+
+        return $this->apiFormatForPurchase();
+    }
+
+    /**
+     * 取得組合商品(內容物) 資料
+     * @param $product
+     * @param bool $isDetail
+     */
+    public function getComboItem($product)
+    {
+        if (!$product) return null;
+
+        $product = $product->toArray();
+
+        $this->source = ProcuctConfig::SOURCE_TICKET;
+        $this->id = (string) $this->arrayDefault($product, 'prod_id');
+        $this->name = $this->arrayDefault($product, 'prod_name');
+        $this->characteristic = $this->arrayDefault($product, 'prod_short');
+        $this->storeName = $this->arrayDefault($product, 'prod_store');
+        $this->place = $this->arrayDefault($product, 'prod_store');
+        $this->imageUrl = $this->getImg($this->arrayDefault($product, 'imgs'));
+        $this->contents = $this->getContents($product);
+
+        return $this->apiFormatForComboItem();
+    }
+
+    /**
      * 取得資料
      * @param $product
      * @param bool $isDetail
@@ -118,38 +172,7 @@ class ProductResult extends BaseResult
         //$this->category = $this->getCategories($this->arrayDefault($product, 'categories', []), true);
         //$this->tags = $this->getTags($this->arrayDefault($product, 'tags', []), true);
 
-        return $this->apiCategoryFormat();
-    }
-
-    /**
-     * 取得資料
-     * @param $product
-     * @param bool $isDetail
-     */
-    public function getPurchaseProduct($product)
-    {
-        if (!$product) return null;
-
-        $product = $product->toArray();
-
-        $this->id = (string) $this->arrayDefault($product, 'prod_id');
-        $this->name = $this->arrayDefault($product, 'prod_name');
-        $this->price = (string) $this->arrayDefault($product, 'prod_price_sticker');
-        $this->salePrice = (string) $this->arrayDefault($product, 'prod_price_retail');
-        $this->imageUrl = $this->getImg($this->arrayDefault($product, 'imgs'));
-        // 規格
-        $this->additionals = $this->getAdditional($this->arrayDefault($product, 'specs'), $product['prod_price_type']);
-        if ($this->additionals) {
-            $lowestPrice = $this->getLowestPrice($this->additionals, $this->price, $this->salePrice);
-            $this->price = $lowestPrice['price'];
-            $this->salePrice = $lowestPrice['salePrice'];
-        }
-
-        $saleStatus = $this->getSaleStatus($this->arrayDefault($product, 'prod_onsale_time'), $this->arrayDefault($product, 'prod_offsale_time'), $this->quantity);
-        $this->saleStatusCode = $saleStatus['status'];
-        $this->saleStatus = $saleStatus['code'];
-
-        return $this->apiPurchaseFormat();
+        return $this->apiFormatForCategory();
     }
 
     /**
@@ -571,7 +594,7 @@ class ProductResult extends BaseResult
      * @param bool $isDetail
      * @return \stdClass
      */
-    private function apiCategoryFormat()
+    private function apiFormatForCategory()
     {
         $data = new \stdClass();
         $columns = [
@@ -592,11 +615,32 @@ class ProductResult extends BaseResult
      * @param bool $isDetail
      * @return \stdClass
      */
-    private function apiPurchaseFormat()
+    private function apiFormatForPurchase()
     {
         $data = new \stdClass();
         $columns = [
             'id', 'name', 'saleStatus', 'saleStatusCode', 'price', 'salePrice', 'imageUrl', 'quantity', 'additionals'
+        ];
+
+        foreach ($columns as $column) {
+            if (property_exists($this, $column)) {
+                $data->$column = $this->$column;
+            }
+        }
+
+        return $data;
+    }
+
+    /**
+     * api response 資料格式化
+     * @param bool $isDetail
+     * @return \stdClass
+     */
+    private function apiFormatForComboItem()
+    {
+        $data = new \stdClass();
+        $columns = [
+            'source', 'id', 'name', 'characteristic', 'storeName', 'place', 'imageUrl', 'contents'
         ];
 
         foreach ($columns as $column) {
