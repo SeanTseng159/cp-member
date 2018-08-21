@@ -66,7 +66,11 @@ class LayoutController extends RestLaravelController
      */
     public function supplier(Request $request, $supplierId)
     {
-        $page_info = $request->only(['page', 'limit']);
-        return $this->success((new SupplierParameter($this->layoutService->supplierProducts($supplierId, $page_info)))->getTransformedParams());
+        try {
+            $page_info = $request->only(['page', 'limit']);
+            return $this->success((new SupplierParameter($this->layoutService->supplierProducts($supplierId, $page_info)))->getTransformedParams());
+        } catch (Exception $e) {
+            return $this->failure('E0005', '資料無法取得');
+        }
     }
 }
