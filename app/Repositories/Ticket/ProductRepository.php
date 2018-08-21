@@ -251,7 +251,6 @@ class ProductRepository extends BaseRepository
                             'prod_district',
                             'prod_address'
                             )
-                    ->paginate($pageSize)
-                    ->getCollection();
+                    ->paginate($pageSize);
     }
 }
