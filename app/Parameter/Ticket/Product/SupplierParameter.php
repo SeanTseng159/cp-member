@@ -10,6 +10,7 @@ class SupplierParameter extends BaseParameter
 	public function __construct($params)
     {
         $transformed_params = null;
+        if (empty($params)) return;
         $params->each(function($item) use (&$transformed_params){
             $transformed_params[] = collect([
                 'id' => $item->prod_id,
