@@ -14,7 +14,7 @@ class Product extends BaseModel
 	protected $table = 'prods';
 	protected $primaryKey = 'prod_id';
 
-	protected $appends = ['source'];
+	protected $appends = ['source', 'full_address'];
 
 	/**
      * 加入來源
@@ -22,6 +22,11 @@ class Product extends BaseModel
 	public function getSourceAttribute($value)
     {
     	return 'ct_pass';
+    }
+
+    public function getFullAddressAttribute()
+    {
+        return $this->prod_county . $this->prod_district . $this->prod_address;
     }
 
 	/**

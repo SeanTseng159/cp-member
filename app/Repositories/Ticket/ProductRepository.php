@@ -196,7 +196,10 @@ class ProductRepository extends BaseRepository
                             'prod_price_sticker',
                             'prod_price_retail',
                             'prod_short',
-                            'prod_store'
+                            'prod_store',
+                            'prod_county',
+                            'prod_district',
+                            'prod_address'
                             )
                     ->paginate($pageSize);
     }
