@@ -19,6 +19,8 @@ use App\Cache\Key\LayoutKey;
 
 use Exception;
 
+use App\Parameter\Ticket\Product\SupplierParameter;
+
 class LayoutController extends RestLaravelController
 {
     protected $lang = 'zh-TW';
@@ -166,5 +168,16 @@ class LayoutController extends RestLaravelController
             $result->records = [];
             return $this->success($result);
         }
+    }
+    
+    /**
+     * 取得目標供應商的商品
+     * @param Request $request
+     * @param type $supplierId
+     */
+    public function supplier(Request $request, $supplierId)
+    {
+        $page_info = $request->only(['page', 'limit']);
+        return $this->success((new SupplierParameter($this->layoutService->supplierProducts($supplierId, $page_info)))->getTransformedParams());
     }
 }

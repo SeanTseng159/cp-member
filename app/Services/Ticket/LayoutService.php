@@ -14,6 +14,8 @@ use App\Repositories\Ticket\LayoutHomeRepository as HomeRepository;
 use App\Repositories\Ticket\TagRepository;
 use App\Repositories\Ticket\LayoutCategoryRepository as CategoryRepository;
 use App\Repositories\Ticket\MenuProductRepository;
+use App\Repositories\Ticket\ProductRepository as ProductRepository;
+use App\Config\Ticket\ProcuctConfig;
 
 class LayoutService extends BaseService
 {
@@ -23,8 +25,9 @@ class LayoutService extends BaseService
     protected $tagRepository;
     protected $categoryRepository;
     protected $menuProductRepository;
+    protected $productRepository;
 
-    public function __construct(AdRepository $adRepository, ExplorationRepository $explorationRepository, HomeRepository $homeRepository, TagRepository $tagRepository, CategoryRepository $categoryRepository, MenuProductRepository $menuProductRepository)
+    public function __construct(AdRepository $adRepository, ExplorationRepository $explorationRepository, HomeRepository $homeRepository, TagRepository $tagRepository, CategoryRepository $categoryRepository, MenuProductRepository $menuProductRepository, ProductRepository $productRepository)
     {
         $this->adRepository = $adRepository;
         $this->explorationRepository = $explorationRepository;
@@ -32,6 +35,8 @@ class LayoutService extends BaseService
         $this->tagRepository = $tagRepository;
         $this->categoryRepository = $categoryRepository;
         $this->menuProductRepository = $menuProductRepository;
+        $this->productRepository = $productRepository;
+        
     }
 
     /**
@@ -104,5 +109,10 @@ class LayoutService extends BaseService
     public function subCategoryProducts($lang = 'zh-TW', $id = 0)
     {
         return $this->menuProductRepository->productsByTagId($lang = 'zh-TW', $id);
+    }
+    
+    public function supplierProducts($supplierId, $page_info = [])
+    {
+        return $this->productRepository->supplierProducts($supplierId, $page_info);
     }
 }
