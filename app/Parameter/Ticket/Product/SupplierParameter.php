@@ -14,6 +14,7 @@ class SupplierParameter extends BaseParameter
         if ( $total > 0) {
             $params['prods']->each(function($item) use (&$transformed_params){
                 $transformed_params[] = collect([
+                    'source' => $item->source,
                     'id' => $item->prod_id,
                     'name' => $item->prod_name,
                     'price' => $item->prod_price_sticker,
@@ -23,8 +24,8 @@ class SupplierParameter extends BaseParameter
                     'storeName' => $item->prod_store,
                     'place' => $item->full_address,
                     'imagUrls' => collect([
-                        'generalPath' => $item->imgs->first()['img_path'],
-                        'thumbonallPath' => $item->imgs->first()['img_thumbnail_path'],
+                        'generalPath' => asset($item->imgs->first()['img_path']),
+                        'thumbonallPath' => asset($item->imgs->first()['img_thumbnail_path']),
                     ])
                 ]);
             });
