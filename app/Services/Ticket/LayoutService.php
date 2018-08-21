@@ -13,6 +13,7 @@ use App\Repositories\Ticket\LayoutExplorationRepository as ExplorationRepository
 use App\Repositories\Ticket\LayoutHomeRepository as HomeRepository;
 use App\Repositories\Ticket\ProductRepository as ProductRepository;
 use App\Config\Ticket\ProcuctConfig;
+use App\Models\Ticket\Supplier as SupplierRepository;
 
 class LayoutService extends BaseService
 {
@@ -45,8 +46,17 @@ class LayoutService extends BaseService
         return $data;
     }
     
+    /**
+     * 取供應商相關商品
+     * @param int $supplierId
+     * @param array $page_info
+     * @return type
+     */
     public function supplierProducts($supplierId, $page_info = [])
     {
-        return $this->productRepository->supplierProducts($supplierId, $page_info);
+        $data['prods'] = $this->productRepository->supplierProducts($supplierId, $page_info);
+        $data['supplier'] = SupplierRepository::find($supplierId);
+        
+        return $data;
     }
 }

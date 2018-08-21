@@ -198,7 +198,6 @@ class ProductRepository extends BaseRepository
                             'prod_short',
                             'prod_store'
                             )
-                    ->paginate($pageSize)
-                    ->getCollection();
+                    ->paginate($pageSize);
     }
 }
