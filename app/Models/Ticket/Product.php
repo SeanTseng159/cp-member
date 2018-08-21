@@ -29,6 +29,11 @@ class Product extends BaseModel
         return $this->prod_county . $this->prod_district . $this->prod_address;
     }
 
+    public function getFullAddressAttribute()
+    {
+        return $this->prod_county . $this->prod_district . $this->prod_address;
+    }
+
 	/**
      * 取得商品圖片
      */
