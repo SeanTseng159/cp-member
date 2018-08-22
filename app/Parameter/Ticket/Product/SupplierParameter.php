@@ -2,13 +2,17 @@
 namespace App\Parameter\Ticket\Product;
 
 use App\Parameter\BaseParameter;
+use App\Config\BaseConfig;
 
 class SupplierParameter extends BaseParameter
 {
     public $transformed_params;
     
+    private $backendHost;
+    
 	public function __construct($params)
     {
+        $this->backendHost = (env('APP_ENV') === 'production' || env('APP_ENV') === 'beta') ? BaseConfig::BACKEND_HOST : BaseConfig::BACKEND_HOST_TEST;
         $transformed_params = null;
         $total = $params['prods']->total();
         if ( $total > 0) {
@@ -24,8 +28,8 @@ class SupplierParameter extends BaseParameter
                     'storeName' => $item->prod_store,
                     'place' => $item->full_address,
                     'imagUrls' => collect([
-                        'generalPath' => asset($item->imgs->first()['img_path']),
-                        'thumbonallPath' => asset($item->imgs->first()['img_thumbnail_path']),
+                        'generalPath' => $this->backendHost . $item->imgs->first()['img_path'],
+                        'thumbonallPath' => $this->backendHost . $item->imgs->first()['img_thumbnail_path'],
                     ])
                 ]);
             });
