@@ -31,14 +31,14 @@ class MagentoProductResult extends BaseResult
         $this->salePrice = ($product->salePrice) ? (string) $product->salePrice : $this->price;
         $this->discount = $product->discount;
         $this->characteristic = $product->characteristic;
-        $this->category = null;
         $this->storeName = $product->storeName;
         $this->place = $product->place;
         $this->imageUrl = $product->imageUrl;
         $this->isWishlist = $product->isWishlist;
 
         if ($isDetail) {
-            $this->tags = $product->tags;
+            $this->categories = $this->getMenuCategories($product->categories);
+            $this->keywords = $this->getKeywords($product->keywords);
             $this->storeTelephone = $product->storeTelephone;
             $this->storeAddress = $product->storeAddress;
             $this->imageUrls = $product->imageUrls;
@@ -81,8 +81,8 @@ class MagentoProductResult extends BaseResult
         $this->imageUrl = $product->data->imageUrl;
         $this->isWishlist = $product->data->isWishlist;
 
-        $this->category = $this->getCategories($product->categories, true);
-        $this->tags = $this->getTags($product->tags, true);
+        // $this->category = $this->getCategories($product->categories, true);
+        // $this->tags = $this->getTags($product->tags, true);
 
         return $this->apiCategoryFormat();
     }
@@ -114,7 +114,28 @@ class MagentoProductResult extends BaseResult
         return $additionals;
     }
 
-        /**
+    /**
+     * 取得產品所有分類
+     * @param $tags
+     * @return array
+     */
+    private function getMenuCategories($categories)
+    {
+        $categoriesAry = [];
+
+        if ($categories) {
+            foreach ($categories as $c) {
+                $category = new \stdClass;
+                $category->id = $c->tag_id;
+                $category->name = $c->tag_name;
+                $categoriesAry[] = $category;
+            }
+        }
+
+        return $categoriesAry;
+    }
+
+    /**
      * 取得父標籤
      * @param $tags
      * @return array
@@ -173,6 +194,35 @@ class MagentoProductResult extends BaseResult
     }
 
     /**
+     * 取得關鍵字
+     * @param $tags
+     * @return array
+     */
+    private function getKeywords($keywords, $isAry = false)
+    {
+        $keywordsAry = [];
+
+        if ($keywords) {
+            foreach ($keywords as $k) {
+                if (!$k->keyword) continue;
+
+                $keyword = new \stdClass;
+                if ($isAry) {
+                    $keyword->id = $k->keyword['keyword_id'];
+                    $keyword->name = $k->keyword['keyword_text'];
+                }
+                else {
+                    $keyword->id = $k->keyword->keyword_id;
+                    $keyword->name = $k->keyword->keyword_text;
+                }
+                $keywordsAry[] = $keyword;
+            }
+        }
+
+        return $keywordsAry;
+    }
+
+    /**
      * api response 資料格式化
      * @param bool $isDetail
      * @return \stdClass
@@ -181,12 +231,11 @@ class MagentoProductResult extends BaseResult
     {
         $data = new \stdClass();
         $columns = [
-            'source', 'id', 'name',  'price', 'salePrice', 'discount', 'characteristic', 'category', 'storeName',
-            'storeTelephone', 'storeAddress', 'place', 'imageUrl', 'isWishlist','status'
+            'source', 'id', 'name',  'price', 'salePrice', 'discount', 'characteristic', 'storeName', 'storeAddress', 'place', 'imageUrl', 'isWishlist'
         ];
         if ($isDetail) {
             $detailColumns = [
-                'saleStatus', 'saleStatusCode', 'quantity', 'maxQuantity', 'additionals', 'contents', 'combos', 'purchase', 'maxPurchase', 'tags', 'imageUrls', 'canUseCoupon', 'isBook'
+                'categories', 'keywords', 'storeTelephone', 'saleStatus', 'saleStatusCode', 'quantity', 'maxQuantity', 'additionals', 'contents', 'combos', 'purchase', 'maxPurchase', 'imageUrls', 'canUseCoupon', 'isBook'
             ];
             $columns = array_merge($columns, $detailColumns);
         }

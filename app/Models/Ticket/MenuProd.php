@@ -19,7 +19,7 @@ class MenuProd extends BaseModel
      */
   	public function upperTag()
     {
-        return $this->hasOne('App\Models\Ticket\Tag', 'tag_id', 'tag_upper_id');
+        return $this->hasOne('App\Models\Ticket\Tag', 'tag_id', 'tag_upper_id')->where('tag_status', 1);
     }
 
     /**
@@ -27,6 +27,6 @@ class MenuProd extends BaseModel
      */
   	public function tag()
     {
-        return $this->hasOne('App\Models\Ticket\Tag', 'tag_id', 'tag_id');
+        return $this->hasOne('App\Models\Ticket\Tag', 'tag_id', 'tag_id')->where('tag_status', 1);
     }
 }

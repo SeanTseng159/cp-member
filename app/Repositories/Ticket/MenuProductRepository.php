@@ -9,6 +9,7 @@ namespace App\Repositories\Ticket;
 
 use App\Repositories\BaseRepository;
 use App\Models\Ticket\MenuProd;
+use App\Models\Ticket\Tag;
 use App\Repositories\Ticket\ProductRepository;
 use App\Repositories\MagentoProductRepository;
 
@@ -150,5 +151,26 @@ class MenuProductRepository extends BaseRepository
     public function productTags($id)
     {
         return $this->model->with('tag')->notDeleted()->where('prod_id', $id)->get();
+    }
+
+    /**
+     * 取得產品所有標籤
+     * @param $id
+     * @return boolean
+     */
+    public function tags($id)
+    {
+        $menuProducts = $this->model->notDeleted()->where('prod_id', $id)->get();
+
+        if ($menuProducts->isEmpty()) return [];
+
+        foreach ($menuProducts as $product) {
+            $list[] = $product['tag_upper_id'];
+            $list[] = $product['tag_id'];
+        }
+
+        $list = array_unique($list);
+
+        return Tag::whereIn('tag_id', $list)->where('tag_status', 1)->orderBy('tag_sort', 'asc')->get();
     }
 }
