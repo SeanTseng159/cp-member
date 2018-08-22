@@ -16,6 +16,7 @@ use App\Repositories\Ticket\ProductAdditionalRepository;
 use App\Repositories\Ticket\ProductGroupRepository;
 use Illuminate\Pagination\Paginator;
 use App\Config\Ticket\ProcuctConfig;
+use Carbon\Carbon;
 
 class ProductRepository extends BaseRepository
 {
@@ -184,6 +185,10 @@ class ProductRepository extends BaseRepository
         });
         
         return Product::where('supplier_id', $supplierId)
+                    ->notDeleted()
+                    ->where('prod_onshelf', 1)
+                    ->where('prod_onshelf_time', '<', Carbon::now())
+                    ->where('prod_offshelf_time', '>', Carbon::now())
                     ->with(['imgs' => function($query) {
                         $query->select('prod_id', 'img_path', 'img_thumbnail_path')->orderBy('img_sort')->first();
                     }])
