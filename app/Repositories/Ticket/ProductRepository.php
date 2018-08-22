@@ -11,9 +11,12 @@ use App\Repositories\BaseRepository;
 use App\Models\Ticket\Product;
 use App\Models\Ticket\ProductWishlist;
 use App\Models\Ticket\ProductTag;
+use App\Models\Ticket\ProductKeyword;
 use App\Models\Ticket\ProductSpec;
+use App\Models\Ticket\MenuProd;
 use App\Repositories\Ticket\ProductAdditionalRepository;
 use App\Repositories\Ticket\ProductGroupRepository;
+use App\Repositories\Ticket\MenuProductRepository;
 use Carbon\Carbon;
 
 class ProductRepository extends BaseRepository
@@ -21,6 +24,7 @@ class ProductRepository extends BaseRepository
     protected $date;
     protected $productAdditionalRepository;
     protected $productGroupRepository;
+    protected $menuProductRepository;
 
     public function __construct(Product $model, ProductAdditionalRepository $productAdditionalRepository, ProductGroupRepository $productGroupRepository)
     {
@@ -40,7 +44,9 @@ class ProductRepository extends BaseRepository
      */
     public function find($id, $onShelf = false, $memberId = 0)
     {
-        $prod = $this->model->with(['imgs', 'specs.specPrices'])
+        $prod = $this->model->with(['imgs' => function($query) {
+                                return $query->orderBy('img_sort')->get();
+                            }, 'specs.specPrices'])
                             ->when($onShelf, function($query){
                                 $query->where('prod_onshelf', 1);
                             })
@@ -51,15 +57,19 @@ class ProductRepository extends BaseRepository
 
         if (!$prod) return null;
 
-        $prod->imgs = $prod->imgs->sortBy(function($img) {
-                        return $img->img_sort;
-                    });
-
         $isMainProd = in_array($prod->prod_type, [1, 2]);
 
-        $prod->tags = ($isMainProd) ? $this->productTags($id) : null;
+        if ($isMainProd) {
+            $this->menuProductRepository = app()->build(MenuProductRepository::class);
+            $prod->categories = $this->menuProductRepository->tags($id);
+        }
+        else {
+            $prod->categories = [];
+        }
 
-        $prod->isWishlist = ($isMainProd) ? $this->isWishlist($id, $memberId) : false;
+        $prod->keywords = ($isMainProd) ? $this->productKeywords($id) : null;
+
+        $prod->isWishlist = ($isMainProd && $memberId) ? $this->isWishlist($id, $memberId) : false;
 
         $prod->combos = ($isMainProd) ? $this->productGroup($id) : null;
 
@@ -157,10 +167,9 @@ class ProductRepository extends BaseRepository
     }
 
     /**
-     * 判斷是否為我的最愛
+     * 取得產品所有關鍵字
      * @param $id
-     * @param $memberId
-     * @return boolean
+     * @return mixed
      */
     public function isWishlist($id, $memberId)
     {
@@ -170,9 +179,19 @@ class ProductRepository extends BaseRepository
     }
 
     /**
+     * 取得產品所有關鍵字
+     * @param $id
+     * @return mixed
+     */
+    public function productKeywords($id)
+    {
+        return ProductKeyword::with('keyword')->where('prod_id', $id)->get();
+    }
+
+    /**
      * 取得產品所有標籤
      * @param $id
-     * @return boolean
+     * @return mixed
      */
     public function productTags($id)
     {
@@ -182,7 +201,7 @@ class ProductRepository extends BaseRepository
     /**
      * 取得產品所有規格
      * @param $id
-     * @return boolean
+     * @return mixed
      */
     public function productSpec($id)
     {
@@ -192,7 +211,7 @@ class ProductRepository extends BaseRepository
     /**
      * 取得產品底下所有加購商品
      * @param $id
-     * @return boolean
+     * @return mixed
      */
     public function productAdditional($id)
     {
@@ -202,7 +221,7 @@ class ProductRepository extends BaseRepository
     /**
      * 取得產品底下所有組合商品
      * @param $id
-     * @return boolean
+     * @return mixed
      */
     public function productGroup($id)
     {

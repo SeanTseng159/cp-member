@@ -56,8 +56,8 @@ class ProductResult extends BaseResult
         }
 
         if ($isDetail) {
-            $this->category = null;
-            $this->tags = $this->getTags($this->arrayDefault($product, 'tags', []));
+            $this->categories = $this->getMenuCategories($this->arrayDefault($product, 'categories', []));
+            $this->keywords = $this->getKeywords($this->arrayDefault($product, 'keywords', []));
             $this->storeTelephone = '';
             $this->storeAddress = $this->getAddress($product);
             $this->imageUrls = $this->getImgs($this->arrayDefault($product, 'imgs'));
@@ -265,6 +265,27 @@ class ProductResult extends BaseResult
     }
 
     /**
+     * 取得產品所有分類
+     * @param $tags
+     * @return array
+     */
+    private function getMenuCategories($categories)
+    {
+        $categoriesAry = [];
+
+        if ($categories) {
+            foreach ($categories as $c) {
+                $category = new \stdClass;
+                $category->id = $c->tag_id;
+                $category->name = $c->tag_name;
+                $categoriesAry[] = $category;
+            }
+        }
+
+        return $categoriesAry;
+    }
+
+    /**
      * 取得父標籤
      * @param $tags
      * @return array
@@ -320,6 +341,35 @@ class ProductResult extends BaseResult
         }
 
         return collect($tagsAry)->unique('id');
+    }
+
+    /**
+     * 取得關鍵字
+     * @param $tags
+     * @return array
+     */
+    private function getKeywords($keywords, $isAry = false)
+    {
+        $keywordsAry = [];
+
+        if ($keywords) {
+            foreach ($keywords as $k) {
+                if (!$k->keyword) continue;
+
+                $keyword = new \stdClass;
+                if ($isAry) {
+                    $keyword->id = $k->keyword['keyword_id'];
+                    $keyword->name = $k->keyword['keyword_text'];
+                }
+                else {
+                    $keyword->id = $k->keyword->keyword_id;
+                    $keyword->name = $k->keyword->keyword_text;
+                }
+                $keywordsAry[] = $keyword;
+            }
+        }
+
+        return $keywordsAry;
     }
 
     /**
@@ -597,7 +647,7 @@ class ProductResult extends BaseResult
         ];
         if ($isDetail) {
             $detailColumns = [
-                'category', 'tags', 'storeTelephone', 'saleStatus', 'saleStatusCode', 'quantity', 'maxQuantity', 'additionals', 'contents', 'combos', 'purchase', 'maxPurchase', 'imageUrls', 'canUseCoupon', 'isBook'
+                'categories', 'keywords', 'storeTelephone', 'saleStatus', 'saleStatusCode', 'quantity', 'maxQuantity', 'additionals', 'contents', 'combos', 'purchase', 'maxPurchase', 'imageUrls', 'canUseCoupon', 'isBook'
             ];
             $columns = array_merge($columns, $detailColumns);
         }

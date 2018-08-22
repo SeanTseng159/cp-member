@@ -10,7 +10,9 @@ namespace App\Repositories;
 use Illuminate\Database\QueryException;
 
 use App\Models\MagentoProduct;
+use App\Models\Ticket\ProductKeyword;
 use Ksd\Mediation\Magento\Product as Magento;
+use App\Repositories\Ticket\MenuProductRepository;
 
 class MagentoProductRepository
 {
@@ -91,7 +93,16 @@ class MagentoProductRepository
     {
         $product = $this->model->where('sku', $id)->first();
 
-        return ($product) ? json_decode($product->data) : null;
+        if (!$product) return null;
+
+        $product = json_decode($product->data);
+
+        $this->menuProductRepository = app()->build(MenuProductRepository::class);
+        $product->categories = $this->menuProductRepository->tags($id);
+
+        $product->keywords = $this->productKeywords($id);
+
+        return $product;
     }
 
     /**
@@ -151,5 +162,15 @@ class MagentoProductRepository
         }
 
         return null;
+    }
+
+    /**
+     * 取得產品所有關鍵字
+     * @param $id
+     * @return mixed
+     */
+    public function productKeywords($id)
+    {
+        return ProductKeyword::with('keyword')->where('prod_id', $id)->get();
     }
 }
