@@ -17,6 +17,9 @@ use App\Models\Ticket\MenuProd;
 use App\Repositories\Ticket\ProductAdditionalRepository;
 use App\Repositories\Ticket\ProductGroupRepository;
 use App\Repositories\Ticket\MenuProductRepository;
+use Illuminate\Pagination\Paginator;
+use App\Config\Ticket\ProcuctConfig;
+
 use Carbon\Carbon;
 
 class ProductRepository extends BaseRepository
@@ -226,5 +229,52 @@ class ProductRepository extends BaseRepository
     public function productGroup($id)
     {
         return $this->productGroupRepository->getAllByProdId($id);
+    }
+
+    public function productMainTag($id)
+    {
+        return ProductTag::with('tag')
+            ->where('prod_id', $id)
+            ->where('is_main', 1)
+            ->get();
+    }
+
+    /**
+     * 取得根據
+     * @params $suppliedId
+     * @return Collections
+     */
+    public function supplierProducts(int $supplierId, $page_info)
+    {
+        $currentPage = $page_info['page'] ?? ProcuctConfig::DEFAULT_PAGE;
+        $pageSize = $page_info['limit'] ?? ProcuctConfig::DEFAULT_PAGE_SIZE;
+
+        Paginator::currentPageResolver(function () use ($currentPage) {
+            return $currentPage;
+        });
+
+        return Product::where('supplier_id', $supplierId)
+                    ->notDeleted()
+                    ->where('prod_onshelf', 1)
+                    ->where('prod_onshelf_time', '<', Carbon::now())
+                    ->where('prod_offshelf_time', '>', Carbon::now())
+                    ->with(['imgs' => function($query) {
+                        $query->where('img_sort', 1);
+                    }])
+                    ->with(['product_tags' => function($query){
+                        $query->where('is_main', 1);
+                    }])
+                    ->select(
+                            'prod_id',
+                            'prod_name',
+                            'prod_price_sticker',
+                            'prod_price_retail',
+                            'prod_short',
+                            'prod_store',
+                            'prod_county',
+                            'prod_district',
+                            'prod_address'
+                            )
+                    ->paginate($pageSize);
     }
 }

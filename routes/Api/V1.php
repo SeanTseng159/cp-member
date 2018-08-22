@@ -51,6 +51,8 @@ Route::middleware('cors')->namespace('V1')->group(function () {
         Route::get('category/{id}/products', 'LayoutController@categoryProducts');
         // 取子熱門探索分類下所有商品
         Route::get('subCategory/{id}/products', 'LayoutController@subCategoryProducts');
+        // 取供應商相關商品
+        Route::get('supplier/{supplierId}/products', 'LayoutController@supplier')->name('v1.layout.supplier');
     });
 
     Route::prefix('cache')->group(function () {
