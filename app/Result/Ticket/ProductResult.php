@@ -21,7 +21,23 @@ class ProductResult extends BaseResult
 
     public function __construct()
     {
-        $this->backendHost = (env('APP_ENV') === 'production' || env('APP_ENV') === 'beta') ? ProcuctConfig::BACKEND_HOST : ProcuctConfig::BACKEND_HOST_TEST;
+        $this->setBackendHost();
+    }
+
+    /**
+     * 設定後端網址
+     */
+    private function setBackendHost()
+    {
+        if (env('APP_ENV') === 'production') {
+            $this->backendHost = ProcuctConfig::BACKEND_HOST;
+        }
+        elseif (env('APP_ENV') === 'beta') {
+            $this->backendHost = ProcuctConfig::BACKEND_HOST_BETA;
+        }
+        else {
+            $this->backendHost = ProcuctConfig::BACKEND_HOST_TEST;
+        }
     }
 
     /**
@@ -56,6 +72,10 @@ class ProductResult extends BaseResult
         }
 
         if ($isDetail) {
+            // 舊欄位先保留
+            $this->category = [];
+            $this->tags = [];
+
             $this->categories = $this->getMenuCategories($this->arrayDefault($product, 'categories', []));
             $this->keywords = $this->getKeywords($this->arrayDefault($product, 'keywords', []));
             $this->storeTelephone = '';
@@ -647,7 +667,7 @@ class ProductResult extends BaseResult
         ];
         if ($isDetail) {
             $detailColumns = [
-                'categories', 'keywords', 'storeTelephone', 'saleStatus', 'saleStatusCode', 'quantity', 'maxQuantity', 'additionals', 'contents', 'combos', 'purchase', 'maxPurchase', 'imageUrls', 'canUseCoupon', 'isBook'
+                'category', 'tags', 'categories', 'keywords', 'storeTelephone', 'saleStatus', 'saleStatusCode', 'quantity', 'maxQuantity', 'additionals', 'contents', 'combos', 'purchase', 'maxPurchase', 'imageUrls', 'canUseCoupon', 'isBook'
             ];
             $columns = array_merge($columns, $detailColumns);
         }

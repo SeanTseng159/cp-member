@@ -37,6 +37,10 @@ class MagentoProductResult extends BaseResult
         $this->isWishlist = $product->isWishlist;
 
         if ($isDetail) {
+            // 舊欄位先保留
+            $this->category = [];
+            $this->tags = [];
+
             $this->categories = $this->getMenuCategories($product->categories);
             $this->keywords = $this->getKeywords($product->keywords);
             $this->storeTelephone = $product->storeTelephone;
@@ -235,7 +239,7 @@ class MagentoProductResult extends BaseResult
         ];
         if ($isDetail) {
             $detailColumns = [
-                'categories', 'keywords', 'storeTelephone', 'saleStatus', 'saleStatusCode', 'quantity', 'maxQuantity', 'additionals', 'contents', 'combos', 'purchase', 'maxPurchase', 'imageUrls', 'canUseCoupon', 'isBook'
+                'category', 'tags', 'categories', 'keywords', 'storeTelephone', 'saleStatus', 'saleStatusCode', 'quantity', 'maxQuantity', 'additionals', 'contents', 'combos', 'purchase', 'maxPurchase', 'imageUrls', 'canUseCoupon', 'isBook'
             ];
             $columns = array_merge($columns, $detailColumns);
         }
