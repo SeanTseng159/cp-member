@@ -159,13 +159,15 @@ class ProductService
 
         $product = $this->wishProduct($product);
         if(isset($product->source) && $product->source === ProjectConfig::MAGENTO) {
-            $categoryIds = $product->customAttributes($product->customAttributes, 'category_ids', []);
+            /*$categoryIds = $product->customAttributes($product->customAttributes, 'category_ids', []);
             $categories = [];
             foreach ($categoryIds as $categoryId) {
                 $categories[] = $this->filterCategoryById($categoryId);
             }
-            $product->tags = $categories;
+            $product->tags = $categories;*/
+            $product->tags = [];
         }
+
         return $product->apiFormat($isDetail);
     }
 
@@ -176,14 +178,15 @@ class ProductService
      */
     private function wishProduct($product)
     {
-        if(isset($this->wishList)) {
+        /*if(isset($this->wishList)) {
             foreach ($this->wishList as $wishRow) {
                 if ($product->id == $wishRow['id']) {
                     $product->isWishlist = true;
                     break;
                 }
             }
-        }
+        }*/
+        $product->isWishlist = false;
         return $product;
     }
 
