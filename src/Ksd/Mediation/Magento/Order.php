@@ -179,7 +179,7 @@ class Order extends Client
      * @param $email
      * @return array
      */
-    public function search($parameters,$email)
+    public function search($parameters, $email)
     {
 
         if(!empty($email)) {
@@ -193,9 +193,20 @@ class Order extends Client
             try{
                 $path = 'V1/orders';
                 $this->clear();
+
+                $this->putQuery('searchCriteria[filterGroups][0][filters][0][field]', 'customer_email')
+                    ->putQuery('searchCriteria[filterGroups][0][filters][0][value]', $email);
+
                 if(!empty($status)){
-                    $this->putQuery('searchCriteria[filterGroups][1][filters][0][field]', 'status')
-                        ->putQuery('searchCriteria[filterGroups][1][filters][0][value]', $status);
+                    if ($status === 'refund') {
+                        $this->putQuery('searchCriteria[filterGroups][1][filters][0][field]', 'status')
+                            ->putQuery('searchCriteria[filterGroups][1][filters][0][value]', 'holded,closed')
+                        ->putQuery('searchCriteria[filterGroups][1][filters][0][condition_type]', 'in');
+                    }
+                    else {
+                        $this->putQuery('searchCriteria[filterGroups][1][filters][0][field]', 'status')
+                            ->putQuery('searchCriteria[filterGroups][1][filters][0][value]', $status);
+                    }
 
                 }
                 if(!empty($orderData)){
@@ -236,17 +247,16 @@ class Order extends Client
                         ->putQuery('searchCriteria[filterGroups][4][filters][0][condition_type]', 'to');
                 }
 
-               $response = $this->putQuery('searchCriteria[filterGroups][0][filters][0][field]', 'customer_email')
-                    ->putQuery('searchCriteria[filterGroups][0][filters][0][value]', $email)
-                    ->request('GET', $path);
+                $response = $this->request('GET', $path);
+                $body = $response->getBody();
+                $data = [];
+                $result = json_decode($body, true);
             }catch (ClientException $e){
                 // TODO:抓不到訂單資料
+                $result = [];
             }
 
-            $body = $response->getBody();
-            $data = [];
-            $result = json_decode($body, true);
-
+            if (!$result) return $result;
 
             foreach ($result['items'] as $item) {
                 if (isset($item['status']) && $item['status'] !== "canceled") { //訂單狀態為canceled不顯示
@@ -273,13 +283,13 @@ class Order extends Client
                         $data1[] = (array)$item;
                     }
                 }
-            }else{
+            } else {
                 $flag = true;
                 $data1 = (array)$data;
             }
 
             return $flag ? $data1 : [];
-        }else{
+        } else {
             return [];
         }
     }
@@ -645,13 +655,15 @@ class Order extends Client
                 case '00': # 待付款
                     return "pending";
                 case '01': # 已完成
-                    return "processing";
+                    return "complete";
                 case '02': # 部分退貨
                     return "holded";
                 case '03': # 已退貨
                     return "closed";
                 case '04': # 處理中
                     return "holded";
+                case '05': # 退貨 (退貨處理中 . 部分退貨 . 已退貨)
+                    return "refund";
             }
         }else{
             return null;
