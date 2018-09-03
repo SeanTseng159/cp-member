@@ -21,7 +21,15 @@ class LayoutResult extends BaseResult
 
     public function __construct()
     {
-        $this->backendHost = (env('APP_ENV') === 'production' || env('APP_ENV') === 'beta') ? BaseConfig::BACKEND_HOST : BaseConfig::BACKEND_HOST_TEST;
+        if (env('APP_ENV') === 'production') {
+            $this->backendHost = BaseConfig::BACKEND_HOST;
+        }
+        elseif (env('APP_ENV') === 'beta') {
+            $this->backendHost = BaseConfig::BACKEND_HOST_BETA;
+        }
+        else {
+            $this->backendHost = BaseConfig::BACKEND_HOST_TEST;
+        }
     }
 
     /**
