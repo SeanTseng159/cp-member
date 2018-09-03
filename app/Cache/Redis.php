@@ -85,7 +85,7 @@ class Redis
     public function refesh($key, $expire, $callFunction)
     {
         $this->delete($key);
-        $this->remember($key, $expire, $callFunction);
+        return $this->remember($key, $expire, $callFunction);
     }
 
     /**

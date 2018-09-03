@@ -41,7 +41,7 @@ class LayoutController extends RestLaravelController
     public function home(Request $request)
     {
         try {
-            $result = $this->redis->remember(LayoutKey::HOME_KEY, CacheConfig::LAYOUT_TIME, function () {
+            $result = $this->redis->remember(LayoutKey::HOME_KEY, CacheConfig::ONE_DAY, function () {
                 $data = $this->layoutService->home($this->lang);
                 return (new LayoutResult)->home($data);
             });
@@ -53,6 +53,117 @@ class LayoutController extends RestLaravelController
             $result->banner = [];
             $result->explorations = [];
             $result->customizes = [];
+            return $this->success($result);
+        }
+    }
+
+    /**
+     * 取選單資料
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function menu(Request $request)
+    {
+        try {
+            $result = $this->redis->remember(LayoutKey::MENU_KEY, CacheConfig::ONE_DAY, function () {
+                $data = $this->layoutService->menu($this->lang);
+                return (new LayoutResult)->menu($data);
+            });
+
+            return $this->success($result);
+        } catch (Exception $e) {
+            return $this->success();
+        }
+    }
+
+    /**
+     * 取選單資料
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function oneMenu(Request $request, $id)
+    {
+        try {
+            $menus = $this->redis->remember(LayoutKey::MENU_KEY, CacheConfig::ONE_DAY, function () {
+                $data = $this->layoutService->menu($this->lang);
+                return (new LayoutResult)->menu($data);
+            });
+
+            $data = collect($menus)->where('id', $id);
+            $result = (new LayoutResult)->oneMenu($data);
+
+            return $this->success($result);
+        } catch (Exception $e) {
+            return $this->success();
+        }
+    }
+
+    /**
+     * 取熱門探索分類
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function category(Request $request, $id)
+    {
+        try {
+            $key = sprintf(LayoutKey::CATEGORY_KEY, $id);
+            $result = $this->redis->remember($key, CacheConfig::ONE_DAY, function () use ($id) {
+                $data = $this->layoutService->category($this->lang, $id);
+                return (new LayoutResult)->category($data);
+            });
+
+            return $this->success($result);
+        } catch (Exception $e) {
+            return $this->success();
+        }
+    }
+
+    /**
+     * 取熱門探索分類下所有商品
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function categoryProducts(Request $request, $id)
+    {
+        try {
+            $page = $request->input('page', 1) - 1;
+            $key = sprintf(LayoutKey::CATEGORY_PRODUCTS_KEY, $id);
+            $data = $this->redis->remember($key, CacheConfig::ONE_DAY, function () use ($id) {
+                return $this->layoutService->categoryProducts($this->lang, $id);
+            });
+
+            $result = (new LayoutResult)->categoryProducts($data, $page);
+
+            return $this->success($result);
+        } catch (Exception $e) {
+            $result = new \stdClass;
+            $result->total = 0;
+            $result->records = [];
+            return $this->success($result);
+        }
+    }
+
+    /**
+     * 取熱門探索子分類下所有商品
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function subCategoryProducts(Request $request, $id)
+    {
+        try {
+            $page = $request->input('page', 1) - 1;
+            $key = sprintf(LayoutKey::SUB_CATEGORY_PRODUCTS_KEY, $id);
+            $data = $this->redis->remember($key, CacheConfig::ONE_DAY, function () use ($id) {
+                return $this->layoutService->subCategoryProducts($this->lang, $id);
+            });
+
+            $result = (new LayoutResult)->categoryProducts($data, $page);
+
+            return $this->success($result);
+        } catch (Exception $e) {
+            $result = new \stdClass;
+            $result->total = 0;
+            $result->records = [];
             return $this->success($result);
         }
     }

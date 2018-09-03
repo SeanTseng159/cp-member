@@ -28,4 +28,26 @@ class ProductService extends BaseService
         $onShelf = true;
         return $this->repository->find($id, $onShelf, $memberId);
     }
+
+    /**
+     * 根據 商品 id 取得所有加購商品明細
+     * @param $id
+     * @return mixed
+     */
+    public function findPurchaseOnShelf($id)
+    {
+        $onShelf = true;
+        return $this->repository->findPurchase($id, $onShelf);
+    }
+
+    /**
+     * 根據 組合商品(內容物) id 取得商品明細
+     * @param $id
+     * @return mixed
+     */
+    public function findComboItemOnShelf($id)
+    {
+        $onShelf = true;
+        return $this->repository->findComboItem($id, $onShelf);
+    }
 }

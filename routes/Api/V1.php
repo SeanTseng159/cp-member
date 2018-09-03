@@ -41,13 +41,45 @@ Route::middleware('cors')->namespace('V1')->group(function () {
     Route::prefix('layout')->group(function () {
         // 取首頁資料
         Route::get('home', 'LayoutController@home');
+        // 取選單
+        Route::get('menu', 'LayoutController@menu');
+        // 取子選單
+        Route::get('menu/{id}', 'LayoutController@oneMenu');
+        // 取熱門探索分類
+        Route::get('category/{id}', 'LayoutController@category');
+        // 取熱門探索分類下所有商品
+        Route::get('category/{id}/products', 'LayoutController@categoryProducts');
+        // 取子熱門探索分類下所有商品
+        Route::get('subCategory/{id}/products', 'LayoutController@subCategoryProducts');
+    });
+
+    Route::prefix('cache')->group(function () {
+        // 清所有快取
+        Route::get('clean/all', 'CacheController@all');
+        // 清首頁資料
+        Route::get('clean/home', 'CacheController@home');
+        // 清選單資料
+        Route::get('clean/menu', 'CacheController@menu');
+        // 清熱門探索分類
+        Route::get('clean/category/{id}', 'CacheController@category');
+        // 清熱門探索分類下所有商品
+        Route::get('clean/category/{id}/products', 'CacheController@categoryProducts');
+        // 清子熱門探索分類下所有商品
+        Route::get('clean/subCategory/{id}/products', 'CacheController@subCategoryProducts');
     });
 
     Route::prefix('product')->group(function () {
         // 根據 id 取得商品明細
         Route::get('query/{id}', 'ProductController@query');
         // 根據 id 取得加購商品
-        // Route::get('purchase/{id}', 'ProductController@purchase');
+        Route::get('purchase/{id}', 'ProductController@purchase');
+        // 根據 id 取得組合項目商品
+        Route::get('combo/{id}', 'ProductController@findComboItem');
+    });
+
+    Route::prefix('service')->group(function () {
+        // 常見問題
+        Route::get('qa', 'ServiceController@qa');
     });
 
 

@@ -48,4 +48,34 @@ class ProductController extends RestLaravelController
 
         return $this->success($result);
     }
+
+    /**
+     * 根據 id 取得加購商品明細
+     * @param Request $request
+     * @param $id
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function purchase(Request $request, $id)
+    {
+        $data = $this->productService->findPurchaseOnShelf($id);
+        $result = (new ProductResult)->getOnlyPurchase($data, true);
+
+        return $this->success($result);
+    }
+
+    /**
+     * 根據 組合商品(內容物) id 取得商品明細
+     * @param Request $request
+     * @param $id
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function findComboItem(Request $request, $id)
+    {
+        $parameter = new QueryParameter($request);
+
+        $data = $this->productService->findComboItemOnShelf($id);
+        $result = (new ProductResult)->getComboItem($data, true);
+
+        return $this->success($result);
+    }
 }

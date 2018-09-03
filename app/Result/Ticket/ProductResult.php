@@ -21,7 +21,23 @@ class ProductResult extends BaseResult
 
     public function __construct()
     {
-        $this->backendHost = (env('APP_ENV') === 'production' || env('APP_ENV') === 'beta') ? ProcuctConfig::BACKEND_HOST : ProcuctConfig::BACKEND_HOST_TEST;
+        $this->setBackendHost();
+    }
+
+    /**
+     * 設定後端網址
+     */
+    private function setBackendHost()
+    {
+        if (env('APP_ENV') === 'production') {
+            $this->backendHost = ProcuctConfig::BACKEND_HOST;
+        }
+        elseif (env('APP_ENV') === 'beta') {
+            $this->backendHost = ProcuctConfig::BACKEND_HOST_BETA;
+        }
+        else {
+            $this->backendHost = ProcuctConfig::BACKEND_HOST_TEST;
+        }
     }
 
     /**
@@ -47,12 +63,21 @@ class ProductResult extends BaseResult
         $this->imageUrl = $this->getImg($this->arrayDefault($product, 'imgs'));
         $this->isWishlist = $this->arrayDefault($product, 'isWishlist', false);
 
-        $this->additionals = $this->getAdditional($this->arrayDefault($product, 'spec'), $product['prod_price_type']); // 規格
-        if ($this->additionals) $this->salePrice = $this->getSalePrice($this->additionals, $this->salePrice);
+        // 規格
+        $this->additionals = $this->getAdditional($this->arrayDefault($product, 'specs'), $product['prod_price_type']);
+        if ($this->additionals) {
+            $lowestPrice = $this->getLowestPrice($this->additionals, $this->price, $this->salePrice);
+            $this->price = $lowestPrice['price'];
+            $this->salePrice = $lowestPrice['salePrice'];
+        }
 
         if ($isDetail) {
-            $this->category = null;
-            $this->tags = $this->getTags($this->arrayDefault($product, 'tags', []));
+            // 舊欄位先保留
+            $this->category = [];
+            $this->tags = [];
+
+            $this->categories = $this->getMenuCategories($this->arrayDefault($product, 'categories', []));
+            $this->keywords = $this->getKeywords($this->arrayDefault($product, 'keywords', []));
             $this->storeTelephone = '';
             $this->storeAddress = $this->getAddress($product);
             $this->imageUrls = $this->getImgs($this->arrayDefault($product, 'imgs'));
@@ -82,7 +107,24 @@ class ProductResult extends BaseResult
      * @param $product
      * @param bool $isDetail
      */
-    public function getPurchaseFormat($product)
+    public function getOnlyPurchase($product)
+    {
+        if (!$product) return null;
+
+        $product = $product->toArray();
+
+        $this->purchase = $this->getPurchase($this->arrayDefault($product, 'purchase')); // 加購
+        $this->maxPurchase = $this->arrayDefault($product, 'prod_plus_limit', null);
+
+        return $this->apiFormatForOnlyPurchase();
+    }
+
+    /**
+     * 取得加購商品資料
+     * @param $product
+     * @param bool $isDetail
+     */
+    public function getPurchaseProduct($product)
     {
         if (!$product) return null;
 
@@ -93,13 +135,82 @@ class ProductResult extends BaseResult
         $this->price = (string) $this->arrayDefault($product, 'prod_price_sticker');
         $this->salePrice = (string) $this->arrayDefault($product, 'prod_price_retail');
         $this->imageUrl = $this->getImg($this->arrayDefault($product, 'imgs'));
-        $this->additionals = $this->getAdditional($this->arrayDefault($product, 'spec'), $product['prod_price_type']); // 規格
+        // 規格
+        $this->additionals = $this->getAdditional($this->arrayDefault($product, 'specs'), $product['prod_price_type']);
+        if ($this->additionals) {
+            $lowestPrice = $this->getLowestPrice($this->additionals, $this->price, $this->salePrice);
+            $this->price = $lowestPrice['price'];
+            $this->salePrice = $lowestPrice['salePrice'];
+        }
 
         $saleStatus = $this->getSaleStatus($this->arrayDefault($product, 'prod_onsale_time'), $this->arrayDefault($product, 'prod_offsale_time'), $this->quantity);
         $this->saleStatusCode = $saleStatus['status'];
         $this->saleStatus = $saleStatus['code'];
 
-        return $this->apiPurchaseFormat();
+        return $this->apiFormatForPurchase();
+    }
+
+    /**
+     * 取得組合商品(內容物) 資料
+     * @param $product
+     * @param bool $isDetail
+     */
+    public function getComboItem($product)
+    {
+        if (!$product) return null;
+
+        $product = $product->toArray();
+
+        $this->source = ProcuctConfig::SOURCE_TICKET;
+        $this->id = (string) $this->arrayDefault($product, 'prod_id');
+        $this->name = $this->arrayDefault($product, 'prod_name');
+        $this->characteristic = $this->arrayDefault($product, 'prod_short');
+        $this->storeName = $this->arrayDefault($product, 'prod_store');
+        $this->place = $this->arrayDefault($product, 'prod_store');
+        $this->imageUrl = $this->getImg($this->arrayDefault($product, 'imgs'));
+        $this->imageUrls = $this->getImgs($this->arrayDefault($product, 'imgs'));
+        $this->contents = $this->getContents($product);
+
+        return $this->apiFormatForComboItem();
+    }
+
+    /**
+     * 取得資料
+     * @param $product
+     * @param bool $isDetail
+     */
+    public function getCategoryProduct($product)
+    {
+        if (!$product) return null;
+
+        $product = $product->toArray();
+
+        $this->source = ProcuctConfig::SOURCE_TICKET;
+        $this->id = (string) $this->arrayDefault($product, 'prod_id');
+        $this->name = $this->arrayDefault($product, 'prod_name');
+        $this->price = (string) $this->arrayDefault($product, 'prod_price_sticker');
+        $this->salePrice = (string) $this->arrayDefault($product, 'prod_price_retail');
+        $this->discount = $this->arrayDefault($product, 'discount');
+        $this->characteristic = $this->arrayDefault($product, 'prod_short');
+        $this->storeName = $this->arrayDefault($product, 'prod_store');
+        $this->place = $this->arrayDefault($product, 'prod_store');
+        $this->imageUrl = $this->getMainImg($this->arrayDefault($product, 'img'));
+        $this->isWishlist = $this->arrayDefault($product, 'isWishlist', false);
+        $this->category = [];
+        $this->tags = [];
+
+        // 規格
+        $this->additionals = $this->getAdditional($this->arrayDefault($product, 'specs'), $product['prod_price_type']);
+        if ($this->additionals) {
+            $lowestPrice = $this->getLowestPrice($this->additionals, $this->price, $this->salePrice);
+            $this->price = $lowestPrice['price'];
+            $this->salePrice = $lowestPrice['salePrice'];
+        }
+
+        //$this->category = $this->getCategories($this->arrayDefault($product, 'categories', []), true);
+        //$this->tags = $this->getTags($this->arrayDefault($product, 'tags', []), true);
+
+        return $this->apiFormatForCategory();
     }
 
     /**
@@ -145,6 +256,16 @@ class ProductResult extends BaseResult
     /**
      * 取得圖片
      * @param $imgs
+     * @return string
+     */
+    private function getMainImg($img)
+    {
+        return ($img) ? $this->backendHost . $img['img_thumbnail_path'] : '';
+    }
+
+    /**
+     * 取得圖片
+     * @param $imgs
      * @return array | null
      */
     private function getImgs($imgs)
@@ -164,24 +285,111 @@ class ProductResult extends BaseResult
     }
 
     /**
+     * 取得產品所有分類
+     * @param $tags
+     * @return array
+     */
+    private function getMenuCategories($categories)
+    {
+        $categoriesAry = [];
+
+        if ($categories) {
+            foreach ($categories as $c) {
+                $category = new \stdClass;
+                $category->id = $c->tag_id;
+                $category->name = $c->tag_name;
+                $categoriesAry[] = $category;
+            }
+        }
+
+        return $categoriesAry;
+    }
+
+    /**
+     * 取得父標籤
+     * @param $tags
+     * @return array
+     */
+    private function getCategories($categories, $isAry = false)
+    {
+        $categoriesAry = [];
+
+        if ($categories) {
+            foreach ($categories as $c) {
+                if (!$c->upperTag) continue;
+
+                $category = new \stdClass;
+                if ($isAry) {
+                    $category->id = $c->upperTag['tag_id'];
+                    $category->name = $c->upperTag['tag_name'];
+                }
+                else {
+                    $tag->id = $c->upperTag->tag_id;
+                    $tag->name = $c->upperTag->tag_name;
+                }
+                $categoriesAry[] = $category;
+            }
+        }
+
+        return collect($categoriesAry)->unique('id');
+    }
+
+    /**
      * 取得標籤
      * @param $tags
      * @return array
      */
-    private function getTags($tags)
+    private function getTags($tags, $isAry = false)
     {
         $tagsAry = [];
 
         if ($tags) {
             foreach ($tags as $t) {
+                if (!$t->tag) continue;
+
                 $tag = new \stdClass;
-                $tag->id = $t->tag->tag_id;
-                $tag->name = $t->tag->tag_name;
+                if ($isAry) {
+                    $tag->id = $t->tag['tag_id'];
+                    $tag->name = $t->tag['tag_name'];
+                }
+                else {
+                    $tag->id = $t->tag->tag_id;
+                    $tag->name = $t->tag->tag_name;
+                }
                 $tagsAry[] = $tag;
             }
         }
 
-        return $tagsAry;
+        return collect($tagsAry)->unique('id');
+    }
+
+    /**
+     * 取得關鍵字
+     * @param $tags
+     * @return array
+     */
+    private function getKeywords($keywords, $isAry = false)
+    {
+        $keywordsAry = [];
+
+        if ($keywords) {
+            foreach ($keywords as $k) {
+                if (!$k->keyword) continue;
+
+                $keyword = new \stdClass;
+                if ($isAry) {
+                    $keyword->id = $k->keyword['keyword_id'];
+                    $keyword->name = $k->keyword['keyword_text'];
+                }
+                else {
+                    $keyword->id = $k->keyword->keyword_id;
+                    $keyword->name = $k->keyword->keyword_text;
+                }
+                $keywordsAry[] = $keyword;
+            }
+        }
+
+        return $keywordsAry;
     }
 
     /**
@@ -221,84 +429,97 @@ class ProductResult extends BaseResult
     }
 
     /**
-     * 取得規格
+     * 取得最低規格價錢
      * @param $spec
      * @param $prodPriceType
      * @return object | null
      */
-    private function getSalePrice($additional, $salePrice)
+    private function getLowestPrice($additional, $price, $salePrice)
     {
-        if (!$additional && $additional->spec) return $salePrice;
+        if (!$additional && !isset($additional->spec)) return ['price' => $price, 'salePrice' => $salePrice];
 
-        foreach ($additional->spec as $k => $item) {
+        $k = 0;
+        foreach ($additional->spec as $item) {
             if (isset($item->additionals)) {
-                $salePrice = $this->getSalePrice($item->additionals, $salePrice);
-            }
-            else {
-                if ($k === 0) $salePrice = $item->retail;
-                else {
-                    if ($salePrice > $item->retail) $salePrice = $item->retail;
+                foreach ($item->additionals->spec as $fare) {
+                    $lowestPrice[$k]['price'] = $fare->sticker;
+                    $lowestPrice[$k]['salePrice'] = $fare->retail;
+
+                    $k++;
                 }
             }
+            else {
+                $lowestPrice[$k]['price'] = $item->sticker;
+                $lowestPrice[$k]['salePrice'] = $item->retail;
+            }
+
+            $k++;
         }
 
-        return $salePrice;
+        $result = collect($lowestPrice)->sortBy(function ($item) {
+            return $item['salePrice'];
+        })->first();
+
+        return $result;
     }
 
     /**
      * 取得規格
-     * @param $spec
+     * @param $specs
      * @param $prodPriceType
      * @return object | null
      */
-    private function getAdditional($spec, $prodPriceType)
+    private function getAdditional($specs, $prodPriceType)
     {
         $additional = null;
 
-        if ($spec) {
+        if ($specs) {
             $additional = new \stdClass;
             $additional->label = trans('ticket/product.spec');
             $additional->code = 'spec';
             $additional->spec = [];
 
-            foreach ($spec as $s) {
+            foreach ($specs as $s) {
                 $newSpec = new \stdClass;
-                $newSpec->value = $s->prod_spec_name;
-                $newSpec->value_index = $s->prod_spec_id;
+                $newSpec->value = $s['prod_spec_name'];
+                $newSpec->value_index = $s['prod_spec_id'];
 
                 // 無票種
                 if ($prodPriceType == 0) {
-                    if ($s->specPrices) {
-                        foreach ($s->specPrices as $specPrices) {
-                            $newSpec->value_index = (string) $specPrices->prod_spec_price_id;
-                            $newSpec->id = (string) $specPrices->prod_spec_price_id;
-                            $newSpec->sticker = (string) $specPrices->prod_spec_price_list;
-                            $newSpec->retail = (string) $specPrices->prod_spec_price_value;
-                            $newSpec->stock = $specPrices->prod_spec_price_stock;
-                            $saleStatus = $this->getSaleStatus($specPrices->prod_spec_price_onsale_time, $specPrices->prod_spec_price_offsale_time, $specPrices->prod_spec_price_stock);
-                            $newSpec->saleStatus = $saleStatus['code'];
-                            $newSpec->saleStatusCode = $saleStatus['status'];
+                    if (!$s['spec_prices']) continue;
 
-                            if ($newSpec->saleStatus == '11' || $newSpec->saleStatus == '10') {
-                                // 加總數量
-                                $this->quantity += $specPrices->prod_spec_price_stock;
+                    foreach ($s['spec_prices'] as $specPrices) {
+                        $newSpec->value_index = (string) $specPrices['prod_spec_price_id'];
+                        $newSpec->id = (string) $specPrices['prod_spec_price_id'];
+                        $newSpec->sticker = (string) $specPrices['prod_spec_price_list'];
+                        $newSpec->retail = (string) $specPrices['prod_spec_price_value'];
+                        $newSpec->stock = $specPrices['prod_spec_price_stock'];
+                        $saleStatus = $this->getSaleStatus($specPrices['prod_spec_price_onsale_time'], $specPrices['prod_spec_price_offsale_time'], $specPrices['prod_spec_price_stock']);
+                        $newSpec->saleStatus = $saleStatus['code'];
+                        $newSpec->saleStatusCode = $saleStatus['status'];
 
-                                $additional->spec[] = $newSpec;
-                            }
+                        if ($newSpec->saleStatus == '11' || $newSpec->saleStatus == '10') {
+                            // 加總數量
+                            $this->quantity += $specPrices['prod_spec_price_stock'];
+
+                            $additional->spec[] = $newSpec;
                         }
                     }
+
                 }
                 else {
-                    $newSpec->additionals = $this->getFare($s->specPrices);
+                    if (!$s['spec_prices']) continue;
+
+                    $newSpec->additionals = $this->getFare($s['spec_prices']);
 
                     // 有內容再加入
                     if ($newSpec->additionals->spec) $additional->spec[] = $newSpec;
                 }
             }
-        }
 
-        // 無內容，移除全部
-        if (!$additional->spec) $additional = null;
+            // 無內容，移除全部
+            if (!$additional->spec) $additional = null;
+        }
 
         return $additional;
     }
@@ -320,21 +541,21 @@ class ProductResult extends BaseResult
 
             foreach ($fare as $f) {
                 $newFare = new \stdClass;
-                $newFare->value = $f->prod_spec_price_name;
-                $newFare->value_index = (string) $f->prod_spec_price_id;
-                $newFare->id = (string) $f->prod_spec_price_id;
-                $newFare->sticker = (string) $f->prod_spec_price_list;
-                $newFare->retail = (string) $f->prod_spec_price_value;
-                $newFare->stock = $f->prod_spec_price_stock;
+                $newFare->value = $f['prod_spec_price_name'];
+                $newFare->value_index = (string) $f['prod_spec_price_id'];
+                $newFare->id = (string) $f['prod_spec_price_id'];
+                $newFare->sticker = (string) $f['prod_spec_price_list'];
+                $newFare->retail = (string) $f['prod_spec_price_value'];
+                $newFare->stock = $f['prod_spec_price_stock'];
 
-                $saleStatus = $this->getSaleStatus($f->prod_spec_price_onsale_time, $f->prod_spec_price_offsale_time, $f->prod_spec_price_stock);
+                $saleStatus = $this->getSaleStatus($f['prod_spec_price_onsale_time'], $f['prod_spec_price_offsale_time'], $f['prod_spec_price_stock']);
                 $newFare->saleStatus = $saleStatus['code'];
                 $newFare->saleStatusCode = $saleStatus['status'];
 
                 // 不在販賣時間，移除
                 if ($newFare->saleStatus == '11' || $newFare->saleStatus == '10') {
                     // 加總數量
-                    $this->quantity += $f->prod_spec_price_stock;
+                    $this->quantity += $f['prod_spec_price_stock'];
 
                     $additional->spec[] = $newFare;
                 }
@@ -401,7 +622,8 @@ class ProductResult extends BaseResult
 
         if ($additionals) {
             foreach ($additionals as $additional) {
-                $purchase = (new ProductResult)->getPurchaseFormat($additional->product, true);
+                $purchase = (new ProductResult)->getPurchaseProduct($additional->product, true);
+
                 if ($purchase->saleStatus === ProcuctConfig::SALE_STATUS[ProcuctConfig::SALE_STATUS_ON_SALE]) $purchaseAry[] = $purchase;
             }
         }
@@ -445,7 +667,7 @@ class ProductResult extends BaseResult
         ];
         if ($isDetail) {
             $detailColumns = [
-                'category', 'tags', 'storeTelephone', 'saleStatus', 'saleStatusCode', 'quantity', 'maxQuantity', 'additionals', 'contents', 'combos', 'purchase', 'maxPurchase', 'imageUrls', 'canUseCoupon', 'isBook'
+                'category', 'tags', 'categories', 'keywords', 'storeTelephone', 'saleStatus', 'saleStatusCode', 'quantity', 'maxQuantity', 'additionals', 'contents', 'combos', 'purchase', 'maxPurchase', 'imageUrls', 'canUseCoupon', 'isBook'
             ];
             $columns = array_merge($columns, $detailColumns);
         }
@@ -460,14 +682,73 @@ class ProductResult extends BaseResult
 
     /**
      * api response 資料格式化
+     * @return \stdClass
+     */
+    private function apiFormatForOnlyPurchase()
+    {
+        $data = new \stdClass();
+        $columns = ['purchase', 'maxPurchase'];
+
+        foreach ($columns as $column) {
+            if (property_exists($this, $column)) {
+                $data->$column = $this->$column;
+            }
+        }
+        return $data;
+    }
+
+    /**
+     * api response 資料格式化
      * @param bool $isDetail
      * @return \stdClass
      */
-    private function apiPurchaseFormat()
+    private function apiFormatForCategory()
+    {
+        $data = new \stdClass();
+        $columns = [
+            'source', 'id', 'name',  'price', 'salePrice', 'characteristic', 'category', 'tags', 'storeName',
+             'storeAddress', 'place', 'imageUrl', 'isWishlist', 'discount'
+        ];
+
+        foreach ($columns as $column) {
+            if (property_exists($this, $column)) {
+                $data->$column = $this->$column;
+            }
+        }
+        return $data;
+    }
+
+    /**
+     * api response 資料格式化
+     * @param bool $isDetail
+     * @return \stdClass
+     */
+    private function apiFormatForPurchase()
     {
         $data = new \stdClass();
         $columns = [
             'id', 'name', 'saleStatus', 'saleStatusCode', 'price', 'salePrice', 'imageUrl', 'quantity', 'additionals'
+        ];
+
+        foreach ($columns as $column) {
+            if (property_exists($this, $column)) {
+                $data->$column = $this->$column;
+            }
+        }
+
+        return $data;
+    }
+
+    /**
+     * api response 資料格式化
+     * @param bool $isDetail
+     * @return \stdClass
+     */
+    private function apiFormatForComboItem()
+    {
+        $data = new \stdClass();
+        $columns = [
+            'source', 'id', 'name', 'characteristic', 'storeName', 'place', 'imageUrl', 'imageUrls', 'contents'
         ];
 
         foreach ($columns as $column) {

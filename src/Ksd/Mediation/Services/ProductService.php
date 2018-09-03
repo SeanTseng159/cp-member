@@ -195,8 +195,8 @@ class ProductService
     {
         $parameter = new AllParameter();
         $parameter->laravelRequest(request());
-        dispatch(new CacheReload(ProductRepository::CACHE_PRODUCT_ALL,ProductService::class, 'products', [$parameter, true]))
-        ->delay($delayTime);
+        /*dispatch(new CacheReload(ProductRepository::CACHE_PRODUCT_ALL,ProductService::class, 'products', [$parameter, true]))
+        ->delay($delayTime);*/
     }
 
     /**
@@ -205,8 +205,8 @@ class ProductService
      */
     public function cleanProductCache($parameter)
     {
-        dispatch(new CacheReload(ProductRepository::CACHE_PRODUCT_ALL,ProductService::class, 'product', [$parameter, true]));
-        $this->cleanAllProductCache(30);
+        /*dispatch(new CacheReload(ProductRepository::CACHE_PRODUCT_ALL,ProductService::class, 'product', [$parameter, true]));
+        $this->cleanAllProductCache(30);*/
         dispatch(new CacheReload(ProductRepository::CACHE_PRODUCT_ALL,ProductService::class, 'cleanLayoutProduct', [$parameter]))
             ->delay(60);
     }
