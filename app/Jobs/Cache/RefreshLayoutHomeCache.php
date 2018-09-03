@@ -48,5 +48,7 @@ class RefreshLayoutHomeCache implements ShouldQueue
                 $data = $this->layoutService->home($this->lang);
                 return (new LayoutResult)->home($data);
             });
+
+        \Log::debug('reload layout home.');
     }
 }
