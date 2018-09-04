@@ -102,4 +102,9 @@ Route::middleware(['cors', 'auth.jwt'])->namespace('V1')->group(function () {
         // 取得一次性購物車資訊並加入購物車(依來源)
         Route::get('one-off', 'CartController@oneOff');
     });
+
+    Route::prefix('ticket')->group(function () {
+        // 票券列表
+        Route::get('list/{status}', 'TicketController@all');
+    });
 });
