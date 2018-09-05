@@ -16,7 +16,7 @@ class TicketConfig extends BaseConfig
         '0' => 10,
         '1' => 11,
         '2' => 11,
-        '3' => 01,
+        '3' => 10,
         '4' => 11
     ];
 }

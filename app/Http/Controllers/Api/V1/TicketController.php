@@ -40,7 +40,7 @@ class TicketController extends RestLaravelController
 
             //var_dump($result);
 
-            //return $this->success($result);
+            return $this->success($result);
         } catch (Exception $e) {
             var_dump($e->getMessage());
             //return $this->success();
