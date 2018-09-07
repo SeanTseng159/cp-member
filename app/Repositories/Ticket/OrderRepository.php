@@ -7,6 +7,8 @@
 
 namespace App\Repositories\Ticket;
 
+use Illuminate\Database\QueryException;
+
 use App\Repositories\BaseRepository;
 use App\Models\Ticket\Order;
 
@@ -16,6 +18,26 @@ class OrderRepository extends BaseRepository
     public function __construct(Order $model)
     {
         $this->model = $model;
+    }
+
+    /**
+     * 更新 發票狀態
+     * @param $id
+     * @param $data
+     * @return mixed
+     */
+    public function updateRecipientStatus($id, $status)
+    {
+        if (!$id) return false;
+
+        try {
+            return $this->model->where('order_id', $id)
+                                ->update([
+                                    'order_recipient_status' => $status
+                                ]);
+        } catch (QueryException $e) {
+            return false;
+        }
     }
 
     /**
@@ -59,6 +81,23 @@ class OrderRepository extends BaseRepository
                             })
                             ->orderBy('created_at', 'desc')
                             ->get();
+
+        return $orders;
+    }
+
+    /**
+     * 依據 發票狀態 取得付款成功訂單列表
+     * @param $status
+     * @param $recipientStatus
+     * @return mixed
+     */
+    public function getOrdersByRecipientStatus($status = 10, $recipientStatus = 99)
+    {
+        $orders = $this->model->with(['detail', 'detail.productSpecPrice'])
+                                ->notDeleted()
+                                ->where('order_status', $status)
+                                ->where('order_recipient_status', $recipientStatus)
+                                ->get();
 
         return $orders;
     }
