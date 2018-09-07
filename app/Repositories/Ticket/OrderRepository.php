@@ -95,7 +95,6 @@ class OrderRepository extends BaseRepository
     {
         $orders = $this->model->with(['detail', 'detail.productSpecPrice'])
                                 ->notDeleted()
-                                ->where('order_no', 'like', '%20180828%')
                                 ->where('order_status', $status)
                                 ->where('order_recipient_status', $recipientStatus)
                                 ->get();

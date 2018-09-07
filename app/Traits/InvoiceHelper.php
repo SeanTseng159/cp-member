@@ -32,11 +32,13 @@ trait InvoiceHelper
         // 金額0直接跳出, 等於不開發票
         if ($order->recipientAmount <= 0 && !$isDel) return '';
 
+        $orderPrefix = (env('APP_ENV') === 'production') ? '' : 'test_';
+
         //1.主檔代號(M)
         $recordStr[] = 'M';
 
         //2.訂單編號
-        $recordStr[] = $order->order_no;
+        $recordStr[] = $orderPrefix . $order->order_no;
 
         //3.訂單狀態:0.新增 1.修單 2.刪除 3.折讓
         $recordStr[] = $status;
@@ -142,10 +144,12 @@ trait InvoiceHelper
         $recordStr[] = '';
         //35.隨機碼
         $recordStr[] = '';
-        //換行
-        $recordStr[] = "\r\n";
 
-        return implode('|', $recordStr);
+        $recordStr = implode('|', $recordStr);
+        //換行
+        $recordStr .= "\r\n";
+
+        return $recordStr;
     }
 
     /**
@@ -157,6 +161,9 @@ trait InvoiceHelper
     public function transDetailInvoiceFormat($order)
     {
         $detailInvoices = [];
+
+        $orderPrefix = (env('APP_ENV') === 'production') ? '' : 'test_';
+
         $i = 1;
         foreach ($order->detail as $detail) {
             // 排除 子商品以及發票金額為0 的項目
@@ -172,7 +179,7 @@ trait InvoiceHelper
             //2.序號
             $recordStr[] = $i;
             //3.訂單編號
-            $recordStr[] = $order->order_no;
+            $recordStr[] = $orderPrefix . $order->order_no;
             //4.商品編號
             $recordStr[] = $detail->prod_cust_id;
             //5.商品條碼
@@ -199,10 +206,11 @@ trait InvoiceHelper
             $recordStr[] = '';
             //16.明細備註
             $recordStr[] = '';
-            //換行
-            $recordStr[] = "\r\n";
 
             $detailInvoices[$i] = implode('|', $recordStr);
+
+            //換行
+            $detailInvoices[$i] .= "\r\n";
 
             $recordStr = null;
             $i++;

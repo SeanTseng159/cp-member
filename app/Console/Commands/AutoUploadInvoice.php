@@ -77,13 +77,15 @@ class AutoUploadInvoice extends Command
         File::put($tempPath, $invoices);
 
         // 金財通 ftp 設定
-        $ftpHost = env('BPSCM_INVOICE_FTP_HOST','61.57.227.80');
-        $ftpUser = env('BPSCM_INVOICE_FTP_USERNAME','53890045p');
-        $ftpPassword = env('BPSCM_INVOICE_FTP_PASSWORD','b350538$P');
-        $ftpClient = new FtpClient($ftpHost, $ftpUser, $ftpPassword);
+        if (env('APP_ENV') === 'production') {
+            $ftpHost = env('BPSCM_INVOICE_FTP_HOST','61.57.227.80');
+            $ftpUser = env('BPSCM_INVOICE_FTP_USERNAME','53890045p');
+            $ftpPassword = env('BPSCM_INVOICE_FTP_PASSWORD','b350538$P');
+            $ftpClient = new FtpClient($ftpHost, $ftpUser, $ftpPassword);
 
-        $uploadDir = 'Upload';
-        $uploadPath = sprintf('%s/%s', $uploadDir, $fileName);
-        $ftpClient->putFile($tempPath, $uploadPath);
+            $uploadDir = 'Upload';
+            $uploadPath = sprintf('%s/%s', $uploadDir, $fileName);
+            $ftpClient->putFile($tempPath, $uploadPath);
+        }
     }
 }
