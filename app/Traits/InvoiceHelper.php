@@ -158,7 +158,7 @@ trait InvoiceHelper
      * @return string
      *
      */
-    public function transDetailInvoiceFormat($order)
+    public function transDetailInvoiceFormat($order, $isDel = false)
     {
         $detailInvoices = [];
 
@@ -167,7 +167,7 @@ trait InvoiceHelper
         $i = 1;
         foreach ($order->detail as $detail) {
             // 排除 子商品以及發票金額為0 的項目
-            if ($detail->prod_type == 4 || $detail->recipient_price <= 0) continue;
+            if ($detail->prod_type == 4 || ($detail->recipient_price <= 0 && !$isDel)) continue;
 
             // 商品名稱
             if ($detail->productSpecPrice->prod_spec_price_recipient_type == 1) {
@@ -197,7 +197,7 @@ trait InvoiceHelper
             //11.未稅金額
             $recordStr[] = '';
             //12.含稅金額
-            $recordStr[] = $detail->recipient_price;
+            $recordStr[] = $isDel ? 0 : $detail->recipient_price;
             //13.健康捐
             $recordStr[] = '';
             //14.稅率別

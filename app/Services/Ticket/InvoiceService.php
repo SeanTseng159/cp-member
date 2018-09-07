@@ -131,7 +131,7 @@ class InvoiceService extends BaseService
         if ($orders->isEmpty()) return [];
 
         // 計算發票金額
-        // $orders = $this->calcInvoicePrice($orders, 2);
+        $orders = $this->calcInvoicePrice($orders, 2);
 
         // 產生發票格式
         $invoices = [];
@@ -153,6 +153,11 @@ class InvoiceService extends BaseService
             $invoice = $this->transMainInvoiceFormat($order, $recipientStatus, true);
             if ($invoice) {
                 $invoices[] = $invoice;
+
+                $detailInvoices = $this->transDetailInvoiceFormat($order, true);
+                foreach ($detailInvoices as $detailInvoice) {
+                    if ($detailInvoice) $invoices[] = $detailInvoice;
+                }
 
                 $this->totalOrder++;
             }
