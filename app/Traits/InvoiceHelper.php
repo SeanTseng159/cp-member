@@ -185,9 +185,9 @@ trait InvoiceHelper
             //5.商品條碼
             $recordStr[] = '';
             //6.商品名稱
-            $recordStr[] = $detail->prod_name;
+            $recordStr[] = $detail->prod_name . '-' . $detail->prod_spec_name;
             //7.商品規格
-            $recordStr[] = '-' . $detail->prod_spec_name;
+            $recordStr[] = '';
             //8.單位
             $recordStr[] = '';
             //9.單價
