@@ -170,9 +170,10 @@ trait InvoiceHelper
             if ($detail->prod_type == 4 || ($detail->recipient_price <= 0 && !$isDel)) continue;
 
             // 商品名稱
-            if ($detail->productSpecPrice->prod_spec_price_recipient_type == 1) {
-                $detail->prod_spec_name .= '(平台服務費)';
-            }
+            $prodName = $detail->prod_name;
+            if ($detail->prod_spec_name) $prodName .= '-' . $detail->prod_spec_name;
+            if ($detail->prod_spec_price_name) $prodName .= '-' . $detail->prod_spec_price_name;
+            if ($detail->productSpecPrice->prod_spec_price_recipient_type == 1) $prodName .= ' (平台服務費)';
 
             //1.明細代號(D)
             $recordStr[] = 'D';
@@ -185,7 +186,7 @@ trait InvoiceHelper
             //5.商品條碼
             $recordStr[] = '';
             //6.商品名稱
-            $recordStr[] = $detail->prod_name . '-' . $detail->prod_spec_name;
+            $recordStr[] = $prodName;
             //7.商品規格
             $recordStr[] = '';
             //8.單位
