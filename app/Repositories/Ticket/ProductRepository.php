@@ -54,14 +54,16 @@ class ProductRepository extends BaseRepository
                                 $query->where('prod_onshelf', 1);
                             })
                             // ->where('prod_type', '!=', 4)
-                            ->where('prod_onshelf_time', '<=', $this->date)
-                            ->where('prod_offshelf_time', '>=', $this->date)
+                            //->where('prod_onshelf_time', '<=', $this->date)
+                            //->where('prod_offshelf_time', '>=', $this->date)
                             ->find($id);
-
         if (!$prod) return null;
 
         // 組合子商品
         if ($prod->prod_type == 4) return $prod;
+
+        // 檢查上下架時間
+        if ($this->date < $prod->prod_onshelf_time || $this->date > $prod->prod_offshelf_time) return null;
 
         $isMainProd = in_array($prod->prod_type, [1, 2]);
 
