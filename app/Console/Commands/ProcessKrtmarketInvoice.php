@@ -44,12 +44,9 @@ class ProcessKrtmarketInvoice extends Command
     {
         $today = Carbon::today();
 
-        /* KrtMarket: Processing flow
-         * 1. Middleware測試主機: 至[特定資料夾]取得[高捷發票]
-         * 2. 將[高捷發票]上傳至 [金財通FTP]，並移至 Upload_OK 資料夾
+        /**
+         * [高捷發票] 上傳至 [金財通FTP]，並將本機資料移至 Upload_OK 資料夾
          */
-
-        /* 1. Middleware測試主機: 至[特定資料夾]取得[高捷發票] */
 
         // 連線金財通FTP
         $ftpHost = env('BPSCM_INVOICE_FTP_HOST','61.57.227.80');
@@ -57,19 +54,16 @@ class ProcessKrtmarketInvoice extends Command
         $ftpPassword = env('BPSCM_INVOICE_FTP_PASSWORD','b350538$P');
         $ftpClient = new FtpClient($ftpHost, $ftpUser, $ftpPassword);
 
-        // $dir_upload = "/home/vagrant/code/Upload/";
-        // $dir_upload_ok = "/home/vagrant/code/Upload_OK/";
-        $dir_upload = "/home/krtmarket/Upload/";
+        $dir_upload    = "/home/krtmarket/Upload/";
         $dir_upload_ok = "/home/krtmarket/Upload_OK/";
 
         $files = File::files($dir_upload);
         foreach ($files as $file) {
             $filename = $file->getBasename();
-            // echo 'filename = '.$filename."\n";
 
             // File Upload
             $file_path = $dir_upload.$filename;
-            // $fp = fopen($file_path, 'r');
+
             $uploadDir = 'Upload';
             $uploadPath = sprintf('%s/%s', $uploadDir, $filename);
             $ftpClient->putFile($file_path, $uploadPath);

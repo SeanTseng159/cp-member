@@ -83,14 +83,14 @@ class Kernel extends ConsoleKernel
         //定期提醒購物車中尚有商品
         $schedule->command(NotifyNotEmptyCarts::class)->dailyAt('05:30');
 
-        // upload 高捷市集發票 to 金財通FTP
+        // 高捷市集發票 upload to 金財通FTP
         // 將排程移至 /etc/crontab 處理
         // $schedule->command(ProcessKrtmarketInvoice::class)->dailyAt('01:00');
 
-        // process 金財通FTP Download 資料夾資料
+        // 金財通FTP轉移資料：Download => DownloadBackup
         $schedule->command(DownloadBPSCMFile::class)->dailyAt('05:00');
 
-        // download 金財通FTP DownloadBackup 資料至本機處理
+        // 金財通FTP(DownloadBackup) download match_file to 本機處理
         // 將排程移至 /etc/crontab 處理
         // $schedule->command(ProcessBPSCMFile::class)->dailyAt('05:02');
 
