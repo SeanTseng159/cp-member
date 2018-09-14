@@ -43,15 +43,12 @@ class DownloadBPSCMFile extends Command
     {
         $today = Carbon::today();
 
-        /*
-         BPSCM: Processing flow
-         * 1. 至 [金財通FTP] Download 資料夾，取得檔案列表
-         * 2. 判斷後，將[符合檔名]檔案，轉至 DownloadBackup 資料夾
+        /**
+         * 1. 金財通FTP：取得 Download 資料夾列表
+         * 2. 將[符合檔名]之檔案，移至 DownloadBackup 資料夾
          */
 
         // 設定本機資料夾(Middleware 測試主機)
-        // $dir_upload = "/home/vagrant/code/Download/";
-        // $dir_upload_ok = "/home/vagrant/code/Download_OK/";
         $dir_upload    = "/home/krtmarket/Download/";
         $dir_upload_ok = "/home/krtmarket/Download_OK/";
 
@@ -83,9 +80,7 @@ class DownloadBPSCMFile extends Command
         ftp_pasv($conn_id, true);
         $filenames = ftp_nlist($conn_id, ".");
         foreach($filenames as $fkey => $filename){
-            // echo "$fkey => $filename \n";
             if (strpos($filename, './') === 0) {
-                // echo "$fkey => $filename \n";
                 $filename = substr($filename, strlen('./'));
 
                 //判斷檔名格式 /^(53890045-InvStatus-)\d{4}(0[1-9]|1[012])(0[1-9]|[12][0-9]|3[01])-\d{6}.txt$/
