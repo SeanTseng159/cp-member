@@ -63,7 +63,7 @@ class Kernel extends ConsoleKernel
         $schedule->command(AtmSalesAccount::class)->cron('25 * * * * *');
 
         // 處理開立發票
-        $schedule->command(AutoUploadInvoice::class)->dailyAt('08:00');
+        $schedule->command(AutoUploadInvoice::class)->dailyAt('00:30');
 
         // 移除magento過期ATM訂單
         $schedule->command(AtmOrderCheck::class)->dailyAt('02:00');
