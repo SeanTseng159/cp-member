@@ -14,6 +14,8 @@ class Order extends BaseModel
 	// protected $table = 'prods';
 	protected $primaryKey = 'order_id';
 
+	public $timestamps = false;
+
 	/**
      * 取得訂單詳細
      */
