@@ -48,7 +48,7 @@ class Kernel extends HttpKernel
         ],
 
         'api' => [
-            'throttle:60,1',
+            'throttle:120,1',
             'bindings',
             \Illuminate\Session\Middleware\StartSession::class,
             \App\Http\Middleware\Api\TraceRequest::class,
@@ -76,7 +76,7 @@ class Kernel extends HttpKernel
         'bindings' => \Illuminate\Routing\Middleware\SubstituteBindings::class,
         'can' => \Illuminate\Auth\Middleware\Authorize::class,
         'guest' => \App\Http\Middleware\RedirectIfAuthenticated::class,
-        'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
+        'throttle' => \App\Http\Middleware\ThrottleRequests::class,
         'admin.jwt' => \App\Http\Middleware\Api\AdminJWT::class,
         'auth.jwt' => \App\Http\Middleware\Api\AuthJWT::class,
         'cors' => \Barryvdh\Cors\HandleCors::class,
