@@ -269,13 +269,20 @@ class CheckoutController extends RestLaravelController
 
         if (!$orderId) return $this->failureCode('E0001');
 
+        //計算時間
+        $calcStartTime = microtime(true);
+        $calcEndTime = microtime(true) – $calcStartTime;
+        \Log::debug('LINEPAY 計算時間 => ' . $calcEndTime);
+
         $parameters['orderId'] = $orderId;
 
         $linePayService = app()->build(LinePayService::class);
         $confirmResult = $linePayService->confirm($parameters);
 
-        \Log::debug('=== confirm ===');
-        \Log::debug(print_r($confirmResult, true));
+        //計算時間
+        $calcStartTime = microtime(true);
+        $calcEndTime = microtime(true) – $calcStartTime;
+        \Log::debug('LINEPAY (confirm) 計算時間 => ' . $calcEndTime);
 
         if ($confirmResult['code'] === '00000') {
 
@@ -288,6 +295,11 @@ class CheckoutController extends RestLaravelController
 
             // 更新訂單
             $result = $this->service->feedback($record);
+
+            //計算時間
+            $calcStartTime = microtime(true);
+            $calcEndTime = microtime(true) – $calcStartTime;
+            \Log::debug('LINEPAY (feedback) 計算時間 => ' . $calcEndTime);
 
             // 寄送linepay付款完成通知信
             $ticketOrderService = app()->build(TicketOrderService::class);
@@ -302,6 +314,11 @@ class CheckoutController extends RestLaravelController
         $params->source = 'ct_pass';
         $params->id = $orderId;
         $order = $orderService->find($params);
+
+        //計算時間
+        $calcStartTime = microtime(true);
+        $calcEndTime = microtime(true) – $calcStartTime;
+        \Log::debug('LINEPAY (find) 計算時間 => ' . $calcEndTime);
 
         return $this->success($order);
     }
