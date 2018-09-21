@@ -14,7 +14,7 @@ use Ksd\Mediation\Parameter\Checkout\ResultParameter;
 
 use Ksd\Mediation\Services\CheckoutService;
 use Ksd\Mediation\Services\CartService;
-use Ksd\Mediation\Services\OrderService;
+use Ksd\Mediation\CityPass\Order;
 use App\Services\Card3dLogService as LogService;
 use App\Services\Ticket\OrderService as TicketOrderService;
 use App\Jobs\Mail\OrderPaymentCompleteMail;
@@ -296,12 +296,8 @@ class CheckoutController extends RestLaravelController
         $calcStartTime = microtime(true);
 
         // 撈取訂單
-        $orderService = app()->build(OrderService::class);
-
-        $params = new \stdClass();
-        $params->source = 'ct_pass';
-        $params->id = $orderId;
-        $order = $orderService->find($params);
+        $orderModel = app()->build(Order::class);
+        $order = $orderModel->authorization($request->token)->find($orderId);
 
         //計算時間
         $calcEndTime = microtime(true) - $calcStartTime;

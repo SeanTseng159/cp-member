@@ -59,6 +59,8 @@ class AuthJWT
             if ($platform === 'app' && $member->token != $token) {
                 return $this->apiRespFail('E0022', '會員驗證失效');
             }
+
+            $request->token = $token;
         } catch (Exception $e) {
             Log::error($e);
             return $this->apiRespFail('E0022', '無法驗證token');
