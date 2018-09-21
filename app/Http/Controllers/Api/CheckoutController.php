@@ -289,19 +289,12 @@ class CheckoutController extends RestLaravelController
             // 寄送linepay付款完成通知信
             $ticketOrderService = app()->build(TicketOrderService::class);
             // $order = $ticketOrderService->findByOrderNo($record['orderNo']);
-            dispatch(new OrderPaymentCompleteMail($order->member_id, 'ct_pass', $orderId))->delay(5);
+            dispatch(new OrderPaymentCompleteMail($request->memberId, 'ct_pass', $orderId))->delay(5);
         }
-
-        //計算時間
-        $calcStartTime = microtime(true);
 
         // 撈取訂單
         $orderModel = app()->build(Order::class);
         $order = $orderModel->authorization($request->token)->find($orderId);
-
-        //計算時間
-        $calcEndTime = microtime(true) - $calcStartTime;
-        \Log::debug('LINEPAY 計算時間 => ' . $calcEndTime);
 
         return $this->success($order);
     }
