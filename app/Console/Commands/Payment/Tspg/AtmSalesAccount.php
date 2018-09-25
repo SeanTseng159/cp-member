@@ -79,7 +79,9 @@ class AtmSalesAccount extends Command
             }
 
             // copy到payment getaway
-            $this->moveFilesToPayment($directory, $filename);
+            if (env('APP_ENV') === 'production') {
+                $this->moveFilesToPayment($directory, $filename);
+            }
 
             if (!empty($fileTime)) {
                 $isSuccess = true;
