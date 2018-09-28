@@ -90,7 +90,9 @@ Route::middleware('cors')->namespace('V1')->group(function () {
 
         Route::get('confirm/failure', 'LinePayController@confirmCallbackFailure');
         Route::post('confirm/failure', 'LinePayController@confirmCallbackFailure');
+        Route::get('map/stores', 'LinePayMapController@stores');
     });
+    
 });
 
 // 需 token 認證的 route
