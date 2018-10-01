@@ -63,6 +63,21 @@ class MagentoProductResult extends BaseResult
     }
 
     /**
+     * 取得搜尋後商品資料
+     * @param $products
+     */
+    public function search($products)
+    {
+        if ($products->isEmpty()) return [];
+
+        foreach ($products as $product) {
+            $newItems[] = $this->get($product->data);
+        }
+
+        return $newItems;
+    }
+
+    /**
      * 取得資料
      * @param $product
      * @param bool $isDetail

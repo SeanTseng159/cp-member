@@ -17,6 +17,8 @@ use App\Result\Ticket\ProductResult;
 use App\Services\MagentoProductService;
 use App\Result\MagentoProductResult;
 
+use App\Services\Ticket\KeywordService;
+
 class ProductController extends RestLaravelController
 {
     protected $productService;
@@ -75,6 +77,37 @@ class ProductController extends RestLaravelController
 
         $data = $this->productService->findComboItemOnShelf($id);
         $result = (new ProductResult)->getComboItem($data, true);
+
+        return $this->success($result);
+    }
+
+    /**
+     * 商品搜尋
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function search(Request $request)
+    {
+        $keyword = $request->input('search');
+
+        // 關鍵字商品搜尋
+        $keywordService = app()->build(KeywordService::class);
+        $keywordProducts = $keywordService->getProductsByKeyword($keyword);
+        $resultKeywordProducts = (new ProductResult)->search($keywordProducts);
+
+        // magento商品
+        $magentoProducts = $this->magentoProductService->search($keyword);
+        $resultMagentoProducts = (new MagentoProductResult)->search($magentoProducts);
+
+        // ct_pass商品
+        $products = $this->productService->search($keyword);
+        $resultProducts = (new ProductResult)->all($products);
+
+        // 合併商品
+        $result = array_merge($resultKeywordProducts, $resultMagentoProducts, $resultProducts);
+
+        // 排除重複商品
+        $result = collect($result)->unique('id');
 
         return $this->success($result);
     }

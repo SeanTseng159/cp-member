@@ -85,6 +85,8 @@ class Kernel extends HttpKernel
         'verify.member.update.data' => \App\Http\Middleware\Verify\MemberUpdateData::class,
         'verify.send.validPhoneCode' => \App\Http\Middleware\Verify\SendValidPhoneCode::class,
 
+        'verify.product.search' => \App\Http\Middleware\Verify\Product\Search::class,
+
         'verify.checkout.shipment' => \App\Http\Middleware\Verify\Checkout\Shipment::class,
     ];
 }

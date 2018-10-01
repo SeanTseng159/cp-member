@@ -15,10 +15,18 @@ class ProductKeyword extends BaseModel
     protected $primaryKey = 'prod_keyword_id';
 
     /**
-     * 取得商品所有關鍵字
+     * 取得關鍵字
      */
   	public function keyword()
     {
         return $this->belongsTo('App\Models\Ticket\Keyword', 'keyword_id');
+	}
+
+	/**
+     * 取得商品
+     */
+  	public function prdouct()
+    {
+        return $this->belongsTo('App\Models\Ticket\Product', 'prod_id');
 	}
 }
