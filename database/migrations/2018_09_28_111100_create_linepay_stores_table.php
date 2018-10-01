@@ -18,8 +18,8 @@ class CreateLinepayStoresTable extends Migration
             $table->string('name');
             $table->string('type')->comment('營業類別');
             $table->string('address');
-            $table->float('longitude')->comment('經度');
-            $table->float('latitude')->comment('緯度');
+            $table->float('longitude',14,9)->comment('經度');
+            $table->float('latitude',14,9)->comment('緯度');
             $table->string('phone');
             $table->string('business_hour')->comment('營業時間');
             $table->timestamps();
