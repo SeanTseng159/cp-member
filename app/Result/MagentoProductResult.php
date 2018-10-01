@@ -70,6 +70,8 @@ class MagentoProductResult extends BaseResult
     {
         if ($products->isEmpty()) return [];
 
+        $newItems = [];
+
         foreach ($products as $product) {
             $newItems[] = $this->get($product->data);
         }
