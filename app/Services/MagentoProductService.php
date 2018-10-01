@@ -94,6 +94,16 @@ class MagentoProductService
     }
 
     /**
+     * 商品搜尋
+     * @param $keyword
+     * @return \App\Models\MagentoProduct
+     */
+    public function search($keyword = '')
+    {
+        return $this->repository->search($keyword);
+    }
+
+    /**
      * 更新 magento索引商品資料及更新商品快取
      * @param $data
      * @return \App\Models\MagentoProduct

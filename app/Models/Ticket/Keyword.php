@@ -13,4 +13,12 @@ class Keyword extends BaseModel
 {
 	protected $table = 'keywords';
     protected $primaryKey = 'keyword_id';
+
+    /**
+     * 取得商品所有關鍵字
+     */
+  	public function keywordProducts()
+    {
+        return $this->hasMany('App\Models\Ticket\ProductKeyword', 'keyword_id');
+	}
 }

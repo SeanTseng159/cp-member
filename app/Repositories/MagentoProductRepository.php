@@ -145,6 +145,26 @@ class MagentoProductRepository
     }
 
     /**
+     * 商品搜尋
+     * @param $keyword
+     * @return \App\Models\MagentoProduct
+     */
+    public function search($keyword)
+    {
+        $prods = $this->model->where('sku', 'like', '%' . $keyword . '%')->get();
+
+        if ($prods) {
+            $prods->transform(function ($item, $key) {
+                $item->data = json_decode($item->data);
+
+                return $item;
+            });
+        }
+
+        return $prods;
+    }
+
+    /**
      * 同步magento所有商品資料
      * @return mixed
      */
