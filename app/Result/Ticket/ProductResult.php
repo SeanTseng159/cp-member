@@ -51,6 +51,8 @@ class ProductResult extends BaseResult
     {
         if ($products->isEmpty()) return [];
 
+        $newItems = [];
+
         foreach ($products as $product) {
             $newItems[] = $this->get($product, $isDetail);
         }
@@ -200,7 +202,11 @@ class ProductResult extends BaseResult
     {
         if ($keywords->isEmpty()) return [];
 
+        $newItems = [];
+
         foreach ($keywords as $keyword) {
+            if (!$keyword->items) continue;
+
             foreach ($keyword->items as $item) {
                 if ($item->source === ProcuctConfig::SOURCE_TICKET) {
                     $newItems[] = $this->get($item);
