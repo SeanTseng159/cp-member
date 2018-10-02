@@ -9,35 +9,15 @@ namespace App\Result\Ticket;
 
 use App\Result\BaseResult;
 use App\Config\Ticket\ProcuctConfig;
-use App\Traits\ObjectHelper;
 use Carbon\Carbon;
 
 class ProductResult extends BaseResult
 {
-    use ObjectHelper;
-
     private $quantity = 0;
-    private $backendHost;
 
     public function __construct()
     {
-        $this->setBackendHost();
-    }
-
-    /**
-     * 設定後端網址
-     */
-    private function setBackendHost()
-    {
-        if (env('APP_ENV') === 'production') {
-            $this->backendHost = ProcuctConfig::BACKEND_HOST;
-        }
-        elseif (env('APP_ENV') === 'beta') {
-            $this->backendHost = ProcuctConfig::BACKEND_HOST_BETA;
-        }
-        else {
-            $this->backendHost = ProcuctConfig::BACKEND_HOST_TEST;
-        }
+        parent::__construct();
     }
 
     /**
