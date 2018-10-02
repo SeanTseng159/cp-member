@@ -45,6 +45,9 @@ Route::middleware('cors')->namespace('V1')->group(function () {
         Route::get('clean/category/{id}/products', 'CacheController@categoryProducts');
         // 清子熱門探索分類下所有商品
         Route::get('clean/subCategory/{id}/products', 'CacheController@subCategoryProducts');
+
+        // 清更多服務
+        Route::get('clean/layout/apps', 'CacheController@apps');
     });
 
     Route::prefix('product')->group(function () {
