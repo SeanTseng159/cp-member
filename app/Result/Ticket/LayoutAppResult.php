@@ -23,7 +23,7 @@ class LayoutAppResult extends BaseResult
      */
     public function all($apps, $version)
     {
-        $result['version'] = $version;
+        $result['version'] = (string) $version;
 
         $result['apps'] = ($apps->isEmpty()) ? [] : $this->transformApps($apps);
 

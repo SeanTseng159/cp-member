@@ -40,14 +40,31 @@ class LayoutAppController extends RestLaravelController
     public function all(Request $request)
     {
         try {
-            //$result = $this->redis->remember(LayoutKey::HOME_KEY, CacheConfig::ONE_DAY, function () {
+            $version = $this->getAllCacheKey();
+            $key = sprintf(LayoutKey::SERVICE_APPS_VERSION_KEY, $version);
+            $result = $this->redis->remember($key, CacheConfig::ONE_MONTH, function () use ($version) {
                 $data = $this->layoutAppService->all();
-                $result = (new LayoutAppResult)->all($data, '201832321');
-            //});
+                return (new LayoutAppResult)->all($data, $version);
+            });
 
             return $this->success($result);
         } catch (Exception $e) {
-
+            return $this->success();
         }
+    }
+
+    /**
+     * 取key
+     */
+    private function getAllCacheKey()
+    {
+        $version = $this->redis->get(LayoutKey::SERVICE_APPS_KEY);
+
+        if (!$version) {
+            $version = time();
+            $this->redis->set(LayoutKey::SERVICE_APPS_KEY, $version, CacheConfig::ONE_MONTH);
+        }
+
+        return $version;
     }
 }
