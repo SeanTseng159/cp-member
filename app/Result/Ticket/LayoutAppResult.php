@@ -59,7 +59,7 @@ class LayoutAppResult extends BaseResult
         $icon_img = $this->arrayDefault($app, 'icon_img');
         $result->icon = ($icon_img) ? $this->backendHost . $icon_img : '';
 
-        $auth_status = $this->arrayDefault($app, 'auth_status');
+        $auth_status = $this->arrayDefault($app, 'auth_status', 0);
         $result->isNeedLogin = ($auth_status === 1);
 
         $result->link = $this->getLink($app);

@@ -185,6 +185,9 @@ class LayoutResult extends BaseResult
         $index_img = $this->arrayDefault($activity, 'index_img');
         $result->icon = ($index_img) ? $this->backendHost . $index_img : '';
 
+        $auth_status = $this->arrayDefault($activity, 'auth_status', 0);
+        $result->isNeedLogin = ($auth_status === 1);
+
         $result->link = $this->getLink($activity);
 
         return $result;
