@@ -373,24 +373,9 @@ class MemberController extends RestLaravelController
      */
     public function generateToken(Request $request)
     {
-        $email = $request->input('email');
-        $password = $request->input('password');
-        $platform = $request->header('platform');
+        $member = $request->member;
 
-        $member = $this->memberService->findOnly($email, $password);
-
-        if (!$member) {
-            return $this->failure('E0020','輸入的帳號密碼有誤，請重試');
-        }
-
-        if ($member->status == 0 || $member->isRegistered == 0) {
-            return $this->failure('E0021','會員驗證失效');
-        }
-
-        $member = $this->memberService->generateToken($member, $platform);
-        if (!$member) {
-            return $this->failure('E0025','Token產生失敗');
-        }
+        if (!$member) $this->failureCode('E0021');
 
         return $this->success([
             'id' => $member->id,
