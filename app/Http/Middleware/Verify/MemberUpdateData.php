@@ -75,6 +75,11 @@ class MemberUpdateData
             $request->phoneNumber = $phoneNumber;
         }
 
+        $password = $request->input('password');
+        if ($password) {
+            if (!$this->VerifyPassword($password)) return $this->apiRespFailCode('A0035');
+        }
+
         return $next($request);
     }
 }

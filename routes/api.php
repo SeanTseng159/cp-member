@@ -182,7 +182,7 @@ Route::middleware('cors')->namespace('Api')->group(function () {
         //註冊-更新會員資料
         Route::post('register/{id}', 'MemberController@registerMember');
         //會員登入取憑證
-        Route::post('token', 'MemberController@generateToken');
+        Route::post('token', 'MemberController@generateToken')->middleware('verify.member.login');
         //驗證-Email驗證碼
         Route::post('validate/email', 'MemberController@validateEmail');
         //發送忘記密碼信
