@@ -10,14 +10,22 @@ class LinePayMapParameter
      */
     public function stores($request)
     {
-        $parameter['longitude'] = [
-            (float)$request->input('leftlongitude', -180),
-            (float)$request->input('rightlongitude', 180)
-        ];
-        $parameter['latitude'] = [
-            (float)$request->input('rightlatitude', -90),
-            (float)$request->input('leftlatitude', 90)
-        ];
+        $min_longitude = (float)$request->input('minlongitude', -180);
+        $max_longitude = (float)$request->input('maxlongitude', 180);
+        if ($min_longitude > $max_longitude) {
+            $parameter['longitude'] = [$max_longitude, $min_longitude];
+        } else {
+            $parameter['longitude'] = [$min_longitude, $max_longitude];
+        }
+        
+        $min_latitude = (float)$request->input('minlatitude', -90);
+        $max_latitude = (float)$request->input('maxlatitude', 90);
+        if ($min_latitude > $max_latitude) {
+            $parameter['latitude'] = [$max_latitude, $min_latitude];
+        } else {
+            $parameter['latitude'] = [$min_latitude, $max_latitude];
+        }
+        
         return $parameter;
     }
 
