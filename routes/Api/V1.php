@@ -51,6 +51,9 @@ Route::middleware('cors')->namespace('V1')->group(function () {
 
         // 清更多服務
         Route::get('clean/layout/apps', 'CacheController@apps');
+
+        // 清除常見問題
+        Route::get('clean/service/qa', 'CacheController@serviceQA');
     });
 
     Route::prefix('product')->group(function () {
