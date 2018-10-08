@@ -12,6 +12,7 @@ use App\Console\Commands\SyncMagentoProduct;
 use App\Console\Commands\UpdateMagentoCreditCardOrder;
 use App\Console\Commands\UpdateMagentoATMOrder;
 use App\Console\Commands\RefreshLayoutCache;
+use App\Console\Commands\UpdateLinePayMapStores;
 
 use App\Jobs\SendNotification;
 
@@ -29,7 +30,8 @@ class Kernel extends ConsoleKernel
         SyncMagentoProduct::class,
         UpdateMagentoCreditCardOrder::class,
         UpdateMagentoATMOrder::class,
-        RefreshLayoutCache::class
+        RefreshLayoutCache::class,
+        UpdateLinePayMapStores::class,
     ];
 
     /**
