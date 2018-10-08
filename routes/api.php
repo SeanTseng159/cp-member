@@ -67,7 +67,8 @@ Route::middleware(['cors', 'auth.jwt'])->namespace('Api')->group(function () {
         Route::post('update/{id}', 'MemberController@updateMember')
             ->middleware('verify.member.update.data');
         //會員密碼修改
-        Route::post('password/{id}', 'MemberController@changePassword');
+        Route::post('password/{id}', 'MemberController@changePassword')
+        	->middleware('verify.member.changePassword');
         //發送-Email驗證信
         Route::post('sendValidateEmail', 'MemberController@sendValidateEmail');
         //更新會員憑證
