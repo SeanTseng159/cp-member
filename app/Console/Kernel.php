@@ -20,6 +20,7 @@ use App\Console\Commands\ProcessBPSCMFile;
 use Ksd\Mediation\Config\ProjectConfig;
 
 use App\Console\Commands\RefreshLayoutCache;
+use App\Console\Commands\UpdateLinePayMapStores;
 
 use App\Jobs\SendNotification;
 
@@ -42,7 +43,8 @@ class Kernel extends ConsoleKernel
         ProcessKrtmarketInvoice::class,
         DownloadBPSCMFile::class,
         ProcessBPSCMFile::class,
-        RefreshLayoutCache::class
+        RefreshLayoutCache::class,
+        UpdateLinePayMapStores::class,
     ];
 
     /**
