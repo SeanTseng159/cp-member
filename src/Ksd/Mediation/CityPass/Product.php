@@ -130,6 +130,7 @@ class Product extends Client
         foreach ($result['data'] as $item) {
             $product = new ProductResult();
             $product->cityPass($item);
+            if ($item['source'] === 'magento') $product->source = 'magento';
             $data[] = $product;
         }
 
