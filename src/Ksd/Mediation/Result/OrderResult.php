@@ -356,7 +356,7 @@ class OrderResult
                 case 'complete': # 已完成(完成出貨)
                     return "01";
                 case 'processing': # 已完成(完成付款)
-                    return "02";
+                    return "05";
                 case 'holded': # 退貨處理中
                     return "04";
                 case 'canceled': # 已退貨
