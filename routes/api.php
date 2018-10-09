@@ -181,7 +181,8 @@ Route::middleware('cors')->namespace('Api')->group(function () {
         //確認Email是否已使用
         Route::post('checkEmail', 'MemberController@checkEmail');
         //註冊-更新會員資料
-        Route::post('register/{id}', 'MemberController@registerMember');
+        Route::post('register/{id}', 'MemberController@registerMember')
+            ->middleware('verify.member.update.data');
         //會員登入取憑證
         Route::post('token', 'MemberController@generateToken')->middleware('verify.member.login');
         //驗證-Email驗證碼
