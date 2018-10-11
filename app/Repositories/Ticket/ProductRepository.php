@@ -47,6 +47,7 @@ class ProductRepository extends BaseRepository
         $prod = $this->model->with(['imgs' => function($query) {
                                 return $query->orderBy('img_sort')->get();
                             }, 'specs.specPrices'])
+                            ->notDeleted()
                             ->when($onShelf, function($query){
                                 $query->where('prod_onshelf', 1);
                             })
@@ -94,6 +95,7 @@ class ProductRepository extends BaseRepository
         $prod = $this->model->when($onShelf, function($query){
                                 $query->where('prod_onshelf', 1);
                             })
+                            ->notDeleted()
                             ->where('prod_type', '!=', 4)
                             ->where('prod_onshelf_time', '<=', $this->date)
                             ->where('prod_offshelf_time', '>=', $this->date)
@@ -119,6 +121,7 @@ class ProductRepository extends BaseRepository
         $prod = $this->model->with(['imgs' => function($query) {
                                 return $query->orderBy('img_sort')->get();
                             }])
+                            ->notDeleted()
                             ->when($onShelf, function($query){
                                 $query->where('prod_onshelf', 1);
                             })
@@ -141,6 +144,7 @@ class ProductRepository extends BaseRepository
         $prod = $this->model->with(['specs.specPrices', 'imgs' => function($query) {
                                 return $query->orderBy('img_sort')->first();
                             }])
+                            ->notDeleted()
                             ->when($onShelf, function($query){
                                 $query->where('prod_onshelf', 1);
                             })
@@ -163,12 +167,33 @@ class ProductRepository extends BaseRepository
                             ->when($onShelf, function($query){
                                 $query->where('prod_onshelf', 1);
                             })
+                            ->notDeleted()
                             ->where('prod_onshelf_time', '<=', $this->date)
                             ->where('prod_offshelf_time', '>=', $this->date)
                             ->whereIn('prod_id', $idArray)
                             ->get();
 
         return $prods;
+    }
+
+    /**
+     * 依 關鍵字 找商品
+     * @param $keyword
+     * @return mixed
+     */
+    public function search($keyword)
+    {
+        $data = $this->model->with(['specs.specPrices', 'imgs' => function($query) {
+                                return $query->orderBy('img_sort')->first();
+                            }])
+                            ->notDeleted()
+                            ->where('prod_onshelf', 1)
+                            ->where('prod_name', 'like', '%' . $keyword . '%')
+                            ->where('prod_onshelf_time', '<=', $this->date)
+                            ->where('prod_offshelf_time', '>=', $this->date)
+                            ->get();
+
+        return $data;
     }
 
     /**

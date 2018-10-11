@@ -50,4 +50,14 @@ class ProductService extends BaseService
         $onShelf = true;
         return $this->repository->findComboItem($id, $onShelf);
     }
+
+    /**
+     * 依 關鍵字 找商品
+     * @param $keyword
+     * @return mixed
+     */
+    public function search($keyword)
+    {
+        return $this->repository->search($keyword);
+    }
 }

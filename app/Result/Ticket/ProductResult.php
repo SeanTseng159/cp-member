@@ -12,6 +12,8 @@ use App\Config\Ticket\ProcuctConfig;
 use App\Traits\ObjectHelper;
 use Carbon\Carbon;
 
+use App\Result\MagentoProductResult;
+
 class ProductResult extends BaseResult
 {
     use ObjectHelper;
@@ -38,6 +40,24 @@ class ProductResult extends BaseResult
         else {
             $this->backendHost = ProcuctConfig::BACKEND_HOST_TEST;
         }
+    }
+
+    /**
+     * 取得所有商品資料
+     * @param $product
+     * @param bool $isDetail
+     */
+    public function all($products, $isDetail = false)
+    {
+        if ($products->isEmpty()) return [];
+
+        $newItems = [];
+
+        foreach ($products as $product) {
+            $newItems[] = $this->get($product, $isDetail);
+        }
+
+        return $newItems;
     }
 
     /**
@@ -172,6 +192,32 @@ class ProductResult extends BaseResult
         $this->contents = $this->getContents($product);
 
         return $this->apiFormatForComboItem();
+    }
+
+    /**
+     * 取得搜尋後商品資料
+     * @param $products
+     */
+    public function search($keywords)
+    {
+        if ($keywords->isEmpty()) return [];
+
+        $newItems = [];
+
+        foreach ($keywords as $keyword) {
+            if (!$keyword->items) continue;
+
+            foreach ($keyword->items as $item) {
+                if ($item->source === ProcuctConfig::SOURCE_TICKET) {
+                    $newItems[] = $this->get($item);
+                }
+                elseif ($item->source === ProcuctConfig::SOURCE_COMMODITY) {
+                    $newItems[] = (new MagentoProductResult)->get($item);
+                }
+            }
+        }
+
+        return $newItems;
     }
 
     /**
