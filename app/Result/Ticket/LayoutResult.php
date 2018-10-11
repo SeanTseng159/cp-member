@@ -15,21 +15,9 @@ use App\Result\MagentoProductResult;
 
 class LayoutResult extends BaseResult
 {
-    use ObjectHelper;
-
-    private $backendHost;
-
     public function __construct()
     {
-        if (env('APP_ENV') === 'production') {
-            $this->backendHost = BaseConfig::BACKEND_HOST;
-        }
-        elseif (env('APP_ENV') === 'beta') {
-            $this->backendHost = BaseConfig::BACKEND_HOST_BETA;
-        }
-        else {
-            $this->backendHost = BaseConfig::BACKEND_HOST_TEST;
-        }
+        parent::__construct();
     }
 
     /**
@@ -46,6 +34,7 @@ class LayoutResult extends BaseResult
         $result['customize'] = $this->transformCustomizes($data['customizes'], 'layout_home');
         $result['alert'] = $this->getAlert();
         $result['hasActivity'] = env('HAS_ACTIVITY', true);
+        $result['activity'] = $this->getActivity($data['activity']);
 
         return $result;
     }
@@ -183,6 +172,28 @@ class LayoutResult extends BaseResult
     }
 
     /**
+     * 取得activity
+     * @param $data
+     */
+    public function getActivity($activity)
+    {
+        if (!$activity) return null;
+
+        $activity = $activity->toArray();
+
+        $result = new \stdClass;
+        $index_img = $this->arrayDefault($activity, 'index_img');
+        $result->icon = ($index_img) ? $this->backendHost . $index_img : '';
+
+        $auth_status = $this->arrayDefault($activity, 'auth_status', 0);
+        $result->isNeedLogin = ($auth_status === 1);
+
+        $result->link = $this->getLink($activity);
+
+        return $result;
+    }
+
+    /**
      * 取得menu
      * @param $data
      */
@@ -307,5 +318,26 @@ class LayoutResult extends BaseResult
         }
 
         return $newProducts;
+    }
+
+    /**
+     * 取得連結
+     */
+    private function getLink($app)
+    {
+        $result = new \stdClass;
+        $result->type = $this->arrayDefault($app, 'link_type');
+
+        if ($result->type === 0) {
+            $result->url = (string) $this->arrayDefault($app, 'link_app');
+        }
+        elseif ($result->type === 1) {
+            $result->url = (string) $this->arrayDefault($app, 'link_web');
+        }
+        else {
+            $result->url = (string) $this->arrayDefault($app, 'link_app_scheme');
+        }
+
+        return $result;
     }
 }

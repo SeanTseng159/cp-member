@@ -12,30 +12,6 @@ use Illuminate\Http\Request;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
-Route::middleware('cors')->group(function () {
-    Route::prefix('member')->group(function () {
-        //新增會員
-        Route::post('create', 'MemberController@createMember')
-            ->middleware('verify.member.create');
-        //驗證-手機驗證碼
-        Route::post('validate/cellphone/{id}', 'MemberController@validateCellphone');
-        //發送手機驗證碼
-        Route::post('sendValidPhoneCode', 'MemberController@sendValidPhoneCode')
-            ->middleware('verify.send.validPhoneCode');
-        //確認Email是否已使用
-        Route::post('checkEmail', 'MemberController@checkEmail');
-        //註冊-更新會員資料
-        Route::post('register/{id}', 'MemberController@registerMember');
-        //會員登入取憑證
-        Route::post('token', 'MemberController@generateToken');
-        //驗證-Email驗證碼
-        Route::post('validate/email', 'MemberController@validateEmail');
-        //發送忘記密碼信
-        Route::post('sendForgetPassword', 'MemberController@sendForgetPassword');
-        //驗證-重設密碼
-        Route::post('resetPassword', 'MemberController@resetPassword');
-    });
-});
 
 Route::middleware('cors')->namespace('V1')->group(function () {
     Route::prefix('layout')->group(function () {
@@ -51,6 +27,9 @@ Route::middleware('cors')->namespace('V1')->group(function () {
         Route::get('category/{id}/products', 'LayoutController@categoryProducts');
         // 取子熱門探索分類下所有商品
         Route::get('subCategory/{id}/products', 'LayoutController@subCategoryProducts');
+
+        // 取其他內部服務app
+        Route::get('apps', 'LayoutAppController@all');
     });
 
     Route::prefix('cache')->group(function () {
@@ -69,6 +48,9 @@ Route::middleware('cors')->namespace('V1')->group(function () {
 
         // 清除常見問題
         Route::get('clean/service/qa', 'CacheController@serviceQA');
+
+        // 清更多服務
+        Route::get('clean/layout/apps', 'CacheController@apps');
     });
 
     Route::prefix('product')->group(function () {

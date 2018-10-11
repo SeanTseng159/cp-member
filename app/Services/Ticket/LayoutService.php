@@ -14,6 +14,7 @@ use App\Repositories\Ticket\LayoutHomeRepository as HomeRepository;
 use App\Repositories\Ticket\TagRepository;
 use App\Repositories\Ticket\LayoutCategoryRepository as CategoryRepository;
 use App\Repositories\Ticket\MenuProductRepository;
+use App\Repositories\Ticket\LayoutAppRepository as AppRepository;
 
 class LayoutService extends BaseService
 {
@@ -23,8 +24,9 @@ class LayoutService extends BaseService
     protected $tagRepository;
     protected $categoryRepository;
     protected $menuProductRepository;
+    protected $appRepository;
 
-    public function __construct(AdRepository $adRepository, ExplorationRepository $explorationRepository, HomeRepository $homeRepository, TagRepository $tagRepository, CategoryRepository $categoryRepository, MenuProductRepository $menuProductRepository)
+    public function __construct(AdRepository $adRepository, ExplorationRepository $explorationRepository, HomeRepository $homeRepository, TagRepository $tagRepository, CategoryRepository $categoryRepository, MenuProductRepository $menuProductRepository, AppRepository $appRepository)
     {
         $this->adRepository = $adRepository;
         $this->explorationRepository = $explorationRepository;
@@ -32,6 +34,7 @@ class LayoutService extends BaseService
         $this->tagRepository = $tagRepository;
         $this->categoryRepository = $categoryRepository;
         $this->menuProductRepository = $menuProductRepository;
+        $this->appRepository = $appRepository;
     }
 
     /**
@@ -45,6 +48,7 @@ class LayoutService extends BaseService
         $data['banner'] = $this->adRepository->getByArea(2, $lang);
         $data['explorations'] = $this->explorationRepository->all($lang);
         $data['customizes'] = $this->homeRepository->all($lang);
+        $data['activity'] = $this->appRepository->findInHome();
 
         return $data;
     }

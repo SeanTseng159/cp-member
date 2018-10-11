@@ -53,6 +53,8 @@ class LayoutController extends RestLaravelController
             $result->banner = [];
             $result->explorations = [];
             $result->customizes = [];
+            $result->hasActivity = false;
+            $result->activity = null;
             return $this->success($result);
         }
     }

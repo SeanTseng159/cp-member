@@ -136,4 +136,16 @@ class CacheController extends RestLaravelController
 
         return $this->success('刷新成功');
     }
+
+    /**
+     * 清除快取 (熱門探索子分類下所有商品)
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function apps(Request $request)
+    {
+        $this->redis->delete(LayoutKey::SERVICE_APPS_KEY);
+
+        return $this->success('刷新成功');
+    }
 }
