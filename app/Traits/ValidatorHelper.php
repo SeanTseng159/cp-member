@@ -98,4 +98,22 @@ trait ValidatorHelper
     {
         return (preg_match("/([0-9]+[號号])|([nN][oO])/", $address));
     }
+
+    /**
+     * 驗證密碼
+     * @param password $password
+     * @return boolean
+     */
+    public function VerifyPassword($password)
+    {
+        if (!$password) return false;
+
+        $result1 = preg_match("/^[a-zA-Z0-9]{8,16}$/", $password);
+          // 先測試是否有英文
+        $result2 = preg_match("/[a-zA-Z]{1,}/", $password);
+          // 先測試是否有數字
+        $result3 = preg_match("/[0-9]{1,}/", $password);
+
+        return ($result1 && $result2 && $result3);
+    }
 }
