@@ -33,6 +33,8 @@ Route::middleware('cors')->namespace('V1')->group(function () {
 
         // 取其他內部服務app
         Route::get('apps', 'LayoutAppController@all');
+
+        Route::get('supplier/{supplierId}/products', 'LayoutController@supplier')->name('v1.layout.supplier');
     });
 
     Route::prefix('cache')->group(function () {
