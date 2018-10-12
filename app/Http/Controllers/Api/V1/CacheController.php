@@ -126,18 +126,6 @@ class CacheController extends RestLaravelController
     }
 
     /**
-     * 清除快取 (熱門探索子分類下所有商品)
-     * @param Request $request
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function apps(Request $request)
-    {
-        $this->redis->delete(LayoutKey::SERVICE_APPS_KEY);
-
-        return $this->success('刷新成功');
-    }
-
-    /**
      * 清除快取 (常見問題)
      * @param Request $request
      * @return \Illuminate\Http\JsonResponse
@@ -145,6 +133,18 @@ class CacheController extends RestLaravelController
     public function serviceQA(Request $request)
     {
         $this->redis->delete(ServiceKey::QA_KEY);
+
+        return $this->success('刷新成功');
+    }
+
+    /**
+     * 清除快取 (apps)
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function apps(Request $request)
+    {
+        $this->redis->delete(LayoutKey::SERVICE_APPS_KEY);
 
         return $this->success('刷新成功');
     }
