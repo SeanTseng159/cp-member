@@ -149,6 +149,8 @@ class MagentoProductResult extends BaseResult
                 $category = new \stdClass;
                 $category->id = $c->tag_id;
                 $category->name = $c->tag_name;
+                $category->isSub = ($c->tag_upper_id) ? true : false;
+                $category->mainId = $c->tag_upper_id;
                 $categoriesAry[] = $category;
             }
         }
