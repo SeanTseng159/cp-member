@@ -40,7 +40,7 @@ class LayoutService extends BaseService
         $this->menuProductRepository = $menuProductRepository;
         $this->appRepository = $appRepository;
         $this->productRepository = $productRepository;
-        
+
     }
 
     /**
@@ -115,7 +115,7 @@ class LayoutService extends BaseService
     {
         return $this->menuProductRepository->productsByTagId($lang = 'zh-TW', $id);
     }
-    
+
     /**
      * 取供應商相關商品
      * @param int $supplierId
@@ -126,7 +126,7 @@ class LayoutService extends BaseService
     {
         $data['prods'] = $this->productRepository->supplierProducts($supplierId, $page_info);
         $data['supplier'] = SupplierRepository::find($supplierId);
-        
+
         return $data;
     }
 }
