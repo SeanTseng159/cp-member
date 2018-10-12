@@ -31,7 +31,6 @@ class LayoutService extends BaseService
     protected $menuProductRepository;
     protected $productRepository;
     protected $appRepository;
-    protected $productRepository;
 
     public function __construct(AdRepository $adRepository, ExplorationRepository $explorationRepository, HomeRepository $homeRepository, TagRepository $tagRepository, CategoryRepository $categoryRepository, MenuProductRepository $menuProductRepository, ProductRepository $productRepository, AppRepository $appRepository)
     {
