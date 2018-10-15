@@ -124,6 +124,8 @@ Route::middleware(['cors', 'auth.jwt'])->namespace('Api')->group(function () {
         Route::get('detail/{id}', 'MyTicketController@detail');
         //票券使用紀錄
         Route::get('record/{id}', 'MyTicketController@record');
+        //高捷票券憑證
+        Route::get('mrtCertificate/{id}', 'MyTicketController@mrtCertificate');
         // 票券轉贈
         Route::post('gift', 'MyTicketController@gift');
         // 票券退還

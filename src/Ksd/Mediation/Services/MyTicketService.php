@@ -11,6 +11,8 @@ namespace Ksd\Mediation\Services;
 use App\Services\MemberService;
 use Ksd\Mediation\Repositories\MyTicketRepository;
 use Ksd\Mediation\Services\MemberTokenService;
+use App\Services\JWTTokenService;
+use App\Repositories\Ticket\OrderDetailRepository;
 use App\Traits\StringHelper;
 
 class MyTicketService
@@ -20,12 +22,21 @@ class MyTicketService
     private $repository;
     private $memberService;
     private $memberTokenService;
+    private $orderDetailRepository;
+    private $jwtTokenService;
 
-    public function __construct(MyTicketRepository $myTicketRepository, MemberService $memberService, MemberTokenService $memberTokenService)
+    public function __construct(MyTicketRepository $myTicketRepository, 
+                                 MemberService $memberService, 
+                                 MemberTokenService $memberTokenService, 
+                                 OrderDetailRepository $orderDetailRepository,
+                                 JWTTokenService $jwtTokenService
+    )
     {
         $this->repository = $myTicketRepository;
         $this->memberService = $memberService;
         $this->memberTokenService = $memberTokenService;
+        $this->orderDetailRepository = $orderDetailRepository;
+        $this->jwtTokenService = $jwtTokenService;
     }
 
     /**
@@ -158,5 +169,27 @@ class MyTicketService
         return $this->repository->hide($parameters);
     }
 
+    public function mrtCertificate($parameters)
+    {
+        $member_id = $this->jwtTokenService->JWTdecode()->id;
+        $order_detail = $this->orderDetailRepository->getMrtCertificate($parameters->id, $member_id);
+        
+        if ( ! empty($order_detail)) {
+            
+            // 可移至transformer
+            $order_detail = [
+                'orderNo' => $order_detail->order_no,
+                'name' => $order_detail->prod_name,
+                'specName' => $order_detail->prod_spec_name . 
+                              (empty($order_detail->prod_spec_price_name) ? '' : 
+                              '/' . $order_detail->prod_spec_price_name),
+                'qty' => $order_detail->price_company_qty,
+                'price' => $order_detail->price_off,
+                'print_at' => $order_detail->print_mrt_certificate_at,
+                'buy_at' => $order_detail->created_at,
+            ];
+        }
+        return $order_detail;
+    }
 
 }

@@ -40,4 +40,29 @@ class OrderDetailRepository extends BaseRepository
             return false;
         }
     }
+    
+    public function getMrtCertificate($order_detail_sn, $member_id)
+    {
+        if (empty($order_detail_sn) || empty($member_id)) return false;
+        
+        try {
+            return $this->model->where([
+                                    'order_detail_sn' => $order_detail_sn,
+                                    'member_id' => $member_id,
+                                ])
+                                ->select(
+                                    'order_no',
+                                    'prod_name',
+                                    'prod_spec_name',
+                                    'prod_spec_price_name',
+                                    'price_company_qty',
+                                    'price_off',
+                                    'print_mrt_certificate_at',
+                                    'created_at'
+                                )->first();
+            
+        } catch (QueryException $e) {
+            return false;
+        }
+    }
 }
