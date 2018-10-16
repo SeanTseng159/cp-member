@@ -147,4 +147,12 @@ class MyTicketController extends RestLaravelController
         $data = $this->myTicketService->mrtCertificate($parameters);
         return ($data !== false) ? $this->success($data) : $this->failureCode('E4005');
     }
+    
+    public function printMrtCertificate(Request $request, $ticketSn)
+    {
+        $parameters = new InfoParameter();
+        $parameters->laravelRequest($ticketSn, $request);
+        $result = $this->myTicketService->printMrtCertificate($parameters);
+        return ($result) ? $this->success() : $this->failureCode('E4006');
+    }
 }

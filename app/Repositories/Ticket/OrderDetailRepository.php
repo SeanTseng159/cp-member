@@ -46,10 +46,11 @@ class OrderDetailRepository extends BaseRepository
         if (empty($order_detail_sn) || empty($member_id)) return false;
         
         try {
-            return $this->model->where([
-                                    'order_detail_sn' => $order_detail_sn,
-                                    'member_id' => $member_id,
-                                ])
+            return $this->model->where('order_detail_sn' ,$order_detail_sn)
+                                ->where(function($query) use ($member_id){
+                                    $query->where('member_id', $member_id)
+                                          ->orWhere('order_detail_member_id', $member_id);
+                                })
                                 ->select(
                                     'order_no',
                                     'prod_name',
@@ -60,6 +61,23 @@ class OrderDetailRepository extends BaseRepository
                                     'print_mrt_certificate_at',
                                     'created_at'
                                 )->first();
+            
+        } catch (QueryException $e) {
+            return false;
+        }
+    }
+    
+    public function printMrtCertificate($order_detail_sn, $member_id) 
+    {
+        if (empty($order_detail_sn) || empty($member_id)) return false;
+        
+        try {
+            return $this->model->where('order_detail_sn' ,$order_detail_sn)
+                                ->whereNull('print_mrt_certificate_at')
+                                ->where(function($query) use ($member_id){
+                                    $query->where('member_id', $member_id)
+                                          ->orWhere('order_detail_member_id', $member_id);
+                                })->update(['print_mrt_certificate_at' => date('Y-m-d H:i:s')]);
             
         } catch (QueryException $e) {
             return false;
