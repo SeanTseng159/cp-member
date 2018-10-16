@@ -191,5 +191,11 @@ class MyTicketService
         }
         return $order_detail;
     }
-
+    
+    public function printMrtCertificate($parameters)
+    {
+        $member_id = $this->jwtTokenService->JWTdecode()->id;
+        return $this->orderDetailRepository->printMrtCertificate($parameters->id, $member_id);
+        
+    }
 }
