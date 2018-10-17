@@ -19,6 +19,6 @@ class Keyword extends BaseModel
      */
   	public function keywordProducts()
     {
-        return $this->hasMany('App\Models\Ticket\ProductKeyword', 'keyword_id');
+        return $this->hasMany('App\Models\Ticket\ProductKeyword', 'keyword_id', 'keyword_id');
 	}
 }
