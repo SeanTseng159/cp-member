@@ -108,7 +108,7 @@ class ProductController extends RestLaravelController
         $result = array_merge($resultKeywordProducts, $resultMagentoProducts, $resultProducts);
 
         // 排除重複商品
-        $result = collect($result)->unique('id');
+        $result = collect($result)->unique('id')->values()->all();
 
         return $this->success($result);
     }
