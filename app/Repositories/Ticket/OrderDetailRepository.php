@@ -46,7 +46,10 @@ class OrderDetailRepository extends BaseRepository
         if (empty($order_detail_sn) || empty($member_id)) return false;
         
         try {
-            return $this->model->where('order_detail_sn' ,$order_detail_sn)
+            return $this->model->where([
+                                    'order_detail_sn' => $order_detail_sn,
+                                    'prod_api' => 1
+                                ])
                                 ->where(function($query) use ($member_id){
                                     $query->where('member_id', $member_id)
                                           ->orWhere('order_detail_member_id', $member_id);
@@ -72,7 +75,10 @@ class OrderDetailRepository extends BaseRepository
         if (empty($order_detail_sn) || empty($member_id)) return false;
         
         try {
-            return $this->model->where('order_detail_sn' ,$order_detail_sn)
+            return $this->model->where([
+                                    'order_detail_sn' => $order_detail_sn,
+                                    'prod_api' => 1
+                                ])
                                 ->whereNull('print_mrt_certificate_at')
                                 ->where(function($query) use ($member_id){
                                     $query->where('member_id', $member_id)
