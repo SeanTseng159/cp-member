@@ -134,6 +134,25 @@ class MyTicketController extends RestLaravelController
         return ($result) ? $this->success() : $this->failureCode('E4004');
 
     }
-
-
+    
+    /**
+     * 高捷票券憑證
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function mrtCertificate(Request $request, $ticketSn)
+    {
+        $parameters = new InfoParameter();
+        $parameters->laravelRequest($ticketSn, $request);
+        $data = $this->myTicketService->mrtCertificate($parameters);
+        return ($data !== false) ? $this->success($data) : $this->failureCode('E4005');
+    }
+    
+    public function printMrtCertificate(Request $request, $ticketSn)
+    {
+        $parameters = new InfoParameter();
+        $parameters->laravelRequest($ticketSn, $request);
+        $result = $this->myTicketService->printMrtCertificate($parameters);
+        return ($result) ? $this->success() : $this->failureCode('E4006');
+    }
 }
