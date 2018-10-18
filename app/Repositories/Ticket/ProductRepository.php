@@ -190,6 +190,7 @@ class ProductRepository extends BaseRepository
                             }])
                             ->notDeleted()
                             ->where('prod_onshelf', 1)
+                            ->whereIn('prod_type', [1, 2])
                             ->where('prod_name', 'like', '%' . $keyword . '%')
                             ->where('prod_onshelf_time', '<=', $this->date)
                             ->where('prod_offshelf_time', '>=', $this->date)
@@ -259,7 +260,7 @@ class ProductRepository extends BaseRepository
     {
         return $this->productGroupRepository->getAllByProdId($id);
     }
-    
+
     public function productMainTag($id)
     {
         return ProductTag::with('tag')
@@ -267,7 +268,7 @@ class ProductRepository extends BaseRepository
             ->where('is_main', 1)
             ->get();
     }
-    
+
     /**
      * 取得根據
      * @params $suppliedId
@@ -277,11 +278,11 @@ class ProductRepository extends BaseRepository
     {
         $currentPage = $page_info['page'] ?? ProcuctConfig::DEFAULT_PAGE;
         $pageSize = $page_info['limit'] ?? ProcuctConfig::DEFAULT_PAGE_SIZE;
-        
+
         Paginator::currentPageResolver(function () use ($currentPage) {
             return $currentPage;
         });
-        
+
         return Product::where('supplier_id', $supplierId)
                     ->notDeleted()
                     ->where('prod_onshelf', 1)
@@ -295,7 +296,7 @@ class ProductRepository extends BaseRepository
                     }])
                     ->select(
                             'prod_id',
-                            'prod_name', 
+                            'prod_name',
                             'prod_price_sticker',
                             'prod_price_retail',
                             'prod_short',
