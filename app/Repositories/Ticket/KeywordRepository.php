@@ -32,9 +32,6 @@ class KeywordRepository extends BaseRepository
     public function getProductsByKeyword($keyword)
     {
         $data = $this->model->with(['keywordProducts'])
-                            ->whereHas('keywordProducts.prdouct', function ($query) {
-                                $query->whereIn('prod_type', [1, 2]);
-                            })
                             ->notDeleted()
                             ->where('keyword_text', 'like', '%' . $keyword . '%')
                             ->get();
@@ -46,7 +43,7 @@ class KeywordRepository extends BaseRepository
 
             foreach ($row->keywordProducts as $product) {
                 if ($product->source === 1) {
-                    $prod = $this->productRepository->easyFind($product->prod_id, true);
+                    $prod = $this->productRepository->mainProductFind($product->prod_id, true);
                 }
                 elseif ($product->source === 2) {
                     $prod = $this->MagentoProductRepository->find($product->prod_id);
