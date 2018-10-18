@@ -91,7 +91,7 @@ class MagentoProductRepository
      */
     public function find($id)
     {
-        $product = $this->model->where('sku', $id)->first();
+        $product = $this->model->where('sku', $id)->where('visibility', 4)->first();
 
         if (!$product) return null;
 
@@ -151,7 +151,7 @@ class MagentoProductRepository
      */
     public function search($keyword)
     {
-        $prods = $this->model->where('sku', 'like', '%' . $keyword . '%')->get();
+        $prods = $this->model->where('sku', 'like', '%' . $keyword . '%')->where('visibility', 4)->get();
 
         if ($prods) {
             $prods->transform(function ($item, $key) {
