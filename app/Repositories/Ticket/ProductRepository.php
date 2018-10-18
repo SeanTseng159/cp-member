@@ -310,8 +310,9 @@ class ProductRepository extends BaseRepository
         return Product::where('supplier_id', $supplierId)
                     ->notDeleted()
                     ->where('prod_onshelf', 1)
-                    ->where('prod_onshelf_time', '<', Carbon::now())
-                    ->where('prod_offshelf_time', '>', Carbon::now())
+                    ->whereIn('prod_type', [1, 2])
+                    ->where('prod_onshelf_time', '<=', $this->date)
+                    ->where('prod_offshelf_time', '>=', $this->date)
                     ->with(['imgs' => function($query) {
                         $query->where('img_sort', 1);
                     }])
