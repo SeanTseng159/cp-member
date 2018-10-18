@@ -32,6 +32,9 @@ class KeywordRepository extends BaseRepository
     public function getProductsByKeyword($keyword)
     {
         $data = $this->model->with(['keywordProducts'])
+                            ->whereHas('keywordProducts.prdouct', function ($query) {
+                                $query->whereIn('prod_type', [1, 2]);
+                            })
                             ->notDeleted()
                             ->where('keyword_text', 'like', '%' . $keyword . '%')
                             ->get();

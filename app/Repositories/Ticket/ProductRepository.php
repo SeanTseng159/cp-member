@@ -191,6 +191,7 @@ class ProductRepository extends BaseRepository
                             }])
                             ->notDeleted()
                             ->where('prod_onshelf', 1)
+                            ->whereIn('prod_type', [1, 2])
                             ->where('prod_name', 'like', '%' . $keyword . '%')
                             ->where('prod_onshelf_time', '<=', $this->date)
                             ->where('prod_offshelf_time', '>=', $this->date)
