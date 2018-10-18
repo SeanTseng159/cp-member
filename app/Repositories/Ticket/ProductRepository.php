@@ -158,6 +158,29 @@ class ProductRepository extends BaseRepository
     }
 
     /**
+     * 根據 商品 id 取得商品明細
+     * @param $id
+     * @param $onShelf
+     * @return mixed
+     */
+    public function mainProductFind($id, $onShelf = false)
+    {
+        $prod = $this->model->with(['specs.specPrices', 'imgs' => function($query) {
+                                return $query->orderBy('img_sort')->first();
+                            }])
+                            ->notDeleted()
+                            ->when($onShelf, function($query) {
+                                $query->where('prod_onshelf', 1);
+                            })
+                            ->whereIn('prod_type', [1, 2])
+                            ->where('prod_onshelf_time', '<=', $this->date)
+                            ->where('prod_offshelf_time', '>=', $this->date)
+                            ->find($id);
+
+        return $prod;
+    }
+
+    /**
      * 根據 商品 ids 取得所有商品明細
      * @param $id
      * @param $onShelf
