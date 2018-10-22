@@ -20,10 +20,14 @@ use App\Services\Ticket\OrderService as TicketOrderService;
 use App\Jobs\Mail\OrderPaymentCompleteMail;
 use Log;
 
+use App\Services\MemberService;
 use Ksd\Payment\Services\LinePayService;
+use App\Traits\StringHelper;
 
 class CheckoutController extends RestLaravelController
 {
+    use StringHelper;
+
     protected $lang;
     protected $service;
     protected $cartService;
@@ -295,6 +299,14 @@ class CheckoutController extends RestLaravelController
         // 撈取訂單
         $orderModel = app()->build(Order::class);
         $order = $orderModel->authorization($request->token)->find($orderId);
+
+        // 取訂單擁有者
+        if (isset($order[0]) && $order[0]) {
+            $memberService = app()->build(MemberService::class);
+            $member = $memberService->find($request->memberId);
+            $memberName = ($member) ? $member->name : '';
+            $order[0]->orderer = $this->hideName($memberName);
+        }
 
         return $this->success($order);
     }
