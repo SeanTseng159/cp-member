@@ -252,6 +252,7 @@ class OrderResult
                 $row['show'] = $this->arrayDefault($item, 'show');
                 $row['pinCode'] = $this->arrayDefault($item, 'pinCode');
                 $row['combos'] = $this->arrayDefault($item, 'combos');
+                $row['hasVoucher'] = $this->arrayDefault($item, 'hasVoucher');
 
                 $this->items[] = $row;
 
