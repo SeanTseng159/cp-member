@@ -38,8 +38,6 @@ class TicketController extends RestLaravelController
             $data = $this->ticketService->all($this->lang, $parameter);
             $result = (new TicketResult)->getAll($data);
 
-            //var_dump($result);
-
             return $this->success($result);
         } catch (Exception $e) {
             var_dump($e->getMessage());

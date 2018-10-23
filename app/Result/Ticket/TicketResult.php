@@ -20,10 +20,11 @@ class TicketResult extends BaseResult
     use StringHelper;
 
     private $backendHost;
+    private $now;
 
     public function __construct()
     {
-        // $this->setBackendHost();
+        $this->now = Carbon::now();
     }
 
     /**
@@ -81,7 +82,7 @@ class TicketResult extends BaseResult
         $result['place'] = $this->arrayDefault($order, 'prod_locate');
         $result['address'] = $this->arrayDefault($order, 'prod_address');
         // $result['price'] = $this->arrayDefault($order, 'price_retail');
-        $result['qrcode'] = $this->arrayDefault($order, 'order_detail_qrcode');
+        $result['qrcode'] = ($prodType === 2) ? null : $this->arrayDefault($order, 'order_detail_qrcode');
         $result['status'] = $this->getTicketStatus($this->arrayDefault($order, 'verified_status'));
         // $result['catalogId'] = $this->arrayDefault($order, 'catalog_id');
         $result['giftAt'] = $this->arrayDefault($order, 'ticket_gift_at');
@@ -89,9 +90,9 @@ class TicketResult extends BaseResult
         $result['isEntity'] = false;
         $result['isOnDay'] = ($prodType === 2) ? false : $this->getIsOnDay($result['status'], $order['prod_expire_type'], $order['order_detail_expire_start'], $order['order_detail_expire_due']);
         $result['isPurchase'] = $this->getIsPurchase($prodType);
-        // $result['sort'] = null;
-        $result['show'] = $this->getShow($order);
         $result['items'] = ($prodType === 2) ? $this->processItems($order['combo']) : [];
+        $result['show'] = $this->getShow($order);
+        $result['comboDescription'] = $this->getComboDescription($prodType, $order['sync_expire_due'], $order['use_value'], $result['status']);
         $result['member'] = $this->getMember($order['member']);
 
         /*if ($isDetail) {
@@ -135,11 +136,10 @@ class TicketResult extends BaseResult
         else {
             if (!$expireStart || !$expireDue) return $isOnDay;
 
-            $now = Carbon::now();
             $start = Carbon::parse($expireStart);
             $due = Carbon::parse($expireDue);
 
-            if ($now->gte($start) && $now->lte($due)) $isOnDay = true;
+            if ($this->now->gte($start) && $this->now->lte($due)) $isOnDay = true;
         }
 
         return $isOnDay;
@@ -219,13 +219,57 @@ class TicketResult extends BaseResult
     }
 
     /**
-     * 處理會員
+     * 取得會員參數
      */
     public function getMember($member)
     {
         $result = new \stdClass;
+        $result->id = $member->id;
         $result->name = $this->hideName($member->name);
         $result->phone = '+' . $member->countryCode . $this->hidePhoneNumber($member->cellphone);
+
+        return $result;
+    }
+
+    /**
+     * 取得組合商品說明
+     */
+    public function getComboDescription($type, $syncExpireDue, $useValue, $ticketStatus)
+    {
+        $result = new \stdClass;
+        $result->text = '';
+        $result->date = '';
+
+        if ($type !== 2 || !$syncExpireDue) return $result;
+
+        if ($ticketStatus === '0') {
+            $expireAry = explode('.', $syncExpireDue);
+
+            if ($expireAry[0] === 'h') {
+                 // 未啟用
+                $status = '0';
+                $result->text = '本套票組合商品，其任一張開通使用，整組需於 %s 使用完畢，逾期未使用，視同失效';
+                $result->date = $expireAry[1] . '小時內';
+            }
+        }
+        elseif ($ticketStatus === '1' || $ticketStatus === '3') {
+            $now = $this->now->toDateTimeString();
+            $useValueAry = explode('~', $useValue);
+
+            $result->date = date('Y年m月d日 H時i分', strtotime($useValueAry[1]));
+
+            if ($now > $useValueAry[0] && $now < $useValueAry[1]) {
+                // 啟用中
+                $status = '1';
+                $result->text = '本套票組合商品，需於 %s 使用完畢，逾期未使用，視同失效';
+                $result->date .= '內';
+            }
+            else {
+                // 啟用後失效
+                $status = '3';
+                $result->text = '本套票組合商品，超過使用時間 %s ，逾期未使用之票券，已視同失效';
+            }
+        }
 
         return $result;
     }
