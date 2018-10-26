@@ -23,8 +23,8 @@ class TicketParameter extends BaseParameter
     {
     	$this->limit = $this->limit ?: 300;
         $this->page = $this->page ?: 1;
-    	$this->status = $this->request->status;
-    	$this->status = isset(TicketConfig::DB_STATUS[$this->status]) ? TicketConfig::DB_STATUS[$this->status] : null;
+    	$this->orderStatus = $this->request->status;
+    	$this->status = isset(TicketConfig::DB_STATUS[$this->orderStatus]) ? TicketConfig::DB_STATUS[$this->orderStatus] : null;
 
     	return $this;
     }

@@ -27,6 +27,6 @@ class TicketService extends BaseService
      */
     public function all($lang = 'zh-TW', $parameter = null)
     {
-        return $this->orderDetailRepository->all($lang, $parameter);
+        return $this->orderDetailRepository->tickets($lang, $parameter);
     }
 }

@@ -12,6 +12,7 @@ use Ksd\Mediation\Core\Controller\RestLaravelController;
 
 use App\Parameter\Ticket\Order\TicketParameter;
 use App\Services\Ticket\TicketService;
+use App\Services\MemberService;
 use App\Result\Ticket\TicketResult;
 
 use Exception;
@@ -20,10 +21,12 @@ class TicketController extends RestLaravelController
 {
     protected $lang = 'zh-TW';
     protected $ticketService;
+    protected $memberService;
 
-    public function __construct(TicketService $ticketService)
+    public function __construct(TicketService $ticketService, MemberService $memberService)
     {
         $this->ticketService = $ticketService;
+        $this->memberService = $memberService;
     }
 
     /**
@@ -36,7 +39,8 @@ class TicketController extends RestLaravelController
         try {
             $parameter = (new TicketParameter($request))->all();
             $data = $this->ticketService->all($this->lang, $parameter);
-            $result = (new TicketResult)->getAll($data);
+            $member = $this->memberService->find($parameter->memberId);
+            $result = (new TicketResult)->getAll($data, $member);
 
             return $this->success($result);
         } catch (Exception $e) {
