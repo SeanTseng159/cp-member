@@ -38,6 +38,6 @@ class BaseParameter
 
     public function offset()
     {
-        return $this->limit * $this->page;
+        return $this->limit * ($this->page - 1);
     }
 }
