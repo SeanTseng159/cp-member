@@ -14,16 +14,20 @@ use Ksd\Mediation\Parameter\Checkout\ResultParameter;
 
 use Ksd\Mediation\Services\CheckoutService;
 use Ksd\Mediation\Services\CartService;
-use Ksd\Mediation\Services\OrderService;
+use Ksd\Mediation\CityPass\Order;
 use App\Services\Card3dLogService as LogService;
 use App\Services\Ticket\OrderService as TicketOrderService;
 use App\Jobs\Mail\OrderPaymentCompleteMail;
 use Log;
 
+use App\Services\MemberService;
 use Ksd\Payment\Services\LinePayService;
+use App\Traits\StringHelper;
 
 class CheckoutController extends RestLaravelController
 {
+    use StringHelper;
+
     protected $lang;
     protected $service;
     protected $cartService;
@@ -274,9 +278,6 @@ class CheckoutController extends RestLaravelController
         $linePayService = app()->build(LinePayService::class);
         $confirmResult = $linePayService->confirm($parameters);
 
-        \Log::debug('=== confirm ===');
-        \Log::debug(print_r($confirmResult, true));
-
         if ($confirmResult['code'] === '00000') {
 
             $record = [
@@ -291,17 +292,21 @@ class CheckoutController extends RestLaravelController
 
             // 寄送linepay付款完成通知信
             $ticketOrderService = app()->build(TicketOrderService::class);
-            $order = $ticketOrderService->findByOrderNo($record['orderNo']);
-            dispatch(new OrderPaymentCompleteMail($order->member_id, 'ct_pass', $order->order_no))->delay(5);
+            // $order = $ticketOrderService->findByOrderNo($record['orderNo']);
+            dispatch(new OrderPaymentCompleteMail($request->memberId, 'ct_pass', $orderId))->delay(5);
         }
 
         // 撈取訂單
-        $orderService = app()->build(OrderService::class);
+        $orderModel = app()->build(Order::class);
+        $order = $orderModel->authorization($request->token)->find($orderId);
 
-        $params = new \stdClass();
-        $params->source = 'ct_pass';
-        $params->id = $orderId;
-        $order = $orderService->find($params);
+        // 取訂單擁有者
+        if (isset($order[0]) && $order[0]) {
+            $memberService = app()->build(MemberService::class);
+            $member = $memberService->find($request->memberId);
+            $memberName = ($member) ? $member->name : '';
+            $order[0]->orderer = $this->hideName($memberName);
+        }
 
         return $this->success($order);
     }

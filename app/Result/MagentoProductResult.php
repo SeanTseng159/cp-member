@@ -63,6 +63,23 @@ class MagentoProductResult extends BaseResult
     }
 
     /**
+     * 取得搜尋後商品資料
+     * @param $products
+     */
+    public function search($products)
+    {
+        if ($products->isEmpty()) return [];
+
+        $newItems = [];
+
+        foreach ($products as $product) {
+            $newItems[] = $this->get($product->data);
+        }
+
+        return $newItems;
+    }
+
+    /**
      * 取得資料
      * @param $product
      * @param bool $isDetail
@@ -132,6 +149,8 @@ class MagentoProductResult extends BaseResult
                 $category = new \stdClass;
                 $category->id = $c->tag_id;
                 $category->name = $c->tag_name;
+                $category->isSub = ($c->tag_upper_id) ? true : false;
+                $category->mainId = $c->tag_upper_id;
                 $categoriesAry[] = $category;
             }
         }

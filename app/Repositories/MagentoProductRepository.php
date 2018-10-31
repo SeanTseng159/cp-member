@@ -91,7 +91,7 @@ class MagentoProductRepository
      */
     public function find($id)
     {
-        $product = $this->model->where('sku', $id)->first();
+        $product = $this->model->where('sku', $id)->where('visibility', 4)->first();
 
         if (!$product) return null;
 
@@ -142,6 +142,26 @@ class MagentoProductRepository
         }
 
         return $data;
+    }
+
+    /**
+     * 商品搜尋
+     * @param $keyword
+     * @return \App\Models\MagentoProduct
+     */
+    public function search($keyword)
+    {
+        $prods = $this->model->where('sku', 'like', '%' . $keyword . '%')->where('visibility', 4)->get();
+
+        if ($prods) {
+            $prods->transform(function ($item, $key) {
+                $item->data = json_decode($item->data);
+
+                return $item;
+            });
+        }
+
+        return $prods;
     }
 
     /**

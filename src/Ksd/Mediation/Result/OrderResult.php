@@ -306,7 +306,7 @@ class OrderResult
                 return "待付款";
             }
             if ($key === 'complete') { # 訂單完成(已出貨)
-                return "已完成";
+                return "完成";
             }
             if ($key === 'holded') {  # 退貨處理中
                 return "退貨處理中";
@@ -327,7 +327,7 @@ class OrderResult
                 case '00': # 重新付款 || 待付款
                     return ($isRePayment) ? "重新付款" : "待付款";
                 case '01': # 已完成
-                    return "已完成";
+                    return "完成";
                 case '02': # 部分退貨
                     return "部分退貨";
                 case '03': # 已退貨
@@ -356,7 +356,7 @@ class OrderResult
                 case 'complete': # 已完成(完成出貨)
                     return "01";
                 case 'processing': # 已完成(完成付款)
-                    return "02";
+                    return "05";
                 case 'holded': # 退貨處理中
                     return "04";
                 case 'canceled': # 已退貨
@@ -526,7 +526,7 @@ class OrderResult
                 case 'pending': # 待付款
                     return "待付款";
                 case 'complete': # 訂單完成(已出貨且開立發票)
-                    return "已完成";
+                    return "完成";
                 case 'holded': # 退貨中
                     return "退貨中";
                 case 'canceled': # 已退貨
@@ -541,7 +541,7 @@ class OrderResult
                 case '00': # 待付款
                     return "待付款";
                 case '01': # 已完成
-                    return "已完成";
+                    return "完成";
                 case '02': # 部分退貨
                     return "部分退貨";
                 case '03': # 已退貨

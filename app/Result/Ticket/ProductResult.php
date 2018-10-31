@@ -9,35 +9,35 @@ namespace App\Result\Ticket;
 
 use App\Result\BaseResult;
 use App\Config\Ticket\ProcuctConfig;
-use App\Traits\ObjectHelper;
 use Carbon\Carbon;
+
+use App\Result\MagentoProductResult;
 
 class ProductResult extends BaseResult
 {
-    use ObjectHelper;
-
     private $quantity = 0;
-    private $backendHost;
 
     public function __construct()
     {
-        $this->setBackendHost();
+        parent::__construct();
     }
 
     /**
-     * 設定後端網址
+     * 取得所有商品資料
+     * @param $product
+     * @param bool $isDetail
      */
-    private function setBackendHost()
+    public function all($products, $isDetail = false)
     {
-        if (env('APP_ENV') === 'production') {
-            $this->backendHost = ProcuctConfig::BACKEND_HOST;
+        if ($products->isEmpty()) return [];
+
+        $newItems = [];
+
+        foreach ($products as $product) {
+            $newItems[] = $this->get($product, $isDetail);
         }
-        elseif (env('APP_ENV') === 'beta') {
-            $this->backendHost = ProcuctConfig::BACKEND_HOST_BETA;
-        }
-        else {
-            $this->backendHost = ProcuctConfig::BACKEND_HOST_TEST;
-        }
+
+        return $newItems;
     }
 
     /**
@@ -175,6 +175,32 @@ class ProductResult extends BaseResult
     }
 
     /**
+     * 取得搜尋後商品資料
+     * @param $products
+     */
+    public function search($keywords)
+    {
+        if ($keywords->isEmpty()) return [];
+
+        $newItems = [];
+
+        foreach ($keywords as $keyword) {
+            if (!$keyword->items) continue;
+
+            foreach ($keyword->items as $item) {
+                if ($item->source === ProcuctConfig::SOURCE_TICKET) {
+                    $newItems[] = $this->get($item);
+                }
+                elseif ($item->source === ProcuctConfig::SOURCE_COMMODITY) {
+                    $newItems[] = (new MagentoProductResult)->get($item);
+                }
+            }
+        }
+
+        return $newItems;
+    }
+
+    /**
      * 取得資料
      * @param $product
      * @param bool $isDetail
@@ -298,6 +324,8 @@ class ProductResult extends BaseResult
                 $category = new \stdClass;
                 $category->id = $c->tag_id;
                 $category->name = $c->tag_name;
+                $category->isSub = ($c->tag_upper_id) ? true : false;
+                $category->mainId = $c->tag_upper_id;
                 $categoriesAry[] = $category;
             }
         }

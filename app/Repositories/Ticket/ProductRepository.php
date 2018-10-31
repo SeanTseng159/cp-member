@@ -17,6 +17,8 @@ use App\Models\Ticket\MenuProd;
 use App\Repositories\Ticket\ProductAdditionalRepository;
 use App\Repositories\Ticket\ProductGroupRepository;
 use App\Repositories\Ticket\MenuProductRepository;
+use Illuminate\Pagination\Paginator;
+use App\Config\Ticket\ProcuctConfig;
 use Carbon\Carbon;
 
 class ProductRepository extends BaseRepository
@@ -47,15 +49,21 @@ class ProductRepository extends BaseRepository
         $prod = $this->model->with(['imgs' => function($query) {
                                 return $query->orderBy('img_sort')->get();
                             }, 'specs.specPrices'])
+                            ->notDeleted()
                             ->when($onShelf, function($query){
                                 $query->where('prod_onshelf', 1);
                             })
-                            ->where('prod_type', '!=', 4)
-                            ->where('prod_onshelf_time', '<=', $this->date)
-                            ->where('prod_offshelf_time', '>=', $this->date)
+                            // ->where('prod_type', '!=', 4)
+                            //->where('prod_onshelf_time', '<=', $this->date)
+                            //->where('prod_offshelf_time', '>=', $this->date)
                             ->find($id);
-
         if (!$prod) return null;
+
+        // 組合子商品
+        if ($prod->prod_type == 4) return $prod;
+
+        // 檢查上下架時間
+        if ($this->date < $prod->prod_onshelf_time || $this->date > $prod->prod_offshelf_time) return null;
 
         $isMainProd = in_array($prod->prod_type, [1, 2]);
 
@@ -89,6 +97,7 @@ class ProductRepository extends BaseRepository
         $prod = $this->model->when($onShelf, function($query){
                                 $query->where('prod_onshelf', 1);
                             })
+                            ->notDeleted()
                             ->where('prod_type', '!=', 4)
                             ->where('prod_onshelf_time', '<=', $this->date)
                             ->where('prod_offshelf_time', '>=', $this->date)
@@ -114,6 +123,7 @@ class ProductRepository extends BaseRepository
         $prod = $this->model->with(['imgs' => function($query) {
                                 return $query->orderBy('img_sort')->get();
                             }])
+                            ->notDeleted()
                             ->when($onShelf, function($query){
                                 $query->where('prod_onshelf', 1);
                             })
@@ -136,9 +146,33 @@ class ProductRepository extends BaseRepository
         $prod = $this->model->with(['specs.specPrices', 'imgs' => function($query) {
                                 return $query->orderBy('img_sort')->first();
                             }])
+                            ->notDeleted()
                             ->when($onShelf, function($query){
                                 $query->where('prod_onshelf', 1);
                             })
+                            ->where('prod_onshelf_time', '<=', $this->date)
+                            ->where('prod_offshelf_time', '>=', $this->date)
+                            ->find($id);
+
+        return $prod;
+    }
+
+    /**
+     * 根據 商品 id 取得商品明細
+     * @param $id
+     * @param $onShelf
+     * @return mixed
+     */
+    public function mainProductFind($id, $onShelf = false)
+    {
+        $prod = $this->model->with(['specs.specPrices', 'imgs' => function($query) {
+                                return $query->orderBy('img_sort')->first();
+                            }])
+                            ->notDeleted()
+                            ->when($onShelf, function($query) {
+                                $query->where('prod_onshelf', 1);
+                            })
+                            ->whereIn('prod_type', [1, 2])
                             ->where('prod_onshelf_time', '<=', $this->date)
                             ->where('prod_offshelf_time', '>=', $this->date)
                             ->find($id);
@@ -158,12 +192,34 @@ class ProductRepository extends BaseRepository
                             ->when($onShelf, function($query){
                                 $query->where('prod_onshelf', 1);
                             })
+                            ->notDeleted()
                             ->where('prod_onshelf_time', '<=', $this->date)
                             ->where('prod_offshelf_time', '>=', $this->date)
                             ->whereIn('prod_id', $idArray)
                             ->get();
 
         return $prods;
+    }
+
+    /**
+     * 依 關鍵字 找商品
+     * @param $keyword
+     * @return mixed
+     */
+    public function search($keyword)
+    {
+        $data = $this->model->with(['specs.specPrices', 'imgs' => function($query) {
+                                return $query->orderBy('img_sort')->first();
+                            }])
+                            ->notDeleted()
+                            ->where('prod_onshelf', 1)
+                            ->whereIn('prod_type', [1, 2])
+                            ->where('prod_name', 'like', '%' . $keyword . '%')
+                            ->where('prod_onshelf_time', '<=', $this->date)
+                            ->where('prod_offshelf_time', '>=', $this->date)
+                            ->get();
+
+        return $data;
     }
 
     /**
@@ -226,5 +282,53 @@ class ProductRepository extends BaseRepository
     public function productGroup($id)
     {
         return $this->productGroupRepository->getAllByProdId($id);
+    }
+
+    public function productMainTag($id)
+    {
+        return ProductTag::with('tag')
+            ->where('prod_id', $id)
+            ->where('is_main', 1)
+            ->get();
+    }
+
+    /**
+     * 取得根據
+     * @params $suppliedId
+     * @return Collections
+     */
+    public function supplierProducts(int $supplierId, $page_info)
+    {
+        $currentPage = $page_info['page'] ?? ProcuctConfig::DEFAULT_PAGE;
+        $pageSize = $page_info['limit'] ?? ProcuctConfig::DEFAULT_PAGE_SIZE;
+
+        Paginator::currentPageResolver(function () use ($currentPage) {
+            return $currentPage;
+        });
+
+        return Product::where('supplier_id', $supplierId)
+                    ->notDeleted()
+                    ->where('prod_onshelf', 1)
+                    ->whereIn('prod_type', [1, 2])
+                    ->where('prod_onshelf_time', '<=', $this->date)
+                    ->where('prod_offshelf_time', '>=', $this->date)
+                    ->with(['imgs' => function($query) {
+                        $query->select('prod_id', 'img_path', 'img_thumbnail_path')->orderBy('img_sort')->first();
+                    }])
+                    ->with(['product_tags' => function($query){
+                        $query->where('is_main', 1)->first();
+                    }])
+                    ->select(
+                            'prod_id',
+                            'prod_name',
+                            'prod_price_sticker',
+                            'prod_price_retail',
+                            'prod_short',
+                            'prod_store',
+                            'prod_county',
+                            'prod_district',
+                            'prod_address'
+                            )
+                    ->paginate($pageSize);
     }
 }

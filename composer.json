@@ -15,6 +15,7 @@
         "guzzlehttp/guzzle": "^6.3",
         "laravel/framework": "5.5.*",
         "laravel/tinker": "~1.0",
+        "phpoffice/phpspreadsheet": "^1.4",
         "predis/predis": "^1.1",
         "sly/notification-pusher": "2.3.0"
     },

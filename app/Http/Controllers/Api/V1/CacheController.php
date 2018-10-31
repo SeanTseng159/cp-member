@@ -16,6 +16,7 @@ use App\Result\Ticket\LayoutResult;
 use App\Cache\Redis;
 use App\Cache\Config as CacheConfig;
 use App\Cache\Key\LayoutKey;
+use App\Cache\Key\ServiceKey;
 
 use App\Jobs\Cache\RefreshLayoutAllCache;
 use App\Jobs\Cache\RefreshLayoutHomeCache;
@@ -120,6 +121,30 @@ class CacheController extends RestLaravelController
         $data = $this->redis->refesh($key, CacheConfig::ONE_DAY, function () use ($id) {
             return $this->layoutService->subCategoryProducts($this->lang, $id);
         });
+
+        return $this->success('刷新成功');
+    }
+
+    /**
+     * 清除快取 (常見問題)
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function serviceQA(Request $request)
+    {
+        $this->redis->delete(ServiceKey::QA_KEY);
+
+        return $this->success('刷新成功');
+    }
+
+    /**
+     * 清除快取 (熱門探索子分類下所有商品)
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function apps(Request $request)
+    {
+        $this->redis->delete(LayoutKey::SERVICE_APPS_KEY);
 
         return $this->success('刷新成功');
     }

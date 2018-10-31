@@ -12,6 +12,7 @@ use App\Console\Commands\SyncMagentoProduct;
 use App\Console\Commands\UpdateMagentoCreditCardOrder;
 use App\Console\Commands\UpdateMagentoATMOrder;
 use App\Console\Commands\RefreshLayoutCache;
+use App\Console\Commands\UpdateLinePayMapStores;
 
 use App\Jobs\SendNotification;
 
@@ -29,7 +30,8 @@ class Kernel extends ConsoleKernel
         SyncMagentoProduct::class,
         UpdateMagentoCreditCardOrder::class,
         UpdateMagentoATMOrder::class,
-        RefreshLayoutCache::class
+        RefreshLayoutCache::class,
+        UpdateLinePayMapStores::class,
     ];
 
     /**
@@ -50,7 +52,7 @@ class Kernel extends ConsoleKernel
         $schedule->command(AtmSalesAccount::class)->cron('25 * * * * *');
 
         // 處理開立發票
-        $schedule->command(AutoUploadInvoice::class)->dailyAt('08:00');
+        $schedule->command(AutoUploadInvoice::class)->dailyAt('00:30');
 
         // 移除magento過期ATM訂單
         $schedule->command(AtmOrderCheck::class)->dailyAt('02:00');

@@ -19,6 +19,8 @@ use App\Cache\Key\LayoutKey;
 
 use Exception;
 
+use App\Parameter\Ticket\Product\SupplierParameter;
+
 class LayoutController extends RestLaravelController
 {
     protected $lang = 'zh-TW';
@@ -53,6 +55,8 @@ class LayoutController extends RestLaravelController
             $result->banner = [];
             $result->explorations = [];
             $result->customizes = [];
+            $result->hasActivity = false;
+            $result->activity = null;
             return $this->success($result);
         }
     }
@@ -165,6 +169,21 @@ class LayoutController extends RestLaravelController
             $result->total = 0;
             $result->records = [];
             return $this->success($result);
+        }
+    }
+    
+    /**
+     * 取得目標供應商的商品
+     * @param Request $request
+     * @param type $supplierId
+     */
+    public function supplier(Request $request, $supplierId)
+    {
+        try {
+            $page_info = $request->only(['page', 'limit']);
+            return $this->success((new SupplierParameter($this->layoutService->supplierProducts($supplierId, $page_info)))->getTransformedParams());
+        } catch (Exception $e) {
+            return $this->failure('E0005', '資料無法取得');
         }
     }
 }

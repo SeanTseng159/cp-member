@@ -141,7 +141,6 @@ class Order extends Client
      */
     public function find($itemId)
     {
-
         $url = sprintf('order/detail/%s', $itemId);
         $response = $this->request('GET', $url);
         $body = $response->getBody();

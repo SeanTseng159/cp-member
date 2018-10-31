@@ -67,7 +67,8 @@ Route::middleware(['cors', 'auth.jwt'])->namespace('Api')->group(function () {
         Route::post('update/{id}', 'MemberController@updateMember')
             ->middleware('verify.member.update.data');
         //會員密碼修改
-        Route::post('password/{id}', 'MemberController@changePassword');
+        Route::post('password/{id}', 'MemberController@changePassword')
+        	->middleware('verify.member.changePassword');
         //發送-Email驗證信
         Route::post('sendValidateEmail', 'MemberController@sendValidateEmail');
         //更新會員憑證
@@ -180,9 +181,10 @@ Route::middleware('cors')->namespace('Api')->group(function () {
         //確認Email是否已使用
         Route::post('checkEmail', 'MemberController@checkEmail');
         //註冊-更新會員資料
-        Route::post('register/{id}', 'MemberController@registerMember');
+        Route::post('register/{id}', 'MemberController@registerMember')
+            ->middleware('verify.member.update.data');
         //會員登入取憑證
-        Route::post('token', 'MemberController@generateToken');
+        Route::post('token', 'MemberController@generateToken')->middleware('verify.member.login');
         //驗證-Email驗證碼
         Route::post('validate/email', 'MemberController@validateEmail');
         //發送忘記密碼信

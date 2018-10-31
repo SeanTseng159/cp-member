@@ -9,19 +9,15 @@ namespace App\Result\Ticket;
 
 use App\Result\BaseResult;
 use App\Config\Ticket\OrderConfig;
-use App\Traits\ObjectHelper;
 use Carbon\Carbon;
 
 class OrderResult extends BaseResult
 {
-    use ObjectHelper;
-
     private $quantity = 0;
-    private $backendHost;
 
     public function __construct()
     {
-        $this->backendHost = (env('APP_ENV') === 'production' || env('APP_ENV') === 'beta') ? OrderConfig::BACKEND_HOST : OrderConfig::BACKEND_HOST_TEST;
+        parent::__construct();
     }
 
     /**

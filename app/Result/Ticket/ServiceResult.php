@@ -9,17 +9,12 @@ namespace App\Result\Ticket;
 
 use App\Config\BaseConfig;
 use App\Result\BaseResult;
-use App\Traits\ObjectHelper;
 
 class ServiceResult extends BaseResult
 {
-    use ObjectHelper;
-
-    private $backendHost;
-
     public function __construct()
     {
-        $this->backendHost = (env('APP_ENV') === 'production' || env('APP_ENV') === 'beta') ? BaseConfig::BACKEND_HOST : BaseConfig::BACKEND_HOST_TEST;
+        parent::__construct();
     }
 
     /**

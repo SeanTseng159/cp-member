@@ -19,28 +19,11 @@ class TicketResult extends BaseResult
     use ObjectHelper;
     use StringHelper;
 
-    private $backendHost;
     private $now;
 
     public function __construct()
     {
         $this->now = Carbon::now();
-    }
-
-    /**
-     * 設定後端網址
-     */
-    private function setBackendHost()
-    {
-        if (env('APP_ENV') === 'production') {
-            $this->backendHost = TicketConfig::BACKEND_HOST;
-        }
-        elseif (env('APP_ENV') === 'beta') {
-            $this->backendHost = TicketConfig::BACKEND_HOST_BETA;
-        }
-        else {
-            $this->backendHost = TicketConfig::BACKEND_HOST_TEST;
-        }
     }
 
     /**
