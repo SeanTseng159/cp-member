@@ -90,10 +90,10 @@ class TicketResult extends BaseResult
         // $result['price'] = $this->arrayDefault($order, 'price_retail');
         $result['qrcode'] = ($prodType === 2) ? null : $this->arrayDefault($order, 'order_detail_qrcode');
         $result['status'] = $status;
-        // $result['catalogId'] = $this->arrayDefault($order, 'catalog_id');
+        $result['catalogId'] = $this->arrayDefault($order, 'catalog_id');
         $result['giftAt'] = $this->arrayDefault($order, 'ticket_gift_at');
         // $result['imageUrl'] = null;
-        $result['isEntity'] = false;
+        // $result['isEntity'] = false;
         $result['isOnDay'] = ($prodType === 2) ? false : $this->getIsOnDay($result['status'], $order['prod_expire_type'], $order['order_detail_expire_start'], $order['order_detail_expire_due']);
         $result['isPurchase'] = $this->getIsPurchase($prodType);
         $result['items'] = ($prodType === 2) ? $this->processItems($order['combo'], $comboStatusAndDesc['status']) : [];

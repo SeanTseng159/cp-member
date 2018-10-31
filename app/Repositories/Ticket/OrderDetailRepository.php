@@ -29,7 +29,10 @@ class OrderDetailRepository extends BaseRepository
     {
         if (!$parameter) return null;
 
-        $orderDetails = $this->model->with('combo')
+        $query = $this->model->with(['combo' => function($query) use ($parameter) {
+                                if ($parameter->orderStatus === '1' || $parameter->orderStatus === '2')
+                                return $query->orderBy('verified_at', 'desc');
+                            }])
                             ->where('member_id', $parameter->memberId)
                             ->where('ticket_show_status', 1)
                             ->whereIn('prod_type', [1, 2, 3])
@@ -45,15 +48,26 @@ class OrderDetailRepository extends BaseRepository
                                 if ($parameter->orderStatus === '3') {
                                     return $query->where('order_detail_expire_due', '<=', date('Y-m-d H:i:s'));
                                 }
-                                elseif ($parameter->orderStatus === '0' || $parameter->orderStatus === '1') {
+                                elseif ($parameter->orderStatus === '0') {
                                     return $query->where('order_detail_expire_due', '>=', date('Y-m-d H:i:s'))
                                         ->orWhere('order_detail_expire_due', null);
                                 }
                             })
                             ->offset($parameter->offset())
-                            ->limit($parameter->limit)
-                            ->orderBy('created_at', 'desc')
-                            ->get();
+                            ->limit($parameter->limit);
+
+        switch ($parameter->orderStatus) {
+            case '1':
+            case '2':
+                $orderDetails = $query->orderBy('verified_at', 'desc')->get();
+                break;
+            case '4':
+                $orderDetails = $query->orderBy('ticket_gift_at', 'desc')->get();
+                break;
+            default:
+                $orderDetails = $query->orderBy('created_at', 'desc')->get();
+                break;
+        }
 
         if ($orderDetails->isEmpty()) return null;
 
