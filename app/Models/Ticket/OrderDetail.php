@@ -28,6 +28,12 @@ class OrderDetail extends BaseModel
 	}
 
 
+	public function combo()
+    {
+    	return $this->hasMany('App\Models\Ticket\OrderDetail', ['order_detail_addnl_seq', 'order_no'], ['order_detail_seq', 'order_no'])
+    				->where('prod_type', 4);
+    }
+
 	/**
      * 依據規格票種ID取得資料
      */
@@ -36,9 +42,4 @@ class OrderDetail extends BaseModel
         return $this->hasOne('App\Models\Ticket\ProductSpecPrice', 'prod_spec_price_id', 'prod_spec_price_id');
 	}
 
-	public function combo()
-    {
-    	return $this->hasMany('App\Models\Ticket\OrderDetail', ['order_detail_addnl_seq', 'order_no'], ['order_detail_seq', 'order_no'])
-    				->where('prod_type', 4);
-    }
 }
