@@ -4,6 +4,7 @@ namespace App\Jobs;
 
 use GuzzleHttp\Client as CollectionClient;
 use GuzzleHttp\RequestOptions;
+use App\Config\BaseConfig;
 
 use Illuminate\Bus\Queueable;
 use Illuminate\Queue\SerializesModels;
@@ -33,6 +34,6 @@ class CollectAiData implements ShouldQueue
      */
     public function handle()
     {
-        (new CollectionClient)->request('POST', 'http://galera.touchcity.tw/api/v1/data/collect', [RequestOptions::JSON => $this->data]);
+        (new CollectionClient)->request('POST', BaseConfig::DATA_COLLECTION_HOST . '/api/v1/data/collect', [RequestOptions::JSON => $this->data]);
     }
 }
