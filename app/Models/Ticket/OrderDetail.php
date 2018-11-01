@@ -8,12 +8,9 @@
 namespace App\Models\Ticket;
 
 use App\Models\Ticket\BaseModel;
-use Awobaz\Compoships\Compoships;
 
 class OrderDetail extends BaseModel
 {
-	use Compoships;
-
 	// protected $table = 'prods';
 	protected $primaryKey = 'order_detail_id';
 
