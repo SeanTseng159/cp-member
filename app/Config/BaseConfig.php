@@ -16,4 +16,6 @@ class BaseConfig
     # 來源
     const   SOURCE_TICKET        = 'ct_pass';   // 票卷
     const   SOURCE_COMMODITY     = 'magento';   // 實體商品
+    
+    const   DATA_COLLECTION_HOST = 'http://galera.touchcity.tw';
 }
