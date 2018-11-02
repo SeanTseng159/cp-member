@@ -46,7 +46,7 @@ class Kernel extends ConsoleKernel
         //          ->hourly();
 
         // 發送推播訊息
-        $schedule->job(new SendNotification())->everyMinute()->withoutOverlapping();
+        // $schedule->job(new SendNotification())->everyMinute()->withoutOverlapping();
 
         // 撈取ftp atm檔案，更新訂單
         $schedule->command(AtmSalesAccount::class)->cron('25 * * * * *');
