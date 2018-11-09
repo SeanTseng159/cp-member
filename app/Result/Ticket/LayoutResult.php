@@ -150,6 +150,9 @@ class LayoutResult extends BaseResult
             if ($item->source === BaseConfig::SOURCE_TICKET) {
                 $newItems[] = (new ProductResult)->get($item);
             }
+            elseif($item->source === BaseConfig::SOURCE_TPASS_PHYSICAL) {
+                $newItems[] = (new ProductResult)->get($item);
+            }
             elseif ($item->source === BaseConfig::SOURCE_COMMODITY) {
                 $newItems[] = (new MagentoProductResult)->get($item);
             }
@@ -310,6 +313,9 @@ class LayoutResult extends BaseResult
 
         foreach ($products as $product) {
             if ($product->source === BaseConfig::SOURCE_TICKET) {
+                $newProducts[] = (new ProductResult)->getCategoryProduct($product);
+            }
+            elseif($product->source === BaseConfig::SOURCE_TPASS_PHYSICAL) {
                 $newProducts[] = (new ProductResult)->getCategoryProduct($product);
             }
             elseif ($product->source === BaseConfig::SOURCE_COMMODITY) {
