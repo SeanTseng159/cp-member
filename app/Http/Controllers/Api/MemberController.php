@@ -459,4 +459,35 @@ class MemberController extends RestLaravelController
             'openPlateform' => $member->openPlateform
         ]);
     }
+    
+    public function thirdPartyLogin(Request $request)
+    {
+        $inputs = $request->only('openId', 'openPlateform', 'name');
+        $member = $this->memberService->findByOpenId($inputs['openId'], $inputs['openPlateform']);
+        $platform = $request->header('platform');
+        
+        if (empty($member)) {
+            $data = [
+                'isValidEmail' => 1,
+                'status' => 1,
+                'isRegistered' => 1,
+            ];
+            $inputs = array_merge($data, $inputs);
+            $member = $this->memberService->create($inputs);
+        }
+        if (!$member || $member->status == 0 || $member->isRegistered == 0) {
+            return $this->failure('E0021','會員驗證失效');
+        }
+
+        $member = $this->memberService->generateToken($member, $platform);
+        if (!$member) {
+            return $this->failure('E0025','Token產生失敗');
+        }
+        
+        return $this->success([
+            'id' => $member->id,
+            'token' => $member->token,
+            'name' => $member->name,
+        ]);
+    }
 }
