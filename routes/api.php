@@ -277,6 +277,6 @@ Route::middleware('cors')->namespace('Api')->group(function () {
         Route::post('payNotify', 'IpassPayController@payNotify');
     });
     
-    Route::post('thirdPartyLogin', 'MemberController@thirdLogin');
+    Route::post('thirdPartyLogin', 'MemberController@thirdPartyLogin');
 
 });
