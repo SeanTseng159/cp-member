@@ -465,6 +465,7 @@ class MemberController extends RestLaravelController
         $inputs = $request->only('openId', 'openPlateform', 'name');
         $member = $this->memberService->findByOpenId($inputs['openId'], $inputs['openPlateform']);
         $platform = $request->header('platform');
+        $isFirstLogin = false;
         
         if (empty($member)) {
             $data = [
@@ -474,6 +475,7 @@ class MemberController extends RestLaravelController
             ];
             $inputs = array_merge($data, $inputs);
             $member = $this->memberService->create($inputs);
+            $isFirstLogin = true;
         }
         if (!$member || $member->status == 0 || $member->isRegistered == 0) {
             return $this->failure('E0021','會員驗證失效');
@@ -488,6 +490,7 @@ class MemberController extends RestLaravelController
             'id' => $member->id,
             'token' => $member->token,
             'name' => $member->name,
+            'isFirstLogin' => $isFirstLogin,
         ]);
     }
 }
