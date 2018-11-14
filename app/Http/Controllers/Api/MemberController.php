@@ -496,6 +496,7 @@ class MemberController extends RestLaravelController
             'name' => $member->name,
             'isFirstLogin' => $isFirstLogin,
             'openPlateform' => $inputs['openPlateform'],
+            'email' => $inputs['openId'],
         ]);
     }
 }
