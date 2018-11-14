@@ -23,16 +23,14 @@ class CollectAiData
     {
         if ( ! App::environment('production')) return $next($request);
         $data = [
-                    'act' => 'click',
+                    'act' => 'view',
                     'url' =>  url()->current(),
                     'user' => $request->memberId,
                     'agent' => $request->header('User-Agent'),
                     'preurl' => url()->previous(),
-                    'page_view_time' => 0,
                     'site' => 'CityPass',
                     'lang' => $request->server('HTTP_ACCEPT_LANGUAGE'),
                     'client_ip' => $request->ip(),
-                    'ssid' => Session::getId(),
                     'platform' => 'api',
                 ];
         CollectAiDataJob::dispatch($data);
