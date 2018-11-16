@@ -276,5 +276,7 @@ Route::middleware('cors')->namespace('Api')->group(function () {
         //退款
         Route::post('payNotify', 'IpassPayController@payNotify');
     });
+    
+    Route::post('thirdPartyLogin', 'MemberController@thirdPartyLogin');
 
 });

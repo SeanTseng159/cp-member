@@ -16,5 +16,8 @@ class ProjectConfig
 
     // city pass 代碼
     const CITY_PASS = 'ct_pass';
+    
+    // city pass 實體商品
+    const CITY_PASS_PHYSICAL = 'ct_pass_physical';
 
 }

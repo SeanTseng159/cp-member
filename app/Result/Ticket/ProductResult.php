@@ -51,7 +51,7 @@ class ProductResult extends BaseResult
 
         $product = $product->toArray();
 
-        $this->source = ProcuctConfig::SOURCE_TICKET;
+        $this->source = $this->arrayDefault($product, 'is_physical') ? ProcuctConfig::SOURCE_TPASS_PHYSICAL : ProcuctConfig::SOURCE_TICKET;
         $this->id = (string) $this->arrayDefault($product, 'prod_id');
         $this->name = $this->arrayDefault($product, 'prod_name');
         $this->price = (string) $this->arrayDefault($product, 'prod_price_sticker');
@@ -211,7 +211,7 @@ class ProductResult extends BaseResult
 
         $product = $product->toArray();
 
-        $this->source = ProcuctConfig::SOURCE_TICKET;
+        $this->source = $this->arrayDefault($product, 'is_physical') ? ProcuctConfig::SOURCE_TPASS_PHYSICAL : ProcuctConfig::SOURCE_TICKET;
         $this->id = (string) $this->arrayDefault($product, 'prod_id');
         $this->name = $this->arrayDefault($product, 'prod_name');
         $this->price = (string) $this->arrayDefault($product, 'prod_price_sticker');

@@ -328,7 +328,8 @@ class ProductRepository extends BaseRepository
                             'prod_store',
                             'prod_county',
                             'prod_district',
-                            'prod_address'
+                            'prod_address',
+                            'is_physical'
                             )
                     ->paginate($pageSize);
     }

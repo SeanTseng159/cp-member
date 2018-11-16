@@ -8,6 +8,7 @@
 namespace App\Models\Ticket;
 
 use App\Models\Ticket\BaseModel;
+use Ksd\Mediation\Config\ProjectConfig;
 
 class Product extends BaseModel
 {
@@ -21,7 +22,11 @@ class Product extends BaseModel
      */
 	public function getSourceAttribute($value)
     {
-    	return 'ct_pass';
+        if ($this->is_physical) {
+            return ProjectConfig::CITY_PASS_PHYSICAL;
+        } else {
+            return ProjectConfig::CITY_PASS;
+        }
     }
 
     public function getFullAddressAttribute()

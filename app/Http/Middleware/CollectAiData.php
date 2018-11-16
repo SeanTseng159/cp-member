@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use Closure;
 use App;
+use Session;
 use App\Services\JWTTokenService;
 use App\Services\MemberService;
 use App\Jobs\CollectAiData as CollectAiDataJob;
@@ -20,23 +21,22 @@ class CollectAiData
      */
     public function handle($request, Closure $next)
     {
+        $token = $request->bearerToken();
+        $tokenData = (new JWTTokenService())->checkToken($token);
+        
         if ( ! App::environment('production')) return $next($request);
-        $start = microtime(true);
-        $response = $next($request);
-        $end = microtime(true);
-        $excute_time = ($end - $start) * 1000;
         $data = [
-                    'act' => 'click',
+                    'act' => 'view',
                     'url' =>  url()->current(),
-                    'user' => $request->memberId,
+                    'user' => $tokenData->id ?? NULL,
                     'agent' => $request->header('User-Agent'),
                     'preurl' => url()->previous(),
-                    'page_view_time' => $excute_time,
-                    'site' => 'citypass',
+                    'site' => 'CityPass',
                     'lang' => $request->server('HTTP_ACCEPT_LANGUAGE'),
                     'client_ip' => $request->ip(),
+                    'platform' => 'api',
                 ];
         CollectAiDataJob::dispatch($data);
-        return $response;
+        return $next($request);
     }
 }
