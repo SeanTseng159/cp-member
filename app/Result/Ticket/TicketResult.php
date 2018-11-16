@@ -31,7 +31,7 @@ class TicketResult extends BaseResult
      * @param $product
      * @param bool $isDetail
      */
-    public function getAll($tickets, $member, $isDetail = false)
+    public function getAll($tickets, $member = null, $isDetail = false)
     {
         if (!$tickets) return null;
 
@@ -48,7 +48,7 @@ class TicketResult extends BaseResult
      * @param $product
      * @param bool $isDetail
      */
-    public function get($order, $member, $isDetail = false)
+    public function get($order, $member = null, $isDetail = false)
     {
         if (!$order) return null;
 
@@ -82,7 +82,7 @@ class TicketResult extends BaseResult
         $result['items'] = ($prodType === 2) ? $this->processItems($order['combo'], $comboStatusAndDesc['status']) : [];
         $result['show'] = $this->getShow($order);
         $result['comboDescription'] = $comboStatusAndDesc['description'];
-        $result['member'] = $this->getMember($member);
+        $result['member'] = ($member) ? $this->getMember($member) : $this->arrayDefault($order, 'order_detail_member_id');
 
         /*if ($isDetail) {
         }*/

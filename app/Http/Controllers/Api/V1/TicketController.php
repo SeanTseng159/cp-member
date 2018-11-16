@@ -23,6 +23,8 @@ class TicketController extends RestLaravelController
     protected $ticketService;
     protected $memberService;
 
+    private $members;
+
     public function __construct(TicketService $ticketService, MemberService $memberService)
     {
         $this->ticketService = $ticketService;
@@ -39,13 +41,32 @@ class TicketController extends RestLaravelController
         try {
             $parameter = (new TicketParameter($request))->all();
             $data = $this->ticketService->all($this->lang, $parameter);
-            $member = $this->memberService->find($parameter->memberId);
-            $result = (new TicketResult)->getAll($data, $member);
+            if ($parameter->orderStatus === '4') {
+                $result = (new TicketResult)->getAll($data);
+                if ($result) {
+                    foreach ($result as $k => $row) {
+                        $member = $this->getMember($row['member']);
+                        $result[$k]['member'] = ($member) ? (new TicketResult)->getMember($member) : null;
+                    }
+                }
+            }
+            else {
+                $member = $this->memberService->find($parameter->memberId);
+                $result = (new TicketResult)->getAll($data, $member);
+            }
 
             return $this->success($result);
         } catch (Exception $e) {
-            var_dump($e->getMessage());
-            //return $this->success();
+            return $this->success();
         }
+    }
+
+    private function getMember($memberId)
+    {
+        if (!isset($this->members[$memberId])) {
+            $this->members[$memberId] = $this->memberService->find($memberId);
+        }
+
+        return $this->members[$memberId];
     }
 }
