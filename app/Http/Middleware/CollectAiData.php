@@ -21,11 +21,14 @@ class CollectAiData
      */
     public function handle($request, Closure $next)
     {
+        $token = $request->bearerToken();
+        $tokenData = (new JWTTokenService())->checkToken($token);
+        
         if ( ! App::environment('production')) return $next($request);
         $data = [
                     'act' => 'view',
                     'url' =>  url()->current(),
-                    'user' => $request->memberId,
+                    'user' => $tokenData->id ?? NULL,
                     'agent' => $request->header('User-Agent'),
                     'preurl' => url()->previous(),
                     'site' => 'CityPass',
