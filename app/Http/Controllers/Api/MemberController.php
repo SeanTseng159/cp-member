@@ -462,12 +462,12 @@ class MemberController extends RestLaravelController
     
     public function thirdPartyLogin(Request $request)
     {
-        $inputs = $request->only('openId', 'openPlateform', 'name');
+        $inputs = $request->only('openId', 'openPlateform', 'name', 'verifyInfo');
         $member = $this->memberService->findByOpenId($inputs['openId'], $inputs['openPlateform']);
         $platform = $request->header('platform');
         $isFirstLogin = false;
         
-        if ( ! in_array($inputs['openPlateform'], ['facebook', 'google'])) {
+        if ( ! in_array($inputs['openPlateform'], ['facebook', 'google']) || empty($inputs['openId'])) {
             return $this->failure('E0021','會員驗證失效');
         }
         
