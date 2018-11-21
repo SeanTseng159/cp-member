@@ -8,10 +8,15 @@
 namespace App\Services\Ticket;
 
 use App\Services\BaseService;
+
+use App\Traits\ProductHelper;
+
 use App\Repositories\Ticket\ProductRepository;
 
 class ProductService extends BaseService
 {
+    use ProductHelper;
+
     public function __construct(ProductRepository $repository)
     {
         $this->repository = $repository;
@@ -49,6 +54,23 @@ class ProductService extends BaseService
     {
         $onShelf = true;
         return $this->repository->findComboItem($id, $onShelf);
+    }
+
+    /**
+     * 根據 商品 id 取得商品明細 (結帳用) [只取 規格]
+     * @param $id
+     * @param $specId
+     * @param $specPriceId
+     * @return mixed
+     */
+    public function findByCheckout($id, $specId, $specPriceId)
+    {
+        $product = $this->repository->findByCheckout($id, $specId, $specPriceId);
+
+        // 檢查是否在合理的使用期限內
+        if ($product && !$this->checkExpire($product)) return NULL;
+
+        return $product;
     }
 
     /**

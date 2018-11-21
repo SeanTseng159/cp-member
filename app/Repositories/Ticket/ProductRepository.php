@@ -158,9 +158,32 @@ class ProductRepository extends BaseRepository
     }
 
     /**
+     * 根據 商品 id 取得商品明細 (結帳用) [只取 規格]
+     * @param $id
+     * @param $specId
+     * @param $specPriceId
+     * @return mixed
+     */
+    public function findByCheckout($id, $specId, $specPriceId)
+    {
+        $prod = $this->model->leftJoin('prod_specs', 'prods.prod_id', '=', 'prod_specs.prod_id')
+                            ->leftJoin('prod_spec_prices', 'prod_specs.prod_spec_id', '=', 'prod_spec_prices.prod_spec_id')
+                            ->where('prod_specs.prod_spec_id', $specId)
+                            ->where('prod_spec_prices.prod_spec_price_id', $specPriceId)
+                            ->where('prods.deleted_at', 0)
+                            ->where('prods.prod_onshelf', 1)
+                            ->where('prods.prod_onshelf_time', '<=', $this->date)
+                            ->where('prods.prod_offshelf_time', '>=', $this->date)
+                            ->where('prods.prod_onsale_time', '<=', $this->date)
+                            ->where('prods.prod_offsale_time', '>=', $this->date)
+                            ->find($id);
+
+        return $prod;
+    }
+
+    /**
      * 根據 商品 id 取得商品明細
      * @param $id
-     * @param $onShelf
      * @return mixed
      */
     public function mainProductFind($id, $onShelf = false)

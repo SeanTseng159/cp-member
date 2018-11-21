@@ -60,7 +60,7 @@ class Product extends BaseModel
     {
         return $this->belongsToMany('App\Models\Ticket\Keyword', 'prod_keywords', 'prod_id', 'keyword_id');
     }
-        
+
     public function product_tags()
     {
         return $this->hasMany('App\Models\Ticket\ProductTag', 'prod_id');
