@@ -462,7 +462,8 @@ class MemberController extends RestLaravelController
     
     public function thirdPartyLogin(Request $request)
     {
-        $inputs = $request->only('openId', 'openPlateform', 'name', 'verifyInfo');
+        $inputs = $request->only('openId', 'openPlateform', 'name');
+        $verifyInfo = $request->verifyInfo;
         $member = $this->memberService->findByOpenId($inputs['openId'], $inputs['openPlateform']);
         $platform = $request->header('platform');
         $isFirstLogin = false;
