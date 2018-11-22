@@ -9,9 +9,9 @@ namespace App\Services\Ticket;
 
 use App\Services\BaseService;
 
-use App\Traits\ProductHelper;
-
 use App\Repositories\Ticket\ProductRepository;
+
+use App\Traits\ProductHelper;
 
 class ProductService extends BaseService
 {
@@ -61,6 +61,7 @@ class ProductService extends BaseService
      * @param $id
      * @param $specId
      * @param $specPriceId
+     * @param $hasImage
      * @return mixed
      */
     public function findByCheckout($id, $specId, $specPriceId)

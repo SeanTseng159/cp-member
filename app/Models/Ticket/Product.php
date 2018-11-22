@@ -65,4 +65,12 @@ class Product extends BaseModel
     {
         return $this->hasMany('App\Models\Ticket\ProductTag', 'prod_id');
     }
+
+    /**
+     * 取得關鍵字
+     */
+    public function shippingFees()
+    {
+        return $this->hasMany('App\Models\Ticket\ShippingFee', 'prod_id')->orderBy('lower', 'asc');
+    }
 }
