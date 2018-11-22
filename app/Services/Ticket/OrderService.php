@@ -9,12 +9,16 @@ namespace App\Services\Ticket;
 
 use App\Services\BaseService;
 use App\Repositories\Ticket\OrderRepository;
+use App\Repositories\Ticket\OrderDetailRepository;
 
 class OrderService extends BaseService
 {
-    public function __construct(OrderRepository $repository)
+    protected $orderDetailRepository;
+
+    public function __construct(OrderRepository $repository, OrderDetailRepository $orderDetailRepository)
     {
         $this->repository = $repository;
+        $this->orderDetailRepository = $orderDetailRepository;
     }
 
     /**
@@ -37,5 +41,16 @@ class OrderService extends BaseService
     public function getMemberOrdersByDate($memberId = 0, $startDate = '', $endDate = '')
     {
         return $this->repository->getMemberOrdersByDate($memberId, $startDate, $endDate);
+    }
+
+    /**
+     * 取會員某商品購買數
+     * @param $productId
+     * @param $memberId
+     * @return mixed
+     */
+    public function getCountByProdAndMember($productId = 0, $memberId = 0)
+    {
+        return $this->orderDetailRepository->getCountByProdAndMember($productId, $memberId);
     }
 }

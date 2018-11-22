@@ -29,17 +29,15 @@ class CartResult extends BaseResult
      */
     public function get($products)
     {
-        if (!$products) return null;
-
         $result = new \stdClass;
-        $result->items = $this->getItems($products);
+        $result->items = ($products) ? $this->getItems($products) : [];
         $result->itemTotal = $this->itemTotal;
         $result->totalAmount = $this->totalAmount;
         $result->discountAmount = $this->discountAmount;
         $result->discountTotal = $this->totalAmount;
         $result->shippingFee = $this->shippingFee;
         $result->payAmount = $this->payAmount;
-        $result->canCheckout = true;
+        $result->canCheckout = ($products) ? true : false;
 
         return $result;
     }

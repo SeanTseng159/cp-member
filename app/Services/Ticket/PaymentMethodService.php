@@ -23,8 +23,8 @@ class PaymentMethodService extends BaseService
      * 取全部
      * @return mixed
      */
-    public function all($lang)
+    public function all()
     {
-        return $this->model->all();
+        return $this->repository->all();
     }
 }

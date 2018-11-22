@@ -56,6 +56,8 @@ Route::middleware('cors')->namespace('V1')->group(function () {
         // 清更多服務
         Route::get('clean/layout/apps', 'CacheController@apps');
 
+        // 清付款方式
+        Route::get('clean/checkout/paymentMethod', 'CacheController@paymentMethod');
     });
 
     // 商品相關
