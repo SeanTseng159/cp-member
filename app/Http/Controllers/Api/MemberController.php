@@ -468,8 +468,12 @@ class MemberController extends RestLaravelController
         $platform = $request->header('platform');
         $isFirstLogin = false;
         
-        if ( ! in_array($inputs['openPlateform'], ['facebook', 'google']) || empty($inputs['openId'])) {
+        if ( ! in_array($inputs['openPlateform'], ['facebook', 'google'])) {
             return $this->failure('E0021','會員驗證失效');
+        }
+        
+        if (empty($inputs['openId'])) {
+            return $this->failure('E0021','請至第3方設定允許提供email或改用其他方式登入本站');
         }
         
         if (empty($member)) {
