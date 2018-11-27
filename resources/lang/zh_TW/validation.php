@@ -87,6 +87,11 @@ return [
     'unique' => ':attribute 已經存在。',
     'uploaded' => ':attribute 上傳失敗。',
     'url' => ':attribute 的格式錯誤。',
+    'credit_card' => [
+        'card_checksum_invalid' => '信用卡 格式錯誤。',
+        'card_length_invalid' => '信用卡 格式錯誤。',
+        'card_cvc_invalid' => '信用卡檢核碼 格式錯誤。'
+    ],
 
     /*
     |--------------------------------------------------------------------------
@@ -107,7 +112,16 @@ return [
         'shipment.userPhone' => [
             'min' => '收件人電話 格式錯誤。',
         ],
+
+        'payment.creditCardYear' => [
+            'date_format' => '信用卡年度 格式錯誤。',
+        ],
+
+        'payment.creditCardMonth' => [
+            'date_format' => '信用卡月份 格式錯誤。',
+        ],
     ],
+
 
     /*
     |--------------------------------------------------------------------------
@@ -155,7 +169,11 @@ return [
             'userName' => '收件人名稱',
             'userPhone' => '收件人電話',
             'userPostalCode' => '收件人區碼',
-            'userAddress' => '收件人地址'
+            'userAddress' => '收件人地址',
+            'zipcode' => '收件人區碼',
+            'address' => '收件人地址',
         ],
+
+        'quantity' => '數量',
     ],
 ];

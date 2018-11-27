@@ -79,6 +79,58 @@ class LinePayService
     }
 
     /**
+     * reserve
+     * @param $orderNo
+     * @param $payAmount
+     * @param $products
+     * @param $device
+     * @param $hasLinePayApp
+     * @return mixed
+     */
+    public function newReserve($orderNo, $payAmount, $products = [], $device = 'web', $hasLinePayApp = false)
+    {
+        if ($orderNo) {
+            // 導向路徑
+            $successUrl = url('api/v1/linepay/confirm/callback?device=' . $device);
+            $cancelUrl = url('api/v1/linepay/confirm/failure?device=' . $device . '&orderNo=' . $orderNo);
+
+            if ($hasLinePayApp) {
+                if ($request->device === 'ios') {
+                    $successUrl = env('LINEPAY_ISO_REDIRECT') . 'success/' . $orderNo;
+                    $cancelUrl = env('LINEPAY_ISO_REDIRECT') . 'failure/' . $orderNo;
+                }
+                else if ($request->device === 'android') {
+                    $successUrl = env('LINEPAY_ANDROID_REDIRECT') . 'success/' . $orderNo;
+                    $cancelUrl = env('LINEPAY_ANDROID_REDIRECT') . 'failure/' . $orderNo;
+                }
+            }
+
+            foreach ($products as $product) {
+                $productNameAry[] = $product->name;
+            }
+
+            $productName = implode("/", $productNameAry);
+
+            $line_reserve_params = [
+                "orderId" => $orderNo,
+                "productName" => $productName,
+                "productImageUrl" => asset('img/icon-app.png'),
+                "amount" => $payAmount,
+                "successUrl" =>  $successUrl,
+                "cancelUrl" =>  $cancelUrl,
+                "hasApp" => $hasLinePayApp
+            ];
+
+            return $this->repository->reserve($line_reserve_params);
+        }
+
+        return [
+                'code' => 'E0101',
+                'message' => '訂單不存在'
+            ];
+    }
+
+    /**
      * confirm
      * @param $parameters
      * @return mixed

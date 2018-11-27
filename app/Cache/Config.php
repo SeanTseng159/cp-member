@@ -11,6 +11,8 @@ class Config
 {
 	// (分鐘)
     const LAYOUT_TIME = 60;
+    const FIVE_MIN = 5;
+    const TEN_MIN = 5;
     const THIRTY_MIN = 30;
     const ONE_HOUR = 60;
     const TWO_HOUR = 120;
