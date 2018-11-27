@@ -8,46 +8,51 @@
 namespace App\Result;
 
 use App\Result\BaseResult;
-use App\Config\BaseConfig;
 use App\Traits\CheckoutHelper;
 
 class CartResult extends BaseResult
 {
     use CheckoutHelper;
 
-    private $itemTotal = 0;
+    // 總數量
+    private $totalQuantity = 0;
+    // 總金額
     private $totalAmount = 0;
+    // 折扣金額
     private $discountAmount = 0;
-    private $discountTotal = 0;
+    // 折扣後總金額
+    private $discountTotalAmount = 0;
+    // 運費
     private $shippingFee = 0;
+    // 實際付款金額
     private $payAmount = 0;
 
     /**
      * 取得資料
      * @param $product
-     * @param bool $isDetail
+     * @param object
      */
-    public function get($products)
+    public function get($products, $isDetail = false)
     {
         $result = new \stdClass;
-        $result->items = ($products) ? $this->getItems($products) : [];
-        $result->itemTotal = $this->itemTotal;
+        $result->items = ($products) ? $this->getItems($products, $isDetail) : [];
+        $result->totalQuantity = $this->totalQuantity;
         $result->totalAmount = $this->totalAmount;
         $result->discountAmount = $this->discountAmount;
-        $result->discountTotal = $this->totalAmount;
+        $result->discountTotalAmount = $this->totalAmount;
         $result->shippingFee = $this->shippingFee;
-        $result->payAmount = $this->payAmount;
+        $result->payAmount = $this->totalAmount + $this->shippingFee;
         $result->canCheckout = ($products) ? true : false;
 
         return $result;
     }
 
-    public function getItems($products)
+    public function getItems($products, $isDetail = false)
     {
         $items = [];
 
         foreach ($products as $product) {
-            $items[] = $this->getItem($product);
+            $items[] = $this->getItem($product, $isDetail);
         }
 
         return $items;
@@ -56,27 +61,44 @@ class CartResult extends BaseResult
     /**
      * 取得資料
      * @param $product
+     * @param $isDetail
      * @param bool $isDetail
      */
-    public function getItem($product)
+    public function getItem($product, $isDetail = false)
     {
         if (!$product) return null;
 
         $prod = new \stdClass;
-        $prod->source = BaseConfig::SOURCE_TICKET;
         $prod->id = $product->prod_id;
         $prod->name = $product->prod_name;
-        $prod->quantity = $product->quantity;
+        $prod->quantity = (int) $product->quantity;
         $prod->price = $product->prod_spec_price_value;
         $prod->imageUrl = ($product->img) ? $this->backendHost . $product->img->img_thumbnail_path : '';
-        $prod->additional = $this->getAdditional($product);
+        $prod->additional = $this->getAdditional($product, $isDetail);
         $prod->purchase = [];
+
+        if ($isDetail) {
+            $prod->supplierId = $product->supplier_id;
+            $prod->custId = $product->prod_cust_id;
+            $prod->type = $product->prod_type;
+            $prod->isPhysical = $product->is_physical;
+            $prod->catalogId = ($product->tags) ? $product->tags->where('is_main', 1)->first()->tag_id : 0;
+            $prod->categoryId = ($product->tags) ? $product->tags->where('is_main', 0)->first()->tag_id : 0;
+            $prod->api = $product->prod_api;
+            $prod->store = $product->prod_store;
+            $prod->address = $product->prod_zipcode . $product->full_address;
+            $prod->expireType = $product->prod_expire_type;
+            $prod->expireStart = $product->prod_expire_start;
+            $prod->expireDue = $product->prod_expire_due;
+            $prod->groupExpireType = $product->group_expire_type;
+            $prod->groupExpireDue = $product->group_expire_due;
+        }
 
         // 計算運費
         $this->shippingFee += $this->calcShippingFee($product->shippingFees, $product->quantity);
 
         // 計算全部金額
-        $this->itemTotal += $product->quantity;
+        $this->totalQuantity += $product->quantity;
         $this->totalAmount += $product->prod_spec_price_value * $product->quantity;
 
         return $prod;
@@ -85,14 +107,30 @@ class CartResult extends BaseResult
     /**
      * 取得規格
      * @param $product
-     * @return object | null
+     * @param $isDetail
+     * @return object
      */
-    private function getAdditional($product)
+    private function getAdditional($product, $isDetail)
     {
         $additional = new \stdClass;
-        $additional->specId = $product->prod_spec_id;
-        $additional->priceId = $product->prod_spec_price_id;
-        $additional->spec = $product->prod_spec_price_name;
+
+        // 規格
+        $additional->spec = new \stdClass;
+        $additional->spec->id = $product->prod_spec_id;
+        $additional->spec->name = $product->prod_spec_name;
+
+        // 種類
+        $additional->type = new \stdClass;
+        $additional->type->id = $product->prod_spec_price_id;
+        $additional->type->name = $product->prod_spec_price_name;
+
+        if ($isDetail) {
+            $additional->type->useType = $product->prod_spec_price_use_note;
+            $additional->type->useValue = $product->prod_spec_price_use_note_value;
+            $additional->type->useExpireStart = $product->prod_spec_price_use_note_time_start;
+            $additional->type->useExpireDue = $product->prod_spec_price_use_note_time_end;
+        }
+
         $additional->usageTime = '';
         $additional->remark = '';
 

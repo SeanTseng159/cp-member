@@ -10,4 +10,5 @@ namespace App\Cache\Key;
 class CheckoutKey
 {
   const PAYMENT_METHOD_KEY = 'checkout.paymentMethod';
+  const CREDIT_CARD_KEY = 'checkout.creditCard.%s';
 }

@@ -109,4 +109,13 @@ class OrderConfig extends BaseConfig
         '700' => 'post',
         '812' => 'tspg'
     ];
+
+    # 設備來源
+    const PAYMENT_DEVICE = [
+        'unknown' => 0,
+        'web' => 10,
+        'mobile' => 11,
+        'ios' => 12,
+        'android' => 13
+    ];
 }

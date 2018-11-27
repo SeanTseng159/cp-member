@@ -67,7 +67,7 @@ class Product extends BaseModel
     }
 
     /**
-     * 取得關鍵字
+     * 取得運費
      */
     public function shippingFees()
     {

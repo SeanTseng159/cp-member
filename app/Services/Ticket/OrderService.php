@@ -22,6 +22,16 @@ class OrderService extends BaseService
     }
 
     /**
+     * 成立訂單
+     * @param $cart
+     * @return mixed
+     */
+    public function create($params, $cart)
+    {
+        return $this->repository->create($params, $cart);
+    }
+
+    /**
      * 根據 No 找單一訂單
      * @param $orderNo
      * @return mixed

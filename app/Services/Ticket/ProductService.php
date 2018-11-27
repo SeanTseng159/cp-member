@@ -10,6 +10,7 @@ namespace App\Services\Ticket;
 use App\Services\BaseService;
 
 use App\Repositories\Ticket\ProductRepository;
+use App\Repositories\Ticket\TagProdRepository;
 
 use App\Traits\ProductHelper;
 
@@ -17,9 +18,12 @@ class ProductService extends BaseService
 {
     use ProductHelper;
 
-    public function __construct(ProductRepository $repository)
+    protected $tagProdRepository;
+
+    public function __construct(ProductRepository $repository, TagProdRepository $tagProdRepository)
     {
         $this->repository = $repository;
+        $this->tagProdRepository = $tagProdRepository;
     }
 
     /**
@@ -61,15 +65,17 @@ class ProductService extends BaseService
      * @param $id
      * @param $specId
      * @param $specPriceId
-     * @param $hasImage
+     * @param $hasTag
      * @return mixed
      */
-    public function findByCheckout($id, $specId, $specPriceId)
+    public function findByCheckout($id, $specId, $specPriceId, $hasTag = false)
     {
         $product = $this->repository->findByCheckout($id, $specId, $specPriceId);
 
         // 檢查是否在合理的使用期限內
         if ($product && !$this->checkExpire($product)) return NULL;
+
+        if ($hasTag) $product->tags = $this->tagProdRepository->getTagsByProdId($id);
 
         return $product;
     }

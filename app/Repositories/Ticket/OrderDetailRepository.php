@@ -7,7 +7,10 @@
 
 namespace App\Repositories\Ticket;
 
+use DB;
 use Illuminate\Database\QueryException;
+use Exception;
+use App\Core\Logger;
 
 use App\Repositories\BaseRepository;
 use App\Models\Ticket\OrderDetail;
@@ -18,6 +21,112 @@ class OrderDetailRepository extends BaseRepository
     public function __construct(OrderDetail $model)
     {
         $this->model = $model;
+    }
+
+    /**
+     * 批次成立訂單
+     * @param $memberId
+     * @param $orderNo
+     * @param $products
+     * @return mixed
+     */
+    public function createDetails($memberId, $orderNo, $paymentMethod, $products = [])
+    {
+        try {
+            DB::connection('backend')->beginTransaction();
+
+            foreach ($products as $k => $product) {
+                $seq = $k + 1;
+                $this->create($memberId, $orderNo, $paymentMethod, $seq, $product);
+            }
+
+            DB::connection('backend')->commit();
+
+            return true;
+        } catch (QueryException $e) {
+            Logger::error('Create OrderDetail Error', $e->getMessage());
+            DB::connection('backend')->rollBack();
+            return false;
+        } catch (Exception $e) {
+            Logger::error('Create OrderDetail Error', $e->getMessage());
+            DB::connection('backend')->rollBack();
+            return false;
+        }
+    }
+
+    /**
+     * 成立訂單-單項記錄
+     * @param $memberId
+     * @param $orderNo
+     * @param $paymentGateway
+     * @param $seq
+     * @param $products
+     * @return mixed
+     */
+    public function create($memberId, $orderNo, $paymentGateway, $seq, $product)
+    {
+        $orderDetail = new OrderDetail;
+        $orderDetail->order_no = $orderNo;
+        $orderDetail->order_detail_seq = str_pad($seq, 3, '0', STR_PAD_LEFT);
+        $orderDetail->order_detail_addnl_seq = str_pad($seq, 3, '0', STR_PAD_LEFT);
+        $orderDetail->order_detail_sn = sprintf('%s%s%s%s', substr($orderNo, 2), $product->type, $orderDetail->order_detail_seq, $orderDetail->order_detail_addnl_seq);
+        $orderDetail->order_detail_member_id = $memberId;
+        $orderDetail->member_id = $memberId;
+
+        $orderDetail->supplier_id = $product->supplierId;
+        $orderDetail->catalog_id = $product->catalogId;
+        $orderDetail->category_id = $product->categoryId;
+        $orderDetail->prod_id = $product->id;
+        $orderDetail->prod_api = $product->api;
+        $orderDetail->prod_cust_id = $product->custId;
+        $orderDetail->prod_spec_id = $product->additional->spec->id;
+        $orderDetail->prod_spec_price_id = $product->additional->type->id;
+
+        $orderDetail->prod_type = $product->type;
+        $orderDetail->is_physical = $product->isPhysical;
+        $orderDetail->prod_name = $product->name;
+        $orderDetail->prod_spec_name = $product->additional->spec->name;
+        $orderDetail->prod_spec_price_name = $product->additional->type->name;
+        $orderDetail->prod_locate = $product->store;
+        $orderDetail->prod_address = $product->address;
+        $orderDetail->price_retail = $product->price;
+        $orderDetail->price_off = $product->price;
+        $orderDetail->price_company_qty = 1;
+        $orderDetail->prod_expire_type = $product->expireType;
+        $orderDetail->order_detail_expire_start = $product->expireStart;
+        $orderDetail->order_detail_expire_due = $product->expireDue;
+        $orderDetail->sync_expire_due = ($product->groupExpireType == 1) ? 'h.' . $product->groupExpireDue : NULL;
+        $orderDetail->use_type = ($product->groupExpireType) ? 4 : $this->getUseType($product->additional->type->useType);
+        $orderDetail->use_init_value = ($product->groupExpireType) ? NULL : $this->getUseValue($product->additional->type->useType);
+        $orderDetail->use_value = $orderDetail->use_init_value;
+        // $orderDetail->order_detail_expire_usage = '';
+        $orderDetail->order_payment_method = $paymentGateway;
+
+        $orderDetail->created_at = date('Y-m-d H:i:s');
+        $orderDetail->modified_at = date('Y-m-d H:i:s');
+        $orderDetail->save();
+
+        return $orderDetail;
+    }
+
+    /**
+     * 取得使用條件類型
+     */
+    private function getUseType($useType = 1)
+    {
+        if (!$useType) return 1;
+
+        return $useType;
+    }
+
+    /**
+     * 取得使用條件值
+     */
+    private function getUseValue($useValue = 1)
+    {
+        if (!$useValue) return '1';
+
+        return $useValue;
     }
 
     /**
