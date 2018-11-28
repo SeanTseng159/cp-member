@@ -26,6 +26,75 @@ class CartResult extends BaseResult
     private $shippingFee = 0;
     // 實際付款金額
     private $payAmount = 0;
+    // 是否有實體商品
+    private $hasPhysical = false;
+
+    /**
+     * 簡化資料
+     * @param $product
+     * @param object
+     */
+    public function simplify($cart)
+    {
+        $cart->items = $this->getSimplifyItems($cart->items);
+
+        return $cart;
+    }
+
+    public function getSimplifyItems($items)
+    {
+        $newItems = [];
+
+        foreach ($items as $item) {
+            $newItems[] = $this->getSimplifyItem($item);
+        }
+
+        return $newItems;
+    }
+
+    /**
+     * 簡化資料
+     * @param $product
+     * @param $isDetail
+     * @param bool $isDetail
+     */
+    public function getSimplifyItem($item)
+    {
+        unset($item->supplierId);
+        unset($item->custId);
+        unset($item->type);
+        unset($item->isPhysical);
+        unset($item->catalogId);
+        unset($item->categoryId);
+        unset($item->api);
+        unset($item->store);
+        unset($item->address);
+        unset($item->expireType);
+        unset($item->expireStart);
+        unset($item->expireDue);
+        unset($item->groupExpireType);
+        unset($item->groupExpireDue);
+
+        $item->additional = $this->getSimplifyAdditional($item->additional);
+
+        return $item;
+    }
+
+    /**
+     * 簡化規格
+     * @param $product
+     * @param $isDetail
+     * @return object
+     */
+    private function getSimplifyAdditional($additional)
+    {
+        unset($additional->type->useType);
+        unset($additional->type->useValue);
+        unset($additional->type->useExpireStart);
+        unset($additional->type->useExpireDue);
+
+        return $additional;
+    }
 
     /**
      * 取得資料
@@ -43,6 +112,7 @@ class CartResult extends BaseResult
         $result->shippingFee = $this->shippingFee;
         $result->payAmount = $this->totalAmount + $this->shippingFee;
         $result->canCheckout = ($products) ? true : false;
+        $result->hasPhysical = $this->hasPhysical;
 
         return $result;
     }
@@ -100,6 +170,8 @@ class CartResult extends BaseResult
         // 計算全部金額
         $this->totalQuantity += $product->quantity;
         $this->totalAmount += $product->prod_spec_price_value * $product->quantity;
+
+        if (!$this->hasPhysical) $this->hasPhysical = ($product->is_physical) ? true : false;
 
         return $prod;
     }

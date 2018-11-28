@@ -106,6 +106,8 @@ Route::middleware(['cors', 'auth.jwt'])->namespace('V1')->group(function () {
     Route::prefix('checkout')->group(function () {
         // 立即購買
         Route::post('buyNow', 'CheckoutController@buyNow')->middleware('verify.checkout.buyNow');
+        // 取立即購買 (購物車跟付款資訊)
+        Route::get('buyNow/info', 'CheckoutController@info');
 
         // 結帳
         Route::post('payment', 'CheckoutController@payment')->middleware('verify.checkout.payment');

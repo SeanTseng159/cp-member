@@ -11,6 +11,7 @@ use App\Exceptions\CustomException;
 use App\Repositories\Ticket\OrderRepository;
 use Ksd\Payment\Services\LinePayService;
 use Ksd\Payment\Services\TspgService;
+use App\Core\Logger;
 
 class PaymentService
 {
@@ -56,7 +57,10 @@ class PaymentService
                                 'order_atm_due_time' => $result['data']['dueDate']
                         ]);
 
-                    if (!$updateResult) throw new CustomException('E9008');
+                    if (!$updateResult) {
+                        Logger::error('atm back error', $updateResult);
+                        throw new CustomException('E9008');
+                    }
 
                     return ['orderNo' => $params['orderNo']];
                 }
@@ -71,7 +75,10 @@ class PaymentService
                 $hasLinePayApp = $params['hasLinePayApp'] ?? false;
                 $result = $this->linePayService->newReserve($params['orderNo'], $params['payAmount'], $params['products'], $params['device'], $hasLinePayApp);
 
-                if ($result !== '00000') throw new CustomException('E9014');
+                if ($result !== '00000') {
+                    Logger::error('Linepay back error', $result);
+                    throw new CustomException('E9014');
+                }
 
                 return [
                     'orderNo' => $params['orderNo'],
