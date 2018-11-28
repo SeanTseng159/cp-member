@@ -75,7 +75,7 @@ class PaymentService
                 $hasLinePayApp = $params['hasLinePayApp'] ?? false;
                 $result = $this->linePayService->newReserve($params['orderNo'], $params['payAmount'], $params['products'], $params['device'], $hasLinePayApp);
 
-                if ($result !== '00000') {
+                if (!$result || $result['code']!== '00000') {
                     Logger::error('Linepay back error', $result);
                     throw new CustomException('E9014');
                 }
