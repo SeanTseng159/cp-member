@@ -92,6 +92,40 @@ class CheckoutController extends RestLaravelController
     }
 
     /**
+     * 取立即購買 (購物車跟付款資訊)
+     * @param $request
+     * @return mixed
+     */
+    public function info(Request $request)
+    {
+        try {
+            $param = (new CheckoutParameter($request))->info();
+
+            // 取購物車內容
+            $cart = $this->oneOffCartService->find($param->memberId);
+            if (!$cart) return $this->failureCode('E9021');
+            $cart = unserialize($cart);
+
+            // 處理購物車格式
+            $result['cart'] = (new CartResult)->simplify($cart);
+
+            // 取付款方法
+            $paymentMethodService = app()->build(PaymentMethodService::class);
+            $all = $paymentMethodService->all();
+            $result['info']['payments'] = (new PaymentInfoResult)->getPayments($all);
+            // 取付款方式
+            $result['info']['shipments'] = (new PaymentInfoResult)->getShipments($cart->hasPhysical);
+            // 取發票方式
+            $result['info']['billings'] = (new PaymentInfoResult)->getBillings();
+
+            return $this->success($result);
+        } catch (Exception $e) {
+            Logger::error('Get buyNow info Error', $e->getMessage());
+            return $this->failureCode('E9021');
+        }
+    }
+
+    /**
      * 結帳
      * @param $request
      * @return mixed

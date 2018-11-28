@@ -22,6 +22,11 @@ class CheckoutParameter extends BaseParameter
         return $this;
     }
 
+    public function info()
+    {
+        return $this;
+    }
+
     public function payment()
     {
         $this->deviceName = $this->request->input('device', 'web');
