@@ -519,6 +519,7 @@ class ProductResult extends BaseResult
                     foreach ($s['spec_prices'] as $specPrices) {
                         $newSpec->value_index = (string) $specPrices['prod_spec_price_id'];
                         $newSpec->id = (string) $specPrices['prod_spec_price_id'];
+                        $newSpec->specId = (string) $specPrices['prod_spec_id'];
                         $newSpec->sticker = (string) $specPrices['prod_spec_price_list'];
                         $newSpec->retail = (string) $specPrices['prod_spec_price_value'];
                         $newSpec->stock = $specPrices['prod_spec_price_stock'];
@@ -572,6 +573,7 @@ class ProductResult extends BaseResult
                 $newFare->value = $f['prod_spec_price_name'];
                 $newFare->value_index = (string) $f['prod_spec_price_id'];
                 $newFare->id = (string) $f['prod_spec_price_id'];
+                $newFare->specId = (string) $f['prod_spec_id'];
                 $newFare->sticker = (string) $f['prod_spec_price_list'];
                 $newFare->retail = (string) $f['prod_spec_price_value'];
                 $newFare->stock = $f['prod_spec_price_stock'];
