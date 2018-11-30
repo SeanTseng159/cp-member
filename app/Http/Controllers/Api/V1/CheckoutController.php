@@ -22,6 +22,8 @@ use App\Services\PaymentService;
 use App\Result\CartResult;
 use App\Result\PaymentInfoResult;
 
+use App\Jobs\Mail\OrderCreatedMail;
+
 use App\Core\Logger;
 use Exception;
 use App\Exceptions\CustomException;
@@ -147,8 +149,12 @@ class CheckoutController extends RestLaravelController
             $order = $this->orderService->create($params, $cart);
             if (!$order) throw new CustomException('E9001');
 
+            // 寄送訂單成立通知信
+            dispatch(new OrderCreatedMail($params->memberId, 'ct_pass', $order->order_no))->onQueue('high')->delay(5);
+
             // 處理金流
             $payParams = [
+                'memberId' => $params->memberId,
                 'orderNo' => $order->order_no,
                 'payAmount' => $order->order_amount,
                 'products' => $cart->items,
