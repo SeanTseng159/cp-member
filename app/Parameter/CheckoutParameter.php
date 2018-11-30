@@ -45,7 +45,7 @@ class CheckoutParameter extends BaseParameter
         return $this;
     }
 
-    public function payment()
+    public function repay()
     {
         $this->deviceName = $this->request->input('device', 'web');
         $this->device = OrderConfig::PAYMENT_DEVICE[$this->deviceName];
