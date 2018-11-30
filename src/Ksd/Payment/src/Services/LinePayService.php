@@ -82,12 +82,12 @@ class LinePayService
      * reserve
      * @param $orderNo
      * @param $payAmount
-     * @param $products
+     * @param $itemsCount
      * @param $device
      * @param $hasLinePayApp
      * @return mixed
      */
-    public function newReserve($orderNo, $payAmount, $products = [], $device = 'web', $hasLinePayApp = false)
+    public function newReserve($orderNo, $payAmount, $itemsCount = 0, $device = 'web', $hasLinePayApp = false)
     {
         if ($orderNo) {
             // 導向路徑
@@ -105,11 +105,7 @@ class LinePayService
                 }
             }
 
-            foreach ($products as $product) {
-                $productNameAry[] = $product->name;
-            }
-
-            $productName = implode("/", $productNameAry);
+            $productName = "CityPass 商品 - 共 {$itemsCount} 項";
 
             $line_reserve_params = [
                 "orderId" => $orderNo,

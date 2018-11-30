@@ -13,6 +13,7 @@ use Exception;
 use App\Exceptions\CustomException;
 use App\Core\Logger;
 use App\Cache\Redis;
+use App\Plugins\CI_Encryption;
 
 use App\Repositories\BaseRepository;
 use App\Models\Ticket\Order;
@@ -71,15 +72,24 @@ class OrderRepository extends BaseRepository
             $order->order_receipt_title = $params->billing['invoiceTitle'] ?? '';
             $order->order_receipt_ubn = $params->billing['unifiedBusinessNo'] ?? '';
 
+            if ($params->payment['method'] === '111') {
+                // 初始化加密 (加密信用卡)
+                $encryption = new CI_Encryption(['driver' => 'openssl']);
+
+                $order->order_credit_card_number = $encryption->encrypt($params->payment['creditCardNumber']);
+                $order->order_credit_card_expire = $encryption->encrypt($params->payment['creditCardYear'] . $params->payment['creditCardMonth']);
+                $order->order_credit_card_verify = $encryption->encrypt($params->payment['creditCardCode']);
+            }
+
             $order->created_at = date('Y-m-d H:i:s');
             $order->modified_at = date('Y-m-d H:i:s');
             $order->save();
 
-            // 信用卡資料存快取
-            if ($params->payment['method'] === '111') {
+            // 信用卡資料存快取, 等payment信用卡完成, 再處理
+            /*if ($params->payment['method'] === '111') {
                 $key = sprintf(CheckoutKey::CREDIT_CARD_KEY, $params->memberId);
                 $this->redis->set($key, $params->payment, CacheConfig::TEN_MIN);
-            }
+            }*/
 
             // 建立訂單詳細
             $result = $this->orderDetailRepository->createDetails($order->member_id, $order->order_no, $order->order_payment_gateway, $cart->items);
@@ -171,6 +181,18 @@ class OrderRepository extends BaseRepository
         if (!$orderNo) return null;
 
         return $this->model->where('order_no', $orderNo)->first();
+    }
+
+    /**
+     * 根據 No 找可付款訂單
+     * @param $orderNo
+     * @return mixed
+     */
+    public function findCanPay($orderNo = 0)
+    {
+        if (!$orderNo) return null;
+
+        return $this->model->where('order_no', $orderNo)->where('order_status', 0)->first();
     }
 
     /**

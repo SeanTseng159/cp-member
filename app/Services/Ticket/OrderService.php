@@ -42,6 +42,16 @@ class OrderService extends BaseService
     }
 
     /**
+     * 根據 No 找可付款訂單
+     * @param $orderNo
+     * @return mixed
+     */
+    public function findCanPay($orderNo = 0)
+    {
+        return $this->repository->findCanPay($orderNo);
+    }
+
+    /**
      * 根據 會員 id 取得訂單列表
      * @param $memberId
      * @param $startDate

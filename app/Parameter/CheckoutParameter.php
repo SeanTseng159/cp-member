@@ -44,4 +44,18 @@ class CheckoutParameter extends BaseParameter
 
         return $this;
     }
+
+    public function payment()
+    {
+        $this->deviceName = $this->request->input('device', 'web');
+        $this->device = OrderConfig::PAYMENT_DEVICE[$this->deviceName];
+        $this->payment = $this->request->input('payment');
+        $this->hasLinePayApp = $this->request->input('hasLinePayApp', false);
+
+        $paymentType = explode('_', $this->payment['id']);
+        $this->payment['gateway'] = $paymentType[0];
+        $this->payment['method'] = $paymentType[1];
+
+        return $this;
+    }
 }

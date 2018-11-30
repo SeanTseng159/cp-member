@@ -93,7 +93,7 @@ class PaymentService
             // Linepay
             case '4':
                 $hasLinePayApp = $params['hasLinePayApp'] ?? false;
-                $result = $this->linePayService->newReserve($params['orderNo'], $params['payAmount'], $params['products'], $params['device'], $hasLinePayApp);
+                $result = $this->linePayService->newReserve($params['orderNo'], $params['payAmount'], $params['itemsCount'], $params['device'], $hasLinePayApp);
 
                 if (!$result || $result['code']!== '00000') {
                     Logger::error('Linepay back error', $result);

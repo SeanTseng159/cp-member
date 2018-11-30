@@ -157,7 +157,7 @@ class CheckoutController extends RestLaravelController
                 'memberId' => $params->memberId,
                 'orderNo' => $order->order_no,
                 'payAmount' => $order->order_amount,
-                'products' => $cart->items,
+                'itemsCount' => $order->order_items,
                 'device' => $params->deviceName,
                 'hasLinePayApp' => $params->hasLinePayApp
             ];
@@ -165,6 +165,47 @@ class CheckoutController extends RestLaravelController
 
             // 刪除購物車
             $this->oneOffCartService->delete($params->memberId);
+
+            return $this->success($result);
+        } catch (CustomException $e) {
+            Logger::error('payment Error', $e->getMessage());
+            return $this->failureCode($e->getMessage());
+        } catch (Exception $e) {
+            Logger::error('payment Error', $e->getMessage());
+            return $this->failureCode('E9006');
+        }
+    }
+
+    /**
+     * 重新結帳
+     * @param $request
+     * @param $no
+     * @return mixed
+     */
+    public function repay(Request $request, $orderNo)
+    {
+        try {
+            if (!$orderNo) return $this->failureCode('E9016');
+
+            // 檢查訂單是否可付款
+            $order = $this->orderService->findCanPay($orderNo);
+            if (!$order) return $this->failureCode('E9016');
+
+            // 檢查付款人
+            if ($order->member_id !== $request->memberId) return $this->failureCode('E9017');
+
+            $params = (new CheckoutParameter($request))->repay();
+
+            // 處理金流
+            $payParams = [
+                'memberId' => $params->memberId,
+                'orderNo' => $order->order_no,
+                'payAmount' => $order->order_amount,
+                'itemsCount' => $order->order_items,
+                'device' => $params->deviceName,
+                'hasLinePayApp' => $params->hasLinePayApp
+            ];
+            $result = $this->paymentService->payment($params->payment, $payParams);
 
             return $this->success($result);
         } catch (CustomException $e) {
