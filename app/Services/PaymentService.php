@@ -11,6 +11,7 @@ use App\Exceptions\CustomException;
 use App\Repositories\Ticket\OrderRepository;
 use Ksd\Payment\Services\LinePayService;
 use Ksd\Payment\Services\TspgService;
+use App\Services\Ticket\CreditCardService;
 use App\Core\Logger;
 
 class PaymentService
@@ -29,7 +30,7 @@ class PaymentService
     /**
      * 商品加入購物車
      * @param $payment
-     * @param $params [orderNo, payAmount, hasLinePayApp]
+     * @param $params [memberId, orderNo, payAmount, products, device, hasLinePayApp]
      * @return mixed
      */
     public function payment($payment, $params = [])
@@ -40,7 +41,26 @@ class PaymentService
 
             // 信用卡
             if ($payment['method'] === '111') {
+                // 先接backend, 之後等payment gateway做好再換
+                $ccParams = new \stdClass;
+                $ccParams->orderNo = $params['orderNo'];
+                $ccParams->device = $params['device'];
+                $ccParams->source = 'ct_pass';
 
+                $result = (new CreditCardService)->transmit($params['memberId'], $ccParams);
+
+                if (!$result['url']) {
+                    Logger::error('Credit Card back error', $result);
+                    throw new CustomException('E9015');
+                }
+
+                return [
+                    'orderNo' => $params['orderNo'],
+                    'paymentUrl' => (object) [
+                        'web' => $result['url'],
+                        'app' => $result['url']
+                    ]
+                ];
             }
             // ATM
             elseif ($payment['method'] === '211') {
@@ -58,7 +78,7 @@ class PaymentService
                         ]);
 
                     if (!$updateResult) {
-                        Logger::error('atm back error', $updateResult);
+                        Logger::error('Atm back error', $updateResult);
                         throw new CustomException('E9008');
                     }
 
