@@ -13,6 +13,8 @@ use Carbon\Carbon;
 
 class OrderResult extends BaseResult
 {
+    private $isCommodity = false;
+    private $source;
     private $quantity = 0;
 
     public function __construct()
@@ -48,7 +50,10 @@ class OrderResult extends BaseResult
 
         $order = $order->toArray();
 
-        $result['source'] = OrderConfig::SOURCE_TICKET;
+        $this->isCommodity = ($order['order_shipment_method'] === 2) ? true : false;
+        $this->source = ($this->isCommodity) ? OrderConfig::SOURCE_CT_COMMODITY : OrderConfig::SOURCE_TICKET;
+
+        $result['source'] = $this->source;
         $result['id'] = $this->arrayDefault($order, 'order_id');
         $result['orderNo'] = (string) $this->arrayDefault($order, 'order_no');
         $result['orderAmount'] = $this->arrayDefault($order, 'order_amount');
@@ -58,7 +63,7 @@ class OrderResult extends BaseResult
         $result['orderStatus'] = $this->getOrderStatus($result['orderStatusCode']);
         $result['orderDate'] = $this->arrayDefault($order, 'created_at');
         $result['payment'] = $this->getPayment($order);
-        $result['shipping'] = null;
+        $result['shipment'] = ($this->isCommodity) ? $this->getShipment($order) : null;
         $result['items'] = $this->processItems($order['detail']);
 
         /*if ($isDetail) {
@@ -184,6 +189,42 @@ class OrderResult extends BaseResult
     }
 
     /**
+     *  運費資訊
+     * @param $order
+     * @return string
+     */
+    private function getShipment($order)
+    {
+        $shipment = new \stdClass;
+        $shipment->name = '';
+        $shipment->phone = '';
+        // $shipment->postcode = '';
+        $shipment->address = $this->arrayDefault($order, 'shipment_address');
+
+        $shipment->description = trans('common.delivery');
+        $shipment->statusCode = $this->getShipmentStatus($order['order_status']);
+        $shipment->status = OrderConfig::SHIPMENT_STATUS[$shipment->statusCode];
+        $shipment->traceCode = '';
+        $shipment->amount = $this->arrayDefault($order, 'order_shipment_fee', 0);
+
+        return $shipment;
+    }
+
+    /**
+     *  物流狀態
+     * @param $order_status
+     * @return string
+     */
+    private function getShipmentStatus($orderStatus = 0)
+    {
+        $status = 2;
+        if ($orderStatus === 0 || $orderStatus === 1) $status = 0;
+        elseif ($orderStatus === 10) $status = 1;
+
+        return $status;
+    }
+
+    /**
      *  取得訂單購買項目
      * @param $orderDetail
      * @return string
@@ -216,19 +257,19 @@ class OrderResult extends BaseResult
     private function getItem($detail)
     {
         $newDetail = new \stdClass;
-        $newDetail->source = OrderConfig::SOURCE_TICKET;
+        $newDetail->source = $this->source;
         $newDetail->itemId = (string) $detail['prod_id'];
         $newDetail->no = null;
         $newDetail->name = $detail['prod_name'];
         $newDetail->spec = $detail['prod_spec_name'];
         $newDetail->quantity = 1;
         $newDetail->price = $detail['price_off'];
-        $newDetail->description = trans('common.ticket');
+        $newDetail->description = ($this->isCommodity) ? trans('common.commodity') : trans('common.ticket');
         $newDetail->statusCode = $this->itemUsedStatusCode($detail);
         $newDetail->status = $this->itemUsedStatus($newDetail->statusCode);
         $newDetail->discount = null;
-        $imageUrl = collect($detail['product_img'])->first();
-        $newDetail->imageUrl = ($imageUrl) ? $this->backendHost . $imageUrl['img_thumbnail_path'] : '';
+        /*$imageUrl = collect($detail['product_img'])->first();
+        $newDetail->imageUrl = ($imageUrl) ? $this->backendHost . $imageUrl['img_thumbnail_path'] : '';*/
 
         return $newDetail;
     }

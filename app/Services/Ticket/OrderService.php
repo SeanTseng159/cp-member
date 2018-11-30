@@ -42,6 +42,16 @@ class OrderService extends BaseService
     }
 
     /**
+     * 根據 No 找單一訂單 [未失效]
+     * @param $orderNo
+     * @return mixed
+     */
+    public function findCanShowByOrderNo($orderNo = 0)
+    {
+        return $this->repository->findCanShowByOrderNo($orderNo);
+    }
+
+    /**
      * 根據 No 找可付款訂單
      * @param $orderNo
      * @return mixed

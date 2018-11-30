@@ -9,6 +9,8 @@ namespace App\Http\Controllers\Api\V1;
 
 use Illuminate\Http\Request;
 use Ksd\Mediation\Core\Controller\RestLaravelController;
+use Exception;
+use App\Core\Logger;
 
 use App\Services\Ticket\OrderService;
 use App\Parameter\Ticket\Order\InfoParameter;
@@ -30,9 +32,8 @@ class OrderController extends RestLaravelController
     }
 
     /**
-     * 根據 id 取得商品明細
+     * 取得訂單列表
      * @param Request $request
-     * @param $id
      * @return \Illuminate\Http\JsonResponse
      */
     public function info(Request $request)
@@ -50,5 +51,43 @@ class OrderController extends RestLaravelController
         $result = ($data) ? $this->multiArraySort($data, 'orderDate') : null;
 
         return $this->success($result);
+    }
+
+    /**
+     * 根據 id 取得訂單
+     * @param Request $request
+     * @param $orderNo
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function detail(Request $request, $orderNo)
+    {
+        try {
+            $source = $request->input('source');
+            if (!$orderNo || !$source) return $this->failureCode('E0101');
+            // magento
+            if ($source === 'magento') {
+                $magentoOrderService = app()->build(MagentoOrderService::class);
+                $params = new \stdClass;
+                $params->source = $source;
+                $params->id = $orderNo;
+                $result = $magentoOrderService->find($params);
+                if (!$result) return $this->failureCode('E0101');
+                $result = $result[0];
+            }
+            // citypass
+            elseif ($source === 'ct_pass') {
+                $order = $this->orderService->findCanShowByOrderNo($orderNo);
+                if (!$order) return $this->failureCode('E9016');
+
+                // 檢查付款人
+                if ($order->member_id !== $request->memberId) return $this->failureCode('E9050');
+                $result = (new OrderResult)->get($order, true);
+            }
+
+            return $this->success($result);
+        } catch (Exception $e) {
+            Logger::error('order detail Error', $e->getMessage());
+            return $this->failureCode('E0101');
+        }
     }
 }
