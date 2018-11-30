@@ -118,4 +118,11 @@ class OrderConfig extends BaseConfig
         'ios' => 12,
         'android' => 13
     ];
+
+    # 物流狀態
+    const SHIPMENT_STATUS = [
+        0 => '保留中',
+        1 => '處理中',
+        2 => '已退貨'
+    ];
 }

@@ -180,7 +180,27 @@ class OrderRepository extends BaseRepository
     {
         if (!$orderNo) return null;
 
-        return $this->model->where('order_no', $orderNo)->first();
+        return $this->model->notDeleted()
+                            ->where('order_no', $orderNo)
+                            ->first();
+    }
+
+    /**
+     * 根據 No 找單一訂單 [未失效]
+     * @param $orderNo
+     * @return mixed
+     */
+    public function findCanShowByOrderNo($orderNo = 0)
+    {
+        if (!$orderNo) return null;
+
+        return $this->model->with(['detail' => function($query) {
+                                    $query->where('prod_type', '!=', 4);
+                                }])
+                            ->notDeleted()
+                            ->where('order_no', $orderNo)
+                            ->where('order_status', '!=', 2)
+                            ->first();
     }
 
     /**
@@ -192,7 +212,9 @@ class OrderRepository extends BaseRepository
     {
         if (!$orderNo) return null;
 
-        return $this->model->where('order_no', $orderNo)->where('order_status', 0)->first();
+        return $this->model->where('order_no', $orderNo)
+                            ->where('order_status', 0)
+                            ->first();
     }
 
     /**
@@ -208,9 +230,7 @@ class OrderRepository extends BaseRepository
 
         $orders = $this->model->with(['detail' => function($query) {
                                     $query->where('prod_type', '!=', 4);
-                                }, 'detail.productImg' => function($query) {
-                                    $query->orderBy('img_sort', 'asc');
-                            }])
+                                }])
                             ->notDeleted()
                             ->where('order_status', '!=', 2)
                             ->when($memberId, function($query) use ($memberId) {

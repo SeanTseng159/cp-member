@@ -96,6 +96,9 @@ Route::middleware(['cors', 'auth.jwt'])->namespace('V1')->group(function () {
     Route::prefix('order')->group(function () {
         // 取得訂單列表
         Route::get('info', 'OrderController@info');
+
+        // 取得單一訂單
+        Route::get('detail/{orderNo}', 'OrderController@detail');
     });
 
     // 購物車相關
@@ -119,6 +122,6 @@ Route::middleware(['cors', 'auth.jwt'])->namespace('V1')->group(function () {
         // 結帳
         Route::post('payment', 'CheckoutController@payment')->middleware('verify.checkout.payment');
         // 重新結帳
-        Route::post('payment/repay/{no}', 'CheckoutController@repay');
+        Route::post('payment/repay/{orderNo}', 'CheckoutController@repay');
     });
 });
