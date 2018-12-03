@@ -92,6 +92,6 @@ class OrderService extends BaseService
      */
     public function updateCC($orderNo, $data = [])
     {
-        return $this->orderDetailRepository->updateCC($orderNo, $data);
+        return $this->repository->updateCC($orderNo, $data);
     }
 }

@@ -158,8 +158,8 @@ class CartResult extends BaseResult
             $prod->store = $product->prod_store;
             $prod->address = $product->prod_zipcode . $product->full_address;
             $prod->expireType = $product->prod_expire_type;
-            $prod->expireStart = $product->prod_expire_start;
-            $prod->expireDue = $product->prod_expire_due;
+            $prod->expireStart = ($product->prod_expire_start == 0) ? NULL : $product->prod_expire_start;
+            $prod->expireDue = ($product->prod_expire_due == 0) ? NULL : $product->prod_expire_due;
             $prod->groupExpireType = $product->group_expire_type;
             $prod->groupExpireDue = $product->group_expire_due;
         }
@@ -199,8 +199,8 @@ class CartResult extends BaseResult
         if ($isDetail) {
             $additional->type->useType = $product->prod_spec_price_use_note;
             $additional->type->useValue = $product->prod_spec_price_use_note_value;
-            $additional->type->useExpireStart = $product->prod_spec_price_use_note_time_start;
-            $additional->type->useExpireDue = $product->prod_spec_price_use_note_time_end;
+            $additional->type->useExpireStart = ($product->prod_spec_price_use_note_time_start == 0) ? NULL : $product->prod_spec_price_use_note_time_start;
+            $additional->type->useExpireDue = ($product->prod_spec_price_use_note_time_end == 0) ? NULL : $product->prod_spec_price_use_note_time_end;
         }
 
         $additional->usageTime = '';
