@@ -205,7 +205,7 @@ class CheckoutController extends RestLaravelController
             // 處理金流
             $payParams = [
                 'memberId' => $params->memberId,
-                'orderNo' => $order->order_no,
+                'orderNo' => (string) $order->order_no,
                 'payAmount' => $order->order_amount,
                 'itemsCount' => $order->order_items,
                 'device' => $params->deviceName,
