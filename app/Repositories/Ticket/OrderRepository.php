@@ -61,7 +61,9 @@ class OrderRepository extends BaseRepository
             $order->order_payment_gateway = $params->payment['gateway'];
             $order->order_payment_method = $params->payment['method'];
             $order->order_shipment_method = $params->shipment['id'];
+            $order->shipment_user = $params->shipment['userName'] ?? '';
             $order->shipment_address = $params->shipment['address'] ?? '';
+            $order->shipment_phone = $params->shipment['phone'] ?? '';
 
             $order->order_receipt_method = 1;
             $order->order_items = $cart->totalQuantity;
@@ -146,6 +148,35 @@ class OrderRepository extends BaseRepository
         try {
             return $this->model->where('order_no', $orderNo)
                                 ->update($data);
+        } catch (QueryException $e) {
+            return false;
+        }
+    }
+
+    /**
+     * 依據訂單編號 更新 信用卡
+     * @param $id
+     * @param $data
+     * @return mixed
+     */
+    public function updateCC($orderNo, $data = [])
+    {
+        if (!$data) return false;
+
+        try {
+            $order = $this->findByOrderNo($orderNo);
+            if (!$order) return false;
+
+            // 初始化加密 (加密信用卡)
+            $encryption = new CI_Encryption(['driver' => 'openssl']);
+
+            $order->order_credit_card_number = $encryption->encrypt($data['creditCardNumber']);
+            $order->order_credit_card_expire = $encryption->encrypt($data['creditCardYear'] . $data['creditCardMonth']);
+            $order->order_credit_card_verify = $encryption->encrypt($data['creditCardCode']);
+
+            $order->save();
+
+            return $order;
         } catch (QueryException $e) {
             return false;
         }

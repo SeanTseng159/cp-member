@@ -196,10 +196,9 @@ class OrderResult extends BaseResult
     private function getShipment($order)
     {
         $shipment = new \stdClass;
-        $shipment->name = '';
-        $shipment->phone = '';
-        // $shipment->postcode = '';
+        $shipment->name = $this->arrayDefault($order, 'shipment_user');
         $shipment->address = $this->arrayDefault($order, 'shipment_address');
+        $shipment->phone = '+' . $this->arrayDefault($order, 'shipment_phone');
 
         $shipment->description = trans('common.delivery');
         $shipment->statusCode = $this->getShipmentStatus($order['order_status']);

@@ -134,7 +134,7 @@ class CI_Encryption {
 			$this->_key = $key;
 		}
 
-		Logger::info('Encryption Class Initialized');
+		// Logger::info('Encryption Class Initialized');
 	}
 
 	// --------------------------------------------------------------------
@@ -226,7 +226,7 @@ class CI_Encryption {
 			else
 			{
 				$this->_handle = $handle;
-				Logger::info('Encryption: OpenSSL initialized with method '.strtoupper($handle).'.');
+				// Logger::info('Encryption: OpenSSL initialized with method '.strtoupper($handle).'.');
 			}
 		}
 	}
