@@ -83,4 +83,15 @@ class OrderService extends BaseService
     {
         return $this->orderDetailRepository->getCountByProdAndMember($productId, $memberId);
     }
+
+    /**
+     * 依據訂單編號 更新 信用卡
+     * @param $id
+     * @param $data
+     * @return mixed
+     */
+    public function updateCC($orderNo, $data = [])
+    {
+        return $this->orderDetailRepository->updateCC($orderNo, $data);
+    }
 }
