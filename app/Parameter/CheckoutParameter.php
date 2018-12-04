@@ -30,6 +30,7 @@ class CheckoutParameter extends BaseParameter
     public function payment()
     {
         $this->deviceName = $this->request->input('device', 'web');
+        $this->action = $this->request->input('action');
         $this->device = OrderConfig::PAYMENT_DEVICE[$this->deviceName];
         $this->payment = $this->request->input('payment');
         $this->shipment = $this->request->input('shipment');

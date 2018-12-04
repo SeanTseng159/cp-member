@@ -225,13 +225,13 @@ class OrderRepository extends BaseRepository
     {
         if (!$orderNo) return null;
 
-        return $this->model->with(['detail' => function($query) {
-                                    $query->where('prod_type', '!=', 4);
-                                }])
+        $order = $this->model->with(['details'])
                             ->notDeleted()
                             ->where('order_no', $orderNo)
                             ->where('order_status', '!=', 2)
                             ->first();
+
+        return $order;
     }
 
     /**

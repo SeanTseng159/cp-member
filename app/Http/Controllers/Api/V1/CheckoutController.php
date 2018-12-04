@@ -139,9 +139,11 @@ class CheckoutController extends RestLaravelController
         try {
             $params = (new CheckoutParameter($request))->payment();
 
-            // 取購物車內容
-            $cart = $this->oneOffCartService->find($params->memberId);
-            $cart = unserialize($cart);
+            if ($params->action === 'buyNow') {
+                // 取購物車內容
+                $cart = $this->oneOffCartService->find($params->memberId);
+                $cart = unserialize($cart);
+            }
 
             // 檢查購物車內所有狀態是否可購買
             $statusCode = $this->checkCartStatus($cart, $params->memberId);

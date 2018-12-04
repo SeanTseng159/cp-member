@@ -64,10 +64,7 @@ class OrderResult extends BaseResult
         $result['orderDate'] = $this->arrayDefault($order, 'created_at');
         $result['payment'] = $this->getPayment($order);
         $result['shipment'] = ($this->isCommodity) ? $this->getShipment($order) : null;
-        $result['items'] = $this->processItems($order['detail']);
-
-        /*if ($isDetail) {
-        }*/
+        $result['items'] = $this->processItems($order['details'], $isDetail);
 
         return $result;
     }
@@ -228,13 +225,13 @@ class OrderResult extends BaseResult
      * @param $orderDetail
      * @return string
      */
-    private function processItems($orderDetail)
+    private function processItems($orderDetail, $isDetail = false)
     {
         $items = [];
         if ($orderDetail) {
             foreach ($orderDetail as $detail) {
                 if (!isset($items[$detail['prod_cust_id']])) {
-                    $items[$detail['prod_cust_id']] = $this->getItem($detail);
+                    $items[$detail['prod_cust_id']] = $this->getItem($detail, $isDetail);
                 }
                 else {
                     $items[$detail['prod_cust_id']]->quantity++;
@@ -250,25 +247,39 @@ class OrderResult extends BaseResult
 
     /**
      *  處理購買項目
-     * @param $detail
+     * @param $item
+     * @param $isDetail
      * @return string
      */
-    private function getItem($detail)
+    private function getItem($item, $isDetail = false)
     {
         $newDetail = new \stdClass;
         $newDetail->source = $this->source;
-        $newDetail->itemId = (string) $detail['prod_id'];
+        $newDetail->itemId = (string) $item['prod_id'];
         $newDetail->no = null;
-        $newDetail->name = $detail['prod_name'];
-        $newDetail->spec = $detail['prod_spec_name'];
+        $newDetail->name = $item['prod_name'];
+        $newDetail->spec = $item['prod_spec_name'];
         $newDetail->quantity = 1;
-        $newDetail->price = $detail['price_off'];
+        $newDetail->price = $item['price_off'];
         $newDetail->description = ($this->isCommodity) ? trans('common.commodity') : trans('common.ticket');
-        $newDetail->statusCode = $this->itemUsedStatusCode($detail);
+        $newDetail->statusCode = $this->itemUsedStatusCode($item);
         $newDetail->status = $this->itemUsedStatus($newDetail->statusCode);
         $newDetail->discount = null;
-        /*$imageUrl = collect($detail['product_img'])->first();
+        /*$imageUrl = collect($item['product_img'])->first();
         $newDetail->imageUrl = ($imageUrl) ? $this->backendHost . $imageUrl['img_thumbnail_path'] : '';*/
+
+        if ($isDetail) {
+            $prodType = $this->arrayDefault($item, 'prod_type');
+            $comboSyncExpire = $item['sync_expire_due'] ?? null;
+
+            // $result['show'] = $this->getShowList($newDetail->statusCode, $item);
+
+            // var_dump($item);
+            /*$result['qrcode'] = $this->arrayDefault($item, 'order_detail_qrcode');
+            $result['show'] = $this->getShowList($newDetail->statusCode, $item);
+            $result['pinCode'] = $this->getPinCode($this->arrayDefault($item, 'trust_pin'));
+            $result['combos'] = $this->arrayDefault($item, 'combos');*/
+        }
 
         return $newDetail;
     }
@@ -330,5 +341,36 @@ class OrderResult extends BaseResult
     private function itemUsedStatus($code)
     {
         return trans('ticket/order.usedStatus.' . OrderConfig::USED_STATUS[$code]);
+    }
+
+    /**
+     * 取 show
+     * @param $statusCode
+     * @param $item
+     * @return string
+     */
+    private function getShowList($statusCode, $item)
+    {
+        // 已轉贈
+        if ($statusCode === '05') {
+            $show[] = ["label" => "訂單編號：", "text" => $item['order_detail_sn'], "color" => null];
+            // $show[] = ["label" => "轉贈對象：", "text" => $holder, "color" => null];
+            // $show[] = ["label" => "手機號碼：", "text" => $phone, "color" => null];
+            $show[] = ["label" => "轉贈時間：", "text" => $item['ticket_gift_at'], "color" => null];
+        }
+
+        return $show;
+    }
+
+    /**
+     * 取 PinCode
+     * @param $pincode
+     * @return string
+     */
+    private function getPinCode($pincode)
+    {
+        if (!$pincode) return '';
+
+        return '';
     }
 }

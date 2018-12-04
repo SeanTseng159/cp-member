@@ -45,7 +45,7 @@ class OrderController extends RestLaravelController
         // citypass
         $parameter = new InfoParameter($request);
         $data = $this->orderService->getMemberOrdersByDate($parameter->memberId, $parameter->startDate, $parameter->endDate);
-        $ticketOrders = (new OrderResult)->getAll($data, true);
+        $ticketOrders = (new OrderResult)->getAll($data);
 
         $data = array_merge($magentoOrders, $ticketOrders);
         $result = ($data) ? $this->multiArraySort($data, 'orderDate') : null;
@@ -77,17 +77,19 @@ class OrderController extends RestLaravelController
             // citypass
             elseif ($source === 'ct_pass') {
                 $order = $this->orderService->findCanShowByOrderNo($orderNo);
-                if (!$order) return $this->failureCode('E9016');
+                if (!$order) return $this->failureCode('E0101');
 
                 // 檢查付款人
-                if ($order->member_id !== $request->memberId) return $this->failureCode('E9050');
+                // if ($order->member_id !== $request->memberId) return $this->failureCode('E9050');
+
                 $result = (new OrderResult)->get($order, true);
             }
 
-            return $this->success($result);
+            // return $this->success($result);
         } catch (Exception $e) {
-            Logger::error('order detail Error', $e->getMessage());
-            return $this->failureCode('E0101');
+            var_dump($e->getMessage());
+            // Logger::error('order detail Error', $e->getMessage());
+            // return $this->failureCode('E0101');
         }
     }
 }
