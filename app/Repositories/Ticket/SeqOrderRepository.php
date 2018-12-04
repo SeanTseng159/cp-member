@@ -30,7 +30,7 @@ class SeqOrderRepository extends BaseRepository
     public function getOrderNo()
     {
         try {
-            DB::connection('backend')->beginTransaction();
+            // DB::connection('backend')->beginTransaction();
 
             $seqOrder = $this->model->where('seq_order_id', 1)->lockForUpdate()->first();
 
@@ -47,16 +47,16 @@ class SeqOrderRepository extends BaseRepository
 
             $seqOrder->modified_at = date('Y-m-d H:i:s');
             $seqOrder->save();
-            DB::connection('backend')->commit();
+            // DB::connection('backend')->commit();
 
             return date("Ymd") . str_pad($seqOrder->sep_order_number, 5, '0', STR_PAD_LEFT);
         } catch (QueryException $e) {
             Logger::error('SeqOrder Error', $e->getMessage());
-            DB::connection('backend')->rollBack();
+            // DB::connection('backend')->rollBack();
             return '';
         } catch (Exception $e) {
             Logger::error('SeqOrder Error', $e->getMessage());
-            DB::connection('backend')->rollBack();
+            // DB::connection('backend')->rollBack();
             return '';
         }
     }

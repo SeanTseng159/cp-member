@@ -17,6 +17,7 @@ use App\Models\Ticket\MenuProd;
 use App\Repositories\Ticket\ProductAdditionalRepository;
 use App\Repositories\Ticket\ProductGroupRepository;
 use App\Repositories\Ticket\MenuProductRepository;
+use App\Repositories\Ticket\TagProdRepository;
 use Illuminate\Pagination\Paginator;
 use App\Config\Ticket\ProcuctConfig;
 use Carbon\Carbon;
@@ -27,14 +28,16 @@ class ProductRepository extends BaseRepository
     protected $productAdditionalRepository;
     protected $productGroupRepository;
     protected $menuProductRepository;
+    protected $tagProdRepository;
 
-    public function __construct(Product $model, ProductAdditionalRepository $productAdditionalRepository, ProductGroupRepository $productGroupRepository)
+    public function __construct(Product $model, ProductAdditionalRepository $productAdditionalRepository, ProductGroupRepository $productGroupRepository, TagProdRepository $tagProdRepository)
     {
         $this->date = Carbon::now()->toDateTimeString();
 
         $this->model = $model;
         $this->productAdditionalRepository = $productAdditionalRepository;
         $this->productGroupRepository = $productGroupRepository;
+        $this->tagProdRepository = $tagProdRepository;
     }
 
     /**
@@ -162,21 +165,61 @@ class ProductRepository extends BaseRepository
      * @param $id
      * @param $specId
      * @param $specPriceId
+     * @param $hasTag
      * @return mixed
      */
-    public function findByCheckout($id, $specId, $specPriceId)
+    public function findByCheckout($id, $specId, $specPriceId, $hasTag = false)
     {
-        $prod = $this->model->with(['shippingFees', 'img'])->leftJoin('prod_specs', 'prods.prod_id', '=', 'prod_specs.prod_id')
+        $prod = $this->model->with(['shippingFees', 'img', 'groups'])->leftJoin('prod_specs', 'prods.prod_id', '=', 'prod_specs.prod_id')
                             ->leftJoin('prod_spec_prices', 'prod_specs.prod_spec_id', '=', 'prod_spec_prices.prod_spec_id')
                             ->where('prod_specs.prod_spec_id', $specId)
                             ->where('prod_spec_prices.prod_spec_price_id', $specPriceId)
                             ->where('prods.deleted_at', 0)
+                            ->where('prod_type', '!=', 4)
                             ->where('prods.prod_onshelf', 1)
                             ->where('prods.prod_onshelf_time', '<=', $this->date)
                             ->where('prods.prod_offshelf_time', '>=', $this->date)
                             ->where('prods.prod_onsale_time', '<=', $this->date)
                             ->where('prods.prod_offsale_time', '>=', $this->date)
                             ->find($id);
+
+        if ($prod && $prod->prod_type === 2) {
+            $newGroups = [];
+            foreach ($prod->groups as $group) {
+                $p = $this->findSubCobmoByCheckout($group->prod_group_prod_id, $group->prod_group_spec_id, $group->prod_group_price_id, $hasTag);
+                $p->prod_spec_price_value = $group->prod_group_share;
+
+                $newGroups[] = $p;
+            }
+
+            $prod->groups = $newGroups;
+        }
+
+        if ($hasTag) {
+            $product->tags = $this->tagProdRepository->getTagsByProdId($id);
+        }
+
+        return $prod;
+    }
+
+    /**
+     * 根據 商品 id 取得商品明細 (結帳用) [只取 規格]
+     * @param $id
+     * @param $specId
+     * @param $specPriceId
+     * @param $hasTag
+     * @return mixed
+     */
+    public function findSubCobmoByCheckout($id, $specId, $specPriceId, $hasTag)
+    {
+        $prod = $this->model->leftJoin('prod_specs', 'prods.prod_id', '=', 'prod_specs.prod_id')
+                            ->leftJoin('prod_spec_prices', 'prod_specs.prod_spec_id', '=', 'prod_spec_prices.prod_spec_id')
+                            ->where('prod_specs.prod_spec_id', $specId)
+                            ->where('prod_spec_prices.prod_spec_price_id', $specPriceId)
+                            ->where('prods.deleted_at', 0)
+                            ->find($id);
+
+        $prod->tags = $this->tagProdRepository->getTagsByProdId($id);
 
         return $prod;
     }

@@ -40,7 +40,7 @@ class CheckoutParameter extends BaseParameter
         $this->payment['gateway'] = $paymentType[0];
         $this->payment['method'] = $paymentType[1];
 
-        $this->shipment['address'] = ($this->shipment['id'] == 2) ? $this->shipment['zipcode'] . $this->shipment['address'] : '';
+        $this->shipment['address'] = ($this->shipment['id'] == 2) ? $this->shipment['zipcode'] . ' ' . $this->shipment['address'] : '';
         $this->shipment['phone'] = ($this->shipment['id'] == 2) ? $this->shipment['countryCode'] . ' ' . $this->shipment['cellphone'] : '';
 
         return $this;

@@ -33,23 +33,33 @@ class OrderDetailRepository extends BaseRepository
     public function createDetails($memberId, $orderNo, $paymentMethod, $products = [])
     {
         try {
-            DB::connection('backend')->beginTransaction();
+            // DB::connection('backend')->beginTransaction();
 
+            $seq = 0;
             foreach ($products as $k => $product) {
-                $seq = $k + 1;
-                $this->create($memberId, $orderNo, $paymentMethod, $seq, $product);
+                $seq += 1;
+                $this->create($memberId, $orderNo, $paymentMethod, $seq, $seq, $product);
+                $mainSeq = $seq;
+
+                // 子商品
+                if ($product->groups) {
+                    foreach ($product->groups as $group) {
+                        $seq += 1;
+                        $this->create($memberId, $orderNo, $paymentMethod, $seq, $mainSeq, $group);
+                    }
+                }
             }
 
-            DB::connection('backend')->commit();
+            // DB::connection('backend')->commit();
 
             return true;
         } catch (QueryException $e) {
-            Logger::error('Create OrderDetail Error', $e->getMessage());
-            DB::connection('backend')->rollBack();
+            Logger::error('Create OrderDetail QueryException Error', $e->getMessage());
+            // DB::connection('backend')->rollBack();
             return false;
         } catch (Exception $e) {
             Logger::error('Create OrderDetail Error', $e->getMessage());
-            DB::connection('backend')->rollBack();
+            // DB::connection('backend')->rollBack();
             return false;
         }
     }
@@ -63,12 +73,12 @@ class OrderDetailRepository extends BaseRepository
      * @param $products
      * @return mixed
      */
-    public function create($memberId, $orderNo, $paymentGateway, $seq, $product)
+    public function create($memberId, $orderNo, $paymentGateway, $seq, $addnlSeq, $product)
     {
         $orderDetail = new OrderDetail;
         $orderDetail->order_no = $orderNo;
         $orderDetail->order_detail_seq = str_pad($seq, 3, '0', STR_PAD_LEFT);
-        $orderDetail->order_detail_addnl_seq = str_pad($seq, 3, '0', STR_PAD_LEFT);
+        $orderDetail->order_detail_addnl_seq = str_pad($addnlSeq, 3, '0', STR_PAD_LEFT);
         $orderDetail->order_detail_sn = sprintf('%s%s%s%s', substr($orderNo, 2), $product->type, $orderDetail->order_detail_seq, $orderDetail->order_detail_addnl_seq);
         $orderDetail->order_detail_member_id = $memberId;
         $orderDetail->member_id = $memberId;

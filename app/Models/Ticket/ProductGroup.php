@@ -25,5 +25,5 @@ class ProductGroup extends BaseModel
   	public function product()
     {
         return $this->belongsTo('App\Models\Ticket\Product', 'prod_group_prod_id');
-	}
+	  }
 }
