@@ -24,6 +24,13 @@ class OrderDetail extends BaseModel
         return $this->hasMany('App\Models\Ticket\ProductImg', 'prod_id', 'prod_id');
 	}
 
+
+	public function combo()
+    {
+    	return $this->hasMany('App\Models\Ticket\OrderDetail', ['order_detail_addnl_seq', 'order_no'], ['order_detail_seq', 'order_no'])
+    				->where('prod_type', 4);
+    }
+
 	/**
      * 依據規格票種ID取得資料
      */

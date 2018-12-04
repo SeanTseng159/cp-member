@@ -105,6 +105,7 @@ Route::middleware(['cors', 'auth.jwt'])->namespace('V1')->group(function () {
         Route::get('one-off', 'CartController@oneOff');
     });
 
+
     // 結帳相關
     Route::prefix('checkout')->group(function () {
         // 立即購買
@@ -116,5 +117,10 @@ Route::middleware(['cors', 'auth.jwt'])->namespace('V1')->group(function () {
         Route::post('payment', 'CheckoutController@payment')->middleware('verify.checkout.payment');
         // 重新結帳
         Route::post('payment/repay/{orderNo}', 'CheckoutController@repay');
+    });
+
+    Route::prefix('ticket')->group(function () {
+        // 票券列表
+        Route::get('list/{status}', 'TicketController@all');
     });
 });
