@@ -1,0 +1,123 @@
+{
+    "code": "00000",
+    "message": "success",
+    "data": {
+        "source": "ct_pass",
+        "id": 2084,
+        "orderNo": "2018110900002",
+        "orderAmount": 47,
+        "orderDiscountAmount": 0,
+        "isRePayment": false,
+        "orderStatusCode": "01",
+        "orderStatus": "已完成",
+        "orderDate": "2018-11-09 16:10:05",
+        "payment": {
+            "gateway": "linepay",
+            "method": "linepay",
+            "title": "LINE Pay",
+            "amount": 47,
+            "bankId": "",
+            "bankName": "",
+            "virtualAccount": "",
+            "paymentPeriod": ""
+        },
+        "shipment": {
+            "name": "",
+            "address": "",
+            "phone": "",
+            "description": "電子票券",
+            "statusCode": 3,
+            "status": "已出貨",
+            "traceCode": "",
+            "amount": 0
+        },
+        "items": [
+            {
+                "source": "ct_pass",
+                "productId": 79,
+                "orderNoSeq": "2018110900002-001",
+                "sn": "1811090000210101",
+                "name": "旗津渡輪船票",
+                "spec": "渡輪票/半票",
+                "quantity": 1,
+                "price": 45,
+                "description": "電子票券",
+                "statusCode": "10",
+                "status": "未使用",
+                "discount": null,
+                "qrcode": "1811090000210101,859ef661c73e08e15b9d286730d158a61c49ec7d8d3b2016f5144c1fdf9e2745",
+                "show": [
+                    {
+                        "label": "訂單編號：",
+                        "text": "2018110900002-001",
+                        "color": null
+                    },
+                    {
+                        "label": "票券號碼：",
+                        "text": "1811090000210101",
+                        "color": null
+                    },
+                    {
+                        "label": "地點：",
+                        "text": "我的一間小店",
+                        "color": null
+                    },
+                    {
+                        "label": "地址：",
+                        "text": "900 屏東縣屏東市信守街104號6樓",
+                        "color": null
+                    },
+                    {
+                        "label": "使用效期：",
+                        "text": "無限制",
+                        "color": null
+                    }
+                ],
+                "pinCode": ""
+            },
+            {
+                "source": "ct_pass",
+                "productId": 203,
+                "orderNoSeq": "2018110900002-002",
+                "sn": "1811090000210202",
+                "name": "G8分子冰淇淋1",
+                "spec": "196度液態氮分子冰淇淋組合/",
+                "quantity": 1,
+                "price": 2,
+                "description": "電子票券",
+                "statusCode": "10",
+                "status": "未使用",
+                "discount": null,
+                "qrcode": "1811090000210202,d35590ba1bb827a9280937443b526079e5bafdce744f9c2f305aebb9d5bcbfe9",
+                "show": [
+                    {
+                        "label": "訂單編號：",
+                        "text": "2018110900002-002",
+                        "color": null
+                    },
+                    {
+                        "label": "票券號碼：",
+                        "text": "1811090000210202",
+                        "color": null
+                    },
+                    {
+                        "label": "地點：",
+                        "text": "G9分子冰淇淋",
+                        "color": null
+                    },
+                    {
+                        "label": "地址：",
+                        "text": "800 高雄市新興區中山一路311號",
+                        "color": null
+                    },
+                    {
+                        "label": "使用效期：",
+                        "text": "2018-11-09 00:00~2018-12-31 00:00",
+                        "color": null
+                    }
+                ],
+                "pinCode": ""
+            }
+        ]
+    }
+}

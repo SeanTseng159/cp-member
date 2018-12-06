@@ -218,15 +218,17 @@ class OrderRepository extends BaseRepository
 
     /**
      * 根據 No 找單一訂單 [未失效]
+     * @param $memberId
      * @param $orderNo
      * @return mixed
      */
-    public function findCanShowByOrderNo($orderNo = 0)
+    public function findCanShowByOrderNo($memberId = 0, $orderNo = 0)
     {
         if (!$orderNo) return null;
 
-        $order = $this->model->with(['details'])
+        $order = $this->model->with(['details.combo'])
                             ->notDeleted()
+                            ->where('member_id', $memberId)
                             ->where('order_no', $orderNo)
                             ->where('order_status', '!=', 2)
                             ->first();

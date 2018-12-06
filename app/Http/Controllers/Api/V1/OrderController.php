@@ -76,7 +76,7 @@ class OrderController extends RestLaravelController
             }
             // citypass
             elseif ($source === 'ct_pass') {
-                $order = $this->orderService->findCanShowByOrderNo($orderNo);
+                $order = $this->orderService->findCanShowByOrderNo($request->memberId, $orderNo);
                 if (!$order) return $this->failureCode('E0101');
 
                 // 檢查付款人
@@ -85,7 +85,7 @@ class OrderController extends RestLaravelController
                 $result = (new OrderResult)->get($order, true);
             }
 
-            // return $this->success($result);
+            return $this->success($result);
         } catch (Exception $e) {
             var_dump($e->getMessage());
             // Logger::error('order detail Error', $e->getMessage());

@@ -74,17 +74,19 @@ class OrderConfig extends BaseConfig
     const USED_STATUS_CODE_PROCESSING = '21';
     const USED_STATUS_CODE_PROCESSED = '22';
     const USED_STATUS_CODE_REFUNDED = '23';
+    const USED_STATUS_CODE_UNKNOWN = '99';
 
     const USED_STATUS = [
         SELF::USED_STATUS_CODE_NOT_PAY => 'reserved',
-        SELF::USED_STATUS_CODE_EXPIRED => 'reserved',
+        SELF::USED_STATUS_CODE_EXPIRED => 'expired',
         SELF::USED_STATUS_CODE_TRANSFER => 'transfer',
         SELF::USED_STATUS_CODE_NOT_USE => 'unused',
         SELF::USED_STATUS_CODE_UESD => 'used',
         SELF::USED_STATUS_CODE_APPLIED => 'refunding',
         SELF::USED_STATUS_CODE_PROCESSING => 'refunding',
         SELF::USED_STATUS_CODE_PROCESSED => 'refunding',
-        SELF::USED_STATUS_CODE_REFUNDED => 'refunded'
+        SELF::USED_STATUS_CODE_REFUNDED => 'refunded',
+        SELF::USED_STATUS_CODE_UNKNOWN => 'unknown'
     ];
 
     # 訂單金流閘道
@@ -123,6 +125,7 @@ class OrderConfig extends BaseConfig
     const SHIPMENT_STATUS = [
         0 => '保留中',
         1 => '處理中',
-        2 => '已退貨'
+        2 => '已退貨',
+        3 => '已出貨'
     ];
 }
