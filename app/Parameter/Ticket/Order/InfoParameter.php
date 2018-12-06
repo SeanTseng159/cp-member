@@ -21,7 +21,7 @@ class InfoParameter extends BaseParameter
 
     	$today = Carbon::today();
 		$endDate = $today->addDays(1)->format('Y-m-d');
-		$startDate = $today->subMonths(3)->format('Y-m-d'); // 往後推三個月
+		$startDate = $today->subMonths(6)->format('Y-m-d'); // 往後推六個月
 
 		$this->startDate = $this->request->input('startDate', $startDate);
 		$this->endDate = $this->request->input('endDate', $endDate);

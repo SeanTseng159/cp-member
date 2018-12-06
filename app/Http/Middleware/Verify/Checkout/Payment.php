@@ -33,11 +33,14 @@ class Payment
 
         $validatorParams = [
             'device' => 'required',
+            'action' => 'required',
             'payment.id' => 'required',
             'payment.type' => 'required',
             'shipment.id' => 'required|integer',
             'billing.id' => 'required|integer'
         ];
+
+        if ($data['action'] !== 'buyNow') return $this->apiRespFailCode('E9019');
 
         // 信用卡參數
         if ($data['payment']['type'] === 'credit_card') {

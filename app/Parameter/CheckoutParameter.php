@@ -30,6 +30,7 @@ class CheckoutParameter extends BaseParameter
     public function payment()
     {
         $this->deviceName = $this->request->input('device', 'web');
+        $this->action = $this->request->input('action');
         $this->device = OrderConfig::PAYMENT_DEVICE[$this->deviceName];
         $this->payment = $this->request->input('payment');
         $this->shipment = $this->request->input('shipment');
@@ -40,7 +41,7 @@ class CheckoutParameter extends BaseParameter
         $this->payment['gateway'] = $paymentType[0];
         $this->payment['method'] = $paymentType[1];
 
-        $this->shipment['address'] = ($this->shipment['id'] == 2) ? $this->shipment['zipcode'] . $this->shipment['address'] : '';
+        $this->shipment['address'] = ($this->shipment['id'] == 2) ? $this->shipment['zipcode'] . ' ' . $this->shipment['address'] : '';
         $this->shipment['phone'] = ($this->shipment['id'] == 2) ? $this->shipment['countryCode'] . ' ' . $this->shipment['cellphone'] : '';
 
         return $this;

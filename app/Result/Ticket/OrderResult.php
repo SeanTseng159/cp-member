@@ -11,15 +11,33 @@ use App\Result\BaseResult;
 use App\Config\Ticket\OrderConfig;
 use Carbon\Carbon;
 
+use App\Services\MemberService;
+use App\Services\Ticket\OrderRefundService;
+use App\Services\Ticket\UberCouponService;
+
+use App\Traits\StringHelper;
+
 class OrderResult extends BaseResult
 {
+    use StringHelper;
+
     private $isCommodity = false;
     private $source;
     private $quantity = 0;
+    private $memberService;
+    private $orderRefundService;
+    private $uberCouponService;
+    private $members;
+    private $time;
 
     public function __construct()
     {
         parent::__construct();
+
+        $this->memberService = app()->build(MemberService::class);
+        $this->orderRefundService = app()->build(MemberService::class);
+        $this->uberCouponService = app()->build(UberCouponService::class);
+        $this->time = time();
     }
 
     /**
@@ -54,7 +72,7 @@ class OrderResult extends BaseResult
         $this->source = ($this->isCommodity) ? OrderConfig::SOURCE_CT_COMMODITY : OrderConfig::SOURCE_TICKET;
 
         $result['source'] = $this->source;
-        $result['id'] = $this->arrayDefault($order, 'order_id');
+        // $result['id'] = $this->arrayDefault($order, 'order_id');
         $result['orderNo'] = (string) $this->arrayDefault($order, 'order_no');
         $result['orderAmount'] = $this->arrayDefault($order, 'order_amount');
         $result['orderDiscountAmount'] = $this->arrayDefault($order, 'order_off', 0);
@@ -63,11 +81,9 @@ class OrderResult extends BaseResult
         $result['orderStatus'] = $this->getOrderStatus($result['orderStatusCode']);
         $result['orderDate'] = $this->arrayDefault($order, 'created_at');
         $result['payment'] = $this->getPayment($order);
-        $result['shipment'] = ($this->isCommodity) ? $this->getShipment($order) : null;
-        $result['items'] = $this->processItems($order['detail']);
-
-        /*if ($isDetail) {
-        }*/
+        $result['shipment'] = $this->getShipment($order);
+        $result['items'] = $this->processItems($order['details'], $isDetail);
+        $result['orderer'] = $this->getOrderer($order['member_id']);
 
         return $result;
     }
@@ -171,7 +187,7 @@ class OrderResult extends BaseResult
         $payment->gateway = OrderConfig::PAYMENT_GATEWAY[$this->arrayDefault($order, 'order_payment_gateway', 0)];
         $payment->method = OrderConfig::PAYMENT_METHOD[$this->arrayDefault($order, 'order_payment_method', 0)];
         $payment->title = trans('ticket/order.payment.method.' . $payment->method);
-        $payment->amount = (string) $this->arrayDefault($order, 'order_amount');
+        $payment->amount = $this->arrayDefault($order, 'order_amount');
 
         $payment->bankId = '';
         $payment->bankName = '';
@@ -195,15 +211,16 @@ class OrderResult extends BaseResult
      */
     private function getShipment($order)
     {
+        $isShipment = ($order['order_shipment_method'] === 2);
         $shipment = new \stdClass;
-        $shipment->name = $this->arrayDefault($order, 'shipment_user');
-        $shipment->address = $this->arrayDefault($order, 'shipment_address');
-        $shipment->phone = '+' . $this->arrayDefault($order, 'shipment_phone');
+        $shipment->name = ($isShipment) ? $this->arrayDefault($order, 'shipment_user', '') : '';
+        $shipment->address = ($isShipment) ? $this->arrayDefault($order, 'shipment_address', '') : '';
+        $shipment->phone = ($isShipment) ? '+' . $this->arrayDefault($order, 'shipment_phone', '') : '';
 
-        $shipment->description = trans('common.delivery');
-        $shipment->statusCode = $this->getShipmentStatus($order['order_status']);
+        $shipment->description = ($isShipment) ? trans('common.delivery') : trans('common.ticket');
+        $shipment->statusCode = $this->getShipmentStatus($order['order_status'], $isShipment);
         $shipment->status = OrderConfig::SHIPMENT_STATUS[$shipment->statusCode];
-        $shipment->traceCode = '';
+        // $shipment->traceCode = '';
         $shipment->amount = $this->arrayDefault($order, 'order_shipment_fee', 0);
 
         return $shipment;
@@ -214,11 +231,17 @@ class OrderResult extends BaseResult
      * @param $order_status
      * @return string
      */
-    private function getShipmentStatus($orderStatus = 0)
+    private function getShipmentStatus($orderStatus = 0, $isShipment = false)
     {
         $status = 2;
-        if ($orderStatus === 0 || $orderStatus === 1) $status = 0;
-        elseif ($orderStatus === 10) $status = 1;
+        if ($isShipment) {
+            if ($orderStatus === 0 || $orderStatus === 1) $status = 0;
+            elseif ($orderStatus === 10) $status = 1;
+        }
+        else {
+            if ($orderStatus === 0 || $orderStatus === 1) $status = 0;
+            elseif ($orderStatus === 10) $status = 3;
+        }
 
         return $status;
     }
@@ -228,13 +251,13 @@ class OrderResult extends BaseResult
      * @param $orderDetail
      * @return string
      */
-    private function processItems($orderDetail)
+    private function processItems($orderDetail, $isDetail = false)
     {
         $items = [];
         if ($orderDetail) {
             foreach ($orderDetail as $detail) {
                 if (!isset($items[$detail['prod_cust_id']])) {
-                    $items[$detail['prod_cust_id']] = $this->getItem($detail);
+                    $items[$detail['prod_cust_id']] = $this->getItem($detail, $isDetail);
                 }
                 else {
                     $items[$detail['prod_cust_id']]->quantity++;
@@ -246,31 +269,6 @@ class OrderResult extends BaseResult
         }
 
         return $items;
-    }
-
-    /**
-     *  處理購買項目
-     * @param $detail
-     * @return string
-     */
-    private function getItem($detail)
-    {
-        $newDetail = new \stdClass;
-        $newDetail->source = $this->source;
-        $newDetail->itemId = (string) $detail['prod_id'];
-        $newDetail->no = null;
-        $newDetail->name = $detail['prod_name'];
-        $newDetail->spec = $detail['prod_spec_name'];
-        $newDetail->quantity = 1;
-        $newDetail->price = $detail['price_off'];
-        $newDetail->description = ($this->isCommodity) ? trans('common.commodity') : trans('common.ticket');
-        $newDetail->statusCode = $this->itemUsedStatusCode($detail);
-        $newDetail->status = $this->itemUsedStatus($newDetail->statusCode);
-        $newDetail->discount = null;
-        /*$imageUrl = collect($detail['product_img'])->first();
-        $newDetail->imageUrl = ($imageUrl) ? $this->backendHost . $imageUrl['img_thumbnail_path'] : '';*/
-
-        return $newDetail;
     }
 
     /**
@@ -290,36 +288,91 @@ class OrderResult extends BaseResult
     }
 
     /**
+     *  處理購買項目
+     * @param $item
+     * @param $isDetail
+     * @return string
+     */
+    private function getItem($item, $isDetail = false, $isCombo = false)
+    {
+        $newDetail = new \stdClass;
+        $newDetail->source = $this->source;
+        $newDetail->productId = $item['prod_id'];
+        $newDetail->orderNoSeq = $item['order_no'] . '-' . str_pad($item['order_detail_seq'], 3, '0', STR_PAD_LEFT);
+        $newDetail->sn = (string) $item['order_detail_sn'];
+        $newDetail->name = $item['prod_name'];
+        $newDetail->spec = ($item['prod_spec_price_name']) ? $item['prod_spec_name'] . '/' . $item['prod_spec_price_name'] : $item['prod_spec_name'];
+        $newDetail->quantity = $item['price_company_qty'];
+        $newDetail->price = $item['price_off'];
+        $newDetail->description = ($this->isCommodity) ? trans('common.commodity') : trans('common.ticket');
+        $newDetail->statusCode = $statusCode = $this->itemUsedStatusCode($item);
+        $newDetail->status = $this->itemUsedStatus($statusCode);
+        // $newDetail->discount = null;
+        $newDetail->hasVoucher = $this->getHasVoucher($statusCode, $item['prod_type'], $item['prod_api']);
+
+        if ($isDetail) {
+            $prodType = $this->arrayDefault($item, 'prod_type');
+            $comboSyncExpire = $item['sync_expire_due'] ?? null;
+
+            $newDetail->qrcode = ($statusCode === '10' || $statusCode === '11') ? $this->arrayDefault($item, 'order_detail_qrcode') : '';
+            $newDetail->show = $this->getShowList($newDetail->statusCode, $item);
+            $newDetail->pinCode = ($statusCode === '10') ? $this->getPinCode($this->arrayDefault($item, 'trust_pin')) : '';
+            if (!$isCombo) {
+                $newDetail->combos = $this->getCombos($item['combo']);
+            }
+        }
+
+        return $newDetail;
+    }
+
+    /**
+     *  取組合 子商品
+     * @param $detail
+     * @return string
+     */
+    private function getCombos($combos)
+    {
+        if (!$combos) return [];
+
+        foreach ($combos as $combo) {
+            $newCombos[] = $this->getItem($combo, true, true);
+        }
+
+        return $newCombos;
+    }
+
+    /**
      * item使用狀態碼
      * @param $detail
      * @return string
      */
     private function itemUsedStatusCode($detail)
     {
+        $statusCode = '99';
+
+        // 已轉贈
         if ($detail['order_detail_member_id'] !== $detail['member_id']) {
             return '05';
         }
 
-        switch ($detail['verified_status']) {
-            case 0:
-                return '00';
-            case 1:
-                return '01';
-            case 10:
-                return '10';
-            case 11:
-                return '11';
-            case 20:
-                return '20';
-            case 21:
-                return '21';
-            case 22:
-                return '22';
-            case 23:
-                return '23';
+        // 取資料庫驗證狀態碼
+        $statusCode = str_pad($detail['verified_status'], 2, '0', STR_PAD_LEFT);
+
+        if ($detail['prod_type'] === 2) {
+            // 組合商品，檢查同步失效
+            if ($statusCode === '11' && $detail['sync_expire_due'] && $detail['use_value']) {
+                $useValueAry = explode('~', $detail['use_value']);
+                if ($this->time > strtotime($useValueAry[1])) $statusCode = '01';
+            }
+        }
+        else {
+            // 一般.加購.子商品，檢查效期
+            if ($statusCode === '10' && $detail['prod_expire_type'] !== 0 && $this->time > strtotime($detail['order_detail_expire_due'])) {
+                $statusCode = '01';
+            }
         }
 
-        return '00';
+        return $statusCode;
     }
 
     /**
@@ -330,5 +383,168 @@ class OrderResult extends BaseResult
     private function itemUsedStatus($code)
     {
         return trans('ticket/order.usedStatus.' . OrderConfig::USED_STATUS[$code]);
+    }
+
+    /**
+     * 取 show
+     * @param $statusCode
+     * @param $item
+     * @return string
+     */
+    private function getShowList($statusCode, $item)
+    {
+        $orderSeq = $item['order_no'] . '-' . str_pad($item['order_detail_seq'], 3, '0', STR_PAD_LEFT);
+
+        // 已轉贈
+        if ($statusCode === '05') {
+            $member = $this->getMember($item['order_detail_member_id']);
+            $show[] = ["label" => "訂單編號：", "text" => $orderSeq, "color" => null];
+            $show[] = ["label" => "轉贈對象：", "text" => ($member) ? $this->hideName($member->name) : '', "color" => null];
+            $show[] = ["label" => "手機號碼：", "text" => ($member) ? '+' . $member->countryCode . $this->hidePhoneNumber($member->cellphone) : '', "color" => null];
+            $show[] = ["label" => "轉贈時間：", "text" => $item['ticket_gift_at'], "color" => null];
+        }
+        // 未使用 or 已使用
+        elseif ($statusCode === '10' || $statusCode === '11') {
+            $show[] = ["label" => "訂單編號：", "text" => $orderSeq, "color" => null];
+            $show[] = ["label" => "票券號碼：", "text" => (string) $item['order_detail_sn'], "color" => null];
+            $show[] = ["label" => "地點：", "text" => $item['prod_locate'], "color" => null];
+            $show[] = ["label" => "地址：", "text" => $item['prod_address'], "color" => null];
+            $show[] = ["label" => "使用效期：", "text" => $this->getUseExpireTime($item['prod_expire_type'], $item['order_detail_expire_start'], $item['order_detail_expire_due']), "color" => null];
+
+            if ($item['order_detail_expire_usage']) {
+                $show[] = ["label" => "預定使用時間：", "text" => $item['order_detail_expire_usage'], "color" => null];
+            }
+
+            // Uber Code
+            $uber = $this->getUberCode($item['order_detail_id']);
+            if ($uber) {
+                $show[] = ["label" => "UBER優惠序號：", "text" => $uber['code'], "color" => "#ea4335"];
+                $show[] = ["label" => "優惠內容：", "text" => $uber['msg'], "color" => "#ea4335"];
+                $show[] = ["label" => "優惠期限：", "text" => $uber['limitDate'], "color" => "#ea4335"];
+            }
+        }
+        elseif ($statusCode === '23') {
+            $orderRefund = $this->orderRefundService->find($item['refund_id']);
+            $orderRefundTime = ($orderRefund) ? $orderRefund->order_refund_payment_date : '';
+            $show[] = ["label" => "訂單編號：", "text" => $orderSeq, "color" => null];
+            $show[] = ["label" => "票券號碼：", "text" => (string) $item['order_detail_sn'], "color" => null];
+            $show[] = ["label" => "", "text" => "已於 {$orderRefundTime} 完成退貨", "color" => "#90c320"];
+        }
+        elseif ($statusCode === '02') {
+            $show[] = ["label" => "訂單編號：", "text" => $orderSeq, "color" => null];
+            $show[] = ["label" => "票券號碼：", "text" => (string) $item['order_detail_sn'], "color" => null];
+            $show[] = ["label" => "地點：", "text" => $item['prod_locate'], "color" => null];
+            $show[] = ["label" => "地址：", "text" => $item['prod_address'], "color" => null];
+            $show[] = ["label" => "使用效期：", "text" => $this->getUseExpireTime($item['prod_expire_type'], $item['order_detail_expire_start'], $item['order_detail_expire_due']), "color" => null];
+            $show[] = ["label" => "", "text" => "*此商品已超過使用效期", "color" => "#90c320"];
+        }
+        else {
+            $show[] = ["label" => "訂單編號：", "text" => $orderSeq, "color" => null];
+            $show[] = ["label" => "票券號碼：", "text" => (string) $item['order_detail_sn'], "color" => null];
+        }
+
+        return $show;
+    }
+
+    /**
+     * 取使用效期
+     * @param $expireType
+     * @param $expireStart
+     * @param $expireDue
+     * @return string
+     */
+    private function getUseExpireTime($expireType, $expireStart, $expireDue)
+    {
+        if ($expireType === 0) return '無限制';
+
+        $expireTimeStart = substr($expireStart, 0, 16);
+        $expireTimeEnd   = substr($expireDue, 0, 16);
+
+        return "{$expireTimeStart}~{$expireTimeEnd}";
+    }
+
+    /**
+     * 取 uber code
+     * @param $id
+     * @return string
+     */
+    private function getUberCode($id)
+    {
+        $uberCoupon = $this->uberCouponService->findByOrderDetailId($id);
+        if ($uberCoupon) {
+            $uberLimitDate = date('Y-m', strtotime("+1 month", strtotime($uberCoupon->publish_date)));
+            $uberLimitDate = sprintf("使用期限至 %s-10 23:59", $uberLimitDate);
+
+            $uberTypeMsg = '';
+            if ($uberCoupon->type == 1) {
+                $uberTypeMsg = '2 趟 75 折優惠 (限高屏地區上或下車方可折抵)';
+            }
+            elseif ($uberCoupon->type == 2) {
+                $uberTypeMsg = '5 趟 7 折優惠 (限高屏地區上或下車方可折抵)';
+            }
+
+            return [
+                'code' => $uberCoupon->code,
+                'msg' => $uberTypeMsg,
+                'limitDate' => $uberLimitDate
+            ];
+        }
+
+        return null;
+    }
+
+    /**
+     * 取 PinCode
+     * @param $pincode
+     * @return string
+     */
+    private function getPinCode($pincode)
+    {
+        if (!$pincode) return '';
+
+        $return = "票券應記載事項\n";
+        $return .= "一、本券發行人：高盛大股份有限公司，地址：高雄市苓雅區中正一路265號9樓，統編：53890045，負責人：郭朝榮，消費爭議處理專線：(07)752-8568。\n";
+        $return .= "二、本券之面額已先存入發行人於新光銀行開立之信託專戶，專款專用；所稱專用係指供發行人履行交付商品或提供服務義務使用。本信託受益人為發行人，非本券持有人，本券信託期間自發行日(購買日)起算一年，信託期間屆滿後由新光銀行將信託專戶餘額交由發行人領回，但本券持有人仍得依法向發行人請求履行相關義務。\n";
+        $return .= "三、本券持有人得以禮券編號(PIN CODE碼)向受託銀行網頁查詢及確認信託相關資訊。\n";
+        $return .= "四、若本公司發生破產宣告、遭撤銷登記、歇業、解散、或非前述原因但有無法營運事實等其他事由，致無法履行本券之相關義務者，視為本公司同意本券受益權歸屬本券持有人，此時本券持有人應以禮券編號(PIN CODE碼)、手機號碼等向受託銀行申報受益權利，若本券持有人日後無法提供前述資料，則受託銀行將無法配合辦理受益權移轉相關事宜，請本券持有人妥善記錄相關資料以保障自身權益。\n";
+        $return .= "禮券編號(PIN CODE碼)：" . $pincode;
+
+        return $return;
+    }
+
+    /**
+     * 取 has Voucher
+     * @param $pincode
+     * @return string
+     */
+    private function getHasVoucher($statusCode, $prodType, $prodApi)
+    {
+        return (in_array($statusCode, [ '10', '11', '05', '01']) && $prodType === 1 && $prodApi === 1);
+    }
+
+    /**
+     * 取會員
+     * @param $pincode
+     * @return string
+     */
+    private function getOrderer($memberId)
+    {
+        $orderer = $this->getMember($memberId);
+
+        return ($orderer) ? $this->hideName($orderer->name) : '';
+    }
+
+    /**
+     * 取會員
+     * @param $pincode
+     * @return string
+     */
+    private function getMember($memberId)
+    {
+        if (!isset($this->members[$memberId])) {
+            $this->members[$memberId] = $this->memberService->find($memberId);
+        }
+
+        return $this->members[$memberId];
     }
 }

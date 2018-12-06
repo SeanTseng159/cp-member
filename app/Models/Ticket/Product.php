@@ -78,4 +78,12 @@ class Product extends BaseModel
     {
         return $this->hasMany('App\Models\Ticket\ShippingFee', 'prod_id')->orderBy('lower', 'asc');
     }
+
+    /**
+     * 取得組合子商品
+     */
+    public function groups()
+    {
+        return $this->hasMany('App\Models\Ticket\ProductGroup', 'prod_id')->notDeleted()->orderBy('prod_group_sort', 'asc');
+    }
 }

@@ -32,4 +32,16 @@ class OrderRefundRepository extends BaseRepository
 
         return $this->model->where('order_id', $orderId)->first();
     }
+
+    /**
+     * 根據 Id 找單一退訂單
+     * @param $id
+     * @return mixed
+     */
+    public function find($id = 0)
+    {
+        if (!$id) return null;
+
+        return $this->model->find($id);
+    }
 }

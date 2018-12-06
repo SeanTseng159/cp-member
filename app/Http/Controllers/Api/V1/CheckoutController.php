@@ -72,10 +72,12 @@ class CheckoutController extends RestLaravelController
             if ($statusCode !== '00000') return $this->failureCode($statusCode);
 
             // 處理購物車格式
-            $result['cart'] = (new CartResult)->get([$product]);
-
+            $cart = (new CartResult)->get([$product], true);
             // 加入快取購物車
-            $this->oneOffCartService->add($param->memberId, serialize((new CartResult)->get([$product], true)));
+            $this->oneOffCartService->add($param->memberId, serialize($cart));
+
+            // 輸出簡化購物車
+            $result['cart'] = (new CartResult)->simplify($cart);
 
             // 取付款方法
             $paymentMethodService = app()->build(PaymentMethodService::class);
@@ -137,9 +139,11 @@ class CheckoutController extends RestLaravelController
         try {
             $params = (new CheckoutParameter($request))->payment();
 
-            // 取購物車內容
-            $cart = $this->oneOffCartService->find($params->memberId);
-            $cart = unserialize($cart);
+            if ($params->action === 'buyNow') {
+                // 取購物車內容
+                $cart = $this->oneOffCartService->find($params->memberId);
+                $cart = unserialize($cart);
+            }
 
             // 檢查購物車內所有狀態是否可購買
             $statusCode = $this->checkCartStatus($cart, $params->memberId);

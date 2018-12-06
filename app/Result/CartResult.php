@@ -74,6 +74,7 @@ class CartResult extends BaseResult
         unset($item->expireDue);
         unset($item->groupExpireType);
         unset($item->groupExpireDue);
+        unset($item->groups);
 
         $item->additional = $this->getSimplifyAdditional($item->additional);
 
@@ -104,7 +105,7 @@ class CartResult extends BaseResult
     public function get($products, $isDetail = false)
     {
         $result = new \stdClass;
-        $result->items = ($products) ? $this->getItems($products, $isDetail) : [];
+        $result->items = ($products) ? $this->getItems($products, $isDetail, true) : [];
         $result->totalQuantity = $this->totalQuantity;
         $result->totalAmount = $this->totalAmount;
         $result->discountAmount = $this->discountAmount;
@@ -117,12 +118,12 @@ class CartResult extends BaseResult
         return $result;
     }
 
-    public function getItems($products, $isDetail = false)
+    public function getItems($products, $isDetail = false, $isMainProd = false)
     {
         $items = [];
 
         foreach ($products as $product) {
-            $items[] = $this->getItem($product, $isDetail);
+            $items[] = $this->getItem($product, $isDetail, $isMainProd);
         }
 
         return $items;
@@ -132,9 +133,10 @@ class CartResult extends BaseResult
      * 取得資料
      * @param $product
      * @param $isDetail
+     * @param $isMainProd
      * @param bool $isDetail
      */
-    public function getItem($product, $isDetail = false)
+    public function getItem($product, $isDetail = false, $isMainProd = false)
     {
         if (!$product) return null;
 
@@ -152,26 +154,40 @@ class CartResult extends BaseResult
             $prod->custId = $product->prod_cust_id;
             $prod->type = $product->prod_type;
             $prod->isPhysical = $product->is_physical;
-            $prod->catalogId = ($product->tags) ? $product->tags->where('is_main', 1)->first()->tag_id : 0;
-            $prod->categoryId = ($product->tags) ? $product->tags->where('is_main', 0)->first()->tag_id : 0;
+            $prod->catalogId = ($product->prod_type !== 2 && $product->tags) ? $product->tags->where('is_main', 1)->first()->tag_id : 0;
+            $prod->categoryId = ($product->prod_type !== 2 && $product->tags) ? $product->tags->where('is_main', 0)->first()->tag_id : 0;
             $prod->api = $product->prod_api;
             $prod->store = $product->prod_store;
             $prod->address = $product->prod_zipcode . $product->full_address;
+
             $prod->expireType = $product->prod_expire_type;
-            $prod->expireStart = ($product->prod_expire_start == 0) ? NULL : $product->prod_expire_start;
-            $prod->expireDue = ($product->prod_expire_due == 0) ? NULL : $product->prod_expire_due;
+            if ($product->prod_expire_type === 1) {
+                $date = date('Y-m-d H:i:s');
+                $prod->expireStart = $date;
+                $prod->expireDue = date('Y-m-d 23:59:59', strtotime($date . " +{$product->prod_expire_daycount} day"));
+            }
+            else {
+                $prod->expireStart = ($product->prod_expire_start == 0) ? NULL : $product->prod_expire_start;
+                $prod->expireDue = ($product->prod_expire_due == 0) ? NULL : $product->prod_expire_due;
+            }
+
             $prod->groupExpireType = $product->group_expire_type;
             $prod->groupExpireDue = $product->group_expire_due;
+            // 組合子商品
+            $prod->groups = $this->getItems($product->groups, true, false);
         }
 
-        // 計算運費
-        $this->shippingFee += $this->calcShippingFee($product->shippingFees, $product->quantity);
+        // 主商品才計算
+        if ($isMainProd) {
+            // 計算運費
+            $this->shippingFee += $this->calcShippingFee($product->shippingFees, $product->quantity);
 
-        // 計算全部金額
-        $this->totalQuantity += $product->quantity;
-        $this->totalAmount += $product->prod_spec_price_value * $product->quantity;
+            // 計算全部金額
+            $this->totalQuantity += $product->quantity;
+            $this->totalAmount += $product->prod_spec_price_value * $product->quantity;
 
-        if (!$this->hasPhysical) $this->hasPhysical = ($product->is_physical) ? true : false;
+            if (!$this->hasPhysical) $this->hasPhysical = ($product->is_physical) ? true : false;
+        }
 
         return $prod;
     }

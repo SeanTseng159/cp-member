@@ -43,12 +43,13 @@ class OrderService extends BaseService
 
     /**
      * 根據 No 找單一訂單 [未失效]
+     * @param $memberId
      * @param $orderNo
      * @return mixed
      */
-    public function findCanShowByOrderNo($orderNo = 0)
+    public function findCanShowByOrderNo($memberId = 0, $orderNo = 0)
     {
-        return $this->repository->findCanShowByOrderNo($orderNo);
+        return $this->repository->findCanShowByOrderNo($memberId, $orderNo);
     }
 
     /**
