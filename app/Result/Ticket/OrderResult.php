@@ -74,8 +74,9 @@ class OrderResult extends BaseResult
         $result['source'] = $this->source;
         // $result['id'] = $this->arrayDefault($order, 'order_id');
         $result['orderNo'] = (string) $this->arrayDefault($order, 'order_no');
-        $result['orderAmount'] = $this->arrayDefault($order, 'order_amount');
-        $result['orderDiscountAmount'] = $this->arrayDefault($order, 'order_off', 0);
+        $result['amount'] = $this->arrayDefault($order, 'order_amount');
+        $result['discountAmount'] = $this->arrayDefault($order, 'order_off', 0);
+        $result['totalAmount'] = $this->arrayDefault($order, 'order_amount');
         $result['isRePayment'] = $this->isRepay($order['order_status'], $order['order_payment_method'], $order['order_atm_virtual_account']);
         $result['orderStatusCode'] = $this->getMergeStatusCode($this->changeStatusCode($order['order_status'], $result['isRePayment']));
         $result['orderStatus'] = $this->getOrderStatus($result['orderStatusCode']);
