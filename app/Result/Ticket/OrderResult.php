@@ -15,8 +15,12 @@ use App\Services\MemberService;
 use App\Services\Ticket\OrderRefundService;
 use App\Services\Ticket\UberCouponService;
 
+use App\Traits\StringHelper;
+
 class OrderResult extends BaseResult
 {
+    use StringHelper;
+
     private $isCommodity = false;
     private $source;
     private $quantity = 0;
@@ -68,7 +72,7 @@ class OrderResult extends BaseResult
         $this->source = ($this->isCommodity) ? OrderConfig::SOURCE_CT_COMMODITY : OrderConfig::SOURCE_TICKET;
 
         $result['source'] = $this->source;
-        $result['id'] = $this->arrayDefault($order, 'order_id');
+        // $result['id'] = $this->arrayDefault($order, 'order_id');
         $result['orderNo'] = (string) $this->arrayDefault($order, 'order_no');
         $result['orderAmount'] = $this->arrayDefault($order, 'order_amount');
         $result['orderDiscountAmount'] = $this->arrayDefault($order, 'order_off', 0);
@@ -79,6 +83,7 @@ class OrderResult extends BaseResult
         $result['payment'] = $this->getPayment($order);
         $result['shipment'] = $this->getShipment($order);
         $result['items'] = $this->processItems($order['details'], $isDetail);
+        $result['orderer'] = $this->getOrderer($order['member_id']);
 
         return $result;
     }
@@ -215,7 +220,7 @@ class OrderResult extends BaseResult
         $shipment->description = ($isShipment) ? trans('common.delivery') : trans('common.ticket');
         $shipment->statusCode = $this->getShipmentStatus($order['order_status'], $isShipment);
         $shipment->status = OrderConfig::SHIPMENT_STATUS[$shipment->statusCode];
-        $shipment->traceCode = '';
+        // $shipment->traceCode = '';
         $shipment->amount = $this->arrayDefault($order, 'order_shipment_fee', 0);
 
         return $shipment;
@@ -267,45 +272,6 @@ class OrderResult extends BaseResult
     }
 
     /**
-     *  處理購買項目
-     * @param $item
-     * @param $isDetail
-     * @return string
-     */
-    private function getItem($item, $isDetail = false)
-    {
-        $newDetail = new \stdClass;
-        $newDetail->source = $this->source;
-        $newDetail->productId = $item['prod_id'];
-        $newDetail->orderNoSeq = $item['order_no'] . '-' . str_pad($item['order_detail_seq'], 3, '0', STR_PAD_LEFT);
-        $newDetail->sn = (string) $item['order_detail_sn'];
-        $newDetail->name = $item['prod_name'];
-        $newDetail->spec = $item['prod_spec_name'] . '/' . $item['prod_spec_price_name'];
-        $newDetail->quantity = $item['price_company_qty'];
-        $newDetail->price = $item['price_off'];
-        $newDetail->description = ($this->isCommodity) ? trans('common.commodity') : trans('common.ticket');
-        $newDetail->statusCode = $statusCode = $this->itemUsedStatusCode($item);
-        $newDetail->status = $this->itemUsedStatus($statusCode);
-        $newDetail->discount = null;
-        /*$imageUrl = collect($item['product_img'])->first();
-        $newDetail->imageUrl = ($imageUrl) ? $this->backendHost . $imageUrl['img_thumbnail_path'] : '';*/
-
-        if ($isDetail) {
-            $prodType = $this->arrayDefault($item, 'prod_type');
-            $comboSyncExpire = $item['sync_expire_due'] ?? null;
-
-            $newDetail->qrcode = ($statusCode === '10' || $statusCode === '11') ? $this->arrayDefault($item, 'order_detail_qrcode') : '';
-            $newDetail->show = $this->getShowList($newDetail->statusCode, $item);
-            $newDetail->pinCode = ($statusCode === '10') ? $this->getPinCode($this->arrayDefault($item, 'trust_pin')) : '';
-
-            // var_dump($item['combo']);
-            /*$result['combos'] = $this->arrayDefault($item, 'combos');*/
-        }
-
-        return $newDetail;
-    }
-
-    /**
      *  重新整理Items, 去除key
      * @param $detail
      * @return string
@@ -319,6 +285,60 @@ class OrderResult extends BaseResult
         }
 
         return $newItems;
+    }
+
+    /**
+     *  處理購買項目
+     * @param $item
+     * @param $isDetail
+     * @return string
+     */
+    private function getItem($item, $isDetail = false, $isCombo = false)
+    {
+        $newDetail = new \stdClass;
+        $newDetail->source = $this->source;
+        $newDetail->productId = $item['prod_id'];
+        $newDetail->orderNoSeq = $item['order_no'] . '-' . str_pad($item['order_detail_seq'], 3, '0', STR_PAD_LEFT);
+        $newDetail->sn = (string) $item['order_detail_sn'];
+        $newDetail->name = $item['prod_name'];
+        $newDetail->spec = ($item['prod_spec_price_name']) ? $item['prod_spec_name'] . '/' . $item['prod_spec_price_name'] : $item['prod_spec_name'];
+        $newDetail->quantity = $item['price_company_qty'];
+        $newDetail->price = $item['price_off'];
+        $newDetail->description = ($this->isCommodity) ? trans('common.commodity') : trans('common.ticket');
+        $newDetail->statusCode = $statusCode = $this->itemUsedStatusCode($item);
+        $newDetail->status = $this->itemUsedStatus($statusCode);
+        // $newDetail->discount = null;
+        $newDetail->hasVoucher = $this->getHasVoucher($statusCode, $item['prod_type'], $item['prod_api']);
+
+        if ($isDetail) {
+            $prodType = $this->arrayDefault($item, 'prod_type');
+            $comboSyncExpire = $item['sync_expire_due'] ?? null;
+
+            $newDetail->qrcode = ($statusCode === '10' || $statusCode === '11') ? $this->arrayDefault($item, 'order_detail_qrcode') : '';
+            $newDetail->show = $this->getShowList($newDetail->statusCode, $item);
+            $newDetail->pinCode = ($statusCode === '10') ? $this->getPinCode($this->arrayDefault($item, 'trust_pin')) : '';
+            if (!$isCombo) {
+                $newDetail->combos = $this->getCombos($item['combo']);
+            }
+        }
+
+        return $newDetail;
+    }
+
+    /**
+     *  取組合 子商品
+     * @param $detail
+     * @return string
+     */
+    private function getCombos($combos)
+    {
+        if (!$combos) return [];
+
+        foreach ($combos as $combo) {
+            $newCombos[] = $this->getItem($combo, true, true);
+        }
+
+        return $newCombos;
     }
 
     /**
@@ -379,8 +399,8 @@ class OrderResult extends BaseResult
         if ($statusCode === '05') {
             $member = $this->getMember($item['order_detail_member_id']);
             $show[] = ["label" => "訂單編號：", "text" => $orderSeq, "color" => null];
-            $show[] = ["label" => "轉贈對象：", "text" => ($member) ? $member->name : '', "color" => null];
-            $show[] = ["label" => "手機號碼：", "text" => ($member) ? '+' . $member->countryCode . $member->cellphone : '', "color" => null];
+            $show[] = ["label" => "轉贈對象：", "text" => ($member) ? $this->hideName($member->name) : '', "color" => null];
+            $show[] = ["label" => "手機號碼：", "text" => ($member) ? '+' . $member->countryCode . $this->hidePhoneNumber($member->cellphone) : '', "color" => null];
             $show[] = ["label" => "轉贈時間：", "text" => $item['ticket_gift_at'], "color" => null];
         }
         // 未使用 or 已使用
@@ -490,6 +510,28 @@ class OrderResult extends BaseResult
         $return .= "禮券編號(PIN CODE碼)：" . $pincode;
 
         return $return;
+    }
+
+    /**
+     * 取 has Voucher
+     * @param $pincode
+     * @return string
+     */
+    private function getHasVoucher($statusCode, $prodType, $prodApi)
+    {
+        return (in_array($statusCode, [ '10', '11', '05', '01']) && $prodType === 1 && $prodApi === 1);
+    }
+
+    /**
+     * 取會員
+     * @param $pincode
+     * @return string
+     */
+    private function getOrderer($memberId)
+    {
+        $orderer = $this->getMember($memberId);
+
+        return ($orderer) ? $this->hideName($orderer->name) : '';
     }
 
     /**

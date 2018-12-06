@@ -261,9 +261,7 @@ class OrderRepository extends BaseRepository
     {
         if (!$memberId) return null;
 
-        $orders = $this->model->with(['detail' => function($query) {
-                                    $query->where('prod_type', '!=', 4);
-                                }])
+        $orders = $this->model->with(['details'])
                             ->notDeleted()
                             ->where('order_status', '!=', 2)
                             ->when($memberId, function($query) use ($memberId) {
