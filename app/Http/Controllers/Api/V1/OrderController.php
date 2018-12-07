@@ -43,14 +43,29 @@ class OrderController extends RestLaravelController
         // $magentoOrders = $magentoOrderService->magentoInfo();
 
         // citypass
-        $parameter = new InfoParameter($request);
-        $data = $this->orderService->getMemberOrdersByDate($parameter->memberId, $parameter->startDate, $parameter->endDate);
+        $params = (new InfoParameter($request))->info();
+        $data = $this->orderService->getMemberOrdersByDate($params);
         $ticketOrders = (new OrderResult)->getAll($data);
 
         // $data = array_merge($magentoOrders, $ticketOrders);
         // $result = ($data) ? $this->multiArraySort($data, 'orderDate') : null;
 
         return $this->success($ticketOrders);
+    }
+
+    /**
+     * 搜尋訂單
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function search(Request $request)
+    {
+        // citypass
+        $params = (new InfoParameter($request))->search();
+        $data = $this->orderService->getMemberOrdersByDate($params);
+        $orders = (new OrderResult)->getAll($data);
+
+        return $this->success($orders);
     }
 
     /**
@@ -80,16 +95,15 @@ class OrderController extends RestLaravelController
                 if (!$order) return $this->failureCode('E0101');
 
                 // 檢查付款人
-                // if ($order->member_id !== $request->memberId) return $this->failureCode('E9050');
+                if ($order->member_id !== $request->memberId) return $this->failureCode('E9050');
 
                 $result = (new OrderResult)->get($order, true);
             }
 
             return $this->success($result);
         } catch (Exception $e) {
-            var_dump($e->getMessage());
-            // Logger::error('order detail Error', $e->getMessage());
-            // return $this->failureCode('E0101');
+            Logger::error('order detail Error', $e->getMessage());
+            return $this->failureCode('E0101');
         }
     }
 }

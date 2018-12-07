@@ -74,7 +74,8 @@ class OrderResult extends BaseResult
         $result['source'] = $this->source;
         // $result['id'] = $this->arrayDefault($order, 'order_id');
         $result['orderNo'] = (string) $this->arrayDefault($order, 'order_no');
-        $result['amount'] = $this->arrayDefault($order, 'order_amount');
+        // 小計, 總金額減運費
+        $result['amount'] = $this->arrayDefault($order, 'order_amount', 0) - $this->arrayDefault($order, 'order_shipment_fee', 0);
         $result['discountAmount'] = $this->arrayDefault($order, 'order_off', 0);
         $result['totalAmount'] = $this->arrayDefault($order, 'order_amount');
         $result['isRePayment'] = $this->isRepay($order['order_status'], $order['order_payment_method'], $order['order_atm_virtual_account']);
