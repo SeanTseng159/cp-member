@@ -93,23 +93,22 @@ Route::middleware('cors')->namespace('V1')->group(function () {
 
 // 需 token 認證的 route
 Route::middleware(['cors', 'auth.jwt'])->namespace('V1')->group(function () {
+    // 訂單相關
     Route::prefix('order')->group(function () {
         // 取得訂單列表
         Route::get('info', 'OrderController@info');
 
         // 取得單一訂單
         Route::get('detail/{orderNo}', 'OrderController@detail');
+
+        // 搜尋訂單
+        Route::get('search', 'OrderController@search');
     });
 
     // 購物車相關
     Route::prefix('cart')->group(function () {
         // 取得一次性購物車資訊並加入購物車(依來源) (magento)
         Route::get('one-off', 'CartController@oneOff');
-    });
-
-    Route::prefix('ticket')->group(function () {
-        // 票券列表
-        Route::get('list/{status}', 'TicketController@all');
     });
 
     // 結帳相關
@@ -123,5 +122,11 @@ Route::middleware(['cors', 'auth.jwt'])->namespace('V1')->group(function () {
         Route::post('payment', 'CheckoutController@payment')->middleware('verify.checkout.payment');
         // 重新結帳
         Route::post('payment/repay/{orderNo}', 'CheckoutController@repay');
+    });
+
+    // 票券相關
+    Route::prefix('ticket')->group(function () {
+        // 票券列表
+        Route::get('list/{status}', 'TicketController@all');
     });
 });

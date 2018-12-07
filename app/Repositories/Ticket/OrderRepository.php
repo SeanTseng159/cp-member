@@ -252,26 +252,55 @@ class OrderRepository extends BaseRepository
 
     /**
      * 根據 會員 id 取得訂單列表
-     * @param $memberId
-     * @param $startDate
-     * @param $endDate
+     * @param $params [memberId, startDate, endDate, status, orderNo]
      * @return mixed
      */
-    public function getMemberOrdersByDate($memberId, $startDate, $endDate)
+    public function getMemberOrdersByDate($params = [])
     {
-        if (!$memberId) return null;
-
         $orders = $this->model->with(['details'])
                             ->notDeleted()
-                            ->where('order_status', '!=', 2)
-                            ->when($memberId, function($query) use ($memberId) {
-                                $query->where('member_id', $memberId);
+                            ->where('member_id', $params['memberId'])
+                            ->where(function($query) use ($params) {
+                                if ($params['status'] === '99') {
+                                    // 全部
+                                    $query->where('order_status', '!=', 2);
+                                }
+                                elseif ($params['status'] === '00') {
+                                    // 待付款, 重新付款
+                                    $query->where('order_status', 0);
+                                }
+                                elseif ($params['status'] === '01') {
+                                    // 已完成
+                                    $query->where('order_status', 10);
+                                }
+                                elseif ($params['status'] === '02') {
+                                    // 部分退款
+                                    $query->where('order_status', 23);
+                                }
+                                elseif ($params['status'] === '03') {
+                                    // 已退貨
+                                    $query->where('order_status', 24);
+                                }
+                                elseif ($params['status'] === '04') {
+                                    // 處理中 [退貨申請,退貨處理中,處理完成]
+                                    $query->whereIn('order_status', [20, 21, 22]);
+                                }
+                                elseif ($params['status'] === '08') {
+                                    // 已取消
+                                    $query->where('order_status', 2);
+                                }
+                                else {
+                                    $query->where('order_status', null);
+                                }
                             })
-                            ->when($startDate, function($query) use ($startDate) {
-                                $query->where('created_at', '>=', $startDate);
+                            ->when($params['startDate'], function($query) use ($params) {
+                                $query->where('created_at', '>=', $params['startDate']);
                             })
-                            ->when($endDate, function($query) use ($endDate) {
-                                $query->where('created_at', '<=', $endDate);
+                            ->when($params['endDate'], function($query) use ($params) {
+                                $query->where('created_at', '<=', $params['endDate']);
+                            })
+                            ->when($params['orderNo'], function($query) use ($params) {
+                                $query->where('order_no', $params['orderNo']);
                             })
                             ->orderBy('created_at', 'desc')
                             ->get();

@@ -64,14 +64,12 @@ class OrderService extends BaseService
 
     /**
      * 根據 會員 id 取得訂單列表
-     * @param $memberId
-     * @param $startDate
-     * @param $endDate
+     * @param $params [memberId, startDate, endDate, status, orderNo]
      * @return mixed
      */
-    public function getMemberOrdersByDate($memberId = 0, $startDate = '', $endDate = '')
+    public function getMemberOrdersByDate($params)
     {
-        return $this->repository->getMemberOrdersByDate($memberId, $startDate, $endDate);
+        return $this->repository->getMemberOrdersByDate($params);
     }
 
     /**
