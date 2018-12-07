@@ -409,6 +409,9 @@ class MemberService
         $member = $this->repository->find($id);
 
         if ($member && $member->isValidEmail == 0) {
+            // 重新產生驗證碼
+            $member->validEmailCode = Crypt::encrypt($member->email);
+            $member->save();
 
             $job = (new SendValidateEmail($member))->delay(5);
             $this->dispatch($job);
