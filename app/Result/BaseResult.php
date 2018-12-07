@@ -15,18 +15,22 @@ class BaseResult
 {
 	use ObjectHelper;
 
+    public $webHost;
 	public $backendHost;
 
     public function __construct()
     {
         if (env('APP_ENV') === 'production') {
+            $this->webHost = BaseConfig::WEB_HOST;
             $this->backendHost = BaseConfig::BACKEND_HOST;
         }
         elseif (env('APP_ENV') === 'beta') {
-            $this->backendHost = BaseConfig::BACKEND_HOST_BETA;
+            $this->webHost = BaseConfig::WEB_HOST_BETA;
+            $this->backendHost = BaseConfig::BACKEND_HOST;
         }
         else {
-            $this->backendHost = BaseConfig::BACKEND_HOST_TEST;
+            $this->webHost = BaseConfig::WEB_HOST_TEST;
+            $this->backendHost = BaseConfig::BACKEND_HOST;
         }
     }
 }

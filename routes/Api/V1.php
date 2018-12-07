@@ -87,6 +87,11 @@ Route::middleware('cors')->namespace('V1')->group(function () {
         Route::get('qa', 'ServiceController@qa');
     });
 
+    // 行銷活動相關
+    Route::prefix('activity')->group(function () {
+        // 票券列表
+        Route::get('market/{id}', 'MarketController@find');
+    });
 });
 
 // 需 token 認證的 route
