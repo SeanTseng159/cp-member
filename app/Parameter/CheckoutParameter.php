@@ -27,6 +27,14 @@ class CheckoutParameter extends BaseParameter
         return $this;
     }
 
+    public function market()
+    {
+        $this->marketId = $this->request->input('marketId', 0);
+        $this->products = $this->request->input('products');
+
+        return $this;
+    }
+
     public function payment()
     {
         $this->deviceName = $this->request->input('device', 'web');

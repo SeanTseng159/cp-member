@@ -92,7 +92,7 @@ Route::middleware('cors')->namespace('V1')->group(function () {
 
     // 行銷活動相關
     Route::prefix('activity')->group(function () {
-        // 票券列表
+        // 獨立賣場
         Route::get('market/{id}', 'MarketController@find');
     });
 });
@@ -123,6 +123,9 @@ Route::middleware(['cors', 'auth.jwt'])->namespace('V1')->group(function () {
         Route::post('buyNow', 'CheckoutController@buyNow')->middleware('verify.checkout.buyNow');
         // 取立即購買 (購物車跟付款資訊)
         Route::get('buyNow/info', 'CheckoutController@info');
+
+        // 獨立賣場立即購買
+        Route::post('buyNow/market', 'CheckoutController@market');
 
         // 結帳
         Route::post('payment', 'CheckoutController@payment')->middleware('verify.checkout.payment');
