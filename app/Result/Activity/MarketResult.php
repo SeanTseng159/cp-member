@@ -21,18 +21,18 @@ class MarketResult extends BaseResult
      * 取資料
      * @param $data
      */
-    public function get($data = [])
+    public function get($id)
     {
         // if (!$categories) return [];
 
         $result = new \stdClass;
-        $result->id = 1;
-        $result->title = '養生雞湯-雞湯包 任選2件 $2499';
+        $result->id = $id;
+        $result->title = '養生雞湯-雞湯包';
         $result->period = '2018-9-5 10:00:10 ~ 2019-9-11 23:59:59';
-        $result->description = '全館商品任選四件 $2499，買越多省越多！';
+        $result->description = '全館商品，買越多省越多！';
         $result->banner = 'https://i.ytimg.com/vi/0Rk5jj3gs74/maxresdefault.jpg';
         $result->shareUrl = $this->webHost . 'activity/market/' . $result->id;
-        $result->rule = $this->getRule();
+        $result->rule = $this->getRule($id);
         $result->products = $this->getProducts();
 
         return $result;
@@ -42,13 +42,40 @@ class MarketResult extends BaseResult
      * 取規格
      * @param $data
      */
-    public function getRule()
+    public function getRule($id)
     {
         $rule = new \stdClass;
-        $rule->name = '任選2件 $2499';
-        $rule->type = 'FQFP';
-        $rule->value1 = 2;
-        $rule->value2 = 2499;
+
+        if ($id == 1) {
+            $rule->name = '任選2件 $2499';
+            $rule->type = 'FQFP';
+            $rule->value1 = 2;
+            $rule->value2 = 2499;
+        }
+        elseif ($id == 2) {
+            $rule->name = '滿2件折100元';
+            $rule->type = 'DQFP';
+            $rule->value1 = 2;
+            $rule->value2 = 100;
+        }
+        elseif ($id == 3) {
+            $rule->name = '滿399元折50元';
+            $rule->type = 'DPFQ';
+            $rule->value1 = 399;
+            $rule->value2 = 50;
+        }
+        elseif ($id == 4) {
+            $rule->name = '滿399元打95折';
+            $rule->type = 'DPFD';
+            $rule->value1 = 399;
+            $rule->value2 = 0.95;
+        }
+        else {
+            $rule->name = '滿2件打98折';
+            $rule->type = 'DQFD';
+            $rule->value1 = 2;
+            $rule->value2 = 0.98;
+        }
 
         return $rule;
     }

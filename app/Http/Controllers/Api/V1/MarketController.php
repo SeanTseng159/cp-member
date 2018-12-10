@@ -43,7 +43,7 @@ class MarketController extends RestLaravelController
                 return (new ServiceResult)->faq($data);
             });*/
 
-            $result = (new MarketResult)->get();
+            $result = (new MarketResult)->get($id);
 
             return $this->success($result);
         } catch (Exception $e) {

@@ -130,6 +130,52 @@ class CheckoutController extends RestLaravelController
     }
 
     /**
+     * 獨立賣場立即購買
+     * @param $request
+     * @return mixed
+     */
+    public function market(Request $request)
+    {
+        try {
+            $param = (new CheckoutParameter($request))->market();
+
+            /*// 取商品
+            $product = $this->productService->findByCheckout($param->productId, $param->specId, $param->specPriceId, true);
+            // 檢查商品是否存在
+            if (!$product) return $this->failureCode('E9010');
+
+            // 帶入購買數量
+            $product->quantity = $param->quantity;
+
+            // 檢查商品狀態, 是否可購買
+            $statusCode = $this->checkProductStatus($product, $param->memberId);
+            if ($statusCode !== '00000') return $this->failureCode($statusCode);
+
+            // 處理購物車格式
+            $cart = (new CartResult)->get([$product], true);
+            // 加入快取購物車
+            $this->oneOffCartService->add($param->memberId, serialize($cart));
+
+            // 輸出簡化購物車
+            $result['cart'] = (new CartResult)->simplify($cart);
+
+            // 取付款方法
+            $paymentMethodService = app()->build(PaymentMethodService::class);
+            $all = $paymentMethodService->all();
+            $result['info']['payments'] = (new PaymentInfoResult)->getPayments($all);
+            // 取付款方式
+            $result['info']['shipments'] = (new PaymentInfoResult)->getShipments($product->is_physical);
+            // 取發票方式
+            $result['info']['billings'] = (new PaymentInfoResult)->getBillings();
+
+            return $this->success($result);*/
+        } catch (Exception $e) {
+            Logger::error('Market buyNow Error', $e->getMessage());
+            return $this->failureCode('E9013');
+        }
+    }
+
+    /**
      * 結帳
      * @param $request
      * @return mixed
