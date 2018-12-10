@@ -137,7 +137,9 @@ class CheckoutController extends RestLaravelController
     public function market(Request $request)
     {
         try {
-            $param = (new CheckoutParameter($request))->market();
+            $params = (new CheckoutParameter($request))->market();
+
+            if (!$params->marketId) return $this->failureCode('E9100');
 
             /*// 取商品
             $product = $this->productService->findByCheckout($param->productId, $param->specId, $param->specPriceId, true);
