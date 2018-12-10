@@ -31,7 +31,7 @@ class BaseParameter
         $this->limit = $this->request->input('limit');
         $this->page = $this->request->input('page');
 
-        $this->source = $this->request->input('source');
+        $this->source = $this->request->input('source', 'ct_pass');
         $this->id = $this->request->input('id');
         $this->memberId = $this->getMemberId();
     }

@@ -26,11 +26,11 @@ class BaseResult
         }
         elseif (env('APP_ENV') === 'beta') {
             $this->webHost = BaseConfig::WEB_HOST_BETA;
-            $this->backendHost = BaseConfig::BACKEND_HOST;
+            $this->backendHost = BaseConfig::BACKEND_HOST_BETA;
         }
         else {
             $this->webHost = BaseConfig::WEB_HOST_TEST;
-            $this->backendHost = BaseConfig::BACKEND_HOST;
+            $this->backendHost = BaseConfig::BACKEND_HOST_TEST;
         }
     }
 }
