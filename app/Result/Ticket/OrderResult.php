@@ -549,4 +549,97 @@ class OrderResult extends BaseResult
 
         return $this->members[$memberId];
     }
+
+
+    /*********************
+    /* 過渡期用
+    *********************/
+
+    /**
+     * 處理所有取得資料
+     * @param $product
+     * @param bool $isDetail
+     */
+    public function getAllByV1($orders, $isDetail = false)
+    {
+        if (!$orders) return null;
+
+        $newOrders = [];
+        foreach ($orders as $order) {
+            $newOrders[] = $this->getByV1($order, $isDetail);
+        }
+
+        return $newOrders;
+    }
+
+    /**
+     * 取得資料
+     * @param $product
+     * @param bool $isDetail
+     */
+    public function getByV1($order, $isDetail = false)
+    {
+        if (!$order) return null;
+        $order = $order->toArray();
+        $result['source'] = OrderConfig::SOURCE_TICKET;
+        $result['id'] = $this->arrayDefault($order, 'order_id');
+        $result['orderNo'] = (string) $this->arrayDefault($order, 'order_no');
+        $result['orderAmount'] = $this->arrayDefault($order, 'order_amount');
+        $result['orderDiscountAmount'] = $this->arrayDefault($order, 'order_off', 0);
+        $result['isRePayment'] = $this->isRepay($order['order_status'], $order['order_payment_method'], $order['order_atm_virtual_account']);
+        $result['orderStatusCode'] = $this->getMergeStatusCode($this->changeStatusCode($order['order_status'], $result['isRePayment']));
+        $result['orderStatus'] = $this->getOrderStatus($result['orderStatusCode']);
+        $result['orderDate'] = $this->arrayDefault($order, 'created_at');
+        $result['payment'] = $this->getPayment($order);
+        $result['shipping'] = null;
+        $result['items'] = $this->processItemsV1($order['details']);
+
+        return $result;
+    }
+
+    /**
+     *  取得訂單購買項目
+     * @param $orderDetail
+     * @return string
+     */
+    private function processItemsV1($orderDetail)
+    {
+        $items = [];
+        if ($orderDetail) {
+            foreach ($orderDetail as $detail) {
+                if (!isset($items[$detail['prod_cust_id']])) {
+                    $items[$detail['prod_cust_id']] = $this->getItemV1($detail);
+                }
+                else {
+                    $items[$detail['prod_cust_id']]->quantity++;
+                }
+            }
+            // 重新整理輸出Items
+            $items = $this->remapItems($items);
+        }
+        return $items;
+    }
+    /**
+     *  處理購買項目
+     * @param $detail
+     * @return string
+     */
+    private function getItemV1($detail)
+    {
+        $newDetail = new \stdClass;
+        $newDetail->source = OrderConfig::SOURCE_TICKET;
+        $newDetail->itemId = (string) $detail['prod_id'];
+        $newDetail->no = null;
+        $newDetail->name = $detail['prod_name'];
+        $newDetail->spec = $detail['prod_spec_name'];
+        $newDetail->quantity = 1;
+        $newDetail->price = $detail['price_off'];
+        $newDetail->description = trans('common.ticket');
+        $newDetail->statusCode = $this->itemUsedStatusCode($detail);
+        $newDetail->status = $this->itemUsedStatus($newDetail->statusCode);
+        $newDetail->discount = null;
+        $newDetail->imageUrl = '';
+
+        return $newDetail;
+    }
 }

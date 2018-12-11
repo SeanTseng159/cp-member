@@ -45,7 +45,7 @@ class OrderController extends RestLaravelController
         // citypass
         $params = (new InfoParameter($request))->info();
         $data = $this->orderService->getMemberOrdersByDate($params);
-        $ticketOrders = (new OrderResult)->getAll($data);
+        $ticketOrders = (new OrderResult)->getAllByV1($data);
 
         // $data = array_merge($magentoOrders, $ticketOrders);
         // $result = ($data) ? $this->multiArraySort($data, 'orderDate') : null;
