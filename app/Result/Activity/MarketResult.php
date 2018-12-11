@@ -47,10 +47,10 @@ class MarketResult extends BaseResult
         $rule = new \stdClass;
 
         if ($id == 1) {
-            $rule->name = '任選3件 $2499';
+            $rule->name = '任選2件 $2499';
             $rule->type = 'FQFP';
-            $rule->value1 = 3;
-            $rule->value2 = 2499;
+            $rule->value1 = 2;
+            $rule->value2 = 499;
         }
         elseif ($id == 2) {
             $rule->name = '滿2件折100元';
