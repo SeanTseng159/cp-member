@@ -40,7 +40,7 @@ class Payment
             'billing.id' => 'required|integer'
         ];
 
-        if ($data['action'] !== 'buyNow') return $this->apiRespFailCode('E9019');
+        if (!in_array($data['action'], ['buyNow', 'market'])) return $this->apiRespFailCode('E9019');
 
         // 信用卡參數
         if ($data['payment']['type'] === 'credit_card') {

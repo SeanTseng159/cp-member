@@ -41,12 +41,12 @@ class CartResult extends BaseResult
         return $cart;
     }
 
-    public function getSimplifyItems($items)
+    public function getSimplifyItems($items, $hasPurchase = true)
     {
         $newItems = [];
 
         foreach ($items as $item) {
-            $newItems[] = $this->getSimplifyItem($item);
+            $newItems[] = $this->getSimplifyItem($item, $hasPurchase);
         }
 
         return $newItems;
@@ -55,10 +55,10 @@ class CartResult extends BaseResult
     /**
      * 簡化資料
      * @param $product
-     * @param $isDetail
+     * @param $hasPurchase
      * @param bool $isDetail
      */
-    public function getSimplifyItem($item)
+    public function getSimplifyItem($item, $hasPurchase = true)
     {
         unset($item->supplierId);
         unset($item->custId);
@@ -77,6 +77,10 @@ class CartResult extends BaseResult
         unset($item->groups);
 
         $item->additional = $this->getSimplifyAdditional($item->additional);
+
+        if ($hasPurchase) {
+            $item->purchase = $this->getSimplifyItems($item->purchase, false);
+        }
 
         return $item;
     }
@@ -147,7 +151,10 @@ class CartResult extends BaseResult
         $prod->price = $product->prod_spec_price_value;
         $prod->imageUrl = ($product->img) ? $this->backendHost . $product->img->img_thumbnail_path : '';
         $prod->additional = $this->getAdditional($product, $isDetail);
-        $prod->purchase = [];
+
+        if ($product->prod_type === 1 || $product->prod_type === 2) {
+            $prod->purchase = (isset($product->purchase)) ? $this->getPurchase($product->purchase, $isDetail) : [];
+        }
 
         if ($isDetail) {
             $prod->supplierId = $product->supplier_id;
@@ -223,5 +230,22 @@ class CartResult extends BaseResult
         $additional->remark = '';
 
         return $additional;
+    }
+
+    /**
+     * 取得加購商品
+     * @param $products
+     * @return array
+     */
+    private function getPurchase($products, $isDetail)
+    {
+        if (!$products) return [];
+
+        $newPurchase = [];
+        foreach ($products as $product) {
+            $newPurchase[] = $this->getItem($product, $isDetail, true);
+        }
+
+        return $newPurchase;
     }
 }

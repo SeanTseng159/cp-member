@@ -59,20 +59,57 @@ class CheckoutController extends RestLaravelController
         try {
             $param = (new CheckoutParameter($request))->buyNow();
 
-            // 取商品
-            $product = $this->productService->findByCheckout($param->productId, $param->specId, $param->specPriceId, true);
+            // init value
+            $isPhysical = false;
+
+            // 檢查商品
+            $products[0] = $this->productService->findByCheckout($param->productId, $param->specId, $param->specPriceId, true);
+
             // 檢查商品是否存在
-            if (!$product) return $this->failureCode('E9010');
+            if (!$products[0]) return $this->failureCode('E9010');
 
             // 帶入購買數量
-            $product->quantity = $param->quantity;
+            $products[0]->quantity = $param->quantity;
+
+            // 是否有實體商品
+            if ($products[0]->is_physical) $isPhysical = true;
 
             // 檢查商品狀態, 是否可購買
-            $statusCode = $this->checkProductStatus($product, $param->memberId);
+            $statusCode = $this->checkProductStatus($products[0], $param->memberId);
             if ($statusCode !== '00000') return $this->failureCode($statusCode);
 
+            // 檢查加購商品
+            if ($param->additionalProducts && is_array($param->additionalProducts)) {
+                $prods = [];
+                $checkStatusCode = '00000';
+                foreach ($param->additionalProducts as $k => $product) {
+                    // 檢查商品
+                    $prods[$k] = $this->productService->findAdditionalByCheckout($product['id'], $product['specId'], $product['specPriceId'], true);
+
+                    // 檢查商品是否存在
+                    if (!$prods[$k]) return $this->failureCode('E9010');
+
+                    // 帶入購買數量
+                    $prods[$k]->quantity = $product['quantity'];
+
+                    // 是否有實體商品
+                    if ($prods[$k]->is_physical) $isPhysical = true;
+
+                    // 檢查商品狀態, 是否可購買
+                    $statusCode = $this->checkProductStatus($prods[$k], $param->memberId);
+                    if ($statusCode !== '00000') {
+                        $checkStatusCode = $statusCode;
+                        $notEnoughStocks[] = $prods[$k]->prod_spec_price_id;
+                    }
+                }
+
+                if ($checkStatusCode !== '00000') return $this->failureCode($checkStatusCode, $notEnoughStocks);
+
+                $products[0]->purchase = $prods;
+            }
+
             // 處理購物車格式
-            $cart = (new CartResult)->get([$product], true);
+            $cart = (new CartResult)->get($products, true);
             // 加入快取購物車
             $this->cartService->add('oneOff', $param->memberId, serialize($cart));
 
@@ -80,18 +117,13 @@ class CheckoutController extends RestLaravelController
             $result['cart'] = (new CartResult)->simplify($cart);
 
             // 取付款方法
-            $paymentMethodService = app()->build(PaymentMethodService::class);
-            $all = $paymentMethodService->all();
-            $result['info']['payments'] = (new PaymentInfoResult)->getPayments($all);
-            // 取付款方式
-            $result['info']['shipments'] = (new PaymentInfoResult)->getShipments($product->is_physical);
-            // 取發票方式
-            $result['info']['billings'] = (new PaymentInfoResult)->getBillings();
+            $result['info'] = $this->getCheckoutInfo($isPhysical);
 
             return $this->success($result);
         } catch (Exception $e) {
-            Logger::error('buyNow Error', $e->getMessage());
-            return $this->failureCode('E9013');
+            var_dump($e->getMessage());
+            // Logger::error('buyNow Error', $e->getMessage());
+            // return $this->failureCode('E9013');
         }
     }
 
@@ -114,13 +146,7 @@ class CheckoutController extends RestLaravelController
             $result['cart'] = (new CartResult)->simplify($cart);
 
             // 取付款方法
-            $paymentMethodService = app()->build(PaymentMethodService::class);
-            $all = $paymentMethodService->all();
-            $result['info']['payments'] = (new PaymentInfoResult)->getPayments($all);
-            // 取付款方式
-            $result['info']['shipments'] = (new PaymentInfoResult)->getShipments($cart->hasPhysical);
-            // 取發票方式
-            $result['info']['billings'] = (new PaymentInfoResult)->getBillings();
+            $result['info'] = $this->getCheckoutInfo($cart->hasPhysical);
 
             return $this->success($result);
         } catch (Exception $e) {
@@ -156,15 +182,15 @@ class CheckoutController extends RestLaravelController
                 // 帶入購買數量
                 $prods[$k]->quantity = $product['quantity'];
 
+                // 是否有實體商品
+                if ($prods[$k]->is_physical) $isPhysical = true;
+
                 // 檢查商品狀態, 是否可購買
                 $statusCode = $this->checkProductStatus($prods[$k], $params->memberId);
                 if ($statusCode !== '00000') {
                     $checkStatusCode = $statusCode;
-                    $notEnoughStocks[] = $prods[$k]->prod_id;
+                    $notEnoughStocks[] = $prods[$k]->prod_spec_price_id;
                 }
-
-                // 是否有實體商品
-                if ($prods[$k]->is_physical) $isPhysical = true;
 
                 $totalAmount += $prods[$k]->prod_spec_price_value;
                 $totalQuantity += $prods[$k]->quantity;
@@ -185,19 +211,12 @@ class CheckoutController extends RestLaravelController
             $result['cart'] = (new CartResult)->simplify($cart);
 
             // 取付款方法
-            $paymentMethodService = app()->build(PaymentMethodService::class);
-            $all = $paymentMethodService->all();
-            $result['info']['payments'] = (new PaymentInfoResult)->getPayments($all);
-            // 取付款方式
-            $result['info']['shipments'] = (new PaymentInfoResult)->getShipments($isPhysical);
-            // 取發票方式
-            $result['info']['billings'] = (new PaymentInfoResult)->getBillings();
+            $result['info'] = $this->getCheckoutInfo($isPhysical);
 
             return $this->success($result);
         } catch (Exception $e) {
-            var_dump($e->getMessage());
-            // Logger::error('Market buyNow Error', $e->getMessage());
-            // return $this->failureCode('E9013');
+            Logger::error('Market buyNow Error', $e->getMessage());
+            return $this->failureCode('E9013');
         }
     }
 
@@ -302,6 +321,25 @@ class CheckoutController extends RestLaravelController
 
     /**
      * 檢查購物車內商品狀態、金額、數量
+     * @param $isPhysical
+     * @return array
+     */
+    private function getCheckoutInfo($isPhysical)
+    {
+        $paymentMethodService = app()->build(PaymentMethodService::class);
+        $all = $paymentMethodService->all();
+
+        $result['payments'] = (new PaymentInfoResult)->getPayments($all);
+        // 取付款方式
+        $result['shipments'] = (new PaymentInfoResult)->getShipments($isPhysical);
+            // 取發票方式
+        $result['billings'] = (new PaymentInfoResult)->getBillings();
+
+        return $result;
+    }
+
+    /**
+     * 檢查購物車內商品狀態、金額、數量
      * @param $cart
      * @param $memberId
      * @return mixed
@@ -359,11 +397,16 @@ class CheckoutController extends RestLaravelController
     {
         // 檢查限購數量
         $buyQuantity = $product->quantity;
-        if ($product->prod_limit_type === 1) {
-            $memberBuyQuantity = $this->orderService->getCountByProdAndMember($product->product_id, $memberId);
-            $buyQuantity += $memberBuyQuantity;
+        if ($product->prod_type === 1 || $product->prod_type === 2) {
+            if ($product->prod_limit_type === 1) {
+                $memberBuyQuantity = $this->orderService->getCountByProdAndMember($product->product_id, $memberId);
+                $buyQuantity += $memberBuyQuantity;
+            }
+            if ($buyQuantity > $product->prod_limit_num) return 'E9012';
         }
-        if ($buyQuantity > $product->prod_limit_num) return 'E9012';
+        elseif ($product->prod_type === 3) {
+            if ($buyQuantity > $product->prod_plus_limit) return 'E9012';
+        }
 
         // 檢查是否有庫存
         if ($product->prod_spec_price_stock <= 0 && $product->prod_spec_price_stock >= $product->quantity) return 'E9011';
