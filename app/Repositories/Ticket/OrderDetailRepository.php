@@ -38,15 +38,17 @@ class OrderDetailRepository extends BaseRepository
 
             $seq = 0;
             foreach ($products as $k => $product) {
-                $seq += 1;
-                $this->create($memberId, $orderNo, $paymentMethod, $seq, $seq, $product);
-                $mainSeq = $seq;
+                for ($i=0; $i < $product->quantity; $i++) {
+                    $seq += 1;
+                    $this->create($memberId, $orderNo, $paymentMethod, $seq, $seq, $product);
+                    $mainSeq = $seq;
 
-                // 子商品
-                if ($product->groups) {
-                    foreach ($product->groups as $group) {
-                        $seq += 1;
-                        $this->create($memberId, $orderNo, $paymentMethod, $seq, $mainSeq, $group);
+                    // 子商品
+                    if ($product->groups) {
+                        foreach ($product->groups as $group) {
+                            $seq += 1;
+                            $this->create($memberId, $orderNo, $paymentMethod, $seq, $mainSeq, $group);
+                        }
                     }
                 }
             }
