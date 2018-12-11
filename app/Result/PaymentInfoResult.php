@@ -67,7 +67,7 @@ class PaymentInfoResult extends BaseResult
             $shipment->type = 'virtual_ticket';
         }
 
-        return [$shipment];
+        return $shipment;
     }
 
     /**
