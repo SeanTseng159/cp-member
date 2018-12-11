@@ -175,7 +175,7 @@ class ProductRepository extends BaseRepository
                             ->where('prod_specs.prod_spec_id', $specId)
                             ->where('prod_spec_prices.prod_spec_price_id', $specPriceId)
                             ->where('prods.deleted_at', 0)
-                            ->where('prod_type', '!=', 4)
+                            ->whereIn('prod_type', [1, 2])
                             ->where('prods.prod_onshelf', 1)
                             ->where('prods.prod_onshelf_time', '<=', $this->date)
                             ->where('prods.prod_offshelf_time', '>=', $this->date)
@@ -210,6 +210,34 @@ class ProductRepository extends BaseRepository
      * @param $hasTag
      * @return mixed
      */
+    public function findAdditionalByCheckout($id, $specId, $specPriceId, $hasTag = false)
+    {
+        $prod = $this->model->with(['shippingFees', 'img'])->leftJoin('prod_specs', 'prods.prod_id', '=', 'prod_specs.prod_id')
+                            ->leftJoin('prod_spec_prices', 'prod_specs.prod_spec_id', '=', 'prod_spec_prices.prod_spec_id')
+                            ->where('prod_specs.prod_spec_id', $specId)
+                            ->where('prod_spec_prices.prod_spec_price_id', $specPriceId)
+                            ->where('prods.deleted_at', 0)
+                            ->where('prod_type', 3)
+                            ->where('prods.prod_onshelf', 1)
+                            ->where('prods.prod_onsale_time', '<=', $this->date)
+                            ->where('prods.prod_offsale_time', '>=', $this->date)
+                            ->find($id);
+
+        if ($hasTag) {
+            $product->tags = $this->tagProdRepository->getTagsByProdId($id);
+        }
+
+        return $prod;
+    }
+
+    /**
+     * 根據 商品 id 取得商品明細 (結帳用) [只取 規格]
+     * @param $id
+     * @param $specId
+     * @param $specPriceId
+     * @param $hasTag
+     * @return mixed
+     */
     public function findSubCobmoByCheckout($id, $specId, $specPriceId, $hasTag)
     {
         $prod = $this->model->leftJoin('prod_specs', 'prods.prod_id', '=', 'prod_specs.prod_id')
@@ -217,6 +245,7 @@ class ProductRepository extends BaseRepository
                             ->where('prod_specs.prod_spec_id', $specId)
                             ->where('prod_spec_prices.prod_spec_price_id', $specPriceId)
                             ->where('prods.deleted_at', 0)
+                            ->where('prod_type', 4)
                             ->find($id);
 
         $prod->tags = $this->tagProdRepository->getTagsByProdId($id);
