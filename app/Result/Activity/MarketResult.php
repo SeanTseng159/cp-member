@@ -47,9 +47,9 @@ class MarketResult extends BaseResult
         $rule = new \stdClass;
 
         if ($id == 1) {
-            $rule->name = '任選2件 $2499';
+            $rule->name = '任選3件 $2499';
             $rule->type = 'FQFP';
-            $rule->value1 = 2;
+            $rule->value1 = 3;
             $rule->value2 = 2499;
         }
         elseif ($id == 2) {
@@ -101,16 +101,32 @@ class MarketResult extends BaseResult
      */
     public function getProduct($i)
     {
-        $product = new \stdClass;
-        $product->id = $i;
-        $product->name = '養生雞湯';
-        $product->price = 300;
-        $product->salePrice = 250;
-        $product->imgUrl = ($i * 3 % 2 === 0) ? 'https://www.anyongfresh.com/website/uploads/fckeditor/anyongfresh/image/%E7%B2%89%E5%85%89%E9%A6%99%E8%8F%87%E9%9B%9E%E6%B9%AF4.jpg' : 'https://s.yimg.com/zp/images/06F6054F0CC0CBD73B7D4C959DFEF5236B8DB779';
-        $product->stock = rand(100, 300);
-        $product->maxQuantity = 10;
-        $product->spec = $this->getSpec($i);
-        $product->price = $this->getPrice($i);
+        $r = rand(0, 1);
+
+        if ($r === 1) {
+            $product = new \stdClass;
+            $product->id = 275;
+            $product->name = '味覺糖';
+            $product->price = 30;
+            $product->salePrice = 20;
+            $product->imgUrl = 'https://devbackend.citypass.tw/storage/prod/15/2dc51e00c5c0dd546d402653e57a9ab1_s.png';
+            $product->stock = rand(10, 20);
+            $product->maxQuantity = 10;
+            $product->spec = $this->getSpec($r);
+            $product->specPrice = $this->getPrice($r);
+        }
+        else {
+            $product = new \stdClass;
+            $product->id = 275;
+            $product->name = '味覺糖';
+            $product->price = 20;
+            $product->salePrice = 10;
+            $product->imgUrl = 'https://devbackend.citypass.tw/storage/prod/15/2dc51e00c5c0dd546d402653e57a9ab1_s.png';
+            $product->stock = rand(10, 20);
+            $product->maxQuantity = 10;
+            $product->spec = $this->getSpec($r);
+            $product->specPrice = $this->getPrice($r);
+        }
 
         return $product;
     }
@@ -121,9 +137,16 @@ class MarketResult extends BaseResult
      */
     public function getSpec($i)
     {
-        $spec = new \stdClass;
-        $spec->id = $i;
-        $spec->name = ($i * 3 % 2 === 0) ? '香菇雞湯包' : '金針雞湯包';
+        if ($i === 1) {
+            $spec = new \stdClass;
+            $spec->id = 413;
+            $spec->name = '香蕉口味';
+        }
+        else {
+            $spec = new \stdClass;
+            $spec->id = 412;
+            $spec->name = '草莓口味';
+        }
 
         return $spec;
     }
@@ -134,9 +157,16 @@ class MarketResult extends BaseResult
      */
     public function getPrice($i)
     {
-        $price = new \stdClass;
-        $price->id = $i;
-        $price->name = ($i * 3 % 2 === 0) ? '大包' : '小包';
+        if ($i === 1) {
+            $price = new \stdClass;
+            $price->id = 472;
+            $price->name = '香蕉口味';
+        }
+        else {
+            $price = new \stdClass;
+            $price->id = 471;
+            $price->name = '草莓口味';
+        }
 
         return $price;
     }

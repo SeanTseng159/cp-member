@@ -382,7 +382,7 @@ class CheckoutController extends RestLaravelController
     {
         $ype = 'FQFP';
         $value1 = 3;
-        $value2 = 300;
+        $value2 = 2499;
 
         if ($ype === 'FQFP' && $totalQuantity !== $value1) {
             return 'E9201';
