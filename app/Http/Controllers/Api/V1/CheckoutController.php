@@ -381,8 +381,8 @@ class CheckoutController extends RestLaravelController
     private function checkDiscountRule($rule = [], $totalAmount = 0, $totalQuantity = 0)
     {
         $ype = 'FQFP';
-        $value1 = 3;
-        $value2 = 300;
+        $value1 = 2;
+        $value2 = 499;
 
         if ($ype === 'FQFP' && $totalQuantity !== $value1) {
             return 'E9201';
