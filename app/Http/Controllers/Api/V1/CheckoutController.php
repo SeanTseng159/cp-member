@@ -14,7 +14,7 @@ use App\Parameter\CheckoutParameter;
 
 use App\Services\CheckoutService;
 use App\Services\Ticket\ProductService;
-use App\Services\OneOffCartService;
+use App\Services\CartService;
 use App\Services\Ticket\PaymentMethodService;
 use App\Services\Ticket\OrderService;
 use App\Services\PaymentService;
@@ -32,19 +32,19 @@ class CheckoutController extends RestLaravelController
 {
     protected $checkoutService;
     protected $productService;
-    protected $oneOffCartService;
+    protected $cartService;
     protected $orderService;
     protected $paymentService;
 
     public function __construct(CheckoutService $checkoutService,
                                 ProductService $productService,
-                                OneOffCartService $oneOffCartService,
+                                CartService $cartService,
                                 OrderService $orderService,
                                 PaymentService $paymentService)
     {
         $this->checkoutService = $checkoutService;
         $this->productService = $productService;
-        $this->oneOffCartService = $oneOffCartService;
+        $this->cartService = $cartService;
         $this->orderService = $orderService;
         $this->paymentService = $paymentService;
     }
@@ -74,7 +74,7 @@ class CheckoutController extends RestLaravelController
             // 處理購物車格式
             $cart = (new CartResult)->get([$product], true);
             // 加入快取購物車
-            $this->oneOffCartService->add($param->memberId, serialize($cart));
+            $this->cartService->add('oneOff', $param->memberId, serialize($cart));
 
             // 輸出簡化購物車
             $result['cart'] = (new CartResult)->simplify($cart);
@@ -106,7 +106,7 @@ class CheckoutController extends RestLaravelController
             $param = (new CheckoutParameter($request))->info();
 
             // 取購物車內容
-            $cart = $this->oneOffCartService->find($param->memberId);
+            $cart = $this->cartService->find('oneOff', $param->memberId);
             if (!$cart) return $this->failureCode('E9021');
             $cart = unserialize($cart);
 
@@ -140,23 +140,46 @@ class CheckoutController extends RestLaravelController
             $params = (new CheckoutParameter($request))->market();
 
             if (!$params->marketId) return $this->failureCode('E9100');
+            if (!$params->products || !is_array($params->products)) return $this->failureCode('E9030');
 
-            /*// 取商品
-            $product = $this->productService->findByCheckout($param->productId, $param->specId, $param->specPriceId, true);
-            // 檢查商品是否存在
-            if (!$product) return $this->failureCode('E9010');
+            // 檢查所有商品狀態
+            $checkStatusCode = '00000';
+            $totalAmount = 0;
+            $totalQuantity = 0;
+            $isPhysical = false;
+            foreach ($params->products as $k => $product) {
+                // 取商品
+                $prods[$k] = $this->productService->findByCheckout($product['id'], $product['specId'], $product['specPriceId'], true);
+                // 檢查商品是否存在
+                if (!$prods[$k]) return $this->failureCode('E9010');
 
-            // 帶入購買數量
-            $product->quantity = $param->quantity;
+                // 帶入購買數量
+                $prods[$k]->quantity = $product['quantity'];
 
-            // 檢查商品狀態, 是否可購買
-            $statusCode = $this->checkProductStatus($product, $param->memberId);
+                // 檢查商品狀態, 是否可購買
+                $statusCode = $this->checkProductStatus($prods[$k], $params->memberId);
+                if ($statusCode !== '00000') {
+                    $checkStatusCode = $statusCode;
+                    $notEnoughStocks[] = $prods[$k]->prod_id;
+                }
+
+                // 是否有實體商品
+                if ($prods[$k]->is_physical) $isPhysical = true;
+
+                $totalAmount += $prods[$k]->prod_spec_price_value;
+                $totalQuantity += $prods[$k]->quantity;
+            }
+            if ($checkStatusCode !== '00000') return $this->failureCode($checkStatusCode, $notEnoughStocks);
+
+
+            // 檢查優惠是否符合
+            $statusCode = $this->checkDiscountRule([], $totalAmount, $totalQuantity);
             if ($statusCode !== '00000') return $this->failureCode($statusCode);
 
             // 處理購物車格式
-            $cart = (new CartResult)->get([$product], true);
+            $cart = (new CartResult)->get($prods, true);
             // 加入快取購物車
-            $this->oneOffCartService->add($param->memberId, serialize($cart));
+            $this->cartService->add('market', $params->memberId, serialize($cart));
 
             // 輸出簡化購物車
             $result['cart'] = (new CartResult)->simplify($cart);
@@ -166,14 +189,15 @@ class CheckoutController extends RestLaravelController
             $all = $paymentMethodService->all();
             $result['info']['payments'] = (new PaymentInfoResult)->getPayments($all);
             // 取付款方式
-            $result['info']['shipments'] = (new PaymentInfoResult)->getShipments($product->is_physical);
+            $result['info']['shipments'] = (new PaymentInfoResult)->getShipments($isPhysical);
             // 取發票方式
             $result['info']['billings'] = (new PaymentInfoResult)->getBillings();
 
-            return $this->success($result);*/
+            return $this->success($result);
         } catch (Exception $e) {
-            Logger::error('Market buyNow Error', $e->getMessage());
-            return $this->failureCode('E9013');
+            var_dump($e->getMessage());
+            // Logger::error('Market buyNow Error', $e->getMessage());
+            // return $this->failureCode('E9013');
         }
     }
 
@@ -187,11 +211,12 @@ class CheckoutController extends RestLaravelController
         try {
             $params = (new CheckoutParameter($request))->payment();
 
-            if ($params->action === 'buyNow') {
-                // 取購物車內容
-                $cart = $this->oneOffCartService->find($params->memberId);
-                $cart = unserialize($cart);
-            }
+            // 取購物車內容
+            if ($params->action === 'buyNow') $cartName = 'oneOff';
+            elseif ($params->action === 'market') $cartName = 'market';
+
+            $cart = $this->cartService->find($cartName, $params->memberId);
+            $cart = unserialize($cart);
 
             // 檢查購物車內所有狀態是否可購買
             $statusCode = $this->checkCartStatus($cart, $params->memberId);
@@ -216,7 +241,7 @@ class CheckoutController extends RestLaravelController
             $result = $this->paymentService->payment($params->payment, $payParams);
 
             // 刪除購物車
-            $this->oneOffCartService->delete($params->memberId);
+            $this->cartService->delete('oneOff', $params->memberId);
 
             return $this->success($result);
         } catch (CustomException $e) {
@@ -342,6 +367,32 @@ class CheckoutController extends RestLaravelController
 
         // 檢查是否有庫存
         if ($product->prod_spec_price_stock <= 0 && $product->prod_spec_price_stock >= $product->quantity) return 'E9011';
+
+        return '00000';
+    }
+
+    /**
+     * 檢查優惠是否符合
+     * @param $rule
+     * @param $totalAmount
+     * @param $totalQuantity
+     * @return mixed
+     */
+    private function checkDiscountRule($rule = [], $totalAmount = 0, $totalQuantity = 0)
+    {
+        $ype = 'FQFP';
+        $value1 = 3;
+        $value2 = 300;
+
+        if ($ype === 'FQFP' && $totalQuantity !== $value1) {
+            return 'E9201';
+        }
+        elseif (($ype === 'DQFP' || $ype === 'DQFD') && $totalQuantity < $value1) {
+            return 'E9202';
+        }
+        elseif (($ype === 'DPFQ' || $ype === 'DPFD') && $totalAmount < $value1) {
+            return 'E9203';
+        }
 
         return '00000';
     }

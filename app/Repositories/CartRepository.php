@@ -11,7 +11,7 @@ use App\Cache\Redis;
 use App\Cache\Key\CartKey;
 use App\Cache\Config as CacheConfig;
 
-class OneOffCartRepository extends BaseRepository
+class CartRepository extends BaseRepository
 {
     protected $redis;
 
@@ -22,25 +22,31 @@ class OneOffCartRepository extends BaseRepository
 
     /**
      * 商品加入購物車
+     * @param $type
      * @param $memberId
      * @param $data [購物車內容]
      * @return mixed
      */
-    public function add($memberId, $data)
+    public function add($type, $memberId, $data)
     {
-        $key = sprintf(CartKey::ONE_OFF_KEY, $memberId);
+        if ($type === 'oneOff') $key = sprintf(CartKey::ONE_OFF_KEY, $memberId);
+        elseif ($type === 'market') $key = sprintf(CartKey::MARKET_KEY, $memberId);
+
         return $this->redis->set($key, $data, CacheConfig::ONE_HOUR);
     }
 
     /**
      * 更新購物車內商品
+     * @param $type
      * @param $memberId
      * @param $data [購物車內容]
      * @return mixed
      */
-    public function update($memberId, $data)
+    public function update($type, $memberId, $data)
     {
-        $key = sprintf(CartKey::ONE_OFF_KEY, $memberId);
+        if ($type === 'oneOff') $key = sprintf(CartKey::ONE_OFF_KEY, $memberId);
+        elseif ($type === 'market') $key = sprintf(CartKey::MARKET_KEY, $memberId);
+
         return $this->redis->refesh($key, CacheConfig::ONE_HOUR, function () use ($data) {
             return $data;
         });
@@ -48,23 +54,29 @@ class OneOffCartRepository extends BaseRepository
 
     /**
      * 刪除購物車內商品
+     * @param $type
      * @param $memberId
      * @return mixed
      */
-    public function delete($memberId)
+    public function delete($type, $memberId)
     {
-        $key = sprintf(CartKey::ONE_OFF_KEY, $memberId);
+        if ($type === 'oneOff') $key = sprintf(CartKey::ONE_OFF_KEY, $memberId);
+        elseif ($type === 'market') $key = sprintf(CartKey::MARKET_KEY, $memberId);
+
         return $this->redis->delete($key);
     }
 
     /**
      * 取購物車商品
+     * @param $type
      * @param $memberId
      * @return mixed
      */
-    public function find($memberId)
+    public function find($type, $memberId)
     {
-        $key = sprintf(CartKey::ONE_OFF_KEY, $memberId);
+        if ($type === 'oneOff') $key = sprintf(CartKey::ONE_OFF_KEY, $memberId);
+        elseif ($type === 'market') $key = sprintf(CartKey::MARKET_KEY, $memberId);
+
         return $this->redis->get($key);
     }
 }
