@@ -12,30 +12,6 @@ class CheckoutParameter extends BaseParameter
         parent::__construct($request);
     }
 
-    public function buyNow()
-    {
-        $this->productId = $this->request->input('productId', 0);
-        $this->specId = $this->request->input('specId', 0);
-        $this->specPriceId = $this->request->input('specPriceId', 0);
-        $this->quantity = $this->request->input('quantity', 0);
-        $this->additionalProducts = $this->request->input('additionalProducts');
-
-        return $this;
-    }
-
-    public function info()
-    {
-        return $this;
-    }
-
-    public function market()
-    {
-        $this->marketId = $this->request->input('marketId', 0);
-        $this->products = $this->request->input('products');
-
-        return $this;
-    }
-
     public function payment()
     {
         $this->deviceName = $this->request->input('device', 'web');

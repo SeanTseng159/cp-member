@@ -68,13 +68,13 @@ class MarketResult extends BaseResult
             $rule->name = '滿399元打95折';
             $rule->type = 'DPFD';
             $rule->value1 = 399;
-            $rule->value2 = 0.95;
+            $rule->value2 = 95;
         }
         else {
-            $rule->name = '滿2件打98折';
+            $rule->name = '滿2件打7折';
             $rule->type = 'DQFD';
             $rule->value1 = 2;
-            $rule->value2 = 0.98;
+            $rule->value2 = 70;
         }
 
         return $rule;

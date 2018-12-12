@@ -29,7 +29,7 @@ class CartRepository extends BaseRepository
      */
     public function add($type, $memberId, $data)
     {
-        if ($type === 'oneOff') $key = sprintf(CartKey::ONE_OFF_KEY, $memberId);
+        if ($type === 'buyNow') $key = sprintf(CartKey::ONE_OFF_KEY, $memberId);
         elseif ($type === 'market') $key = sprintf(CartKey::MARKET_KEY, $memberId);
 
         return $this->redis->set($key, $data, CacheConfig::ONE_HOUR);
@@ -44,7 +44,7 @@ class CartRepository extends BaseRepository
      */
     public function update($type, $memberId, $data)
     {
-        if ($type === 'oneOff') $key = sprintf(CartKey::ONE_OFF_KEY, $memberId);
+        if ($type === 'buyNow') $key = sprintf(CartKey::ONE_OFF_KEY, $memberId);
         elseif ($type === 'market') $key = sprintf(CartKey::MARKET_KEY, $memberId);
 
         return $this->redis->refesh($key, CacheConfig::ONE_HOUR, function () use ($data) {
@@ -60,7 +60,7 @@ class CartRepository extends BaseRepository
      */
     public function delete($type, $memberId)
     {
-        if ($type === 'oneOff') $key = sprintf(CartKey::ONE_OFF_KEY, $memberId);
+        if ($type === 'buyNow') $key = sprintf(CartKey::ONE_OFF_KEY, $memberId);
         elseif ($type === 'market') $key = sprintf(CartKey::MARKET_KEY, $memberId);
 
         return $this->redis->delete($key);
@@ -74,7 +74,7 @@ class CartRepository extends BaseRepository
      */
     public function find($type, $memberId)
     {
-        if ($type === 'oneOff') $key = sprintf(CartKey::ONE_OFF_KEY, $memberId);
+        if ($type === 'buyNow') $key = sprintf(CartKey::ONE_OFF_KEY, $memberId);
         elseif ($type === 'market') $key = sprintf(CartKey::MARKET_KEY, $memberId);
 
         return $this->redis->get($key);
