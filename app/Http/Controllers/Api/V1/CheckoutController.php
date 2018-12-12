@@ -18,12 +18,16 @@ use App\Services\PaymentService;
 
 use App\Jobs\Mail\OrderCreatedMail;
 
+use App\Traits\CartHelper;
+
 use App\Core\Logger;
 use Exception;
 use App\Exceptions\CustomException;
 
 class CheckoutController extends RestLaravelController
 {
+    use CartHelper;
+
     protected $cartService;
     protected $orderService;
     protected $paymentService;
@@ -130,28 +134,5 @@ class CheckoutController extends RestLaravelController
             Logger::error('payment Error', $e->getMessage());
             return $this->failureCode('E9006');
         }
-    }
-
-    /**
-     * 檢查購物車內商品狀態、金額、數量
-     * @param $cart
-     * @param $memberId
-     * @return mixed
-     */
-    private function checkCartStatus($cart, $memberId)
-    {
-        if (!$cart) return 'E9030';
-
-        // 檢查購物車內商品狀態
-        $statusCode = $this->checkCartProductStatus($cart->items, $memberId);
-        if ($statusCode !== '00000') return $statusCode;
-
-        // 檢查數量
-        if ($cart->totalQuantity <= 0) return 'E9031';
-
-        // 檢查金額
-        if ($cart->payAmount <= 0) return 'E9032';
-
-        return '00000';
     }
 }
