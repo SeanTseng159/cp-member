@@ -112,18 +112,19 @@ Route::middleware(['cors', 'auth.jwt'])->namespace('V1')->group(function () {
     Route::prefix('cart')->group(function () {
         // 取得一次性購物車資訊並加入購物車(依來源) (magento)
         Route::get('one-off', 'CartController@oneOff');
+
+        // 立即購買
+        Route::post('buyNow', 'CartController@buyNow')->middleware('verify.cart.buyNow');
+
+        // 獨立賣場立即購買
+        Route::post('buyNow/market', 'CartController@market')->middleware('verify.cart.buyNow.market');
+
+        // 取立即購買 (購物車跟付款資訊)
+        Route::get('buyNow/info', 'CartController@info')->middleware('verify.cart.buyNow.info');
     });
 
     // 結帳相關
     Route::prefix('checkout')->group(function () {
-        // 立即購買
-        Route::post('buyNow', 'CheckoutController@buyNow')->middleware('verify.checkout.buyNow');
-        // 取立即購買 (購物車跟付款資訊)
-        Route::get('buyNow/info', 'CheckoutController@info');
-
-        // 獨立賣場立即購買
-        Route::post('buyNow/market', 'CheckoutController@market');
-
         // 結帳
         Route::post('payment', 'CheckoutController@payment')->middleware('verify.checkout.payment');
         // 重新結帳
