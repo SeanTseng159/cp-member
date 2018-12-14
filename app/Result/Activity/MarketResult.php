@@ -21,19 +21,19 @@ class MarketResult extends BaseResult
      * 取資料
      * @param $data
      */
-    public function get($id)
+    public function get($data)
     {
-        // if (!$categories) return [];
+        if (!$data) return [];
 
         $result = new \stdClass;
-        $result->id = $id;
-        $result->title = '全館特價大拍賣 跳樓大拍賣';
-        $result->period = '2018-9-5 10:00:10 ~ 2019-9-11 23:59:59';
-        $result->description = '全館商品，買越多省越多！';
+        $result->id = $data->id;
+        $result->title = $data->title;
+        $result->period = sprintf('%s ~ %s', $data->onsale_time, $data->offsale_time);
+        $result->description = $data->sub_title;
         $result->banner = 'https://i.ytimg.com/vi/0Rk5jj3gs74/maxresdefault.jpg';
-        $result->shareUrl = $this->webHost . 'activity/market/' . $result->id;
-        $result->rule = $this->getRule($id);
-        $result->products = $this->getProducts();
+        $result->shareUrl = $this->webHost . 'activity/market/' . $data->id;
+        $result->rule = $this->getRule($data->condition_type, $data->offer_type, $data->condition);
+        $result->products = $this->getProducts($data->products);
 
         return $result;
     }
@@ -42,61 +42,84 @@ class MarketResult extends BaseResult
      * 取規格
      * @param $data
      */
-    public function getRule($id)
+    public function getRule($type, $offerType, $condition)
     {
         $rule = new \stdClass;
 
-        if ($id == 1) {
-            $rule->name = '任選2件 $2499';
-            $rule->type = 'FQFP';
-            $rule->value1 = 2;
-            $rule->value2 = 499;
-        }
-        elseif ($id == 2) {
-            $rule->name = '滿2件折100元';
-            $rule->type = 'DQFP';
-            $rule->value1 = 2;
-            $rule->value2 = 100;
-        }
-        elseif ($id == 3) {
-            $rule->name = '滿399元折50元';
-            $rule->type = 'DPFQ';
-            $rule->value1 = 399;
-            $rule->value2 = 50;
-        }
-        elseif ($id == 4) {
-            $rule->name = '滿399元打95折';
-            $rule->type = 'DPFD';
-            $rule->value1 = 399;
-            $rule->value2 = 95;
-        }
-        else {
-            $rule->name = '滿2件打7折';
-            $rule->type = 'DQFD';
-            $rule->value1 = 2;
-            $rule->value2 = 70;
-        }
+        $nameType = $this->getRuleNameAndType($type, $offerType, $condition);
+        $rule->name = $nameType['name'];
+        $rule->type = $nameType['type'];
+        $rule->value1 = $condition->condition;
+        $rule->value2 = $this->getOffer($offerType, $condition->offer);
 
         return $rule;
+    }
+
+    /**
+     * 取規則名稱
+     * @param $data
+     */
+    private function getRuleNameAndType($conditionType, $offerType, $condition)
+    {
+        $name = '';
+        $type = '';
+
+        switch ($conditionType) {
+            case 1:
+                if ($offerType === 1) {
+                    $name = '滿%s元 折%s元';
+                    $type = 'DPFQ';
+                }
+                elseif ($offerType === 2) {
+                    $name = '滿%s元 打%s折';
+                    $type = 'DPFD';
+                }
+                break;
+            case 2:
+                if ($offerType === 1) {
+                    $name = '滿%s件 折%s元';
+                    $type = 'DQFP';
+                }
+                elseif ($offerType === 2) {
+                    $name = '滿%s件 打%s折';
+                    $type = 'DQFD';
+                }
+                break;
+        }
+
+        $offer = $this->getOffer($offerType, $condition->offer);
+
+        return [
+            'name' => sprintf($name, $condition->condition, $offer),
+            'type' => $type
+        ];
+    }
+
+    /**
+     * 取優惠值
+     * @param $data
+     */
+    private function getOffer($type, $value)
+    {
+        if ($type === 2) {
+            return round($value, 2) * 100;
+        }
+
+        return floor($value);
     }
 
     /**
      * 取 Products
      * @param $data
      */
-    public function getProducts()
+    public function getProducts($products = [])
     {
+        if (!$products) return [];
+
         $newProducts = [];
-
-        /*for ($i=1; $i < 10; $i++) {
-            $newProducts[] = $this->getProduct($i);
-        }*/
-
-        $newProducts[] = $this->getProduct(1);
-        $newProducts[] = $this->getProduct(2);
-        $newProducts[] = $this->getProduct(3);
-        $newProducts[] = $this->getProduct(4);
-        $newProducts[] = $this->getProduct(5);
+        foreach ($products as $product) {
+            $newProducts[] = $this->getProduct($product);
+        }
 
         return $newProducts;
     }
@@ -105,68 +128,20 @@ class MarketResult extends BaseResult
      * 取 Product
      * @param $data
      */
-    public function getProduct($i)
+    public function getProduct($prod)
     {
-        if ($i === 1) {
-            $product = new \stdClass;
-            $product->id = 275;
-            $product->name = '味覺糖';
-            $product->price = 30;
-            $product->salePrice = 20;
-            $product->imgUrl = 'https://devbackend.citypass.tw/storage/prod/15/2dc51e00c5c0dd546d402653e57a9ab1_s.png';
-            $product->stock = rand(10, 20);
-            $product->maxQuantity = 10;
-            $product->spec = $this->getSpec($i);
-            $product->specPrice = $this->getPrice($i);
-        }
-        elseif ($i === 2) {
-            $product = new \stdClass;
-            $product->id = 287;
-            $product->name = '老郭牛肉麵';
-            $product->price = 300;
-            $product->salePrice = 150;
-            $product->imgUrl = 'https://devbackend.citypass.tw/storage/prod/24/c5ec8e0068b7f795a6ab5291e245e8b9_s.jpg';
-            $product->stock = rand(10, 20);
-            $product->maxQuantity = 10;
-            $product->spec = $this->getSpec($i);
-            $product->specPrice = $this->getPrice($i);
-        }
-        elseif ($i === 3) {
-            $product = new \stdClass;
-            $product->id = 270;
-            $product->name = '陳家水餃大王';
-            $product->price = 300;
-            $product->salePrice = 260;
-            $product->imgUrl = 'https://devbackend.citypass.tw/upload/product/270/8678bc8cf0f1c099fb012a1e8b397b46_s.jpg';
-            $product->stock = rand(10, 20);
-            $product->maxQuantity = 10;
-            $product->spec = $this->getSpec($i);
-            $product->specPrice = $this->getPrice($i);
-        }
-        elseif ($i === 4) {
-            $product = new \stdClass;
-            $product->id = 221;
-            $product->name = '蜂蜜滴家';
-            $product->price = 30;
-            $product->salePrice = 10;
-            $product->imgUrl = 'https://devbackend.citypass.tw/upload/product/221/df94ad7d20b890f7241fe5cbaf876cb9_b.jpg';
-            $product->stock = rand(10, 20);
-            $product->maxQuantity = 10;
-            $product->spec = $this->getSpec($i);
-            $product->specPrice = $this->getPrice($i);
-        }
-        else {
-            $product = new \stdClass;
-            $product->id = 275;
-            $product->name = '味覺糖';
-            $product->price = 20;
-            $product->salePrice = 10;
-            $product->imgUrl = 'https://devbackend.citypass.tw/storage/prod/15/2dc51e00c5c0dd546d402653e57a9ab1_s.png';
-            $product->stock = rand(10, 20);
-            $product->maxQuantity = 10;
-            $product->spec = $this->getSpec($i);
-            $product->specPrice = $this->getPrice($i);
-        }
+        if (!$prod) return null;
+
+        $product = new \stdClass;
+        $product->id = $prod->prod_id;
+        $product->name = $prod->prod_name;
+        $product->price = $prod->prod_spec_price_list;
+        $product->salePrice = $prod->marketPrice;
+        $product->imgUrl = ($prod->img) ? $this->backendHost . $prod->img->img_thumbnail_path : '';
+        $product->stock = $prod->marketStock;
+        $product->maxQuantity = $prod->marketStock;
+        $product->spec = $this->getSpec($prod);
+        $product->specPrice = $this->getPrice($prod);
 
         return $product;
     }
@@ -175,33 +150,11 @@ class MarketResult extends BaseResult
      * 取 規格
      * @param $data
      */
-    public function getSpec($i)
+    public function getSpec($prod)
     {
-        if ($i === 1) {
-            $spec = new \stdClass;
-            $spec->id = 413;
-            $spec->name = '香蕉口味';
-        }
-        elseif ($i === 2) {
-            $spec = new \stdClass;
-            $spec->id = 429;
-            $spec->name = '雙人套餐優惠卷';
-        }
-        elseif ($i === 3) {
-            $spec = new \stdClass;
-            $spec->id = 356;
-            $spec->name = '手工水餃系列';
-        }
-        elseif ($i === 4) {
-            $spec = new \stdClass;
-            $spec->id = 267;
-            $spec->name = '小朋友最愛系列';
-        }
-        else {
-            $spec = new \stdClass;
-            $spec->id = 412;
-            $spec->name = '草莓口味';
-        }
+        $spec = new \stdClass;
+        $spec->id = $prod->prod_spec_id;
+        $spec->name = $prod->prod_spec_name;
 
         return $spec;
     }
@@ -210,33 +163,11 @@ class MarketResult extends BaseResult
      * 取 票種
      * @param $data
      */
-    public function getPrice($i)
+    public function getPrice($prod)
     {
-        if ($i === 1) {
-            $price = new \stdClass;
-            $price->id = 472;
-            $price->name = '香蕉口味';
-        }
-        elseif ($i === 2) {
-            $price = new \stdClass;
-            $price->id = 490;
-            $price->name = '雙人套餐優惠卷';
-        }
-        elseif ($i === 3) {
-            $price = new \stdClass;
-            $price->id = 410;
-            $price->name = '高麗菜韭黃豬肉';
-        }
-        elseif ($i === 4) {
-            $price = new \stdClass;
-            $price->id = 323;
-            $price->name = '蜂蜜軟糖';
-        }
-        else {
-            $price = new \stdClass;
-            $price->id = 471;
-            $price->name = '草莓口味';
-        }
+        $price = new \stdClass;
+        $price->id = $prod->prod_spec_price_id;
+        $price->name = $prod->prod_spec_price_name;
 
         return $price;
     }

@@ -118,12 +118,6 @@ class OrderRepository extends BaseRepository
             Logger::error('Create Order Error', $e->getMessage());
             DB::connection('backend')->rollBack();
 
-            throw new CustomException('E9001');
-            return null;
-        } catch (QueryException $e) {
-            Logger::error('Create Order Error', $e->getMessage());
-            DB::connection('backend')->rollBack();
-
             throw new CustomException($e->getMessage());
             return null;
         } catch (Exception $e) {
