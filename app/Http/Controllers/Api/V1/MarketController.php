@@ -10,11 +10,12 @@ namespace App\Http\Controllers\Api\V1;
 use Illuminate\Http\Request;
 use Ksd\Mediation\Core\Controller\RestLaravelController;
 
+use App\Services\Ticket\PromotionService;
 use App\Result\Activity\MarketResult;
 
-// use App\Cache\Redis;
-// use App\Cache\Config as CacheConfig;
-// use App\Cache\Key\ServiceKey;
+use App\Cache\Redis;
+use App\Cache\Config as CacheConfig;
+use App\Cache\Key\ActivityKey;
 
 use Exception;
 
@@ -24,9 +25,12 @@ class MarketController extends RestLaravelController
 
     protected $redis;
 
-    public function __construct()
+    protected $service;
+
+    public function __construct(PromotionService $service)
     {
-        // $this->redis = new Redis;
+        $this->service = $service;
+        $this->redis = new Redis;
     }
 
     /**
@@ -38,12 +42,11 @@ class MarketController extends RestLaravelController
     public function find(Request $request, $id)
     {
         try {
-            /*$result = $this->redis->remember(ServiceKey::QA_KEY, CacheConfig::ONE_MONTH, function () {
-                $data = $this->serviceService->faq($this->lang);
-                return (new ServiceResult)->faq($data);
-            });*/
-
-            $result = (new MarketResult)->get($id);
+            $key = sprintf(ActivityKey::MARKET_KEY, $id);
+            $result = $this->redis->remember($key, CacheConfig::ONE_MONTH, function () use ($id) {
+                $market = $this->service->find($id);
+                return (new MarketResult)->get($market);
+            });
 
             return $this->success($result);
         } catch (Exception $e) {
