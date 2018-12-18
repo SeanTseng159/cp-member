@@ -243,7 +243,7 @@ class OrderRepository extends BaseRepository
     {
         if (!$orderNo) return null;
 
-        $order = $this->model->with(['details.combo'])
+        $order = $this->model->with(['details.combo', 'shipment'])
                             ->notDeleted()
                             ->where('member_id', $memberId)
                             ->where('order_no', $orderNo)

@@ -89,7 +89,7 @@ class OrderResult extends BaseResult
         $result['orderStatus'] = $this->getOrderStatus($result['orderStatusCode']);
         $result['orderDate'] = $this->arrayDefault($order, 'created_at');
         $result['payment'] = $this->getPayment($order);
-        $result['shipment'] = $this->getShipment($order);
+        $result['shipment'] = $this->getShipment($order['order_shipment_method'], $order['shipment'], $order['order_shipment_fee']);
         $result['items'] = $this->processItems($order['details'], $isDetail);
         $result['orderer'] = $this->getOrderer($order['member_id']);
 
@@ -214,44 +214,25 @@ class OrderResult extends BaseResult
 
     /**
      *  運費資訊
-     * @param $order
+     * @param $method
+     * @param $shipment
      * @return string
      */
-    private function getShipment($order)
+    private function getShipment($method = 1, $shipment = null, $shipmentFee = 0)
     {
-        $isShipment = ($order['order_shipment_method'] === 2);
-        $shipment = new \stdClass;
-        $shipment->name = ($isShipment) ? $this->arrayDefault($order, 'shipment_user', '') : '';
-        $shipment->address = ($isShipment) ? $this->arrayDefault($order, 'shipment_address', '') : '';
-        $shipment->phone = ($isShipment) ? '+' . $this->arrayDefault($order, 'shipment_phone', '') : '';
+        $isShipment = ($method === 2);
 
-        $shipment->description = ($isShipment) ? trans('common.delivery') : trans('common.ticket');
-        $shipment->statusCode = $this->getShipmentStatus($order['order_status'], $isShipment);
-        $shipment->status = OrderConfig::SHIPMENT_STATUS[$shipment->statusCode];
-        // $shipment->traceCode = '';
-        $shipment->amount = $this->arrayDefault($order, 'order_shipment_fee', 0);
+        $newShipment = new \stdClass;
+        $newShipment->name = ($isShipment) ? $shipment['user_name'] : '';
+        $newShipment->address = ($isShipment) ? $shipment['zipcode'] . ' ' . $shipment['address'] : '';
+        $newShipment->phone = ($isShipment) ? '+' . $shipment['country_code'] . $shipment['cellphone'] : '';
+        $newShipment->description = ($isShipment) ? trans('common.delivery') : trans('common.ticket');
+        $newShipment->statusCode = ($isShipment) ? $shipment['status'] : 5;
+        $newShipment->status = OrderConfig::SHIPMENT_STATUS[$newShipment->statusCode];
+        $newShipment->traceCode = ($isShipment) ? $shipment['trace_code'] : '';
+        $newShipment->amount = $shipmentFee;
 
-        return $shipment;
-    }
-
-    /**
-     *  物流狀態
-     * @param $order_status
-     * @return string
-     */
-    private function getShipmentStatus($orderStatus = 0, $isShipment = false)
-    {
-        $status = 2;
-        if ($isShipment) {
-            if ($orderStatus === 0 || $orderStatus === 1) $status = 0;
-            elseif ($orderStatus === 10) $status = 1;
-        }
-        else {
-            if ($orderStatus === 0 || $orderStatus === 1) $status = 0;
-            elseif ($orderStatus === 10) $status = 3;
-        }
-
-        return $status;
+        return $newShipment;
     }
 
     /**
