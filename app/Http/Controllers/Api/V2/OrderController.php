@@ -48,4 +48,30 @@ class OrderController extends RestLaravelController
             return $this->failureCode('E0103');
         }
     }
+
+    /**
+     * 根據 id 取得訂單
+     * @param Request $request
+     * @param $orderNo
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function detail(Request $request, $orderNo)
+    {
+        try {
+            if (!$orderNo) return $this->failureCode('E0101');
+
+            $order = $this->orderService->findCanShowByOrderNo($request->memberId, $orderNo);
+            if (!$order) return $this->failureCode('E0101');
+
+            // 檢查付款人
+            if ($order->member_id !== $request->memberId) return $this->failureCode('E9050');
+
+            $result = (new OrderResult)->get($order, true);
+
+            return $this->success($result);
+        } catch (Exception $e) {
+            Logger::error('order detail Error', $e->getMessage());
+            return $this->failureCode('E0101');
+        }
+    }
 }
