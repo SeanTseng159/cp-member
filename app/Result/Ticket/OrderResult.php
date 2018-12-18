@@ -72,12 +72,18 @@ class OrderResult extends BaseResult
         $this->source = ($this->isCommodity) ? OrderConfig::SOURCE_CT_COMMODITY : OrderConfig::SOURCE_TICKET;
 
         $result['source'] = $this->source;
-        // $result['id'] = $this->arrayDefault($order, 'order_id');
         $result['orderNo'] = (string) $this->arrayDefault($order, 'order_no');
         // 小計, 總金額減運費
-        $result['amount'] = $this->arrayDefault($order, 'order_amount', 0) - $this->arrayDefault($order, 'order_shipment_fee', 0);
+        $result['totalAmount'] = $this->arrayDefault($order, 'order_amount', 0) - $this->arrayDefault($order, 'order_shipment_fee', 0);
+        // 折扣價格
         $result['discountAmount'] = $this->arrayDefault($order, 'order_off', 0);
-        $result['totalAmount'] = $this->arrayDefault($order, 'order_amount');
+        // 折扣後總計
+        $result['discountTotalAmount'] = $result['totalAmount'] - $result['discountAmount'];
+        // 運費
+        $result['shippingFee'] = $this->arrayDefault($order, 'order_shipment_fee', 0);
+        // 付款價格
+        $result['payAmount'] = $this->arrayDefault($order, 'order_amount');
+
         $result['isRePayment'] = $this->isRepay($order['order_status'], $order['order_payment_method'], $order['order_atm_virtual_account']);
         $result['orderStatusCode'] = $this->getMergeStatusCode($this->changeStatusCode($order['order_status'], $result['isRePayment']));
         $result['orderStatus'] = $this->getOrderStatus($result['orderStatusCode']);

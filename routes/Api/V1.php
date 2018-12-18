@@ -102,7 +102,7 @@ Route::middleware(['cors', 'auth.jwt'])->namespace('V1')->group(function () {
         Route::get('info', 'OrderController@info');
 
         // 取得單一訂單
-        Route::get('detail/{orderNo}', 'OrderController@detail');
+        // Route::get('detail/{orderNo}', 'OrderController@detail');
 
         // 搜尋訂單
         Route::get('search', 'OrderController@search');

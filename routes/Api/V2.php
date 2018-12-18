@@ -19,5 +19,8 @@ Route::middleware(['cors', 'auth.jwt'])->namespace('V2')->group(function () {
     Route::prefix('order')->group(function () {
         // 取得訂單列表
         Route::get('info', 'OrderController@info');
+
+        // 取得單一訂單
+        Route::get('detail/{orderNo}', 'OrderController@detail');
     });
 });
