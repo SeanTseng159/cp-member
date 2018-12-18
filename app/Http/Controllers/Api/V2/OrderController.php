@@ -70,8 +70,9 @@ class OrderController extends RestLaravelController
 
             return $this->success($result);
         } catch (Exception $e) {
-            Logger::error('order detail Error', $e->getMessage());
-            return $this->failureCode('E0101');
+            var_dump($e->getMessage());
+            // Logger::error('order detail Error', $e->getMessage());
+            // return $this->failureCode('E0101');
         }
     }
 }
