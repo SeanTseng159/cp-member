@@ -128,7 +128,7 @@ class CartController extends RestLaravelController
             }
 
             // 處理購物車格式
-            $cart = (new CartResult)->get($products, true);
+            $cart = (new CartResult)->get('buyNow', $products, true);
             // 加入快取購物車
             $this->cartService->add('buyNow', $param->memberId, serialize($cart));
 
@@ -196,7 +196,7 @@ class CartController extends RestLaravelController
             if ($statusCode !== '00000') return $this->failureCode($statusCode);
 
             // 處理購物車格式
-            $cart = (new CartResult)->get($prods, true, $promotion);
+            $cart = (new CartResult)->get('market', $prods, true, $promotion);
             // 加入快取購物車
             $this->cartService->add('market', $params->memberId, serialize($cart));
 

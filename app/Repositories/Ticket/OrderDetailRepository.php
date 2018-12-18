@@ -103,7 +103,7 @@ class OrderDetailRepository extends BaseRepository
         $orderDetail->prod_spec_price_name = $product->additional->type->name;
         $orderDetail->prod_locate = $product->store;
         $orderDetail->prod_address = $product->address;
-        $orderDetail->price_retail = $product->price;
+        $orderDetail->price_retail = $product->retailPrice;
         $orderDetail->price_off = $product->price;
         $orderDetail->price_company_qty = 1;
         $orderDetail->prod_expire_type = $product->expireType;

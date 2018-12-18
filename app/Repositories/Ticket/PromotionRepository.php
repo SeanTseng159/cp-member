@@ -11,6 +11,7 @@ use App\Repositories\BaseRepository;
 use App\Models\Ticket\Promotion;
 use App\Repositories\Ticket\ProductRepository;
 use App\Repositories\Ticket\PromotionProdSpecPriceRepository as PPSPRepository;
+use App\Repositories\Ticket\TagProdRepository;
 use Carbon\Carbon;
 
 class PromotionRepository extends BaseRepository
@@ -19,12 +20,17 @@ class PromotionRepository extends BaseRepository
 
     protected $productRepository;
     protected $ppspRepository;
+    protected $tagProdRepository;
 
-    public function __construct(Promotion $model, ProductRepository $productRepository, PPSPRepository $ppspRepository)
+    public function __construct(Promotion $model,
+                                ProductRepository $productRepository,
+                                PPSPRepository $ppspRepository,
+                                TagProdRepository $tagProdRepository)
     {
         $this->model = $model;
         $this->productRepository = $productRepository;
         $this->ppspRepository = $ppspRepository;
+        $this->tagProdRepository = $tagProdRepository;
 
         $this->now = Carbon::now()->toDateTimeString();
     }
@@ -64,9 +70,10 @@ class PromotionRepository extends BaseRepository
      * @param $prodId
      * @param $specId
      * @param $specPriceId
+     * @param $hasTag
      * @return mixed
      */
-    public function product($prodId, $specId, $specPriceId)
+    public function product($prodId, $specId, $specPriceId, $hasTag = false)
     {
         $prod = $this->productRepository->findByCheckout($prodId, $specId, $specPriceId);
         $promotionProd = $this->ppspRepository->findBySpecPrice($prodId, $specId, $specPriceId);
@@ -74,6 +81,10 @@ class PromotionRepository extends BaseRepository
         if ($prod && $promotionProd) {
             $prod->prod_spec_price_value = $promotionProd->price ?: $prod->prod_spec_price_value;
             $prod->marketStock = $promotionProd->stock;
+        }
+
+        if ($hasTag) {
+            $prod->tags = $this->tagProdRepository->getTagsByProdId($prodId);
         }
 
         return $prod;

@@ -8,6 +8,7 @@
 namespace App\Traits;
 
 use App\Services\Ticket\ProductService;
+use App\Services\Ticket\PromotionService;
 use App\Services\Ticket\PaymentMethodService;
 use App\Result\PaymentInfoResult;
 
@@ -38,16 +39,17 @@ trait CartHelper
 
     /**
      * 檢查購物車內商品狀態、金額、數量
+     * @param $cartType
      * @param $cart
      * @param $memberId
      * @return mixed
      */
-    private function checkCartStatus($cart, $memberId)
+    private function checkCartStatus($cartType, $cart, $memberId)
     {
-        if (!$cart) return 'E9030';
+        if (!$cartType || !$cart) return 'E9030';
 
         // 檢查購物車內商品狀態
-        $statusCode = $this->checkCartProductStatus($cart->items, $memberId);
+        $statusCode = $this->checkCartProductStatus($cartType, $cart->items, $memberId);
         if ($statusCode !== '00000') return $statusCode;
 
         // 檢查數量
@@ -61,25 +63,40 @@ trait CartHelper
 
     /**
      * 檢查購物車內商品狀態, 是否可購買
-     * @param $product
+     * @param $cartType
+     * @param $products
      * @param $memberId
      * @param $isPurchase
      * @return mixed
      */
-    private function checkCartProductStatus($products, $memberId, $isPurchase = false)
+    private function checkCartProductStatus($cartType, $products, $memberId, $isPurchase = false)
     {
         if (!$isPurchase && !$products) return 'E9030';
 
-        $productService = app()->build(ProductService::class);
+        // 賣場需取特定價格跟庫存
+        if ($cartType === 'market') {
+            $promotionService = app()->build(PromotionService::class);
+        }
+        else {
+            $productService = app()->build(ProductService::class);
+        }
 
         foreach ($products as $product) {
-            $prod = $productService->findByCheckout($product->id, $product->additional->spec->id, $product->additional->type->id);
-            $statusCode = $this->checkProductStatus($prod, $memberId);
+            // 賣場需取特定價格跟庫存
+            if ($cartType === 'market') {
+                $prod = $promotionService->product($product->id, $product->additional->spec->id, $product->additional->type->id);
+            }
+            else {
+                $prod = $productService->findByCheckout($product->id, $product->additional->spec->id, $product->additional->type->id);
+            }
+
+            // 檢查商品狀態, 是否可購買
+            $statusCode = $this->checkProductStatus($cartType, $prod, $memberId);
             if ($statusCode !== '00000') return $statusCode;
 
-            // 處理加購
+            // 處理加購商品, 是否可購買
             if (!$isPurchase && $product->purchase) {
-                $statusCode = $this->checkCartProductStatus($product->purchase, $memberId, true);
+                $statusCode = $this->checkCartProductStatus($cartType, $product->purchase, $memberId, true);
                 if ($statusCode !== '00000') return $statusCode;
             }
         }

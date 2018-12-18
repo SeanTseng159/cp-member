@@ -10,8 +10,12 @@ namespace App\Services\Ticket;
 use App\Services\BaseService;
 use App\Repositories\Ticket\PromotionRepository;
 
+use App\Traits\ProductHelper;
+
 class PromotionService extends BaseService
 {
+    use ProductHelper;
+
     public function __construct(PromotionRepository $repository)
     {
         $this->repository = $repository;
@@ -32,10 +36,16 @@ class PromotionService extends BaseService
      * @param $prodId
      * @param $specId
      * @param $specPriceId
+     * @param $hasTag
      * @return mixed
      */
-    public function product($prodId, $specId, $specPriceId)
+    public function product($prodId, $specId, $specPriceId, $hasTag = false)
     {
-        return $this->repository->product($prodId, $specId, $specPriceId);
+        $product = $this->repository->product($prodId, $specId, $specPriceId, $hasTag);
+
+        // 檢查是否在合理的使用期限內
+        if ($product && !$this->checkExpire($product)) return NULL;
+
+        return $product;
     }
 }

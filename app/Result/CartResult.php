@@ -103,15 +103,17 @@ class CartResult extends BaseResult
 
     /**
      * 處理購物車資料
+     * @param $cartType
      * @param $product
      * @param $isDetail
      * @param $promotion [App\Repositories\Ticket\Promotion]
      */
-    public function get($products, $isDetail = false, $promotion = null)
+    public function get($cartType = 'cart', $products, $isDetail = false, $promotion = null)
     {
         if ($promotion) {
             // 有優惠條件購物車
             $result = new \stdClass;
+            $result->type = $cartType;
             $result->items = ($products) ? $this->getItems($products, $isDetail, true) : [];
             $result->totalQuantity = $this->totalQuantity;
             $result->totalAmount = $this->totalAmount;
@@ -126,6 +128,7 @@ class CartResult extends BaseResult
         else {
             // 一般購物車
             $result = new \stdClass;
+            $result->type = $cartType;
             $result->items = ($products) ? $this->getItems($products, $isDetail, true) : [];
             $result->totalQuantity = $this->totalQuantity;
             $result->totalAmount = $this->totalAmount;
@@ -185,6 +188,7 @@ class CartResult extends BaseResult
             $prod->api = $product->prod_api;
             $prod->store = $product->prod_store;
             $prod->address = $product->prod_zipcode . $product->full_address;
+            $prod->retailPrice = $product->prod_spec_price_list;
 
             $prod->expireType = $product->prod_expire_type;
             if ($product->prod_expire_type === 1) {

@@ -18,8 +18,10 @@ use App\Plugins\CI_Encryption;
 use App\Repositories\BaseRepository;
 use App\Models\Ticket\Order;
 use App\Models\Ticket\ProductSpecPrice;
+use App\Models\Ticket\PromotionProdSpecPrice;
 use App\Repositories\Ticket\OrderDetailRepository;
 use App\Repositories\Ticket\SeqOrderRepository;
+use App\Repositories\Ticket\OrderShipmentRepository;
 
 use App\Cache\Key\CheckoutKey;
 use App\Cache\Config as CacheConfig;
@@ -29,15 +31,18 @@ class OrderRepository extends BaseRepository
     protected $redis;
     protected $orderDetailRepository;
     protected $seqOrderRepository;
+    protected $orderShipmentRepository;
 
     public function __construct(Order $model,
                                 OrderDetailRepository $orderDetailRepository,
-                                SeqOrderRepository $seqOrderRepository)
+                                SeqOrderRepository $seqOrderRepository,
+                                OrderShipmentRepository $orderShipmentRepository)
     {
         $this->redis = new Redis;
         $this->model = $model;
         $this->orderDetailRepository = $orderDetailRepository;
         $this->seqOrderRepository = $seqOrderRepository;
+        $this->orderShipmentRepository = $orderShipmentRepository;
     }
 
     /**
@@ -61,9 +66,6 @@ class OrderRepository extends BaseRepository
             $order->order_payment_gateway = $params->payment['gateway'];
             $order->order_payment_method = $params->payment['method'];
             $order->order_shipment_method = $params->shipment['id'];
-            $order->shipment_user = $params->shipment['userName'] ?? '';
-            $order->shipment_address = $params->shipment['address'] ?? '';
-            $order->shipment_phone = $params->shipment['phone'] ?? '';
 
             $order->order_receipt_method = 1;
             $order->order_items = $cart->totalQuantity;
@@ -93,6 +95,12 @@ class OrderRepository extends BaseRepository
                 $this->redis->set($key, $params->payment, CacheConfig::TEN_MIN);
             }*/
 
+            // 有實體商品才存物流資訊
+            if ($params->shipment['id'] == 2) {
+                $result = $this->orderShipmentRepository->createForOrder($order->order_id, $params->shipment);
+                if (!$result) throw new Exception('Create Order Shipment Error');
+            }
+
             // 建立訂單詳細
             $result = $this->orderDetailRepository->createDetails($order->member_id, $order->order_no, $order->order_payment_gateway, $cart->items);
             if (!$result) throw new Exception('Create Order Details Error');
@@ -104,6 +112,21 @@ class OrderRepository extends BaseRepository
                 if ($stock > 0) {
                     $psp->prod_spec_price_stock = $stock;
                     $psp->save();
+                }
+                else {
+                    throw new CustomException('E9011');
+                    break;
+                }
+
+                // 扣除獨立賣場 商品庫存
+                if ($cart->type !== 'market') continue;
+
+                $ppsp = PromotionProdSpecPrice::where('price_id', $item->additional->type->id)->first();
+
+                $stock = $ppsp->stock - $item->quantity;
+                if ($stock > 0) {
+                    $ppsp->stock = $stock;
+                    $ppsp->save();
                 }
                 else {
                     throw new CustomException('E9011');
