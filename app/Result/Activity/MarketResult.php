@@ -9,9 +9,12 @@ namespace App\Result\Activity;
 
 use App\Config\BaseConfig;
 use App\Result\BaseResult;
+use App\Traits\MarketHelper;
 
 class MarketResult extends BaseResult
 {
+    use MarketHelper;
+
     public function __construct()
     {
         parent::__construct();
@@ -32,80 +35,10 @@ class MarketResult extends BaseResult
         $result->description = $data->sub_title;
         $result->banner = 'https://i.ytimg.com/vi/0Rk5jj3gs74/maxresdefault.jpg';
         $result->shareUrl = $this->webHost . 'activity/market/' . $data->id;
-        $result->rule = $this->getRule($data->condition_type, $data->offer_type, $data->condition);
+        $result->rule = $this->getLowerCondition($data->condition_type, $data->offer_type, $data->conditions);
         $result->products = $this->getProducts($data->products);
 
         return $result;
-    }
-
-    /**
-     * 取規格
-     * @param $data
-     */
-    public function getRule($type, $offerType, $condition)
-    {
-        $rule = new \stdClass;
-
-        $nameType = $this->getRuleNameAndType($type, $offerType, $condition);
-        $rule->name = $nameType['name'];
-        $rule->type = $nameType['type'];
-        $rule->value1 = $condition->condition;
-        $rule->value2 = $this->getOffer($offerType, $condition->offer);
-
-        return $rule;
-    }
-
-    /**
-     * 取規則名稱
-     * @param $data
-     */
-    private function getRuleNameAndType($conditionType, $offerType, $condition)
-    {
-        $name = '';
-        $type = '';
-
-        switch ($conditionType) {
-            case 1:
-                if ($offerType === 1) {
-                    $name = '滿%s元 折%s元';
-                    $type = 'DPFQ';
-                }
-                elseif ($offerType === 2) {
-                    $name = '滿%s元 打%s折';
-                    $type = 'DPFD';
-                }
-                break;
-            case 2:
-                if ($offerType === 1) {
-                    $name = '滿%s件 折%s元';
-                    $type = 'DQFP';
-                }
-                elseif ($offerType === 2) {
-                    $name = '滿%s件 打%s折';
-                    $type = 'DQFD';
-                }
-                break;
-        }
-
-        $offer = $this->getOffer($offerType, $condition->offer);
-
-        return [
-            'name' => sprintf($name, $condition->condition, $offer),
-            'type' => $type
-        ];
-    }
-
-    /**
-     * 取優惠值
-     * @param $data
-     */
-    private function getOffer($type, $value)
-    {
-        if ($type === 2) {
-            return round($value, 2) * 100;
-        }
-
-        return floor($value);
     }
 
     /**

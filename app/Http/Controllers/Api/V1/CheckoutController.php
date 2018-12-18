@@ -42,6 +42,26 @@ class CheckoutController extends RestLaravelController
     }
 
     /**
+     * 付款資訊
+     * @param $request
+     * @return mixed
+     */
+    public function info(Request $request, $orderNo)
+    {
+        try {
+            if (!$orderNo) return $this->failureCode('E9000');
+            $order = $this->orderService->findCanPay($orderNo);
+            $isPhysical = ($order->order_shipment_method === 2) ? true : false;
+            // 取付款方法
+            $result = $this->getCheckoutInfo($isPhysical);
+
+            return $this->success($result);
+        } catch (Exception $e) {
+            return $this->failureCode('E9000');
+        }
+    }
+
+    /**
      * 結帳
      * @param $request
      * @return mixed

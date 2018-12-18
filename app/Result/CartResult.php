@@ -8,11 +8,11 @@
 namespace App\Result;
 
 use App\Result\BaseResult;
-use App\Traits\CheckoutHelper;
+use App\Traits\CartHelper;
 
 class CartResult extends BaseResult
 {
-    use CheckoutHelper;
+    use CartHelper;
 
     // 總數量
     private $totalQuantity = 0;
@@ -102,22 +102,41 @@ class CartResult extends BaseResult
     }
 
     /**
-     * 取得資料
+     * 處理購物車資料
      * @param $product
-     * @param object
+     * @param $isDetail
+     * @param $promotion [App\Repositories\Ticket\Promotion]
      */
-    public function get($products, $isDetail = false)
+    public function get($products, $isDetail = false, $promotion = null)
     {
-        $result = new \stdClass;
-        $result->items = ($products) ? $this->getItems($products, $isDetail, true) : [];
-        $result->totalQuantity = $this->totalQuantity;
-        $result->totalAmount = $this->totalAmount;
-        $result->discountAmount = $this->discountAmount;
-        $result->discountTotalAmount = $this->totalAmount;
-        $result->shippingFee = $this->shippingFee;
-        $result->payAmount = $this->totalAmount + $this->shippingFee;
-        $result->canCheckout = ($products) ? true : false;
-        $result->hasPhysical = $this->hasPhysical;
+        if ($promotion) {
+            // 有優惠條件購物車
+            $result = new \stdClass;
+            $result->items = ($products) ? $this->getItems($products, $isDetail, true) : [];
+            $result->totalQuantity = $this->totalQuantity;
+            $result->totalAmount = $this->totalAmount;
+            $result->discountAmount = $this->calcDiscountAmount($promotion, $result->totalAmount, $result->totalQuantity);
+            $result->discountTotalAmount = $result->totalAmount - $result->discountAmount;
+            $result->shippingFee = $this->calcShippingFee($promotion->shipping, $result->totalQuantity);
+            $result->payAmount = $result->discountTotalAmount + $result->shippingFee;
+            $result->canCheckout = ($products) ? true : false;
+            $result->hasPhysical = $this->hasPhysical;
+            $result->promotion = $this->getFitCondition($promotion, $result->totalAmount, $result->totalQuantity);
+        }
+        else {
+            // 一般購物車
+            $result = new \stdClass;
+            $result->items = ($products) ? $this->getItems($products, $isDetail, true) : [];
+            $result->totalQuantity = $this->totalQuantity;
+            $result->totalAmount = $this->totalAmount;
+            $result->discountAmount = $this->discountAmount;
+            $result->discountTotalAmount = $this->totalAmount;
+            $result->shippingFee = $this->shippingFee;
+            $result->payAmount = $this->totalAmount + $this->shippingFee;
+            $result->canCheckout = ($products) ? true : false;
+            $result->hasPhysical = $this->hasPhysical;
+            $result->promotion = [];
+        }
 
         return $result;
     }

@@ -26,4 +26,16 @@ class PromotionService extends BaseService
     {
         return $this->repository->find($id);
     }
+
+    /**
+     * 根據 商品 id 規格/票種 取得商品明細
+     * @param $prodId
+     * @param $specId
+     * @param $specPriceId
+     * @return mixed
+     */
+    public function product($prodId, $specId, $specPriceId)
+    {
+        return $this->repository->product($prodId, $specId, $specPriceId);
+    }
 }
