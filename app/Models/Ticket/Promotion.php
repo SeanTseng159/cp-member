@@ -14,13 +14,13 @@ class Promotion extends BaseModel
 	/**
      * 取得優惠條件
      */
-  	public function condition()
+  	public function conditions()
     {
-        return $this->hasOne('App\Models\Ticket\PromotionCondition');
+        return $this->hasMany('App\Models\Ticket\PromotionCondition')->orderBy('condition', 'asc');
 	}
 
 	/**
-     * 取得優banner
+     * 取得banner
      */
   	public function banner()
     {
@@ -28,10 +28,18 @@ class Promotion extends BaseModel
 	}
 
 	/**
-     * 取得優banner
+     * 取得商品
      */
   	public function prodSpecPrices()
     {
         return $this->hasMany('App\Models\Ticket\PromotionProdSpecPrice')->orderBy('sort', 'asc');
 	}
+
+    /**
+     * 取得運費
+     */
+    public function shipping()
+    {
+        return $this->hasMany('App\Models\Ticket\PromotionShipping')->orderBy('lower', 'asc');
+    }
 }

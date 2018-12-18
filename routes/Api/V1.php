@@ -128,6 +128,9 @@ Route::middleware(['cors', 'auth.jwt'])->namespace('V1')->group(function () {
 
     // 結帳相關
     Route::prefix('checkout')->group(function () {
+        // 付款資訊
+        Route::get('info/{orderNo}', 'CheckoutController@info');
+
         // 結帳
         Route::post('payment', 'CheckoutController@payment')->middleware('verify.checkout.payment');
         // 重新結帳

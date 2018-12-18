@@ -11,14 +11,18 @@ use App\Services\Ticket\ProductService;
 use App\Services\Ticket\PaymentMethodService;
 use App\Result\PaymentInfoResult;
 
+use App\Traits\MarketHelper;
+
 trait CartHelper
 {
+    use MarketHelper;
+
     /**
      * 檢查購物車內商品狀態、金額、數量
      * @param $isPhysical
      * @return array
      */
-    private function getCheckoutInfo($isPhysical)
+    private function getCheckoutInfo($isPhysical = false)
     {
         $paymentMethodService = app()->build(PaymentMethodService::class);
         $all = $paymentMethodService->all();
@@ -85,54 +89,170 @@ trait CartHelper
 
     /**
      * 檢查商品狀態, 是否可購買
+     * @param $cartType
      * @param $product
      * @param $memberId
      * @return mixed
      */
-    private function checkProductStatus($product, $memberId)
+    private function checkProductStatus($cartType, $product, $memberId)
     {
-        // 檢查限購數量
-        $buyQuantity = $product->quantity;
-        if ($product->prod_type === 1 || $product->prod_type === 2) {
-            if ($product->prod_limit_type === 1) {
-                $memberBuyQuantity = $this->orderService->getCountByProdAndMember($product->product_id, $memberId);
-                $buyQuantity += $memberBuyQuantity;
-            }
-            if ($buyQuantity > $product->prod_limit_num) return 'E9012';
+        if ($cartType === 'market') {
+            // 檢查賣場可銷庫量是否足夠
+            if ($product->marketStock <= 0 || $product->marketStock < $product->quantity) return 'E9011';
         }
-        elseif ($product->prod_type === 3) {
-            if ($buyQuantity > $product->prod_plus_limit) return 'E9012';
+        else {
+            // 檢查限購數量
+            $buyQuantity = $product->quantity;
+            if ($product->prod_type === 1 || $product->prod_type === 2) {
+                if ($product->prod_limit_type === 1) {
+                    $memberBuyQuantity = $this->orderService->getCountByProdAndMember($product->product_id, $memberId);
+                    $buyQuantity += $memberBuyQuantity;
+                }
+                if ($buyQuantity > $product->prod_limit_num) return 'E9012';
+            }
+            elseif ($product->prod_type === 3) {
+                if ($buyQuantity > $product->prod_plus_limit) return 'E9012';
+            }
         }
 
         // 檢查是否有庫存
-        if ($product->prod_spec_price_stock <= 0 && $product->prod_spec_price_stock >= $product->quantity) return 'E9011';
+        if ($product->prod_spec_price_stock <= 0 || $product->prod_spec_price_stock < $product->quantity) return 'E9011';
 
         return '00000';
     }
 
     /**
      * 檢查優惠是否符合
-     * @param $rule
+     * @param $promotion
      * @param $totalAmount
      * @param $totalQuantity
      * @return mixed
      */
-    private function checkDiscountRule($rule = [], $totalAmount = 0, $totalQuantity = 0)
+    private function checkDiscountRule($promotion, $totalAmount = 0, $totalQuantity = 0)
     {
-        $ype = 'FQFP';
-        $value1 = 2;
-        $value2 = 499;
+        $lower = $promotion->conditions->min('condition');
 
-        if ($ype === 'FQFP' && $totalQuantity !== $value1) {
-            return 'E9201';
-        }
-        elseif (($ype === 'DQFP' || $ype === 'DQFD') && $totalQuantity < $value1) {
-            return 'E9202';
-        }
-        elseif (($ype === 'DPFQ' || $ype === 'DPFD') && $totalAmount < $value1) {
-            return 'E9203';
+        // 優惠條件
+        switch ($promotion->condition_type) {
+            case 1:
+                if ($totalAmount < $lower) return 'E9203';
+                break;
+            case 2:
+                if ($totalQuantity < $lower) return 'E9202';
+                break;
+            case 3:
+                if ($totalQuantity !== $lower) return 'E9201';
+                break;
         }
 
         return '00000';
+    }
+
+    /**
+     * 取符合的優惠條件
+     * @param $promotion [App\Models\Ticket\Promotion]
+     * @param $totalAmount
+     * @param $totalQuantity
+     * @return int
+     */
+    private function getFitCondition($promotion, $totalAmount, $totalQuantity)
+    {
+        $offer = 0;
+        switch ($promotion->condition_type) {
+            case 1:
+                $offer = $this->mappingConditionOffer($promotion->conditions, $totalAmount);
+                break;
+            case 2:
+            case 3:
+                $offer = $this->mappingConditionOffer($promotion->conditions, $totalQuantity);
+                break;
+        }
+
+        $condition = $promotion->conditions->where('offer', $offer)->first();
+
+        return $this->getCondition($promotion->condition_type, $promotion->offer_type, $condition);
+    }
+
+    /**
+     * 計算優惠價錢
+     * @param $promotion [App\Models\Ticket\Promotion]
+     * @param $totalAmount
+     * @param $totalQuantity
+     * @return int
+     */
+    private function calcDiscountAmount($promotion, $totalAmount, $totalQuantity)
+    {
+        if (!$promotion) return 0;
+
+        // 取符合的優惠條件
+        $fitCondition = $this->getFitCondition($promotion, $totalAmount, $totalQuantity);
+
+        $discountAmount = 0;
+        $offer = $this->getOffer($promotion->offer_type, $fitCondition['offer']);
+        switch ($promotion->offer_type) {
+            case 1:
+                $discountAmount = $offer;
+                break;
+            case 2:
+                $discountAmount = $totalAmount - floor($totalAmount * ($offer / 100));
+                break;
+            case 3:
+                $discountAmount = $totalAmount - $offer;
+                break;
+        }
+
+        return $discountAmount;
+    }
+
+    /**
+     * 取符合優惠值
+     * @param $promotionModel [App\Models\Ticket\Promotion]
+     * @return int
+     */
+    private function mappingConditionOffer($conditions, $unit)
+    {
+        if (!$conditions) return 0;
+
+        $fitUnit = 0;
+        $fitOffer = 0;
+        foreach ($conditions as $condition) {
+            if ($unit >= $fitUnit) $fitUnit = $unit;
+
+            if ($fitUnit >= $condition->condition) {
+                $fitOffer = $condition->offer;
+            }
+        }
+
+        return $fitOffer;
+    }
+
+    /**
+     * 計算運費
+     * @param $shippingFeeModel [App\Models\Ticket\ShippingFee || App\Models\Ticket\PromotionShipping]
+     * @param $quantity
+     * @return int
+     */
+    private function calcShippingFee($shippingFeeModel, $quantity = 0)
+    {
+        if (!$shippingFeeModel || !$quantity) return 0;
+
+        $fee = 0;
+        $maxQuantity = 0;
+        $maxfee = 0;
+        foreach ($shippingFeeModel as $feeModel) {
+            if ($quantity >= $feeModel->lower && $quantity <= $feeModel->upper) {
+                $fee = $feeModel->fee;
+            }
+
+            if ($feeModel->upper > $maxQuantity) {
+                $maxQuantity = $feeModel->upper;
+                $maxfee = $feeModel->fee;
+            }
+        }
+
+        // 如果數量大於最大運費數量, 則等於最大運費
+        if ($quantity > $maxQuantity) $fee = $maxfee;
+
+        return $fee;
     }
 }

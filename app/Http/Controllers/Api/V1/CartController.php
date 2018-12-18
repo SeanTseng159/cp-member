@@ -19,6 +19,7 @@ use App\Parameter\CartParameter;
 use App\Services\Ticket\ProductService;
 use App\Services\CartService;
 use App\Services\Ticket\OrderService;
+use App\Services\Ticket\PromotionService;
 
 use App\Result\CartResult;
 
@@ -38,16 +39,19 @@ class CartController extends RestLaravelController
     protected $productService;
     protected $cartService;
     protected $orderService;
+    protected $promotionService;
 
     public function __construct(OldCartService $oldCartService,
                                 ProductService $productService,
                                 CartService $cartService,
-                                OrderService $orderService)
+                                OrderService $orderService,
+                                PromotionService $promotionService)
     {
         $this->oldCartService = $oldCartService;
         $this->productService = $productService;
         $this->cartService = $cartService;
         $this->orderService = $orderService;
+        $this->promotionService = $promotionService;
     }
 
     /**
@@ -90,7 +94,7 @@ class CartController extends RestLaravelController
             if ($products[0]->is_physical) $isPhysical = true;
 
             // 檢查商品狀態, 是否可購買
-            $statusCode = $this->checkProductStatus($products[0], $param->memberId);
+            $statusCode = $this->checkProductStatus('buyNow', $products[0], $param->memberId);
             if ($statusCode !== '00000') return $this->failureCode($statusCode);
 
             // 檢查加購商品
@@ -111,7 +115,7 @@ class CartController extends RestLaravelController
                     if ($prods[$k]->is_physical) $isPhysical = true;
 
                     // 檢查商品狀態, 是否可購買
-                    $statusCode = $this->checkProductStatus($prods[$k], $param->memberId);
+                    $statusCode = $this->checkProductStatus('buyNow', $prods[$k], $param->memberId);
                     if ($statusCode !== '00000') {
                         $checkStatusCode = $statusCode;
                         $notEnoughStocks[] = $prods[$k]->prod_spec_price_id;
@@ -161,7 +165,7 @@ class CartController extends RestLaravelController
             $isPhysical = false;
             foreach ($params->products as $k => $product) {
                 // 取商品
-                $prods[$k] = $this->productService->findByCheckout($product['id'], $product['specId'], $product['specPriceId'], true);
+                $prods[$k] = $this->promotionService->product($product['id'], $product['specId'], $product['specPriceId'], true);
                 // 檢查商品是否存在
                 if (!$prods[$k]) return $this->failureCode('E9010');
 
@@ -172,12 +176,13 @@ class CartController extends RestLaravelController
                 if ($prods[$k]->is_physical) $isPhysical = true;
 
                 // 檢查商品狀態, 是否可購買
-                $statusCode = $this->checkProductStatus($prods[$k], $params->memberId);
+                $statusCode = $this->checkProductStatus('market', $prods[$k], $params->memberId);
                 if ($statusCode !== '00000') {
                     $checkStatusCode = $statusCode;
                     $notEnoughStocks[] = $prods[$k]->prod_spec_price_id;
                 }
 
+                // 累積總價跟數量
                 $totalAmount += $prods[$k]->prod_spec_price_value;
                 $totalQuantity += $prods[$k]->quantity;
             }
@@ -185,11 +190,13 @@ class CartController extends RestLaravelController
 
 
             // 檢查優惠是否符合
-            $statusCode = $this->checkDiscountRule([], $totalAmount, $totalQuantity);
+            // 取賣場資訊
+            $promotion = $this->promotionService->find($params->marketId);
+            $statusCode = $this->checkDiscountRule($promotion, $totalAmount, $totalQuantity);
             if ($statusCode !== '00000') return $this->failureCode($statusCode);
 
             // 處理購物車格式
-            $cart = (new CartResult)->get($prods, true);
+            $cart = (new CartResult)->get($prods, true, $promotion);
             // 加入快取購物車
             $this->cartService->add('market', $params->memberId, serialize($cart));
 

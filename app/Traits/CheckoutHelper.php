@@ -11,7 +11,7 @@ trait CheckoutHelper
 {
 
     /**
-     * 確認商品是否可使用
+     * 計算運費
      * @param $shippingFeeModel [App\Models\Ticket\ShippingFee]
      * @param $quantity
      * @return int
