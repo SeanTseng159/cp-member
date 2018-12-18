@@ -66,7 +66,7 @@ class ProductService extends BaseService
      */
     public function findByCheckout($id, $specId, $specPriceId, $hasTag = false)
     {
-        $product = $this->repository->findByCheckout($id, $specId, $specPriceId, $hasTag = false);
+        $product = $this->repository->findByCheckout($id, $specId, $specPriceId, $hasTag);
 
         // 檢查是否在合理的使用期限內
         if ($product && !$this->checkExpire($product)) return NULL;
@@ -84,7 +84,7 @@ class ProductService extends BaseService
      */
     public function findAdditionalByCheckout($id, $specId, $specPriceId, $hasTag = false)
     {
-        $product = $this->repository->findAdditionalByCheckout($id, $specId, $specPriceId, $hasTag = false);
+        $product = $this->repository->findAdditionalByCheckout($id, $specId, $specPriceId, $hasTag);
 
         // 檢查是否在合理的使用期限內
         if ($product && !$this->checkExpire($product)) return NULL;

@@ -75,7 +75,7 @@ class CheckoutController extends RestLaravelController
             $cart = unserialize($cart);
 
             // 檢查購物車內所有狀態是否可購買
-            $statusCode = $this->checkCartStatus($cart, $params->memberId);
+            $statusCode = $this->checkCartStatus($params->action, $cart, $params->memberId);
             if ($statusCode !== '00000') return $this->failureCode($statusCode);
 
             // 成立訂單
