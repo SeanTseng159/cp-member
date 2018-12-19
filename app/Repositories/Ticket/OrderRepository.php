@@ -274,7 +274,7 @@ class OrderRepository extends BaseRepository
      */
     public function getMemberOrdersByDate($params = [])
     {
-        $orders = $this->model->with(['details'])
+        $orders = $this->model->with(['details', 'shipment'])
                             ->notDeleted()
                             ->where('member_id', $params['memberId'])
                             ->where(function($query) use ($params) {
