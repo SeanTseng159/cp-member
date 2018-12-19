@@ -93,4 +93,15 @@ class OrderService extends BaseService
     {
         return $this->repository->updateCC($orderNo, $data);
     }
+
+    /**
+     * 依據訂單編號 更新
+     * @param $id
+     * @param $params
+     * @return mixed
+     */
+    public function updateForRepay($orderNo, $params = [])
+    {
+        return $this->repository->updateForRepay($orderNo, $params);
+    }
 }

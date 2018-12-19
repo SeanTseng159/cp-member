@@ -95,11 +95,11 @@ class LinePayService
             $cancelUrl = url('api/v1/linepay/confirm/failure?device=' . $device . '&orderNo=' . $orderNo);
 
             if ($hasLinePayApp) {
-                if ($request->device === 'ios') {
+                if ($device === 'ios') {
                     $successUrl = env('LINEPAY_ISO_REDIRECT') . 'success/' . $orderNo;
                     $cancelUrl = env('LINEPAY_ISO_REDIRECT') . 'failure/' . $orderNo;
                 }
-                else if ($request->device === 'android') {
+                else if ($device === 'android') {
                     $successUrl = env('LINEPAY_ANDROID_REDIRECT') . 'success/' . $orderNo;
                     $cancelUrl = env('LINEPAY_ANDROID_REDIRECT') . 'failure/' . $orderNo;
                 }

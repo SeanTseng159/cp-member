@@ -178,6 +178,41 @@ class OrderRepository extends BaseRepository
     }
 
     /**
+     * 依據訂單編號 更新
+     * @param $id
+     * @param $data
+     * @return mixed
+     */
+    public function updateForRepay($orderNo, $params = [])
+    {
+        if (!$params) return false;
+
+        try {
+            $order = $this->findByOrderNo($orderNo);
+            if (!$order) return false;
+
+            $order->order_payment_gateway = $params->payment['gateway'];
+            $order->order_payment_method = $params->payment['method'];
+
+            // 信用卡資訊
+            if ($params->payment['gateway'] === '3' && $params->payment['method'] === '111') {
+                // 初始化加密 (加密信用卡)
+                $encryption = new CI_Encryption(['driver' => 'openssl']);
+
+                $order->order_credit_card_number = $encryption->encrypt($params->payment['creditCardNumber']);
+                $order->order_credit_card_expire = $encryption->encrypt($params->payment['creditCardYear'] . $params->payment['creditCardMonth']);
+                $order->order_credit_card_verify = $encryption->encrypt($params->payment['creditCardCode']);
+            }
+
+            $order->save();
+
+            return $order;
+        } catch (QueryException $e) {
+            return false;
+        }
+    }
+
+    /**
      * 依據訂單編號 更新 信用卡
      * @param $id
      * @param $data
@@ -202,6 +237,8 @@ class OrderRepository extends BaseRepository
 
             return $order;
         } catch (QueryException $e) {
+            return false;
+        } catch (Exception $e) {
             return false;
         }
     }
