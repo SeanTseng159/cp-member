@@ -44,8 +44,9 @@ class OrderController extends RestLaravelController
 
             return $this->success($result);
         } catch (Exception $e) {
-            Logger::error('V2 Order Info Error', $e->getMessage());
-            return $this->failureCode('E0103');
+            var_dump($e->getMessage());
+            // Logger::error('V2 Order Info Error', $e->getMessage());
+            // return $this->failureCode('E0103');
         }
     }
 

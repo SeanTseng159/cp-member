@@ -125,7 +125,7 @@ class OrderConfig extends BaseConfig
     const SHIPMENT_STATUS = [
         1 => '備貨中',
         2 => '出貨中',
-        3 => '已出發',
+        3 => '已出貨',
         4 => '已到達',
         5 => '已取貨',
         6 => '已退貨'
