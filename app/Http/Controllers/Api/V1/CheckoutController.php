@@ -129,11 +129,9 @@ class CheckoutController extends RestLaravelController
 
             $params = (new CheckoutParameter($request))->repay();
 
-            // 信用卡資訊寫入DB
-            if ($params->payment['gateway'] === '3' && $params->payment['method'] === '111') {
-                $updateResult = $this->orderService->updateCC($orderNo, $params->payment);
-                if (!$updateResult) return $this->failureCode('E9015');
-            }
+            // 更新訂單付款資訊
+            $updateResult = $this->orderService->updateForRepay($orderNo, $params);
+            if (!$updateResult) return $this->failureCode('E9015');
 
             // 處理金流
             $payParams = [
