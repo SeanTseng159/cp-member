@@ -18,7 +18,7 @@ class CartParameter extends BaseParameter
         $this->specId = $this->request->input('specId', 0);
         $this->specPriceId = $this->request->input('specPriceId', 0);
         $this->quantity = $this->request->input('quantity', 0);
-        $this->additionalProducts = $this->request->input('additionalProducts');
+        $this->additionalProducts = $this->request->input('additionalProducts', []);
 
         return $this;
     }
