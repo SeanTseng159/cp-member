@@ -176,7 +176,7 @@ class CartController extends RestLaravelController
                 if ($prods[$k]->is_physical) $isPhysical = true;
 
                 // 檢查商品狀態, 是否可購買
-                $statusCode = $this->checkProductStatus('market', $prods[$k], $params->memberId);
+                $statusCode = $this->checkProductStatus('market', $prods[$k], $prods[$k]->quantity, $params->memberId);
                 if ($statusCode !== '00000') {
                     $checkStatusCode = $statusCode;
                     $notEnoughStocks[] = $prods[$k]->prod_spec_price_id;

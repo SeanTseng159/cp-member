@@ -109,6 +109,7 @@ class OrderRepository extends BaseRepository
             foreach ($cart->items as $item) {
                 $psp = ProductSpecPrice::find($item->additional->type->id);
                 $stock = $psp->prod_spec_price_stock - $item->quantity;
+
                 if ($stock > 0) {
                     $psp->prod_spec_price_stock = $stock;
                     $psp->save();
@@ -138,13 +139,19 @@ class OrderRepository extends BaseRepository
 
             return $order;
         } catch (QueryException $e) {
-            Logger::error('Create Order Error', $e->getMessage());
+            Logger::error('QueryException Create Order Error', $e->getMessage());
+            DB::connection('backend')->rollBack();
+
+            throw new CustomException($e->getMessage());
+            return null;
+        } catch (CustomException $e) {
+            Logger::error('CustomException Create Order Error', $e->getMessage());
             DB::connection('backend')->rollBack();
 
             throw new CustomException($e->getMessage());
             return null;
         } catch (Exception $e) {
-            Logger::error('Create Order Error', $e->getMessage());
+            Logger::error('Exception Create Order Error', $e->getMessage());
             DB::connection('backend')->rollBack();
 
             throw new CustomException('E9001');

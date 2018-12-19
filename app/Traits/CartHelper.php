@@ -91,7 +91,7 @@ trait CartHelper
             }
 
             // 檢查商品狀態, 是否可購買
-            $statusCode = $this->checkProductStatus($cartType, $prod, $memberId);
+            $statusCode = $this->checkProductStatus($cartType, $prod, $product->quantity, $memberId);
             if ($statusCode !== '00000') return $statusCode;
 
             // 處理加購商品, 是否可購買
@@ -111,15 +111,15 @@ trait CartHelper
      * @param $memberId
      * @return mixed
      */
-    private function checkProductStatus($cartType, $product, $memberId)
+    private function checkProductStatus($cartType, $product, $quantity, $memberId)
     {
         if ($cartType === 'market') {
             // 檢查賣場可銷庫量是否足夠
-            if ($product->marketStock <= 0 || $product->marketStock < $product->quantity) return 'E9011';
+            if ($product->marketStock <= 0 || $product->marketStock < $quantity) return 'E9011';
         }
         else {
             // 檢查限購數量
-            $buyQuantity = $product->quantity;
+            $buyQuantity = $quantity;
             if ($product->prod_type === 1 || $product->prod_type === 2) {
                 if ($product->prod_limit_type === 1) {
                     $memberBuyQuantity = $this->orderService->getCountByProdAndMember($product->product_id, $memberId);
@@ -133,7 +133,7 @@ trait CartHelper
         }
 
         // 檢查是否有庫存
-        if ($product->prod_spec_price_stock <= 0 || $product->prod_spec_price_stock < $product->quantity) return 'E9011';
+        if ($product->prod_spec_price_stock <= 0 || $product->prod_spec_price_stock < $quantity) return 'E9011';
 
         return '00000';
     }
