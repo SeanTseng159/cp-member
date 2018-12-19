@@ -94,7 +94,7 @@ class CartController extends RestLaravelController
             if ($products[0]->is_physical) $isPhysical = true;
 
             // 檢查商品狀態, 是否可購買
-            $statusCode = $this->checkProductStatus('buyNow', $products[0], $param->memberId);
+            $statusCode = $this->checkProductStatus('buyNow', $products[0], $products[0]->quantity, $param->memberId);
             if ($statusCode !== '00000') return $this->failureCode($statusCode);
 
             // 檢查加購商品
@@ -115,7 +115,7 @@ class CartController extends RestLaravelController
                     if ($prods[$k]->is_physical) $isPhysical = true;
 
                     // 檢查商品狀態, 是否可購買
-                    $statusCode = $this->checkProductStatus('buyNow', $prods[$k], $param->memberId);
+                    $statusCode = $this->checkProductStatus('buyNow', $prods[$k], $prods[$k]->quantity, $param->memberId);
                     if ($statusCode !== '00000') {
                         $checkStatusCode = $statusCode;
                         $notEnoughStocks[] = $prods[$k]->prod_spec_price_id;

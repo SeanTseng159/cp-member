@@ -74,7 +74,7 @@ class OrderResult extends BaseResult
         $result['source'] = $this->source;
         $result['orderNo'] = (string) $this->arrayDefault($order, 'order_no');
         // 小計, 總金額減運費
-        $result['totalAmount'] = $this->arrayDefault($order, 'order_amount', 0) - $this->arrayDefault($order, 'order_shipment_fee', 0);
+        $result['totalAmount'] = $this->arrayDefault($order, 'order_amount', 0) - $this->arrayDefault($order, 'order_shipment_fee', 0) + $this->arrayDefault($order, 'order_off', 0);
         // 折扣價格
         $result['discountAmount'] = $this->arrayDefault($order, 'order_off', 0);
         // 折扣後總計

@@ -196,7 +196,7 @@ class ProductRepository extends BaseRepository
         }
 
         if ($hasTag) {
-            $product->tags = $this->tagProdRepository->getTagsByProdId($id);
+            $prod->tags = $this->tagProdRepository->getTagsByProdId($id);
         }
 
         return $prod;
@@ -224,7 +224,7 @@ class ProductRepository extends BaseRepository
                             ->find($id);
 
         if ($hasTag) {
-            $product->tags = $this->tagProdRepository->getTagsByProdId($id);
+            $prod->tags = $this->tagProdRepository->getTagsByProdId($id);
         }
 
         return $prod;
@@ -238,7 +238,7 @@ class ProductRepository extends BaseRepository
      * @param $hasTag
      * @return mixed
      */
-    public function findSubCobmoByCheckout($id, $specId, $specPriceId, $hasTag)
+    public function findSubCobmoByCheckout($id, $specId, $specPriceId, $hasTag = false)
     {
         $prod = $this->model->leftJoin('prod_specs', 'prods.prod_id', '=', 'prod_specs.prod_id')
                             ->leftJoin('prod_spec_prices', 'prod_specs.prod_spec_id', '=', 'prod_spec_prices.prod_spec_id')
@@ -248,7 +248,9 @@ class ProductRepository extends BaseRepository
                             ->where('prod_type', 4)
                             ->find($id);
 
-        $prod->tags = $this->tagProdRepository->getTagsByProdId($id);
+        if ($hasTag) {
+            $prod->tags = $this->tagProdRepository->getTagsByProdId($id);
+        }
 
         return $prod;
     }
