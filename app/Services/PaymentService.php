@@ -44,7 +44,7 @@ class PaymentService
                 // 先接backend, 之後等payment gateway做好再換
                 $ccParams = new \stdClass;
                 $ccParams->orderNo = $params['orderNo'];
-                $ccParams->device = $params['device'];
+                $ccParams->device = ($params['device'] === 'ios' || $params['device'] === 'android') ? 2 : 1;
                 $ccParams->source = 'ct_pass';
 
                 $result = (new CreditCardService)->transmit($params['memberId'], $ccParams);
