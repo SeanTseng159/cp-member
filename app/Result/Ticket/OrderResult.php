@@ -29,6 +29,7 @@ class OrderResult extends BaseResult
     private $uberCouponService;
     private $members;
     private $time;
+    private $now;
 
     public function __construct()
     {
@@ -38,6 +39,7 @@ class OrderResult extends BaseResult
         $this->orderRefundService = app()->build(MemberService::class);
         $this->uberCouponService = app()->build(UberCouponService::class);
         $this->time = time();
+        $this->now = date('Y-m-d H:i:s');
     }
 
     /**
@@ -302,7 +304,7 @@ class OrderResult extends BaseResult
      * @param $isDetail
      * @return string
      */
-    private function getItem($item, $isDetail = false, $isCombo = false)
+    private function getItem($item, $isDetail = false, $isCombo = false, $comboIsSyncExpire = false)
     {
         $newDetail = new \stdClass;
         $newDetail->source = $this->source;
@@ -314,20 +316,23 @@ class OrderResult extends BaseResult
         $newDetail->quantity = $item['price_company_qty'];
         $newDetail->price = $item['price_off'];
         $newDetail->description = ($this->isCommodity) ? trans('common.commodity') : trans('common.ticket');
-        $newDetail->statusCode = $statusCode = $this->itemUsedStatusCode($item);
+        $newDetail->statusCode = $statusCode = $this->itemUsedStatusCode($item, $comboIsSyncExpire);
         $newDetail->status = $this->itemUsedStatus($statusCode);
         // $newDetail->discount = null;
         $newDetail->hasVoucher = $this->getHasVoucher($statusCode, $item['prod_type'], $item['prod_api']);
 
         if ($isDetail) {
-            $prodType = $this->arrayDefault($item, 'prod_type');
-            $comboSyncExpire = $item['sync_expire_due'] ?? null;
-
             $newDetail->qrcode = ($statusCode === '10' || $statusCode === '11') ? $this->arrayDefault($item, 'order_detail_qrcode') : '';
             $newDetail->show = $this->getShowList($newDetail->statusCode, $item);
             $newDetail->pinCode = ($statusCode === '10') ? $this->getPinCode($this->arrayDefault($item, 'trust_pin')) : '';
+            $newDetail->usageTime = '';
+            $newDetail->expireTime = $this->getUseExpireTime($item['prod_expire_type'], $item['order_detail_expire_start'], $item['order_detail_expire_due']);
             if (!$isCombo) {
-                $newDetail->combos = $this->getCombos($item['combo']);
+                // 組合商品，需檢查同步失效
+                $prodType = $this->arrayDefault($item, 'prod_type');
+                $comboIsSyncExpire = ($prodType === 2) ? $this->checkComboIsSyncExpire($statusCode, $item['sync_expire_due'], $item['use_value']) : false;
+
+                $newDetail->combos = $this->getCombos($item['combo'], $comboIsSyncExpire);
             }
         }
 
@@ -339,12 +344,12 @@ class OrderResult extends BaseResult
      * @param $detail
      * @return string
      */
-    private function getCombos($combos)
+    private function getCombos($combos = [], $comboIsSyncExpire = false)
     {
         if (!$combos) return [];
 
         foreach ($combos as $combo) {
-            $newCombos[] = $this->getItem($combo, true, true);
+            $newCombos[] = $this->getItem($combo, true, true, $comboIsSyncExpire);
         }
 
         return $newCombos;
@@ -355,7 +360,7 @@ class OrderResult extends BaseResult
      * @param $detail
      * @return string
      */
-    private function itemUsedStatusCode($detail)
+    private function itemUsedStatusCode($detail, $comboIsSyncExpire = false)
     {
         $statusCode = '99';
 
@@ -367,19 +372,13 @@ class OrderResult extends BaseResult
         // 取資料庫驗證狀態碼
         $statusCode = str_pad($detail['verified_status'], 2, '0', STR_PAD_LEFT);
 
-        if ($detail['prod_type'] === 2) {
-            // 組合商品，檢查同步失效
-            if ($statusCode === '11' && $detail['sync_expire_due'] && $detail['use_value']) {
-                $useValueAry = explode('~', $detail['use_value']);
-                if ($this->time > strtotime($useValueAry[1])) $statusCode = '01';
-            }
-        }
-        else {
-            // 一般.加購.子商品，檢查效期
-            if ($statusCode === '10' && $detail['prod_expire_type'] !== 0 && $this->time > strtotime($detail['order_detail_expire_due'])) {
+        // 過期未使用，同失效
+        if ($statusCode === '10' && $detail['prod_expire_type'] !== 0 && $this->time > strtotime($detail['order_detail_expire_due'])) {
                 $statusCode = '01';
-            }
         }
+
+        // 組合同步失效，未使用，同失效
+        if ($comboIsSyncExpire && $statusCode === '10') $statusCode = '01';
 
         return $statusCode;
     }
@@ -392,6 +391,23 @@ class OrderResult extends BaseResult
     private function itemUsedStatus($code)
     {
         return trans('ticket/order.usedStatus.' . OrderConfig::USED_STATUS[$code]);
+    }
+
+    /**
+     * 檢查組合是否同步失效
+     *
+     * @param   $item
+     * @param   $comboSyncStatus
+     * @return  String
+     */
+    private function checkComboIsSyncExpire($statusCode, $syncExpireDue, $useValue)
+    {
+        if ($statusCode === '11' && $syncExpireDue && $useValue) {
+            $useValueAry = explode('~', $useValue);
+            if ($this->time > strtotime($useValueAry[1])) return true;
+        }
+
+        return false;
     }
 
     /**
