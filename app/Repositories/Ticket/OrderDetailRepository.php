@@ -246,6 +246,7 @@ class OrderDetailRepository extends BaseRepository
                             }])
                             ->where('member_id', $parameter->memberId)
                             ->where('ticket_show_status', 1)
+                            ->where('is_physical', 0)
                             ->whereIn('prod_type', [1, 2, 3])
                             ->where(function($query) use ($parameter) {
                                 if ($parameter->orderStatus === '4') {

@@ -39,18 +39,18 @@ class OrderController extends RestLaravelController
     public function info(Request $request)
     {
         // magento
-        // $magentoOrderService = app()->build(MagentoOrderService::class);
-        // $magentoOrders = $magentoOrderService->magentoInfo();
+        $magentoOrderService = app()->build(MagentoOrderService::class);
+        $magentoOrders = $magentoOrderService->magentoInfo();
 
         // citypass
         $params = (new InfoParameter($request))->info();
         $data = $this->orderService->getMemberOrdersByDate($params);
         $ticketOrders = (new OrderResult)->getAllByV1($data);
 
-        // $data = array_merge($magentoOrders, $ticketOrders);
-        // $result = ($data) ? $this->multiArraySort($data, 'orderDate') : null;
+        $data = array_merge($magentoOrders, $ticketOrders);
+        $result = ($data) ? $this->multiArraySort($data, 'orderDate') : null;
 
-        return $this->success($ticketOrders);
+        return $this->success($result);
     }
 
     /**
@@ -81,13 +81,13 @@ class OrderController extends RestLaravelController
             if (!$orderNo || !$source) return $this->failureCode('E0101');
             // magento
             if ($source === 'magento') {
-                /*$magentoOrderService = app()->build(MagentoOrderService::class);
+                $magentoOrderService = app()->build(MagentoOrderService::class);
                 $params = new \stdClass;
                 $params->source = $source;
                 $params->id = $orderNo;
                 $result = $magentoOrderService->find($params);
                 if (!$result) return $this->failureCode('E0101');
-                $result = $result[0];*/
+                $result = $result[0];
             }
             // citypass
             elseif ($source === 'ct_pass') {
