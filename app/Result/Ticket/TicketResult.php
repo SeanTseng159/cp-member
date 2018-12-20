@@ -45,7 +45,9 @@ class TicketResult extends BaseResult
 
     /**
      * 取得資料
-     * @param $product
+     * @param $orderStatus
+     * @param $order
+     * @param $member
      * @param bool $isDetail
      */
     public function get($order, $member = null, $isDetail = false)
@@ -56,7 +58,7 @@ class TicketResult extends BaseResult
 
         $prodType = $this->arrayDefault($order, 'prod_type');
 
-        // 取票券狀態
+        // 取票券狀態，如果轉贈狀態，恆之轉贈狀態
         $status = $this->getTicketStatus($order);
 
         // 取組合同步失效狀態
@@ -108,7 +110,7 @@ class TicketResult extends BaseResult
         $ownMemberId = $this->arrayDefault($order, 'order_detail_member_id');
 
         // 檢查是否已轉贈
-        // if ($orderMemberId !== $ownMemberId) return '4';
+        if ($orderMemberId !== $ownMemberId) return '4';
 
         $now = $this->now->toDateTimeString();
 

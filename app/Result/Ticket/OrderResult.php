@@ -222,15 +222,28 @@ class OrderResult extends BaseResult
     {
         $isShipment = ($method === 2);
 
-        $newShipment = new \stdClass;
-        $newShipment->name = ($isShipment) ? $shipment['user_name'] : '';
-        $newShipment->address = ($isShipment) ? $shipment['zipcode'] . ' ' . $shipment['address'] : '';
-        $newShipment->phone = ($isShipment) ? '+' . $shipment['country_code'] . $shipment['cellphone'] : '';
-        $newShipment->description = ($isShipment) ? trans('common.delivery') : trans('common.ticket');
-        $newShipment->statusCode = ($isShipment) ? $shipment['status'] : 5;
-        $newShipment->status = OrderConfig::SHIPMENT_STATUS[$newShipment->statusCode];
-        $newShipment->traceCode = ($isShipment) ? $shipment['trace_code'] : '';
-        $newShipment->amount = $shipmentFee;
+        if ($isShipment && $shipment) {
+            $newShipment = new \stdClass;
+            $newShipment->name = $shipment['user_name'];
+            $newShipment->address = $shipment['zipcode'] . ' ' . $shipment['address'];
+            $newShipment->phone = '+' . $shipment['country_code'] . $shipment['cellphone'];
+            $newShipment->description = trans('common.delivery');
+            $newShipment->statusCode = $shipment['status'];
+            $newShipment->status = OrderConfig::SHIPMENT_STATUS[$newShipment->statusCode];
+            $newShipment->traceCode = $shipment['trace_code'];
+            $newShipment->fee = $shipmentFee;
+        }
+        else {
+            $newShipment = new \stdClass;
+            $newShipment->name = '';
+            $newShipment->address = '';
+            $newShipment->phone = '';
+            $newShipment->description = trans('common.ticket');
+            $newShipment->statusCode = 5;
+            $newShipment->status = OrderConfig::SHIPMENT_STATUS[$newShipment->statusCode];
+            $newShipment->traceCode = '';
+            $newShipment->fee = $shipmentFee;
+        }
 
         return $newShipment;
     }
@@ -244,17 +257,24 @@ class OrderResult extends BaseResult
     {
         $items = [];
         if ($orderDetail) {
-            foreach ($orderDetail as $detail) {
-                if (!isset($items[$detail['prod_cust_id']])) {
-                    $items[$detail['prod_cust_id']] = $this->getItem($detail, $isDetail);
-                }
-                else {
-                    $items[$detail['prod_cust_id']]->quantity++;
+            if ($isDetail) {
+                foreach ($orderDetail as $detail) {
+                    $items[] = $this->getItem($detail, $isDetail);
                 }
             }
+            else {
+                foreach ($orderDetail as $detail) {
+                    if (!isset($items[$detail['prod_cust_id']])) {
+                        $items[$detail['prod_cust_id']] = $this->getItem($detail, $isDetail);
+                    }
+                    else {
+                        $items[$detail['prod_cust_id']]->quantity++;
+                    }
+                }
 
-            // 重新整理輸出Items
-            $items = $this->remapItems($items);
+                // 重新整理輸出Items
+                $items = $this->remapItems($items);
+            }
         }
 
         return $items;

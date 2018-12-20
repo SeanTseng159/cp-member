@@ -44,9 +44,8 @@ class OrderController extends RestLaravelController
 
             return $this->success($result);
         } catch (Exception $e) {
-            var_dump($e->getMessage());
-            // Logger::error('V2 Order Info Error', $e->getMessage());
-            // return $this->failureCode('E0103');
+            Logger::error('V2 Order Info Error', $e->getMessage());
+            return $this->failureCode('E0103');
         }
     }
 
@@ -71,9 +70,8 @@ class OrderController extends RestLaravelController
 
             return $this->success($result);
         } catch (Exception $e) {
-            var_dump($e->getMessage());
-            // Logger::error('order detail Error', $e->getMessage());
-            // return $this->failureCode('E0101');
+            Logger::error('order detail Error', $e->getMessage());
+            return $this->failureCode('E0101');
         }
     }
 }
