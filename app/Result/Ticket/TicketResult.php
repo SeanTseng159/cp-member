@@ -81,8 +81,8 @@ class TicketResult extends BaseResult
         // $result['isEntity'] = false;
         $result['isOnDay'] = ($prodType === 2) ? false : $this->getIsOnDay($result['status'], $order['prod_expire_type'], $order['order_detail_expire_start'], $order['order_detail_expire_due']);
         $result['isPurchase'] = $this->getIsPurchase($prodType);
-        $result['items'] = ($prodType === 2) ? $this->processItems($order['combo'], $comboStatusAndDesc['status']) : [];
-        $result['show'] = $this->getShow($order);
+        $result['items'] = ($prodType === 2) ? $this->processItems($order['combo'], $comboStatusAndDesc['status'], $comboStatusAndDesc['expireDate']) : [];
+        $result['show'] = $this->getShow($order, $status, $result['giftAt']);
         $result['comboDescription'] = $comboStatusAndDesc['description'];
         $result['member'] = ($member) ? $this->getMember($member) : $this->arrayDefault($order, 'order_detail_member_id');
 
@@ -181,7 +181,7 @@ class TicketResult extends BaseResult
     /**
      * 取得show
      */
-    public function getShow($ticket)
+    public function getShow($ticket, $status = '99', $date = '')
     {
         // 規格
         $spec = $ticket['prod_spec_name'] . $ticket['prod_spec_price_name'];
@@ -191,7 +191,12 @@ class TicketResult extends BaseResult
         $show[] = $this->getShowFormat('', $ticket['prod_locate']);
 
         // 使用效期
-        $dateRange = ($ticket['prod_expire_type'] === 0) ? '無限制' : substr($ticket['order_detail_expire_start'], 0, 10) . ' ~ ' . substr($ticket['order_detail_expire_due'], 0, 10);
+        if (in_array($status, ['3', '4']) && $date) {
+            $dateRange = '~ ' . substr($date, 0, 16);
+        }
+        else {
+            $dateRange = ($ticket['prod_expire_type'] === 0) ? '無限制' : substr($ticket['order_detail_expire_start'], 0, 16) . ' ~ ' . substr($ticket['order_detail_expire_due'], 0, 16);
+        }
         $show[] = $this->getShowFormat('使用效期：', $dateRange, '#90c320');
 
 
@@ -214,12 +219,12 @@ class TicketResult extends BaseResult
     /**
      * 處理組合商品
      */
-    public function processItems($combo, $comboStatus = '99')
+    public function processItems($combo, $comboStatus = '99', $expireDate = '')
     {
         $newItems = [];
 
         foreach ($combo as $item) {
-            $newItems[] = $this->processItem($item, $comboStatus);
+            $newItems[] = $this->processItem($item, $comboStatus, $expireDate);
         }
 
         return $newItems;
@@ -228,16 +233,17 @@ class TicketResult extends BaseResult
     /**
      * 處理子商品
      */
-    public function processItem($item, $comboStatus)
+    public function processItem($item, $comboStatus, $expireDate)
     {
         $result['orderNo'] = (string) $this->arrayDefault($item, 'order_no');
         $result['serialNumber'] = (string) $this->arrayDefault($item, 'order_detail_sn');
         $result['name'] = $this->arrayDefault($item, 'prod_name');
+        $result['catalogId'] = $this->arrayDefault($item, 'catalog_id');
         $result['status'] = $this->getTicketStatus($item, $comboStatus);
         $result['statusName'] = TicketConfig::DB_STATUS_NAME[$result['status']];
         $result['qrcode'] = ($result['status'] === '3') ? '' : $this->arrayDefault($item, 'order_detail_qrcode');
         $result['isOnDay'] = ($result['status'] === '3') ? false : $this->getIsOnDay($result['status'], $item['prod_expire_type'], $item['order_detail_expire_start'], $item['order_detail_expire_due']);
-        $result['show'] = $this->getShow($item);
+        $result['show'] = $this->getShow($item, $result['status'], $expireDate);
 
         return $result;
     }
@@ -260,15 +266,14 @@ class TicketResult extends BaseResult
      */
     public function getComboStatusAndDescription($type, $syncExpireDue, $useValue, $ticketStatus)
     {
-        $status = '99';
-
         $description = new \stdClass;
         $description->text = '';
         $description->date = '';
 
         $result = [
-            'status' => $status,
-            'description' => $description
+            'status' => '99',
+            'description' => $description,
+            'expireDate' => ''
         ];
 
         if ($type !== 2 || !$syncExpireDue) return $result;
@@ -288,6 +293,7 @@ class TicketResult extends BaseResult
             $useValueAry = explode('~', $useValue);
 
             $result['description']->date = date('Y年m月d日 H時i分', strtotime($useValueAry[1]));
+            $result['expireDate'] = $useValueAry[1];
 
             if ($now > $useValueAry[0] && $now < $useValueAry[1]) {
                 // 啟用中

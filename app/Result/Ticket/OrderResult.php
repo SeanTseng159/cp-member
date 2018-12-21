@@ -29,7 +29,6 @@ class OrderResult extends BaseResult
     private $uberCouponService;
     private $members;
     private $time;
-    private $now;
 
     public function __construct()
     {
@@ -39,7 +38,6 @@ class OrderResult extends BaseResult
         $this->orderRefundService = app()->build(MemberService::class);
         $this->uberCouponService = app()->build(UberCouponService::class);
         $this->time = time();
-        $this->now = date('Y-m-d H:i:s');
     }
 
     /**
@@ -304,7 +302,7 @@ class OrderResult extends BaseResult
      * @param $isDetail
      * @return string
      */
-    private function getItem($item, $isDetail = false, $isCombo = false, $comboIsSyncExpire = false)
+    private function getItem($item, $isDetail = false, $isCombo = false, $comboIsSyncExpire = false, $comboSyncExpireDate = '')
     {
         $newDetail = new \stdClass;
         $newDetail->source = $this->source;
@@ -326,13 +324,24 @@ class OrderResult extends BaseResult
             $newDetail->show = $this->getShowList($newDetail->statusCode, $item);
             $newDetail->pinCode = ($statusCode === '10') ? $this->getPinCode($this->arrayDefault($item, 'trust_pin')) : '';
             $newDetail->usageTime = '';
-            $newDetail->expireTime = $this->getUseExpireTime($item['prod_expire_type'], $item['order_detail_expire_start'], $item['order_detail_expire_due']);
+
+            // 主商品代轉贈時間, 子商品帶同步失效時間
+            $expireDate = ($isCombo) ? $comboSyncExpireDate : $item['ticket_gift_at'];
+            $newDetail->expireTime = $this->getUseExpireTime($item['prod_expire_type'], $item['order_detail_expire_start'], $item['order_detail_expire_due'], $newDetail->statusCode, $expireDate);
+
             if (!$isCombo) {
                 // 組合商品，需檢查同步失效
                 $prodType = $this->arrayDefault($item, 'prod_type');
                 $comboIsSyncExpire = ($prodType === 2) ? $this->checkComboIsSyncExpire($statusCode, $item['sync_expire_due'], $item['use_value']) : false;
 
-                $newDetail->combos = $this->getCombos($item['combo'], $comboIsSyncExpire);
+                if ($newDetail->statusCode === '05') {
+                    // 轉贈
+                    $newDetail->combos = $this->getCombos($item['combo'], $comboIsSyncExpire, $expireDate);
+                }
+                else {
+                    $comboSyncExpireDate = $this->getComboSyncExpireDate($statusCode, $item['sync_expire_due'], $item['use_value']);
+                    $newDetail->combos = $this->getCombos($item['combo'], $comboIsSyncExpire, $comboSyncExpireDate);
+                }
             }
         }
 
@@ -344,12 +353,12 @@ class OrderResult extends BaseResult
      * @param $detail
      * @return string
      */
-    private function getCombos($combos = [], $comboIsSyncExpire = false)
+    private function getCombos($combos = [], $comboIsSyncExpire = false, $comboSyncExpireDate = '')
     {
         if (!$combos) return [];
 
         foreach ($combos as $combo) {
-            $newCombos[] = $this->getItem($combo, true, true, $comboIsSyncExpire);
+            $newCombos[] = $this->getItem($combo, true, true, $comboIsSyncExpire, $comboSyncExpireDate);
         }
 
         return $newCombos;
@@ -408,6 +417,23 @@ class OrderResult extends BaseResult
         }
 
         return false;
+    }
+
+    /**
+     * 取組合同步失效到期日
+     *
+     * @param   $item
+     * @param   $comboSyncStatus
+     * @return  String
+     */
+    private function getComboSyncExpireDate($statusCode, $syncExpireDue, $useValue)
+    {
+        if ($statusCode === '11' && $syncExpireDue && $useValue) {
+            $useValueAry = explode('~', $useValue);
+            return $useValueAry[1];
+        }
+
+        return '';
     }
 
     /**
@@ -476,10 +502,14 @@ class OrderResult extends BaseResult
      * @param $expireType
      * @param $expireStart
      * @param $expireDue
+     * @param $status
+     * @param $date
      * @return string
      */
-    private function getUseExpireTime($expireType, $expireStart, $expireDue)
+    private function getUseExpireTime($expireType, $expireStart, $expireDue, $status = '99', $date = '')
     {
+        if (in_array($status, ['01', '05']) && $date) return '~ ' . substr($date, 0, 16);
+
         if ($expireType === 0) return '無限制';
 
         $expireTimeStart = substr($expireStart, 0, 16);
