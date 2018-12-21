@@ -194,13 +194,12 @@ class OrderDetailRepository extends BaseRepository
                                 if ($parameter->orderStatus === '1' || $parameter->orderStatus === '2')
                                 return $query->orderBy('verified_at', 'desc');
                             }])
-                            ->where('member_id', $parameter->memberId)
                             ->where('ticket_show_status', 1)
                             ->where('is_physical', 0)
                             ->whereIn('prod_type', [1, 2, 3])
                             ->where(function($query) use ($parameter) {
                                 if ($parameter->orderStatus === '4') {
-                                    return $query->where('order_detail_member_id', '!=', $parameter->memberId);
+                                    return $query->where('member_id', $parameter->memberId)->where('order_detail_member_id', '!=', $parameter->memberId);
                                 }
                                 else {
                                     return $query->where('order_detail_member_id', $parameter->memberId)->where('verified_status', $parameter->status);

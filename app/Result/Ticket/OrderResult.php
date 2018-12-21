@@ -323,7 +323,7 @@ class OrderResult extends BaseResult
             $newDetail->qrcode = ($statusCode === '10' || $statusCode === '11') ? $this->arrayDefault($item, 'order_detail_qrcode') : '';
             $newDetail->show = $this->getShowList($newDetail->statusCode, $item);
             $newDetail->pinCode = ($statusCode === '10') ? $this->getPinCode($this->arrayDefault($item, 'trust_pin')) : '';
-            $newDetail->usageTime = '';
+            $newDetail->usageTime = $this->arrayDefault($item, 'order_detail_expire_usage', '');
 
             // 主商品代轉贈時間, 子商品帶同步失效時間
             $expireDate = ($isCombo) ? $comboSyncExpireDate : $item['ticket_gift_at'];
