@@ -115,7 +115,8 @@ class LayoutResult extends BaseResult
     {
         $newCustomizes = [];
         foreach ($customizes as $customize) {
-            $newCustomizes[] = $this->getCustomize($customize, $dbPrefix);
+            $newCustomize = $this->getCustomize($customize, $dbPrefix);
+            if ($newCustomize['items']) $newCustomizes[] = $newCustomize;
         }
 
         return $newCustomizes;

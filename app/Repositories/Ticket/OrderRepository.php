@@ -373,15 +373,33 @@ class OrderRepository extends BaseRepository
      * 依據 發票狀態 取得付款成功訂單列表
      * @param $status
      * @param $recipientStatus
+     * @param $shipmentMethod [實體 or 票券]
+     * @param $shipmentStatus [運送狀態]
      * @return mixed
      */
-    public function getOrdersByRecipientStatus($status = 10, $recipientStatus = 99)
+    public function getOrdersByRecipientStatus($status = 99, $recipientStatus = 99, $shipmentMethod, $shipmentStatus = 99)
     {
-        $orders = $this->model->with(['detail', 'detail.productSpecPrice'])
-                                ->notDeleted()
-                                ->where('order_status', $status)
-                                ->where('order_recipient_status', $recipientStatus)
-                                ->get();
+        if ($shipmentMethod === 2) {
+            // 實體商品
+            $orders = $this->model->with(['detail', 'detail.productSpecPrice', 'shipment'])
+                                    ->notDeleted()
+                                    ->whereHas('shipment', function($query) use ($shipmentStatus) {
+                                        $query->where('status', $shipmentStatus);
+                                    })
+                                    ->where('order_shipment_method', $shipmentMethod)
+                                    ->where('order_status', $status)
+                                    ->where('order_recipient_status', $recipientStatus)
+                                    ->get();
+        }
+        else {
+            // 票券商品
+            $orders = $this->model->with(['detail', 'detail.productSpecPrice'])
+                                    ->notDeleted()
+                                    ->where('order_shipment_method', $shipmentMethod)
+                                    ->where('order_status', $status)
+                                    ->where('order_recipient_status', $recipientStatus)
+                                    ->get();
+        }
 
         return $orders;
     }
