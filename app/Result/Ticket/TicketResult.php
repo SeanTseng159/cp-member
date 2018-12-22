@@ -28,16 +28,18 @@ class TicketResult extends BaseResult
 
     /**
      * 處理所有取得資料
-     * @param $product
+     * @param $orderStatus
+     * @param $tickets
+     * @param $member
      * @param bool $isDetail
      */
-    public function getAll($tickets, $member = null, $isDetail = false)
+    public function getAll($orderStatus, $tickets, $member = null, $isDetail = false)
     {
         if (!$tickets) return null;
 
         $newTickets = [];
         foreach ($tickets as $ticket) {
-            $newTickets[] = $this->get($ticket, $member, $isDetail);
+            $newTickets[] = $this->get($orderStatus, $ticket, $member, $isDetail);
         }
 
         return $newTickets;
@@ -50,7 +52,7 @@ class TicketResult extends BaseResult
      * @param $member
      * @param bool $isDetail
      */
-    public function get($order, $member = null, $isDetail = false)
+    public function get($orderStatus, $order, $member = null, $isDetail = false)
     {
         if (!$order) return null;
 
@@ -59,7 +61,7 @@ class TicketResult extends BaseResult
         $prodType = $this->arrayDefault($order, 'prod_type');
 
         // 取票券狀態，如果轉贈狀態，恆之轉贈狀態
-        $status = $this->getTicketStatus($order);
+        $status = $this->getTicketStatus($orderStatus, $order);
 
         // 取組合同步失效狀態
         $comboStatusAndDesc = $this->getComboStatusAndDescription($prodType, $order['sync_expire_due'], $order['use_value'], $status);
@@ -103,14 +105,14 @@ class TicketResult extends BaseResult
     /**
      * 票券狀態
      */
-    public function getTicketStatus($order, $comboStatus = '99')
+    public function getTicketStatus($orderStatus, $order, $comboStatus = '99')
     {
         $verifiedStatus = $this->arrayDefault($order, 'verified_status', '99');
         $orderMemberId = $this->arrayDefault($order, 'member_id');
         $ownMemberId = $this->arrayDefault($order, 'order_detail_member_id');
 
         // 檢查是否已轉贈
-        if ($orderMemberId !== $ownMemberId) return '4';
+        if ($orderStatus === '4' && $orderMemberId !== $ownMemberId) return '4';
 
         $now = $this->now->toDateTimeString();
 

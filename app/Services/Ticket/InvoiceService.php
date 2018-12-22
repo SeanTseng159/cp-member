@@ -23,6 +23,11 @@ class InvoiceService extends BaseService
     private $memberRepository;
     private $totalOrder = 0;
 
+    // 模式：
+    // test: 測試模式, 不更新資料庫狀態
+    // production: 正常模式, 更新資料庫狀態
+    private $mode = 'production';
+
     public function __construct(OrderRepository $repository, OrderDetailRepository $orderDetailRepository, OrderRefundRepository $orderRefundRepository, MemberRepository $memberRepository)
     {
         $this->repository = $repository;
@@ -33,13 +38,15 @@ class InvoiceService extends BaseService
 
     /**
      * 取得所有發票
+     * @param $shipmentMethod [實體 or 票券]
      * @return mixed
      */
-    public function getInvoices()
+    public function getInvoices($shipmentMethod)
     {
-        $invoices = $this->getOrdersByNotInvoiced();
-        $modifyInvoices = $this->getOrdersByModifyInvoice();
-        $deleteInvoices = $this->getOrdersByDeleteInvoice();
+        $this->totalOrder = 0;
+        $invoices = $this->getOrdersByNotInvoiced($shipmentMethod);
+        $modifyInvoices = $this->getOrdersByModifyInvoice($shipmentMethod);
+        $deleteInvoices = $this->getOrdersByDeleteInvoice($shipmentMethod);
         $total[] = $this->totalOrder;
 
         return array_merge($invoices, $modifyInvoices, $deleteInvoices, $total);
@@ -47,11 +54,12 @@ class InvoiceService extends BaseService
 
     /**
      * 取得未開發票訂單列表
+     * @param $shipmentMethod [實體 or 票券]
      * @return mixed
      */
-    public function getOrdersByNotInvoiced()
+    public function getOrdersByNotInvoiced($shipmentMethod)
     {
-        $orders = $this->repository->getOrdersByRecipientStatus(10, 00);
+        $orders = $this->repository->getOrdersByRecipientStatus(10, 00, $shipmentMethod, 5);
 
         if ($orders->isEmpty()) return [];
 
@@ -75,8 +83,10 @@ class InvoiceService extends BaseService
             }
 
             // 更新發票狀態
-            $status = ($order->recipientAmount <= 0) ? '31' : '09';
-            $this->repository->updateRecipientStatus($order->order_id, $status);
+            if ($this->mode === 'production') {
+                $status = ($order->recipientAmount <= 0) ? '31' : '09';
+                $this->repository->updateRecipientStatus($order->order_id, $status);
+            }
         }
 
         return $invoices;
@@ -84,12 +94,12 @@ class InvoiceService extends BaseService
 
     /**
      * 取得待修單發票訂單列表
-     * @param $status
+     * @param $shipmentMethod [實體 or 票券]
      * @return mixed
      */
-    public function getOrdersByModifyInvoice()
+    public function getOrdersByModifyInvoice($shipmentMethod)
     {
-        $orders = $this->repository->getOrdersByRecipientStatus(23, 10);
+        $orders = $this->repository->getOrdersByRecipientStatus(23, 10, $shipmentMethod, 6);
 
         if ($orders->isEmpty()) return [];
 
@@ -113,7 +123,9 @@ class InvoiceService extends BaseService
             }
 
             // 更新發票狀態
-            $this->repository->updateRecipientStatus($order->order_id, '19');
+            if ($this->mode === 'production') {
+                $this->repository->updateRecipientStatus($order->order_id, '19');
+            }
         }
 
         return $invoices;
@@ -121,12 +133,12 @@ class InvoiceService extends BaseService
 
     /**
      * 取得待刪單發票訂單列表
-     * @param $status
+     * @param $shipmentMethod [實體 or 票券]
      * @return mixed
      */
-    public function getOrdersByDeleteInvoice()
+    public function getOrdersByDeleteInvoice($shipmentMethod)
     {
-        $orders = $this->repository->getOrdersByRecipientStatus(24, 20);
+        $orders = $this->repository->getOrdersByRecipientStatus(24, 20, $shipmentMethod, 6);
 
         if ($orders->isEmpty()) return [];
 
@@ -163,7 +175,9 @@ class InvoiceService extends BaseService
             }
 
             // 更新發票狀態
-            $this->repository->updateRecipientStatus($order->order_id, '29');
+            if ($this->mode === 'production') {
+                $this->repository->updateRecipientStatus($order->order_id, '29');
+            }
         }
 
         return $invoices;
@@ -214,13 +228,13 @@ class InvoiceService extends BaseService
                         $detail->recipient_price = 0;
                     }
                     else {
-                        $detail->recipient_price = $detail->price_retail;
+                        $detail->recipient_price = $detail->price_off;
                     }
                 }
 
                 $this->orderDetailRepository->updateRecipient($detail->order_detail_id, $recipientStatus, $detail->recipient_price);
 
-                // 計算訂單總金額
+                // 計算訂單總金額 (只計算商品總額)
                 $order->recipientAmount += $detail->recipient_price;
             }
 
@@ -241,6 +255,11 @@ class InvoiceService extends BaseService
 
                 $this->orderDetailRepository->updateRecipient($detail->order_detail_id, $recipientStatus, $detail->recipient_price);
             }
+
+            // 計算訂單總金額 (加上運費)
+            $order->recipientAmount += $order->order_shipment_fee;
+            // 計算訂單總金額 (扣掉折扣)
+            $order->recipientAmount -= $order->order_off;
 
             return $order;
         });

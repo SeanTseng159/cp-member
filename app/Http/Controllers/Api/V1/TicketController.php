@@ -42,7 +42,7 @@ class TicketController extends RestLaravelController
             $parameter = (new TicketParameter($request))->all();
             $data = $this->ticketService->all($this->lang, $parameter);
             if ($parameter->orderStatus === '4') {
-                $result = (new TicketResult)->getAll($data);
+                $result = (new TicketResult)->getAll($parameter->orderStatus, $data);
                 if ($result) {
                     foreach ($result as $k => $row) {
                         $member = $this->getMember($row['member']);
@@ -52,7 +52,7 @@ class TicketController extends RestLaravelController
             }
             else {
                 $member = $this->memberService->find($parameter->memberId);
-                $result = (new TicketResult)->getAll($data, $member);
+                $result = (new TicketResult)->getAll($parameter->orderStatus, $data, $member);
             }
 
             return $this->success($result);
