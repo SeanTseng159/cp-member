@@ -18,6 +18,7 @@ use App\Services\MemberService;
 use Ksd\Mediation\Services\MemberTokenService;
 use Ksd\Mediation\Services\OrderService;
 use Log;
+use LineNotify;
 
 class OrderPaymentCompleteMail implements ShouldQueue
 {
@@ -92,6 +93,11 @@ class OrderPaymentCompleteMail implements ShouldQueue
             ];
 
             $mailService->send("CityPass都會通 - 準備出貨通知 - (訂單編號：{$order->orderNo}))", $customerService, 'emails/orderPaymentComplete', $data);
+        }
+
+        // 20181224 通知出貨人員
+        if ($order->shipment->description === '實體商品') {
+            LineNotify::sendMessage('SSw1OAHzdqzP0boIeVlxXt1PmvtF3iwBV0VpBJByfaF', "Candy準備出貨通知 - 訂單編號：{$order->orderNo}");
         }
     }
 }
