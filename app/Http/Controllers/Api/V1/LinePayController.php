@@ -47,7 +47,7 @@ class LinePayController extends RestLaravelController
 
                 // 寄送linepay付款完成通知信
                 $order = $this->orderService->findByOrderNo($parameters['record']['orderNo']);
-                dispatch(new OrderPaymentCompleteMail($order->member_id, 'ct_pass', $order->order_no))->onQueue('high')->delay(5);
+                dispatch(new OrderPaymentCompleteMail($order->member_id, 'ct_pass', $order->order_no))->delay(5);
 
                 return ($result['statusCode'] === 201) ? $this->successRedirect($parameters) : $this->failureRedirect($parameters);
             }
