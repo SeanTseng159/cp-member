@@ -31,7 +31,7 @@ class MailController extends RestLaravelController
         ]);
 
         if ($data['memberId'] && $data['source'] && $data['orderId']) {
-            dispatch(new OrderPaymentCompleteMail($data['memberId'], $data['source'], $data['orderId']))->onQueue('high')->delay(5);
+            dispatch(new OrderPaymentCompleteMail($data['memberId'], $data['source'], $data['orderId']))->delay(5);
         }
 
         return $this->success();

@@ -293,7 +293,7 @@ class CheckoutController extends RestLaravelController
             // 寄送linepay付款完成通知信
             $ticketOrderService = app()->build(TicketOrderService::class);
             // $order = $ticketOrderService->findByOrderNo($record['orderNo']);
-            dispatch(new OrderPaymentCompleteMail($request->memberId, 'ct_pass', $orderId))->onQueue('high')->delay(5);
+            dispatch(new OrderPaymentCompleteMail($request->memberId, 'ct_pass', $orderId))->delay(5);
         }
 
         // 撈取訂單
