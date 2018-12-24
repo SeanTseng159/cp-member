@@ -74,7 +74,7 @@ class TicketResult extends BaseResult
         $result['spec'] = $this->arrayDefault($order, 'prod_spec_name') . $this->arrayDefault($order, 'prod_spec_price_name');
         $result['place'] = $this->arrayDefault($order, 'prod_locate');
         $result['address'] = $this->arrayDefault($order, 'prod_address');
-        // $result['price'] = $this->arrayDefault($order, 'price_retail');
+        $result['price'] = $this->arrayDefault($order, 'price_off');
         $result['qrcode'] = ($prodType === 2) ? null : $this->arrayDefault($order, 'order_detail_qrcode');
         $result['status'] = $status;
         $result['catalogId'] = $this->arrayDefault($order, 'catalog_id');
@@ -87,9 +87,6 @@ class TicketResult extends BaseResult
         $result['show'] = $this->getShow($order, $status, $result['giftAt']);
         $result['comboDescription'] = $comboStatusAndDesc['description'];
         $result['member'] = ($member) ? $this->getMember($member) : $this->arrayDefault($order, 'order_detail_member_id');
-
-        /*if ($isDetail) {
-        }*/
 
         return $result;
     }
