@@ -96,8 +96,8 @@ class OrderPaymentCompleteMail implements ShouldQueue
         }
 
         // 20181224 通知出貨人員
-        if ($order->shipment->description === '實體商品') {
-            LineNotify::sendMessage('SSw1OAHzdqzP0boIeVlxXt1PmvtF3iwBV0VpBJByfaF', "Candy準備出貨通知 - 訂單編號：{$order->orderNo}");
+        if ($order->shipment['description'] === '實體商品') {
+            LineNotify::sendMessage('SSw1OAHzdqzP0boIeVlxXt1PmvtF3iwBV0VpBJByfaF', "通知店家準備出貨 - 訂單編號：{$order->orderNo}");
         }
     }
 }
