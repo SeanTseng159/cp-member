@@ -83,7 +83,7 @@ class CheckoutController extends RestLaravelController
             if (!$order) throw new CustomException('E9001');
 
             // 寄送訂單成立通知信
-            // dispatch(new OrderCreatedMail($params->memberId, 'ct_pass', $order->order_no))->onQueue('high')->delay(5);
+            dispatch(new OrderCreatedMail($params->memberId, 'ct_pass', $order->order_no))->onQueue('high')->delay(5);
 
             // 處理金流
             $payParams = [
