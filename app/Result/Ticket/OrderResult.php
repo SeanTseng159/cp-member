@@ -310,7 +310,7 @@ class OrderResult extends BaseResult
         $newDetail->orderNoSeq = $item['order_no'] . '-' . str_pad($item['order_detail_seq'], 3, '0', STR_PAD_LEFT);
         $newDetail->sn = (string) $item['order_detail_sn'];
         $newDetail->name = $item['prod_name'];
-        $newDetail->spec = ($item['prod_spec_price_name']) ? $item['prod_spec_name'] . '/' . $item['prod_spec_price_name'] : $item['prod_spec_name'];
+        $newDetail->spec = $this->getSpecName($item['prod_spec_name'], $item['prod_spec_price_name']);
         $newDetail->quantity = $item['price_company_qty'];
         $newDetail->price = $item['price_off'];
         $newDetail->description = ($this->isCommodity) ? trans('common.commodity') : trans('common.ticket');
@@ -390,6 +390,22 @@ class OrderResult extends BaseResult
         if ($comboIsSyncExpire && $statusCode === '10') $statusCode = '01';
 
         return $statusCode;
+    }
+
+    /**
+     * 取規格名稱
+     * @param $code
+     * @return string
+     */
+    private function getSpecName($specName = '', $priceName = '')
+    {
+        if ($priceName) {
+            if ($specName === $priceName) return $priceName;
+
+            return $specName . '/' . $priceName;
+        }
+
+        return $specName;
     }
 
     /**
