@@ -310,11 +310,11 @@ class CheckoutController extends RestLaravelController
             $order[0]->orderer = $this->hideName($memberName);
         }*/
 
-        // 撈取訂單
+        // 撈取訂單 (new)
         $ticketOrderService = app()->build(TicketOrderService::class);
         $order = $ticketOrderService->findByOrderNo($orderId);
-        $order = (new OrderResult)->get($order, true);
+        $newOrder[] = (new OrderResult)->get($order, true);
 
-        return $this->success($order);
+        return $this->success($newOrder);
     }
 }
