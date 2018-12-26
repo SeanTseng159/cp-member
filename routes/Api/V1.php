@@ -96,6 +96,12 @@ Route::middleware('cors')->namespace('V1')->group(function () {
 
 // 需 token 認證的 route
 Route::middleware(['cors', 'auth.jwt'])->namespace('V1')->group(function () {
+    // 收藏相關
+    Route::prefix('wishlist')->group(function () {
+        // 收藏列表
+        Route::get('items', 'WishlistController@items');
+    });
+
     // 訂單相關
     Route::prefix('order')->group(function () {
         // 取得訂單列表
