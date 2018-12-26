@@ -34,7 +34,7 @@ class ProductWishlistResult extends BaseResult
             $newItems[] = $this->get($product);
         }
 
-        return $newItems;
+        return array_filter($newItems);
     }
 
     /**
@@ -44,7 +44,7 @@ class ProductWishlistResult extends BaseResult
      */
     public function get($wishItem)
     {
-        if (!$wishItem) return null;
+        if (!$wishItem || !$wishItem->product) return null;
 
         $result['source'] = ProcuctConfig::SOURCE_TICKET;
         $result['wishlistId'] = (string) $wishItem->member_id;
