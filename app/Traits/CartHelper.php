@@ -211,7 +211,7 @@ trait CartHelper
                 $discountAmount = $offer;
                 break;
             case 2:
-                $discountAmount = $totalAmount - floor($totalAmount * ($offer / 100));
+                $discountAmount = $totalAmount - ceil($totalAmount * ($offer / 10000));
                 break;
             case 3:
                 $discountAmount = $totalAmount - $offer;
@@ -244,8 +244,60 @@ trait CartHelper
     }
 
     /**
-     * 計算運費
+     * 獨立賣場計算運費
+     * @param $shippingType
      * @param $shippingFeeModel [App\Models\Ticket\ShippingFee || App\Models\Ticket\PromotionShipping]
+     * @param $quantity
+     * @param $amount
+     * @return int
+     */
+    private function calcMarketShippingFee($shippingType, $shippingFeeModel, $quantity = 0, $amount = 0)
+    {
+        if (!$shippingType && !$shippingFeeModel) return 60;
+
+        // 免運
+        if ($shippingType === 1) return 0;
+
+        // 固定運費
+        if ($shippingType === 0) {
+            $feeModel = $shippingFeeModel->first();
+            return $feeModel->fee;
+        }
+
+        // 依件數收運費
+        if ($shippingType === 2) {
+            $fee = 0;
+            $maxUnit = 0;
+            $maxfee = 0;
+            foreach ($shippingFeeModel as $feeModel) {
+                if ($quantity >= $feeModel->lower && $quantity <= $feeModel->upper) {
+                    $fee = $feeModel->fee;
+                }
+
+                if ($feeModel->upper > $maxUnit) {
+                    $maxUnit = $feeModel->upper;
+                    $maxfee = $feeModel->fee;
+                }
+            }
+
+            // 如果數量大於最大運費數量, 則等於最大運費
+            return ($quantity > $maxUnit) ? $maxfee : $fee;
+        }
+
+        // 超過門檻免運
+        if ($shippingType === 3) {
+            $feeModel = $shippingFeeModel->first();
+            $minUnit = $feeModel->lower;
+            $minfee = $feeModel->fee;
+
+            // 如果金額大於最大限制金額, 則免費
+            return ($amount >= $minUnit) ? 0 : $minfee;
+        }
+    }
+
+    /**
+     * 一般計算運費
+     * @param $shippingFeeModel [App\Models\Ticket\ShippingFee]
      * @param $quantity
      * @return int
      */

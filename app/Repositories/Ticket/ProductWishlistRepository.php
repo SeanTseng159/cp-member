@@ -9,16 +9,12 @@ namespace App\Repositories\Ticket;
 
 use App\Repositories\BaseRepository;
 use App\Models\Ticket\ProductWishlist;
-use App\Repositories\Ticket\ProductRepository;
-use App\Repositories\MagentoProductRepository;
 
 class ProductWishlistRepository extends BaseRepository
 {
-    public function __construct(ProductWishlist $model, ProductRepository $productRepository, MagentoProductRepository $MagentoProductRepository)
+    public function __construct(ProductWishlist $model)
     {
         $this->model = $model;
-        $this->productRepository = $productRepository;
-        $this->MagentoProductRepository = $MagentoProductRepository;
     }
 
     /**
@@ -28,15 +24,8 @@ class ProductWishlistRepository extends BaseRepository
      */
     public function allByMemberId($memberId = 0)
     {
-        $products = $this->model->where('member_id', $memberId)->get();
-
-        if ($products) {
-            $products->transform(function ($row, $key) {
-                $row->product = $this->productRepository->easyFind($row->prod_id, true);
-                return $row;
-            });
-        }
-
-        return $products;
+        return $this->model->with(['product.specs.specPrices', 'product.img'])
+                            ->where('member_id', $memberId)
+                            ->get();
     }
 }

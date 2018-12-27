@@ -33,12 +33,23 @@ class MarketResult extends BaseResult
         $result->title = $data->title;
         $result->period = sprintf('%s ~ %s', $data->onsale_time, $data->offsale_time);
         $result->description = $data->sub_title;
-        $result->banner = 'https://i.ytimg.com/vi/0Rk5jj3gs74/maxresdefault.jpg';
+        $result->banner = $this->getBanner($data->banner);
         $result->shareUrl = $this->webHost . 'activity/market/' . $data->id;
         $result->rule = $this->getLowerCondition($data->condition_type, $data->offer_type, $data->conditions);
         $result->products = $this->getProducts($data->products);
 
         return $result;
+    }
+
+    /**
+     * 取 banner
+     * @param $data
+     */
+    public function getBanner($banner)
+    {
+        if (!$banner) return '';
+
+        return $this->backendHost . $banner->folder . $banner->filename;
     }
 
     /**

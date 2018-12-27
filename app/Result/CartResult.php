@@ -119,7 +119,7 @@ class CartResult extends BaseResult
             $result->totalAmount = $this->totalAmount;
             $result->discountAmount = $this->calcDiscountAmount($promotion, $result->totalAmount, $result->totalQuantity);
             $result->discountTotalAmount = $result->totalAmount - $result->discountAmount;
-            $result->shippingFee = $this->calcShippingFee($promotion->shipping, $result->totalQuantity);
+            $result->shippingFee = $this->calcMarketShippingFee($promotion->shipping_type, $promotion->shipping, $result->totalQuantity, $result->discountTotalAmount);
             $result->payAmount = $result->discountTotalAmount + $result->shippingFee;
             $result->canCheckout = ($products) ? true : false;
             $result->hasPhysical = $this->hasPhysical;

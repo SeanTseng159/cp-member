@@ -67,7 +67,7 @@ class ProductWishlistResult extends BaseResult
         $result['characteristic'] = $wishItem->product->prod_short;
         $result['storeName'] = $wishItem->product->prod_store;
         $result['place'] = $wishItem->product->prod_store;
-        $result['imageUrl'] = $this->getImg($wishItem->product->imgs);
+        $result['imageUrl'] = $this->getImg($wishItem->product->img);
         $result['addAt'] = $wishItem->created_at->toDateTimeString();
 
         return $result;
@@ -78,9 +78,9 @@ class ProductWishlistResult extends BaseResult
      * @param $imgs
      * @return string
      */
-    private function getImg($imgs)
+    private function getImg($img)
     {
-        return isset($imgs[0]['img_thumbnail_path']) ? $this->backendHost . $imgs[0]['img_thumbnail_path'] : '';
+        return isset($img->img_thumbnail_path) ? $this->backendHost . $img->img_thumbnail_path : '';
     }
 
     /**
