@@ -213,7 +213,7 @@ trait CartHelper
             case 2:
                 $discountAmount = $totalAmount - ceil($totalAmount * ($offer / 10000));
                 break;
-            case 3:
+            case 4:
                 $discountAmount = $totalAmount - $offer;
                 break;
         }
