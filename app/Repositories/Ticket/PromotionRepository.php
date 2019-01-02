@@ -54,6 +54,8 @@ class PromotionRepository extends BaseRepository
         foreach ($promo->prodSpecPrices as $row) {
             $prod = $this->productRepository->findByCheckout($row->prod_id, $row->spec_id, $row->price_id);
 
+            if (!$prod) continue;
+
             $prod->marketPrice = $row->price;
             $prod->marketStock = $row->stock;
 
