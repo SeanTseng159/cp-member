@@ -43,7 +43,7 @@ trait MarketHelper
                 $type .= 'DQ';
                 break;
             case 3:
-                $name .= '買%s件';
+                $name .= '任選%s件';
                 $type .= 'FQ';
                 break;
         }
@@ -57,6 +57,10 @@ trait MarketHelper
             case 2:
                 $name .= ' 打%s折';
                 $type .= 'FD';
+                break;
+            case 4:
+                $name .= ' %s元';
+                $type .= 'FP';
                 break;
         }
 
