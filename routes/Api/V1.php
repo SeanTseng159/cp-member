@@ -61,6 +61,8 @@ Route::middleware('cors')->namespace('V1')->group(function () {
 
         // 清付款方式
         Route::get('clean/checkout/paymentMethod', 'CacheController@paymentMethod');
+        // 清更多服務
+        Route::get('clean/layout/apps', 'CacheController@apps');
     });
 
     // 商品相關
@@ -73,6 +75,20 @@ Route::middleware('cors')->namespace('V1')->group(function () {
         Route::get('combo/{id}', 'ProductController@findComboItem');
         // 商品搜尋
         Route::get('search', 'ProductController@search')->middleware('verify.product.search');
+    });
+
+    // 縣市列表
+    Route::get('counties', 'AddressController@counties');
+
+    Route::prefix('diningCar')->group(function () {
+        // 店家類型列表
+        Route::get('categories/main', 'DiningCarController@mainCategories');
+
+        // 取營業狀態列表
+        Route::get('openStatus/list', 'DiningCarController@openStatusList');
+
+        // 餐車列表
+        Route::get('list', 'DiningCarController@list');
     });
 
     // linepay相關
