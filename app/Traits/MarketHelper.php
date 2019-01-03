@@ -66,8 +66,11 @@ trait MarketHelper
 
         $offer = $this->getOffer($offerType, $condition->offer);
 
+        $conditionName = sprintf($name, $condition->condition, $offer);
+        if ($offerType === 2) $conditionName = sprintf($name, $condition->condition, str_replace('0', '', $offer));
+
         return [
-            'name' => sprintf($name, $condition->condition, $offer),
+            'name' => $conditionName,
             'type' => $type,
             'condition' => $condition->condition,
             'offer' => $offer
