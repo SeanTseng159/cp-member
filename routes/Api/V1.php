@@ -72,8 +72,17 @@ Route::middleware('cors')->namespace('V1')->group(function () {
         Route::get('qa', 'ServiceController@qa');
     });
 
+    // 縣市列表
+    Route::get('counties', 'AddressController@counties');
+
     Route::prefix('diningCar')->group(function () {
-        // 常見問題
+        // 店家類型列表
+        Route::get('categories/main', 'DiningCarController@mainCategories');
+
+        // 取營業狀態列表
+        Route::get('openStatus/list', 'DiningCarController@openStatusList');
+
+        // 餐車列表
         Route::get('list', 'DiningCarController@list');
     });
 

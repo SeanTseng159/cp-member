@@ -7,7 +7,6 @@
 
 namespace App\Parameter\Ticket;
 
-use Carbon\Carbon;
 use App\Parameter\BaseParameter;
 
 class DiningCarParameter extends BaseParameter
@@ -20,9 +19,15 @@ class DiningCarParameter extends BaseParameter
     public function list()
     {
     	// 預設高雄火車站
-    	$this->longitude = $this->request->input('longitude', '120.3045522');
-		$this->latitude = $this->request->input('latitude', '22.6402112');
+    	$params['longitude'] = $this->request->input('longitude', '120.3045522');
+		$params['latitude'] = $this->request->input('latitude', '22.6402112');
+        $params['keyword'] = $this->request->input('keyword');
+        $params['county'] = $this->request->input('county');
+        $params['category'] = $this->request->input('category');
+        $params['openStatus'] = $this->request->input('openStatus');
+        $params['page'] = $this->page;
+        $params['limit'] = $this->limit;
 
-		return $this;
+		return $params;
     }
 }

@@ -55,7 +55,7 @@ class DiningCarResult extends BaseResult
 
         $result = new \stdClass;
         $result->name = $car->name;
-        $result->img = 'https://scontent-iad3-1.cdninstagram.com/vp/e3fb7eaf5c084e3b6e041be70850695f/5C483ACD/t51.2885-15/e35/s480x480/41440210_163360401250877_8689027503124651036_n.jpg';
+        $result->imgUrl = 'https://scontent-iad3-1.cdninstagram.com/vp/e3fb7eaf5c084e3b6e041be70850695f/5C483ACD/t51.2885-15/e35/s480x480/41440210_163360401250877_8689027503124651036_n.jpg';
         $result->category = $this->getCategory($car->category, $car->subCategory);
         $result->isFavorite = false;
         $result->openStatusCode = $car->open_status;
@@ -77,5 +77,24 @@ class DiningCarResult extends BaseResult
         if ($subCategory) $categoryAry[] = $subCategory->name;
 
         return implode('·', $categoryAry);
+    }
+
+    /**
+     * 取分類
+     * @param $data
+     */
+    public function getOpenStatusList()
+    {
+        $list = DiningCarConfig::OPEN_STATUS;
+
+        $newList = [];
+        foreach ($list as $key => $value) {
+            $status = new \stdClass;
+            $status->id = $key;
+            $status->name = $value;
+            $newList[] = $status;
+        }
+
+        return $newList;
     }
 }
