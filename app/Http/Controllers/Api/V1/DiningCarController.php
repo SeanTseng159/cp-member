@@ -58,7 +58,6 @@ class DiningCarController extends RestLaravelController
     /**
      * 取餐車列表
      * @param Request $request
-     * @param $id
      * @return \Illuminate\Http\JsonResponse
      */
     public function list(Request $request)
@@ -71,6 +70,28 @@ class DiningCarController extends RestLaravelController
 
             $data = $this->service->list($params);
             $result['data'] = (new DiningCarResult)->list($data, $params['latitude'], $params['longitude']);
+
+            return $this->success($result);
+        } catch (Exception $e) {
+            return $this->success();
+        }
+    }
+
+    /**
+     * 取餐車詳細
+     * @param Request $request
+     * @param $id
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function detail(Request $request, $id)
+    {
+        try {
+            if (!$id) return $this->apiRespFailCode('E0006');
+
+            $params = (new DiningCarParameter($request))->detail();
+
+            $data = $this->service->find($id);
+            $result = (new DiningCarResult)->detail($data, $params['latitude'], $params['longitude']);
 
             return $this->success($result);
         } catch (Exception $e) {

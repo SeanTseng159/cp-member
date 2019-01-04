@@ -74,4 +74,21 @@ class DiningCarRepository extends BaseRepository
                             ->offset($offset)
                             ->get();
     }
+
+    /**
+     * 取詳細
+     * @param  $id
+     * @return mixed
+     */
+    public function find($id = 0)
+    {
+        return $this->model->with([
+                                'category',
+                                'subCategory',
+                                'socialUrls',
+                                'businessHoursDays.times',
+                                'businessHoursDates'
+                            ])
+                            ->find($id);
+    }
 }

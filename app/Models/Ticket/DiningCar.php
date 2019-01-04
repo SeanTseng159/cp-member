@@ -11,6 +11,13 @@ use App\Models\Ticket\BaseModel;
 
 class DiningCar extends BaseModel
 {
+    private $month;
+
+    public function __construct()
+    {
+        $this->month = date('Y-m');
+    }
+
     /**
      * 取得主分類
      */
@@ -25,5 +32,30 @@ class DiningCar extends BaseModel
   	public function subCategory()
     {
         return $this->belongsTo('App\Models\Ticket\DiningCarCategory', 'dining_car_sub_category_id');
+    }
+
+    /**
+     * 取得社群網址
+     */
+    public function socialUrls()
+    {
+        return $this->hasMany('App\Models\Ticket\DiningCarSocialUrl')->where('status', 1);
+    }
+
+    /**
+     * 取得營業時間
+     */
+    public function businessHoursDays()
+    {
+        return $this->hasMany('App\Models\Ticket\DiningCarBusinessHoursDay')->where('status', 1)->orderBy('day');
+    }
+
+    /**
+     * 取得營業時間
+     */
+    public function businessHoursDates()
+    {
+        return $this->hasMany('App\Models\Ticket\DiningCarBusinessHoursDate')
+                    ->where('business_date', 'like', $this->month . '%');
     }
 }

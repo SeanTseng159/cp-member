@@ -30,4 +30,13 @@ class DiningCarParameter extends BaseParameter
 
 		return $params;
     }
+
+    public function detail()
+    {
+        // 預設高雄火車站
+        $params['longitude'] = $this->request->input('longitude', '120.3045522');
+        $params['latitude'] = $this->request->input('latitude', '22.6402112');
+
+        return $params;
+    }
 }

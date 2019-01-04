@@ -24,4 +24,15 @@ class BaseConfig
     const   SOURCE_TPASS_PHYSICAL  = 'ct_pass_physical';   // 實體商品
     const   SOURCE_COMMODITY     = 'magento';   // 實體商品
     const   SOURCE_CT_COMMODITY  = 'ct_pass_physical';   // 實體商品
+
+    # 數字轉中文週數
+    const WEEK = [
+        1 => '週一',
+        2 => '週二',
+        3 => '週三',
+        4 => '週四',
+        5 => '週五',
+        6 => '週六',
+        7 => '週日'
+    ];
 }
