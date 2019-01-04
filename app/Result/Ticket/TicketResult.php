@@ -20,10 +20,12 @@ class TicketResult extends BaseResult
     use StringHelper;
 
     private $now;
+    private $orderStatus;
 
-    public function __construct()
+    public function __construct($orderStatus = '99')
     {
         $this->now = Carbon::now();
+        $this->orderStatus = $orderStatus;
     }
 
     /**
@@ -33,13 +35,13 @@ class TicketResult extends BaseResult
      * @param $member
      * @param bool $isDetail
      */
-    public function getAll($orderStatus, $tickets, $member = null, $isDetail = false)
+    public function getAll($tickets, $member = null, $isDetail = false)
     {
         if (!$tickets) return null;
 
         $newTickets = [];
         foreach ($tickets as $ticket) {
-            $newTickets[] = $this->get($orderStatus, $ticket, $member, $isDetail);
+            $newTickets[] = $this->get($ticket, $member, $isDetail);
         }
 
         return $newTickets;
@@ -47,12 +49,11 @@ class TicketResult extends BaseResult
 
     /**
      * 取得資料
-     * @param $orderStatus
      * @param $order
      * @param $member
      * @param bool $isDetail
      */
-    public function get($orderStatus, $order, $member = null, $isDetail = false)
+    public function get($order, $member = null, $isDetail = false)
     {
         if (!$order) return null;
 
@@ -61,7 +62,7 @@ class TicketResult extends BaseResult
         $prodType = $this->arrayDefault($order, 'prod_type');
 
         // 取票券狀態，如果轉贈狀態，恆之轉贈狀態
-        $status = $this->getTicketStatus($orderStatus, $order);
+        $status = $this->getTicketStatus($this->orderStatus, $order);
 
         // 取組合同步失效狀態
         $comboStatusAndDesc = $this->getComboStatusAndDescription($prodType, $order['sync_expire_due'], $order['use_value'], $status);
@@ -238,7 +239,7 @@ class TicketResult extends BaseResult
         $result['serialNumber'] = (string) $this->arrayDefault($item, 'order_detail_sn');
         $result['name'] = $this->arrayDefault($item, 'prod_name');
         $result['catalogId'] = $this->arrayDefault($item, 'catalog_id');
-        $result['status'] = $this->getTicketStatus($item, $comboStatus);
+        $result['status'] = $this->getTicketStatus($this->orderStatus, $item, $comboStatus);
         $result['statusName'] = TicketConfig::DB_STATUS_NAME[$result['status']];
         $result['qrcode'] = ($result['status'] === '3') ? '' : $this->arrayDefault($item, 'order_detail_qrcode');
         $result['isOnDay'] = ($result['status'] === '3') ? false : $this->getIsOnDay($result['status'], $item['prod_expire_type'], $item['order_detail_expire_start'], $item['order_detail_expire_due']);
