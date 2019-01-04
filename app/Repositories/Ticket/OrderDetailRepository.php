@@ -263,9 +263,9 @@ class OrderDetailRepository extends BaseRepository
                                     return $query->where('order_detail_expire_due', '>=', date('Y-m-d H:i:s'))
                                         ->orWhere('order_detail_expire_due', null);
                                 }
-                            })
-                            ->offset($parameter->offset())
-                            ->limit($parameter->limit);
+                            });
+                            //->offset($parameter->offset())
+                            //->limit($parameter->limit);
 
         switch ($parameter->orderStatus) {
             case '1':
