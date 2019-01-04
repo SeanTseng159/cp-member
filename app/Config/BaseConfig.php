@@ -16,6 +16,17 @@ class BaseConfig
     # 來源
     const   SOURCE_TICKET        = 'ct_pass';   // 票卷
     const   SOURCE_COMMODITY     = 'magento';   // 實體商品
-    
+
     const   DATA_COLLECTION_HOST = 'http://galera.touchcity.tw';
+
+    # 數字轉中文週數
+    const WEEK = [
+        1 => '週一',
+        2 => '週二',
+        3 => '週三',
+        4 => '週四',
+        5 => '週五',
+        6 => '週六',
+        7 => '週日'
+    ];
 }

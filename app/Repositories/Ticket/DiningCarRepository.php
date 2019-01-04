@@ -82,6 +82,13 @@ class DiningCarRepository extends BaseRepository
      */
     public function find($id = 0)
     {
-        return $this->model->find($id);
+        return $this->model->with([
+                                'category',
+                                'subCategory',
+                                'socialUrls',
+                                'businessHoursDays.times',
+                                'businessHoursDates'
+                            ])
+                            ->find($id);
     }
 }
