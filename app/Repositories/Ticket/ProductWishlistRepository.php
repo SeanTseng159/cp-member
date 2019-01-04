@@ -24,7 +24,11 @@ class ProductWishlistRepository extends BaseRepository
      */
     public function allByMemberId($memberId = 0)
     {
-        return $this->model->with(['product.specs.specPrices', 'product.img'])
+        return $this->model->with([
+                                'product.specs.specPrices',
+                                'product.img',
+                                'menuProds.upperTag'
+                            ])
                             ->where('member_id', $memberId)
                             ->get();
     }

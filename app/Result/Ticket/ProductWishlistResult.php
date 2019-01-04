@@ -49,7 +49,7 @@ class ProductWishlistResult extends BaseResult
         $result['source'] = ProcuctConfig::SOURCE_TICKET;
         $result['wishlistId'] = (string) $wishItem->member_id;
         $result['wishlistItemId'] = (string) $wishItem->prod_id;
-        $result['category'] = [];
+        $result['category'] = $this->getCategories($wishItem->menuProds);
         $result['tags'] = [];
 
         $result['id'] = (string) $wishItem->product->prod_id;
@@ -71,6 +71,30 @@ class ProductWishlistResult extends BaseResult
         $result['addAt'] = $wishItem->created_at->toDateTimeString();
 
         return $result;
+    }
+
+    /**
+     * 取得分類
+     * @param $imgs
+     * @return string
+     */
+    private function getCategories($menuProds)
+    {
+        if ($menuProds->isEmpty()) return [];
+
+        $menuProds = $menuProds->unique('tag_upper_id');
+
+        $newCategories = [];
+        foreach ($menuProds as $prod) {
+            if ($prod->upperTag) {
+                $tag = new \stdClass;
+                $tag->id = $prod->upperTag->tag_id;
+                $tag->name = $prod->upperTag->tag_name;
+                $newCategories[] = $tag;
+            }
+        }
+
+        return $newCategories;
     }
 
     /**
