@@ -28,7 +28,7 @@ class BaseParameter
         $this->request = $request;
 
         $this->sort = $this->request->input('sort');
-        $this->limit = $this->request->input('limit', 2);
+        $this->limit = $this->request->input('limit', 20);
         $this->page = $this->request->input('page', 1);
 
         $this->source = $this->request->input('source');

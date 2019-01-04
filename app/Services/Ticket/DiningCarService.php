@@ -38,4 +38,14 @@ class DiningCarService extends BaseService
     {
         return $this->repository->list($params);
     }
+
+    /**
+     * 取詳細
+     * @param  $id
+     * @return mixed
+     */
+    public function find($id = 0)
+    {
+        return $this->repository->find($id);
+    }
 }

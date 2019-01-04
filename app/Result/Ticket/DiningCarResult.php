@@ -54,8 +54,34 @@ class DiningCarResult extends BaseResult
         if (!$car) return null;
 
         $result = new \stdClass;
+        $result->id = $car->id;
         $result->name = $car->name;
-        $result->imgUrl = 'https://scontent-iad3-1.cdninstagram.com/vp/e3fb7eaf5c084e3b6e041be70850695f/5C483ACD/t51.2885-15/e35/s480x480/41440210_163360401250877_8689027503124651036_n.jpg';
+        $result->img = 'https://scontent-iad3-1.cdninstagram.com/vp/e3fb7eaf5c084e3b6e041be70850695f/5C483ACD/t51.2885-15/e35/s480x480/41440210_163360401250877_8689027503124651036_n.jpg';
+        $result->category = $this->getCategory($car->category, $car->subCategory);
+        $result->isFavorite = false;
+        $result->openStatusCode = $car->open_status;
+        $result->openStatus = DiningCarConfig::OPEN_STATUS[$car->open_status];
+        $result->distance = $this->calcDistance($this->lat, $this->lng, $car->latitude, $car->longitude, 2, 2) . '公里';
+
+        return $result;
+    }
+
+    /**
+     * 餐車資訊
+     * @param $car
+     */
+    public function detail($car, $lat, $lng)
+    {
+        if (!$car) return null;
+
+        $this->lat = $lat;
+        $this->lng = $lng;
+
+        $result = new \stdClass;
+        $result->id = $car->id;
+        $result->name = $car->name;
+        $result->description = $car->description;
+        $result->imgs = $this->getImgs();
         $result->category = $this->getCategory($car->category, $car->subCategory);
         $result->isFavorite = false;
         $result->openStatusCode = $car->open_status;
@@ -69,7 +95,7 @@ class DiningCarResult extends BaseResult
      * 取分類
      * @param $data
      */
-    public function getCategory($category, $subCategory)
+    private function getCategory($category, $subCategory)
     {
         $categoryAry = [];
 
@@ -77,6 +103,19 @@ class DiningCarResult extends BaseResult
         if ($subCategory) $categoryAry[] = $subCategory->name;
 
         return implode('·', $categoryAry);
+    }
+
+    /**
+     * 取照片
+     * @param $data
+     */
+    private function getImgs()
+    {
+        return [
+            'https://scontent-iad3-1.cdninstagram.com/vp/e3fb7eaf5c084e3b6e041be70850695f/5C483ACD/t51.2885-15/e35/s480x480/41440210_163360401250877_8689027503124651036_n.jpg',
+            'https://scontent-iad3-1.cdninstagram.com/vp/e3fb7eaf5c084e3b6e041be70850695f/5C483ACD/t51.2885-15/e35/s480x480/41440210_163360401250877_8689027503124651036_n.jpg',
+            'https://scontent-iad3-1.cdninstagram.com/vp/e3fb7eaf5c084e3b6e041be70850695f/5C483ACD/t51.2885-15/e35/s480x480/41440210_163360401250877_8689027503124651036_n.jpg'
+        ];
     }
 
     /**

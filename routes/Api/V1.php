@@ -75,6 +75,7 @@ Route::middleware('cors')->namespace('V1')->group(function () {
     // 縣市列表
     Route::get('counties', 'AddressController@counties');
 
+    // 餐車相關
     Route::prefix('diningCar')->group(function () {
         // 店家類型列表
         Route::get('categories/main', 'DiningCarController@mainCategories');
@@ -84,6 +85,9 @@ Route::middleware('cors')->namespace('V1')->group(function () {
 
         // 餐車列表
         Route::get('list', 'DiningCarController@list');
+
+        // 餐車詳細
+        Route::get('detail/{id}', 'DiningCarController@detail');
     });
 
     Route::prefix('linepay')->group(function () {
