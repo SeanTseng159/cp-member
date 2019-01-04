@@ -27,4 +27,14 @@ class ProductWishlist extends BaseModel
         			->where('prod_onshelf_time', '<=', $now)
                     ->where('prod_offshelf_time', '>=', $now);
     }
+
+    /**
+     * 取得選單商品
+     */
+    public function menuProds()
+    {
+        return $this->hasMany('App\Models\Ticket\MenuProd', 'prod_id', 'prod_id')
+                    ->notDeleted()
+                    ->where('tag_upper_id', '!=', 0);
+    }
 }
