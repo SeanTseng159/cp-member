@@ -391,43 +391,27 @@ class ProductRepository extends BaseRepository
     }
 
     /**
-     * 取得根據
+     * 取得供應商商品
      * @params $suppliedId
      * @return Collections
      */
-    public function supplierProducts(int $supplierId, $page_info)
+    public function supplierProducts(int $supplierId, $page = 1, $limit = 20)
     {
-        $currentPage = $page_info['page'] ?? ProcuctConfig::DEFAULT_PAGE;
-        $pageSize = $page_info['limit'] ?? ProcuctConfig::DEFAULT_PAGE_SIZE;
+        $offset = ($page - 1) * $limit;
 
-        Paginator::currentPageResolver(function () use ($currentPage) {
-            return $currentPage;
+        Paginator::currentPageResolver(function() use ($page) {
+            return $page;
         });
 
-        return Product::where('supplier_id', $supplierId)
+        $data = $this->model->with(['specs.specPrices', 'img'])
+                    ->where('supplier_id', $supplierId)
                     ->notDeleted()
                     ->where('prod_onshelf', 1)
                     ->whereIn('prod_type', [1, 2])
                     ->where('prod_onshelf_time', '<=', $this->date)
                     ->where('prod_offshelf_time', '>=', $this->date)
-                    ->with(['imgs' => function($query) {
-                        $query->where('img_sort', 1);
-                    }])
-                    ->with(['product_tags' => function($query){
-                        $query->where('is_main', 1);
-                    }])
-                    ->select(
-                            'prod_id',
-                            'prod_name',
-                            'prod_price_sticker',
-                            'prod_price_retail',
-                            'prod_short',
-                            'prod_store',
-                            'prod_county',
-                            'prod_district',
-                            'prod_address',
-                            'is_physical'
-                            )
-                    ->paginate($pageSize);
+                    ->paginate($limit);
+
+        return $data;
     }
 }

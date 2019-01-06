@@ -122,12 +122,13 @@ class LayoutService extends BaseService
     /**
      * 取供應商相關商品
      * @param int $supplierId
-     * @param array $page_info
+     * @param int $page
+     * @param int $limit
      * @return type
      */
-    public function supplierProducts($supplierId, $page_info = [])
+    public function supplierProducts($supplierId, $page = 1, $limit = 20)
     {
-        $data['prods'] = $this->productRepository->supplierProducts($supplierId, $page_info);
+        $data['prods'] = $this->productRepository->supplierProducts($supplierId, $page, $limit);
         $data['supplier'] = SupplierRepository::find($supplierId);
 
         return $data;
