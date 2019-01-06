@@ -46,7 +46,7 @@ class ProductWishlistResult extends BaseResult
     {
         if (!$wishItem || !$wishItem->product) return null;
 
-        $result['source'] = ProcuctConfig::SOURCE_TICKET;
+        $result['source'] = ($wishItem->product->is_physical) ? ProcuctConfig::SOURCE_CT_COMMODITY : ProcuctConfig::SOURCE_TICKET;
         $result['wishlistId'] = (string) $wishItem->member_id;
         $result['wishlistItemId'] = (string) $wishItem->prod_id;
         $result['category'] = $this->getCategories($wishItem->menuProds);
