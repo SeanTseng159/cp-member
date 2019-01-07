@@ -8,6 +8,7 @@
 namespace App\Repositories\Ticket;
 
 use App\Repositories\BaseRepository;
+use Illuminate\Pagination\Paginator;
 use App\Models\Ticket\DiningCar;
 
 class DiningCarRepository extends BaseRepository
@@ -20,39 +21,16 @@ class DiningCarRepository extends BaseRepository
     }
 
     /**
-     * 取列表總數
-     * @param  $params
-     * @return mixed
-     */
-    public function listCount($params = [])
-    {
-        return $this->model->with(['category', 'subCategory'])
-                            ->where('status', 1)
-                            ->when($params['keyword'], function($query) use ($params) {
-                                $query->where('name', 'like', '%' . $params['keyword'] . '%');
-                            })
-                            ->when($params['county'], function($query) use ($params) {
-                                $query->where('county', $params['county']);
-                            })
-                            ->when($params['category'], function($query) use ($params) {
-                                $query->where('dining_car_category_id', $params['category']);
-                            })
-                            ->where(function($query) use ($params) {
-                                if (!is_null($params['openStatus'])) {
-                                    $query->where('open_status', $params['openStatus']);
-                                }
-                            })
-                            ->count();
-    }
-
-    /**
      * 取列表
      * @param  $params
      * @return mixed
      */
     public function list($params = [])
     {
-        $offset = ($params['page'] - 1) * $params['limit'];
+        $currentPage = $params['page'];
+        Paginator::currentPageResolver(function () use ($currentPage) {
+            return $currentPage;
+        });
 
         return $this->model->with(['category', 'subCategory'])
                             ->where('status', 1)
@@ -70,8 +48,19 @@ class DiningCarRepository extends BaseRepository
                                     $query->where('open_status', $params['openStatus']);
                                 }
                             })
-                            ->limit($params['limit'])
-                            ->offset($offset)
+                            ->paginate($params['limit']);
+    }
+
+    /**
+     * 取地圖列表
+     * @param  $params
+     * @return mixed
+     */
+    public function map($params = [])
+    {
+        return $this->model->with(['category', 'subCategory'])
+                            ->where('status', 1)
+                            ->withinLocation($params['range']['longitude'], $params['range']['latitude'])
                             ->get();
     }
 

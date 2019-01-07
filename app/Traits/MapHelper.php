@@ -10,6 +10,32 @@ namespace App\Traits;
 trait MapHelper
 {
     /**
+    * 計算地圖面積範圍
+    * @param $minLat [最小緯度]
+    * @param $maxLat [最大緯度]
+    * @param $minLng [最小經度]
+    * @param $maxLng [最大經度]
+    */
+    public function calcMapRange($minLat, $maxLat, $minLng, $maxLng)
+    {
+        // 處理緯度
+        if ($minLat > $maxLat) {
+            $range['latitude'] = [$maxLat, $minLat];
+        } else {
+            $range['latitude'] = [$minLat, $maxLat];
+        }
+
+        // 處理經度
+        if ($minLng > $maxLng) {
+            $range['longitude'] = [$maxLng, $minLng];
+        } else {
+            $range['longitude'] = [$minLng, $maxLng];
+        }
+
+        return $range;
+    }
+
+    /**
     * 計算兩組經緯度座標 之間的距離
     * @param $lat1 緯度1
     * @param $lng1 經度1

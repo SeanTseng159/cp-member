@@ -178,5 +178,10 @@ return [
         ],
 
         'quantity' => '數量',
+
+        'minLatitude' => '地圖範圍最小緯度',
+        'maxLatitude' => '地圖範圍最大緯度',
+        'minLongitude' => '地圖範圍最小經度',
+        'maxLongitude' => '地圖範圍最大經度',
     ],
 ];

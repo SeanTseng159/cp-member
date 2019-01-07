@@ -91,6 +91,9 @@ Route::middleware('cors')->namespace('V1')->group(function () {
         // 餐車列表
         Route::get('list', 'DiningCarController@list');
 
+        // 餐車地圖
+        Route::get('map', 'DiningCarController@map')->middleware('verify.diningCar.map');
+
         // 餐車詳細
         Route::get('detail/{id}', 'DiningCarController@detail');
     });
