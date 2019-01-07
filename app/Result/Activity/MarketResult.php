@@ -98,7 +98,7 @@ class MarketResult extends BaseResult
     {
         $spec = new \stdClass;
         $spec->id = $prod->prod_spec_id;
-        $spec->name = $prod->prod_spec_name;
+        $spec->name = ($prod->prod_price_type) ? $prod->prod_spec_name : '';
 
         return $spec;
     }

@@ -49,7 +49,7 @@ class ProductWishlistResult extends BaseResult
         $result['source'] = ($wishItem->product->is_physical) ? ProcuctConfig::SOURCE_CT_COMMODITY : ProcuctConfig::SOURCE_TICKET;
         $result['wishlistId'] = (string) $wishItem->member_id;
         $result['wishlistItemId'] = (string) $wishItem->prod_id;
-        $result['category'] = $this->getCategories($wishItem->menuProds);
+        $result['categories'] = $this->getCategories($wishItem->menuProds);
         $result['tags'] = [];
 
         $result['id'] = (string) $wishItem->product->prod_id;
