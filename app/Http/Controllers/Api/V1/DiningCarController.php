@@ -65,15 +65,34 @@ class DiningCarController extends RestLaravelController
         try {
             $params = (new DiningCarParameter($request))->list();
 
-            $result['total'] = $this->service->listCount($params);
             $result['page'] = (int) $params['page'];
 
             $data = $this->service->list($params);
-            $result['data'] = (new DiningCarResult)->list($data, $params['latitude'], $params['longitude']);
+            $result['total'] = $data->total();
+            $result['cars'] = (new DiningCarResult)->list($data, $params['latitude'], $params['longitude']);
 
             return $this->success($result);
         } catch (Exception $e) {
-            return $this->success();
+            return $this->failureCode('E0007');
+        }
+    }
+
+    /**
+     * 取餐車地圖
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function map(Request $request)
+    {
+        try {
+            $params = (new DiningCarParameter($request))->map();
+
+            $data = $this->service->map($params);
+            $result = (new DiningCarResult)->list($data, $params['latitude'], $params['longitude']);
+
+            return $this->success($result);
+        } catch (Exception $e) {
+            return $this->failureCode('E0007');
         }
     }
 
@@ -95,7 +114,7 @@ class DiningCarController extends RestLaravelController
 
             return $this->success($result);
         } catch (Exception $e) {
-            return $this->success();
+            return $this->failureCode('E0007');
         }
     }
 }

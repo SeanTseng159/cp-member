@@ -90,6 +90,8 @@ class Kernel extends HttpKernel
 
         'verify.product.search' => \App\Http\Middleware\Verify\Product\Search::class,
 
+        'verify.diningCar.map' => \App\Http\Middleware\Verify\DiningCar\Map::class,
+
         'verify.checkout.shipment' => \App\Http\Middleware\Verify\Checkout\Shipment::class,
     ];
 }

@@ -24,19 +24,19 @@ class DiningCarService extends BaseService
      * @param  $params
      * @return mixed
      */
-    public function listCount($params = [])
-    {
-        return $this->repository->listCount($params);
-    }
-
-    /**
-     * 取列表
-     * @param  $params
-     * @return mixed
-     */
     public function list($params = [])
     {
         return $this->repository->list($params);
+    }
+
+    /**
+     * 取地圖列表
+     * @param  $params
+     * @return mixed
+     */
+    public function map($params = [])
+    {
+        return $this->repository->map($params);
     }
 
     /**

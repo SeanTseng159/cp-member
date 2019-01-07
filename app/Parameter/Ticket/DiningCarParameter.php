@@ -8,9 +8,12 @@
 namespace App\Parameter\Ticket;
 
 use App\Parameter\BaseParameter;
+use App\Traits\MapHelper;
 
 class DiningCarParameter extends BaseParameter
 {
+    use MapHelper;
+
 	public function __construct($request)
     {
     	parent::__construct($request);
@@ -29,6 +32,21 @@ class DiningCarParameter extends BaseParameter
         $params['limit'] = $this->limit;
 
 		return $params;
+    }
+
+    public function map()
+    {
+        $params['longitude'] = $this->request->input('longitude', '120.3045522');
+        $params['latitude'] = $this->request->input('latitude', '22.6402112');
+
+        // 範圍
+        $minLatitude = (float) $this->request->input('minLatitude', -90);
+        $maxLatitude = (float) $this->request->input('maxLatitude', 90);
+        $minLongitude = (float) $this->request->input('minLongitude', -180);
+        $maxLongitude = (float) $this->request->input('maxLongitude', 180);
+        $params['range'] = $this->calcMapRange($minLatitude, $maxLatitude, $minLongitude, $maxLongitude);
+
+        return $params;
     }
 
     public function detail()

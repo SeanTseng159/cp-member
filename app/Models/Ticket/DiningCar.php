@@ -19,6 +19,19 @@ class DiningCar extends BaseModel
     }
 
     /**
+     * 取得範圍內的商店
+     * @param Bulider $query
+     * @param array $longitude  [min, max]
+     * @param array $latitude   [min, max]
+     * @return Bulider
+     */
+    public function scopeWithinLocation($query, $longitude, $latitude)
+    {
+        return $query->whereBetween('longitude', $longitude)
+                     ->whereBetween('latitude', $latitude);
+    }
+
+    /**
      * 取得主分類
      */
   	public function category()
