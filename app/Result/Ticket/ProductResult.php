@@ -188,7 +188,7 @@ class ProductResult extends BaseResult
             if (!$keyword->items) continue;
 
             foreach ($keyword->items as $item) {
-                if ($item->source === ProcuctConfig::SOURCE_TICKET) {
+                if ($item->source === ProcuctConfig::SOURCE_TICKET || $item->source === ProcuctConfig::SOURCE_CT_COMMODITY) {
                     $newItems[] = $this->get($item);
                 }
                 elseif ($item->source === ProcuctConfig::SOURCE_COMMODITY) {
