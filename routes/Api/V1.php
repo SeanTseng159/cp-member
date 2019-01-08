@@ -114,4 +114,16 @@ Route::middleware(['cors', 'auth.jwt'])->namespace('V1')->group(function () {
         // 取得一次性購物車資訊並加入購物車(依來源)
         Route::get('one-off', 'CartController@oneOff');
     });
+
+    // 餐車相關
+    Route::prefix('diningCar')->group(function () {
+        // 餐車加入收藏
+        Route::post('{id}/favorite/add', 'MemberDiningCarController@add');
+
+        // 餐車移除收藏
+        Route::post('{id}/favorite/remove', 'MemberDiningCarController@remove');
+
+        // 餐車移除收藏
+        Route::post('favorites', 'MemberDiningCarController@favorites');
+    });
 });

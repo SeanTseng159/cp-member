@@ -44,7 +44,7 @@ class DiningCarRepository extends BaseRepository
                                 $query->where('dining_car_category_id', $params['category']);
                             })
                             ->where(function($query) use ($params) {
-                                if (!is_null($params['openStatus'])) {
+                                if (in_array($params['openStatus'], ['0', '1', '2'])) {
                                     $query->where('open_status', $params['openStatus']);
                                 }
                             })

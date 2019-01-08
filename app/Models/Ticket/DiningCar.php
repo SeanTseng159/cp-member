@@ -13,9 +13,19 @@ class DiningCar extends BaseModel
 {
     private $month;
 
+    protected $appends = ['favorite'];
+
     public function __construct()
     {
         $this->month = date('Y-m');
+    }
+
+    /**
+     * 加入來源
+     */
+    public function getFavoriteAttribute()
+    {
+        return false;
     }
 
     /**
