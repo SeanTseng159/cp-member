@@ -17,6 +17,7 @@ class DiningCarResult extends BaseResult
 
     private $lat;
     private $lng;
+    private $memberDiningCars;
 
     public function __construct()
     {
@@ -26,15 +27,17 @@ class DiningCarResult extends BaseResult
     /**
      * 取餐車列表
      * @param $data
+     * @param $memberDiningCars
      * @param $long
      * @param $lat
      */
-    public function list($cars, $lat, $lng)
+    public function list($cars, $memberDiningCars = null, $lat, $lng)
     {
         if (!$cars) return [];
 
         $this->lat = $lat;
         $this->lng = $lng;
+        $this->memberDiningCars = $memberDiningCars;
 
         $newCars = [];
         foreach ($cars as $car) {
@@ -49,7 +52,7 @@ class DiningCarResult extends BaseResult
      * 餐車資訊
      * @param $car
      */
-    public function detail($car, $lat, $lng)
+    public function detail($car, $isFavorite = false, $lat, $lng)
     {
         if (!$car) return null;
 
@@ -62,7 +65,7 @@ class DiningCarResult extends BaseResult
         $result->description = $car->description;
         $result->imgs = $this->getImgs();
         $result->category = $this->getCategory($car->category, $car->subCategory);
-        $result->isFavorite = false;
+        $result->isFavorite = $isFavorite;
         $result->openStatusCode = $car->open_status;
         $result->openStatus = DiningCarConfig::OPEN_STATUS[$car->open_status];
         $result->distance = $this->calcDistance($this->lat, $this->lng, $car->latitude, $car->longitude, 2, 2) . '公里';
@@ -86,7 +89,7 @@ class DiningCarResult extends BaseResult
         $result->name = $car->name;
         $result->img = 'https://scontent-iad3-1.cdninstagram.com/vp/e3fb7eaf5c084e3b6e041be70850695f/5C483ACD/t51.2885-15/e35/s480x480/41440210_163360401250877_8689027503124651036_n.jpg';
         $result->category = $this->getCategory($car->category, $car->subCategory);
-        $result->isFavorite = false;
+        $result->isFavorite = $this->getFavorite($car->id);
         $result->openStatusCode = $car->open_status;
         $result->openStatus = DiningCarConfig::OPEN_STATUS[$car->open_status];
         $result->longitude = $car->longitude;
@@ -108,6 +111,16 @@ class DiningCarResult extends BaseResult
         if ($subCategory) $categoryAry[] = $subCategory->name;
 
         return implode('·', $categoryAry);
+    }
+
+    /**
+     * 取收藏
+     * @param $id
+     */
+    public function getFavorite($id)
+    {
+        if (!$this->memberDiningCars) return false;
+        return ($this->memberDiningCars->where('dining_car_id', $id)->first()) ? true : false;
     }
 
     /**
@@ -147,7 +160,7 @@ class DiningCarResult extends BaseResult
     {
         $result = new \stdClass;
         $result->day = DiningCarConfig::WEEK[$hoursDay->day];
-        $result->location = '瑞豐夜市';
+        $result->location = $hoursDay->location;
         $result->times = $this->getBusinessHoursTimes($hoursDay->times);
 
         return $result;

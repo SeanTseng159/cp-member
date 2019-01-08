@@ -30,6 +30,7 @@ class DiningCarParameter extends BaseParameter
         $params['openStatus'] = $this->request->input('openStatus');
         $params['page'] = $this->page;
         $params['limit'] = $this->limit;
+        $params['memberId'] = $this->memberId;
 
 		return $params;
     }
@@ -54,6 +55,7 @@ class DiningCarParameter extends BaseParameter
         // 預設高雄火車站
         $params['longitude'] = $this->request->input('longitude', '120.3045522');
         $params['latitude'] = $this->request->input('latitude', '22.6402112');
+        $params['memberId'] = $this->memberId;
 
         return $params;
     }

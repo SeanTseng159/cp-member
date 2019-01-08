@@ -171,4 +171,16 @@ Route::middleware(['cors', 'auth.jwt'])->namespace('V1')->group(function () {
         // 票券列表
         Route::get('list/{status}', 'TicketController@all');
     });
+
+    // 餐車相關
+    Route::prefix('diningCar')->group(function () {
+        // 餐車加入收藏
+        Route::post('{id}/favorite/add', 'MemberDiningCarController@add');
+
+        // 餐車移除收藏
+        Route::post('{id}/favorite/remove', 'MemberDiningCarController@remove');
+
+        // 餐車移除收藏
+        Route::post('favorites', 'MemberDiningCarController@favorites');
+    });
 });

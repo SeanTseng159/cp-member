@@ -14,6 +14,7 @@ use Exception;
 use App\Parameter\Ticket\DiningCarParameter;
 use App\Services\Ticket\DiningCarCategoryService;
 use App\Services\Ticket\DiningCarService;
+use App\Services\Ticket\MemberDiningCarService;
 use App\Result\Ticket\DiningCarCategoryResult;
 use App\Result\Ticket\DiningCarResult;
 
@@ -29,7 +30,6 @@ class DiningCarController extends RestLaravelController
     {
         $this->service = $service;
         $this->categoryService = $categoryService;
-        // $this->redis = new Redis;
     }
 
     /**
@@ -60,16 +60,18 @@ class DiningCarController extends RestLaravelController
      * @param Request $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function list(Request $request)
+    public function list(Request $request, MemberDiningCarService $memberDiningCarService)
     {
         try {
             $params = (new DiningCarParameter($request))->list();
 
-            $result['page'] = (int) $params['page'];
-
             $data = $this->service->list($params);
+            // 取收藏列表
+            $memberDiningCars = ($params['memberId']) ? $memberDiningCarService->getAllByMemberId($params['memberId']) : NULL;
+
+            $result['page'] = (int) $params['page'];
             $result['total'] = $data->total();
-            $result['cars'] = (new DiningCarResult)->list($data, $params['latitude'], $params['longitude']);
+            $result['cars'] = (new DiningCarResult)->list($data, $memberDiningCars, $params['latitude'], $params['longitude']);
 
             return $this->success($result);
         } catch (Exception $e) {
@@ -102,15 +104,17 @@ class DiningCarController extends RestLaravelController
      * @param $id
      * @return \Illuminate\Http\JsonResponse
      */
-    public function detail(Request $request, $id)
+    public function detail(Request $request, MemberDiningCarService $memberDiningCarService, $id)
     {
         try {
             if (!$id) return $this->apiRespFailCode('E0006');
 
             $params = (new DiningCarParameter($request))->detail();
+            // 取收藏列表
+            $isFavorite = ($params['memberId']) ? $memberDiningCarService->isFavorite($params['memberId'], $id) : false;
 
             $data = $this->service->find($id);
-            $result = (new DiningCarResult)->detail($data, $params['latitude'], $params['longitude']);
+            $result = (new DiningCarResult)->detail($data, $isFavorite, $params['latitude'], $params['longitude']);
 
             return $this->success($result);
         } catch (Exception $e) {
