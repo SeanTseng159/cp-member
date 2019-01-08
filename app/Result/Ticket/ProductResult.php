@@ -258,7 +258,7 @@ class ProductResult extends BaseResult
         $this->characteristic = $this->arrayDefault($product, 'prod_short');
         $this->storeName = $this->arrayDefault($product, 'prod_store');
         $this->place = $this->arrayDefault($product, 'prod_store');
-        $this->imagUrls = $this->getImgInfo($product['img']);
+        $this->imagUrls = $this->getImgInfoForSupplierProduct($product['img'], true);
         $this->category = null;
 
         // 規格
@@ -376,11 +376,25 @@ class ProductResult extends BaseResult
      * @param $imgs
      * @return array | null
      */
-    private function getImgInfo($img)
+    private function getImgInfo($img, $isSupplierProduct = false)
     {
         $newImg = new \stdClass;
         $newImg->generalPath = $this->backendHost . $this->arrayDefault($img, 'img_path', '');
         $newImg->thumbnailPath = $this->backendHost . $this->arrayDefault($img, 'img_thumbnail_path', '');
+
+        return $newImg;
+    }
+
+    /**
+     * 取得圖片
+     * @param $imgs
+     * @return array | null
+     */
+    private function getImgInfoForSupplierProduct($img)
+    {
+        $newImg = new \stdClass;
+        $newImg->generalPath = $this->backendHost . $this->arrayDefault($img, 'img_path', '');
+        $newImg->thumbonallPath = $this->backendHost . $this->arrayDefault($img, 'img_thumbnail_path', '');
 
         return $newImg;
     }
