@@ -183,7 +183,7 @@ class CartController extends RestLaravelController
                 }
 
                 // 累積總價跟數量
-                $totalAmount += $prods[$k]->prod_spec_price_value;
+                $totalAmount += $prods[$k]->prod_spec_price_value * $prods[$k]->quantity;
                 $totalQuantity += $prods[$k]->quantity;
             }
             if ($checkStatusCode !== '00000') return $this->failureCode($checkStatusCode, $notEnoughStocks);
