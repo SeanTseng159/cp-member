@@ -92,6 +92,7 @@ class OrderConfig extends BaseConfig
     # 訂單金流閘道
     const PAYMENT_GATEWAY = [
         0 => 'unknown',
+        1 => 'neweb',
         2 => 'ipasspay',
         3 => 'tspg',
         4 => 'linepay'
