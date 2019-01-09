@@ -90,7 +90,7 @@ class DiningCarController extends RestLaravelController
             $params = (new DiningCarParameter($request))->map();
 
             $data = $this->service->map($params);
-            $result = (new DiningCarResult)->list($data, $params['latitude'], $params['longitude']);
+            $result = (new DiningCarResult)->list($data, NULL, $params['latitude'], $params['longitude']);
 
             return $this->success($result);
         } catch (Exception $e) {
