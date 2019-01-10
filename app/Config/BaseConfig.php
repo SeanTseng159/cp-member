@@ -15,6 +15,7 @@ class BaseConfig
     const   BACKEND_HOST_TEST    = 'https://devbackend.citypass.tw/';   // 後台路徑
     # 來源
     const   SOURCE_TICKET        = 'ct_pass';   // 票卷
+    const   SOURCE_TPASS_PHYSICAL  = 'ct_pass_physical';   // 實體商品
     const   SOURCE_COMMODITY     = 'magento';   // 實體商品
     
     const   DATA_COLLECTION_HOST = 'http://galera.touchcity.tw';
