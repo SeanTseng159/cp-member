@@ -65,9 +65,25 @@ class Product extends BaseModel
     {
         return $this->belongsToMany('App\Models\Ticket\Keyword', 'prod_keywords', 'prod_id', 'keyword_id');
     }
-        
+
     public function product_tags()
     {
         return $this->hasMany('App\Models\Ticket\ProductTag', 'prod_id');
+    }
+
+    /**
+     * 取得運費
+     */
+    public function shippingFees()
+    {
+        return $this->hasMany('App\Models\Ticket\ShippingFee', 'prod_id')->orderBy('lower', 'asc');
+    }
+
+    /**
+     * 取得組合子商品
+     */
+    public function groups()
+    {
+        return $this->hasMany('App\Models\Ticket\ProductGroup', 'prod_id')->notDeleted()->orderBy('prod_group_sort', 'asc');
     }
 }

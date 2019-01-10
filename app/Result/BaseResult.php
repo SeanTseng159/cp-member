@@ -7,26 +7,19 @@
 
 namespace App\Result;
 
-use App\Config\BaseConfig;
-
+use App\Helper\CommonHelper;
 use App\Traits\ObjectHelper;
 
 class BaseResult
 {
 	use ObjectHelper;
 
+    public $webHost;
 	public $backendHost;
 
     public function __construct()
     {
-        if (env('APP_ENV') === 'production') {
-            $this->backendHost = BaseConfig::BACKEND_HOST;
-        }
-        elseif (env('APP_ENV') === 'beta') {
-            $this->backendHost = BaseConfig::BACKEND_HOST_BETA;
-        }
-        else {
-            $this->backendHost = BaseConfig::BACKEND_HOST_TEST;
-        }
+        $this->webHost = CommonHelper::getWebHost();
+        $this->backendHost = CommonHelper::getBackendHost();
     }
 }

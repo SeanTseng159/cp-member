@@ -172,6 +172,7 @@ return [
          Ksd\OAuth\Providers\OAuthServiceProvider::class,
          Ksd\IPassPay\Providers\IPassPayServiceProvider::class,
          Ksd\Payment\Providers\PaymentServiceProvider::class,
+         Royalmar\LineNotify\Providers\LineNotifyServiceProvider::class,
         /*
          * Application Service Providers...
          */
@@ -229,6 +230,7 @@ return [
         'URL' => Illuminate\Support\Facades\URL::class,
         'Validator' => Illuminate\Support\Facades\Validator::class,
         'View' => Illuminate\Support\Facades\View::class,
+        'LineNotify' => Royalmar\LineNotify\Facades\LineNotify::class,
 
     ],
 

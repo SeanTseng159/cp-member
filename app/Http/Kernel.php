@@ -90,6 +90,11 @@ class Kernel extends HttpKernel
 
         'verify.product.search' => \App\Http\Middleware\Verify\Product\Search::class,
 
+        'verify.cart.buyNow' => \App\Http\Middleware\Verify\Cart\BuyNow::class,
+        'verify.cart.buyNow.market' => \App\Http\Middleware\Verify\Cart\Market::class,
+        'verify.cart.buyNow.info' => \App\Http\Middleware\Verify\Cart\Info::class,
+
         'verify.checkout.shipment' => \App\Http\Middleware\Verify\Checkout\Shipment::class,
+        'verify.checkout.payment' => \App\Http\Middleware\Verify\Checkout\Payment::class,
     ];
 }

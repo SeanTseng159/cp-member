@@ -23,4 +23,20 @@ class Order extends BaseModel
     {
         return $this->hasMany('App\Models\Ticket\OrderDetail', 'order_no', 'order_no');
 	}
+
+	/**
+     * 取得訂單詳細
+     */
+  	public function details()
+    {
+        return $this->hasMany('App\Models\Ticket\OrderDetail', 'order_no', 'order_no')->where('prod_type', '!=', 4);
+	}
+
+    /**
+     * 取得訂單詳細
+     */
+    public function shipment()
+    {
+        return $this->hasOne('App\Models\Ticket\OrderShipment', 'order_id', 'order_id');
+    }
 }

@@ -32,9 +32,9 @@ class Redis
      * @param $value
      * @param int $expire
      */
-    public function set($key, $value, $expire = 3600)
+    public function set($key, $value, $expire = 1440)
     {
-        Cache::put($this->i18nKey($key), $value, $expire);
+        return Cache::put($this->i18nKey($key), $value, $expire);
     }
 
     /**
@@ -65,7 +65,7 @@ class Redis
 
         return Cache::remember($this->i18nKey($key), $expire, $callFunction);
     }
-    
+
     /**
      * @param type $tags
      * @param type $key
@@ -76,7 +76,7 @@ class Redis
     public function rememberByTags($tags, $key, $expire, $callFunction)
     {
         $tags = is_array($tags) ? implode(',', $tags) : $tags;
-        
+
         return Cache::tags($tags)->remember($this->i18nKey($key), $expire, $callFunction);
     }
 
@@ -87,7 +87,7 @@ class Redis
     public function delByTags($tags)
     {
         $tags = is_array($tags) ? implode(',', $tags) : $tags;
-        
+
         return Cache::tags($tags)::flush();
     }
 
@@ -97,7 +97,7 @@ class Redis
      */
     public function delete($key)
     {
-        Cache::forget($this->i18nKey($key));
+        return Cache::forget($this->i18nKey($key));
     }
 
     /**

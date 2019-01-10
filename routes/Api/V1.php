@@ -14,6 +14,7 @@ use Illuminate\Http\Request;
 */
 
 Route::middleware('cors')->namespace('V1')->group(function () {
+    // 版為商品相關
     Route::prefix('layout')->group(function () {
         // 取首頁資料
         Route::get('home', 'LayoutController@home');
@@ -30,10 +31,11 @@ Route::middleware('cors')->namespace('V1')->group(function () {
 
         // 取其他內部服務app
         Route::get('apps', 'LayoutAppController@all');
-        
+
         Route::get('supplier/{supplierId}/products', 'LayoutController@supplier')->name('v1.layout.supplier');
     });
 
+    // 快取相關
     Route::prefix('cache')->group(function () {
         // 清所有快取
         Route::get('clean/all', 'CacheController@all');
@@ -53,9 +55,12 @@ Route::middleware('cors')->namespace('V1')->group(function () {
 
         // 清更多服務
         Route::get('clean/layout/apps', 'CacheController@apps');
-        
+
+        // 清付款方式
+        Route::get('clean/checkout/paymentMethod', 'CacheController@paymentMethod');
     });
 
+    // 商品相關
     Route::prefix('product')->group(function () {
         // 根據 id 取得商品明細
         Route::get('query/{id}', 'ProductController@query');
@@ -67,12 +72,7 @@ Route::middleware('cors')->namespace('V1')->group(function () {
         Route::get('search', 'ProductController@search')->middleware('verify.product.search');
     });
 
-    Route::prefix('service')->group(function () {
-        // 常見問題
-        Route::get('qa', 'ServiceController@qa');
-    });
-
-
+    // linepay相關
     Route::prefix('linepay')->group(function () {
         Route::post('confirm/callback', 'LinePayController@confirmCallback');
 
@@ -80,18 +80,69 @@ Route::middleware('cors')->namespace('V1')->group(function () {
         Route::post('confirm/failure', 'LinePayController@confirmCallbackFailure');
         Route::get('map/stores', 'LinePayMapController@stores');
     });
-    
+
+    // 其他
+    Route::prefix('service')->group(function () {
+        // 常見問題
+        Route::get('qa', 'ServiceController@qa');
+    });
+
+    // 行銷活動相關
+    Route::prefix('activity')->group(function () {
+        // 獨立賣場
+        Route::get('market/{id}', 'MarketController@find');
+    });
 });
 
 // 需 token 認證的 route
 Route::middleware(['cors', 'auth.jwt'])->namespace('V1')->group(function () {
+    // 收藏相關
+    Route::prefix('wishlist')->group(function () {
+        // 收藏列表
+        Route::get('items', 'WishlistController@items');
+    });
+
+    // 訂單相關
     Route::prefix('order')->group(function () {
         // 取得訂單列表
         Route::get('info', 'OrderController@info');
+
+        // 取得單一訂單
+        // Route::get('detail/{orderNo}', 'OrderController@detail');
+
+        // 搜尋訂單
+        Route::get('search', 'OrderController@search');
     });
 
+    // 購物車相關
     Route::prefix('cart')->group(function () {
-        // 取得一次性購物車資訊並加入購物車(依來源)
+        // 取得一次性購物車資訊並加入購物車(依來源) (magento)
         Route::get('one-off', 'CartController@oneOff');
+
+        // 立即購買
+        Route::post('buyNow', 'CartController@buyNow')->middleware('verify.cart.buyNow');
+
+        // 獨立賣場立即購買
+        Route::post('buyNow/market', 'CartController@market')->middleware('verify.cart.buyNow.market');
+
+        // 取立即購買 (購物車跟付款資訊)
+        Route::get('buyNow/info', 'CartController@info')->middleware('verify.cart.buyNow.info');
+    });
+
+    // 結帳相關
+    Route::prefix('checkout')->group(function () {
+        // 付款資訊
+        Route::get('info/{orderNo}', 'CheckoutController@info');
+
+        // 結帳
+        Route::post('payment', 'CheckoutController@payment')->middleware('verify.checkout.payment');
+        // 重新結帳
+        Route::post('payment/repay/{orderNo}', 'CheckoutController@repay');
+    });
+
+    // 票券相關
+    Route::prefix('ticket')->group(function () {
+        // 票券列表
+        Route::get('list/{status}', 'TicketController@all');
     });
 });

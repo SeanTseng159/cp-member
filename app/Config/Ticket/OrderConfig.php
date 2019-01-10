@@ -74,22 +74,25 @@ class OrderConfig extends BaseConfig
     const USED_STATUS_CODE_PROCESSING = '21';
     const USED_STATUS_CODE_PROCESSED = '22';
     const USED_STATUS_CODE_REFUNDED = '23';
+    const USED_STATUS_CODE_UNKNOWN = '99';
 
     const USED_STATUS = [
         SELF::USED_STATUS_CODE_NOT_PAY => 'reserved',
-        SELF::USED_STATUS_CODE_EXPIRED => 'reserved',
+        SELF::USED_STATUS_CODE_EXPIRED => 'expired',
         SELF::USED_STATUS_CODE_TRANSFER => 'transfer',
         SELF::USED_STATUS_CODE_NOT_USE => 'unused',
         SELF::USED_STATUS_CODE_UESD => 'used',
         SELF::USED_STATUS_CODE_APPLIED => 'refunding',
         SELF::USED_STATUS_CODE_PROCESSING => 'refunding',
         SELF::USED_STATUS_CODE_PROCESSED => 'refunding',
-        SELF::USED_STATUS_CODE_REFUNDED => 'refunded'
+        SELF::USED_STATUS_CODE_REFUNDED => 'refunded',
+        SELF::USED_STATUS_CODE_UNKNOWN => 'unknown'
     ];
 
     # 訂單金流閘道
     const PAYMENT_GATEWAY = [
         0 => 'unknown',
+        1 => 'neweb',
         2 => 'ipasspay',
         3 => 'tspg',
         4 => 'linepay'
@@ -108,5 +111,24 @@ class OrderConfig extends BaseConfig
     const BANK_NAME = [
         '700' => 'post',
         '812' => 'tspg'
+    ];
+
+    # 設備來源
+    const PAYMENT_DEVICE = [
+        'unknown' => 0,
+        'web' => 10,
+        'mobile' => 11,
+        'ios' => 12,
+        'android' => 13
+    ];
+
+    # 物流狀態
+    const SHIPMENT_STATUS = [
+        1 => '備貨中',
+        2 => '出貨中',
+        3 => '已出貨',
+        4 => '已到達',
+        5 => '已取貨',
+        6 => '已退貨'
     ];
 }
