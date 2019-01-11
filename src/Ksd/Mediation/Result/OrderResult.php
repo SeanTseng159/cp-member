@@ -222,6 +222,17 @@ class OrderResult
         $this->shipment->statusCode = 1;
         $this->shipment->status = OrderConfig::SHIPMENT_STATUS[$this->shipment->statusCode];
 
+        if ($isDetail) {
+            $ship = $this->arrayDefault($result, 'extension_attributes');
+            foreach ($this->arrayDefault($ship, 'shipping_assignments', []) as $shipping) {
+                $shipping = $this->arrayDefault($shipping, 'shipping');
+                $this->shipment->name = $shipping['address']['firstname'] . $shipping['address']['lastname'];
+                $this->shipment->phone = '+' . $shipping['address']['telephone'];
+                $this->shipment->address = $shipping['address']['postcode'] . ' ' . $shipping['address']['city'].$shipping['address']['street'][0];
+
+            }
+        }
+
         $this->items = [];
         foreach ($this->arrayDefault($result, 'items', []) as $k => $item) {
             if ($this->arrayDefault($item, 'price') != 0) {
