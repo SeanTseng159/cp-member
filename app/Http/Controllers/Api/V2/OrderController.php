@@ -18,6 +18,9 @@ use App\Result\Ticket\OrderResult;
 
 use App\Traits\ObjectHelper;
 
+// magento
+use Ksd\Mediation\Services\OrderService as MagentoOrderService;
+
 class OrderController extends RestLaravelController
 {
     use ObjectHelper;
@@ -34,13 +37,19 @@ class OrderController extends RestLaravelController
      * @param Request $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function info(Request $request)
+    public function info(Request $request, MagentoOrderService $magentoOrderService)
     {
         try {
+            // magento
+            $magentoOrders = $magentoOrderService->magentoInfo(true);
+
             // citypass
             $params = (new InfoParameter($request))->info();
             $data = $this->orderService->getMemberOrdersByDate($params);
-            $result = (new OrderResult)->getAll($data);
+            $ticketOrders = (new OrderResult)->getAll($data);
+
+            $data = array_merge($magentoOrders, $ticketOrders);
+            $result = ($data) ? $this->multiArraySort($data, 'orderDate') : null;
 
             return $this->success($result);
         } catch (Exception $e) {
@@ -55,18 +64,29 @@ class OrderController extends RestLaravelController
      * @param $orderNo
      * @return \Illuminate\Http\JsonResponse
      */
-    public function detail(Request $request, $orderNo)
+    public function detail(Request $request, $orderNo, MagentoOrderService $magentoOrderService)
     {
         try {
             if (!$orderNo) return $this->failureCode('E0101');
 
-            $order = $this->orderService->findCanShowByOrderNo($request->memberId, $orderNo);
-            if (!$order) return $this->failureCode('E0101');
+            // magento
+            if ((substr($orderNo, 0, 5) === 'M0000')) {
+                $params = new \stdClass;
+                $params->source = 'magento';
+                $params->id = str_replace('M0000', '', $orderNo);
+                $result = $magentoOrderService->find($params, true);
+                if (!$result) return $this->failureCode('E0101');
+                $result = $result[0];
+            }
+            else {
+                $order = $this->orderService->findCanShowByOrderNo($request->memberId, $orderNo);
+                if (!$order) return $this->failureCode('E0101');
 
-            // 檢查付款人
-            if ($order->member_id !== $request->memberId) return $this->failureCode('E9050');
+                // 檢查付款人
+                if ($order->member_id !== $request->memberId) return $this->failureCode('E9050');
 
-            $result = (new OrderResult)->get($order, true);
+                $result = (new OrderResult)->get($order, true);
+            }
 
             return $this->success($result);
         } catch (Exception $e) {

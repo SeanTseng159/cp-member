@@ -38,7 +38,7 @@ class Order extends Client
      * @param $email
      * @return array
      */
-    public function info($email)
+    public function info($email, $isNew = false)
     {
         $data = [];
 
@@ -69,8 +69,10 @@ class Order extends Client
                     foreach ($result['items'] as $item) {
                         if (isset($item['status'])) {
                             $order = new OrderResult();
-                            $order->magento($item);
-                            $data[] = (array)$order;
+                            if ($isNew) $order->newMagento($item);
+                            else $order->magento($item);
+
+                            $data[] = (array) $order;
                         }
                     }
                 }
@@ -365,7 +367,7 @@ class Order extends Client
      * @param $useMergeResult [是否輸出整合後結果]
      * @return array
      */
-    public function find($parameters, $useMergeResult = true)
+    public function find($parameters, $useMergeResult = true, $isNew = false)
     {
         $id = $parameters->id;
 
@@ -377,7 +379,8 @@ class Order extends Client
         if ($useMergeResult) {
             $data = [];
             $order = new OrderResult();
-            $order->magento($result,true);
+            if ($isNew) $order->newMagento($result, true);
+            else $order->magento($result, true);
             $data[] = $order;
 
             return $data;

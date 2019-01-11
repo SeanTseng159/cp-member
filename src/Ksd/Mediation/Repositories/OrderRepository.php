@@ -64,13 +64,13 @@ class OrderRepository extends BaseRepository
      * 取得所有訂單列表
      * @return mixed
      */
-    public function magentoInfo()
+    public function magentoInfo($isNew)
     {
         $email = $this->memberTokenService->getEmail();
         $key = $this->genCacheKey(OrderKey::MAGENTO_INFO_KEY);
 
-        $orders = $this->redis->remember($key, CacheConfig::ORDER_TIME, function () use ($email) {
-            return $this->magento->info($email);
+        $orders = $this->redis->remember($key, CacheConfig::ORDER_TIME, function () use ($email, $isNew) {
+            return $this->magento->info($email, $isNew);
         });
 
         return $orders;
@@ -184,13 +184,13 @@ class OrderRepository extends BaseRepository
      * @param $parameters
      * @return \Ksd\Mediation\Result\OrderResult
      */
-    public function find($parameters)
+    public function find($parameters, $isNew = false)
     {
         $source = $parameters->source;
         $id = $parameters->id;
 
         if ($parameters->source === ProjectConfig::MAGENTO) {
-            $order = $this->magento->find($parameters);
+            $order = $this->magento->find($parameters, true, $isNew);
         } else if ($parameters->source === ProjectConfig::CITY_PASS) {
             $order = $this->cityPass->authorization($this->token)->find($parameters->id);
         }
