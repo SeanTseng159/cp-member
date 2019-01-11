@@ -55,7 +55,7 @@ class Checkout extends Client
      */
     public function paymentInfo()
     {
-        $response = $this->request('GET', 'V1/carts/mine/payment-information');
+        /*$response = $this->request('GET', 'V1/carts/mine/payment-information');
         $result = json_decode($response->getBody(), true);
         $data = [];
         if(array_key_exists('payment_methods', $result))
@@ -65,8 +65,22 @@ class Checkout extends Client
                 $data[] = $paymentInfo;
             }
 
-        return $data;
+        return $data;*/
 
+        $atm['source'] = 'magento';
+        $atm['id'] = 'tspg_atm';
+        $atm['name'] = 'ATM虛擬帳號';
+        $atm['type'] = 'atm';
+
+        $cc['source'] = 'magento';
+        $cc['id'] = 'tspg_transmit';
+        $cc['name'] = '信用卡一次付清';
+        $cc['type'] = 'credit_card';
+
+        $data[] = $atm;
+        $data[] = $cc;
+
+        return $data;
     }
 
     /**
@@ -75,7 +89,7 @@ class Checkout extends Client
      */
     public function shippingInfo()
     {
-        $cart = $this->cart->detail();
+        /*$cart = $this->cart->detail();
         $data = [
             "address" => [
                 "country_id"=>"TW"
@@ -95,6 +109,16 @@ class Checkout extends Client
             $shippingInfo->magento($row);
             $data[] = $shippingInfo;
         }
+        return $data;*/
+
+        $shipment['source'] = 'magento';
+        $shipment['id'] = 'flatrate_flatrate';
+        $shipment['name'] = '宅配到府';
+        $shipment['description'] = null;
+        $shipment['type'] = 'delivery';
+
+        $data[] = $shipment;
+
         return $data;
     }
 
