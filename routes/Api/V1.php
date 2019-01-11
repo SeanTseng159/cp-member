@@ -123,7 +123,7 @@ Route::middleware(['cors', 'auth.jwt'])->namespace('V1')->group(function () {
         // 餐車移除收藏
         Route::post('{id}/favorite/remove', 'MemberDiningCarController@remove');
 
-        // 餐車移除收藏
-        Route::post('favorites', 'MemberDiningCarController@favorites');
+        // 餐車列表
+        Route::get('favorites', 'MemberDiningCarController@favorites');
     });
 });
