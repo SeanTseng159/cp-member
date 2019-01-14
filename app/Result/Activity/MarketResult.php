@@ -10,6 +10,7 @@ namespace App\Result\Activity;
 use App\Config\BaseConfig;
 use App\Result\BaseResult;
 use App\Traits\MarketHelper;
+use App\Helpers\DateHelper;
 
 class MarketResult extends BaseResult
 {
@@ -31,10 +32,11 @@ class MarketResult extends BaseResult
         $result = new \stdClass;
         $result->id = $data->id;
         $result->title = $data->title;
-        $result->period = sprintf('%s ~ %s', $data->onsale_time, $data->offsale_time);
+        $result->period = sprintf('%s ~ %s', DateHelper::format($data->onsale_time, 'Y/m/d H:i'), DateHelper::format($data->offsale_time, 'Y/m/d H:i'));
         $result->description = $data->sub_title;
         $result->banner = $this->getBanner($data->banner);
         $result->shareUrl = $this->webHost . 'zh-TW/promotion/' . $data->id;
+        $result->conditions = $this->getConditions($data->condition_type, $data->offer_type, $data->conditions);
         $result->rule = $this->getLowerCondition($data->condition_type, $data->offer_type, $data->conditions);
         $result->products = $this->getProducts($data->products);
 

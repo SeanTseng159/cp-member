@@ -7,7 +7,7 @@
 
 namespace App\Result;
 
-use App\Helper\CommonHelper;
+use App\Helpers\CommonHelper;
 use App\Traits\ObjectHelper;
 
 class BaseResult

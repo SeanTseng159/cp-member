@@ -5,7 +5,7 @@
  * Time: 上午 9:42
  */
 
-namespace App\Helper;
+namespace App\Helpers;
 
 use App\Config\BaseConfig;
 
