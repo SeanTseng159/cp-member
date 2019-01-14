@@ -64,7 +64,7 @@ class DiningCarResult extends BaseResult
         $result->name = $car->name;
         $result->description = $car->description;
         $result->imgs = $this->getImgs();
-        $result->category = $this->getCategory($car->category, $car->subCategory);
+        $result->categories = $this->getCategories($car->category, $car->subCategory);
         $result->isFavorite = $isFavorite;
         $result->openStatusCode = $car->open_status;
         $result->openStatus = DiningCarConfig::OPEN_STATUS[$car->open_status];
@@ -88,7 +88,7 @@ class DiningCarResult extends BaseResult
         $result->id = $car->id;
         $result->name = $car->name;
         $result->img = 'https://scontent-iad3-1.cdninstagram.com/vp/e3fb7eaf5c084e3b6e041be70850695f/5C483ACD/t51.2885-15/e35/s480x480/41440210_163360401250877_8689027503124651036_n.jpg';
-        $result->category = $this->getCategory($car->category, $car->subCategory);
+        $result->categories = $this->getCategories($car->category, $car->subCategory);
         $result->isFavorite = $this->getFavorite($car->id);
         $result->openStatusCode = $car->open_status;
         $result->openStatus = DiningCarConfig::OPEN_STATUS[$car->open_status];
@@ -103,14 +103,14 @@ class DiningCarResult extends BaseResult
      * 取分類
      * @param $data
      */
-    private function getCategory($category, $subCategory)
+    private function getCategories($category, $subCategory)
     {
         $categoryAry = [];
 
         if ($category) $categoryAry[] = $category->name;
         if ($subCategory) $categoryAry[] = $subCategory->name;
 
-        return implode('·', $categoryAry);
+        return $categoryAry;
     }
 
     /**
