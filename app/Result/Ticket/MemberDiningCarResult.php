@@ -19,13 +19,30 @@ class MemberDiningCarResult extends BaseResult
 
     /**
      * 取餐車列表
-     * @param $data
-     * @param $long
-     * @param $lat
+     * @param $cars
      */
     public function list($cars)
     {
         if (!$cars) return [];
+
+        $newCars = [];
+        foreach ($cars as $car) {
+            $newCar = $this->getCar($car->diningCar);
+            if ($newCar) $newCars[] = $newCar;
+        }
+
+        return $newCars;
+    }
+
+    /**
+     * 取餐車分類列表
+     * @param $data
+     * @param $long
+     * @param $lat
+     */
+    public function categories($categories)
+    {
+        if (!$categories) return [];
 
         $newCars = [];
         foreach ($cars as $car) {

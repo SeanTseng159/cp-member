@@ -85,4 +85,14 @@ class MemberDiningCarService extends BaseService
     {
         return $this->repository->getAllByMemberId($memberId);
     }
+
+    /**
+     * 依據會員取相關餐車分類
+     * @param $memberId
+     * @return mixed
+     */
+    public function getCategoriesByMemberId($memberId = 0)
+    {
+        return $this->repository->getCategoriesByMemberId($memberId);
+    }
 }

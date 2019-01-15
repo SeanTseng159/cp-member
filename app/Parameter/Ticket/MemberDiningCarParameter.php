@@ -18,6 +18,7 @@ class MemberDiningCarParameter extends BaseParameter
 
     public function list()
     {
+        $params['category'] = $this->request->input('category');
         $params['page'] = $this->page;
         $params['limit'] = $this->limit;
 

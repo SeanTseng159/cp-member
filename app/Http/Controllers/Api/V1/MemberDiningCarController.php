@@ -12,8 +12,10 @@ use Ksd\Mediation\Core\Controller\RestLaravelController;
 use Exception;
 
 use App\Services\Ticket\MemberDiningCarService;
+use App\Services\Ticket\DiningCarCategoryService;
 use App\Parameter\Ticket\MemberDiningCarParameter;
 use App\Result\Ticket\MemberDiningCarResult;
+use App\Result\Ticket\DiningCarCategoryResult;
 
 class MemberDiningCarController extends RestLaravelController
 {
@@ -81,6 +83,33 @@ class MemberDiningCarController extends RestLaravelController
             $result['page'] = (int) $params['page'];
             $result['total'] = $data->total();
             $result['cars'] = (new MemberDiningCarResult)->list($data);
+
+            return $this->success($result);
+        } catch (Exception $e) {
+            return $this->failureCode('E0007');
+        }
+    }
+
+    /**
+     * 餐車收藏分類
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function categories(Request $request, DiningCarCategoryService $categoryService)
+    {
+        try {
+            $memberId = $request->memberId;
+
+            // 全部分類
+            $mainCategories = $categoryService->mainCategory();
+            // 使用者收藏分類
+            $memberCategories = $this->service->getCategoriesByMemberId($memberId)->pluck('dining_car_id')->toArray();
+
+            $filtered = $mainCategories->filter(function ($item) use ($memberCategories) {
+                return in_array($item->id, $memberCategories);
+            });
+
+            $result = (new DiningCarCategoryResult)->main($filtered);
 
             return $this->success($result);
         } catch (Exception $e) {
