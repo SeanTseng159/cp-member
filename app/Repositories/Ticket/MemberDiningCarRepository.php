@@ -74,8 +74,13 @@ class MemberDiningCarRepository extends BaseRepository
             return $currentPage;
         });
 
-        return $this->model->with(['diningCar.category', 'diningCar.subCategory'])
+        return $this->model->with(['diningCar.subCategory'])
                             ->where('member_id', $memberId)
+                            ->whereHas('diningCar.category', function($query) use ($params) {
+                                $query->when($params['category'], function ($query) use ($params) {
+                                    $query->where('dining_car_category_id', $params['category']);
+                                });
+                            })
                             ->paginate($params['limit']);
     }
 
@@ -85,6 +90,18 @@ class MemberDiningCarRepository extends BaseRepository
      * @return mixed
      */
     public function getAllByMemberId($memberId = 0)
+    {
+        return $this->model->select('dining_car_id')
+                            ->where('member_id', $memberId)
+                            ->get();
+    }
+
+    /**
+     * 依據會員取相關餐車分類
+     * @param $memberId
+     * @return mixed
+     */
+    public function getCategoriesByMemberId($memberId = 0)
     {
         return $this->model->select('dining_car_id')
                             ->where('member_id', $memberId)

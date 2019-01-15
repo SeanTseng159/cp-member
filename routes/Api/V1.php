@@ -180,7 +180,10 @@ Route::middleware(['cors', 'auth.jwt'])->namespace('V1')->group(function () {
         // 餐車移除收藏
         Route::post('{id}/favorite/remove', 'MemberDiningCarController@remove');
 
-        // 餐車列表
+        // 餐車收藏列表
         Route::get('favorites', 'MemberDiningCarController@favorites');
+
+        // 餐車收藏分類
+        Route::get('favorite/categories', 'MemberDiningCarController@categories');
     });
 });
