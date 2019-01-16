@@ -84,6 +84,9 @@ class OrderResult extends BaseResult
         // 付款價格
         $result['payAmount'] = $this->arrayDefault($order, 'order_amount');
 
+        // 付款價格 for old api
+        $result['orderAmount'] = $this->arrayDefault($order, 'order_amount');
+
         $result['isRePayment'] = $this->isRepay($order['order_status'], $order['order_payment_method'], $order['order_atm_virtual_account']);
         $result['orderStatusCode'] = $this->getMergeStatusCode($this->changeStatusCode($order['order_status'], $result['isRePayment']));
         $result['orderStatus'] = $this->getOrderStatus($result['orderStatusCode']);
