@@ -73,16 +73,17 @@ class PromotionRepository extends BaseRepository
 
     /**
      * 根據 商品 id 規格/票種 取得商品明細
+     * @param $promotionId
      * @param $prodId
      * @param $specId
      * @param $specPriceId
      * @param $hasTag
      * @return mixed
      */
-    public function product($prodId, $specId, $specPriceId, $hasTag = false)
+    public function product($promotionId, $prodId, $specId, $specPriceId, $hasTag = false)
     {
         $prod = $this->productRepository->findByCheckout($prodId, $specId, $specPriceId);
-        $promotionProd = $this->ppspRepository->findBySpecPrice($prodId, $specId, $specPriceId);
+        $promotionProd = $this->ppspRepository->findBySpecPrice($promotionId, $prodId, $specId, $specPriceId);
 
         if ($prod && $promotionProd) {
             $prod->prod_spec_price_value = $promotionProd->price ?: $prod->prod_spec_price_value;

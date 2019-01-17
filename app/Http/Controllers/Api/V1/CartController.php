@@ -165,7 +165,7 @@ class CartController extends RestLaravelController
             $isPhysical = false;
             foreach ($params->products as $k => $product) {
                 // 取商品
-                $prods[$k] = $this->promotionService->product($product['id'], $product['specId'], $product['specPriceId'], true);
+                $prods[$k] = $this->promotionService->product($params->marketId, $product['id'], $product['specId'], $product['specPriceId'], true);
                 // 檢查商品是否存在
                 if (!$prods[$k]) return $this->failureCode('E9010');
 

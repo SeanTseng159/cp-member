@@ -19,14 +19,16 @@ class PromotionProdSpecPriceRepository extends BaseRepository
 
     /**
      * 根據 規格/票種 撈商品
+     * @param $promotionId
      * @param $prodId
      * @param $specId
      * @param $priceId
      * @return mixed
      */
-    public function findBySpecPrice($prodId = 0, $specId = 0, $priceId = 0)
+    public function findBySpecPrice($promotionId = 0, $prodId = 0, $specId = 0, $priceId = 0)
     {
-        return $this->model->where('prod_id', $prodId)
+        return $this->model->where('promotion_id', $promotionId)
+                            ->where('prod_id', $prodId)
                             ->where('spec_id', $specId)
                             ->where('price_id', $priceId)
                             ->first();

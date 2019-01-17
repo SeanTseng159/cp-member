@@ -70,6 +70,7 @@ trait MarketHelper
         if ($offerType === 2) $conditionName = sprintf($name, $condition->condition, str_replace('0', '', $offer));
 
         return [
+            'marketId' => $condition->promotion_id,
             'name' => $conditionName,
             'type' => $type,
             'condition' => $condition->condition,

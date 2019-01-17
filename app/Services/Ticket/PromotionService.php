@@ -33,15 +33,16 @@ class PromotionService extends BaseService
 
     /**
      * 根據 商品 id 規格/票種 取得商品明細
+     * @param $promotionId
      * @param $prodId
      * @param $specId
      * @param $specPriceId
      * @param $hasTag
      * @return mixed
      */
-    public function product($prodId, $specId, $specPriceId, $hasTag = false)
+    public function product($promotionId, $prodId, $specId, $specPriceId, $hasTag = false)
     {
-        $product = $this->repository->product($prodId, $specId, $specPriceId, $hasTag);
+        $product = $this->repository->product($promotionId, $prodId, $specId, $specPriceId, $hasTag);
 
         // 檢查是否在合理的使用期限內
         if ($product && !$this->checkExpire($product)) return NULL;
