@@ -39,17 +39,16 @@ trait CartHelper
 
     /**
      * 檢查購物車內商品狀態、金額、數量
-     * @param $cartType
      * @param $cart
      * @param $memberId
      * @return mixed
      */
-    private function checkCartStatus($cartType, $cart, $memberId)
+    private function checkCartStatus($cart, $memberId)
     {
-        if (!$cartType || !$cart) return 'E9030';
+        if (!$cart) return 'E9030';
 
         // 檢查購物車內商品狀態
-        $statusCode = $this->checkCartProductStatus($cartType, $cart->items, $memberId);
+        $statusCode = $this->checkCartProductStatus($cart->type, $cart->items, $cart->promotion, $memberId);
         if ($statusCode !== '00000') return $statusCode;
 
         // 檢查數量
@@ -65,11 +64,12 @@ trait CartHelper
      * 檢查購物車內商品狀態, 是否可購買
      * @param $cartType
      * @param $products
+     * @param $promotion
      * @param $memberId
      * @param $isPurchase
      * @return mixed
      */
-    private function checkCartProductStatus($cartType, $products, $memberId, $isPurchase = false)
+    private function checkCartProductStatus($cartType, $products, $promotion, $memberId, $isPurchase = false)
     {
         if (!$isPurchase && !$products) return 'E9030';
 
@@ -84,7 +84,7 @@ trait CartHelper
         foreach ($products as $product) {
             // 賣場需取特定價格跟庫存
             if ($cartType === 'market') {
-                $prod = $promotionService->product($product->id, $product->additional->spec->id, $product->additional->type->id);
+                $prod = $promotionService->product($promotion['marketId'], $product->id, $product->additional->spec->id, $product->additional->type->id);
             }
             else {
                 $prod = $productService->findByCheckout($product->id, $product->additional->spec->id, $product->additional->type->id);
@@ -96,7 +96,7 @@ trait CartHelper
 
             // 處理加購商品, 是否可購買
             if (!$isPurchase && $product->purchase) {
-                $statusCode = $this->checkCartProductStatus($cartType, $product->purchase, $memberId, true);
+                $statusCode = $this->checkCartProductStatus($cartType, $product->purchase, $promotion, $memberId, true);
                 if ($statusCode !== '00000') return $statusCode;
             }
         }

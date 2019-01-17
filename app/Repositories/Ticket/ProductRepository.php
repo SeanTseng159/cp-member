@@ -184,7 +184,9 @@ class ProductRepository extends BaseRepository
                             ->where('prods.prod_offsale_time', '>=', $this->date)
                             ->find($id);
 
-        if ($prod && $prod->prod_type === 2) {
+        if (!$prod) return null;
+
+        if ($prod->prod_type === 2) {
             $newGroups = [];
             foreach ($prod->groups as $group) {
                 $p = $this->findSubCobmoByCheckout($group->prod_group_prod_id, $group->prod_group_spec_id, $group->prod_group_price_id, $hasTag);

@@ -122,7 +122,7 @@ class OrderRepository extends BaseRepository
                 // 扣除獨立賣場 商品庫存
                 if ($cart->type !== 'market') continue;
 
-                $ppsp = PromotionProdSpecPrice::where('promotion_id', $cart->promotion->marketId)->where('price_id', $item->additional->type->id)->first();
+                $ppsp = PromotionProdSpecPrice::where('promotion_id', $cart->promotion['marketId'])->where('price_id', $item->additional->type->id)->first();
 
                 $stock = $ppsp->stock - $item->quantity;
                 if ($stock > 0) {
