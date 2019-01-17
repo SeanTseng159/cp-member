@@ -138,7 +138,7 @@ class CartResult extends BaseResult
             $result->payAmount = $this->totalAmount + $this->shippingFee;
             $result->canCheckout = ($products) ? true : false;
             $result->hasPhysical = $this->hasPhysical;
-            $result->promotion = [];
+            $result->promotion = null;
         }
 
         return $result;
