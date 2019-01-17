@@ -8,6 +8,7 @@
 namespace App\Result\Ticket;
 
 use App\Result\BaseResult;
+use Carbon\Carbon;
 use App\Config\Ticket\DiningCarConfig;
 use App\Traits\MapHelper;
 
@@ -17,11 +18,15 @@ class DiningCarResult extends BaseResult
 
     private $lat;
     private $lng;
+    private $dayOfWeek;
     private $memberDiningCars;
 
     public function __construct()
     {
         parent::__construct();
+
+        $this->dayOfWeek = Carbon::today()->dayOfWeek;
+        if ($this->dayOfWeek === 0) $this->dayOfWeek = 7;
     }
 
     /**
@@ -72,6 +77,7 @@ class DiningCarResult extends BaseResult
         $result->businessHoursDays = $this->getBusinessHoursDays($car->businessHoursDays);
         $result->businessHoursDates = $this->getBusinessHoursDates($car->businessHoursDates);
         $result->socialUrls = $this->getSocialUrls($car->socialUrls);
+        $result->shareUrl = 'https://dev.citypass.tw/zh-TW';
 
         return $result;
     }
@@ -92,9 +98,22 @@ class DiningCarResult extends BaseResult
         $result->isFavorite = $this->getFavorite($car->id);
         $result->openStatusCode = $car->open_status;
         $result->openStatus = DiningCarConfig::OPEN_STATUS[$car->open_status];
-        $result->longitude = $car->longitude;
-        $result->latitude = $car->latitude;
-        $result->distance = $this->calcDistance($this->lat, $this->lng, $car->latitude, $car->longitude, 2, 2) . '公里';
+
+        // 依每天位置計算距離
+        /*$hoursDay = $car->businessHoursDays->where('day', $this->dayOfWeek)->first();
+        if ($hoursDay) {
+            $result->longitude = $hoursDay->longitude;
+            $result->latitude = $hoursDay->latitude;
+        }
+        else {
+            $result->longitude = $car->longitude;
+            $result->latitude = $car->latitude;
+        }*/
+
+        $result->longitude = $car->longitude ?? '';
+        $result->latitude = $car->latitude ?? '';
+
+        $result->distance = ($result->longitude && $result->latitude) ? $this->calcDistance($this->lat, $this->lng, $car->latitude, $car->longitude, 2, 2) . '公里' : '未知';
 
         return $result;
     }

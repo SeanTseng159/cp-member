@@ -103,7 +103,7 @@ class MemberDiningCarRepository extends BaseRepository
      */
     public function getCategoriesByMemberId($memberId = 0)
     {
-        return $this->model->select('dining_car_id')
+        return $this->model->with(['diningCar'])
                             ->where('member_id', $memberId)
                             ->get();
     }
