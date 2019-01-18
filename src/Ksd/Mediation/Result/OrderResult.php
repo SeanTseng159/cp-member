@@ -13,6 +13,7 @@ use Ksd\Mediation\Config\ProjectConfig;
 use Ksd\Mediation\Magento\Order;
 use Ksd\Mediation\Helper\EnvHelper;
 use App\Traits\StringHelper;
+use App\Config\Ticket\OrderConfig;
 
 class OrderResult
 {
@@ -83,7 +84,7 @@ class OrderResult
                     $row['description'] = $this->arrayDefault($result, 'shipping_description');
                     $ordered = $this->arrayDefault($item, 'qty_ordered');
                     $shipped = $this->arrayDefault($item, 'qty_shipped');
-                    $refunded = $this->arrayDefault($item, '$qty_refunded');
+                    $refunded = $this->arrayDefault($item, 'qty_refunded');
                     $row['status'] = null;
                     /*
                                         if($shipped !== 0){
@@ -155,7 +156,7 @@ class OrderResult
                     $row['description'] =  $this->shipping['description'];
                     $ordered = $this->arrayDefault($item, 'qty_ordered');
                     $shipped = $this->arrayDefault($item, 'qty_shipped');
-                    $refunded = $this->arrayDefault($item, '$qty_refunded');
+                    $refunded = $this->arrayDefault($item, 'qty_refunded');
 
                     if($shipped !== 0){
                         $row['status'] = $this->shippingStatus($this->arrayDefault($item, 'order_id'));
@@ -180,6 +181,98 @@ class OrderResult
 
         }
 
+    }
+
+    /**
+     * 處理 magento 訂單資料建置
+     * @param $result
+     * @param bool $isDetail
+     */
+    public function newMagento($result, $isDetail = false)
+    {
+        $this->source = ProjectConfig::MAGENTO;
+
+        // $this->id = $this->arrayDefault($result, 'entity_id');
+        // $this->orderNo = $this->arrayDefault($result, 'increment_id');
+        $this->orderNo = 'M0000' . $this->arrayDefault($result, 'entity_id');
+        $this->totalAmount = $this->arrayDefault($result, 'subtotal');
+        $this->discountAmount = $this->arrayDefault($result, 'discount_amount');
+        $this->discountTotalAmount = $this->totalAmount - $this->discountAmount;
+        $this->shippingFee = $this->arrayDefault($result, 'shipping_amount');
+        $this->payAmount = $this->totalAmount + $this->shippingFee;
+
+        $this->orderStatusCode = $this->getNewStatusCode(ProjectConfig::MAGENTO, $this->arrayDefault($result, 'status'));
+        $this->orderStatus = $this->getStatus(ProjectConfig::MAGENTO, $this->arrayDefault($result, 'status'));
+
+        $this->isRePayment = false;
+
+        $this->orderDate = date('Y-m-d H:i:s', strtotime('+8 hours', strtotime($this->arrayDefault($result, 'created_at'))));
+
+        $payment = $this->arrayDefault($result, 'payment');
+        $comment = $this->arrayDefault($result, 'status_histories');
+        $this->payment = $this->putMagentoPayment($payment, $comment);
+
+        $this->shipment = new \stdClass;
+        $this->shipment->name = '';
+        $this->shipment->phone = '';
+        $this->shipment->address = '';
+        $this->shipment->description = trans('common.commodity');
+        $this->shipment->traceCode = '';
+        $this->shipment->fee = $this->shippingFee;
+        $this->shipment->statusCode = 1;
+        $this->shipment->status = OrderConfig::SHIPMENT_STATUS[$this->shipment->statusCode];
+
+        if ($isDetail) {
+            $ship = $this->arrayDefault($result, 'extension_attributes');
+            foreach ($this->arrayDefault($ship, 'shipping_assignments', []) as $shipping) {
+                $shipping = $this->arrayDefault($shipping, 'shipping');
+                $this->shipment->name = $shipping['address']['firstname'] . $shipping['address']['lastname'];
+                $this->shipment->phone = '+' . $shipping['address']['telephone'];
+                $this->shipment->address = $shipping['address']['postcode'] . ' ' . $shipping['address']['city'].$shipping['address']['street'][0];
+
+            }
+        }
+
+        $this->items = [];
+        foreach ($this->arrayDefault($result, 'items', []) as $k => $item) {
+            if ($this->arrayDefault($item, 'price') != 0) {
+                $row = [];
+                $name = $this->arrayDefault($item, 'name');
+                $nameSplit = $this->specName($name);
+                $row['source'] = ProjectConfig::MAGENTO;
+                $row['orderNoSeq'] = $this->orderNo . '-' . ($k + 1);
+                $row['productId'] = $this->arrayDefault($item, 'sku');
+                $row['sn'] = $row['orderNoSeq'];
+                $row['name'] = $nameSplit[0];
+                $row['spec'] = isset($nameSplit[1]) ? $nameSplit[1] : '';
+                $row['quantity'] = $this->arrayDefault($item, 'qty_ordered');
+                $row['price'] = $this->arrayDefault($item, 'price');
+                $row['description'] = $this->arrayDefault($result, 'shipping_description');
+                $row['statusCode'] = '00';
+                $row['status'] = trans('ticket/order.usedStatus.' . OrderConfig::USED_STATUS[$row['statusCode']]);
+                $row['hasVoucher'] = false;
+
+                if ($isDetail) {
+                    $shipped = $this->arrayDefault($item, 'qty_shipped');
+                    $refunded = $this->arrayDefault($item, 'qty_refunded');
+
+                    if ($shipped !== 0) {
+                        $row['status'] = $this->shippingStatus($this->arrayDefault($item, 'order_id'));
+                        $row['statusCode'] = '01';
+                    } else if ($refunded != 0){
+                        $row['status'] = '已退貨';
+                        $row['statusCode'] = '22';
+                    } else {
+                        $row['status'] = '處理中';
+                        $row['statusCode'] = '16';
+                    }
+
+                    $row['imageUrl'] = $this->arrayDefault($item, 'extension_attributes', '')['image_url'];
+                }
+
+                $this->items[] = $row;
+            }
+        }
     }
 
     /**
@@ -372,7 +465,38 @@ class OrderResult
         else {
             return null;
         }
+    }
 
+    /**
+     * magento狀態代碼轉換
+     * @param $key
+     * @return string
+     */
+    public function getNewStatusCode($source, $key, $isRePayment = false)
+    {
+        if ($source ==='magento') {
+            switch ($key) {
+                case 'pending': # 待付款
+                    return "00";
+                case 'complete': # 已完成(完成出貨)
+                    return "01";
+                case 'processing': # 已完成(完成付款)
+                    return "04";
+                case 'holded': # 退貨處理中
+                    return "04";
+                case 'canceled': # 已退貨
+                    return "03";
+                case 'closed': # 已退貨
+                    return "03";
+            }
+        } else if($source ==='ct_pass'){
+            # 重新付款
+            if ($key === '00' && $isRePayment) return '07';
+            else return $key;
+        }
+        else {
+            return null;
+        }
     }
 
     /**
@@ -398,7 +522,17 @@ class OrderResult
     private function putMagentoPayment($payment , $comment=null, $id=null, $incrementId=null, $isDetail=false)
     {
 
-        $result = [];
+        $result = [
+                'bankId' => '',
+                'virtualAccount' => '',
+                'amount' => '',
+                'paymentPeriod' => '',
+                'gateway' => '',
+                'method' => '',
+                'title' => '',
+                'bankName' => ''
+            ];
+
         $method = $payment['method'];
         $additionalInformation = $payment['additional_information'];
 

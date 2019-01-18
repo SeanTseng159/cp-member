@@ -115,7 +115,8 @@ class LayoutResult extends BaseResult
     {
         $newCustomizes = [];
         foreach ($customizes as $customize) {
-            $newCustomizes[] = $this->getCustomize($customize, $dbPrefix);
+            $newCustomize = $this->getCustomize($customize, $dbPrefix);
+            if ($newCustomize['items']) $newCustomizes[] = $newCustomize;
         }
 
         return $newCustomizes;
@@ -148,6 +149,9 @@ class LayoutResult extends BaseResult
 
         foreach ($items as $item) {
             if ($item->source === BaseConfig::SOURCE_TICKET) {
+                $newItems[] = (new ProductResult)->get($item);
+            }
+            elseif($item->source === BaseConfig::SOURCE_TPASS_PHYSICAL) {
                 $newItems[] = (new ProductResult)->get($item);
             }
             elseif ($item->source === BaseConfig::SOURCE_COMMODITY) {
@@ -310,6 +314,9 @@ class LayoutResult extends BaseResult
 
         foreach ($products as $product) {
             if ($product->source === BaseConfig::SOURCE_TICKET) {
+                $newProducts[] = (new ProductResult)->getCategoryProduct($product);
+            }
+            elseif($product->source === BaseConfig::SOURCE_TPASS_PHYSICAL) {
                 $newProducts[] = (new ProductResult)->getCategoryProduct($product);
             }
             elseif ($product->source === BaseConfig::SOURCE_COMMODITY) {

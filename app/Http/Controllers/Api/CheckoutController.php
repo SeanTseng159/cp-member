@@ -20,6 +20,8 @@ use App\Services\Ticket\OrderService as TicketOrderService;
 use App\Jobs\Mail\OrderPaymentCompleteMail;
 use Log;
 
+use App\Result\Ticket\OrderResult;
+
 use App\Services\MemberService;
 use Ksd\Payment\Services\LinePayService;
 use App\Traits\StringHelper;
@@ -291,13 +293,13 @@ class CheckoutController extends RestLaravelController
             $result = $this->service->feedback($record);
 
             // 寄送linepay付款完成通知信
-            $ticketOrderService = app()->build(TicketOrderService::class);
+            // $ticketOrderService = app()->build(TicketOrderService::class);
             // $order = $ticketOrderService->findByOrderNo($record['orderNo']);
             dispatch(new OrderPaymentCompleteMail($request->memberId, 'ct_pass', $orderId))->delay(5);
         }
 
         // 撈取訂單
-        $orderModel = app()->build(Order::class);
+        /*$orderModel = app()->build(Order::class);
         $order = $orderModel->authorization($request->token)->find($orderId);
 
         // 取訂單擁有者
@@ -306,8 +308,13 @@ class CheckoutController extends RestLaravelController
             $member = $memberService->find($request->memberId);
             $memberName = ($member) ? $member->name : '';
             $order[0]->orderer = $this->hideName($memberName);
-        }
+        }*/
 
-        return $this->success($order);
+        // 撈取訂單 (new)
+        $ticketOrderService = app()->build(TicketOrderService::class);
+        $order = $ticketOrderService->findByOrderNo($orderId);
+        $newOrder[] = (new OrderResult)->get($order, true);
+
+        return $this->success($newOrder);
     }
 }

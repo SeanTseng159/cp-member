@@ -20,7 +20,8 @@ return [
         'used' => '已使用',
         'refunding' => '退貨中',
         'refunded' => '已退貨',
-        'transfer' => '已轉讓'
+        'transfer' => '已轉贈',
+        'expired' => '已失效'
     ],
     'payment' => [
     	'gateway' => [

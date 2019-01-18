@@ -47,11 +47,19 @@ class AutoUploadInvoice extends Command
      */
     public function handle()
     {
-        $ticketInvoices = $this->ticketInvoice->getInvoices();
+        // 取票券商品發票，隔天開
+        $ticketInvoices = $this->ticketInvoice->getInvoices(1);
         if (count($ticketInvoices) !== 0) {
             $this->uploadFTP('ticket', $ticketInvoices);
         }
 
+        // 取實體商品發票，到貨後才開發票
+        $commodityInvoices = $this->ticketInvoice->getInvoices(2);
+        if (count($commodityInvoices) !== 0) {
+            $this->uploadFTP('commodity', $commodityInvoices);
+        }
+
+        // magento
         $generationInvoices = $this->magentoInvoice->generationInvoice();
         $invalidInvoices = $this->magentoInvoice->invalidInvoice();
         $invoices = array_merge($generationInvoices, $invalidInvoices);

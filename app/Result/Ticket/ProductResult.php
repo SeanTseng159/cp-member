@@ -51,7 +51,7 @@ class ProductResult extends BaseResult
 
         $product = $product->toArray();
 
-        $this->source = ProcuctConfig::SOURCE_TICKET;
+        $this->source = $this->arrayDefault($product, 'is_physical') ? ProcuctConfig::SOURCE_TPASS_PHYSICAL : ProcuctConfig::SOURCE_TICKET;
         $this->id = (string) $this->arrayDefault($product, 'prod_id');
         $this->name = $this->arrayDefault($product, 'prod_name');
         $this->price = (string) $this->arrayDefault($product, 'prod_price_sticker');
@@ -188,7 +188,7 @@ class ProductResult extends BaseResult
             if (!$keyword->items) continue;
 
             foreach ($keyword->items as $item) {
-                if ($item->source === ProcuctConfig::SOURCE_TICKET) {
+                if ($item->source === ProcuctConfig::SOURCE_TICKET || $item->source === ProcuctConfig::SOURCE_CT_COMMODITY) {
                     $newItems[] = $this->get($item);
                 }
                 elseif ($item->source === ProcuctConfig::SOURCE_COMMODITY) {
@@ -211,7 +211,7 @@ class ProductResult extends BaseResult
 
         $product = $product->toArray();
 
-        $this->source = ProcuctConfig::SOURCE_TICKET;
+        $this->source = $this->arrayDefault($product, 'is_physical') ? ProcuctConfig::SOURCE_TPASS_PHYSICAL : ProcuctConfig::SOURCE_TICKET;
         $this->id = (string) $this->arrayDefault($product, 'prod_id');
         $this->name = $this->arrayDefault($product, 'prod_name');
         $this->price = (string) $this->arrayDefault($product, 'prod_price_sticker');
@@ -237,6 +237,70 @@ class ProductResult extends BaseResult
         //$this->tags = $this->getTags($this->arrayDefault($product, 'tags', []), true);
 
         return $this->apiFormatForCategory();
+    }
+
+    /**
+     * 取得資料
+     * @param $product
+     * @param bool $isDetail
+     */
+    public function getSupplierProduct($product)
+    {
+        if (!$product) return null;
+
+        $product = $product->toArray();
+
+        $this->source = ($product['is_physical']) ? ProcuctConfig::SOURCE_CT_COMMODITY : ProcuctConfig::SOURCE_TICKET;
+        $this->id = $this->arrayDefault($product, 'prod_id');
+        $this->name = $this->arrayDefault($product, 'prod_name');
+        $this->price = $this->arrayDefault($product, 'prod_price_sticker');
+        $this->salePrice = $this->arrayDefault($product, 'prod_price_retail');
+        $this->characteristic = $this->arrayDefault($product, 'prod_short');
+        $this->storeName = $this->arrayDefault($product, 'prod_store');
+        $this->place = $this->arrayDefault($product, 'prod_store');
+        $this->imagUrls = $this->getImgInfoForSupplierProduct($product['img'], true);
+        $this->category = null;
+
+        // 規格
+        $this->additionals = $this->getAdditional($this->arrayDefault($product, 'specs'), $product['prod_price_type']);
+        if ($this->additionals) {
+            $lowestPrice = $this->getLowestPrice($this->additionals, $this->price, $this->salePrice);
+            $this->price = $lowestPrice['price'];
+            $this->salePrice = $lowestPrice['salePrice'];
+        }
+
+        return $this->apiFormatForSupplier();
+    }
+
+    /**
+     * 取得供應商商品資料
+     * @param $product
+     * @param bool $isDetail
+     */
+    public function supplierProducts($data)
+    {
+        $this->total = $data['prods']->total();
+        $this->supplier_name = ($data['supplier']) ? $data['supplier']->supplier_name : null;
+        $this->prods = $this->getSupplierProducts($data['prods']);
+
+        return $this->apiFormatForSupplierProducts();
+    }
+
+    /**
+     * 取得供應商商品資料
+     * @param $product
+     * @param bool $isDetail
+     */
+    private function getSupplierProducts($products)
+    {
+        if ($products->isEmpty()) return [];
+
+        $newProducts = [];
+        foreach ($products as $product) {
+            $newProducts[] = $this->getSupplierProduct($product);
+        }
+
+        return $newProducts;
     }
 
     /**
@@ -300,14 +364,39 @@ class ProductResult extends BaseResult
 
         if ($imgs) {
             foreach ($imgs as $row) {
-                $img = new \stdClass;
-                $img->generalPath = $this->backendHost . $this->arrayDefault($row, 'img_path', '');
-                $img->thumbnailPath = $this->backendHost . $this->arrayDefault($row, 'img_thumbnail_path', '');
-                $imgsAry[] = $img;
+                $imgsAry[] = $this->getImgInfo($row);
             }
         }
 
         return $imgsAry;
+    }
+
+    /**
+     * 取得圖片
+     * @param $imgs
+     * @return array | null
+     */
+    private function getImgInfo($img, $isSupplierProduct = false)
+    {
+        $newImg = new \stdClass;
+        $newImg->generalPath = $this->backendHost . $this->arrayDefault($img, 'img_path', '');
+        $newImg->thumbnailPath = $this->backendHost . $this->arrayDefault($img, 'img_thumbnail_path', '');
+
+        return $newImg;
+    }
+
+    /**
+     * 取得圖片
+     * @param $imgs
+     * @return array | null
+     */
+    private function getImgInfoForSupplierProduct($img)
+    {
+        $newImg = new \stdClass;
+        $newImg->generalPath = $this->backendHost . $this->arrayDefault($img, 'img_path', '');
+        $newImg->thumbonallPath = $this->backendHost . $this->arrayDefault($img, 'img_thumbnail_path', '');
+
+        return $newImg;
     }
 
     /**
@@ -519,6 +608,7 @@ class ProductResult extends BaseResult
                     foreach ($s['spec_prices'] as $specPrices) {
                         $newSpec->value_index = (string) $specPrices['prod_spec_price_id'];
                         $newSpec->id = (string) $specPrices['prod_spec_price_id'];
+                        $newSpec->specId = (string) $specPrices['prod_spec_id'];
                         $newSpec->sticker = (string) $specPrices['prod_spec_price_list'];
                         $newSpec->retail = (string) $specPrices['prod_spec_price_value'];
                         $newSpec->stock = $specPrices['prod_spec_price_stock'];
@@ -572,6 +662,7 @@ class ProductResult extends BaseResult
                 $newFare->value = $f['prod_spec_price_name'];
                 $newFare->value_index = (string) $f['prod_spec_price_id'];
                 $newFare->id = (string) $f['prod_spec_price_id'];
+                $newFare->specId = (string) $f['prod_spec_id'];
                 $newFare->sticker = (string) $f['prod_spec_price_list'];
                 $newFare->retail = (string) $f['prod_spec_price_value'];
                 $newFare->stock = $f['prod_spec_price_stock'];
@@ -688,11 +779,11 @@ class ProductResult extends BaseResult
      */
     private function apiFormat($isDetail = true)
     {
-        $data = new \stdClass();
         $columns = [
             'source', 'id', 'name',  'price', 'salePrice', 'characteristic', 'storeName',
              'storeAddress', 'place', 'imageUrl', 'isWishlist', 'discount'
         ];
+
         if ($isDetail) {
             $detailColumns = [
                 'category', 'tags', 'categories', 'keywords', 'storeTelephone', 'saleStatus', 'saleStatusCode', 'quantity', 'maxQuantity', 'additionals', 'contents', 'combos', 'purchase', 'maxPurchase', 'imageUrls', 'canUseCoupon', 'isBook'
@@ -700,12 +791,7 @@ class ProductResult extends BaseResult
             $columns = array_merge($columns, $detailColumns);
         }
 
-        foreach ($columns as $column) {
-            if (property_exists($this, $column)) {
-                $data->$column = $this->$column;
-            }
-        }
-        return $data;
+        return $this->outputColumns($columns);
     }
 
     /**
@@ -714,15 +800,9 @@ class ProductResult extends BaseResult
      */
     private function apiFormatForOnlyPurchase()
     {
-        $data = new \stdClass();
         $columns = ['purchase', 'maxPurchase'];
 
-        foreach ($columns as $column) {
-            if (property_exists($this, $column)) {
-                $data->$column = $this->$column;
-            }
-        }
-        return $data;
+        return $this->outputColumns($columns);
     }
 
     /**
@@ -732,18 +812,25 @@ class ProductResult extends BaseResult
      */
     private function apiFormatForCategory()
     {
-        $data = new \stdClass();
         $columns = [
-            'source', 'id', 'name',  'price', 'salePrice', 'characteristic', 'category', 'tags', 'storeName',
-             'storeAddress', 'place', 'imageUrl', 'isWishlist', 'discount'
+            'source', 'id', 'name',  'price', 'salePrice', 'characteristic', 'category', 'tags', 'storeName', 'storeAddress', 'place', 'imageUrl', 'isWishlist', 'discount'
         ];
 
-        foreach ($columns as $column) {
-            if (property_exists($this, $column)) {
-                $data->$column = $this->$column;
-            }
-        }
-        return $data;
+        return $this->outputColumns($columns);
+    }
+
+    /**
+     * api response 資料格式化
+     * @param bool $isDetail
+     * @return \stdClass
+     */
+    private function apiFormatForSupplier()
+    {
+        $columns = [
+            'source', 'id', 'name',  'price', 'salePrice', 'characteristic', 'category', 'storeName', 'place', 'imagUrls'
+        ];
+
+        return $this->outputColumns($columns);
     }
 
     /**
@@ -753,18 +840,11 @@ class ProductResult extends BaseResult
      */
     private function apiFormatForPurchase()
     {
-        $data = new \stdClass();
         $columns = [
             'id', 'name', 'saleStatus', 'saleStatusCode', 'price', 'salePrice', 'imageUrl', 'quantity', 'additionals'
         ];
 
-        foreach ($columns as $column) {
-            if (property_exists($this, $column)) {
-                $data->$column = $this->$column;
-            }
-        }
-
-        return $data;
+        return $this->outputColumns($columns);
     }
 
     /**
@@ -774,11 +854,30 @@ class ProductResult extends BaseResult
      */
     private function apiFormatForComboItem()
     {
-        $data = new \stdClass();
         $columns = [
             'source', 'id', 'name', 'characteristic', 'storeName', 'place', 'imageUrl', 'imageUrls', 'contents'
         ];
 
+        return $this->outputColumns($columns);
+    }
+
+    /**
+     * api response 資料格式化
+     * @param bool $isDetail
+     * @return \stdClass
+     */
+    private function apiFormatForSupplierProducts()
+    {
+        $columns = [
+            'total', 'supplier_name', 'prods'
+        ];
+
+        return $this->outputColumns($columns);
+    }
+
+    private function outputColumns($columns = [])
+    {
+        $data = new \stdClass();
         foreach ($columns as $column) {
             if (property_exists($this, $column)) {
                 $data->$column = $this->$column;

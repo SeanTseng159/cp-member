@@ -17,6 +17,7 @@ use App\Cache\Redis;
 use App\Cache\Config as CacheConfig;
 use App\Cache\Key\LayoutKey;
 use App\Cache\Key\ServiceKey;
+use App\Cache\Key\CheckoutKey;
 
 use App\Jobs\Cache\RefreshLayoutAllCache;
 use App\Jobs\Cache\RefreshLayoutHomeCache;
@@ -145,6 +146,18 @@ class CacheController extends RestLaravelController
     public function apps(Request $request)
     {
         $this->redis->delete(LayoutKey::SERVICE_APPS_KEY);
+
+        return $this->success('刷新成功');
+    }
+
+    /**
+     * 清除快取 (付款方式)
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function paymentMethod(Request $request)
+    {
+        $this->redis->delete(CheckoutKey::PAYMENT_METHOD_KEY);
 
         return $this->success('刷新成功');
     }

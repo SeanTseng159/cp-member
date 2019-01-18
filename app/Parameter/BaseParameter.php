@@ -31,13 +31,13 @@ class BaseParameter
         $this->limit = $this->request->input('limit', 20);
         $this->page = $this->request->input('page', 1);
 
-        $this->source = $this->request->input('source');
+        $this->source = $this->request->input('source', 'ct_pass');
         $this->id = $this->request->input('id');
         $this->memberId = $this->getMemberId();
     }
 
     public function offset()
     {
-        return $this->limit * $this->page;
+        return $this->limit * ($this->page - 1);
     }
 }

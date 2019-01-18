@@ -12,6 +12,7 @@ use Ksd\Mediation\Core\Controller\RestLaravelController;
 
 use App\Services\Ticket\LayoutService;
 use App\Result\Ticket\LayoutResult;
+use App\Result\Ticket\ProductResult;
 
 use App\Cache\Redis;
 use App\Cache\Config as CacheConfig;
@@ -171,7 +172,7 @@ class LayoutController extends RestLaravelController
             return $this->success($result);
         }
     }
-    
+
     /**
      * 取得目標供應商的商品
      * @param Request $request
@@ -180,8 +181,11 @@ class LayoutController extends RestLaravelController
     public function supplier(Request $request, $supplierId)
     {
         try {
-            $page_info = $request->only(['page', 'limit']);
-            return $this->success((new SupplierParameter($this->layoutService->supplierProducts($supplierId, $page_info)))->getTransformedParams());
+            $params = (new SupplierParameter($request))->products();
+            $data = $this->layoutService->supplierProducts($supplierId, $params['page'], $params['limit']);
+            $result = (new ProductResult)->supplierProducts($data);
+
+            return $this->success($result);
         } catch (Exception $e) {
             return $this->failure('E0005', '資料無法取得');
         }

@@ -13,4 +13,6 @@ class ProductSpecPrice extends BaseModel
 {
     protected $table = 'prod_spec_prices';
     protected $primaryKey = 'prod_spec_price_id';
+
+    public $timestamps = false;
 }

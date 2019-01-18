@@ -17,6 +17,7 @@ use App\Models\Ticket\MenuProd;
 use App\Repositories\Ticket\ProductAdditionalRepository;
 use App\Repositories\Ticket\ProductGroupRepository;
 use App\Repositories\Ticket\MenuProductRepository;
+use App\Repositories\Ticket\TagProdRepository;
 use Illuminate\Pagination\Paginator;
 use App\Config\Ticket\ProcuctConfig;
 use Carbon\Carbon;
@@ -27,14 +28,16 @@ class ProductRepository extends BaseRepository
     protected $productAdditionalRepository;
     protected $productGroupRepository;
     protected $menuProductRepository;
+    protected $tagProdRepository;
 
-    public function __construct(Product $model, ProductAdditionalRepository $productAdditionalRepository, ProductGroupRepository $productGroupRepository)
+    public function __construct(Product $model, ProductAdditionalRepository $productAdditionalRepository, ProductGroupRepository $productGroupRepository, TagProdRepository $tagProdRepository)
     {
         $this->date = Carbon::now()->toDateTimeString();
 
         $this->model = $model;
         $this->productAdditionalRepository = $productAdditionalRepository;
         $this->productGroupRepository = $productGroupRepository;
+        $this->tagProdRepository = $tagProdRepository;
     }
 
     /**
@@ -158,9 +161,105 @@ class ProductRepository extends BaseRepository
     }
 
     /**
+     * 根據 商品 id 取得商品明細 (結帳用) [只取 規格]
+     * @param $id
+     * @param $specId
+     * @param $specPriceId
+     * @param $hasTag
+     * @return mixed
+     */
+    public function findByCheckout($id, $specId, $specPriceId, $hasTag = false)
+    {
+        $prod = $this->model->with(['shippingFees', 'img', 'groups'])->leftJoin('prod_specs', 'prods.prod_id', '=', 'prod_specs.prod_id')
+                            ->leftJoin('prod_spec_prices', 'prod_specs.prod_spec_id', '=', 'prod_spec_prices.prod_spec_id')
+                            ->where('prod_specs.prod_spec_id', $specId)
+                            ->where('prod_spec_prices.prod_spec_price_id', $specPriceId)
+                            ->where('prods.deleted_at', 0)
+                            ->whereIn('prod_type', [1, 2])
+                            ->where('prods.prod_onshelf', 1)
+                            ->where('prods.prod_onshelf_time', '<=', $this->date)
+                            ->where('prods.prod_offshelf_time', '>=', $this->date)
+                            ->where('prods.prod_onsale_time', '<=', $this->date)
+                            ->where('prods.prod_offsale_time', '>=', $this->date)
+                            ->find($id);
+
+        if (!$prod) return null;
+
+        if ($prod->prod_type === 2) {
+            $newGroups = [];
+            foreach ($prod->groups as $group) {
+                $p = $this->findSubCobmoByCheckout($group->prod_group_prod_id, $group->prod_group_spec_id, $group->prod_group_price_id, $hasTag);
+                $p->prod_spec_price_value = $group->prod_group_share;
+
+                $newGroups[] = $p;
+            }
+
+            $prod->groups = $newGroups;
+        }
+
+        if ($hasTag) {
+            $prod->tags = $this->tagProdRepository->getTagsByProdId($id);
+        }
+
+        return $prod;
+    }
+
+    /**
+     * 根據 商品 id 取得商品明細 (結帳用) [只取 規格]
+     * @param $id
+     * @param $specId
+     * @param $specPriceId
+     * @param $hasTag
+     * @return mixed
+     */
+    public function findAdditionalByCheckout($id, $specId, $specPriceId, $hasTag = false)
+    {
+        $prod = $this->model->with(['shippingFees', 'img'])->leftJoin('prod_specs', 'prods.prod_id', '=', 'prod_specs.prod_id')
+                            ->leftJoin('prod_spec_prices', 'prod_specs.prod_spec_id', '=', 'prod_spec_prices.prod_spec_id')
+                            ->where('prod_specs.prod_spec_id', $specId)
+                            ->where('prod_spec_prices.prod_spec_price_id', $specPriceId)
+                            ->where('prods.deleted_at', 0)
+                            ->where('prod_type', 3)
+                            ->where('prods.prod_onshelf', 1)
+                            ->where('prods.prod_onsale_time', '<=', $this->date)
+                            ->where('prods.prod_offsale_time', '>=', $this->date)
+                            ->find($id);
+
+        if ($hasTag) {
+            $prod->tags = $this->tagProdRepository->getTagsByProdId($id);
+        }
+
+        return $prod;
+    }
+
+    /**
+     * 根據 商品 id 取得商品明細 (結帳用) [只取 規格]
+     * @param $id
+     * @param $specId
+     * @param $specPriceId
+     * @param $hasTag
+     * @return mixed
+     */
+    public function findSubCobmoByCheckout($id, $specId, $specPriceId, $hasTag = false)
+    {
+        $prod = $this->model->leftJoin('prod_specs', 'prods.prod_id', '=', 'prod_specs.prod_id')
+                            ->leftJoin('prod_spec_prices', 'prod_specs.prod_spec_id', '=', 'prod_spec_prices.prod_spec_id')
+                            ->where('prod_specs.prod_spec_id', $specId)
+                            ->where('prod_spec_prices.prod_spec_price_id', $specPriceId)
+                            ->where('prods.deleted_at', 0)
+                            ->where('prod_type', 4)
+                            ->find($id);
+
+        if ($hasTag) {
+            $prod->tags = $this->tagProdRepository->getTagsByProdId($id);
+        }
+
+        return $prod;
+    }
+
+    /**
      * 根據 商品 id 取得商品明細
      * @param $id
-     * @param $onShelf
      * @return mixed
      */
     public function mainProductFind($id, $onShelf = false)
@@ -293,42 +392,27 @@ class ProductRepository extends BaseRepository
     }
 
     /**
-     * 取得根據
+     * 取得供應商商品
      * @params $suppliedId
      * @return Collections
      */
-    public function supplierProducts(int $supplierId, $page_info)
+    public function supplierProducts(int $supplierId, $page = 1, $limit = 20)
     {
-        $currentPage = $page_info['page'] ?? ProcuctConfig::DEFAULT_PAGE;
-        $pageSize = $page_info['limit'] ?? ProcuctConfig::DEFAULT_PAGE_SIZE;
+        $offset = ($page - 1) * $limit;
 
-        Paginator::currentPageResolver(function () use ($currentPage) {
-            return $currentPage;
+        Paginator::currentPageResolver(function() use ($page) {
+            return $page;
         });
 
-        return Product::where('supplier_id', $supplierId)
+        $data = $this->model->with(['specs.specPrices', 'img'])
+                    ->where('supplier_id', $supplierId)
                     ->notDeleted()
                     ->where('prod_onshelf', 1)
                     ->whereIn('prod_type', [1, 2])
                     ->where('prod_onshelf_time', '<=', $this->date)
                     ->where('prod_offshelf_time', '>=', $this->date)
-                    ->with(['imgs' => function($query) {
-                        $query->select('prod_id', 'img_path', 'img_thumbnail_path')->orderBy('img_sort')->first();
-                    }])
-                    ->with(['product_tags' => function($query){
-                        $query->where('is_main', 1)->first();
-                    }])
-                    ->select(
-                            'prod_id',
-                            'prod_name',
-                            'prod_price_sticker',
-                            'prod_price_retail',
-                            'prod_short',
-                            'prod_store',
-                            'prod_county',
-                            'prod_district',
-                            'prod_address'
-                            )
-                    ->paginate($pageSize);
+                    ->paginate($limit);
+
+        return $data;
     }
 }

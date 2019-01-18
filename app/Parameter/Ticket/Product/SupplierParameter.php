@@ -2,15 +2,25 @@
 namespace App\Parameter\Ticket\Product;
 
 use App\Parameter\BaseParameter;
-use App\Config\BaseConfig;
 
 class SupplierParameter extends BaseParameter
 {
-    public $transformed_params;
-    
-    private $backendHost;
-    
-	public function __construct($params)
+    public $parameters;
+
+    public function __construct($request)
+    {
+        parent::__construct($request);
+    }
+
+    public function products()
+    {
+        $this->parameters['page'] = $this->page;
+        $this->parameters['limit'] = $this->limit;
+
+        return $this->parameters;
+    }
+
+	/*public function __construct($params)
     {
         $this->backendHost = (env('APP_ENV') === 'production' || env('APP_ENV') === 'beta') ? BaseConfig::BACKEND_HOST : BaseConfig::BACKEND_HOST_TEST;
         $transformed_params = null;
@@ -40,9 +50,9 @@ class SupplierParameter extends BaseParameter
             'prods' => $transformed_params
         ];
     }
-    
+
     public function getTransformedParams()
     {
         return $this->transformed_params;
-    }
+    }*/
 }

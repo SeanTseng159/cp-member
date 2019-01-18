@@ -37,9 +37,9 @@ class OrderService
      * 取得訂單資訊
      * @return mixed
      */
-    public function magentoInfo()
+    public function magentoInfo($isNew = false)
     {
-        return $this->repository->magentoInfo();
+        return $this->repository->magentoInfo($isNew);
     }
 
     /**
@@ -67,9 +67,9 @@ class OrderService
      * @param $parameters
      * @return \Ksd\Mediation\Result\OrderResult
      */
-    public function find($parameters)
+    public function find($parameters, $isNew = false)
     {
-        return $this->repository->find($parameters);
+        return $this->repository->find($parameters, $isNew);
     }
 
     /**

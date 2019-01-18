@@ -26,8 +26,8 @@ class WishlistResult
         $this->source = ProjectConfig::MAGENTO;
         $this->wishlistId = $this->arrayDefault($result, 'wishlist_id');
         $this->wishlistItemId = $this->arrayDefault($result, 'wishlist_item_id');
-        $this->tags['id']=null;
-        $this->tags['name']=null;
+        $this->categories = [];
+        $this->tags = [];
         $this->id = $this->arrayDefault($result['product'], 'sku');
         $this->name = $this->arrayDefault($result['product'], 'name');
         $this->price = intval($this->arrayDefault($result['product'], 'price'));
