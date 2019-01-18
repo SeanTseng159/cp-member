@@ -99,20 +99,9 @@ class DiningCarResult extends BaseResult
         $result->openStatusCode = $car->open_status;
         $result->openStatus = DiningCarConfig::OPEN_STATUS[$car->open_status];
 
-        // 依每天位置計算距離
-        /*$hoursDay = $car->businessHoursDays->where('day', $this->dayOfWeek)->first();
-        if ($hoursDay) {
-            $result->longitude = $hoursDay->longitude;
-            $result->latitude = $hoursDay->latitude;
-        }
-        else {
-            $result->longitude = $car->longitude;
-            $result->latitude = $car->latitude;
-        }*/
-
+        // 計算距離
         $result->longitude = $car->longitude ?? '';
         $result->latitude = $car->latitude ?? '';
-
         $result->distance = ($result->longitude && $result->latitude) ? $this->calcDistance($this->lat, $this->lng, $car->latitude, $car->longitude, 2, 2) . '公里' : '未知';
 
         return $result;
