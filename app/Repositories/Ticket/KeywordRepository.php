@@ -59,4 +59,17 @@ class KeywordRepository extends BaseRepository
 
         return $data;
     }
+
+    /**
+     * 依 關鍵字 找餐車
+     * @return mixed
+     */
+    public function getDiningCarsByKeyword($keyword)
+    {
+        return $this->model->with('diningCars.diningCar')
+                            ->notDeleted()
+                            ->whereHas('diningCars')
+                            ->where('keyword_text', 'like', '%' . $keyword . '%')
+                            ->get();
+    }
 }
