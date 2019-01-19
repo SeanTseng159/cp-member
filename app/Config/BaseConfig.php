@@ -19,13 +19,12 @@ class BaseConfig
     const   WEB_HOST_TEST    = 'https://dev.citypass.tw/';   // 前台路徑
 
     const   DATA_COLLECTION_HOST = 'https://galera.touchcity.tw';
+
     # 來源
     const   SOURCE_TICKET        = 'ct_pass';   // 票卷
     const   SOURCE_TPASS_PHYSICAL  = 'ct_pass_physical';   // 實體商品
     const   SOURCE_COMMODITY     = 'magento';   // 實體商品
     const   SOURCE_CT_COMMODITY  = 'ct_pass_physical';   // 實體商品
-
-    const   DATA_COLLECTION_HOST = 'http://galera.touchcity.tw';
 
     # 數字轉中文週數
     const WEEK = [

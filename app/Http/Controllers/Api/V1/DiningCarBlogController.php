@@ -31,7 +31,9 @@ class DiningCarBlogController extends RestLaravelController
     public function list(Request $request)
     {
         try {
-            $result = (new DiningCarBlogResult)->list();
+            $result['total'] = 4;
+            $result['page'] = 1;
+            $result['blogs'] = (new DiningCarBlogResult)->list();
 
             return $this->success($result);
         } catch (Exception $e) {
