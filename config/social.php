@@ -6,6 +6,6 @@ return [
         'app_secert' => env('FACEBOOK_APP_SECRET', ''),
     ],
     'google' => [
-        'web_client_id' =>  env('GOOGLE_CLIENT_ID'),
+        'web_client_id' =>  env('GOOGLE_CLIENT_ID', ''),
     ],
 ];
