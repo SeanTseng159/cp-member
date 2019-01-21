@@ -464,18 +464,19 @@ class MemberController extends RestLaravelController
     {
         $inputs = $request->only('openId', 'openPlateform', 'name');
         $verifyInfo = $request->verifyInfo;
-        $member = $this->memberService->findByOpenId($inputs['openId'], $inputs['openPlateform']);
-        $platform = $request->header('platform');
         $isFirstLogin = false;
-        
-        if ( ! in_array($inputs['openPlateform'], ['facebook', 'google'])) {
-            return $this->failure('E0021','會員驗證失效');
-        }
         
         if (empty($inputs['openId'])) {
             return $this->failure('E0021','請至第3方設定允許提供email或改用其他方式登入本站');
         }
         
+        if ( ! in_array($inputs['openPlateform'], ['facebook', 'google']) ||
+             ! $this->memberService->verifyThirdPartLoginToken($verifyInfo, $inputs['openPlateform'])
+        ) {
+            return $this->failure('E0021','會員驗證失效');
+        }
+        
+        $member = $this->memberService->findByOpenId($inputs['openId'], $inputs['openPlateform']);
         if (empty($member)) {
             $data = [
                 'isValidEmail' => 1,
@@ -490,6 +491,7 @@ class MemberController extends RestLaravelController
             return $this->failure('E0021','會員驗證失效');
         }
 
+        $platform = $request->header('platform');
         $member = $this->memberService->generateToken($member, $platform);
         if (!$member) {
             return $this->failure('E0025','Token產生失敗');
