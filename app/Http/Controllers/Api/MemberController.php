@@ -470,9 +470,7 @@ class MemberController extends RestLaravelController
             return $this->failure('E0021','請至第3方設定允許提供email或改用其他方式登入本站');
         }
         
-        if ( ! in_array($inputs['openPlateform'], ['facebook', 'google']) ||
-             ! $this->memberService->verifyThirdPartLoginToken($verifyInfo, $inputs['openPlateform'])
-        ) {
+        if ( ! $this->memberService->verifyThirdPartLoginToken($verifyInfo, $inputs)) {
             return $this->failure('E0021','會員驗證失效');
         }
         

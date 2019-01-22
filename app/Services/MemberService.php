@@ -550,21 +550,21 @@ class MemberService
         return $member;
     }
     
-    public function verifyThirdPartLoginToken($token, $open_plateform)
+    public function verifyThirdPartLoginToken($token, $inputs)
     {
-        switch ($open_plateform) {
+        switch ($inputs['openPlateform']) {
             case 'google':
-                return $this->verifyGoogleLogin($token);
+                return $this->verifyGoogleLogin($token, $inputs['openId']);
                 break;
             case 'facebook':
-                return $this->verifyFacebookLogin($token);
+                return $this->verifyFacebookLogin($token, $inputs['openId']);
                 break;
             default :
                 return false;
         }
     }
     
-    private function verifyGoogleLogin($token)
+    private function verifyGoogleLogin($token, $openId)
     {
         try {
             $url = 'https://www.googleapis.com/oauth2/v3/tokeninfo?id_token=%s';
@@ -572,14 +572,14 @@ class MemberService
             $response = $client->get(sprintf($url, $token));
             
             $body = json_decode($response->getBody());
-            return isset($body->aud) ? in_array($body->aud, explode(',', config('social.google.web_client_id'))) : false;
+            return isset($body->aud) ? (in_array($body->aud, explode(',', config('social.google.web_client_id'))) && $openId == $body->email) : false;
             
         } catch (\Exception $e) {
             return false;
         }
     }
     
-    private function verifyFacebookLogin($input_token)
+    private function verifyFacebookLogin($input_token, $openId)
     {
         try{
             $url = 'https://graph.facebook.com/v2.6/debug_token?input_token=%s&access_token=%s';
@@ -587,7 +587,13 @@ class MemberService
             $client = new Client();
             $response = $client->get(sprintf($url, $input_token, $access_token));
             $response_array = json_decode($response->getBody(), true);
-            return isset($response_array['data']['app_id']) ? $response_array['data']['app_id'] == config('social.facebook.app_id') : false;
+            $data = $response_array['data'];
+            
+            $email_url = 'https://graph.facebook.com/' . $data['user_id'] . '?fields=email&access_token=' . $input_token;
+            $email_response = $client->get($email_url);
+            $email_response_array = json_decode($response->getBody(), true);
+            
+            return isset($data['app_id']) ? ($data['app_id'] == config('social.facebook.app_id') && $email_response_array['email'] == $openId) : false;
             
         } catch (\Exception $ex) {
             return false;
