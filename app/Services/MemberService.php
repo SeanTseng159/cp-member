@@ -587,14 +587,8 @@ class MemberService
             $client = new Client();
             $response = $client->get(sprintf($url, $input_token, $access_token));
             $response_array = json_decode($response->getBody(), true);
-            $data = $response_array['data'];
             
-            $email_url = 'https://graph.facebook.com/' . $data['user_id'] . '?fields=email&access_token=' . $input_token;
-            $email_response = $client->get($email_url);
-            $email_response_array = json_decode($response->getBody(), true);
-            
-            return isset($data['app_id']) ? ($data['app_id'] == config('social.facebook.app_id') && $email_response_array['email'] == $openId) : false;
-            
+            return isset($response_array['data']['app_id']) ? $response_array['data']['app_id'] == config('social.facebook.app_id') : false;
         } catch (\Exception $ex) {
             return false;
         }
