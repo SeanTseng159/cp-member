@@ -221,6 +221,106 @@ trait InvoiceHelper
     }
 
     /**
+     * 發票 - 加入折扣品項
+     * @param $orderNo [訂單編號]
+     * @param $priceOff [折扣價]
+     * @param $itemsCount [品項總數]
+     * @param $isDel [是否刪除發票]
+     * @return string
+     */
+    public function addOffToDetailInvoice($orderNo = '', $priceOff = 0, $itemsCount = 0, $isDel = false)
+    {
+        $detailInvoices = [];
+
+        $orderPrefix = (env('APP_ENV') === 'production') ? '' : 'test_';
+
+        //1.明細代號(D)
+        $recordStr[] = 'D';
+        //2.序號
+        $recordStr[] = $itemsCount;
+        //3.訂單編號
+        $recordStr[] = $orderPrefix . $orderNo;
+        //4.商品編號
+        $recordStr[] = 'CT000001';
+        //5.商品條碼
+        $recordStr[] = '';
+        //6.商品名稱
+        $recordStr[] = '優惠折扣';
+        //7.商品規格
+        $recordStr[] = '';
+        //8.單位
+        $recordStr[] = '';
+        //9.單價
+        $recordStr[] = '';
+        //10.數量
+        $recordStr[] = 1;
+        //11.未稅金額
+        $recordStr[] = '';
+        //12.含稅金額
+        $recordStr[] = $isDel ? 0 : -$priceOff;
+        //13.健康捐
+        $recordStr[] = '';
+        //14.稅率別
+        $recordStr[] = '1';
+        //15.紅利點數折扣金額
+        $recordStr[] = '';
+        //16.明細備註
+        $recordStr[] = '';
+
+        return implode('|', $recordStr) . "\r\n";
+    }
+
+    /**
+     * 發票 - 加入運費品項
+     * @param $orderNo [訂單編號]
+     * @param $shipmentFee [運費]
+     * @param $itemsCount [品項總數]
+     * @param $isDel [是否刪除發票]
+     * @return string
+     */
+    public function addShipmentFeeToDetailInvoice($orderNo = '', $shipmentFee = 0, $itemsCount = 0, $isDel = false)
+    {
+        $detailInvoices = [];
+
+        $orderPrefix = (env('APP_ENV') === 'production') ? '' : 'test_';
+
+        //1.明細代號(D)
+        $recordStr[] = 'D';
+        //2.序號
+        $recordStr[] = $itemsCount;
+        //3.訂單編號
+        $recordStr[] = $orderPrefix . $orderNo;
+        //4.商品編號
+        $recordStr[] = 'CT000002';
+        //5.商品條碼
+        $recordStr[] = '';
+        //6.商品名稱
+        $recordStr[] = '運費';
+        //7.商品規格
+        $recordStr[] = '';
+        //8.單位
+        $recordStr[] = '';
+        //9.單價
+        $recordStr[] = '';
+        //10.數量
+        $recordStr[] = 1;
+        //11.未稅金額
+        $recordStr[] = '';
+        //12.含稅金額
+        $recordStr[] = $isDel ? 0 : $shipmentFee;
+        //13.健康捐
+        $recordStr[] = '';
+        //14.稅率別
+        $recordStr[] = '1';
+        //15.紅利點數折扣金額
+        $recordStr[] = '';
+        //16.明細備註
+        $recordStr[] = '';
+
+        return implode('|', $recordStr) . "\r\n";
+    }
+
+    /**
      * 取得發票作廢或折讓
      * @param $orderDate
      * @return string

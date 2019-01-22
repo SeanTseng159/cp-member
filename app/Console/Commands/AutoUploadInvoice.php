@@ -56,6 +56,8 @@ class AutoUploadInvoice extends Command
         // 取實體商品發票，到貨後才開發票
         $commodityInvoices = $this->ticketInvoice->getInvoices(2);
         if (count($commodityInvoices) !== 0) {
+            // 休息2秒, 避免檔名重複
+            sleep(2);
             $this->uploadFTP('commodity', $commodityInvoices);
         }
 

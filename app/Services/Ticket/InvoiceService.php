@@ -74,9 +74,25 @@ class InvoiceService extends BaseService
             if ($invoice) {
                 $invoices[] = $invoice;
 
+                $itemsCount = 0;
                 $detailInvoices = $this->transDetailInvoiceFormat($order);
                 foreach ($detailInvoices as $detailInvoice) {
-                    if ($detailInvoice) $invoices[] = $detailInvoice;
+                    if (!$detailInvoice) continue;
+
+                    $invoices[] = $detailInvoice;
+                    $itemsCount++;
+                }
+
+                // 運費品項
+                if ($order->order_shipment_fee) {
+                    $itemsCount += 1;
+                    $invoices[] = $this->addShipmentFeeToDetailInvoice($order->order_no, $order->order_shipment_fee, $itemsCount);
+                }
+
+                // 折扣品項
+                if ($order->order_off) {
+                    $itemsCount += 1;
+                    $invoices[] = $this->addOffToDetailInvoice($order->order_no, $order->order_off, $itemsCount);
                 }
 
                 $this->totalOrder++;
@@ -166,9 +182,25 @@ class InvoiceService extends BaseService
             if ($invoice) {
                 $invoices[] = $invoice;
 
+                $itemsCount = 0;
                 $detailInvoices = $this->transDetailInvoiceFormat($order, true);
                 foreach ($detailInvoices as $detailInvoice) {
-                    if ($detailInvoice) $invoices[] = $detailInvoice;
+                    if (!$detailInvoice) continue;
+
+                    $invoices[] = $detailInvoice;
+                    $itemsCount++;
+                }
+
+                // 運費品項
+                if ($order->order_shipment_fee) {
+                    $itemsCount += 1;
+                    $invoices[] = $this->addShipmentFeeToDetailInvoice($order->order_no, $order->order_shipment_fee, $itemsCount, true);
+                }
+
+                // 折扣品項
+                if ($order->order_off) {
+                    $itemsCount += 1;
+                    $invoices[] = $this->addOffToDetailInvoice($order->order_no, $order->order_off, $itemsCount, true);
                 }
 
                 $this->totalOrder++;
