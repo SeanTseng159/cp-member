@@ -572,7 +572,7 @@ class MemberService
             $response = $client->get(sprintf($url, $token));
             
             $body = json_decode($response->getBody());
-            return isset($body->aud) ? in_array($body->aud, explode(config('social.google.web_client_id'), ',')) : false;
+            return isset($body->aud) ? in_array($body->aud, explode(',', config('social.google.web_client_id'))) : false;
             
         } catch (\Exception $e) {
             return false;
