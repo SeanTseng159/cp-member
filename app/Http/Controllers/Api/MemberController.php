@@ -480,6 +480,7 @@ class MemberController extends RestLaravelController
                 'isValidEmail' => 1,
                 'status' => 1,
                 'isRegistered' => 1,
+                'gender' => 0,
             ];
             $inputs = array_merge($data, $inputs);
             $member = $this->memberService->create($inputs);
@@ -506,7 +507,7 @@ class MemberController extends RestLaravelController
             'countryCode' => $member->countryCode,
             'cellphone' => $member->cellphone,
             'country' => $member->country,
-            'gender' => empty($member->gender) ? 0 : $member->gender,
+            'gender' => $member->gender,
             'zipcode' => $member->zipcode,
             'address' => $member->address,
         ]);
