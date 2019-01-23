@@ -477,6 +477,7 @@ class MemberController extends RestLaravelController
                 'isValidEmail' => 1,
                 'status' => 1,
                 'isRegistered' => 1,
+                'gender' => 0,
             ];
             $inputs = array_merge($data, $inputs);
             $member = $this->memberService->create($inputs);
