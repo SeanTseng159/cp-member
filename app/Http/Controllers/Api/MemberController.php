@@ -506,7 +506,7 @@ class MemberController extends RestLaravelController
             'countryCode' => $member->countryCode,
             'cellphone' => $member->cellphone,
             'country' => $member->country,
-            'gender' => $member->gender,
+            'gender' => empty($member->gender) ? 0 : $member->gender,
             'zipcode' => $member->zipcode,
             'address' => $member->address,
         ]);
