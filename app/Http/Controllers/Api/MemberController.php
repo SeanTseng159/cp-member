@@ -497,8 +497,15 @@ class MemberController extends RestLaravelController
             'token' => $member->token,
             'name' => $member->name,
             'isFirstLogin' => $isFirstLogin,
-            'openPlateform' => $inputs['openPlateform'],
-            'email' => $inputs['openId'],
+            'openPlateform' => $member->openPlateform,
+            'email' => $member->openId,
+            'avatar' => $member->avatar,
+            'countryCode' => $member->countryCode,
+            'cellphone' => $member->cellphone,
+            'country' => $member->country,
+            'gender' => $member->gender,
+            'zipcode' => $member->zipcode,
+            'address' => $member->address,
         ]);
     }
 }
