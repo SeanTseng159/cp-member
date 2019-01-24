@@ -46,8 +46,6 @@ class PromotionRepository extends BaseRepository
                             ->where('status', 1)
                             ->where('onshelf_time', '<=', $this->now)
                             ->where('offshelf_time', '>=', $this->now)
-                            ->where('onsale_time', '<=', $this->now)
-                            ->where('offsale_time', '>=', $this->now)
                             ->find($id);
 
         $products = [];

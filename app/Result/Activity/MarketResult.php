@@ -39,6 +39,7 @@ class MarketResult extends BaseResult
         $result->conditions = $this->getConditions($data->condition_type, $data->offer_type, $data->conditions);
         $result->rule = $this->getLowerCondition($data->condition_type, $data->offer_type, $data->conditions);
         $result->products = $this->getProducts($data->products);
+        $result->isOnSale = $this->checkOnSale($data->onsale_time, $data->offsale_time);
 
         return $result;
     }

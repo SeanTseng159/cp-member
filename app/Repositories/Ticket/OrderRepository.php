@@ -382,7 +382,7 @@ class OrderRepository extends BaseRepository
     {
         if ($shipmentMethod === 2) {
             // 實體商品
-            $orders = $this->model->with(['detail', 'detail.productSpecPrice', 'shipment'])
+            $orders = $this->model->with(['detail', 'detail.productSpecPrice'])
                                     ->notDeleted()
                                     ->whereHas('shipment', function($query) use ($shipmentStatus) {
                                         $query->where('status', $shipmentStatus);
