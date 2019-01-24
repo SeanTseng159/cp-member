@@ -19,6 +19,7 @@ use Ksd\Mediation\Services\OrderService;
 use Ksd\Mediation\Magento\Order as MagentoOrder;
 use Ksd\Mediation\Helper\ObjectHelper;
 use Log;
+use LineNotify;
 
 class MagentoOrderATMCompleteMail implements ShouldQueue
 {
@@ -88,13 +89,17 @@ class MagentoOrderATMCompleteMail implements ShouldQueue
         $mailService->send("CityPass都會通 - 訂單繳費完成通知(訂單編號：{$orderNo}))", $recipient, 'emails/orderPaymentComplete', $data);
 
         // 20180601 通知出貨人員
-        if (env('APP_ENV') === 'production' || env('APP_ENV') === 'beta') {
+        /*if (env('APP_ENV') === 'production' || env('APP_ENV') === 'beta') {
             $customerService = [
                 'email' => env('CUSTOMER_SERVICE_MAIL', 'candy.tsai@touchcity.tw'),
                 'name' => '出貨人員'
             ];
 
             $mailService->send("CityPass都會通 - 準備出貨通知 - (訂單編號：{$orderNo}))", $customerService, 'emails/orderPaymentComplete', $data);
+        }*/
+
+        if (env('APP_ENV') === 'production') {
+            LineNotify::sendMessage(env('CUSTOMER_SERVICE_LINE_CHANNEL'), "訂單成立, 請通知店家準備出貨 - 訂單編號：{$orderNo}");
         }
     }
 }
