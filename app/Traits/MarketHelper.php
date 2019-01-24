@@ -7,6 +7,8 @@
 
 namespace App\Traits;
 
+use Carbon\Carbon;
+
 trait MarketHelper
 {
     /**
@@ -110,5 +112,14 @@ trait MarketHelper
         $newRule->lower = $conditions->min('condition');
 
         return $newRule;
+    }
+
+    /**
+     * 取最低優惠條件規則
+     * @param $data
+     */
+    public function checkOnSale($onSaleTime, $offSaleTime)
+    {
+        return Carbon::now()->between(Carbon::parse($onSaleTime), Carbon::parse($offSaleTime));
     }
 }

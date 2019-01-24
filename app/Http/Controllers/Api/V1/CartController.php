@@ -158,6 +158,13 @@ class CartController extends RestLaravelController
             if (!$params->marketId) return $this->failureCode('E9100');
             if (!$params->products || !is_array($params->products)) return $this->failureCode('E9030');
 
+            // 取賣場資訊
+            $promotion = $this->promotionService->find($params->marketId);
+            if (!$promotion) return $this->failureCode('E9100');
+
+            $isOnSale = $this->checkOnSale($promotion->onsale_time, $promotion->offsale_time);
+            if (!$isOnSale) return $this->failureCode('E9204');
+
             // 檢查所有商品狀態
             $checkStatusCode = '00000';
             $totalAmount = 0;
@@ -190,8 +197,6 @@ class CartController extends RestLaravelController
 
 
             // 檢查優惠是否符合
-            // 取賣場資訊
-            $promotion = $this->promotionService->find($params->marketId);
             $statusCode = $this->checkDiscountRule($promotion, $totalAmount, $totalQuantity);
             if ($statusCode !== '00000') return $this->failureCode($statusCode);
 
