@@ -461,23 +461,23 @@ class MemberController extends RestLaravelController
     {
         $inputs = $request->only('openId', 'openPlateform', 'name');
         $verifyInfo = $request->verifyInfo;
-        $member = $this->memberService->findByOpenId($inputs['openId'], $inputs['openPlateform']);
-        $platform = $request->header('platform');
         $isFirstLogin = false;
-        
-        if ( ! in_array($inputs['openPlateform'], ['facebook', 'google'])) {
-            return $this->failure('E0021','會員驗證失效');
-        }
         
         if (empty($inputs['openId'])) {
             return $this->failure('E0021','請至第3方設定允許提供email或改用其他方式登入本站');
         }
         
+        if ( ! $this->memberService->verifyThirdPartLoginToken($verifyInfo, $inputs)) {
+            return $this->failure('E0021','會員驗證失效');
+        }
+        
+        $member = $this->memberService->findByOpenId($inputs['openId'], $inputs['openPlateform']);
         if (empty($member)) {
             $data = [
                 'isValidEmail' => 1,
                 'status' => 1,
                 'isRegistered' => 1,
+                'gender' => 0,
             ];
             $inputs = array_merge($data, $inputs);
             $member = $this->memberService->create($inputs);
@@ -487,6 +487,7 @@ class MemberController extends RestLaravelController
             return $this->failure('E0021','會員驗證失效');
         }
 
+        $platform = $request->header('platform');
         $member = $this->memberService->generateToken($member, $platform);
         if (!$member) {
             return $this->failure('E0025','Token產生失敗');
@@ -497,8 +498,15 @@ class MemberController extends RestLaravelController
             'token' => $member->token,
             'name' => $member->name,
             'isFirstLogin' => $isFirstLogin,
-            'openPlateform' => $inputs['openPlateform'],
-            'email' => $inputs['openId'],
+            'openPlateform' => $member->openPlateform,
+            'email' => $member->openId,
+            'avatar' => $member->avatar,
+            'countryCode' => $member->countryCode,
+            'cellphone' => $member->cellphone,
+            'country' => $member->country,
+            'gender' => $member->gender,
+            'zipcode' => $member->zipcode,
+            'address' => $member->address,
         ]);
     }
 }
