@@ -51,7 +51,7 @@ class Payment
         }
 
         // 貨運參數
-        if ($data['shipment']['id'] === 2) {
+        if ($data['shipment']['id'] == 2) {
             $validatorParams['shipment.userName'] = 'required';
             $validatorParams['shipment.country'] = 'required';
             $validatorParams['shipment.countryCode'] = 'required';
@@ -61,7 +61,7 @@ class Payment
         }
 
         // 發票參數
-        if ($data['billing']['id'] === 2) {
+        if ($data['billing']['id'] == 2) {
             $validatorParams['billing.invoiceTitle'] = 'required';
             $validatorParams['billing.unifiedBusinessNo'] = 'required';
         }
@@ -73,7 +73,7 @@ class Payment
         }
 
         // 貨運參數，確認手機格式
-        if ($data['shipment']['id'] === 2) {
+        if ($data['shipment']['id'] == 2) {
             $phoneNumber = $this->VerifyPhoneNumber($data['shipment']['country'], $data['shipment']['countryCode'], $data['shipment']['cellphone']);
             if (!$phoneNumber) return $this->apiRespFailCode('E9018');
         }
