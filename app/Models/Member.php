@@ -16,4 +16,14 @@ class Member extends Model
 
     protected $guarded = ['id'];
     protected $dates = ['deleted_at'];
+
+    protected $appends = ['showPwd'];
+
+    /**
+     * 加入是否顯示修改密碼
+     */
+	public function getShowPwdAttribute()
+    {
+    	return ($this->openPlateform === 'citypass');
+    }
 }

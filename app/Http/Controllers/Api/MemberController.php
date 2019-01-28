@@ -216,10 +216,7 @@ class MemberController extends RestLaravelController
         $member = $this->memberService->find($id);
 
         if ($member) {
-            // 檢查是否是第三方登入
-            if ($member->openPlateform != 'citypass') $member->email = $member->openId;
             $member->newsletter = $this->newsletterService->findByEmail($member->email);
-
 
             // 加入uber
             $platform = $request->header('platform', 'web');
