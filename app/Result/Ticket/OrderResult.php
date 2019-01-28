@@ -209,7 +209,7 @@ class OrderResult extends BaseResult
             $payment->bankId = $this->arrayDefault($order, 'order_atm_bank_id');
             $payment->bankName = ($payment->bankId) ? trans('bank.name.' . OrderConfig::BANK_NAME[$payment->bankId]) : '';
             $payment->virtualAccount = $this->arrayDefault($order, 'order_atm_virtual_account');
-            $payment->paymentPeriod = Carbon::parse($order['created_at'])->subDay()->format('Y-m-d 23:30:00');
+            $payment->paymentPeriod = $this->arrayDefault($order, 'order_atm_due_time');
         }
 
         return $payment;
