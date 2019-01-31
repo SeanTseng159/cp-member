@@ -58,6 +58,22 @@ class DiningCar extends BaseModel
     }
 
     /**
+     * 取得封面圖
+     */
+    public function mainImg()
+    {
+        return $this->hasOne('App\Models\Ticket\DiningCarLogoImg');
+    }
+
+    /**
+     * 取得封面圖
+     */
+    public function imgs()
+    {
+        return $this->hasMany('App\Models\Ticket\DiningCarImg');
+    }
+
+    /**
      * 取得社群網址
      */
     public function socialUrls()

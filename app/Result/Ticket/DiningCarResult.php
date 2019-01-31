@@ -11,6 +11,8 @@ use App\Result\BaseResult;
 use Carbon\Carbon;
 use App\Config\Ticket\DiningCarConfig;
 use App\Traits\MapHelper;
+use App\Helpers\CommonHelper;
+use App\Helpers\ImageHelper;
 
 class DiningCarResult extends BaseResult
 {
@@ -68,7 +70,7 @@ class DiningCarResult extends BaseResult
         $result->id = $car->id;
         $result->name = $car->name;
         $result->description = $car->description;
-        $result->imgs = $this->getImgs();
+        $result->imgs = $this->getImgs($car->imgs);
         $result->categories = $this->getCategories($car->category, $car->subCategory);
         $result->isFavorite = $isFavorite;
         $result->openStatusCode = $car->open_status;
@@ -77,7 +79,7 @@ class DiningCarResult extends BaseResult
         $result->businessHoursDays = $this->getBusinessHoursDays($car->businessHoursDays);
         $result->businessHoursDates = $this->getBusinessHoursDates($car->businessHoursDates);
         $result->socialUrls = $this->getSocialUrls($car->socialUrls);
-        $result->shareUrl = 'https://dev.citypass.tw/zh-TW';
+        $result->shareUrl = CommonHelper::getWebHost('zh-TW/diningCar/detail/' . $car->id);
 
         return $result;
     }
@@ -93,7 +95,8 @@ class DiningCarResult extends BaseResult
         $result = new \stdClass;
         $result->id = $car->id;
         $result->name = $car->name;
-        $result->img = 'https://scontent-iad3-1.cdninstagram.com/vp/e3fb7eaf5c084e3b6e041be70850695f/5C483ACD/t51.2885-15/e35/s480x480/41440210_163360401250877_8689027503124651036_n.jpg';
+        $result->description = $car->description;
+        $result->img = $this->getImg($car->mainImg);
         $result->categories = $this->getCategories($car->category, $car->subCategory);
         $result->isFavorite = $this->getFavorite($car->id);
         $result->openStatusCode = $car->open_status;
@@ -132,16 +135,21 @@ class DiningCarResult extends BaseResult
     }
 
     /**
+     * 取封面照
+     * @param $data
+     */
+    private function getImg($img)
+    {
+        return ImageHelper::url($img);
+    }
+
+    /**
      * 取照片
      * @param $data
      */
-    private function getImgs()
+    private function getImgs($imgs)
     {
-        return [
-            'https://scontent-iad3-1.cdninstagram.com/vp/e3fb7eaf5c084e3b6e041be70850695f/5C483ACD/t51.2885-15/e35/s480x480/41440210_163360401250877_8689027503124651036_n.jpg',
-            'https://scontent-iad3-1.cdninstagram.com/vp/e3fb7eaf5c084e3b6e041be70850695f/5C483ACD/t51.2885-15/e35/s480x480/41440210_163360401250877_8689027503124651036_n.jpg',
-            'https://scontent-iad3-1.cdninstagram.com/vp/e3fb7eaf5c084e3b6e041be70850695f/5C483ACD/t51.2885-15/e35/s480x480/41440210_163360401250877_8689027503124651036_n.jpg'
-        ];
+        return ImageHelper::urls($imgs);
     }
 
     /**

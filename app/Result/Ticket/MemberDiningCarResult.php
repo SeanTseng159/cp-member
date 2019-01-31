@@ -9,6 +9,7 @@ namespace App\Result\Ticket;
 
 use App\Result\BaseResult;
 use App\Config\Ticket\DiningCarConfig;
+use App\Helpers\ImageHelper;
 
 class MemberDiningCarResult extends BaseResult
 {
@@ -64,7 +65,8 @@ class MemberDiningCarResult extends BaseResult
         $result = new \stdClass;
         $result->id = $car->id;
         $result->name = $car->name;
-        $result->img = 'https://scontent-iad3-1.cdninstagram.com/vp/e3fb7eaf5c084e3b6e041be70850695f/5C483ACD/t51.2885-15/e35/s480x480/41440210_163360401250877_8689027503124651036_n.jpg';
+        $result->description = $car->description;
+        $result->img = ImageHelper::url($car->mainImg);
         $result->categories = $this->getCategories($car->category, $car->subCategory);
 
         return $result;
