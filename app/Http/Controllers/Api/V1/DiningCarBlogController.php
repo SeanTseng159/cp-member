@@ -12,7 +12,7 @@ use Ksd\Mediation\Core\Controller\RestLaravelController;
 use Exception;
 
 use App\Parameter\Ticket\DiningCarBlogParameter;
-use App\Services\Ticket\NewsFeedService;
+use App\Services\Ticket\NewsfeedService;
 use App\Result\Ticket\DiningCarBlogResult;
 
 class DiningCarBlogController extends RestLaravelController
@@ -20,7 +20,7 @@ class DiningCarBlogController extends RestLaravelController
     protected $lang = 'zh-TW';
     protected $service;
 
-    public function __construct(NewsFeedService $service)
+    public function __construct(NewsfeedService $service)
     {
         $this->service = $service;
     }
