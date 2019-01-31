@@ -47,6 +47,10 @@ class DiningCarParameter extends BaseParameter
         $maxLongitude = (float) $this->request->input('maxLongitude', 180);
         $params['range'] = $this->calcMapRange($minLatitude, $maxLatitude, $minLongitude, $maxLongitude);
 
+        $params['keyword'] = $this->request->input('keyword');
+        $params['category'] = $this->request->input('category');
+        $params['openStatus'] = $this->request->input('openStatus');
+
         return $params;
     }
 

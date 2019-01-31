@@ -60,6 +60,17 @@ class DiningCarRepository extends BaseRepository
     {
         return $this->model->with(['category', 'subCategory', 'mainImg'])
                             ->where('status', 1)
+                            ->when($params['keyword'], function($query) use ($params) {
+                                $query->where('name', 'like', '%' . $params['keyword'] . '%');
+                            })
+                            ->when($params['category'], function($query) use ($params) {
+                                $query->where('dining_car_category_id', $params['category']);
+                            })
+                            ->where(function($query) use ($params) {
+                                if (in_array($params['openStatus'], ['0', '1', '2'])) {
+                                    $query->where('open_status', $params['openStatus']);
+                                }
+                            })
                             ->withinLocation($params['range']['longitude'], $params['range']['latitude'])
                             ->get();
     }
