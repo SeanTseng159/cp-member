@@ -30,13 +30,15 @@ class MemberUpdateData
      * @param  \Closure  $next
      * @return mixed
      */
-
     public function handle($request, Closure $next)
     {
         $id = $request->id;
         $member = $this->memberService->find($id);
 
         if (!$member) return $this->apiRespFailCode('E0061');
+
+        $email = $request->input('email');
+        if ($email && !$this->verifyEmail($email)) return $this->apiRespFailCode('A0036');
 
         $isTw = $request->input('isTw');
         $socialId = $request->input('socialId');
