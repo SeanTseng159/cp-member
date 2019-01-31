@@ -32,7 +32,7 @@ class DiningCarRepository extends BaseRepository
             return $currentPage;
         });
 
-        return $this->model->with(['category', 'subCategory'])
+        return $this->model->with(['category', 'subCategory', 'mainImg'])
                             ->where('status', 1)
                             ->when($params['keyword'], function($query) use ($params) {
                                 $query->where('name', 'like', '%' . $params['keyword'] . '%');
@@ -58,7 +58,7 @@ class DiningCarRepository extends BaseRepository
      */
     public function map($params = [])
     {
-        return $this->model->with(['category', 'subCategory'])
+        return $this->model->with(['category', 'subCategory', 'mainImg'])
                             ->where('status', 1)
                             ->withinLocation($params['range']['longitude'], $params['range']['latitude'])
                             ->get();
@@ -74,6 +74,7 @@ class DiningCarRepository extends BaseRepository
         return $this->model->with([
                                 'category',
                                 'subCategory',
+                                'imgs',
                                 'socialUrls',
                                 'businessHoursDays.times',
                                 'businessHoursDates'

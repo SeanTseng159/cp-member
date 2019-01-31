@@ -9,6 +9,7 @@ namespace App\Result\Ticket;
 
 use App\Result\BaseResult;
 use Carbon\Carbon;
+use App\Helpers\ImageHelper;
 
 class DiningCarMenuResult extends BaseResult
 {
@@ -19,73 +20,75 @@ class DiningCarMenuResult extends BaseResult
 
     /**
      * 取菜單列表
-     * @param $data
+     * @param $menus
      */
-    public function list()
+    public function list($menuCategories)
     {
-        /*if (!$cars) return [];
+        if ($menuCategories->isEmpty()) return [];
 
-        $newBlogs = [];
-        foreach ($cars as $car) {
-            $newBlog = $this->getCar($car);
-            if ($newBlogs) $newBlogs[] = $newBlog;
-        }*/
-
-        for ($i=1; $i < 5; $i++) {
-            $newMenus[] = $this->getMenu($i);
-        }
-
-        return $newMenus;
-    }
-
-    /**
-     * 菜單資訊
-     * @param $blog
-     */
-    private function getMenu($i, $isDetail = false)
-    {
-        $result = new \stdClass;
-        $result->categoryName = '主餐';
-        $result->items = $this->getItems();
-
-        return $result;
-    }
-
-    /**
-     * 取菜單列表
-     * @param $data
-     */
-    private function getItems()
-    {
-        for ($i=1; $i < 3; $i++) {
-            $newItems[] = $this->getItem($i);
+        $newItems = [];
+        foreach ($menuCategories as $category) {
+            $newCategory = $this->getMenuCategories($category);
+            if ($newCategory) $newItems[] = $newCategory;
         }
 
         return $newItems;
     }
 
     /**
+     * 菜單資訊
+     * @param $category
+     */
+    private function getMenuCategories($category)
+    {
+        $menus = $this->getMenus($category->menus);
+
+        if (!$menus) return [];
+
+        $result = new \stdClass;
+        $result->categoryName = $category->name;
+        $result->menus = $menus;
+
+        return $result;
+    }
+
+    /**
+     * 取菜單列表
+     * @param $menus
+     */
+    private function getMenus($menus)
+    {
+        if ($menus->isEmpty()) return [];
+
+        $newMenus = [];
+        foreach ($menus as $menu) {
+            $newMenu = $this->getMenu($menu);
+            if ($newMenu) $newMenus[] = $newMenu;
+        }
+
+        return $newMenus;
+    }
+
+    /**
      * 取菜單列表
      * @param $data
      */
-    public function getItem($i, $isDetail = false)
+    public function getMenu($menu, $isDetail = false)
     {
+        if (!$menu) return null;
+
         $result = new \stdClass;
-        $result->id = $i;
-        $result->name = '黯然銷魂飯';
-        $result->price = 140;
+        $result->id = $menu->id;
+        $result->name = $menu->name;
+        $result->price = $menu->price;
 
         if ($isDetail) {
-            $result->categoryName = '主餐';
-            $result->imgs = [
-                'https://s.yimg.com/ny/api/res/1.2/7Rd_dCdx5PA7HrPfsw3ICA--~A/YXBwaWQ9aGlnaGxhbmRlcjtzbT0xO3c9NjAwO2g9NDUwO2lsPXBsYW5l/http://media.zenfs.com/en_us/News/skypost/12ED005__20180918_L.jpg',
-                'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTFQT7cowu9fNTDdII3MmeNg8-QuFrgmnohHI6LZDhPvYMBflRt',
-                'https://d3h1lg3ksw6i6b.cloudfront.net/media/image/2019/01/01/a058f8cc9dcc4f29ab0b8e7b4db02baf_45906113_496386950872933_2808875978422484992_o.jpg'
-            ];
-            $result->content = '【蜜汁叉燒煎蛋飯】本店人氣餐點，香軟叉燒搭配溏心太陽蛋 淋上特製醬汁…香軟白飯裏著蛋汁，再配上鬆軟叉燒肉。';
+            $result->categoryName = $menu->category->name;
+            $result->imgs = ImageHelper::urls($menu->imgs);
+            $result->content = $menu->content;
         }
         else {
-            $result->img = 'https://s.yimg.com/ny/api/res/1.2/7Rd_dCdx5PA7HrPfsw3ICA--~A/YXBwaWQ9aGlnaGxhbmRlcjtzbT0xO3c9NjAwO2g9NDUwO2lsPXBsYW5l/http://media.zenfs.com/en_us/News/skypost/12ED005__20180918_L.jpg';
+            $result->img = ImageHelper::url($menu->mainImg);
         }
 
         return $result;

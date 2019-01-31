@@ -11,6 +11,8 @@ use Illuminate\Http\Request;
 use Ksd\Mediation\Core\Controller\RestLaravelController;
 use Exception;
 
+use App\Parameter\Ticket\DiningCarBlogParameter;
+use App\Services\Ticket\NewsFeedService;
 use App\Result\Ticket\DiningCarBlogResult;
 
 class DiningCarBlogController extends RestLaravelController
@@ -18,9 +20,9 @@ class DiningCarBlogController extends RestLaravelController
     protected $lang = 'zh-TW';
     protected $service;
 
-    public function __construct()
+    public function __construct(NewsFeedService $service)
     {
-
+        $this->service = $service;
     }
 
     /**
@@ -28,12 +30,17 @@ class DiningCarBlogController extends RestLaravelController
      * @param Request $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function list(Request $request)
+    public function list(Request $request, $diningCarId = 0)
     {
         try {
-            $result['total'] = 4;
-            $result['page'] = 1;
-            $result['blogs'] = (new DiningCarBlogResult)->list();
+            $params = (new DiningCarBlogParameter($request))->list();
+            $params['diningCarId'] = $diningCarId;
+
+            $data = $this->service->list($params);
+
+            $result['page'] = (int) $params['page'];
+            $result['total'] = $data->total();
+            $result['blogs'] = (new DiningCarBlogResult)->list($data);
 
             return $this->success($result);
         } catch (Exception $e) {
@@ -46,10 +53,11 @@ class DiningCarBlogController extends RestLaravelController
      * @param Request $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function detail(Request $request)
+    public function detail(Request $request, $id = 0)
     {
         try {
-            $result = (new DiningCarBlogResult)->getBlog(1, true);
+            $data = $this->service->find($id);
+            $result = (new DiningCarBlogResult)->getNewsFeed($data, true);
 
             return $this->success($result);
         } catch (Exception $e) {

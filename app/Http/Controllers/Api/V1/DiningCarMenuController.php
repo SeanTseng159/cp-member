@@ -11,16 +11,20 @@ use Illuminate\Http\Request;
 use Ksd\Mediation\Core\Controller\RestLaravelController;
 use Exception;
 
+use App\Services\Ticket\MenuService;
+use App\Services\Ticket\MenuCategoryService;
 use App\Result\Ticket\DiningCarMenuResult;
 
 class DiningCarMenuController extends RestLaravelController
 {
     protected $lang = 'zh-TW';
     protected $service;
+    protected $menuCategoryService;
 
-    public function __construct()
+    public function __construct(MenuService $service, MenuCategoryService $menuCategoryService)
     {
-
+        $this->service = $service;
+        $this->menuCategoryService = $menuCategoryService;
     }
 
     /**
@@ -28,10 +32,13 @@ class DiningCarMenuController extends RestLaravelController
      * @param Request $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function list(Request $request)
+    public function list(Request $request, $diningCarId = 0)
     {
         try {
-            $result = (new DiningCarMenuResult)->list();
+            $params['diningCarId'] = $diningCarId;
+
+            $data = $this->menuCategoryService->list($params);
+            $result = (new DiningCarMenuResult)->list($data);
 
             return $this->success($result);
         } catch (Exception $e) {
@@ -44,10 +51,11 @@ class DiningCarMenuController extends RestLaravelController
      * @param Request $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function detail(Request $request)
+    public function detail(Request $request, $id = 0)
     {
         try {
-            $result = (new DiningCarMenuResult)->getItem(1, true);
+            $menu = $this->service->find($id);
+            $result = (new DiningCarMenuResult)->getMenu($menu, true);
 
             return $this->success($result);
         } catch (Exception $e) {

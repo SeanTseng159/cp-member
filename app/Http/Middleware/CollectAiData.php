@@ -23,7 +23,7 @@ class CollectAiData
     {
         $token = $request->bearerToken();
         $tokenData = (new JWTTokenService())->checkToken($token);
-        
+
         if ( ! App::environment('production')) return $next($request);
         $data = [
                     'act' => 'view',

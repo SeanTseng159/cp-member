@@ -98,13 +98,13 @@ Route::middleware('cors')->namespace('V1')->group(function () {
         Route::get('detail/{id}', 'DiningCarController@detail');
 
         // 餐車動態消息
-        Route::get('blogs', 'DiningCarBlogController@list');
+        Route::get('/{diningCarId}/blogs', 'DiningCarBlogController@list');
 
         // 餐車動態消息詳細
         Route::get('blog/{id}', 'DiningCarBlogController@detail');
 
         // 餐車菜單
-        Route::get('menus', 'DiningCarMenuController@list');
+        Route::get('/{diningCarId}/menus', 'DiningCarMenuController@list');
 
         // 餐車菜單詳細
         Route::get('menu/{id}', 'DiningCarMenuController@detail');

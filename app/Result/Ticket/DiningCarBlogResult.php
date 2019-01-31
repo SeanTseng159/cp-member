@@ -9,9 +9,13 @@ namespace App\Result\Ticket;
 
 use App\Result\BaseResult;
 use Carbon\Carbon;
+use App\Traits\StringHelper;
+use App\Helpers\ImageHelper;
 
 class DiningCarBlogResult extends BaseResult
 {
+    use StringHelper;
+
     public function __construct()
     {
         parent::__construct();
@@ -21,18 +25,13 @@ class DiningCarBlogResult extends BaseResult
      * 取動態消息列表
      * @param $data
      */
-    public function list()
+    public function list($newsfeeds)
     {
-        /*if (!$cars) return [];
+        if ($newsfeeds->isEmpty()) return [];
 
         $newBlogs = [];
-        foreach ($cars as $car) {
-            $newBlog = $this->getCar($car);
-            if ($newBlogs) $newBlogs[] = $newBlog;
-        }*/
-
-        for ($i=1; $i < 5; $i++) {
-            $newBlogs[] = $this->getBlog($i);
+        foreach ($newsfeeds as $newsfeed) {
+            $newBlogs[] = $this->getNewsFeed($newsfeed);
         }
 
         return $newBlogs;
@@ -40,21 +39,23 @@ class DiningCarBlogResult extends BaseResult
 
     /**
      * 動態消息資訊
-     * @param $blog
+     * @param $newsfeed
      */
-    public function getBlog($i, $isDetail = false)
+    public function getNewsFeed($newsfeed, $isDetail = false)
     {
+        if (!$newsfeed) return null;
+
         $result = new \stdClass;
-        $result->id = $i;
-        $result->title = '活動標題活動標題';
-        $result->date = '2018/05/31';
-        $result->img = 'https://weibyapps.files.wordpress.com/2017/05/635.jpg?w=1000';
+        $result->id = $newsfeed->id;
+        $result->title = $newsfeed->title;
+        $result->date = $newsfeed->release_time;
+        $result->img = ImageHelper::url($newsfeed->img);
 
         if ($isDetail) {
-            $result->content = '活動標題活動標題活動標題活動標題活動標題活動標題活動標題活動標題活動標題活動標題活動標題活動標題活動標題活動標題  <br> 活動標題活動標題活動標題活動標題活動標題活動標題活動標題活動標題活動標題活動標題活動標題活動標題活動標題活動標題 <br><br><br> 活動標題活動標題活動標題活動標題活動標題活動標題活動標題活動標題活動標題活動標題活動標題活動標題活動標題活動標題';
+            $result->content = $newsfeed->content;
         }
         else {
-            $result->content = '活動標題活動標題活動標題活動標題活動標題活動標題活動標題活動標題活動標題活動標題活動標題活動標題活動標題活動標題';
+            $result->content = $this->outputStringLength($newsfeed->content, 15);
         }
 
         return $result;
