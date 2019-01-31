@@ -43,7 +43,7 @@ class KeywordRepository extends BaseRepository
 
             foreach ($row->keywordProducts as $product) {
                 if ($product->source === 1) {
-                    $prod = $this->productRepository->mainProductFind($product->prod_id, true);
+                    $prod = $this->productRepository->mainProductFind($product->prod_id, true, true);
                 }
                 elseif ($product->source === 2) {
                     $prod = $this->MagentoProductRepository->find($product->prod_id);

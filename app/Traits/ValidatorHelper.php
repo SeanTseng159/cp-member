@@ -116,4 +116,16 @@ trait ValidatorHelper
 
         return ($result1 && $result2 && $result3);
     }
+
+    /**
+     * 驗證Email
+     * @param string $mail
+     * @return boolean
+     */
+    public function verifyEmail($email)
+    {
+        if (!$email) return false;
+
+        return filter_var($email, FILTER_VALIDATE_EMAIL);
+    }
 }

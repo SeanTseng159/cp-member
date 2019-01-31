@@ -263,7 +263,7 @@ class ProductRepository extends BaseRepository
      * @param $id
      * @return mixed
      */
-    public function mainProductFind($id, $onShelf = false)
+    public function mainProductFind($id, $onShelf = false, $onSearch = false)
     {
         $prod = $this->model->with(['specs.specPrices', 'imgs' => function($query) {
                                 return $query->orderBy('img_sort')->first();
@@ -271,6 +271,9 @@ class ProductRepository extends BaseRepository
                             ->notDeleted()
                             ->when($onShelf, function($query) {
                                 $query->where('prod_onshelf', 1);
+                            })
+                            ->when($onSearch, function($query) {
+                                $query->where('on_search', 1);
                             })
                             ->whereIn('prod_type', [1, 2])
                             ->where('prod_onshelf_time', '<=', $this->date)
@@ -312,6 +315,7 @@ class ProductRepository extends BaseRepository
                                 return $query->orderBy('img_sort')->first();
                             }])
                             ->notDeleted()
+                            ->where('on_search', 1)
                             ->where('prod_onshelf', 1)
                             ->whereIn('prod_type', [1, 2])
                             ->where('prod_name', 'like', '%' . $keyword . '%')

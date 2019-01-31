@@ -34,7 +34,7 @@ class MarketController extends RestLaravelController
     }
 
     /**
-     * 取常見問題
+     * 取行銷賣場
      * @param Request $request
      * @param $id
      * @return \Illuminate\Http\JsonResponse
@@ -42,14 +42,11 @@ class MarketController extends RestLaravelController
     public function find(Request $request, $id)
     {
         try {
-            /*$key = sprintf(ActivityKey::MARKET_KEY, $id);
-            $result = $this->redis->remember($key, CacheConfig::ONE_MONTH, function () use ($id) {
+            $key = sprintf(ActivityKey::MARKET_KEY, $id);
+            $result = $this->redis->remember($key, CacheConfig::ONE_HOUR, function () use ($id) {
                 $market = $this->service->find($id);
                 return (new MarketResult)->get($market);
-            });*/
-
-            $market = $this->service->find($id);
-            $result = (new MarketResult)->get($market);
+            });
 
             return $this->success($result);
         } catch (Exception $e) {
