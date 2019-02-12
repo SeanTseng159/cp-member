@@ -47,6 +47,7 @@ class DiningCarBlogResult extends BaseResult
 
         $result = new \stdClass;
         $result->id = $newsfeed->id;
+        $result->diningCarId = $newsfeed->dining_car_id;
         $result->title = $newsfeed->title;
         $result->date = $newsfeed->release_time;
         $result->img = ImageHelper::url($newsfeed->img);
