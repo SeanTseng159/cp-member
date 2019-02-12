@@ -21,14 +21,15 @@ Class ImageHelper
         if (!$img) return '';
 
         $filePath = '';
+
         if (Agent::isMobile()) {
-            $filePath = $img->folder . $img->filename . $img->ext;
+            $filePath = SELF::getFitImage($img, 'm');
         }
         elseif (Agent::isTablet()) {
-            $filePath = $img->folder . $img->filename . $img->ext;
+            $filePath = SELF::getFitImage($img, 'm');
         }
         else {
-            $filePath = $img->folder . $img->filename . $img->ext;
+            $filePath = SELF::getFitImage($img, 'b');
         }
 
         return CommonHelper::getBackendHost($filePath);
@@ -48,5 +49,19 @@ Class ImageHelper
         }
 
         return $urls;
+    }
+
+    private static function getFitImage($img, $size = 'b')
+    {
+        $info = json_decode($img->compressed_info);
+
+        if ($img->compressed_info && isset($info->compressed_sizes->{$size})) {
+            $filePath = (env('USE_CDN_IMAGE')) ? $filePath = $info->image_hosting_urls->{$size} : sprintf('%s%s_%s.%s', $img->folder, $img->filename, $size, $img->ext);
+        }
+        else {
+            $filePath = sprintf('%s%s.%s', $img->folder, $img->filename, $img->ext);
+        }
+
+        return $filePath;
     }
 }

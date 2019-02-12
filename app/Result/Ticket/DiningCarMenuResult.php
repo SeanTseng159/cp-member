@@ -79,6 +79,7 @@ class DiningCarMenuResult extends BaseResult
 
         $result = new \stdClass;
         $result->id = $menu->id;
+        $result->diningCarId = $menu->dining_car_id;
         $result->name = $menu->name;
         $result->price = $menu->price;
 
