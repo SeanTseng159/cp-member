@@ -35,13 +35,22 @@ class SendValidPhoneCode
     {
         $data = $request->all();
 
-        $validator = Validator::make($data, [
-            'id' => 'required',
-            'countryCode' => 'required|max:6',
-            'cellphone' => 'required|alpha_num|max:12',
-            'country' => 'required'
-        ]);
+        $validatorParams['id'] = 'required';
 
+        $member = $this->memberService->find($data['id']);
+        if ($member && $member->country && $member->countryCode && $member->cellphone) {
+            $data['country'] = $member->country;
+            $data['countryCode'] = $member->countryCode;
+            $data['cellphone'] = $member->cellphone;
+        }
+        else {
+            $validatorParams['countryCode'] = 'required|max:6';
+            $validatorParams['cellphone'] = 'required|alpha_num|max:12';
+            $validatorParams['country'] = 'required';
+        }
+
+
+        $validator = Validator::make($data, $validatorParams);
         if ($validator->fails()) {
             return $this->apiRespFailCode('E0001');
         }
