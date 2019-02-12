@@ -331,7 +331,7 @@ class MemberController extends RestLaravelController
         }
 
         //傳送簡訊認證
-        //$this->memberService->sendRegisterSMS($member);
+        $this->memberService->sendRegisterSMS($member);
         return ($member) ? $this->success(['id' => $member->id, 'validPhoneCode' => $member->validPhoneCode]) : $this->failureCode('E0052');
     }
 
@@ -456,21 +456,21 @@ class MemberController extends RestLaravelController
             'openPlateform' => $member->openPlateform
         ]);
     }
-    
+
     public function thirdPartyLogin(Request $request)
     {
         $inputs = $request->only('openId', 'openPlateform', 'name');
         $verifyInfo = $request->verifyInfo;
         $isFirstLogin = false;
-        
+
         if (empty($inputs['openId'])) {
             return $this->failure('E0021','請至第3方設定允許提供email或改用其他方式登入本站');
         }
-        
+
         if ( ! $this->memberService->verifyThirdPartLoginToken($verifyInfo, $inputs)) {
             return $this->failure('E0021','會員驗證失效');
         }
-        
+
         $member = $this->memberService->findByOpenId($inputs['openId'], $inputs['openPlateform']);
         if (empty($member)) {
             $data = [
@@ -492,7 +492,7 @@ class MemberController extends RestLaravelController
         if (!$member) {
             return $this->failure('E0025','Token產生失敗');
         }
-        
+
         return $this->success([
             'id' => $member->id,
             'token' => $member->token,
