@@ -21,4 +21,12 @@ class Keyword extends BaseModel
     {
         return $this->hasMany('App\Models\Ticket\ProductKeyword', 'keyword_id', 'keyword_id');
 	}
+
+	/**
+     * 依關鍵字取得所有餐車
+     */
+  	public function diningCars()
+    {
+        return $this->hasMany('App\Models\Ticket\DiningCarKeyword', 'keyword_id', 'keyword_id');
+	}
 }

@@ -173,6 +173,7 @@ return [
          Ksd\IPassPay\Providers\IPassPayServiceProvider::class,
          Ksd\Payment\Providers\PaymentServiceProvider::class,
          Royalmar\LineNotify\Providers\LineNotifyServiceProvider::class,
+         Jenssegers\Agent\AgentServiceProvider::class,
         /*
          * Application Service Providers...
          */
@@ -231,7 +232,7 @@ return [
         'Validator' => Illuminate\Support\Facades\Validator::class,
         'View' => Illuminate\Support\Facades\View::class,
         'LineNotify' => Royalmar\LineNotify\Facades\LineNotify::class,
-
+        'Agent' => Jenssegers\Agent\Facades\Agent::class,
     ],
 
 ];

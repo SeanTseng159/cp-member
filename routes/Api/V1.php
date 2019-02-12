@@ -72,6 +72,44 @@ Route::middleware('cors')->namespace('V1')->group(function () {
         Route::get('search', 'ProductController@search')->middleware('verify.product.search');
     });
 
+    Route::prefix('service')->group(function () {
+        // 常見問題
+        Route::get('qa', 'ServiceController@qa');
+    });
+
+    // 縣市列表
+    Route::get('counties', 'AddressController@counties');
+
+    // 餐車相關
+    Route::prefix('diningCar')->group(function () {
+        // 店家類型列表
+        Route::get('categories/main', 'DiningCarController@mainCategories');
+
+        // 取營業狀態列表
+        Route::get('openStatus/list', 'DiningCarController@openStatusList');
+
+        // 餐車列表
+        Route::get('list', 'DiningCarController@list');
+
+        // 餐車地圖
+        Route::get('map', 'DiningCarController@map')->middleware('verify.diningCar.map');
+
+        // 餐車詳細
+        Route::get('detail/{id}', 'DiningCarController@detail');
+
+        // 餐車動態消息
+        Route::get('/{diningCarId}/blogs', 'DiningCarBlogController@list');
+
+        // 餐車動態消息詳細
+        Route::get('blog/{id}', 'DiningCarBlogController@detail');
+
+        // 餐車菜單
+        Route::get('/{diningCarId}/menus', 'DiningCarMenuController@list');
+
+        // 餐車菜單詳細
+        Route::get('menu/{id}', 'DiningCarMenuController@detail');
+    });
+
     // linepay相關
     Route::prefix('linepay')->group(function () {
         Route::post('confirm/callback', 'LinePayController@confirmCallback');
@@ -144,5 +182,20 @@ Route::middleware(['cors', 'auth.jwt'])->namespace('V1')->group(function () {
     Route::prefix('ticket')->group(function () {
         // 票券列表
         Route::get('list/{status}', 'TicketController@all');
+    });
+
+    // 餐車相關
+    Route::prefix('diningCar')->group(function () {
+        // 餐車加入收藏
+        Route::post('{id}/favorite/add', 'MemberDiningCarController@add');
+
+        // 餐車移除收藏
+        Route::post('{id}/favorite/remove', 'MemberDiningCarController@remove');
+
+        // 餐車收藏列表
+        Route::get('favorites', 'MemberDiningCarController@favorites');
+
+        // 餐車收藏分類
+        Route::get('favorite/categories', 'MemberDiningCarController@categories');
     });
 });

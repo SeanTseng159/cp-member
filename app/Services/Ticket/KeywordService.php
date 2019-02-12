@@ -23,8 +23,17 @@ class KeywordService extends BaseService
      * 依 關鍵字 找商品
      * @return mixed
      */
-    public function getProductsByKeyword($keyword)
+    public function getProductsByKeyword($keyword = '')
     {
         return $this->keywordRepository->getProductsByKeyword($keyword);
+    }
+
+    /**
+     * 依 關鍵字 找餐車
+     * @return mixed
+     */
+    public function getDiningCarsByKeyword($keyword = '')
+    {
+        return $this->keywordRepository->getDiningCarsByKeyword($keyword);
     }
 }

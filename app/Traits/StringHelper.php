@@ -75,4 +75,14 @@ trait StringHelper
 
         return $address;
     }
+
+    /**
+     * 姓名隱碼處理
+     * @param id $id
+     * @return boolean
+     */
+    public function outputStringLength($str = '', $length = 50)
+    {
+        return mb_substr(strip_tags($str), 0, 50);
+    }
 }
