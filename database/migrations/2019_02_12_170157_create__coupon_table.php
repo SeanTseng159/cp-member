@@ -25,7 +25,7 @@ class CreateCouponTable extends Migration
             $table->integer('limit_qty')->unsigned()->comment('使用限制');
             $table->string('content',30)->comment('優惠卷內容');
             $table->string('desc',500)->comment('使用方法說明內文');
-            $table->boolean('status')->comment('狀態');
+            $table->boolean('status')->comment('狀態')->default(false);
             $table->integer('editor')->unsigned()->comment('編輯者');
             $table->string('model_name')->comment('使用namespace全名');
             $table->enum('model_type', ['dining_car'])->comment('使用的地方，ex.餐車');

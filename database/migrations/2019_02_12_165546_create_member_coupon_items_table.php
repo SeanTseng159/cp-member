@@ -14,12 +14,13 @@ class CreateMemberCouponItemsTable extends Migration
     public function up()
     {
         Schema::connection('backend')->create('member_coupon_items', function (Blueprint $table) {
-            $table->integer('member_user_id')->unsigned();
-            
-            $table->boolean('status')->comment('使用狀態');
-            $table->dateTime('used_time')->nullable()->comment('使用/核銷時間');
+            $table->increments('id');
+            $table->integer('member_coupon_id')->unsigned();
+            $table->integer('number')->unsigned()->comment('流水號');
+            $table->boolean('status')->comment('使用狀態')->default(false);
+            $table->dateTime('used_time')->nullable()->comment('使用/核銷時間')->default(null);
     
-            $table->foreign('member_user_id')->references('id')->on('member_coupon');
+            $table->foreign('member_coupon_id')->references('id')->on('member_coupon');
             $table->timestamps();
         });
     }

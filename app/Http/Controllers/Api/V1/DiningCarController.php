@@ -121,4 +121,9 @@ class DiningCarController extends RestLaravelController
             return $this->failureCode('E0007');
         }
     }
+    
+    public function couponList()
+    {
+        
+    }
 }
