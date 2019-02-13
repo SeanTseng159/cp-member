@@ -17,7 +17,9 @@ class CreateMemberCouponTable extends Migration
             $table->increments('id');
             $table->integer('member_id')->unsigned()->comment('使用者id');
             $table->integer('coupon_id')->unsigned()->comment('優惠卷id');
-            $table->boolean('status')->comment('領取狀態')->default(false);;
+            $table->boolean('is_collected')->comment('是否收藏')->default(false);
+            $table->tinyInteger('count')->unsigned()->comment('已使用張數');
+            
             
             $table->index('member_id');
             
