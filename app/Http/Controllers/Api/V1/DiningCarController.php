@@ -122,8 +122,4 @@ class DiningCarController extends RestLaravelController
         }
     }
     
-    public function couponList()
-    {
-        
-    }
 }
