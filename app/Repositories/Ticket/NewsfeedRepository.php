@@ -52,7 +52,7 @@ class NewsfeedRepository extends BaseRepository
      */
     public function find($id = 0)
     {
-        return $this->model->with(['imgs'])
+        return $this->model->with(['mainImg'])
                             ->find($id);
     }
 }

@@ -50,13 +50,12 @@ class DiningCarBlogResult extends BaseResult
         $result->diningCarId = $newsfeed->dining_car_id;
         $result->title = $newsfeed->title;
         $result->date = $newsfeed->release_time;
+        $result->img = ImageHelper::url($newsfeed->mainImg);
 
         if ($isDetail) {
-            $result->imgs = ImageHelper::urls($newsfeed->imgs);
             $result->content = $newsfeed->content;
         }
         else {
-            $result->img = ImageHelper::url($newsfeed->mainImg);
             $result->content = $this->outputStringLength($newsfeed->content, 15);
         }
 
