@@ -20,7 +20,7 @@ class Newsfeed extends BaseModel
     }
 
     /**
-     * 取得封面圖
+     * 取得所有圖片
      */
     public function imgs()
     {
