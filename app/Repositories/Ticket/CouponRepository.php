@@ -32,6 +32,8 @@ class CouponRepository extends BaseRepository
      */
     public function list($params)
     {
+    
+        
         $modelSpecID = $params->modelSpecId;
         $modelType = $params->modelType;
     
@@ -42,11 +44,14 @@ class CouponRepository extends BaseRepository
         //todo select 動態欄位的方式
         switch ($modelType)
         {
-            case 'dining_car':
+            case 'diningCar':
                 $clientItemTable = 'dining_cars';
                 $clientItemColumns =['dining_cars.id','dining_cars.name'];
+                $modelType = 'dining_car';
                 break;
         }
+        
+        
     
         //取得該餐車所有的優惠卷
         $result = $this->model
@@ -59,7 +64,7 @@ class CouponRepository extends BaseRepository
                 DB::raw('coupons.content as couponContent'),
                 DB::raw('coupons.desc AS couponDesc'),
                 DB::raw('coupons.qty as CouponQty'),
-                DB::raw("CONCAT(DATE_FORMAT(NOW(), '%Y-%m-%e'),' ~ ',DATE_FORMAT(NOW(), '%Y-%m-%e')) AS duration"),
+                DB::raw("CONCAT(DATE_FORMAT(start_at, '%Y-%m-%e'),' ~ ',DATE_FORMAT(expire_at, '%Y-%m-%e')) AS duration"),
                 DB::raw('coupons.limit_qty as couponLimitQty'),
                 DB::raw('SUM(member_coupon.count) AS totalUsedCount')
             )
@@ -70,7 +75,7 @@ class CouponRepository extends BaseRepository
             ->where('coupons.status', true)
             ->groupBy('coupons.id')
             ->get();
-    
+        
         return $result;
     }
     

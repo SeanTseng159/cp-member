@@ -43,11 +43,13 @@ class CouponController extends RestLaravelController
             
             $params = new CouponParameter($request);
             
+            
             //coupon列表
             $coupons = $this->couponService->list($params);
             
             //使用者的coupon列表
-            $userCoupons = $this->memberCouponService->list($params);
+            $userCoupons = $this->memberCouponService->list($params->memberId,$couponId = null);
+            
             
             $result = (new CouponResult())->list($coupons,$userCoupons);
             
@@ -71,7 +73,7 @@ class CouponController extends RestLaravelController
      * 根據id取得優惠卷明細
      *
      * @param Request $request
-     * @param         $id
+     * @param         $id       優惠卷id
      *
      * @return \Illuminate\Http\JsonResponse
      */
@@ -82,20 +84,15 @@ class CouponController extends RestLaravelController
            
             //coupon詳細資料
             $couponDetail = $this->couponService->find($id);
-//            dd($couponDetail);
             
             $params = new CouponParameter($request);
-    
             //使用者的coupon資訊
-            $userCoupons = $this->memberCouponService->list($params,$id)->first();
+            $userCoupons = $this->memberCouponService->list($params->memberId,$id)->first();
             
             //圖片資訊
             $images = (new ImageHelper($this->imageService))->getImageUrl($couponDetail->model_type,$couponDetail->model_spec_id,1);
             
-            
             $result = (new CouponResult())->detail($couponDetail,$userCoupons,$images);
-            
-            
         
             return $this->success($result);
         

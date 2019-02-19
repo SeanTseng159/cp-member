@@ -217,14 +217,11 @@ Route::middleware(['cors', 'auth.jwt'])->namespace('V1')->group(function () {
     
     //coupon 優惠卷相關
     Route::prefix('coupon')->group(function () {
-        
-        
-        
         // coupon加入收藏
-        Route::post('{id}/favorite/add', 'MemberCouponController@addFavorite');
+        Route::post('{couponId}/favorite/add', 'MemberCouponController@addFavorite');
         
         // coupon移除收藏
-        Route::post('{id}/favorite/remove', 'MemberCouponController@removeFavorite');
+        Route::post('{couponId}/favorite/remove', 'MemberCouponController@removeFavorite');
         
         // coupon 收藏列表
         Route::get('favorite/list', 'MemberCouponController@list');

@@ -8,10 +8,9 @@
 namespace App\Repositories\Ticket;
 
 use App\Repositories\BaseRepository;
-use Illuminate\Pagination\Paginator;
-use App\Models\Ticket\DiningCar;
 
-class MemberCouponItemsRepository extends BaseRepository
+
+class MemberCouponItemRepository extends BaseRepository
 {
     private $limit = 20;
 

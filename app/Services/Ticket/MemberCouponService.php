@@ -23,29 +23,74 @@ class MemberCouponService extends BaseService
     /**
      * 取得使用者之優惠卷列表
      *
-     * @param      $params
+     * @param      $memberID
      * @param null $couponId
      *
      * @return mixed
      */
-    public function list($params,$couponId = null)
+    public function list($memberID,$couponId = null)
     {
-        return $this->repository->list($params,$couponId);
+        return $this->repository->list($memberID,$couponId);
     }
     
     /**
-     * 取優惠卷詳細
+     * 取得使用者之優惠卷的資訊列表
      *
-     * @param  $id
+     * @param      $memberID
+     *
+     * @param      $status
+     *                      current 未使用 1
+     *                      used    已使用 2
+     *                      expired 已失效 3
      *
      * @return mixed
      */
-    public function find($id)
+    public function favoriteCouponList($memberID,$status)
     {
-        return $this->repository->find($id);
+        return $this->repository->favoriteCouponList($memberID,$status);
     }
-}
-
-{
+    
+    /**
+     * 取得使用者之優惠卷明細
+     *
+     *
+     * @param $memberID
+     * @param $couponId
+     *
+     * @return mixed
+     */
+    public function find($memberID,$couponId)
+    {
+        return $this->repository->list($memberID,$couponId)->first();
+    }
+    
+    
+    /** 將優惠卷加入使用者的收藏
+     *
+     * @param $memberID
+     * @param $couponId
+     *
+     * @return \App\Models\Ticket\MemberCoupon
+     */
+    public function add($memberID,$couponId)
+    {
+        return $this->repository->add($memberID,$couponId);
+    }
+    
+    
+    /** 更新優惠卷是否在使用者的收藏列表內
+     *
+     * @param $memberID
+     * @param $couponId
+     *
+     * @param $isFavorite
+     *
+     * @return \App\Models\Ticket\MemberCoupon
+     */
+    public function update($memberID,$couponId,$isFavorite)
+    {
+        return $this->repository->update($memberID,$couponId,$isFavorite);
+    }
+    
     
 }

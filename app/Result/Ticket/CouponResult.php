@@ -27,7 +27,7 @@ class CouponResult extends BaseResult
      * @param $coupons
      * @param $memberCoupons
      *
-     * @return \stdClass
+     * @return array
      */
     public function list($coupons,$memberCoupons)
     {
@@ -62,7 +62,8 @@ class CouponResult extends BaseResult
             }
             $resultAry[] = $result;
         }
-        return $result;
+        
+        return $resultAry;
     }
     
     /**
