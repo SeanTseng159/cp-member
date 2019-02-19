@@ -97,4 +97,20 @@ class DiningCar extends BaseModel
         return $this->hasMany('App\Models\Ticket\DiningCarBusinessHoursDate')
                     ->where('business_date', 'like', $this->month . '%');
     }
+
+    /**
+     * 取得會員卡
+     */
+    public function memberCard()
+    {
+        return $this->hasOne('App\Models\Ticket\DiningCarMember');
+    }
+
+    /**
+     * 取得會員等級
+     */
+    public function memberLevels()
+    {
+        return $this->hasMany('App\Models\Ticket\DiningCarMemberLevel');
+    }
 }

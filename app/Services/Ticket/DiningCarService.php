@@ -44,8 +44,8 @@ class DiningCarService extends BaseService
      * @param  $id
      * @return mixed
      */
-    public function find($id = 0)
+    public function find($id = 0, $memberId = 0)
     {
-        return $this->repository->find($id);
+        return $this->repository->find($id, $memberId);
     }
 }

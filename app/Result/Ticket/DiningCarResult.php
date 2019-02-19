@@ -10,13 +10,15 @@ namespace App\Result\Ticket;
 use App\Result\BaseResult;
 use Carbon\Carbon;
 use App\Config\Ticket\DiningCarConfig;
+use App\Traits\CryptHelper;
 use App\Traits\MapHelper;
+use App\Traits\DiningCarHelper;
 use App\Helpers\CommonHelper;
 use App\Helpers\ImageHelper;
 
 class DiningCarResult extends BaseResult
 {
-    use MapHelper;
+    use MapHelper, CryptHelper, DiningCarHelper;
 
     private $lat;
     private $lng;
@@ -68,6 +70,7 @@ class DiningCarResult extends BaseResult
 
         $result = new \stdClass;
         $result->id = $car->id;
+        $result->hashId = $this->encryptHashId('DiningCar', $car->id);
         $result->name = $car->name;
         $result->description = $car->description;
         $result->imgs = $this->getImgs($car->imgs);
@@ -75,11 +78,17 @@ class DiningCarResult extends BaseResult
         $result->isFavorite = $isFavorite;
         $result->openStatusCode = $car->open_status;
         $result->openStatus = DiningCarConfig::OPEN_STATUS[$car->open_status];
+        $result->longitude = $car->longitude ?? '';
+        $result->latitude = $car->latitude ?? '';
         $result->distance = $this->calcDistance($this->lat, $this->lng, $car->latitude, $car->longitude, 2, 2) . '公里';
         $result->businessHoursDays = $this->getBusinessHoursDays($car->businessHoursDays);
         $result->businessHoursDates = $this->getBusinessHoursDates($car->businessHoursDates);
         $result->socialUrls = $this->getSocialUrls($car->socialUrls);
         $result->shareUrl = CommonHelper::getWebHost('zh-TW/diningCar/detail/' . $car->id);
+        $result->level = $this->getLevel($car->level, $car->expired_at);
+        $result->memberCard = $this->getMemberCard($car->memberCard, $car->memberLevels);
+
+        // var_dump($car->memberCard);
 
         return $result;
     }
@@ -272,5 +281,44 @@ class DiningCarResult extends BaseResult
         }
 
         return $newList;
+    }
+
+    /**
+     * 取餐車等級
+     * @param $data
+     */
+    public function getLevel($level, $expired_at)
+    {
+        if ($level === 0) return $level;
+        if (!$expired_at) return 0;
+
+        $now = Carbon::now();
+        $expired = Carbon::parse($expired_at);
+
+        return ($now->lt($expired)) ? $level : 0;
+    }
+
+    /**
+     * 取會員卡資訊
+     * @param $data
+     */
+    public function getMemberCard($memberCard, $memberLevels)
+    {
+        $result = new \stdClass;
+
+        if (!$memberCard) {
+            // 還未加入會員
+            $result->level = -1;
+            $result->point = 0;
+            $result->gift = 0;
+        }
+        else {
+            // 已加入會員
+            $result->level = $this->getMemberLevel($memberLevels, $memberCard->amount);
+            $result->point = $memberCard->point;
+            $result->gift = $memberCard->gift;
+        }
+
+        return $result;
     }
 }
