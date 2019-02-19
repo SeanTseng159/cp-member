@@ -11,6 +11,8 @@ use App\Models\Ticket\BaseModel;
 
 class MemberCoupon extends BaseModel
 {
+    protected $table = 'member_coupon';
+    
     public function __construct(){
     
     }

@@ -29,6 +29,9 @@ Route::middleware('cors')->namespace('V1')->group(function () {
         // 取子熱門探索分類下所有商品
         Route::get('subCategory/{id}/products', 'LayoutController@subCategoryProducts');
 
+        // 取供應商相關商品
+        Route::get('supplier/{supplierId}/products', 'LayoutController@supplier')->name('v1.layout.supplier');
+
         // 取其他內部服務app
         Route::get('apps', 'LayoutAppController@all');
 
@@ -50,14 +53,16 @@ Route::middleware('cors')->namespace('V1')->group(function () {
         // 清子熱門探索分類下所有商品
         Route::get('clean/subCategory/{id}/products', 'CacheController@subCategoryProducts');
 
-        // 清除常見問題
-        Route::get('clean/service/qa', 'CacheController@serviceQA');
-
         // 清更多服務
         Route::get('clean/layout/apps', 'CacheController@apps');
 
+        // 清除常見問題
+        Route::get('clean/service/qa', 'CacheController@serviceQA');
+
         // 清付款方式
         Route::get('clean/checkout/paymentMethod', 'CacheController@paymentMethod');
+        // 清更多服務
+        Route::get('clean/layout/apps', 'CacheController@apps');
     });
 
     // 商品相關
@@ -70,11 +75,6 @@ Route::middleware('cors')->namespace('V1')->group(function () {
         Route::get('combo/{id}', 'ProductController@findComboItem');
         // 商品搜尋
         Route::get('search', 'ProductController@search')->middleware('verify.product.search');
-    });
-
-    Route::prefix('service')->group(function () {
-        // 常見問題
-        Route::get('qa', 'ServiceController@qa');
     });
 
     // 縣市列表
@@ -134,15 +134,16 @@ Route::middleware('cors')->namespace('V1')->group(function () {
     });
     
     
-    // 優惠卷相關
     Route::prefix('coupon')->group(function () {
         // 優惠卷列表
         Route::get('{modelType}/{modelSpecId}/list', 'CouponController@list');
     
         // 優惠卷詳細
         Route::get('/{id}', 'CouponController@detail');
+        
     });
     
+   
     
     
 });
@@ -216,21 +217,17 @@ Route::middleware(['cors', 'auth.jwt'])->namespace('V1')->group(function () {
     
     //coupon 優惠卷相關
     Route::prefix('coupon')->group(function () {
+        
+        
+        
         // coupon加入收藏
         Route::post('{id}/favorite/add', 'MemberCouponController@addFavorite');
         
         // coupon移除收藏
         Route::post('{id}/favorite/remove', 'MemberCouponController@removeFavorite');
         
-        // coupon可使用列表
+        // coupon 收藏列表
         Route::get('favorite/list', 'MemberCouponController@list');
-        
-        // coupon已使用列表
-        Route::get('favorite/list/used', 'MemberCouponController@usedList');
-        
-        // coupon逾期列表
-        Route::get('favorite/list/expired', 'MemberCouponController@expiredList');
-        
         
     });
 });
