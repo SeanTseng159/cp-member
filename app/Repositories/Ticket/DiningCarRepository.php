@@ -80,7 +80,7 @@ class DiningCarRepository extends BaseRepository
      * @param  $id
      * @return mixed
      */
-    public function find($id = 0)
+    public function find($id = 0, $memberId = 0)
     {
         return $this->model->with([
                                 'category',
@@ -88,7 +88,11 @@ class DiningCarRepository extends BaseRepository
                                 'imgs',
                                 'socialUrls',
                                 'businessHoursDays.times',
-                                'businessHoursDates'
+                                'businessHoursDates',
+                                'memberCard' => function($query) use ($memberId) {
+                                    $query->where('member_id', $memberId);
+                                },
+                                'memberLevels'
                             ])
                             ->find($id);
     }

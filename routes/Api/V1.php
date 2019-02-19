@@ -212,6 +212,15 @@ Route::middleware(['cors', 'auth.jwt'])->namespace('V1')->group(function () {
 
         // 餐車收藏分類
         Route::get('favorite/categories', 'MemberDiningCarController@categories');
+
+        // 加入餐車會員
+        Route::post('member/add', 'DiningCarMemberController@add');
+    });
+
+    // 會員相關
+    Route::prefix('member')->group(function () {
+        // 我的會員卡
+        Route::get('diningCars', 'DiningCarMemberController@diningCars');
     });
     
     //coupon 優惠卷相關

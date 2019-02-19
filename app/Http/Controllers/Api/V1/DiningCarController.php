@@ -113,7 +113,7 @@ class DiningCarController extends RestLaravelController
             // 取收藏列表
             $isFavorite = ($params['memberId']) ? $memberDiningCarService->isFavorite($params['memberId'], $id) : false;
 
-            $data = $this->service->find($id);
+            $data = $this->service->find($id, $params['memberId']);
             $result = (new DiningCarResult)->detail($data, $isFavorite, $params['latitude'], $params['longitude']);
 
             return $this->success($result);
