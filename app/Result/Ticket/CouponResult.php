@@ -7,6 +7,7 @@
 
 namespace App\Result\Ticket;
 
+use App\Helpers\CommonHelper;
 use App\Result\BaseResult;
 use Carbon\Carbon;
 use App\Traits\StringHelper;
@@ -88,11 +89,13 @@ class CouponResult extends BaseResult
         $result->favorite= false;
         $result->used= false;
         $result->status = 1 ; //1:已使用 2:優惠券已兌換完畢 3.優惠券已失效(過期)
+        $result->shareUrl = CommonHelper::getWebHost('zh-TW/diningCar/detail/' . $coupon->couponId);
+        $result->photo = $images;
     
         $startAt = Carbon::createFromFormat('Y-m-d i:s:u',$coupon->couponStartAt);
         $expiredAt = Carbon::createFromFormat('Y-m-d i:s:u',$coupon->couponExpireAt);
     
-        $result->photo = $images;
+        
         
         //是否逾期
         if(!Carbon::now()->between($startAt, $expiredAt))
