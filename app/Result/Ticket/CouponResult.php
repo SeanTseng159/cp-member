@@ -88,7 +88,7 @@ class CouponResult extends BaseResult
         $result->desc= $coupon->couponDesc;
         $result->favorite= false;
         $result->used= false;
-        $result->status = 1 ; //1:已使用 2:優惠券已兌換完畢 3.優惠券已失效(過期)
+        $result->status = 0 ; //0:未使用 1:已使用 2:優惠券已兌換完畢 3.優惠券已失效(過期)
         $result->shareUrl = CommonHelper::getWebHost('zh-TW/diningCar/detail/' . $coupon->couponId);
         $result->photo = $images;
     
@@ -97,21 +97,26 @@ class CouponResult extends BaseResult
     
         
         
-        //是否逾期
+        //優惠卷狀態
         if(!Carbon::now()->between($startAt, $expiredAt))
-            $result->status = 3 ;
+            $result->status = 3 ; //已失效
        
         $couponLimit = $coupon->couponLimitQty;
-        
-        if($memberCoupon){
-            
+    
+        if ($memberCoupon)
+        {
+            if ($memberCoupon->count > 0 && $memberCoupon->count < $couponLimit)
+            {
+                $result->status = 1; // 已使用
+            }
             if ($memberCoupon->count >= $couponLimit)
             {
-                $result->status = 2;
+                $result->status = 2; // 已兌換完畢
             }
+        
             if ($memberCoupon->is_collected)
             {
-                $result->favorite= true;
+                $result->favorite = true;
             }
         }
         return $result;
