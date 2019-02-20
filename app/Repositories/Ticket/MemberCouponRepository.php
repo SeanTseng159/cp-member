@@ -10,6 +10,8 @@ namespace App\Repositories\Ticket;
 use App\Models\Ticket\MemberCoupon;
 use App\Repositories\BaseRepository;
 use Carbon\Carbon;
+use function GuzzleHttp\Promise\all;
+use Illuminate\Support\Facades\DB;
 
 class MemberCouponRepository extends BaseRepository
 {
@@ -53,23 +55,21 @@ class MemberCouponRepository extends BaseRepository
     public function favoriteCouponList($memberID,$status)
     {
         
-    
-        //取得該餐車所有的優惠卷
         $result = $this->model
             ->join('coupons', 'coupons.id', '=', "coupon_id")
             ->select(
-                'name',
-                'start_at',
-                'expire_at',
-                'limit_qty',
+                DB::raw('coupons.name AS title'),
                 'content',
-                'desc'
+                DB::raw("CONCAT(DATE_FORMAT(start_at, '%Y-%m-%e'),' ~ ',DATE_FORMAT(expire_at, '%Y-%m-%e')) AS duration"),
+                'model_type',
+                'model_spec_id'
+                
             )
             ->where('member_id',$memberID)
             ->where('status',1)
             ->where('is_collected',1)
             ->when($status,
-                function ($query) use ( $status) {
+                function ($query) use ($status) {
                     if ($status === 1)
                     {
                         $query->where('count', 0)
@@ -92,8 +92,36 @@ class MemberCouponRepository extends BaseRepository
             ->orderBy('member_coupon.updated_at','asc')
             ->get();
         
+        //與client 端(ex.餐車)對應
+        $classType = ['dining_car' => 'App\Models\Ticket\DiningCar'];
         
-        return $result;
+        $modelTypes = $result->pluck('model_type');
+        
+        
+        //取得所有需要對應的表與資料(ex.餐車)
+        $tables = [];
+        
+        foreach ($modelTypes as $modelType)
+        {
+            $model = new $classType[$modelType]();
+            $tables[$modelType] = $model->all();
+        }
+        
+        
+        foreach ($result as $item)
+        {
+            $clientInfo =$tables[$item['model_type']]->where('id', $item->model_spec_id)->first();
+            $item->id = $clientInfo->id;
+            $item->Name = $clientInfo->name;
+        }
+    
+        $collection = $result->map(function ($item) {
+            unset($item->model_type);
+            unset($item->model_spec_id);
+            return $item;
+        });
+        
+        return $collection;
     }
 
 
