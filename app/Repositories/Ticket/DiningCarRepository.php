@@ -31,6 +31,7 @@ class DiningCarRepository extends BaseRepository
         Paginator::currentPageResolver(function () use ($currentPage) {
             return $currentPage;
         });
+        
 
         return $this->model->with(['category', 'subCategory', 'mainImg'])
                             ->where('status', 1)

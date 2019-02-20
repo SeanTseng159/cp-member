@@ -32,13 +32,17 @@ class DiningCarResult extends BaseResult
         $this->dayOfWeek = Carbon::today()->dayOfWeek;
         if ($this->dayOfWeek === 0) $this->dayOfWeek = 7;
     }
-
+    
     /**
      * 取餐車列表
-     * @param $data
+     *
+     * @param $cars
      * @param $memberDiningCars
-     * @param $long
      * @param $lat
+     *
+     * @param $lng
+     *
+     * @return array
      */
     public function list($cars, $memberDiningCars = null, $lat, $lng)
     {
@@ -92,10 +96,13 @@ class DiningCarResult extends BaseResult
 
         return $result;
     }
-
+    
     /**
      * 餐車資訊
+     *
      * @param $car
+     *
+     * @return \stdClass|null
      */
     private function getCar($car)
     {

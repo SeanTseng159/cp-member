@@ -3,72 +3,109 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+
+
+use App\Helpers\ImageHelper;
+use App\Parameter\Ticket\CouponParameter;
+use App\Result\Ticket\CouponResult;
+use App\Services\Ticket\CouponService;
+use App\Services\ImageService;
+use App\Services\Ticket\MemberCouponService;
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
 use Ksd\Mediation\Core\Controller\RestLaravelController;
 
 class CouponController extends RestLaravelController
 {
     protected $lang = 'zh-TW';
-    protected $service;
     protected $couponService;
+    protected $memberCouponService;
+    protected $imageService;
     
-    public function __construct() {
     
-    }
-    
-    /** 根據優惠卷類別與使用優惠卷單位(如餐車商家)之ID取得優惠卷列表
-     * @param $modelType
-     * @param $modelSpecID
-     *
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function list($modelType,$modelSpecID) {
-    
-        $result = [
-            [
-                "id"       => $modelSpecID,
-                "Name"     => '大碗公餐車',
-                "title"    => '加入會員送好禮',
-                "content"  => '加入會員成功贈送紅茶冰一杯',
-                "duration" => '2019-1-1～2019-12-31',
-                "favorite" => false,
-                "used"     => false,
-            ],
-            [
-                "id"       => $modelSpecID,
-                "Name"     => '大碗公餐車',
-                "title"    => '買10碗送1碗',
-                "content"  => '買10碗送1碗會員購買十碗排骨飯，加碼再送一碗！(可寄餐)',
-                "duration" => '2019-1-1～2019-12-31',
-                "favorite" => true,
-                "used"     => true,
-            ],
-    
-        ];
-        
-        return $this->success($result);
-        
+    public function __construct(CouponService $service, MemberCouponService $memberCouponService,ImageService $imageService)
+    {
+        $this->couponService = $service;
+        $this->memberCouponService = $memberCouponService;
+        $this->imageService = $imageService;
     }
     
     /**
-     * 根據id取得優惠卷明細
-     * @param $id
+     *
+     * 根據優惠卷類別與使用優惠卷單位(如餐車商家)之ID取得優惠卷列表
+     *
+     * @param Request $request
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function detail($id){
-        $result = [
-            'photo'    => 'https://devbackend.citypass.tw/storage/menu/1/53e1b503077f1a89442ed331b6678f4f_b.png',
-            "title"    => '加入會員送好禮',
-            "duration" => '2019-1-1～2019-12-31',
-            "content"  => '加入會員成功贈送紅茶冰一杯',
-            "desc"     => '1. 限新註冊會員使用。<br>2. 不可與其他優惠合併使用。<br>3. 此電子優惠券為贈品，不可兌換現金或找零，亦不另開發票。<br>4. 請於點餐時向服務人員出示此電子優惠券兌換。<br>5. 本公司保有修改內容之權力。',
-            "favorite" => true,
-            "used"     => false,
-        ];
+    public function list(Request $request) {
         
-        return $this->success($result);
+        try{
+            
+            $params = new CouponParameter($request);
+            
+            
+            //coupon列表
+            $coupons = $this->couponService->list($params);
+            
+            //使用者的coupon列表
+            $userCoupons = $this->memberCouponService->list($params->memberId,$couponId = null);
+            
+            
+            $result = (new CouponResult())->list($coupons,$userCoupons);
+            
+        
+            return $this->success($result);
+        
+        }
+        catch (\Exception $e){
+            
+            $errCode = $e->getMessage();
+            if ($errCode){
+                return $this->failureCode($errCode);
+            }
+        
+            return $this->failureCode('E0007');
+        }
+    }
+    
+    
+    /**
+     * 根據id取得優惠卷明細
+     *
+     * @param Request $request
+     * @param         $id       優惠卷id
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    
+    public function detail(Request $request,$id){
+        try{
+        
+           
+            //coupon詳細資料
+            $couponDetail = $this->couponService->find($id);
+            
+            $params = new CouponParameter($request);
+            //使用者的coupon資訊
+            $userCoupons = $this->memberCouponService->list($params->memberId,$id)->first();
+            
+            //圖片資訊
+            $images = (new ImageHelper($this->imageService))->getImageUrl($couponDetail->model_type,$couponDetail->model_spec_id,1);
+            
+            $result = (new CouponResult())->detail($couponDetail,$userCoupons,$images);
+        
+            return $this->success($result);
+        
+        }
+        catch (\Exception $e){
+        
+            $errCode = $e->getMessage();
+            if ($errCode){
+                return $this->failureCode($errCode);
+            }
+        
+            return $this->failureCode('E0007');
+        }
         
     }
     

@@ -134,15 +134,16 @@ Route::middleware('cors')->namespace('V1')->group(function () {
     });
     
     
-    // 優惠卷相關
     Route::prefix('coupon')->group(function () {
         // 優惠卷列表
         Route::get('{modelType}/{modelSpecId}/list', 'CouponController@list');
     
         // 優惠卷詳細
         Route::get('/{id}', 'CouponController@detail');
+        
     });
     
+   
     
     
 });
@@ -226,20 +227,13 @@ Route::middleware(['cors', 'auth.jwt'])->namespace('V1')->group(function () {
     //coupon 優惠卷相關
     Route::prefix('coupon')->group(function () {
         // coupon加入收藏
-        Route::post('{id}/favorite/add', 'MemberCouponController@addFavorite');
+        Route::post('{couponId}/favorite/add', 'MemberCouponController@addFavorite');
         
         // coupon移除收藏
-        Route::post('{id}/favorite/remove', 'MemberCouponController@removeFavorite');
+        Route::post('{couponId}/favorite/remove', 'MemberCouponController@removeFavorite');
         
-        // coupon可使用列表
+        // coupon 收藏列表
         Route::get('favorite/list', 'MemberCouponController@list');
-        
-        // coupon已使用列表
-        Route::get('favorite/list/used', 'MemberCouponController@usedList');
-        
-        // coupon逾期列表
-        Route::get('favorite/list/expired', 'MemberCouponController@expiredList');
-        
         
     });
 });
