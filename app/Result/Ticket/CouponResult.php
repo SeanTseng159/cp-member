@@ -32,38 +32,42 @@ class CouponResult extends BaseResult
      */
     public function list($coupons,$memberCoupons)
     {
-        
-        $resultAry = [] ;
+        $resultAry = [];
+    
         foreach ($coupons as $coupon)
         {
             $result = new \stdClass;
-            $result->id = $coupon->id;
+            $result->id = $coupon->couponID;
             $result->Name = $coupon->name;
             $result->title = $coupon->couponTitle;
             $result->content = $coupon->couponContent;
-            $result->duration= $coupon->duration;
-            $result->favorite= false;
-            $result->used= false;
-            
-            
-            
+            $result->duration = $coupon->duration;
+            $result->favorite = false;
+            $result->used = false;
+        
+        
             if ($memberCoupons->isNotEmpty())
             {
-                $memberCoupon = $memberCoupons->where('coupon_id',$coupon->id)->first();
-    
-                $couponLimit = $coupon->couponLimitQty;
-                if ($memberCoupon->count >= $couponLimit)
+                $memberCoupon = $memberCoupons->where('coupon_id', $coupon->couponID)->first();
+            
+                if ($memberCoupon)
                 {
-                    $result->used= true;
-                }
-                if ($memberCoupon->is_collected)
-                {
-                    $result->favorite= true;
+                    $couponLimit = $coupon->couponLimitQty;
+                    if ($memberCoupon->count >= $couponLimit)
+                    {
+                        $result->used = true;
+                    }
+                    if ($memberCoupon->is_collected)
+                    {
+                    
+                        $result->favorite = true;
+                    }
+                
                 }
             }
             $resultAry[] = $result;
         }
-        
+    
         return $resultAry;
     }
     

@@ -58,6 +58,7 @@ class MemberCouponRepository extends BaseRepository
         $result = $this->model
             ->join('coupons', 'coupons.id', '=', "coupon_id")
             ->select(
+                'coupons.id',
                 DB::raw('coupons.name AS title'),
                 'content',
                 DB::raw("CONCAT(DATE_FORMAT(start_at, '%Y-%m-%e'),' ~ ',DATE_FORMAT(expire_at, '%Y-%m-%e')) AS duration"),
@@ -111,7 +112,6 @@ class MemberCouponRepository extends BaseRepository
         foreach ($result as $item)
         {
             $clientInfo =$tables[$item['model_type']]->where('id', $item->model_spec_id)->first();
-            $item->id = $clientInfo->id;
             $item->Name = $clientInfo->name;
         }
     

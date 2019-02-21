@@ -110,7 +110,7 @@ class MemberCouponController extends RestLaravelController
      */
     public function list(Request $request){
     
-        //try
+        try
         {
             $memberId = $request->memberId;
             $listType = Input::get('type', 'current');
@@ -130,10 +130,10 @@ class MemberCouponController extends RestLaravelController
             
             return $this->success($memberCoupons);
         }
-//        catch (\Exception $e)
-//        {
-//            return $this->failureCode('E0001');
-//        }
+        catch (\Exception $e)
+        {
+            return $this->failureCode('E0001');
+        }
     
         
     }

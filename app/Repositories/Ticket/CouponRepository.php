@@ -32,8 +32,6 @@ class CouponRepository extends BaseRepository
      */
     public function list($params)
     {
-    
-        
         $modelSpecID = $params->modelSpecId;
         $modelType = $params->modelType;
     
@@ -60,13 +58,16 @@ class CouponRepository extends BaseRepository
             ->select(
                 'dining_cars.id',
                 'dining_cars.name',
+                DB::raw('coupons.id AS couponID'),
                 DB::raw('coupons.name AS couponTitle'),
                 DB::raw('coupons.content as couponContent'),
                 DB::raw('coupons.desc AS couponDesc'),
                 DB::raw('coupons.qty as CouponQty'),
                 DB::raw("CONCAT(DATE_FORMAT(start_at, '%Y-%m-%e'),' ~ ',DATE_FORMAT(expire_at, '%Y-%m-%e')) AS duration"),
                 DB::raw('coupons.limit_qty as couponLimitQty'),
-                DB::raw('SUM(member_coupon.count) AS totalUsedCount')
+                DB::raw('COALESCE(SUM(member_coupon.count), 0) AS totalUsedCount')
+                
+                
             )
             ->where('coupons.model_type', $modelType)
             ->where('coupons.model_spec_id', $modelSpecID)
