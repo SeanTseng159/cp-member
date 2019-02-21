@@ -10,9 +10,12 @@ namespace App\Result\Ticket;
 use App\Result\BaseResult;
 use App\Config\Ticket\DiningCarConfig;
 use App\Helpers\ImageHelper;
+use App\Traits\DiningCarHelper;
 
 class MemberDiningCarResult extends BaseResult
 {
+    use DiningCarHelper;
+
     public function __construct()
     {
         parent::__construct();
@@ -68,6 +71,7 @@ class MemberDiningCarResult extends BaseResult
         $result->description = $car->description;
         $result->img = ImageHelper::url($car->mainImg);
         $result->categories = $this->getCategories($car->category, $car->subCategory);
+        $result->memberCard = $this->getMemberCard($car->memberCard, $car->memberLevels);
 
         return $result;
     }
@@ -84,5 +88,29 @@ class MemberDiningCarResult extends BaseResult
         if ($subCategory) $categoryAry[] = $subCategory->name;
 
         return $categoryAry;
+    }
+
+    /**
+     * 取會員卡資訊
+     * @param $data
+     */
+    private function getMemberCard($memberCard, $memberLevels)
+    {
+        $result = new \stdClass;
+
+        if (!$memberCard) {
+            // 還未加入會員
+            $result->level = -1;
+            $result->point = 0;
+            $result->gift = 0;
+        }
+        else {
+            // 已加入會員
+            $result->level = $this->getMemberLevel($memberLevels, $memberCard->amount);
+            $result->point = $memberCard->point;
+            $result->gift = $memberCard->gift;
+        }
+
+        return $result;
     }
 }

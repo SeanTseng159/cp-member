@@ -56,7 +56,8 @@ class DiningCarMemberRepository extends BaseRepository
      */
     public function find($memberId = 0, $id = 0)
     {
-        return $this->model->where('member_id', $memberId)
+        return $this->model->with('diningCar.memberLevels')
+                            ->where('member_id', $memberId)
                             ->where('dining_car_id', $id)
                             ->first();
     }
@@ -81,6 +82,7 @@ class DiningCarMemberRepository extends BaseRepository
                                 'diningCar.memberLevels'
                             ])
                             ->where('member_id', $memberId)
-                            ->paginate($params['limit']);
+                            //->paginate($params['limit']);
+                            ->paginate(3000);
     }
 }

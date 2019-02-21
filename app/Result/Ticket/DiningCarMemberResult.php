@@ -74,7 +74,7 @@ class DiningCarMemberResult extends BaseResult
      * 取會員卡資訊
      * @param $memberCar
      */
-    private function getMemberCard($memberCar)
+    public function getMemberCard($memberCar)
     {
         $memberCard = new \stdClass;
         $memberCard->level = $this->getMemberLevel($memberCar->diningCar->memberLevels, $memberCar->amount);

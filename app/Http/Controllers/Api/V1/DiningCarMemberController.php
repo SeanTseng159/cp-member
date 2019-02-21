@@ -44,13 +44,21 @@ class DiningCarMemberController extends RestLaravelController
             if (!$diningCarId) return $this->failureCode('E0201');
             $diningCarId = $this->decryptHashId('DiningCar', $diningCarId);
 
+            // 是否加入會員
             $isMember = $this->service->isMember($memberId, $diningCarId);
             if ($isMember) return $this->failureCode('A0101');
 
             $result = $this->service->add($memberId, $diningCarId);
-            // 取禮物
+            // todo: 取禮物
 
-            return ($result) ? $this->success(['gift' => null]) : $this->failureCode('E0200');
+            // 取會員卡資料
+            $diningCarMember = $this->service->find($memberId, $diningCarId);
+            $memberCard = (new DiningCarMemberResult)->getMemberCard($diningCarMember);
+
+            return ($result) ? $this->success([
+                                        'gift' => null,
+                                        'memberCard' => $memberCard
+                                    ]) : $this->failureCode('E0200');
         } catch (Exception $e) {
             return $this->failureCode('E0200');
         }
