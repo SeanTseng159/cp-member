@@ -76,7 +76,9 @@ class MemberDiningCarRepository extends BaseRepository
 
         return $this->model->with([
                                 'diningCar.subCategory',
-                                'diningCar.memberCard',
+                                'diningCar.memberCard' => function($query) use ($memberId) {
+                                    $query->where('member_id', $memberId);
+                                },
                                 'diningCar.memberLevels'
                             ])
                             ->where('member_id', $memberId)
