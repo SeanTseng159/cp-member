@@ -92,8 +92,6 @@ class DiningCarResult extends BaseResult
         $result->level = $this->getLevel($car->level, $car->expired_at);
         $result->memberCard = $this->getMemberCard($car->memberCard, $car->memberLevels);
 
-        // var_dump($car->memberCard);
-
         return $result;
     }
     
