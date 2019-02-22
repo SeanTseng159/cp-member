@@ -7,10 +7,11 @@
 
 namespace App\Repositories\Ticket;
 
+use App\Models\Ticket\Coupon;
 use App\Models\Ticket\MemberCoupon;
+use App\Models\Ticket\MemberCouponItem;
 use App\Repositories\BaseRepository;
 use Carbon\Carbon;
-use function GuzzleHttp\Promise\all;
 use Illuminate\Support\Facades\DB;
 
 class MemberCouponRepository extends BaseRepository
@@ -172,8 +173,68 @@ class MemberCouponRepository extends BaseRepository
     }
     
     
+    /**
+     * 使用優惠卷
+     * @param $memberId
+     * @param $couponID
+     *
+     * @return mixed
+     */
     
+    public function use($memberId, $couponID)
+    {
+        try
+        {
+            $memberCoupon = $this->model
+                ->where('member_id', $memberId)
+                ->where('coupon_id', $couponID)
+                ->first();
+        
+            DB::beginTransaction();
+        
+            //不在收藏列表
+            if (!$memberCoupon)
+            {
+                $memberCoupon = new MemberCoupon();
+                $memberCoupon->member_id = $memberId;
+                $memberCoupon->coupon_id = $couponID;
+                $memberCoupon->count = 1;
+                $memberCoupon->save();
+            }
+            else
+            {
+                //取得coupon的限制張數
+                $coupon = Coupon::where('id', $couponID)->first();
     
-    
+                if ($memberCoupon->count >= $coupon->limit_qty)
+                {
+                    
+                    return false;
+                }
+                
+                $memberCoupon->count++;
+                $memberCoupon->save();
+            }
+        
+            $memberCouponItem = new MemberCouponItem();
+            $memberCouponItem->member_coupon_id = $memberCoupon->id;
+            $memberCouponItem->number = $memberCoupon->count;
+            $memberCouponItem->used_time = Carbon::now();
+            $memberCouponItem->save();
+        
+        
+            DB::commit();
+        
+            return true;
+        
+        }
+        catch (\Exception $e)
+        {
+            DB::rollBack();
+
+            return false;
+        }
+
+    }
     
 }

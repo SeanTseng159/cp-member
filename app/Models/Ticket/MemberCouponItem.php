@@ -9,10 +9,11 @@ namespace App\Models\Ticket;
 
 use App\Models\Ticket\BaseModel;
 
-class MemberCouponItems extends BaseModel
+class MemberCouponItem extends BaseModel
 {
     
-
+    protected $table = 'member_coupon_items';
+    
     public function __construct(){
     
     }

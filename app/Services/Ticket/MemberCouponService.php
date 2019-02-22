@@ -93,4 +93,17 @@ class MemberCouponService extends BaseService
     }
     
     
+    /**
+     * 使用優惠卷
+     *
+     * @param $memberId
+     * @param $couponID
+     *
+     * @return mixed
+     */
+    public function use($memberId,$couponID)
+    {
+        return $this->repository->use($memberId, $couponID);
+        
+    }
 }
