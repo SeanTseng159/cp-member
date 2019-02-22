@@ -234,6 +234,10 @@ Route::middleware(['cors', 'auth.jwt'])->namespace('V1')->group(function () {
         
         // coupon 收藏列表
         Route::get('favorite/list', 'MemberCouponController@list');
+    
+    
+        // 優惠卷核銷
+        Route::post('/{id}', 'MemberCouponController@use');
         
     });
 });

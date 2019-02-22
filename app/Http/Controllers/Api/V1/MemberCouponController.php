@@ -138,5 +138,31 @@ class MemberCouponController extends RestLaravelController
         
     }
     
+    /**
+     * coupon 核銷
+     *
+     * @param Request $request
+     * @param         $couponId
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function use(Request $request,$couponId)
+    {
+        
+        try
+        {
+            $memberId = $request->memberId;
+            
+            $result = $this->memberCouponService->use($memberId, $couponId);
+            
+            return ($result) ? $this->success() : $this->failureCode('E0071');
+        }
+        catch (\Exception $e)
+        {
+            return $this->failureCode('E0070');
+        }
+        
+    }
+    
 
 }
