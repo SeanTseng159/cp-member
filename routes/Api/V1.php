@@ -237,7 +237,21 @@ Route::middleware(['cors', 'auth.jwt'])->namespace('V1')->group(function () {
     
     
         // 優惠卷核銷
-        Route::post('/{id}', 'MemberCouponController@use');
+        Route::post('/', 'MemberCouponController@use');
+        
+    });
+    
+    //禮物相關
+    Route::prefix('gift')->group(function () {
+        
+        // 我的禮物列表
+        Route::get('/list', 'MemberGiftController@list');
+    
+        //禮物詳細
+        Route::get('/{id}', 'MemberGiftController@show');
+        
+        // 產生禮物Qrcode
+        Route::get('/qrcode/{id}', 'MemberGiftController@getQrcode');
         
     });
 });
