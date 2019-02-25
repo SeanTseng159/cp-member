@@ -142,16 +142,16 @@ class MemberCouponController extends RestLaravelController
      * coupon 核銷
      *
      * @param Request $request
-     * @param         $couponId
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function use(Request $request,$couponId)
+    public function use(Request $request)
     {
         
         try
         {
             $memberId = $request->memberId;
+            $couponId = $request->coupon_id;
             
             $result = $this->memberCouponService->use($memberId, $couponId);
             
