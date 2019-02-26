@@ -175,11 +175,15 @@ class MemberCouponRepository extends BaseRepository
     
     /**
      * 使用優惠卷
+     *
      * @param $memberId
      * @param $couponID
      *
-     * @return mixed
-     */
+     * @return mixed  obj.status :
+     *                   0:可使用優惠券(沒用過或還可使用)
+     *                   1:已使用(已達自己可使用上限，不能再使用)
+     *                   2:優惠卷已兌換完畢(已達餐車設定總張數)
+    */
     
     public function use($memberId, $couponID)
     {
@@ -187,7 +191,7 @@ class MemberCouponRepository extends BaseRepository
         {
             //回傳物件
             $returnObj = new \stdClass();
-            $returnObj->status = true;
+            $returnObj->status = 0;
             
             $memberCoupon = $this->model
                 ->where('member_id', $memberId)
@@ -195,7 +199,16 @@ class MemberCouponRepository extends BaseRepository
                 ->first();
     
             $coupon = Coupon::where('id', $couponID)->first();
-        
+            
+            //檢查是否超過總數
+            $max = $coupon->qty;
+            $currentUsed = $this->model->where('coupon_id', $couponID)->sum('count');
+            if ($currentUsed >= $max)
+            {
+                $returnObj->status = 2;
+                return $returnObj;
+            }
+            
             DB::beginTransaction();
         
             //不在收藏列表
@@ -209,13 +222,12 @@ class MemberCouponRepository extends BaseRepository
             }
             else
             {
-                //取得coupon的限制張數，如果以達限制，回傳錯誤
+                //取得coupon的限制張數，是否已達限制
                 if ($memberCoupon->count >= $coupon->limit_qty)
                 {
-                    $returnObj->status = false;
+                    $returnObj->status = 1;
                     return $returnObj;
                 }
-                
                 $memberCoupon->count++;
                 $memberCoupon->save();
             }
@@ -227,12 +239,16 @@ class MemberCouponRepository extends BaseRepository
             $memberCouponItem->save();
             
             //回傳是否還可以使用
-            if($memberCoupon->count>= $coupon->limit_qty)
+            if ($memberCoupon->count >= $coupon->limit_qty)
             {
-                $returnObj->status = false;
+                $returnObj->status = 1;
             }
-        
-        
+            
+            //是否超過最大張數
+            if ($currentUsed >= $max - 1)
+            {
+                $returnObj->status = 2;
+            }
             DB::commit();
         
             return $returnObj;
@@ -240,7 +256,10 @@ class MemberCouponRepository extends BaseRepository
         }
         catch (\Exception $e)
         {
+            
             DB::rollBack();
+            
+            var_dump($e);
 
             return false;
         }
