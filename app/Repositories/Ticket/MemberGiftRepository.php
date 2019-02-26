@@ -10,6 +10,7 @@ namespace App\Repositories\Ticket;
 use App\Models\Ticket\Coupon;
 use App\Models\Ticket\MemberCoupon;
 use App\Models\Ticket\MemberCouponItem;
+use App\Models\Ticket\MemberGift;
 use App\Repositories\BaseRepository;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -18,28 +19,67 @@ class MemberGiftRepository extends BaseRepository
 {
     private $limit = 20;
     
-    public function __construct(MemberCoupon $model)
+    public function __construct(MemberGift $model)
     {
         $this->model = $model;
     }
     
-    /** 取得使用者之優惠劵列表，若$couponId 有值，則取得該coupon資料
-     * @param      $memberID
-     * @param null $couponID
+    /** 取得使用者之禮物列表
+     *
+     * @param        $type
+     * @param        $memberId
+     *
+     * @param string $modeType
      *
      * @return mixed
      */
-    public function list($memberID,$couponID = null)
+    public function list($type,$memberId,$modeType='dining_car')
     {
-        
-        
-        return $this->model
-            ->select('coupon_id','is_collected','count')
-            ->where('member_id', $memberID)
-            ->when($couponID, function ($query) use ($couponID) {
-                $query->where('coupon_id',$couponID);
-            })
-            ->get();
+//        [
+//            'id'       => 1,
+//            'Name'     => '大碗公餐車',
+//            'title'    => '日本和牛丼飯 一份',
+//            'duration' => '2019-1-31',
+//            'photo'    => "https://devbackend.citypass.tw/storage/diningCar/1/e1fff874c96b11a17438fa68341c1270_b.png",
+//            'status'   => 0,
+//        ],
+    
+//        $result = $this->model
+//            ->join('gifts', 'gifts.id', '=', "member_gifts.id")
+//            ->select(
+//                'gifts.id',
+//                DB::raw('gifts.name AS giftName'),
+//                DB::raw("DATE_FORMAT(expire_at, '%Y-%m-%e')) AS duration"),
+//                'model_type',
+//                'model_spec_id'
+//
+//            )
+//            ->where('member_id',$memberId)
+//            ->where('status',1)
+//            ->where('is_collected',1)
+//            ->when($status,
+//                function ($query) use ($status) {
+//                    if ($status === 1)
+//                    {
+//                        $query->where('count', 0)
+//                            ->where('coupons.start_at', '<=', Carbon::now()->toDateTimeString())
+//                            ->where('coupons.expire_at', '>=', Carbon::now()->toDateTimeString());
+//                    }
+//                    elseif ($status === 2)
+//                    {
+//                        $query->where('count', '>', 0)
+//                            ->where('coupons.start_at', '<=', Carbon::now()->toDateTimeString())
+//                            ->where('coupons.expire_at', '>=', Carbon::now()->toDateTimeString());
+//                    }
+//                    elseif ($status === 3)
+//                    {
+//                        $query->where('coupons.expire_at', '<=', Carbon::now()->toDateTimeString());
+//                    }
+//
+//                })
+//            ->orderBy('expire_at','asc')
+//            ->orderBy('member_coupon.updated_at','asc')
+//            ->get();
     }
     
     /** 取得使用者之優惠劵列表與優惠卷詳細資訊
