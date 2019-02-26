@@ -146,10 +146,11 @@ class MemberGiftController extends RestLaravelController
             = [
             'id'       => 1,
             'Name'     => '大碗公餐車',
-            'title'    => '日本和牛丼飯 一份',
+            'title'    => '丼飯吃吃吃',
             'duration' => '2019-1-31',
             'photo'    => "https://devbackend.citypass.tw/storage/diningCar/1/e1fff874c96b11a17438fa68341c1270_b.png",
-            'content'  => '使用說明使用說明使用說明使用說明使用說明使用說明',
+            'content'  => '日本和牛丼飯 一份 內用',
+            'desc'     => '使用說明使用說明使用說明使用說明使用說明使用說明',
             'status'   => 0,
         ];
         
