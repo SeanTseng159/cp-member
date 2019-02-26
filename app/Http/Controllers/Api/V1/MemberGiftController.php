@@ -40,8 +40,7 @@ class MemberGiftController extends RestLaravelController
         $memberId = $request->memberId;
         
         $type = Input::get('type', 'current');
-        $client = Input::get('type', null);
-        $uid = Input::get('uid', null);
+        
         
         //current 未使用 1
         //used    已使用 2
@@ -50,18 +49,66 @@ class MemberGiftController extends RestLaravelController
         
         if ($type == 'current')
         {
-            $this->memberGiftService->list()
-        
+            $result = [
+                [
+                    'id'       => 1,
+                    'Name'     => '大碗公餐車',
+                    'title'    => '日本和牛丼飯 一份',
+                    'duration' => '2019-1-31',
+                    'photo'    => "https://devbackend.citypass.tw/storage/diningCar/1/e1fff874c96b11a17438fa68341c1270_b.png",
+                    'status'   => 0,
+                ],
+                [
+                    'id'       => 2,
+                    'Name'     => '大碗公餐車',
+                    'title'    => '日本和牛丼飯 一份',
+                    'duration' => '2019-1-31',
+                    'photo'    => "https://devbackend.citypass.tw/storage/diningCar/1/e1fff874c96b11a17438fa68341c1270_b.png",
+                    'status'   => 0,
+                ],
+                [
+                    'id'       => 3,
+                    'Name'     => '咖啡店',
+                    'title'    => '拿鐵咖啡一杯',
+                    'duration' => '2019-1-31',
+                    'photo'    => "https://devbackend.citypass.tw/storage/diningCar/1/e1fff874c96b11a17438fa68341c1270_b.png",
+                    'status'   => 0,
+                ],
+                [
+                    'id'       => 4,
+                    'Name'     => '咖啡店',
+                    'title'    => '拿鐵咖啡一杯',
+                    'duration' => '2019-1-31',
+                    'photo'    => "https://devbackend.citypass.tw/storage/diningCar/1/e1fff874c96b11a17438fa68341c1270_b.png",
+                    'status'   => 0,
+                ],
+            ];
             
         }
         else if ($type == 'used')
         {
-        
+            $result = [
+                [
+                    'id'       => 1,
+                    'Name'     => '大碗公餐車',
+                    'title'    => '日本和牛丼飯 一份',
+                    'duration' => '2019-1-31',
+                    'photo'    => "https://devbackend.citypass.tw/storage/diningCar/1/e1fff874c96b11a17438fa68341c1270_b.png",
+                    'status'   => 1,
+                ],
+                [
+                    'id'       => 2,
+                    'Name'     => '咖啡店',
+                    'title'    => '拿鐵咖啡一杯',
+                    'duration' => '2019-1-31',
+                    'photo'    => "https://devbackend.citypass.tw/storage/diningCar/1/e1fff874c96b11a17438fa68341c1270_b.png",
+                    'status'   => 2,
+                ],
+            ];
         }
         
         $client = Input::get('client', null);
         $uid = Input::get('uid', null);
-        $r = [];
         if ($client && $uid)
         {
             $result = [
@@ -74,8 +121,7 @@ class MemberGiftController extends RestLaravelController
                     'status'   => 1,
                 ]
             ];
-            
-//            return $this->success($r);
+
         }
         
         return $this->success($result);
@@ -119,7 +165,11 @@ class MemberGiftController extends RestLaravelController
      */
     public function getQrcode(Request $request,$id)
     {
-        return 'Um8eoj#WXP6Cy$Y2V*Bh';
+        $result = new \stdClass();
+        $result->code = 'Um8eoj#WXP6Cy$Y2V*Bh';
+    
+        return $this->success($result);
+        
     }
 
 
