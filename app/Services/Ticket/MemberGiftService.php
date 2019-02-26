@@ -19,15 +19,18 @@ class MemberGiftService extends BaseService
     {
         $this->repository = $repository;
     }
-
+    
     /**
-     * 取得該店家(或餐車)之優惠卷列表
-     * @param  $params
+     * 取得禮物清單
+     *
+     * @param $type
+     * @param $memberId
+     *
      * @return mixed
      */
-    public function list($params)
+    public function list($type,$memberId)
     {
-        return $this->repository->list($params);
+        return $this->repository->list($type,$memberId);
     }
     
     /**
