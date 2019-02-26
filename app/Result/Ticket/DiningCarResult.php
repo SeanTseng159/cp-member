@@ -73,6 +73,7 @@ class DiningCarResult extends BaseResult
         $result->hashId = $this->encryptHashId('DiningCar', $car->id);
         $result->name = $car->name;
         $result->description = $car->description;
+        $result->img = $this->getImg($car->mainImg);
         $result->imgs = $this->getImgs($car->imgs);
         $result->categories = $this->getCategories($car->category, $car->subCategory);
         $result->isFavorite = $isFavorite;

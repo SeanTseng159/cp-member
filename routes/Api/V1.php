@@ -108,6 +108,12 @@ Route::middleware('cors')->namespace('V1')->group(function () {
 
         // 餐車菜單詳細
         Route::get('menu/{id}', 'DiningCarMenuController@detail');
+
+        // 餐車&會員資料
+        Route::get('{id}/member/info', 'DiningCarMemberController@info');
+
+        // 餐車加入會員
+        Route::post('member/invite', 'DiningCarMemberController@invite');
     });
 
     // linepay相關

@@ -85,6 +85,7 @@ class DiningCarRepository extends BaseRepository
         return $this->model->with([
                                 'category',
                                 'subCategory',
+                                'mainImg',
                                 'imgs',
                                 'socialUrls',
                                 'businessHoursDays.times',
@@ -94,6 +95,7 @@ class DiningCarRepository extends BaseRepository
                                 },
                                 'memberLevels'
                             ])
-                            ->find($id);
+                            ->whereId($id)
+                            ->first();
     }
 }
