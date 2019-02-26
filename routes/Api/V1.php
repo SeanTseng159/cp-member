@@ -108,8 +108,12 @@ Route::middleware('cors')->namespace('V1')->group(function () {
 
         // 餐車菜單詳細
         Route::get('menu/{id}', 'DiningCarMenuController@detail');
-        
-       
+
+        // 餐車&會員資料
+        Route::get('{id}/member/info', 'DiningCarMemberController@info');
+
+        // 餐車加入會員
+        Route::post('member/invite', 'DiningCarMemberController@invite');
     });
 
     // linepay相關
@@ -132,20 +136,20 @@ Route::middleware('cors')->namespace('V1')->group(function () {
         // 獨立賣場
         Route::get('market/{id}', 'MarketController@find');
     });
-    
-    
+
+
     Route::prefix('coupon')->group(function () {
         // 優惠卷列表
         Route::get('{modelType}/{modelSpecId}/list', 'CouponController@list');
-    
+
         // 優惠卷詳細
         Route::get('/{id}', 'CouponController@detail');
-        
+
     });
-    
-   
-    
-    
+
+
+
+
 });
 
 // 需 token 認證的 route
@@ -223,35 +227,35 @@ Route::middleware(['cors', 'auth.jwt'])->namespace('V1')->group(function () {
         // 我的會員卡
         Route::get('diningCars', 'DiningCarMemberController@diningCars');
     });
-    
+
     //coupon 優惠卷相關
     Route::prefix('coupon')->group(function () {
         // coupon加入收藏
         Route::post('{couponId}/favorite/add', 'MemberCouponController@addFavorite');
-        
+
         // coupon移除收藏
         Route::post('{couponId}/favorite/remove', 'MemberCouponController@removeFavorite');
-        
+
         // coupon 收藏列表
         Route::get('favorite/list', 'MemberCouponController@list');
-    
-    
+
+
         // 優惠卷核銷
         Route::post('/', 'MemberCouponController@use');
-        
+
     });
-    
+
     //禮物相關
     Route::prefix('gift')->group(function () {
-        
+
         // 我的禮物列表
         Route::get('/list', 'MemberGiftController@list');
-    
+
         //禮物詳細
         Route::get('/{id}', 'MemberGiftController@show');
-        
+
         // 產生禮物Qrcode
         Route::get('/qrcode/{id}', 'MemberGiftController@getQrcode');
-        
+
     });
 });

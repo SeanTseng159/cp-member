@@ -24,4 +24,20 @@ class DiningCarMemberParameter extends BaseParameter
 
 		return $params;
     }
+
+
+    public function info()
+    {
+        $parameter['token'] = $this->request->input('token');
+
+        return $parameter;
+    }
+
+    public function invite()
+    {
+        $parameter['diningCarId'] = $this->request->input('diningCarId');
+        $parameter['memberId'] = $this->request->input('memberId');
+
+        return $parameter;
+    }
 }
