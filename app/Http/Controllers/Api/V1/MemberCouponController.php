@@ -152,10 +152,10 @@ class MemberCouponController extends RestLaravelController
         {
             $memberId = $request->memberId;
             $couponId = $request->coupon_id;
-            
+    
             $result = $this->memberCouponService->use($memberId, $couponId);
-            
-            return ($result) ? $this->success() : $this->failureCode('E0071');
+    
+            return $this->success($result);
         }
         catch (\Exception $e)
         {

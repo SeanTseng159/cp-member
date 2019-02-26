@@ -185,10 +185,16 @@ class MemberCouponRepository extends BaseRepository
     {
         try
         {
+            //回傳物件
+            $returnObj = new \stdClass();
+            $returnObj->status = true;
+            
             $memberCoupon = $this->model
                 ->where('member_id', $memberId)
                 ->where('coupon_id', $couponID)
                 ->first();
+    
+            $coupon = Coupon::where('id', $couponID)->first();
         
             DB::beginTransaction();
         
@@ -203,13 +209,11 @@ class MemberCouponRepository extends BaseRepository
             }
             else
             {
-                //取得coupon的限制張數
-                $coupon = Coupon::where('id', $couponID)->first();
-    
+                //取得coupon的限制張數，如果以達限制，回傳錯誤
                 if ($memberCoupon->count >= $coupon->limit_qty)
                 {
-                    
-                    return false;
+                    $returnObj->status = false;
+                    return $returnObj;
                 }
                 
                 $memberCoupon->count++;
@@ -221,11 +225,17 @@ class MemberCouponRepository extends BaseRepository
             $memberCouponItem->number = $memberCoupon->count;
             $memberCouponItem->used_time = Carbon::now();
             $memberCouponItem->save();
+            
+            //回傳是否還可以使用
+            if($memberCoupon->count>= $coupon->limit_qty)
+            {
+                $returnObj->status = false;
+            }
         
         
             DB::commit();
         
-            return true;
+            return $returnObj;
         
         }
         catch (\Exception $e)
