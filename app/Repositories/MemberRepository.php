@@ -77,6 +77,33 @@ class MemberRepository
     }
 
     /**
+     * 新增會員 by 邀請
+     * @param $data
+     * @return mixed
+     */
+    public function createByInvite($data)
+    {
+        try {
+            $member = new Member();
+            $member->fill($data);
+            $member->validEmailCode = '';
+            $member->validPhoneCode = strval(mt_rand(100000, 999999));
+            $member->password = Hash::make($data['password']);
+            if ($member->email) $member->validEmailCode = Crypt::encrypt($data['email']);
+
+            $member->save();
+
+            if ($member->openPlateform != 'citypass') $member->email = $member->openId;
+
+            return $member;
+        } catch (QueryException $e) {
+            Log::info('=== 會員註冊 error ===');
+            Log::debug(print_r($e->getMessage(), true));
+            return false;
+        }
+    }
+
+    /**
      * 刪除會員
      * @param $id
      * @return mixed

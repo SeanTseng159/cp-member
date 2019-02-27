@@ -14,6 +14,12 @@ use Illuminate\Http\Request;
 */
 
 Route::middleware('cors')->namespace('V1')->group(function () {
+    // 會員相關
+    Route::prefix('member')->group(function () {
+        // 餐車邀請註冊會員
+        Route::post('register/invite', 'MemberController@registerByDiningCar')->middleware('verify.member.registerByDiningCar');
+    });
+
     // 版為商品相關
     Route::prefix('layout')->group(function () {
         // 取首頁資料
@@ -79,6 +85,9 @@ Route::middleware('cors')->namespace('V1')->group(function () {
 
     // 縣市列表
     Route::get('counties', 'AddressController@counties');
+
+    // 手機解碼
+    Route::post('mobile/decode', 'MobileController@decode');
 
     // 餐車相關
     Route::prefix('diningCar')->group(function () {

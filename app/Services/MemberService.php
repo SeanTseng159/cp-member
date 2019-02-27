@@ -19,6 +19,7 @@ use App\Traits\CryptHelper;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use App\Jobs\SendValidateEmail;
 use App\Jobs\SendRegisterMail;
+use App\Jobs\SendRegisterCompleteMail;
 use App\Jobs\SendForgetPasswordMail;
 use Illuminate\Contracts\Encryption\DecryptException;
 
@@ -55,6 +56,16 @@ class MemberService
     public function update($id, $data)
     {
         return $this->repository->update($id, $data);
+    }
+
+    /**
+     * 新增會員 by 邀請
+     * @param $data
+     * @return \App\Models\Member
+     */
+    public function createByInvite($data = [])
+    {
+        return $this->repository->createByInvite($data);
     }
 
     /**
@@ -388,8 +399,16 @@ class MemberService
      */
     public function sendRegisterEmail($member)
     {
-        if ($member && $member->isRegistered == 1 && $member->isValidEmail == 0) {
+        if (!$member) return false;
+
+        if ($member->isRegistered == 1 && $member->isValidEmail == 0) {
             $job = (new SendRegisterMail($member))->delay(5);
+            $this->dispatch($job);
+
+            return true;
+        }
+        elseif ($member->openPlateform !== 'citypass' && $member->isRegistered == 1 && $member->isValidEmail == 1) {
+            $job = (new SendRegisterCompleteMail($member))->delay(5);
             $this->dispatch($job);
 
             return true;
