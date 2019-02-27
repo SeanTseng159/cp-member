@@ -45,6 +45,25 @@ class MailService
     }
 
     /**
+     * 註冊完成
+     * @param string $member
+     * @return \App\Models\Member
+     */
+    public function sendRegisterCompleteMail($member)
+    {
+        $recipient = [
+                'email' => $member->email,
+                'name' => $member->name
+            ];
+
+        $data['email'] = $member->email;
+        if ($member->openPlateform === 'ipass') $data['plateform'] = '愛PASS';
+        else $data['plateform'] = ucfirst($data['plateform']);
+
+        return $this->send('歡迎使用 CityPass都會通 - 會員註冊成功', $recipient, 'emails/registerComplete', $data);
+    }
+
+    /**
      * Email認證信
      * @param string $member
      * @return \App\Models\Member

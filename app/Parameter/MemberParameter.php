@@ -54,4 +54,33 @@ class MemberParameter
 
         return $parameter;
     }
+
+    /**
+     * laravel request 參數處理
+     * @param $request
+     */
+    public function registerByDiningCar($request)
+    {
+        $platform = $request->header('platform');
+
+        $parameters = $request->only([
+            'country',
+            'countryCode',
+            'cellphone',
+            'openPlateform',
+            'openId',
+            'password',
+            'email',
+            'name'
+        ]);
+
+        $parameters['device'] = $platform ?: 'web';
+        $parameters['status'] = $parameters['isValidPhone'] = $parameters['isRegistered'] = true;
+
+        if ($parameters['openPlateform'] !== 'citypass') {
+            $parameters['isValidEmail'] = true;
+        }
+
+        return $parameters;
+    }
 }
