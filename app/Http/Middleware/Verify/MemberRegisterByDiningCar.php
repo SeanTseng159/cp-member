@@ -42,7 +42,8 @@ class MemberRegisterByDiningCar
             'openPlateform' => 'required',
             'country' => 'required',
             'openPlateform' => 'required',
-            'name' => 'required'
+            'name' => 'required',
+            'diningCarId' => 'required'
         ];
 
         if ($data['openPlateform'] === 'citypass') {

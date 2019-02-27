@@ -71,7 +71,8 @@ class MemberParameter
             'openId',
             'password',
             'email',
-            'name'
+            'name',
+            'diningCarId'
         ]);
 
         $parameters['device'] = $platform ?: 'web';
