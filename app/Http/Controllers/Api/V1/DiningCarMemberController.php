@@ -127,7 +127,7 @@ class DiningCarMemberController extends RestLaravelController
     }
 
     /**
-     * 餐車&會員資料
+     * 餐車邀請加入會員
      * @param Request $request
      * @return \Illuminate\Http\JsonResponse
      */
@@ -151,6 +151,10 @@ class DiningCarMemberController extends RestLaravelController
             $memberCard = (new DiningCarMemberResult)->getMemberCard($diningCarMember);
 
             return ($result) ? $this->success([
+                                        'car' => [
+                                            'id' => $diningCarMember->diningCar->id,
+                                            'name' => $diningCarMember->diningCar->name
+                                        ],
                                         'gift' => null,
                                         'memberCard' => $memberCard
                                     ]) : $this->failureCode('E0200');

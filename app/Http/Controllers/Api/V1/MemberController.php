@@ -14,9 +14,14 @@ use App\Services\MemberService;
 use App\Services\NewsletterService;
 use App\Services\JWTTokenService;
 use App\Parameter\MemberParameter;
+use App\Traits\CryptHelper;
+
+use Hashids\Hashids;
 
 class MemberController extends RestLaravelController
 {
+    use CryptHelper;
+
     protected $memberService;
 
     public function __construct(MemberService $memberService)
@@ -34,6 +39,9 @@ class MemberController extends RestLaravelController
     {
         try {
             $data = (new MemberParameter)->registerByDiningCar($request);
+
+            $diningCarId = (new Hashids('DiningCar', 6))->decode($data['diningCarId']);
+            unset($data['diningCarId']);
 
             $member = $this->memberService->createByInvite($data);
 
@@ -55,16 +63,7 @@ class MemberController extends RestLaravelController
                 return $this->success([
                     'id' => $member->id,
                     'token' => $member->token,
-                    'email' => $member->email,
-                    'name' => $member->name,
-                    'avatar' => $member->avatar,
-                    'countryCode' => $member->countryCode,
-                    'cellphone' => $member->cellphone,
-                    'country' => $member->country,
-                    'gender' => $member->gender,
-                    'zipcode' => $member->zipcode,
-                    'address' => $member->address,
-                    'openPlateform' => $member->openPlateform
+                    'diningCarIdHashId' => $this->encryptHashId('DiningCar', $diningCarId[0]),
                 ]);
             }
 
