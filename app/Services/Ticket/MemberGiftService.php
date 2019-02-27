@@ -23,14 +23,17 @@ class MemberGiftService extends BaseService
     /**
      * 取得禮物清單
      *
-     * @param $type
-     * @param $memberId
+     * @param      $type
+     * @param      $memberId
+     *
+     * @param null $client
+     * @param null $clientId
      *
      * @return mixed
      */
-    public function list($type,$memberId)
+    public function list($type,$memberId,$client=null,$clientId=null)
     {
-        return $this->repository->list($type,$memberId);
+        return $this->repository->list($type,$memberId,$client,$clientId);
     }
     
     /**
