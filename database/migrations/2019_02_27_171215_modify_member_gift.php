@@ -13,6 +13,10 @@ class ModifyMemberGift extends Migration
      */
     public function up()
     {
+        Schema::connection('backend')->table('member_gift_items', function ($table) {
+            $table->dropForeign('member_gift_items_member_gift_id_foreign');
+        });
+        
         Schema::connection('backend')->drop('member_gifts');
         
         
@@ -34,15 +38,6 @@ class ModifyMemberGift extends Migration
      */
     public function down()
     {
-        Schema::connection('backend')->table('member_gift_items', function ($table) {
-            $table->dropColumn('gift_id');
-            $table->dropColumn('member_id');
-            
-            $table->integer('member_gift_id')->unsigned()->after('id');
-            
-            $table->dropUnique('member_gift_items_member_id_gift_id_number_unique');
-        });
-        
         Schema::connection('backend')->create('member_gifts', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('member_id')->unsigned()->comment('使用者id');
@@ -52,6 +47,20 @@ class ModifyMemberGift extends Migration
             $table->unique(['member_id', 'gift_id']);
             $table->timestamps();
         });
+        
+        Schema::connection('backend')->table('member_gift_items', function ($table) {
+            $table->dropColumn('gift_id');
+            $table->dropColumn('member_id');
+            $table->dropUnique('member_gift_items_member_id_gift_id_number_unique');
+            
+            $table->integer('member_gift_id')->unsigned()->after('id');
+            
+            $table->foreign('member_gift_id')->references('id')->on('member_gifts');
+            
+            
+        });
+        
+        
         
     }
 }
