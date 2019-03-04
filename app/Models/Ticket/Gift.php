@@ -13,6 +13,12 @@ class Gift extends BaseModel
 
     public function __construct(){
     
+    
+    }
+    
+    public function Member()
+    {
+
     }
     
     
