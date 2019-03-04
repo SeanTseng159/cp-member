@@ -7,9 +7,8 @@
 
 namespace App\Repositories\Ticket;
 
-use App\Models\Ticket\Coupon;
+use App\Models\Coupon;
 use App\Repositories\BaseRepository;
-use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 

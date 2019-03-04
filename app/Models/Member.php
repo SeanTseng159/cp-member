@@ -18,6 +18,8 @@ class Member extends Model
     protected $dates = ['deleted_at'];
 
     protected $appends = ['showPwd'];
+    
+    protected $connection = 'mysql';
 
     /**
      * 加入是否顯示修改密碼

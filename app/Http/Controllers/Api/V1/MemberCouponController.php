@@ -155,7 +155,6 @@ class MemberCouponController extends RestLaravelController
             $couponId = $request->coupon_id;
         
             $result = $this->memberCouponService->use($memberId, $couponId);
-        
             if (!is_object($result))
             {
                 throw New \Exception();
@@ -170,7 +169,10 @@ class MemberCouponController extends RestLaravelController
             {
                 $code = 'E0072';
             }
-        
+            else if ($result->status == 3)
+            {
+                $code = 'E0073';
+            }           
         
             if ($result->used)
             {

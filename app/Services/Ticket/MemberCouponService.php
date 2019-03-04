@@ -70,7 +70,7 @@ class MemberCouponService extends BaseService
      * @param $memberID
      * @param $couponId
      *
-     * @return \App\Models\Ticket\MemberCoupon
+     * @return \App\Models\MemberCoupon
      */
     public function add($memberID,$couponId)
     {
@@ -85,7 +85,7 @@ class MemberCouponService extends BaseService
      *
      * @param $isFavorite
      *
-     * @return \App\Models\Ticket\MemberCoupon
+     * @return \App\Models\MemberCoupon
      */
     public function update($memberID,$couponId,$isFavorite)
     {
