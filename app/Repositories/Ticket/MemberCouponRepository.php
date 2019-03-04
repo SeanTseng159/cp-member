@@ -192,6 +192,7 @@ class MemberCouponRepository extends BaseRepository
             //回傳物件
             $returnObj = new \stdClass();
             $returnObj->status = 0;
+            $returnObj->used = false;
             
             $memberCoupon = $this->model
                 ->where('member_id', $memberId)
@@ -232,11 +233,14 @@ class MemberCouponRepository extends BaseRepository
                 $memberCoupon->save();
             }
         
+            //確定已使用
             $memberCouponItem = new MemberCouponItem();
             $memberCouponItem->member_coupon_id = $memberCoupon->id;
             $memberCouponItem->number = $memberCoupon->count;
             $memberCouponItem->used_time = Carbon::now();
             $memberCouponItem->save();
+    
+            $returnObj->used = true;
             
             //回傳是否還可以使用
             if ($memberCoupon->count >= $coupon->limit_qty)
