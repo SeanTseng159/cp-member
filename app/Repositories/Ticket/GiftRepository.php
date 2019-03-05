@@ -16,13 +16,12 @@ use Illuminate\Support\Facades\DB;
 class GiftRepository extends BaseRepository
 {
     private $limit = 20;
-    
-    
+
     public function __construct(Gift $model)
     {
         $this->model = $model;
     }
-    
+
     /**
      * 取優惠卷之列表
      *
@@ -34,11 +33,10 @@ class GiftRepository extends BaseRepository
     {
         $modelSpecID = $params->modelSpecId;
         $modelType = $params->modelType;
-    
+
         //使用對象之表格與欄位設定
         $clientItemTable = '';
-    
-    
+
         //todo select 動態欄位的方式
         switch ($modelType)
         {
@@ -48,9 +46,7 @@ class GiftRepository extends BaseRepository
                 $modelType = 'dining_car';
                 break;
         }
-        
-        
-    
+
         //取得該餐車所有的優惠卷
         $result = $this->model
             ->join($clientItemTable, 'coupons.model_spec_id', '=', "{$clientItemTable}.id")
@@ -66,8 +62,6 @@ class GiftRepository extends BaseRepository
                 DB::raw("CONCAT(DATE_FORMAT(start_at, '%Y-%m-%e'),' ~ ',DATE_FORMAT(expire_at, '%Y-%m-%e')) AS duration"),
                 DB::raw('coupons.limit_qty as couponLimitQty'),
                 DB::raw('COALESCE(SUM(member_coupon.count), 0) AS totalUsedCount')
-                
-                
             )
             ->where('coupons.model_type', $modelType)
             ->where('coupons.model_spec_id', $modelSpecID)
@@ -76,10 +70,11 @@ class GiftRepository extends BaseRepository
             ->where('coupons.status', true)
             ->groupBy('coupons.id')
             ->get();
-        
+
+
         return $result;
     }
-    
+
     /**
      * 取優惠卷的明細
      *
@@ -109,10 +104,26 @@ class GiftRepository extends BaseRepository
             ->where('coupons.status', true)
             ->groupBy('coupons.id')
             ->first();
-        
+
         return $result;
 
     }
-    
-    
+
+    /**
+     * 依類型取詳細gift資料
+     *
+     * @param string $modelType
+     * @param int $modelSpecId
+     * @param string $type ['join', 'birthday', 'point']
+     *
+     * @return mixed
+     */
+    public function findByType($modelType = '', $modelSpecId = 0, $type = '')
+    {
+        return $this->model->where('model_type', $modelType)
+                            ->where('model_spec_id', $modelSpecId)
+                            ->where('type', $type)
+                            ->isActive()
+                            ->first();
+    }
 }

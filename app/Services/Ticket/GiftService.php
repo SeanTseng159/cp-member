@@ -15,7 +15,7 @@ use App\Services\BaseService;
 class GiftService extends BaseService
 {
     protected $repository;
-    
+
     public function __construct(GiftRepository $repository)
     {
         $this->repository = $repository;
@@ -30,7 +30,7 @@ class GiftService extends BaseService
     {
         return $this->repository->list($params);
     }
-    
+
     /**
      * 取詳細coupon資料
      *
@@ -41,5 +41,19 @@ class GiftService extends BaseService
     public function find($id = 0)
     {
         return $this->repository->find($id);
+    }
+
+    /**
+     * 依類型取詳細gift資料
+     *
+     * @param string $modelType
+     * @param int $modelSpecId
+     * @param string $type ['join', 'birthday', 'point']
+     *
+     * @return mixed
+     */
+    public function findByType($modelType = '', $modelSpecId = 0, $type = '')
+    {
+        return $this->repository->findByType($modelType, $modelSpecId, $type);
     }
 }

@@ -85,7 +85,7 @@ class DiningCarResult extends BaseResult
         $result->openStatus = DiningCarConfig::OPEN_STATUS[$car->open_status];
         $result->longitude = $car->longitude ?? '';
         $result->latitude = $car->latitude ?? '';
-        $result->distance = $this->calcDistance($this->lat, $this->lng, $car->latitude, $car->longitude, 2, 2) . '公里';
+        $result->distance = ($result->longitude && $result->latitude) ? $this->calcDistance($this->lat, $this->lng, $car->latitude, $car->longitude, 2, 2) . '公里' : '未知';
         $result->businessHoursDays = $this->getBusinessHoursDays($car->businessHoursDays);
         $result->businessHoursDates = $this->getBusinessHoursDates($car->businessHoursDates);
         $result->socialUrls = $this->getSocialUrls($car->socialUrls);
