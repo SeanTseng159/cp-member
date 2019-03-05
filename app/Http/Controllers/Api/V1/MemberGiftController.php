@@ -44,55 +44,9 @@ class MemberGiftController extends RestLaravelController
         $clientId = Input::get('uid', null);
         
         
-        //current 未使用 1
-        //used    已使用 2
-        $result = '';
+        //current 未使用 1 used 已使用 2
+        $result = $this->memberGiftService->list($type, $memberId, $client, $clientId);
         
-        
-        if ($type == 'current')
-        {
-            $this->memberGiftService->list($type,$memberId,$client,$clientId);
-            
-            
-        }
-        else if ($type == 'used')
-        {
-            $result = [
-                [
-                    'id'       => 1,
-                    'Name'     => '大碗公餐車',
-                    'title'    => '日本和牛丼飯 一份',
-                    'duration' => '2019-1-31',
-                    'photo'    => "https://devbackend.citypass.tw/storage/diningCar/1/e1fff874c96b11a17438fa68341c1270_b.png",
-                    'status'   => 1,
-                ],
-                [
-                    'id'       => 2,
-                    'Name'     => '咖啡店',
-                    'title'    => '拿鐵咖啡一杯',
-                    'duration' => '2019-1-31',
-                    'photo'    => "https://devbackend.citypass.tw/storage/diningCar/1/e1fff874c96b11a17438fa68341c1270_b.png",
-                    'status'   => 2,
-                ],
-            ];
-        }
-        
-        $client = Input::get('client', null);
-        $uid = Input::get('uid', null);
-        if ($client && $uid)
-        {
-            $result = [
-                [
-                    'id'       => 1,
-                    'Name'     => '大碗公餐車',
-                    'title'    => '日本和牛丼飯 一份',
-                    'duration' => '2019-1-31',
-                    'photo'    => "https://devbackend.citypass.tw/storage/diningCar/1/e1fff874c96b11a17438fa68341c1270_b.png",
-                    'status'   => 1,
-                ]
-            ];
-
-        }
         
         return $this->success($result);
         
