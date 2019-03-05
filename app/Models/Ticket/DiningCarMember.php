@@ -15,6 +15,7 @@ class DiningCarMember extends BaseModel
 	use SoftDeletes;
 
 	protected $guarded = ['id'];
+	protected $appends = ['gift_Count'];
 
 	/**
      * 取得餐車
@@ -22,5 +23,13 @@ class DiningCarMember extends BaseModel
     public function diningCar()
     {
         return $this->belongsTo('App\Models\Ticket\DiningCar');
+    }
+
+    /**
+     * 取得領取禮物列表
+     */
+    public function getGiftCountAttribute()
+    {
+        return $this->hasMany('App\Models\Ticket\MemberGiftItem', 'member_id', 'member_id')->count();
     }
 }

@@ -12,14 +12,12 @@ class MemberGiftItem extends BaseModel
     protected $table = 'member_gift_items';
 
     public function __construct(){
-    
+
     }
-    
-    
+
     public function MemberGift()
     {
         return $this->belongsTo('App\Models\Ticket\MemberGift','member_gift_id','id');
     }
-    
-    
+
 }
