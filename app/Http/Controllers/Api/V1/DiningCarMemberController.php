@@ -57,8 +57,8 @@ class DiningCarMemberController extends RestLaravelController
 
             $result = $this->service->add($memberId, $diningCarId);
 
-            // 取禮物
-            $gift = $this->giftService->findByType('dining_car' , $diningCarId, 'join');
+            // 發送禮物
+            $gift = $this->giftService->giveAddDiningCarMemberGift($diningCarId, $memberId);
             $gift = (new GiftResult)->detailByJoinDiningCar($gift);
 
             // 取會員卡資料
@@ -151,8 +151,8 @@ class DiningCarMemberController extends RestLaravelController
 
             $result = $this->service->add($params['memberId'], $diningCarId);
 
-            // 取禮物
-            $gift = $this->giftService->findByType('dining_car' , $diningCarId, 'join');
+            // 發送禮物
+            $gift = $this->giftService->giveAddDiningCarMemberGift($diningCarId, $params['memberId']);
             $gift = (new GiftResult)->detailByJoinDiningCar($gift);
 
             // 取會員卡資料
@@ -168,7 +168,8 @@ class DiningCarMemberController extends RestLaravelController
                                         'memberCard' => $memberCard
                                     ]) : $this->failureCode('E0200');
         } catch (Exception $e) {
-            return $this->failureCode('E0200');
+            var_dump($e->getMessage());
+            // return $this->failureCode('E0200');
         }
     }
 }

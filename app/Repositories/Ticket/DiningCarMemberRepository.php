@@ -56,7 +56,7 @@ class DiningCarMemberRepository extends BaseRepository
      */
     public function find($memberId = 0, $id = 0)
     {
-        return $this->model->with('diningCar.memberLevels')
+        return $this->model->with(['diningCar.memberLevels'])
                             ->where('member_id', $memberId)
                             ->where('dining_car_id', $id)
                             ->first();
