@@ -17,19 +17,23 @@ use Hashids\Hashids;
 use App\Services\Ticket\DiningCarMemberService;
 use App\Services\Ticket\DiningCarService;
 use App\Services\MemberService;
+use App\Services\Ticket\GiftService;
 
 use App\Parameter\Ticket\DiningCarMemberParameter;
 use App\Result\Ticket\DiningCarMemberResult;
+use App\Result\Ticket\GiftResult;
 
 class DiningCarMemberController extends RestLaravelController
 {
     use CryptHelper;
 
     protected $service;
+    protected $giftService;
 
-    public function __construct(DiningCarMemberService $service)
+    public function __construct(DiningCarMemberService $service, GiftService $giftService)
     {
         $this->service = $service;
+        $this->giftService = $giftService;
     }
 
     /**
@@ -52,14 +56,17 @@ class DiningCarMemberController extends RestLaravelController
             if ($isMember) return $this->failureCode('A0101');
 
             $result = $this->service->add($memberId, $diningCarId);
-            // todo: 取禮物
+
+            // 取禮物
+            $gift = $this->giftService->findByType('dining_car' , $diningCarId, 'join');
+            $gift = (new GiftResult)->detailByJoinDiningCar($gift);
 
             // 取會員卡資料
             $diningCarMember = $this->service->find($memberId, $diningCarId);
             $memberCard = (new DiningCarMemberResult)->getMemberCard($diningCarMember);
 
             return ($result) ? $this->success([
-                                        'gift' => null,
+                                        'gift' => $gift,
                                         'memberCard' => $memberCard
                                     ]) : $this->failureCode('E0200');
         } catch (Exception $e) {
@@ -142,9 +149,11 @@ class DiningCarMemberController extends RestLaravelController
             $isMember = $this->service->isMember($params['memberId'], $diningCarId);
             if ($isMember) return $this->failureCode('A0101');
 
-
             $result = $this->service->add($params['memberId'], $diningCarId);
-            // todo: 取禮物
+
+            // 取禮物
+            $gift = $this->giftService->findByType('dining_car' , $diningCarId, 'join');
+            $gift = (new GiftResult)->detailByJoinDiningCar($gift);
 
             // 取會員卡資料
             $diningCarMember = $this->service->find($params['memberId'], $diningCarId);
@@ -155,7 +164,7 @@ class DiningCarMemberController extends RestLaravelController
                                             'id' => $diningCarMember->diningCar->id,
                                             'name' => $diningCarMember->diningCar->name
                                         ],
-                                        'gift' => null,
+                                        'gift' => $gift,
                                         'memberCard' => $memberCard
                                     ]) : $this->failureCode('E0200');
         } catch (Exception $e) {
