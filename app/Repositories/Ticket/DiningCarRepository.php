@@ -94,6 +94,9 @@ class DiningCarRepository extends BaseRepository
                                 'memberCard' => function($query) use ($memberId) {
                                     $query->where('member_id', $memberId);
                                 },
+                                'memberCard.gifts.memberGiftItems' => function($query) use ($memberId) {
+                                    $query->where('member_id', $memberId);
+                                },
                                 'memberLevels'
                             ])
                             ->whereId($id)

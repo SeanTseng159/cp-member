@@ -168,8 +168,7 @@ class DiningCarMemberController extends RestLaravelController
                                         'memberCard' => $memberCard
                                     ]) : $this->failureCode('E0200');
         } catch (Exception $e) {
-            var_dump($e->getMessage());
-            // return $this->failureCode('E0200');
+            return $this->failureCode('E0200');
         }
     }
 }

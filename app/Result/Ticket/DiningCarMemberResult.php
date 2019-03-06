@@ -74,13 +74,30 @@ class DiningCarMemberResult extends BaseResult
      * 取會員卡資訊
      * @param $memberCar
      */
-    public function getMemberCard($memberCar)
+    public function getMemberCard($memberCard)
     {
-        $memberCard = new \stdClass;
-        $memberCard->level = $this->getMemberLevel($memberCar->diningCar->memberLevels, $memberCar->amount);
-        $memberCard->point = $memberCar->point;
-        $memberCard->gift = $memberCar->gift_count;
+        $result = new \stdClass;
+        $result->level = $this->getMemberLevel($memberCard->diningCar->memberLevels, $memberCard->amount);
+        $result->point = $memberCard->point;
+        $result->gift = $this->calcGiftCount($memberCard->gifts);
 
-        return $memberCard;
+        return $result;
+    }
+
+    /**
+     * 計算禮物數
+     * @param $gifts
+     * @return int
+     */
+    private function calcGiftCount($gifts) : int
+    {
+        if (!$gifts || $gifts->isEmpty()) return 0;
+
+        $count = 0;
+        foreach ($gifts as $gift) {
+            $count += $gift->memberGiftItems->count();
+        }
+
+        return $count;
     }
 }
