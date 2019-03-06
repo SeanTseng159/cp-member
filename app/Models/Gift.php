@@ -25,9 +25,10 @@ class Gift extends BaseModel
     
     public function diningCar()
     {
-        return $this
-            ->hasOne(DiningCar::class, 'id', 'model_spec_id')
-            ->where('model_type', ClientType::dining_car);
+        
+        return  $this->hasOne(DiningCar::class, 'id', 'model_spec_id');
+        
+        
     }
     
     

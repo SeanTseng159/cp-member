@@ -3,9 +3,11 @@
 namespace App\Http\Controllers\Api\V1;
 
 
+use App\Exceptions\ErrorCode;
 use App\Services\ImageService;
 use App\Services\Ticket\GiftService;
-use App\Services\Ticket\MemberGiftService;
+use App\Services\Ticket\MemberGiftItemService;
+
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Input;
 use Ksd\Mediation\Core\Controller\RestLaravelController;
@@ -14,17 +16,15 @@ class MemberGiftController extends RestLaravelController
 {
     
     protected $lang = 'zh-TW';
-    protected $giftService;
-    protected $memberGiftService;
+    protected $memberGiftItemService;
     protected $imageService;
     
     
-    public function __construct(GiftService $service,
-                                MemberGiftService $memberCouponService,
+    public function __construct(MemberGiftItemService $memberGiftItemService,
                                 ImageService $imageService)
     {
-        $this->giftService = $service;
-        $this->memberGiftService = $memberCouponService;
+        
+        $this->memberGiftItemService = $memberGiftItemService;
         $this->imageService = $imageService;
     }
     
@@ -37,18 +37,46 @@ class MemberGiftController extends RestLaravelController
      */
     public function list(Request $request)
     {
-        $memberId = $request->memberId;
+        try
+        {
+            $memberId = $request->memberId;
+            
+            if (!$memberId)
+            {
+                throw new \Exception('E0007');
+            }
+            
+            $type = Input::get('type', 'current');
+            $client = Input::get('client', null);
+            $clientId = intval(Input::get('uid', null));
+            
+            
+            
+            //current 未使用 1 used 已使用 2
+            if ($type == 'current')
+            {
+                $type = 1;
+            }
+            if ($type == 'used')
+            {
+                $type = 2;
+            }
+            
+            $result = $this->memberGiftItemService->list($type, $memberId, $client, $clientId);
+            
+            
+            return $this->success($result);
+            
+        }
+        catch (\Exception $e)
+        {
+            if ($e->getMessage())
+            {
+                return $this->failureCode($e->getMessage());
+            }
+            return $this->failureCode('E0007');
+        }
         
-        $type = Input::get('type', 'current');
-        $client = Input::get('client', null);
-        $clientId = Input::get('uid', null);
-        
-        
-        //current 未使用 1 used 已使用 2
-        $result = $this->memberGiftService->list($type, $memberId, $client, $clientId);
-        
-        
-        return $this->success($result);
         
     }
     
@@ -60,7 +88,8 @@ class MemberGiftController extends RestLaravelController
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function show(Request $request,$id)
+    public function show(Request $request,
+                         $id)
     {
         $memberId = $request->memberId;
         
@@ -80,25 +109,21 @@ class MemberGiftController extends RestLaravelController
     }
     
     
-    
     /**
      * @param Request $request
      * @param         $id
      *
      * @return string
      */
-    public function getQrcode(Request $request,$id)
+    public function getQrcode(Request $request,
+                              $id)
     {
         $result = new \stdClass();
         $result->code = 'Um8eoj#WXP6Cy$Y2V*Bh';
-    
+        
         return $this->success($result);
         
     }
-
-
-
-
     
     
 }

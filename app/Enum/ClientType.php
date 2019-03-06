@@ -9,32 +9,35 @@
 
 namespace App\Helpers;
 
-//http://www.php.net/manual/en/class.splenum.php
-use SplEnum;
 
+use BenSampo\Enum\Enum;
+use function GuzzleHttp\default_user_agent;
 
-
-class ClientType extends SplEnum {
-    
-    const __default = self::dining_car;
-    
+final class ClientType extends Enum
+{
     const dining_car = 1;
     
     
-    static public function transform($value)
+    /**
+     * 轉換從url來的字串 ex  v1/gift/list?type=current&client=DiningCar&uid=1
+     * client=DiningCar -> 1
+     *
+     * @param $typeName
+     *
+     * @return int
+     */
+    public static function transform($typeName)
     {
-        $retValue = 0 ;
-        switch ($value)
+        switch ($typeName)
         {
             case 'DiningCar':
-                $retValue = self::dining_car;
+                return self::dining_car;
                 break;
+            
+            default:
+                return 0;
         }
-        return $retValue;
+        
     }
     
-    
-    
-    
-
 }

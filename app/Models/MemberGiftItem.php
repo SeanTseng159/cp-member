@@ -26,10 +26,15 @@ class MemberGiftItem extends BaseModel
     }
     
     
-    public function diningCar()
+    public function member()
     {
-        
-        return $this->belongsTo(DiningCar::class, 'model_spec_id', 'id');
+        return $this->belongsTo(Member::class, 'id', 'member_id');
+    }
+    
+    
+    public function scopeByUser($query,$memberId)
+    {
+        return $query->where('member_id', $memberId);
     }
     
     
