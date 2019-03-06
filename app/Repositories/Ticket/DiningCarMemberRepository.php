@@ -56,7 +56,15 @@ class DiningCarMemberRepository extends BaseRepository
      */
     public function find($memberId = 0, $id = 0)
     {
-        return $this->model->with(['diningCar.memberLevels'])
+        return $this->model->with([
+                                'diningCar.memberLevels',
+                                'gifts' => function($query) use ($id) {
+                                    $query->where('model_spec_id', $id);
+                                },
+                                'gifts.memberGiftItems' => function($query) use ($memberId) {
+                                    $query->where('member_id', $memberId);
+                                }
+                            ])
                             ->where('member_id', $memberId)
                             ->where('dining_car_id', $id)
                             ->first();

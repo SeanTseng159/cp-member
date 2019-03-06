@@ -315,9 +315,26 @@ class DiningCarResult extends BaseResult
             // 已加入會員
             $result->level = $this->getMemberLevel($memberLevels, $memberCard->amount);
             $result->point = $memberCard->point;
-            $result->gift = $memberCard->gift;
+            $result->gift = $this->calcGiftCount($memberCard->gifts);
         }
 
         return $result;
+    }
+
+    /**
+     * 計算禮物數
+     * @param $gifts
+     * @return int
+     */
+    private function calcGiftCount($gifts) : int
+    {
+        if (!$gifts || $gifts->isEmpty()) return 0;
+
+        $count = 0;
+        foreach ($gifts as $gift) {
+            $count += $gift->memberGiftItems->count();
+        }
+
+        return $count;
     }
 }

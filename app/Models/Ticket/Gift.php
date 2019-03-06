@@ -29,4 +29,14 @@ class Gift extends BaseModel
                      ->where('on_sale_at', '<=', $now)
                      ->where('off_sale_at', '>=', $now);
     }
+
+    /**
+     * 取得禮物券
+     * @param Bulider $query
+     * @return Bulider
+     */
+    public function memberGiftItems()
+    {
+        return $this->hasMany('App\Models\Ticket\MemberGiftItem');
+    }
 }
