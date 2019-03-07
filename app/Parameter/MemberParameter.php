@@ -59,7 +59,7 @@ class MemberParameter
      * laravel request 參數處理
      * @param $request
      */
-    public function registerByDiningCar($request)
+    public function registerInvite($request)
     {
         $platform = $request->header('platform');
 
@@ -72,7 +72,8 @@ class MemberParameter
             'password',
             'email',
             'name',
-            'diningCarId'
+            'type',
+            'typeId'
         ]);
 
         $parameters['device'] = $platform ?: 'web';
