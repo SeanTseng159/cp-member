@@ -13,14 +13,11 @@ use Ksd\Mediation\Core\Controller\RestLaravelController;
 class GiftController extends RestLaravelController
 {
     protected $lang = 'zh-TW';
-    protected $couponService;
-    protected $memberCouponService;
     protected $imageService;
     
     
     public function __construct(ImageService $imageService)
     {
-        
         
         $this->imageService = $imageService;
     }
