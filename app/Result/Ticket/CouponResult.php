@@ -115,16 +115,17 @@ class CouponResult extends BaseResult
             $result->status = 3 ; //已失效
        
         $couponLimit = $coupon->couponLimitQty;
+        $couponQty = $coupon->CouponQty;
     
         if ($memberCoupon)
         {
-            if ($memberCoupon->count > 0 && $memberCoupon->count < $couponLimit)
-            {
-                $result->status = 1; // 已使用
-            }
             if ($memberCoupon->count >= $couponLimit)
             {
-                $result->status = 2; // 已兌換完畢
+                $result->status = 1; // 已使用完個人限制
+            }
+            if ($memberCoupon->count >= $couponQty)
+            {
+                $result->status = 2; // 所有已兌換完畢
             }
         
             if ($memberCoupon->is_collected)
