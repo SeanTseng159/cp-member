@@ -7,21 +7,51 @@
 
 namespace App\Models\Ticket;
 
+use Carbon\Carbon;
+
 class Gift extends BaseModel
 {
-    protected $table = 'gifts';
-
-    public function __construct(){
+    public function __construct()
+    {
+    
+    }
+    
+    /**
+     * 取得已啟用的禮物
+     *
+     * @param Bulider $query
+     *
+     * @return Bulider
+     */
+    public function scopeIsActive($query)
+    {
+        $now = Carbon::now();
+        
+        return $query->where('status', 1)
+            ->where('on_sale_at', '<=', $now)
+            ->where('off_sale_at', '>=', $now);
+    }
+    
+    
+    public function __construct()
+    {
     
     
     }
     
     public function Member()
     {
-
+    
     }
     
-    
-    
-    
+    /**
+     * 取得禮物券
+     *
+     * @return \Awobaz\Compoships\Database\Eloquent\Relations\HasMany
+     */
+    public function memberGiftItems()
+    {
+        return $this->hasMany('App\Models\Ticket\MemberGiftItem');
+        
+    }
 }

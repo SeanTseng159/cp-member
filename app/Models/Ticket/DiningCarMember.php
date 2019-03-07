@@ -23,4 +23,12 @@ class DiningCarMember extends BaseModel
     {
         return $this->belongsTo('App\Models\Ticket\DiningCar');
     }
+
+    /**
+     * 取得禮物
+     */
+    public function gifts()
+    {
+        return $this->hasMany('App\Models\Ticket\Gift', 'model_spec_id', 'dining_car_id')->where('model_type', 'dining_car');
+    }
 }

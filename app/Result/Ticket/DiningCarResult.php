@@ -85,7 +85,7 @@ class DiningCarResult extends BaseResult
         $result->openStatus = DiningCarConfig::OPEN_STATUS[$car->open_status];
         $result->longitude = $car->longitude ?? '';
         $result->latitude = $car->latitude ?? '';
-        $result->distance = $this->calcDistance($this->lat, $this->lng, $car->latitude, $car->longitude, 2, 2) . '公里';
+        $result->distance = ($result->longitude && $result->latitude) ? $this->calcDistance($this->lat, $this->lng, $car->latitude, $car->longitude, 2, 2) . '公里' : '未知';
         $result->businessHoursDays = $this->getBusinessHoursDays($car->businessHoursDays);
         $result->businessHoursDates = $this->getBusinessHoursDates($car->businessHoursDates);
         $result->socialUrls = $this->getSocialUrls($car->socialUrls);
@@ -322,9 +322,26 @@ class DiningCarResult extends BaseResult
             // 已加入會員
             $result->level = $this->getMemberLevel($memberLevels, $memberCard->amount);
             $result->point = $memberCard->point;
-            $result->gift = $memberCard->gift;
+            $result->gift = $this->calcGiftCount($memberCard->gifts);
         }
 
         return $result;
+    }
+
+    /**
+     * 計算禮物數
+     * @param $gifts
+     * @return int
+     */
+    private function calcGiftCount($gifts) : int
+    {
+        if (!$gifts || $gifts->isEmpty()) return 0;
+
+        $count = 0;
+        foreach ($gifts as $gift) {
+            $count += $gift->memberGiftItems->count();
+        }
+
+        return $count;
     }
 }
