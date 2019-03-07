@@ -90,7 +90,7 @@ class CouponController extends RestLaravelController
             $userCoupons = $this->memberCouponService->list($params->memberId,$id)->first();
             
             //圖片資訊
-            $images = (new ImageHelper($this->imageService))->getImageUrl($couponDetail->model_type,$couponDetail->model_spec_id,1);
+            $images = ImageHelper::getImageUrl($couponDetail->model_type,$couponDetail->model_spec_id,1);
             
             $result = (new CouponResult())->detail($couponDetail,$userCoupons,$images);
         

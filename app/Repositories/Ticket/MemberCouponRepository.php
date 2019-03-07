@@ -7,9 +7,9 @@
 
 namespace App\Repositories\Ticket;
 
-use App\Models\Ticket\Coupon;
-use App\Models\Ticket\MemberCoupon;
-use App\Models\Ticket\MemberCouponItem;
+use App\Models\Coupon;
+use App\Models\MemberCoupon;
+use App\Models\MemberCouponItem;
 use App\Repositories\BaseRepository;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -201,6 +201,18 @@ class MemberCouponRepository extends BaseRepository
     
             $coupon = Coupon::where('id', $couponID)->first();
             
+            if (!Carbon::now()->between(Carbon::parse($coupon->start_at), Carbon::parse($coupon->expire_at)))
+            {
+                $returnObj->status = 3;
+                return $returnObj;
+            }
+            
+            
+    
+          
+            
+            //檢查是否逾期
+            
             //檢查是否超過總數
             $max = $coupon->qty;
             $currentUsed = $this->model->where('coupon_id', $couponID)->sum('count');
@@ -254,13 +266,13 @@ class MemberCouponRepository extends BaseRepository
                 $returnObj->status = 2;
             }
             DB::commit();
-        
+            
             return $returnObj;
         
         }
         catch (\Exception $e)
         {
-            
+           
             DB::rollBack();
             
             var_dump($e);

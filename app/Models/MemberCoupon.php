@@ -5,7 +5,7 @@
  * Time: 上午 10:03
  */
 
-namespace App\Models\Ticket;
+namespace App\Models;
 
 use App\Models\Ticket\BaseModel;
 

@@ -21,26 +21,40 @@ class MemberGiftItemService extends BaseService
     {
         $this->repository = $repository;
     }
-
-    /**
-     * 取得該店家(或餐車)之優惠卷列表
-     * @param  $params
-     * @return mixed
-     */
-    public function list($params)
-    {
-        return $this->repository->list($params);
-    }
     
     /**
-     * 取詳細coupon資料
+     * 取得禮物清單
      *
-     * @param int $id
+     * @param      $type
+     * @param      $memberId
+     *
+     * @param null $client
+     * @param null $clientId
      *
      * @return mixed
      */
-    public function find($id = 0)
+    
+    public function list($type,$memberId,$client,$clientId)
     {
-        return $this->repository->find($id);
+        return $this->repository->list($type,$memberId,$client,$clientId);
     }
+    
+    
+    public function findByUserGiftId($memberID,$memberGiftId)
+    {
+        return $this->repository->findByUserGiftId($memberID,$memberGiftId);
+    }
+    
+    public function update($memberId,$memberGiftId)
+    {
+        return $this->repository->update($memberId,$memberGiftId);
+    }
+    
+    public function findByItemID($id)
+    {
+        return $this->repository->findByItemID($id);
+    }
+    
+    
+    
 }

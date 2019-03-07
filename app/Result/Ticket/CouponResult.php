@@ -33,7 +33,8 @@ class CouponResult extends BaseResult
     public function list($coupons,$memberCoupons)
     {
         $resultAry = [];
-    
+        
+       
         foreach ($coupons as $coupon)
         {
             $result = new \stdClass;
@@ -44,6 +45,14 @@ class CouponResult extends BaseResult
             $result->duration = $coupon->duration;
             $result->favorite = false;
             $result->used = false;
+            $result->allused = false;
+            
+           
+            
+            if ((int)$coupon->totalUsedCount >= $coupon->CouponQty )
+            {
+                $result->allused = true;
+            }
         
         
             if ($memberCoupons->isNotEmpty())
@@ -53,6 +62,8 @@ class CouponResult extends BaseResult
                 if ($memberCoupon)
                 {
                     $couponLimit = $coupon->couponLimitQty;
+                    
+                    //已經使用完個人的限制張數
                     if ($memberCoupon->count >= $couponLimit)
                     {
                         $result->used = true;
@@ -67,7 +78,6 @@ class CouponResult extends BaseResult
             }
             $resultAry[] = $result;
         }
-    
         return $resultAry;
     }
     
@@ -91,7 +101,6 @@ class CouponResult extends BaseResult
         $result->duration= $coupon->duration;
         $result->desc= $coupon->couponDesc;
         $result->favorite= false;
-        $result->used= false;
         $result->status = 0 ; //0:未使用 1:已使用 2:優惠券已兌換完畢 3.優惠券已失效(過期)
         $result->shareUrl = CommonHelper::getWebHost('zh-TW/diningCar/detail/' . $coupon->couponId);
         $result->photo = $images;

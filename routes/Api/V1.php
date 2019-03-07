@@ -265,6 +265,9 @@ Route::middleware(['cors', 'auth.jwt'])->namespace('V1')->group(function () {
 
         // 產生禮物Qrcode
         Route::get('/qrcode/{id}', 'MemberGiftController@getQrcode');
+        
+        //禮物Qrcode核銷
+        Route::post('/qrcode/', 'MemberGiftController@useQrcode');
 
     });
 });

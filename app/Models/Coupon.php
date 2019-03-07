@@ -5,18 +5,18 @@
  * Time: 上午 10:03
  */
 
-namespace App\Models\Ticket;
+namespace App\Models;
 
 use App\Models\Ticket\BaseModel;
 
-class MemberCouponItem extends BaseModel
+class Coupon extends BaseModel
 {
-    
-    protected $table = 'member_coupon_items';
-    
+    protected $table = 'coupons';
+
     public function __construct(){
     
     }
-
+    
+    
     
 }

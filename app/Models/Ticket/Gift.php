@@ -33,17 +33,6 @@ class Gift extends BaseModel
     }
     
     
-    public function __construct()
-    {
-    
-    
-    }
-    
-    public function Member()
-    {
-    
-    }
-    
     /**
      * 取得禮物券
      *

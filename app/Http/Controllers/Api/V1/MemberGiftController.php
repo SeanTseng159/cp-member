@@ -3,28 +3,29 @@
 namespace App\Http\Controllers\Api\V1;
 
 
+use App\Result\MemberGiftItemResult;
 use App\Services\ImageService;
-use App\Services\Ticket\GiftService;
-use App\Services\Ticket\MemberGiftService;
+use App\Services\Ticket\MemberGiftItemService;
+
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Input;
 use Ksd\Mediation\Core\Controller\RestLaravelController;
 
+
 class MemberGiftController extends RestLaravelController
 {
-    
+    const DelayVerifySecond = 90 ;
     protected $lang = 'zh-TW';
-    protected $giftService;
-    protected $memberGiftService;
+    protected $memberGiftItemService;
     protected $imageService;
+    protected $qrCodePrefix = 'gift_';
     
     
-    public function __construct(GiftService $service,
-                                MemberGiftService $memberCouponService,
-                                ImageService $imageService)
+    public function __construct(MemberGiftItemService $memberGiftItemService, ImageService $imageService)
     {
-        $this->giftService = $service;
-        $this->memberGiftService = $memberCouponService;
+        
+        $this->memberGiftItemService = $memberGiftItemService;
         $this->imageService = $imageService;
     }
     
@@ -37,114 +38,155 @@ class MemberGiftController extends RestLaravelController
      */
     public function list(Request $request)
     {
-        $memberId = $request->memberId;
-        
-        $type = Input::get('type', 'current');
-        $client = Input::get('client', null);
-        $clientId = Input::get('uid', null);
-        
-        
-        //current 未使用 1
-        //used    已使用 2
-        $result = '';
-        
-        
-        if ($type == 'current')
+        try
         {
-            $this->memberGiftService->list($type,$memberId,$client,$clientId);
+            $memberId = $request->memberId;
+            $type = Input::get('type', 'current');
+            $client = Input::get('client', null);
+            $clientId = intval(Input::get('uid', null));
+            
+            if (!$memberId || !$type)
+            {
+                throw new \Exception('E0007');
+            }
             
             
+            //current 未使用 1 used 已使用 2
+            if ($type == 'current')
+            {
+                $type = 1;
+            }
+            if ($type == 'used')
+            {
+                $type = 2;
+            }
+            
+            //取得使用者的禮物清單
+            $result = $this->memberGiftItemService->list($type, $memberId, $client, $clientId);
+            
+            $result = (new MemberGiftItemResult())->list($result, $type);
+            
+            
+            return $this->success($result);
+            
         }
-        else if ($type == 'used')
+        catch (\Exception $e)
         {
-            $result = [
-                [
-                    'id'       => 1,
-                    'Name'     => '大碗公餐車',
-                    'title'    => '日本和牛丼飯 一份',
-                    'duration' => '2019-1-31',
-                    'photo'    => "https://devbackend.citypass.tw/storage/diningCar/1/e1fff874c96b11a17438fa68341c1270_b.png",
-                    'status'   => 1,
-                ],
-                [
-                    'id'       => 2,
-                    'Name'     => '咖啡店',
-                    'title'    => '拿鐵咖啡一杯',
-                    'duration' => '2019-1-31',
-                    'photo'    => "https://devbackend.citypass.tw/storage/diningCar/1/e1fff874c96b11a17438fa68341c1270_b.png",
-                    'status'   => 2,
-                ],
-            ];
+            if ($e->getMessage())
+            {
+                return $this->failureCode($e->getMessage());
+            }
+            
+            return $this->failureCode('E0007');
         }
         
-        $client = Input::get('client', null);
-        $uid = Input::get('uid', null);
-        if ($client && $uid)
-        {
-            $result = [
-                [
-                    'id'       => 1,
-                    'Name'     => '大碗公餐車',
-                    'title'    => '日本和牛丼飯 一份',
-                    'duration' => '2019-1-31',
-                    'photo'    => "https://devbackend.citypass.tw/storage/diningCar/1/e1fff874c96b11a17438fa68341c1270_b.png",
-                    'status'   => 1,
-                ]
-            ];
-
-        }
-        
-        return $this->success($result);
         
     }
     
     
     /**
-     * 我的禮物列表
+     * 我的禮物明細
      *
      * @param Request $request
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function show(Request $request,$id)
+    public function show(Request $request, $id)
     {
         $memberId = $request->memberId;
         
-        $result
-            = [
-            'id'       => 1,
-            'Name'     => '大碗公餐車',
-            'title'    => '丼飯吃吃吃',
-            'duration' => '2019-1-31',
-            'photo'    => "https://devbackend.citypass.tw/storage/diningCar/1/e1fff874c96b11a17438fa68341c1270_b.png",
-            'content'  => '日本和牛丼飯 一份 內用',
-            'desc'     => '使用說明使用說明使用說明使用說明使用說明使用說明',
-            'status'   => 0,
-        ];
+        //取得使用者的禮物清單
+        $result = $this->memberGiftItemService->findByUserGiftId($memberId, $id);
+        $result = (new MemberGiftItemResult())->show($result);
         
         return $this->success($result);
     }
     
     
-    
     /**
+     * 格式: 編碼前 memberID.memberGiftItemID.$截止時間(timestamp)
+     * ex.151.1.1551927111
+     *
      * @param Request $request
      * @param         $id
      *
      * @return string
      */
-    public function getQrcode(Request $request,$id)
+    public function getQrcode(Request $request, $id)
     {
-        $result = new \stdClass();
-        $result->code = 'Um8eoj#WXP6Cy$Y2V*Bh';
-    
-        return $this->success($result);
+        try
+        {
+            $memberId = $request->memberId;
+            
+            //90秒
+            $duration = Carbon::now()->addSeconds($this::DelayVerifySecond)->timestamp;
+            $code = $this->qrCodePrefix.base64_encode("$memberId.$id.$duration");
+            $result = new \stdClass();
+            $result->code = $code;
+            
+            return $this->success($result);
+            
+        }
+        catch (\Exception $e)
+        {
+            return $this->failureCode('E0007');
+            
+        }
+        
         
     }
-
-
-
-
+    
+    /**
+     *
+     * 格式memberID.giftID.截止時間(timestamp)
+     *
+     * @param Request $request
+     *
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    
+    public function useQrcode(Request $request)
+    {
+        
+        try
+        {
+            $code = $request->gift_code;
+            
+            $info = base64_decode(str_replace($this->qrCodePrefix, '', $code));
+            $data = explode(".", $info);
+            $memberId = $data[0];
+            $memberGiftId = $data[1];
+            $duration = Carbon::createFromTimestamp(intval($data[2]));
+            
+            if ($duration->lt(Carbon::now()))
+            {
+                throw new \Exception('E0074');
+            }
+            
+            $result = $this->memberGiftItemService->update($memberId,$memberGiftId);
+            if(!$result)
+            {
+                throw new \Exception('E0075');
+            }
+            return $this->success();
+            
+            
+        }
+        catch (\Exception $e)
+        {
+            $errCode = $e->getMessage();
+            if ($errCode)
+            {
+                return $this->failureCode($errCode);
+            }
+            
+            return $this->failureCode('E0007');
+            
+        }
+        
+        
+    }
     
     
 }

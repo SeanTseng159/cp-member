@@ -8,17 +8,15 @@
 namespace App\Helpers;
 
 use Agent;
-use App\Helpers\CommonHelper;
+use App\Models\Image;
+use App\Repositories\ImageRepository;
 use App\Services\ImageService;
+
 
 Class ImageHelper
 {
-    protected $imageService;
+    static $imageService;
     
-    public function __construct(ImageService $imageService)
-    {
-        $this->imageService = $imageService;
-    }
     
     /**
      * 取單一照片
@@ -49,7 +47,7 @@ Class ImageHelper
     /**
      * 取所有照片
      *
-     * @param $imgS
+     * @param $imgs
      *
      * @return array
      */
@@ -77,7 +75,21 @@ Class ImageHelper
         }
 
         return $filePath;
-    }    
+    }
+    
+    private static function getInstance()
+    {
+        
+        if(is_null(self::$imageService)){
+            
+            self::$imageService = new ImageService(new ImageRepository(new Image));
+            
+        }
+        
+        return self::$imageService;
+        
+    }
+    
     /**
      * 取得table : images內的圖片網址，若sort有值，則回傳path字串，否則會傳path string array
      *
@@ -88,28 +100,30 @@ Class ImageHelper
      * @return string|array
      */
     
-    public function getImageUrl($model_type,$model_spec_id,$sort)
+    static public function getImageUrl($model_type, $model_spec_id, $sort)
     {
-        $pathResult = $this->imageService->path($model_type, $model_spec_id, $sort);
-    
+        self::getInstance();
+        
+        $pathResult = self::$imageService->path($model_type, $model_spec_id, $sort);
+        
         if ($pathResult == '')
         {
             return "";
         }
-    
-    
+        
+        
         $returnAry = [];
         foreach ($pathResult as $path)
         {
-        
-            $returnAry[] = $this::url($path);
-        
+            $returnAry[] = self::url($path);
         }
-    
-        if(count($returnAry)==1)
+        
+        if (count($returnAry) == 1)
+        {
             return $returnAry[0];
-            
-        return $returnAry;    
+        }
+        
+        return $returnAry;
     }
 
 }

@@ -24,27 +24,6 @@ class GiftService extends BaseService
         $this->memberGiftItemRepository = $memberGiftItemRepository;
     }
 
-    /**
-     * 取得該店家(或餐車)之優惠卷列表
-     * @param  $params
-     * @return mixed
-     */
-    public function list($params)
-    {
-        return $this->repository->list($params);
-    }
-
-    /**
-     * 取詳細coupon資料
-     *
-     * @param int $id
-     *
-     * @return mixed
-     */
-    public function find($id = 0)
-    {
-        return $this->repository->find($id);
-    }
 
     /**
      * 依類型取詳細gift資料

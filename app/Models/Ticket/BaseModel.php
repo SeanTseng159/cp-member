@@ -7,10 +7,10 @@
 
 namespace App\Models\Ticket;
 
-use Illuminate\Database\Eloquent\Model;
+use Hoyvoy\CrossDatabase\Eloquent\Model;;
 use Awobaz\Compoships\Compoships;
-
 class BaseModel extends Model
+
 {
 	use Compoships;
 
