@@ -12,7 +12,7 @@ use App\Traits\ValidatorHelper;
 use App\Services\MemberService;
 use App\Parameter\MemberParameter;
 
-class MemberRegisterByDiningCar
+class MemberRegisterInvite
 {
     use ApiResponseHelper;
     use ValidatorHelper;
@@ -34,7 +34,7 @@ class MemberRegisterByDiningCar
 
     public function handle($request, Closure $next)
     {
-        $data = (new MemberParameter)->registerByDiningCar($request);
+        $data = (new MemberParameter)->registerInvite($request);
 
         $validatorData = [
             'countryCode' => 'required|max:6',
@@ -43,7 +43,8 @@ class MemberRegisterByDiningCar
             'country' => 'required',
             'openPlateform' => 'required',
             'name' => 'required',
-            'diningCarId' => 'required'
+            'type' => 'required',
+            'typeId' => 'required'
         ];
 
         if ($data['openPlateform'] === 'citypass') {

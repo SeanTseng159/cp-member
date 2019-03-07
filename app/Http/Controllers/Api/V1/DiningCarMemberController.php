@@ -87,7 +87,7 @@ class DiningCarMemberController extends RestLaravelController
             $data = $this->service->list($request->memberId, $params);
 
             $result['page'] = (int) $params['page'];
-            $result['total'] = $data->total();
+            $result['total'] = $data->total;
             $result['cars'] = (new DiningCarMemberResult)->list($data);
 
             return $this->success($result);

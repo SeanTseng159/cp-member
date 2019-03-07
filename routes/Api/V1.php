@@ -17,7 +17,7 @@ Route::middleware('cors')->namespace('V1')->group(function () {
     // 會員相關
     Route::prefix('member')->group(function () {
         // 餐車邀請註冊會員
-        Route::post('register/invite', 'MemberController@registerByDiningCar')->middleware('verify.member.registerByDiningCar');
+        Route::post('register/invite', 'MemberController@registerInvite')->middleware('verify.member.registerInvite');
     });
 
     // 版為商品相關

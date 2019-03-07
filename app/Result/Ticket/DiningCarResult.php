@@ -87,7 +87,7 @@ class DiningCarResult extends BaseResult
         $result->socialUrls = $this->getSocialUrls($car->socialUrls);
         $result->shareUrl = CommonHelper::getWebHost('zh-TW/diningCar/detail/' . $car->id);
         $result->level = $this->getLevel($car->level, $car->expired_at);
-        $result->memberCard = $this->getMemberCard($car->memberCard, $car->memberLevels);
+        $result->memberCard = $this->getMemberCard($car->memberCard, $car->memberLevels, $car->gift_count);
 
         return $result;
     }
@@ -301,7 +301,7 @@ class DiningCarResult extends BaseResult
      * 取會員卡資訊
      * @param $data
      */
-    public function getMemberCard($memberCard, $memberLevels)
+    public function getMemberCard($memberCard, $memberLevels, $giftCount = 0)
     {
         $result = new \stdClass;
 
@@ -315,26 +315,9 @@ class DiningCarResult extends BaseResult
             // 已加入會員
             $result->level = $this->getMemberLevel($memberLevels, $memberCard->amount);
             $result->point = $memberCard->point;
-            $result->gift = $this->calcGiftCount($memberCard->gifts);
+            $result->gift = $giftCount;
         }
 
         return $result;
-    }
-
-    /**
-     * 計算禮物數
-     * @param $gifts
-     * @return int
-     */
-    private function calcGiftCount($gifts) : int
-    {
-        if (!$gifts || $gifts->isEmpty()) return 0;
-
-        $count = 0;
-        foreach ($gifts as $gift) {
-            $count += $gift->memberGiftItems->count();
-        }
-
-        return $count;
     }
 }
