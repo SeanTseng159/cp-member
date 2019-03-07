@@ -37,10 +37,10 @@ class GiftRepository extends BaseRepository
                             ->isActive()
                             ->first();
     }
-    
-    
+
+
     /**
-     * 依類型取詳細gift資料
+     * 取特定餐車會員的禮物數
      *
      * @param int $memberId
      * @param int $diningCarId

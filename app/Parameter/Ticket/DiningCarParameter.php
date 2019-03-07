@@ -31,6 +31,7 @@ class DiningCarParameter extends BaseParameter
         $params['page'] = $this->page;
         $params['limit'] = $this->limit;
         $params['memberId'] = $this->memberId;
+        $params['keywordDiningCarIds'] = [];
 
 		return $params;
     }
@@ -50,6 +51,7 @@ class DiningCarParameter extends BaseParameter
         $params['keyword'] = $this->request->input('keyword');
         $params['category'] = $this->request->input('category');
         $params['openStatus'] = $this->request->input('openStatus');
+        $params['keywordDiningCarIds'] = [];
 
         return $params;
     }

@@ -66,10 +66,10 @@ class KeywordRepository extends BaseRepository
      */
     public function getDiningCarsByKeyword($keyword)
     {
-        return $this->model->with('diningCars.diningCar')
+        return $this->model->join('dining_car_keywords', 'keywords.keyword_id', '=', 'dining_car_keywords.keyword_id')
+                            ->select('dining_car_keywords.dining_car_id')
                             ->notDeleted()
-                            ->whereHas('diningCars')
-                            ->where('keyword_text', 'like', '%' . $keyword . '%')
+                            ->where('keywords.keyword_text', 'like', '%' . $keyword . '%')
                             ->get();
     }
 }
