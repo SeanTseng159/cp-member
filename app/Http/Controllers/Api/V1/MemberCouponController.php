@@ -11,7 +11,6 @@ use Illuminate\Support\Facades\Input;
 use Ksd\Mediation\Core\Controller\RestLaravelController;
 
 
-
 class MemberCouponController extends RestLaravelController
 {
     protected $lang = 'zh-TW';
@@ -20,7 +19,8 @@ class MemberCouponController extends RestLaravelController
     protected $memberCouponItemService;
     
     
-    public function __construct(MemberCouponService $memberCouponService,MemberCouponItemService $memberCouponItemServic)
+    public function __construct(MemberCouponService $memberCouponService,
+                                MemberCouponItemService $memberCouponItemServic)
     {
         $this->memberCouponService = $memberCouponService;
         $this->memberCouponItemService = $memberCouponItemServic;
@@ -35,7 +35,8 @@ class MemberCouponController extends RestLaravelController
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function addFavorite(Request $request,$couponId)
+    public function addFavorite(Request $request,
+                                $couponId)
     {
         try
         {
@@ -59,17 +60,14 @@ class MemberCouponController extends RestLaravelController
             {
                 $result = true;
             }
-
             
-
+            
             return ($result) ? $this->success() : $this->failureCode('E0040');
         }
         catch (\Exception $e)
         {
             return $this->failureCode('E0040');
         }
-        
-        
         
         
     }
@@ -82,13 +80,14 @@ class MemberCouponController extends RestLaravelController
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function removeFavorite(Request $request,$couponId)
+    public function removeFavorite(Request $request,
+                                   $couponId)
     {
         
         try
         {
             $memberId = $request->memberId;
-    
+            
             $result = $this->memberCouponService->update($memberId, $couponId, false);
             
             return ($result) ? $this->success() : $this->failureCode('E0041');
@@ -109,8 +108,9 @@ class MemberCouponController extends RestLaravelController
      *
      * @throws \Exception
      */
-    public function list(Request $request){
-    
+    public function list(Request $request)
+    {
+        
         try
         {
             $memberId = $request->memberId;
@@ -119,15 +119,15 @@ class MemberCouponController extends RestLaravelController
             //used    已使用 2
             //expired 已失效 3
             $allowStatus = ['current' => 1, 'used' => 2, 'expired' => 3];
-            if (!array_key_exists($listType,$allowStatus))
+            if (!array_key_exists($listType, $allowStatus))
             {
                 throw  new \Exception('E0001');
             }
-            $status = $allowStatus[$listType];
+            $status = $allowStatus[ $listType ];
             
             
             //取得使用者所有coupon
-            $memberCoupons = $this->memberCouponService->favoriteCouponList($memberId,$status);
+            $memberCoupons = $this->memberCouponService->favoriteCouponList($memberId, $status);
             
             return $this->success($memberCoupons);
         }
@@ -135,7 +135,7 @@ class MemberCouponController extends RestLaravelController
         {
             return $this->failureCode('E0001');
         }
-    
+        
         
     }
     
@@ -148,19 +148,20 @@ class MemberCouponController extends RestLaravelController
      */
     public function use(Request $request)
     {
-    
+        
         try
         {
             $memberId = $request->memberId;
             $couponId = $request->coupon_id;
-        
+            
             $result = $this->memberCouponService->use($memberId, $couponId);
             if (!is_object($result))
             {
+                
                 throw New \Exception();
             }
             
-            $code = '0000';
+            $code = '00000';
             if ($result->status == 1)
             {
                 $code = 'E0071';
@@ -172,27 +173,36 @@ class MemberCouponController extends RestLaravelController
             else if ($result->status == 3)
             {
                 $code = 'E0073';
-            }           
-        
+            }
+            
+            $message = '';
             if ($result->used)
             {
-                return $this->responseFormat(['status' => $result->status], '0000', ErrorCode::message($code));
-            
+                if ($code == '00000')
+                {
+                    $message = 'success';
+                }
+                else
+                {
+                    $message = ErrorCode::message($code);
+                }
+                return $this->responseFormat(['status' => $result->status], '00000', $message);
+                
             }
             else
             {
                 return $this->failureCode($code);
-            
+                
             }
-        
+            
         }
         catch (\Exception $e)
         {
-        
+            
             return $this->failureCode('E0070');
         }
         
     }
     
-
+    
 }
