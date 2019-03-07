@@ -66,7 +66,7 @@ class MemberGiftItemRepository extends BaseRepository
                 })
             ->whereHas('gift',
                 function ($q) use ($type, $clientObj) {
-                    //取得期限內的
+                    //取得期限內的 => 禮物狀態在resulte判斷 (todo 重購)
 //                    if ($type === 1)
 //                    {
 //                        $q->where('start_at', '<=', Carbon::now())
@@ -96,6 +96,50 @@ class MemberGiftItemRepository extends BaseRepository
             ->with('gift.diningCar')
             ->get();
         
+        
+    }
+    
+    /**
+     * 禮物詳細資料
+     *
+     * @param $memberId
+     * @param $memberGiftId
+     *
+     * @return
+     */
+    public function find($memberId, $memberGiftId)
+    {
+        return $this->memberGiftItem
+            ->where('id', $memberGiftId)
+            ->where('member_id', $memberId)
+            ->with('gift', 'gift.diningCar')
+            ->first();
+    }
+    
+    
+    public function update($memberId, $memberGiftId)
+    {
+        $row = $this->memberGiftItem
+            ->where('id', $memberGiftId)
+            ->where('member_id', $memberId)
+            ->first();
+        
+        if ($row->used_time)
+        {
+            return false;
+        }
+        $result = $this->memberGiftItem
+            ->where('id', $memberGiftId)
+            ->where('member_id', $memberId)
+            ->update(['used_time' => Carbon::now()]);
+        
+        return $result;
+        
+    }
+    
+    public function findByItemID($id)
+    {
+        return $this->memberGiftItem->find($id)->first();
         
     }
     
