@@ -37,5 +37,8 @@ class MemberGiftItem extends BaseModel
         return $query->where('member_id', $memberId);
     }
     
-    
+    public function MemberGift()
+    {
+        return $this->belongsTo('App\Models\Ticket\MemberGift','member_gift_id','id');
+    }
 }

@@ -37,14 +37,13 @@ class GiftRepository extends BaseRepository
                             ->isActive()
                             ->first();
     }
-
-
+    
+    
     /**
      * 依類型取詳細gift資料
      *
-     * @param string $modelType
-     * @param int $modelSpecId
-     * @param string $type ['join', 'birthday', 'point']
+     * @param int $memberId
+     * @param int $diningCarId
      *
      * @return mixed
      */
