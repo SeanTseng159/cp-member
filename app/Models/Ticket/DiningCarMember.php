@@ -14,8 +14,6 @@ class DiningCarMember extends BaseModel
 {
 	use SoftDeletes;
 
-	protected $guarded = ['id'];
-
 	/**
      * 取得餐車
      */

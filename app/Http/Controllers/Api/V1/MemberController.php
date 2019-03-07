@@ -35,13 +35,15 @@ class MemberController extends RestLaravelController
      * @param Int $id
      * @return \Illuminate\Http\JsonResponse
      */
-    public function registerByDiningCar(Request $request, NewsletterService $newsletterService)
+    public function registerInvite(Request $request, NewsletterService $newsletterService)
     {
         try {
-            $data = (new MemberParameter)->registerByDiningCar($request);
+            $data = (new MemberParameter)->registerInvite($request);
+            $type = $data['type'];
 
-            $diningCarId = (new Hashids('DiningCar', 6))->decode($data['diningCarId']);
-            unset($data['diningCarId']);
+            $typeId = (new Hashids($type, 6))->decode($data['typeId']);
+            unset($data['type']);
+            unset($data['typeId']);
 
             $member = $this->memberService->createByInvite($data);
 
@@ -63,7 +65,7 @@ class MemberController extends RestLaravelController
                 return $this->success([
                     'id' => $member->id,
                     'token' => $member->token,
-                    'diningCarIdHashId' => $this->encryptHashId('DiningCar', $diningCarId[0]),
+                    'hashId' => $this->encryptHashId($type, $typeId[0]),
                 ]);
             }
 

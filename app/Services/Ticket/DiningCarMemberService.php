@@ -10,14 +10,17 @@ namespace App\Services\Ticket;
 
 use App\Services\BaseService;
 use App\Repositories\Ticket\DiningCarMemberRepository;
+use App\Repositories\Ticket\GiftRepository;
 
 class DiningCarMemberService extends BaseService
 {
     protected $repository;
+    protected $giftRepository;
 
-    public function __construct(DiningCarMemberRepository $repository)
+    public function __construct(DiningCarMemberRepository $repository, GiftRepository $giftRepository)
     {
         $this->repository = $repository;
+        $this->giftRepository = $giftRepository;
     }
 
     /**
@@ -50,7 +53,14 @@ class DiningCarMemberService extends BaseService
      */
     public function find($memberId = 0, $id = 0)
     {
-        return $this->repository->find($memberId, $id);
+        $memberDiningCar = $this->repository->find($memberId, $id);
+
+        // 取禮物數
+        if ($memberDiningCar) {
+            $memberDiningCar->gift_count = $this->giftRepository->getMemberGiftItemsCountByDiningCarId($memberId, $id);
+        }
+
+        return $memberDiningCar;
     }
 
     /**
@@ -74,6 +84,26 @@ class DiningCarMemberService extends BaseService
      */
     public function list($memberId = 0, $params = [])
     {
-        return $this->repository->list($memberId, $params);
+        $memberDiningCars = $this->repository->list($memberId, $params);
+
+        $total = $memberDiningCars->total();
+
+        // 取禮物數
+        if (!$memberDiningCars->isEmpty()) {
+            $memberDiningCars = $memberDiningCars->transform(function ($item) use ($memberId) {
+                $item->gift_count = $this->giftRepository->getMemberGiftItemsCountByDiningCarId($memberId, $item->dining_car_id);
+                return $item;
+            });
+        }
+        else {
+            $memberDiningCars = $memberDiningCars->transform(function ($item) {
+                $item->gift_count = 0;
+                return $item;
+            });
+        }
+
+        $memberDiningCars->total = $total;
+
+        return $memberDiningCars;
     }
 }

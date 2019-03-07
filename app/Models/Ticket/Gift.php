@@ -31,9 +31,6 @@ class Gift extends BaseModel
             ->where('on_sale_at', '<=', $now)
             ->where('off_sale_at', '>=', $now);
     }
-    
-    
-    /**
      * 取得禮物券
      *
      * @return \Awobaz\Compoships\Database\Eloquent\Relations\HasMany

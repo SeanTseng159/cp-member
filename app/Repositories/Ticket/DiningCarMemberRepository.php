@@ -9,6 +9,7 @@ namespace App\Repositories\Ticket;
 
 use App\Repositories\BaseRepository;
 use Illuminate\Pagination\Paginator;
+use DB;
 use App\Models\Ticket\DiningCarMember;
 
 class DiningCarMemberRepository extends BaseRepository
@@ -57,13 +58,7 @@ class DiningCarMemberRepository extends BaseRepository
     public function find($memberId = 0, $id = 0)
     {
         return $this->model->with([
-                                'diningCar.memberLevels',
-                                'gifts' => function($query) use ($id) {
-                                    $query->where('model_spec_id', $id);
-                                },
-                                'gifts.memberGiftItems' => function($query) use ($memberId) {
-                                    $query->where('member_id', $memberId);
-                                }
+                                'diningCar.memberLevels'
                             ])
                             ->where('member_id', $memberId)
                             ->where('dining_car_id', $id)
@@ -78,19 +73,20 @@ class DiningCarMemberRepository extends BaseRepository
      */
     public function list($memberId = 0, $params = [])
     {
-        $currentPage = $params['page'];
+        /*$currentPage = $params['page'];
         Paginator::currentPageResolver(function () use ($currentPage) {
             return $currentPage;
-        });
+        });*/
 
         return $this->model->with([
-                                'diningCar.mainImg',
-                                'diningCar.category',
-                                'diningCar.subCategory',
-                                'diningCar.memberLevels'
-                            ])
-                            ->where('member_id', $memberId)
-                            //->paginate($params['limit']);
-                            ->paginate(3000);
+                            'diningCar.mainImg',
+                            'diningCar.category',
+                            'diningCar.subCategory',
+                            'diningCar.memberLevels'
+                        ])
+                        ->select('dining_car_id', 'member_id')
+                        ->where('member_id', $memberId)
+                        //->paginate($params['limit']);
+                        ->paginate(300);
     }
 }

@@ -38,4 +38,24 @@ class GiftRepository extends BaseRepository
                             ->first();
     }
 
+
+    /**
+     * 依類型取詳細gift資料
+     *
+     * @param string $modelType
+     * @param int $modelSpecId
+     * @param string $type ['join', 'birthday', 'point']
+     *
+     * @return mixed
+     */
+    public function getMemberGiftItemsCountByDiningCarId($memberId = 0, $diningCarId = 0)
+    {
+        return $this->model->join('member_gift_items', function ($join) use ($memberId) {
+                                $join->on('gifts.id', '=', 'member_gift_items.gift_id')
+                                    ->where('member_gift_items.member_id', '=', $memberId);
+                            })
+                            ->where('model_spec_id', $diningCarId)
+                            ->select('id')
+                            ->count();
+    }
 }
