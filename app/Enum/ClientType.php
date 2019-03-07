@@ -16,6 +16,8 @@ use function GuzzleHttp\default_user_agent;
 final class ClientType extends Enum
 {
     const dining_car = 1;
+    const coupon = 2;
+    const gift = 3;
     
     
     /**

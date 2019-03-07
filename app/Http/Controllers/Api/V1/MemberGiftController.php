@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\V1;
 
 
 use App\Exceptions\ErrorCode;
+use App\Result\MemberGiftItemResult;
 use App\Services\ImageService;
 use App\Services\Ticket\GiftService;
 use App\Services\Ticket\MemberGiftItemService;
@@ -40,15 +41,14 @@ class MemberGiftController extends RestLaravelController
         try
         {
             $memberId = $request->memberId;
-            
-            if (!$memberId)
-            {
-                throw new \Exception('E0007');
-            }
-            
             $type = Input::get('type', 'current');
             $client = Input::get('client', null);
             $clientId = intval(Input::get('uid', null));
+    
+            if (!$memberId || !$type)
+            {
+                throw new \Exception('E0007');
+            }
             
             
             
@@ -62,7 +62,10 @@ class MemberGiftController extends RestLaravelController
                 $type = 2;
             }
             
+            //取得使用者的禮物清單
             $result = $this->memberGiftItemService->list($type, $memberId, $client, $clientId);
+            
+            $result = (new MemberGiftItemResult())->list($result,$type);
             
             
             return $this->success($result);

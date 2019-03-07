@@ -23,7 +23,7 @@ class MemberGiftItemRepository extends BaseRepository
     private $imageService;
     
     
-    public function __construct(MemberGiftItem $memberGiftItem,ImageService $imageService)
+    public function __construct(MemberGiftItem $memberGiftItem, ImageService $imageService)
     {
         $this->memberGiftItem = $memberGiftItem;
         $this->imageService = $imageService;
@@ -39,7 +39,7 @@ class MemberGiftItemRepository extends BaseRepository
      *
      * @return mixed
      */
-    public function list($type,$memberId,$client,$clientId)
+    public function list($type, $memberId, $client, $clientId)
     {
         $clientObj = null;
         
@@ -50,10 +50,9 @@ class MemberGiftItemRepository extends BaseRepository
             $clientObj->clientId = $clientId;
         }
         
-        $result = [];
         
         //會員的所有禮物
-        $memberGifts = $this->memberGiftItem
+        return $this->memberGiftItem
             ->byUser($memberId)
             ->when($type,
                 function ($query) use ($type) {
@@ -62,73 +61,41 @@ class MemberGiftItemRepository extends BaseRepository
                     {
                         $query->whereNull('used_time');
                     }
+                    
                     return $query;
                 })
             ->whereHas('gift',
-                function ($q) use ($type,$clientObj) {
+                function ($q) use ($type, $clientObj) {
                     //取得期限內的
-                    if ($type === 1)
-                    {
-                        $q->where('start_at', '<=', Carbon::now())
-                            ->where('expire_at', '>=', Carbon::now());
-                    }
-                    //取得過期的
-                    elseif ($type === 2)
-                    {
-                        $q->orWhere('expire_at', '<', Carbon::now());;
-                    }
+//                    if ($type === 1)
+//                    {
+//                        $q->where('start_at', '<=', Carbon::now())
+//                            ->where('expire_at', '>=', Carbon::now());
+//                    }
+//                    //取得過期的或使用過的
+//                    elseif ($type === 2)
+//                    {
+//                        $q->where('expire_at', '<', Carbon::now());;
+//                    }
                     //取得某餐車的
                     if ($clientObj)
                     {
+                        
                         $q->where('model_type', $clientObj->clientType)
                             ->where('model_spec_id', $clientObj->clientId);
                     }
+                    
                     return $q->where('status', 1);
                 })
             ->with('gift')
-            ->whereHas('gift.diningCar',function ($q){
+            ->whereHas('gift.diningCar',
+                function ($q) {
                     //餐車是enabled
                     $q->where('status', 1);
                 })
             ->with('gift.diningCar')
             ->get();
         
-        foreach ($memberGifts as $item)
-        {
-            $data = new \stdClass();
-            $gift = $item->gift;
-            $diningCar = $gift->diningCar;
-            
-            $data->id = $item->id;
-            $data->Name = $diningCar->name;
-            $data->title = $gift->name;
-            $data->duration = $gift->expire_at;
-//            $data->photo = new ImageHelper($this->imageService)->getImageUrl('gift',$clientId,1);
-            $data->status = 0;
-            
-            //已使用
-            if ($item->used_time)
-            {
-                $data->status = 1;
-            }
-            
-            //已過期
-            if (Carbon::now() >= Carbon::parse($gift->expire_at))
-            {
-                $data->status = 2;
-            }
-
-            if ($type == 1 && $data->status == 0)
-            {
-                $result[] = $data;
-            }
-            else if ($type == 2 && $data->status != 0)
-            {
-                $result[] = $data;
-            }
-        }
-        
-        return $result;
         
     }
     
