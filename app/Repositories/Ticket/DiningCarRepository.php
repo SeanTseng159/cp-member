@@ -31,12 +31,13 @@ class DiningCarRepository extends BaseRepository
         Paginator::currentPageResolver(function () use ($currentPage) {
             return $currentPage;
         });
-        
+
 
         return $this->model->with(['category', 'subCategory', 'mainImg'])
                             ->where('status', 1)
                             ->when($params['keyword'], function($query) use ($params) {
-                                $query->where('name', 'like', '%' . $params['keyword'] . '%');
+                                $query->where('name', 'like', '%' . $params['keyword'] . '%')
+                                    ->orWhereIn('id', $params['keywordDiningCarIds']);
                             })
                             ->when($params['county'], function($query) use ($params) {
                                 $query->where('county', $params['county']);
@@ -62,7 +63,8 @@ class DiningCarRepository extends BaseRepository
         return $this->model->with(['category', 'subCategory', 'mainImg'])
                             ->where('status', 1)
                             ->when($params['keyword'], function($query) use ($params) {
-                                $query->where('name', 'like', '%' . $params['keyword'] . '%');
+                                $query->where('name', 'like', '%' . $params['keyword'] . '%')
+                                    ->orWhereIn('id', $params['keywordDiningCarIds']);
                             })
                             ->when($params['category'], function($query) use ($params) {
                                 $query->where('dining_car_category_id', $params['category']);

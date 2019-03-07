@@ -15,6 +15,7 @@ use App\Parameter\Ticket\DiningCarParameter;
 use App\Services\Ticket\DiningCarCategoryService;
 use App\Services\Ticket\DiningCarService;
 use App\Services\Ticket\MemberDiningCarService;
+use App\Services\Ticket\KeywordService;
 use App\Result\Ticket\DiningCarCategoryResult;
 use App\Result\Ticket\DiningCarResult;
 
@@ -60,10 +61,16 @@ class DiningCarController extends RestLaravelController
      * @param Request $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function list(Request $request, MemberDiningCarService $memberDiningCarService)
+    public function list(Request $request, MemberDiningCarService $memberDiningCarService, KeywordService $keywordService)
     {
         try {
             $params = (new DiningCarParameter($request))->list();
+
+            // 找關鍵字中的餐車
+            if ($params['keyword']) {
+                $keywordDiningCars = $keywordService->getDiningCarsByKeyword($params['keyword']);
+                $params['keywordDiningCarIds'] = $keywordDiningCars->pluck('dining_car_id')->toArray();
+            }
 
             $data = $this->service->list($params);
             // 取收藏列表
@@ -84,10 +91,16 @@ class DiningCarController extends RestLaravelController
      * @param Request $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function map(Request $request)
+    public function map(Request $request, KeywordService $keywordService)
     {
         try {
             $params = (new DiningCarParameter($request))->map();
+
+            // 找關鍵字中的餐車
+            if ($params['keyword']) {
+                $keywordDiningCars = $keywordService->getDiningCarsByKeyword($params['keyword']);
+                $params['keywordDiningCarIds'] = $keywordDiningCars->pluck('dining_car_id')->toArray();
+            }
 
             $data = $this->service->map($params);
             $result = (new DiningCarResult)->list($data, NULL, $params['latitude'], $params['longitude']);
@@ -121,5 +134,5 @@ class DiningCarController extends RestLaravelController
             return $this->failureCode('E0007');
         }
     }
-    
+
 }
