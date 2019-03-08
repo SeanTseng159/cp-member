@@ -13,23 +13,25 @@ use App\Models\MemberGiftItem;
 use App\Repositories\BaseRepository;
 use App\Services\ImageService;
 use Carbon\Carbon;
+use DB;
+use App\Core\Logger;
 
 
 class MemberGiftItemRepository extends BaseRepository
 {
     private $limit = 20;
-    
+
     private $memberGiftItem;
     private $imageService;
-    
-    
+
+
     public function __construct(MemberGiftItem $memberGiftItem, ImageService $imageService)
     {
         $this->memberGiftItem = $memberGiftItem;
         $this->imageService = $imageService;
     }
-    
-    
+
+
     /**
      * 新增
      *
@@ -47,35 +49,35 @@ class MemberGiftItemRepository extends BaseRepository
             {
                 return null;
             }
-            
+
             DB::connection('backend')->beginTransaction();
-            
+
             $model = new MemberGiftItem;
             $model->member_id = $memberId;
             $model->gift_id = $giftId;
             $model->number = $number;
             $model->save();
-            
+
             DB::connection('backend')->commit();
-            
+
             return $model;
         }
         catch (QueryException $e)
         {
             Logger::error('QueryException Create MemberGiftItem Error', $e->getMessage());
             DB::connection('backend')->rollBack();
-            
+
             return null;
         }
         catch (Exception $e)
         {
             Logger::error('Exception Create MemberGiftItem Error', $e->getMessage());
             DB::connection('backend')->rollBack();
-            
+
             return null;
         }
     }
-    
+
     /**
      * 查單一筆
      *
@@ -92,8 +94,8 @@ class MemberGiftItemRepository extends BaseRepository
             ->where('number', $number)
             ->first();
     }
-    
-    
+
+
     /** 取得使用者之禮物列表，如果$client與$clientID非null，則取得該餐車的資料即可
      *
      * @param        $type :0:可使用/1:已使用or過期
@@ -107,15 +109,15 @@ class MemberGiftItemRepository extends BaseRepository
     public function list($type, $memberId, $client, $clientId)
     {
         $clientObj = null;
-        
+
         if ($client && $clientId)
         {
             $clientObj = new \stdClass();
             $clientObj->clientType = ClientType::transform($client);
             $clientObj->clientId = $clientId;
         }
-        
-        
+
+
         //會員的所有禮物
         return $this->memberGiftItem
             ->byUser($memberId)
@@ -126,7 +128,7 @@ class MemberGiftItemRepository extends BaseRepository
                     {
                         $query->whereNull('used_time');
                     }
-                    
+
                     return $query;
                 })
             ->whereHas('gift',
@@ -134,11 +136,11 @@ class MemberGiftItemRepository extends BaseRepository
                     //取得某餐車的
                     if ($clientObj)
                     {
-                        
+
                         $q->where('model_type', $clientObj->clientType)
                             ->where('model_spec_id', $clientObj->clientId);
                     }
-                    
+
                     return $q->where('status', 1);
                 })
             ->with('gift')
@@ -149,10 +151,10 @@ class MemberGiftItemRepository extends BaseRepository
                 })
             ->with('gift.diningCar')
             ->get();
-        
-        
+
+
     }
-    
+
     /**
      * 禮物詳細資料
      *
@@ -169,22 +171,22 @@ class MemberGiftItemRepository extends BaseRepository
             ->with('gift', 'gift.diningCar')
             ->first();
     }
-    
-    
+
+
     public function findByItemID($id)
     {
         return $this->memberGiftItem->find($id)->first();
-        
+
     }
-    
-    
+
+
     public function update($memberId, $memberGiftId)
     {
         $row = $this->memberGiftItem
             ->where('id', $memberGiftId)
             ->where('member_id', $memberId)
             ->first();
-        
+
         if ($row->used_time)
         {
             return false;
@@ -193,10 +195,10 @@ class MemberGiftItemRepository extends BaseRepository
             ->where('id', $memberGiftId)
             ->where('member_id', $memberId)
             ->update(['used_time' => Carbon::now()]);
-        
+
         return $result;
-        
+
     }
-    
-    
+
+
 }
