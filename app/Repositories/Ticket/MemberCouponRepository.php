@@ -198,8 +198,15 @@ class MemberCouponRepository extends BaseRepository
                 ->where('member_id', $memberId)
                 ->where('coupon_id', $couponID)
                 ->first();
+            
+            
     
             $coupon = Coupon::where('id', $couponID)->first();
+            if(!$coupon)
+            {
+                return false;
+            }
+            
             
             if (!Carbon::now()->between(Carbon::parse($coupon->start_at), Carbon::parse($coupon->expire_at)))
             {
