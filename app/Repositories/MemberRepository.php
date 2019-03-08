@@ -88,7 +88,7 @@ class MemberRepository
             $member->fill($data);
             $member->validEmailCode = '';
             $member->validPhoneCode = strval(mt_rand(100000, 999999));
-            $member->password = Hash::make($data['password']);
+            if (isset($data['password']) && $data['password']) $member->password = Hash::make($data['password']);
             if ($member->email) $member->validEmailCode = Crypt::encrypt($data['email']);
 
             $member->save();
