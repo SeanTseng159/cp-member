@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\V1;
 
 
 use App\Exceptions\ErrorCode;
+use App\Models\Coupon;
 use App\Services\Ticket\MemberCouponItemService;
 use App\Services\Ticket\MemberCouponService;
 use Illuminate\Http\Request;
@@ -154,10 +155,15 @@ class MemberCouponController extends RestLaravelController
             $memberId = $request->memberId;
             $couponId = $request->coupon_id;
             
+            $coupon = Coupon::find($couponId);
+            if (!$coupon)
+            {
+                throw  new \Exception('E0073');
+            }
+            
             $result = $this->memberCouponService->use($memberId, $couponId);
             if (!is_object($result))
             {
-                
                 throw New \Exception();
             }
             
@@ -186,18 +192,24 @@ class MemberCouponController extends RestLaravelController
                 {
                     $message = ErrorCode::message($code);
                 }
+                
                 return $this->responseFormat(['status' => $result->status], '00000', $message);
                 
             }
             else
             {
                 return $this->failureCode($code);
-                
             }
             
         }
         catch (\Exception $e)
         {
+            $code = $e->getMessage();
+            
+            if ($code)
+            {
+                return $this->failureCode($code);
+            }
             
             return $this->failureCode('E0070');
         }
