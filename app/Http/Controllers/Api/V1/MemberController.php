@@ -63,9 +63,21 @@ class MemberController extends RestLaravelController
                 $this->memberService->sendRegisterEmail($member);
 
                 return $this->success([
-                    'id' => $member->id,
-                    'token' => $member->token,
-                    'hashId' => $this->encryptHashId($type, $typeId[0]),
+                    'member' => [
+                        'id' => $member->id,
+                        'token' => $member->token,
+                        'email' => $member->email,
+                        'name' => $member->name,
+                        'avatar' => $member->avatar,
+                        'countryCode' => $member->countryCode,
+                        'cellphone' => $member->cellphone,
+                        'country' => $member->country,
+                        'gender' => $member->gender,
+                        'zipcode' => $member->zipcode,
+                        'address' => $member->address,
+                        'openPlateform' => $member->openPlateform
+                    ],
+                    'hashId' => $this->encryptHashId($type, $typeId[0])
                 ]);
             }
 
