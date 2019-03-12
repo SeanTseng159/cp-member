@@ -8,11 +8,12 @@
 namespace App\Repositories\Ticket;
 
 
-use App\Helpers\ClientType;
+use App\Enum\ClientType;
 use App\Models\MemberGiftItem;
 use App\Repositories\BaseRepository;
 use App\Services\ImageService;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 
 
 class MemberGiftItemRepository extends BaseRepository
@@ -197,6 +198,24 @@ class MemberGiftItemRepository extends BaseRepository
         return $result;
         
     }
-    
+
+
+    /**
+     * 取得特定禮物的使用數 by memberId
+     * @param array $giftIds
+     * @return mixed
+     */
+    public function getUsedCount(array $giftIds)
+    {
+        $result = $this->memberGiftItem
+            ->select('member_id','gift_id',DB::raw('count(*) as total'))
+            ->groupBy('member_id','gift_id')
+            ->whereIn('gift_id',$giftIds)
+            ->get();
+
+        return $result;
+
+
+    }
     
 }

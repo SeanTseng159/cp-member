@@ -15,3 +15,5 @@ composer.lock
 /.project
 dist/
 package-lock.json
+.editorconfig
+/.vscode

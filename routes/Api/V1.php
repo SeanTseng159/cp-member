@@ -146,7 +146,7 @@ Route::middleware('cors')->namespace('V1')->group(function () {
         Route::get('market/{id}', 'MarketController@find');
     });
 
-
+    //優惠卷相關
     Route::prefix('coupon')->group(function () {
         // 優惠卷列表
         Route::get('{modelType}/{modelSpecId}/list', 'CouponController@list');
@@ -154,6 +154,15 @@ Route::middleware('cors')->namespace('V1')->group(function () {
         // 優惠卷詳細
         Route::get('/{id}', 'CouponController@detail');
 
+        // 禮物清單
+        Route::get('{modelType}/{modelSpecId}/gifts/', 'CouponController@gift_list');
+
+    });
+
+    //禮物、點數相關
+    Route::prefix('gift')->group(function () {
+        // 禮物列表
+        Route::get('{modelType}/{modelSpecId}/list', 'GiftController@list');
     });
 
 
@@ -229,6 +238,7 @@ Route::middleware(['cors', 'auth.jwt'])->namespace('V1')->group(function () {
 
         // 加入餐車會員
         Route::post('member/add', 'DiningCarMemberController@add');
+
     });
 
     // 會員相關
@@ -254,7 +264,7 @@ Route::middleware(['cors', 'auth.jwt'])->namespace('V1')->group(function () {
 
     });
 
-    //禮物相關
+    //禮物
     Route::prefix('gift')->group(function () {
 
         // 我的禮物列表
@@ -265,7 +275,7 @@ Route::middleware(['cors', 'auth.jwt'])->namespace('V1')->group(function () {
 
         // 產生禮物Qrcode
         Route::get('/qrcode/{id}', 'MemberGiftController@getQrcode');
-        
+
         //禮物Qrcode核銷
         Route::post('/qrcode/', 'MemberGiftController@useQrcode');
 
