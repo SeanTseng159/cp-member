@@ -41,4 +41,6 @@ class MemberGiftItem extends BaseModel
     {
         return $this->belongsTo('App\Models\Ticket\MemberGift','member_gift_id','id');
     }
+
+
 }

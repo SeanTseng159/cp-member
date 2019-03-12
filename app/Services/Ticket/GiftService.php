@@ -59,4 +59,19 @@ class GiftService extends BaseService
 
         return ($result) ? $gift : null;
     }
+
+    /**
+     * 取得禮物兌換清單
+     *
+     * @param $modelType
+     * @param $modelSpecId
+     * @return mixed
+     */
+    public function list($modelType,$modelSpecId)
+    {
+        return $this->repository->list($modelType,$modelSpecId);
+    }
+
+
+
 }

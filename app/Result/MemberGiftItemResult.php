@@ -9,7 +9,7 @@
 namespace App\Result;
 
 
-use App\Helpers\ClientType;
+use App\Enum\ClientType;
 use App\Helpers\ImageHelper;
 use Carbon\Carbon;
 
