@@ -29,7 +29,7 @@ class Gift extends BaseModel
     }
 
     /**
-     * 取得已啟用的禮物
+     * 取得已啟用且上架中的禮物
      *
      * @param  $query
      *
@@ -42,6 +42,22 @@ class Gift extends BaseModel
         return $query->where('status', 1)
             ->where('on_sale_at', '<=', $now)
             ->where('off_sale_at', '>=', $now);
+    }
+
+    /**
+     * 可兌換的禮物
+     * @param $query
+     * @return
+     */
+
+    public function scopeExchangable($query)
+    {
+        $now = Carbon::now();
+
+        return $query->where('status', 1)
+            ->where('start_at', '<=', $now)
+            ->where('expire_at', '>=', $now);
+
     }
 
     /*

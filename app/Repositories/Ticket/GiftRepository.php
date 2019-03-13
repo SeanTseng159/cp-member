@@ -62,6 +62,7 @@ class GiftRepository extends BaseRepository
     }
 
     /**
+     * 取得店家上架的禮物清單
      * @param $modelType
      * @param $modeSpecId
      *
@@ -75,8 +76,18 @@ class GiftRepository extends BaseRepository
             ->where('type', GiftType::point)
             ->isActive()
             ->orderBy('sort')
-            ->get(['id', 'name', 'points','qty','limit_qty','desc','expire_at']);
+            ->get(['id', 'name', 'points', 'qty', 'limit_qty', 'desc', 'expire_at','content']);
 
         return $result;
+    }
+
+
+    public function getPoint($giftId)
+    {
+        return $this->model
+            ->exchangable()
+            ->where('id', $giftId)
+            ->get(['id', 'points', 'qty', 'limit_qty', 'expire_at']);
+
     }
 }

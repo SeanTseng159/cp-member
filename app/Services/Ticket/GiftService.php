@@ -72,6 +72,15 @@ class GiftService extends BaseService
         return $this->repository->list($modelType,$modelSpecId);
     }
 
+    /**
+     *
+     */
+    public function getPoints($giftId)
+    {
+        return $this->repository->getPoint($giftId);
+
+    }
+
 
 
 }

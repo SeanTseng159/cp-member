@@ -264,7 +264,7 @@ Route::middleware(['cors', 'auth.jwt'])->namespace('V1')->group(function () {
 
     });
 
-    //禮物
+    //禮物相關
     Route::prefix('gift')->group(function () {
 
         // 我的禮物列表
@@ -278,6 +278,16 @@ Route::middleware(['cors', 'auth.jwt'])->namespace('V1')->group(function () {
 
         //禮物Qrcode核銷
         Route::post('/qrcode/', 'MemberGiftController@useQrcode');
+
+    });
+
+    //點數相關
+    Route::prefix('point')->group(function () {
+        // 總點數
+        Route::get('{diningCarID}', 'DiningCarPointController@total');
+
+        //兌換點數
+        // Route::post('gift/{giftId}', 'DiningCarPointController@exchange');
 
     });
 });
