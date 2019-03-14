@@ -54,43 +54,46 @@ class GiftController extends RestLaravelController
             $item->photo = ImageHelper::getImageUrl(ClientType::gift, $item->id, 1);
         }
 
-        //禮物狀態
+        //設定禮物狀態(可使用/額度已用完)
+        $this->setGiftStatus($gifts, $memberId);
+
+        $result = (new GiftResult())->list($gifts);
+        return $this->success($result);
+
+    }
+
+    /**
+     * @param $gifts
+     * @param $memberId
+     */
+    public function setGiftStatus($gifts, $memberId)
+    {
         $giftIds = $gifts->pluck('id')->toArray();
         $giftIds = array_unique($giftIds);
         $mememberGiftStatus = $this->memberGiftItemService->getUsedCount($giftIds);
 
 
         //禮物使用狀態
-        $personalUsed = 0;
         foreach ($gifts as $item) {
 
             $giftID = $item->id;
             $qty = $item->qty;
             $limiQty = $item->limit_qty;
 
+            $item->status = 0;
 
             $usedAll = $mememberGiftStatus->where('gift_id', $giftID)->sum('total');
-            $item->status = 0;
+            //全部額度已用完
+            if ($usedAll >= $qty) {
+                $item->status = 2;
+            }
 
             //個人額度已用完
             $personalUsed = $mememberGiftStatus->where('member_id', $memberId)->sum('total');
             if ($personalUsed >= $limiQty) {
                 $item->status = 1;
             }
-
-            //全部額度已用完
-            if ($usedAll >= $qty) {
-                $item->status = 2;
-            }
         }
-        //todo
-
-
-        $result = (new GiftResult())->list($gifts);
-
-
-        return $this->success($result);
-
     }
 
 }

@@ -191,7 +191,7 @@ class MemberGiftItemRepository extends BaseRepository
     }
 
     /**
-     * 取得特定禮物的使用數 by memberId
+     * 取得特定禮物的使用數
      * @param array $giftIds
      * @return mixed
      */
@@ -204,7 +204,5 @@ class MemberGiftItemRepository extends BaseRepository
             ->get();
 
         return $result;
-
-
     }
 }

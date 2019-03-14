@@ -287,7 +287,7 @@ Route::middleware(['cors', 'auth.jwt'])->namespace('V1')->group(function () {
         Route::get('{diningCarID}', 'DiningCarPointController@total');
 
         //兌換點數
-        // Route::post('gift/{giftId}', 'DiningCarPointController@exchange');
+         Route::post('gift/{giftId}', 'DiningCarPointController@exchange');
 
     });
 });

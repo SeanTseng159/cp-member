@@ -56,7 +56,7 @@ class MemberGiftItemService extends BaseService
     }
 
     /**
-     * 取得特定禮物的使用數 by memberId
+     * 取得特定禮物的使用數
      * @param array $giftIds
      * @return mixed
      */
@@ -65,6 +65,6 @@ class MemberGiftItemService extends BaseService
         return $this->repository->getUsedCount($giftIds);
     }
     
-    
+
     
 }

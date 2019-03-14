@@ -7,6 +7,7 @@
 
 namespace App\Models;
 
+use App\Enum\ClientType;
 use Carbon\Carbon;
 use App\Models\Ticket\BaseModel;
 use App\Models\Ticket\DiningCar;
@@ -58,6 +59,17 @@ class Gift extends BaseModel
             ->where('start_at', '<=', $now)
             ->where('expire_at', '>=', $now);
 
+    }
+
+    /**
+     * 屬於餐車的禮物
+     * @param $query
+     * @return
+     */
+
+    public function scopeIsDiningCar($query)
+    {
+        return $query->where('model_type', ClientType::dining_car);
     }
 
     /*

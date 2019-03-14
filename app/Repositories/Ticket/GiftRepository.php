@@ -17,6 +17,7 @@ use Carbon\Carbon;
 class GiftRepository extends BaseRepository
 {
     private $limit = 20;
+    protected $model;
 
     public function __construct(Gift $model)
     {
@@ -76,18 +77,24 @@ class GiftRepository extends BaseRepository
             ->where('type', GiftType::point)
             ->isActive()
             ->orderBy('sort')
-            ->get(['id', 'name', 'points', 'qty', 'limit_qty', 'desc', 'expire_at','content']);
+            ->get(['id', 'name', 'points', 'qty', 'limit_qty', 'desc', 'expire_at', 'content']);
 
         return $result;
     }
 
-
-    public function getPoint($giftId)
+    /**
+     * 取得某餐車的禮物資訊
+     * @param $giftId
+     * @return mixed
+     */
+    public function getWithDiningCar($giftId)
     {
         return $this->model
             ->exchangable()
+            ->isDiningCar()
             ->where('id', $giftId)
-            ->get(['id', 'points', 'qty', 'limit_qty', 'expire_at']);
+            ->first();
 
     }
+
 }
