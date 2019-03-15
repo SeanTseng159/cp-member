@@ -8,7 +8,7 @@
 namespace App\Repositories\Ticket;
 
 
-use App\Helpers\ClientType;
+use App\Enum\ClientType;
 use App\Models\MemberGiftItem;
 use App\Repositories\BaseRepository;
 use App\Services\ImageService;
@@ -43,10 +43,8 @@ class MemberGiftItemRepository extends BaseRepository
      */
     public function create($memberId = 0, $giftId = 0, $number = 1)
     {
-        try
-        {
-            if ($this->find($memberId, $giftId, $number))
-            {
+        try {
+            if ($this->find($memberId, $giftId, $number)) {
                 return null;
             }
 
@@ -61,16 +59,12 @@ class MemberGiftItemRepository extends BaseRepository
             DB::connection('backend')->commit();
 
             return $model;
-        }
-        catch (QueryException $e)
-        {
+        } catch (QueryException $e) {
             Logger::error('QueryException Create MemberGiftItem Error', $e->getMessage());
             DB::connection('backend')->rollBack();
 
             return null;
-        }
-        catch (Exception $e)
-        {
+        } catch (Exception $e) {
             Logger::error('Exception Create MemberGiftItem Error', $e->getMessage());
             DB::connection('backend')->rollBack();
 
@@ -110,8 +104,7 @@ class MemberGiftItemRepository extends BaseRepository
     {
         $clientObj = null;
 
-        if ($client && $clientId)
-        {
+        if ($client && $clientId) {
             $clientObj = new \stdClass();
             $clientObj->clientType = ClientType::transform($client);
             $clientObj->clientId = $clientId;
@@ -124,8 +117,7 @@ class MemberGiftItemRepository extends BaseRepository
             ->when($type,
                 function ($query) use ($type) {
                     //禮物未使用
-                    if ($type === 1)
-                    {
+                    if ($type === 1) {
                         $query->whereNull('used_time');
                     }
 
@@ -134,8 +126,7 @@ class MemberGiftItemRepository extends BaseRepository
             ->whereHas('gift',
                 function ($q) use ($type, $clientObj) {
                     //取得某餐車的
-                    if ($clientObj)
-                    {
+                    if ($clientObj) {
 
                         $q->where('model_type', $clientObj->clientType)
                             ->where('model_spec_id', $clientObj->clientId);
@@ -187,8 +178,7 @@ class MemberGiftItemRepository extends BaseRepository
             ->where('member_id', $memberId)
             ->first();
 
-        if ($row->used_time)
-        {
+        if ($row->used_time) {
             return false;
         }
         $result = $this->memberGiftItem
@@ -200,5 +190,19 @@ class MemberGiftItemRepository extends BaseRepository
 
     }
 
+    /**
+     * 取得特定禮物的使用數
+     * @param array $giftIds
+     * @return mixed
+     */
+    public function getUsedCount(array $giftIds)
+    {
+        $result = $this->memberGiftItem
+            ->select('member_id', 'gift_id', DB::raw('count(*) as total'))
+            ->groupBy('member_id', 'gift_id')
+            ->whereIn('gift_id', $giftIds)
+            ->get();
 
+        return $result;
+    }
 }

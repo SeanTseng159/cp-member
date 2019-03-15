@@ -8,6 +8,7 @@
 namespace App\Result\Ticket;
 
 use App\Result\BaseResult;
+use Carbon\Carbon;
 
 class GiftResult extends BaseResult
 {
@@ -18,7 +19,8 @@ class GiftResult extends BaseResult
 
     /**
      * 取詳細資料
-     * @param $data
+     * @param $gift
+     * @return \stdClass|null
      */
     public function detailByJoinDiningCar($gift)
     {
@@ -29,5 +31,28 @@ class GiftResult extends BaseResult
         $result->name = $gift->name;
 
         return $result;
+    }
+
+
+    public function list($gifts)
+    {
+        if (!$gifts) return null;
+
+        $result = [];
+        foreach ($gifts as $item) {
+            $data = new \stdClass();
+            $data->id = $item->id;
+            $data->name = $item->name;
+            $data->points = $item->points;
+            $data->status = $item->status;
+            $data->photo = $item->photo;
+            $data->duration = Carbon::parse($item->expire_at)->format('Y-m-d');
+            $data->desc = $item->desc;
+            $data->content = $item->content;
+            $result[] = $data;
+        }
+
+        return $result;
+
     }
 }

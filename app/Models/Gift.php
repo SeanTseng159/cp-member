@@ -7,10 +7,11 @@
 
 namespace App\Models;
 
+use App\Enum\ClientType;
 use Carbon\Carbon;
-use App\Helpers\ClientType;
 use App\Models\Ticket\BaseModel;
 use App\Models\Ticket\DiningCar;
+
 
 class Gift extends BaseModel
 {
@@ -29,11 +30,11 @@ class Gift extends BaseModel
     }
 
     /**
-     * 取得已啟用的禮物
+     * 取得已啟用且上架中的禮物
      *
-     * @param Bulider $query
+     * @param  $query
      *
-     * @return Bulider
+     * @return
      */
     public function scopeIsActive($query)
     {
@@ -44,16 +45,42 @@ class Gift extends BaseModel
             ->where('off_sale_at', '>=', $now);
     }
 
+    /**
+     * 可兌換的禮物
+     * @param $query
+     * @return
+     */
+
+    public function scopeExchangable($query)
+    {
+        $now = Carbon::now();
+
+        return $query->where('status', 1)
+            ->where('start_at', '<=', $now)
+            ->where('expire_at', '>=', $now);
+
+    }
+
+    /**
+     * 屬於餐車的禮物
+     * @param $query
+     * @return
+     */
+
+    public function scopeIsDiningCar($query)
+    {
+        return $query->where('model_type', ClientType::dining_car);
+    }
+
     /*
      * 取得禮物券
      *
-     * @return \Awobaz\Compoships\Database\Eloquent\Relations\HasMany
+     *
      */
     public function memberGiftItems()
     {
         return $this->hasMany('App\Models\Ticket\MemberGiftItem');
 
     }
-
 
 }

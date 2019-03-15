@@ -97,7 +97,12 @@ class MemberGiftController extends RestLaravelController
         
         //取得使用者的禮物清單
         $result = $this->memberGiftItemService->findByUserGiftId($memberId, $id);
-        $result = (new MemberGiftItemResult())->show($result);
+        
+        if($result)
+        {
+            $result = (new MemberGiftItemResult())->show($result);
+        }
+        
         
         return $this->success($result);
     }

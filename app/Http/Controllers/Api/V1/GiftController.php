@@ -4,64 +4,96 @@
 namespace App\Http\Controllers\Api\V1;
 
 
-
-
-use App\Services\ImageService;
+use App\Enum\ClientType;
+use App\Helpers\ImageHelper;
+use App\Result\Ticket\GiftResult;
+use App\Services\Ticket\MemberGiftItemService;
 use Illuminate\Http\Request;
 use Ksd\Mediation\Core\Controller\RestLaravelController;
+use App\Services\Ticket\GiftService;
 
 class GiftController extends RestLaravelController
 {
     protected $lang = 'zh-TW';
-    protected $imageService;
-    
-    
-    public function __construct(ImageService $imageService)
-    {
-        
-        $this->imageService = $imageService;
-    }
-    
+    protected $giftService;
+    protected $memberGiftItemService;
+
     /**
      *
-     * 根據優惠卷類別與使用優惠卷單位(如餐車商家)之ID取得優惠卷列表
-     *
-     * @param Request $request
-     *
-     * @return void
+     * @param GiftService $giftService
+     * @param MemberGiftItemService $memberGiftItem
      */
-    public function list(Request $request) {
-    
-    
+    public function __construct(GiftService $giftService, MemberGiftItemService $memberGiftItem)
+    {
+
+        $this->giftService = $giftService;
+        $this->memberGiftItemService = $memberGiftItem;
     }
-    
-    
+
     /**
-     * 根據id取得優惠卷明細
      *
      * @param Request $request
-     * @param         $id       優惠卷id
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    
-    public function detail(Request $request,$id){
-        $result = [
-        
-            'id'       => $id,
-            'Name'     => '大碗公餐車',
-            'title'    => '日本和牛丼飯 一份',
-            'duration' => '2019-1-31',
-            'content'  => '使用說明使用說明使用說明使用說明使用說明',
-            'status'   => 0,
-            'photo'    => "https://devbackend.citypass.tw/storage/diningCar/1/e1fff874c96b11a17438fa68341c1270_b.png",
-    
-        ];
+    public function list(Request $request)
+    {
+        $memberId = $request->memberId;
+
+        $client = $request->modelType;
+        $clientId = $request->modelSpecId;
+
+        if (!$client or !$clientId) {
+            return $this->failureCode('E0007');
+        }
+
+        //禮物清單
+        $gifts = $this->giftService->list($client, $clientId);
+
+        foreach ($gifts as $item) {
+            $item->photo = ImageHelper::getImageUrl(ClientType::gift, $item->id, 1);
+        }
+
+        //設定禮物狀態(可使用/額度已用完)
+        $this->setGiftStatus($gifts, $memberId);
+
+        $result = (new GiftResult())->list($gifts);
         return $this->success($result);
-        
+
     }
-    
-    
+
+    /**
+     * @param $gifts
+     * @param $memberId
+     */
+    public function setGiftStatus($gifts, $memberId)
+    {
+        $giftIds = $gifts->pluck('id')->toArray();
+        $giftIds = array_unique($giftIds);
+        $mememberGiftStatus = $this->memberGiftItemService->getUsedCount($giftIds);
+
+
+        //禮物使用狀態
+        foreach ($gifts as $item) {
+
+            $giftID = $item->id;
+            $qty = $item->qty;
+            $limiQty = $item->limit_qty;
+
+            $item->status = 0;
+
+            $usedAll = $mememberGiftStatus->where('gift_id', $giftID)->sum('total');
+            //全部額度已用完
+            if ($usedAll >= $qty) {
+                $item->status = 2;
+            }
+
+            //個人額度已用完
+            $personalUsed = $mememberGiftStatus->where('member_id', $memberId)->sum('total');
+            if ($personalUsed >= $limiQty) {
+                $item->status = 1;
+            }
+        }
+    }
+
 }
-
-

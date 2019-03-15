@@ -9,7 +9,7 @@
 namespace App\Result;
 
 
-use App\Helpers\ClientType;
+use App\Enum\ClientType;
 use App\Helpers\ImageHelper;
 use Carbon\Carbon;
 
@@ -53,7 +53,13 @@ class MemberGiftItemResult
      */
     public function arrangeData($item, $type = null)
     {
+        if (!$item)
+        {
+            return null;
+        }
+        
         $data = new \stdClass();
+        
         
         $gift = $item->gift;
         $diningCar = $gift->diningCar;
@@ -77,7 +83,7 @@ class MemberGiftItemResult
         {
             $data->status = 1;
         }
-    
+        
         
         //已過期
         if (Carbon::now() >= Carbon::parse($gift->expire_at))

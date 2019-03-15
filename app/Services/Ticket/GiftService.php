@@ -11,6 +11,7 @@ namespace App\Services\Ticket;
 use App\Repositories\Ticket\GiftRepository;
 use App\Repositories\Ticket\MemberGiftItemRepository;
 use App\Services\BaseService;
+use Illuminate\Database\Eloquent\Collection;
 
 
 class GiftService extends BaseService
@@ -59,4 +60,25 @@ class GiftService extends BaseService
 
         return ($result) ? $gift : null;
     }
+
+    /**
+     * 取得禮物兌換清單
+     *
+     * @param $modelType
+     * @param $modelSpecId
+     * @return mixed
+     */
+    public function list($modelType, $modelSpecId)
+    {
+        return $this->repository->list($modelType, $modelSpecId);
+    }
+
+    /**
+     *  取得禮物資訊(屬於餐車)
+     */
+    public function getWithDiningCar($giftId)
+    {
+        return $this->repository->getWithDiningCar($giftId);
+    }
+
 }

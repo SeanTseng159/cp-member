@@ -8,7 +8,6 @@
 namespace App\Result\Ticket;
 
 use App\Result\BaseResult;
-use App\Config\Ticket\DiningCarConfig;
 use App\Helpers\ImageHelper;
 use App\Traits\DiningCarHelper;
 
@@ -24,6 +23,7 @@ class MemberDiningCarResult extends BaseResult
     /**
      * 取餐車列表
      * @param $cars
+     * @return array
      */
     public function list($cars)
     {
@@ -40,9 +40,8 @@ class MemberDiningCarResult extends BaseResult
 
     /**
      * 取餐車分類列表
-     * @param $data
-     * @param $long
-     * @param $lat
+     * @param $categories
+     * @return array
      */
     public function categories($categories)
     {
@@ -60,6 +59,7 @@ class MemberDiningCarResult extends BaseResult
     /**
      * 餐車資訊
      * @param $car
+     * @return \stdClass|null
      */
     private function getCar($car)
     {
@@ -78,7 +78,9 @@ class MemberDiningCarResult extends BaseResult
 
     /**
      * 取分類
-     * @param $data
+     * @param $category
+     * @param $subCategory
+     * @return array
      */
     private function getCategories($category, $subCategory)
     {
@@ -92,7 +94,9 @@ class MemberDiningCarResult extends BaseResult
 
     /**
      * 取會員卡資訊
-     * @param $data
+     * @param $memberCard
+     * @param $memberLevels
+     * @return \stdClass
      */
     private function getMemberCard($memberCard, $memberLevels)
     {
