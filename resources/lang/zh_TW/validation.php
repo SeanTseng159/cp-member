@@ -183,5 +183,9 @@ return [
         'maxLatitude' => '地圖範圍最大緯度',
         'minLongitude' => '地圖範圍最小經度',
         'maxLongitude' => '地圖範圍最大經度',
+
+        'company' => '公司',
+        'contact_window' => '聯絡人',
+        'message' => '訊息'
     ],
 ];

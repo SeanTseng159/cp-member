@@ -99,5 +99,7 @@ class Kernel extends HttpKernel
 
         'verify.checkout.shipment' => \App\Http\Middleware\Verify\Checkout\Shipment::class,
         'verify.checkout.payment' => \App\Http\Middleware\Verify\Checkout\Payment::class,
+
+        'verify.partner.join' => \App\Http\Middleware\Verify\PartnerJoin::class,
     ];
 }

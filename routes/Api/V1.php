@@ -138,6 +138,9 @@ Route::middleware('cors')->namespace('V1')->group(function () {
     Route::prefix('service')->group(function () {
         // 常見問題
         Route::get('qa', 'ServiceController@qa');
+
+        // 合作廠商申請
+        Route::post('partner/join', 'ServiceController@partnerJoin')->middleware('verify.partner.join');
     });
 
     // 行銷活動相關
