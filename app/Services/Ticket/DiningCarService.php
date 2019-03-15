@@ -10,16 +10,19 @@ namespace App\Services\Ticket;
 use App\Services\BaseService;
 use App\Repositories\Ticket\DiningCarRepository;
 use App\Repositories\Ticket\GiftRepository;
+use App\Repositories\Ticket\DiningCarPointRecordRepository as PointRecordRepository;
 
 class DiningCarService extends BaseService
 {
     protected $repository;
     protected $giftRepository;
+    protected $pointRecordRepository;
 
-    public function __construct(DiningCarRepository $repository, GiftRepository $giftRepository)
+    public function __construct(DiningCarRepository $repository, GiftRepository $giftRepository, PointRecordRepository $pointRecordRepository)
     {
         $this->repository = $repository;
         $this->giftRepository = $giftRepository;
+        $this->pointRecordRepository = $pointRecordRepository;
     }
 
     /**
@@ -53,7 +56,8 @@ class DiningCarService extends BaseService
 
         // 取禮物數
         if ($diningCar) {
-            $diningCar->gift_count = ($memberId) ? $this->giftRepository->getMemberGiftItemsCountByDiningCarId($memberId, $id) : 0;
+            $diningCar->giftCount = ($memberId) ? $this->giftRepository->getMemberGiftItemsCountByDiningCarId($memberId, $id) : 0;
+            $diningCar->totalCount = ($memberId) ? $this->pointRecordRepository->getTotalPointByDiningCarId($memberId, $id) : 0;
         }
 
         return $diningCar;

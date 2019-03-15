@@ -1,0 +1,13 @@
+<?php
+
+namespace {{namespace}};
+
+use App\Models\BaseModel;
+
+class {{className}} extends BaseModel
+{
+    public function __construct()
+    {
+
+    }
+}

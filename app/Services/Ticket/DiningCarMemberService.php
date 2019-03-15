@@ -11,53 +11,57 @@ namespace App\Services\Ticket;
 use App\Services\BaseService;
 use App\Repositories\Ticket\DiningCarMemberRepository;
 use App\Repositories\Ticket\GiftRepository;
+use App\Repositories\Ticket\DiningCarPointRecordRepository as PointRecordRepository;
 
 class DiningCarMemberService extends BaseService
 {
     protected $repository;
     protected $giftRepository;
+    protected $pointRecordRepository;
 
-    public function __construct(DiningCarMemberRepository $repository, GiftRepository $giftRepository)
+    public function __construct(DiningCarMemberRepository $repository, GiftRepository $giftRepository, PointRecordRepository $pointRecordRepository)
     {
         $this->repository = $repository;
         $this->giftRepository = $giftRepository;
+        $this->pointRecordRepository = $pointRecordRepository;
     }
 
     /**
      * 新增
      * @param $memberId
-     * @param $id
+     * @param $diningCarId
      * @return mixed
      */
-    public function add($memberId = 0, $id = 0)
+    public function add($memberId = 0, $diningCarId = 0)
     {
-        return $this->repository->add($memberId, $id);
+        return $this->repository->add($memberId, $diningCarId);
     }
 
     /**
      * 刪除
      * @param $memberId
-     * @param $id
+     * @param $diningCarId
      * @return mixed
      */
-    public function delete($memberId = 0, $id = 0)
+    public function delete($memberId = 0, $diningCarId = 0)
     {
-        return $this->repository->delete($memberId, $id);
+        return $this->repository->delete($memberId, $diningCarId);
     }
 
     /**
      * 取單一
      * @param $memberId
-     * @param $id
+     * @param $diningCarId
      * @return mixed
      */
-    public function find($memberId = 0, $id = 0)
+    public function find($memberId = 0, $diningCarId = 0)
     {
-        $memberDiningCar = $this->repository->find($memberId, $id);
+        $memberDiningCar = $this->repository->find($memberId, $diningCarId);
 
         // 取禮物數
         if ($memberDiningCar) {
-            $memberDiningCar->gift_count = $this->giftRepository->getMemberGiftItemsCountByDiningCarId($memberId, $id);
+            $memberDiningCar->giftCount = $this->giftRepository->getMemberGiftItemsCountByDiningCarId($memberId, $diningCarId);
+            $memberDiningCar->totalPoint = $this->pointRecordRepository->getTotalPointByDiningCarId($memberId, $diningCarId);
         }
 
         return $memberDiningCar;
@@ -69,9 +73,9 @@ class DiningCarMemberService extends BaseService
      * @param $id
      * @return mixed
      */
-    public function isMember($memberId = 0, $id = 0)
+    public function isMember($memberId = 0, $diningCarId = 0)
     {
-        $member = $this->repository->find($memberId, $id);
+        $member = $this->repository->find($memberId, $diningCarId);
 
         return ($member) ? true : false;
     }
@@ -91,13 +95,15 @@ class DiningCarMemberService extends BaseService
         // 取禮物數
         if (!$memberDiningCars->isEmpty()) {
             $memberDiningCars = $memberDiningCars->transform(function ($item) use ($memberId) {
-                $item->gift_count = $this->giftRepository->getMemberGiftItemsCountByDiningCarId($memberId, $item->dining_car_id);
+                $item->giftCount = $this->giftRepository->getMemberGiftItemsCountByDiningCarId($memberId, $item->dining_car_id);
+                $item->totalPoint = $this->pointRecordRepository->getTotalPointByDiningCarId($memberId, $item->dining_car_id);
                 return $item;
             });
         }
         else {
             $memberDiningCars = $memberDiningCars->transform(function ($item) {
-                $item->gift_count = 0;
+                $item->giftCount = 0;
+                $item->totalPoint = 0;
                 return $item;
             });
         }

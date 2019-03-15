@@ -37,6 +37,7 @@ class DiningCarMemberParameter extends BaseParameter
     {
         $parameter['diningCarId'] = $this->request->input('diningCarId');
         $parameter['memberId'] = $this->request->input('memberId');
+        $parameter['consumeAmount'] = $this->request->input('consumeAmount', 0);
 
         return $parameter;
     }

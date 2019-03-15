@@ -32,7 +32,7 @@ class DiningCarResult extends BaseResult
         $this->dayOfWeek = Carbon::today()->dayOfWeek;
         if ($this->dayOfWeek === 0) $this->dayOfWeek = 7;
     }
-    
+
     /**
      * 取餐車列表
      *
@@ -85,17 +85,17 @@ class DiningCarResult extends BaseResult
         $result->openStatus = DiningCarConfig::OPEN_STATUS[$car->open_status];
         $result->longitude = $car->longitude ?? '';
         $result->latitude = $car->latitude ?? '';
-        $result->distance = ($result->longitude && $result->latitude) ? $this->calcDistance($this->lat, $this->lng, $car->latitude, $car->longitude, 2, 2) . '公里' : '未知';
+        $result->distance = ($result->longitude && $result->latitude && $this->lat && $this->lng) ? $this->calcDistance($this->lat, $this->lng, $car->latitude, $car->longitude, 2, 2) . '公里' : '未知';
         $result->businessHoursDays = $this->getBusinessHoursDays($car->businessHoursDays);
         $result->businessHoursDates = $this->getBusinessHoursDates($car->businessHoursDates);
         $result->socialUrls = $this->getSocialUrls($car->socialUrls);
         $result->shareUrl = CommonHelper::getWebHost('zh-TW/diningCar/detail/' . $car->id);
         $result->level = $this->getLevel($car->level, $car->expired_at);
-        $result->memberCard = $this->getMemberCard($car->memberCard, $car->memberLevels, $car->gift_count);
+        $result->memberCard = $this->getMemberCard($car->memberCard, $car->memberLevels, $car->giftCount, $car->totalCount);
 
         return $result;
     }
-    
+
     /**
      * 餐車資訊
      *
@@ -120,7 +120,7 @@ class DiningCarResult extends BaseResult
         // 計算距離
         $result->longitude = $car->longitude ?? '';
         $result->latitude = $car->latitude ?? '';
-        $result->distance = ($result->longitude && $result->latitude) ? $this->calcDistance($this->lat, $this->lng, $car->latitude, $car->longitude, 2, 2) . '公里' : '未知';
+        $result->distance = ($result->longitude && $result->latitude && $this->lat && $this->lng) ? $this->calcDistance($this->lat, $this->lng, $car->latitude, $car->longitude, 2, 2) . '公里' : '未知';
 
         return $result;
     }
@@ -308,7 +308,7 @@ class DiningCarResult extends BaseResult
      * 取會員卡資訊
      * @param $data
      */
-    public function getMemberCard($memberCard, $memberLevels, $giftCount = 0)
+    public function getMemberCard($memberCard, $memberLevels, $giftCount = 0, $totalPoint = 0)
     {
         $result = new \stdClass;
 
@@ -321,7 +321,7 @@ class DiningCarResult extends BaseResult
         else {
             // 已加入會員
             $result->level = $this->getMemberLevel($memberLevels, $memberCard->amount);
-            $result->point = $memberCard->point;
+            $result->point = (int) $totalPoint;
             $result->gift = $giftCount;
         }
 
