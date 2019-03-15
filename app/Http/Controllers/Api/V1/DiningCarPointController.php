@@ -6,6 +6,8 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Core\Logger;
 use App\Exceptions\ErrorCode;
+use App\Result\Ticket\DiningCarPointResult;
+use App\Result\Ticket\DiningCarResult;
 use App\Services\Ticket\DiningCarPointRecordService;
 use App\Services\Ticket\GiftService;
 use App\Services\Ticket\MemberGiftItemService;
@@ -35,6 +37,7 @@ class DiningCarPointController extends RestLaravelController
         try {
             $memberId = $request->memberId;
             $point = $this->diningCarPointRecordService->total($diningCarID, $memberId);
+
             return $this->success(['point' => $point]);
         } catch (\Exception $e) {
             Logger::error('point total Error', $e->getMessage());
@@ -140,6 +143,37 @@ class DiningCarPointController extends RestLaravelController
             return $this->failureCode($code);
 
         }
+
+
+    }
+
+
+    public function list(Request $request)
+    {
+
+//        try {
+
+            $memberId = $request->memberId;
+            $type = $request->input('type', 'give');
+            $status = 0;
+
+            $allowType = [1 => 'give', 2 => 'exchange'];
+
+            $status = array_search($type, $allowType);
+
+            if (!$status) {
+                throw New \Exception('E0001');
+            }
+
+            $result = $this->diningCarPointRecordService->getPointRecord($status, $memberId);
+
+            $data = (new DiningCarPointResult())->list($result);
+
+            return $this->success($data);
+//        } catch (\Exception $e) {
+//            Logger::error('error in DiningCarPointController.list', $e->getMessage());
+//            return $this->failureCode('E0001');
+//        }
 
 
     }

@@ -9,6 +9,7 @@ namespace App\Models\Ticket;
 
 
 use App\Enum\ClientType;
+use App\Enum\DiningCarPointRecordType;
 use App\Models\Gift;
 
 
@@ -121,7 +122,6 @@ class DiningCar extends BaseModel
     {
         return $this->hasMany('App\Models\Ticket\DiningCarMemberLevel');
     }
-
     /**
      * 取得禮物清單
      */
@@ -133,4 +133,11 @@ class DiningCar extends BaseModel
             ->where('model_type', ClientType::dining_car);
 
     }
+
+    public function pointRules()
+    {
+        return $this->hasMany(DiningCarPointRule::class);
+
+    }
+
 }

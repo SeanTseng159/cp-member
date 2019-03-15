@@ -16,8 +16,6 @@ use App\Models\Ticket\DiningCarPointRecord;
 use App\Repositories\BaseRepository;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
-use libphonenumber\Leniency\StrictGrouping;
-use phpDocumentor\Reflection\Types\Array_;
 
 
 class DiningCarPointRecordRepository extends BaseRepository
@@ -57,7 +55,7 @@ class DiningCarPointRecordRepository extends BaseRepository
             $record->expired_at = $expired_at;
             $record->model_spec_id = $giftId;
             $record->model_type = DiningCarPointRecordType::gift;
-            $record->model_name = Gift::class;
+            $record->model_name = 'Gift';
             $record->save();
 
             //禮物兌換紀錄
@@ -85,12 +83,33 @@ class DiningCarPointRecordRepository extends BaseRepository
             DB::connection('backend')->rollBack();
             dd($e->getMessage());
             return false;
-
-
         }
 
 
     }
 
+    /** 取得點數兌換的紀錄
+     * @param $type
+     * @param $memberId
+     * @return mixed
+     */
+    public function getRecordList($type, $memberId)
+    {
 
+        //獲得點數紀錄
+        if ($type === 1) {
+            $result = $this->diningCarPointRecord->with('pointRules')
+                ->when($type, function ($query) use ($type) {
+                    $query->where('model_type', DiningCarPointRecordType::dining_car_point_rule);
+                });
+        } else {
+            //禮物兌換紀錄
+            $result = $this->diningCarPointRecord->with('gifts')
+                ->when($type, function ($query) use ($type) {
+                    $query->where('model_type', DiningCarPointRecordType::gift);
+                });
+        }
+        $result = $result->active()->where('member_id', $memberId)->get();
+        return $result;
+    }
 }

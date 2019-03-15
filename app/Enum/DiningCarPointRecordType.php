@@ -14,6 +14,9 @@ use BenSampo\Enum\Enum;
 
 final class DiningCarPointRecordType extends Enum
 {
-    const  dining_car_point_rule = 1;
+    const dining_car_point_rule = 1;
     const gift = 2;
+
+
+
 }

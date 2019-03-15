@@ -166,8 +166,6 @@ Route::middleware('cors')->namespace('V1')->group(function () {
     });
 
 
-
-
 });
 
 // 需 token 認證的 route
@@ -283,11 +281,15 @@ Route::middleware(['cors', 'auth.jwt'])->namespace('V1')->group(function () {
 
     //點數相關
     Route::prefix('point')->group(function () {
+        //兌換紀錄
+        Route::get('list', 'DiningCarPointController@list');
         // 總點數
         Route::get('{diningCarID}', 'DiningCarPointController@total');
 
         //兌換點數
-         Route::post('gift/{giftId}', 'DiningCarPointController@exchange');
+        Route::post('gift/{giftId}', 'DiningCarPointController@exchange');
+
+
 
     });
 });
