@@ -13,6 +13,7 @@ use App\Models\Gift;
 use App\Models\MemberGiftItem;
 use App\Models\Ticket\DiningCarPointRecord;
 use App\Models\Ticket\DiningCarConsumeRecord;
+use App\Models\Ticket\DiningCarMember;
 use App\Repositories\BaseRepository;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -113,13 +114,12 @@ class DiningCarPointRecordRepository extends BaseRepository
 
     /**
      * 儲存兌換點數及消費記錄
-     * @param int $diningCarId
-     * @param int $memberId
+     * @param DiningCarMember $member
      * @param int $consumeAmount
      * @param $rule
      * @return int [換得點數]
      */
-    public function saveExchangePoint($diningCarId = 0, $memberId = 0, $consumeAmount = 0, $rule)
+    public function saveExchangePoint($member, $consumeAmount = 0, $rule)
     {
         try {
             DB::connection('backend')->beginTransaction();
@@ -130,8 +130,8 @@ class DiningCarPointRecordRepository extends BaseRepository
             // 寫入點數
             if ($point > 0) {
                 $pointRecord = new DiningCarPointRecord;
-                $pointRecord->member_id = $memberId;
-                $pointRecord->dining_car_id = $diningCarId;
+                $pointRecord->member_id = $member->member_id;
+                $pointRecord->dining_car_id = $member->dining_car_id;
                 $pointRecord->point = $point;
                 $pointRecord->status = 1;
                 $pointRecord->expired_at = $rule->expired_at;
@@ -144,10 +144,14 @@ class DiningCarPointRecordRepository extends BaseRepository
             }
 
             // 寫入消費記錄
-            $consumeRecordData['member_id'] = $memberId;
-            $consumeRecordData['dining_car_id'] = $diningCarId;
+            $consumeRecordData['member_id'] = $member->member_id;
+            $consumeRecordData['dining_car_id'] = $member->dining_car_id;
             $consumeRecordData['amount'] = $consumeAmount;
             DiningCarConsumeRecord::insert($consumeRecordData);
+
+            // 累積消費金額
+            $member->amount += $consumeAmount;
+            $member->save();
 
             DB::connection('backend')->commit();
 

@@ -29,19 +29,18 @@ class DiningCarPointService extends BaseService
 
     /**
      * 消費金額兌換點數
-     * @param int $diningCarId
-     * @param int $memberId
+     * @param DiningCarMember $member
      * @param int $consumeAmount
      * @return int [換得點數]
      */
-    public function consumeAmountExchangePoint($diningCarId = 0, $memberId = 0, $consumeAmount = 0)
+    public function consumeAmountExchangePoint($member, $consumeAmount = 0)
     {
-        if ($consumeAmount <= 0) return 0;
+        if (!$member || $consumeAmount <= 0) return 0;
 
-        $rule = $this->getExchangeRateRule($diningCarId, 1);
+        $rule = $this->getExchangeRateRule($member->dining_car_id, 1);
         if (!$rule) return 0;
 
         // 寫入點數並記錄兌換
-        return $this->recordRepository->saveExchangePoint($diningCarId, $memberId, $consumeAmount, $rule);
+        return $this->recordRepository->saveExchangePoint($member, $consumeAmount, $rule);
     }
 }

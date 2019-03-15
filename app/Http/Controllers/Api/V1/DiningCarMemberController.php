@@ -152,27 +152,29 @@ class DiningCarMemberController extends RestLaravelController
             if ($isMember) return $this->failureCode('A0101');
 
             // 加入會員
-            $result = $this->service->add($params['memberId'], $diningCarId);
+            $member = $this->service->add($params['memberId'], $diningCarId);
+            if (!$member) return $this->failureCode('E0200');
 
             // 發送禮物
             $gift = $this->giftService->giveAddDiningCarMemberGift($diningCarId, $params['memberId']);
             $gift = (new GiftResult)->detailByJoinDiningCar($gift);
 
             // 發送點數
-            dispatch(new ConsumeAmountExchangePoint($params['memberId'], $diningCarId, $params['consumeAmount']))->delay(5);
+            dispatch(new ConsumeAmountExchangePoint($member, $params['consumeAmount']))->delay(5);
 
             // 取車餐資料
             $diningCar = $diningCarService->find($diningCarId);
 
-            return ($result) ? $this->success([
-                                        'car' => [
-                                            'id' => $diningCar->id,
-                                            'name' => $diningCar->name
-                                        ],
-                                        'gift' => $gift
-                                    ]) : $this->failureCode('E0200');
+            return $this->success([
+                                'car' => [
+                                    'id' => $diningCar->id,
+                                    'name' => $diningCar->name
+                                ],
+                                'gift' => $gift
+                            ]);
         } catch (Exception $e) {
-            return $this->failureCode('E0200');
+            var_dump($e->getMessage());
+            // return $this->failureCode('E0200');
         }
     }
 }

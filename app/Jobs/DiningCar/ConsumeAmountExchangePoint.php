@@ -20,8 +20,7 @@ class ConsumeAmountExchangePoint implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    private $memberId;
-    private $diningCarId;
+    private $member;
     private $consumeAmount;
 
     /**
@@ -29,10 +28,9 @@ class ConsumeAmountExchangePoint implements ShouldQueue
      *
      * @return void
      */
-    public function __construct($memberId, $diningCarId, $consumeAmount)
+    public function __construct($member, $consumeAmount)
     {
-        $this->memberId = $memberId;
-        $this->diningCarId = $diningCarId;
+        $this->member = $member;
         $this->consumeAmount = $consumeAmount;
     }
 
@@ -46,7 +44,7 @@ class ConsumeAmountExchangePoint implements ShouldQueue
         $consumeAmount = (new Hashids('DiningCarConsumeAmount', 16))->decode($this->consumeAmount);
 
         if ($consumeAmount && $consumeAmount[0] > 0) {
-            $pointService->consumeAmountExchangePoint($this->diningCarId, $this->memberId, $consumeAmount[0]);
+            $pointService->consumeAmountExchangePoint($this->member, $consumeAmount[0]);
         }
     }
 }
