@@ -82,9 +82,8 @@ class GiftController extends RestLaravelController
 
             $item->status = 0;
 
-            $usedAll = $mememberGiftStatus->where('gift_id', $giftID)->sum('total');
             //全部額度已用完
-            if ($usedAll >= $qty) {
+            if ($qty <= 0) {
                 $item->status = 2;
             }
 
