@@ -44,6 +44,7 @@ class GiftResult extends BaseResult
             $data->id = $item->id;
             $data->name = $item->name;
             $data->points = $item->points;
+            $data->qty = $item->qty;
             $data->status = $item->status;
             $data->photo = $item->photo;
             $data->duration = Carbon::parse($item->expire_at)->format('Y-m-d');

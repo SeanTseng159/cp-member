@@ -46,19 +46,15 @@ class CouponResult extends BaseResult
             $result->favorite = false;
             $result->used = false;
             $result->allused = false;
-            
-           
-            
-            if ((int)$coupon->totalUsedCount >= $coupon->CouponQty )
-            {
+
+            if ($coupon->CouponQty <= 0) {
                 $result->allused = true;
             }
-        
         
             if ($memberCoupons->isNotEmpty())
             {
                 $memberCoupon = $memberCoupons->where('coupon_id', $coupon->couponID)->first();
-            
+
                 if ($memberCoupon)
                 {
                     $couponLimit = $coupon->couponLimitQty;
@@ -113,7 +109,7 @@ class CouponResult extends BaseResult
         //優惠卷狀態
         if(!Carbon::now()->between($startAt, $expiredAt))
             $result->status = 3 ; //已失效
-       
+
         $couponLimit = $coupon->couponLimitQty;
         $couponQty = $coupon->CouponQty;
     
@@ -123,7 +119,7 @@ class CouponResult extends BaseResult
             {
                 $result->status = 1; // 已使用完個人限制
             }
-            if ($memberCoupon->count >= $couponQty)
+            if ($couponQty <= 0)
             {
                 $result->status = 2; // 所有已兌換完畢
             }

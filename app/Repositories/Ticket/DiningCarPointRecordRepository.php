@@ -22,11 +22,13 @@ class DiningCarPointRecordRepository extends BaseRepository
 {
     protected $diningCarPointRecord;
     protected $memberGiftItem;
+    protected $gift;
 
-    public function __construct(DiningCarPointRecord $diningCarPointRecord, MemberGiftItem $memberGiftItem)
+    public function __construct(DiningCarPointRecord $diningCarPointRecord, MemberGiftItem $memberGiftItem, Gift $gift)
     {
         $this->diningCarPointRecord = $diningCarPointRecord;
         $this->memberGiftItem = $memberGiftItem;
+        $this->gift = $gift;
     }
 
     public function total($memberId, $diningCarId)
@@ -47,32 +49,47 @@ class DiningCarPointRecordRepository extends BaseRepository
             DB::connection('backend')->beginTransaction();
 
             //點數兌換紀錄
-            $record = new $this->diningCarPointRecord;
-            $record->member_id = $memberId;
-            $record->dining_car_id = $diningCarId;
-            $record->point = $point * (-1);
-            $record->status = 1;
-            $record->expired_at = $expired_at;
-            $record->model_spec_id = $giftId;
-            $record->model_type = DiningCarPointRecordType::gift;
-            $record->model_name = 'Gift';
-            $record->save();
+            $objList = [];
+            for ($i = 1; $i <= $qty; $i++) {
+                $objList[] = [
+                    'member_id' => $memberId,
+                    'dining_car_id' => $diningCarId,
+                    'point' => $point*(-1),
+                    'status' => 1,
+                    'expired_at' => $expired_at,
+                    'model_spec_id' => $giftId,
+                    'model_type' => DiningCarPointRecordType::gift,
+                    'model_name' => 'Gift',
+                    'updated_at' => Carbon::now(),
+                    'created_at' => Carbon::now()
+                ];
+            }
+            $ret = $this->diningCarPointRecord->insert($objList);
 
             //禮物兌換紀錄
             $number = $this->memberGiftItem->where('member_id', $memberId)->where('gift_id', $giftId)->max('number');
 
+            unset($objList);
             $objList = [];
+
             for ($i = 1; $i <= $qty; $i++) {
                 $objList[] = [
                     'member_id' => $memberId,
                     'gift_id' => $giftId,
                     'number' => $number + $i,
-                    'used_time' => Carbon::now(),
                     'updated_at' => Carbon::now(),
                     'created_at' => Carbon::now()
                 ];
             }
+
+
             $ret = $this->memberGiftItem->insert($objList);
+
+            //update禮物庫存量
+            $giftQty = $this->gift->find($giftId)->qty;
+
+            $this->gift->where('id', $giftId)->update(['qty' => $giftQty - $qty]);
+
             DB::connection('backend')->commit();
 
             return true;
@@ -109,7 +126,9 @@ class DiningCarPointRecordRepository extends BaseRepository
                     $query->where('model_type', DiningCarPointRecordType::gift);
                 });
         }
-        $result = $result->active()->where('member_id', $memberId)->get();
+
+        $result = $result->active()->orderBy('created_at','desc')->where('member_id', $memberId)->get();
+
         return $result;
     }
 }

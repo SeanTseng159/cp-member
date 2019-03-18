@@ -25,15 +25,15 @@ class DiningCarPointResult extends BaseResult
     public function list($result)
     {
         $resultAry = [];
-
         foreach ($result as $item) {
+
             $data = new \stdClass();
             $data->time = Carbon::parse($item->created_at)->format('Y-m-d h:m');
             $data->content = new \stdClass();
             if ($item->model_type == DiningCarPointRecordType::getKey(DiningCarPointRecordType::gift)) {
 
                 $gift = $item->gifts;
-                $qty = ($item->point * -1) / $gift->points;
+                $qty = 1;
                 $data->content->desc = "使用%s點兌換了{$qty}份「{$gift->name}」";
                 $data->content->point = $item->point * -1;
             } else if ($item->model_type == DiningCarPointRecordType::getKey(DiningCarPointRecordType::dining_car_point_rule)) {
