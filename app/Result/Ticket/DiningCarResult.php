@@ -63,6 +63,35 @@ class DiningCarResult extends BaseResult
 
     /**
      * 餐車資訊
+     *
+     * @param $car
+     *
+     * @return \stdClass|null
+     */
+    private function getCar($car)
+    {
+        if (!$car) return null;
+
+        $result = new \stdClass;
+        $result->id = $car->id;
+        $result->name = $car->name;
+        $result->description = $car->description;
+        $result->img = $this->getImg($car->mainImg);
+        $result->categories = $this->getCategories($car->category, $car->subCategory);
+        $result->isFavorite = $this->getFavorite($car->id);
+        $result->openStatusCode = $car->open_status;
+        $result->openStatus = DiningCarConfig::OPEN_STATUS[$car->open_status];
+
+        // 計算距離
+        $result->longitude = $car->longitude ?? '';
+        $result->latitude = $car->latitude ?? '';
+        $result->distance = ($result->longitude && $result->latitude && $this->lat && $this->lng) ? $this->calcDistance($this->lat, $this->lng, $car->latitude, $car->longitude, 2, 2) . '公里' : '未知';
+
+        return $result;
+    }
+
+    /**
+     * 餐車資訊
      * @param $car
      */
     public function detail($car, $isFavorite = false, $lat, $lng)
@@ -90,37 +119,9 @@ class DiningCarResult extends BaseResult
         $result->businessHoursDates = $this->getBusinessHoursDates($car->businessHoursDates);
         $result->socialUrls = $this->getSocialUrls($car->socialUrls);
         $result->shareUrl = CommonHelper::getWebHost('zh-TW/diningCar/detail/' . $car->id);
+        $result->videos = $this->getVideos($car->media);
         $result->level = $this->getLevel($car->level, $car->expired_at);
         $result->memberCard = $this->getMemberCard($car->memberCard, $car->memberLevels, $car->giftCount, $car->totalCount);
-
-        return $result;
-    }
-
-    /**
-     * 餐車資訊
-     *
-     * @param $car
-     *
-     * @return \stdClass|null
-     */
-    private function getCar($car)
-    {
-        if (!$car) return null;
-
-        $result = new \stdClass;
-        $result->id = $car->id;
-        $result->name = $car->name;
-        $result->description = $car->description;
-        $result->img = $this->getImg($car->mainImg);
-        $result->categories = $this->getCategories($car->category, $car->subCategory);
-        $result->isFavorite = $this->getFavorite($car->id);
-        $result->openStatusCode = $car->open_status;
-        $result->openStatus = DiningCarConfig::OPEN_STATUS[$car->open_status];
-
-        // 計算距離
-        $result->longitude = $car->longitude ?? '';
-        $result->latitude = $car->latitude ?? '';
-        $result->distance = ($result->longitude && $result->latitude && $this->lat && $this->lng) ? $this->calcDistance($this->lat, $this->lng, $car->latitude, $car->longitude, 2, 2) . '公里' : '未知';
 
         return $result;
     }
@@ -271,7 +272,7 @@ class DiningCarResult extends BaseResult
     }
 
     /**
-     * 取分類
+     * 取營業狀態
      * @param $data
      */
     public function getOpenStatusList()
@@ -287,6 +288,34 @@ class DiningCarResult extends BaseResult
         }
 
         return $newList;
+    }
+
+    /**
+     * 取影片
+     * @param $media
+     */
+    private function getVideos($media)
+    {
+        $videos = [];
+
+        $video = $this->getVideo($media);
+        if ($video) $videos[] = $video;
+
+        return $videos;
+    }
+
+    /**
+     * 取影片
+     * @param $media
+     */
+    private function getVideo($media)
+    {
+        if (!$media) return null;
+
+        parse_str(parse_url($media->link, PHP_URL_QUERY), $query);
+        if (!$query || !isset($query['v']) || !$query['v']) return null;
+
+        return $query['v'];
     }
 
     /**

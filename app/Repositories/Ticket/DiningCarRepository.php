@@ -93,6 +93,7 @@ class DiningCarRepository extends BaseRepository
                                 'socialUrls',
                                 'businessHoursDays.times',
                                 'businessHoursDates',
+                                'media',
                                 'memberCard' => function($query) use ($memberId) {
                                     $query->where('member_id', $memberId);
                                 },
