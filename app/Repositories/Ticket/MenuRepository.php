@@ -29,4 +29,17 @@ class MenuRepository extends BaseRepository
                             ->where('status', 1)
                             ->find($id);
     }
+
+    /**
+     * 取關鍵字找菜單
+     * @param  $keyword
+     * @return mixed
+     */
+    public function getDiningCarsByKeyword($keyword = '')
+    {
+        return $this->model->select('dining_car_id')
+                            ->where('status', 1)
+                            ->where('name', 'like', '%' . $keyword . '%')
+                            ->get();
+    }
 }
