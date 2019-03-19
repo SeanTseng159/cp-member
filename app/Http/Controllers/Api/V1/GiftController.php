@@ -11,9 +11,12 @@ use App\Services\Ticket\MemberGiftItemService;
 use Illuminate\Http\Request;
 use Ksd\Mediation\Core\Controller\RestLaravelController;
 use App\Services\Ticket\GiftService;
+use App\Traits\MemberHelper;
 
 class GiftController extends RestLaravelController
 {
+    use MemberHelper;
+
     protected $lang = 'zh-TW';
     protected $giftService;
     protected $memberGiftItemService;
@@ -38,7 +41,8 @@ class GiftController extends RestLaravelController
      */
     public function list(Request $request)
     {
-        $memberId = $request->memberId;
+        $memberId = $this->getMemberId();
+
 
         $client = $request->modelType;
         $clientId = $request->modelSpecId;
@@ -54,6 +58,7 @@ class GiftController extends RestLaravelController
             $item->photo = ImageHelper::getImageUrl(ClientType::gift, $item->id, 1);
         }
 
+
         //設定禮物狀態(可使用/額度已用完)
         $this->setGiftStatus($gifts, $memberId);
 
@@ -68,6 +73,7 @@ class GiftController extends RestLaravelController
      */
     public function setGiftStatus($gifts, $memberId)
     {
+
         $giftIds = $gifts->pluck('id')->toArray();
         $giftIds = array_unique($giftIds);
         $mememberGiftStatus = $this->memberGiftItemService->getUsedCount($giftIds);
@@ -80,6 +86,7 @@ class GiftController extends RestLaravelController
             $qty = $item->qty;
             $limiQty = $item->limit_qty;
 
+
             $item->status = 0;
 
             //全部額度已用完
@@ -88,10 +95,22 @@ class GiftController extends RestLaravelController
             }
 
             //個人額度已用完
-            $personalUsed = $mememberGiftStatus->where('member_id', $memberId)->sum('total');
-            if ($personalUsed >= $limiQty) {
-                $item->status = 1;
+            $personal = $mememberGiftStatus
+                ->where('member_id', $memberId)
+                ->where('gift_id', $giftID)
+                ->first();
+
+            if ($personal) {
+                $personalUsed = $personal->total;
+                $item->qty = $limiQty - $personalUsed;
+                if ($personalUsed >= $limiQty) {
+                    $item->status = 1;
+                }
             }
+            else{
+                $item->qty = $limiQty;
+            }
+
         }
     }
 
