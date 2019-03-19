@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\V1;
 
 
 
+use App\Enum\ClientType;
 use App\Helpers\ImageHelper;
 use App\Parameter\Ticket\CouponParameter;
 use App\Result\Ticket\CouponResult;
@@ -90,7 +91,7 @@ class CouponController extends RestLaravelController
             $userCoupons = $this->memberCouponService->list($params->memberId,$id)->first();
             
             //圖片資訊
-            $images = ImageHelper::getImageUrl($couponDetail->model_type,$couponDetail->model_spec_id,1);
+            $images = ImageHelper::getImageUrl(ClientType::coupon,$id,1);
             
             $result = (new CouponResult())->detail($couponDetail,$userCoupons,$images);
         
