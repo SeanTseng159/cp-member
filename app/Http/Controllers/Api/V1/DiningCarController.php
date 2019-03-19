@@ -16,6 +16,7 @@ use App\Services\Ticket\DiningCarCategoryService;
 use App\Services\Ticket\DiningCarService;
 use App\Services\Ticket\MemberDiningCarService;
 use App\Services\Ticket\KeywordService;
+use App\Services\Ticket\MenuService;
 use App\Result\Ticket\DiningCarCategoryResult;
 use App\Result\Ticket\DiningCarResult;
 
@@ -61,15 +62,18 @@ class DiningCarController extends RestLaravelController
      * @param Request $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function list(Request $request, MemberDiningCarService $memberDiningCarService, KeywordService $keywordService)
+    public function list(Request $request, MemberDiningCarService $memberDiningCarService, KeywordService $keywordService, MenuService $menuService)
     {
         try {
             $params = (new DiningCarParameter($request))->list();
 
-            // 找關鍵字中的餐車
+            // 依關鍵字 找標籤/菜單中的餐車
             if ($params['keyword']) {
-                $keywordDiningCars = $keywordService->getDiningCarsByKeyword($params['keyword']);
-                $params['keywordDiningCarIds'] = $keywordDiningCars->pluck('dining_car_id')->toArray();
+                $keywordDiningCarIds = $keywordService->getDiningCarsByKeyword($params['keyword'])->pluck('dining_car_id')->toArray();
+
+                $menuDiningCarIds = $menuService->getDiningCarsByKeyword($params['keyword'])->pluck('dining_car_id')->toArray();
+
+                $params['keywordDiningCarIds'] = array_unique(array_merge($keywordDiningCarIds, $menuDiningCarIds));
             }
 
             $data = $this->service->list($params);
@@ -91,15 +95,18 @@ class DiningCarController extends RestLaravelController
      * @param Request $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function map(Request $request, KeywordService $keywordService)
+    public function map(Request $request, KeywordService $keywordService, MenuService $menuService)
     {
         try {
             $params = (new DiningCarParameter($request))->map();
 
-            // 找關鍵字中的餐車
+            // 依關鍵字 找標籤/菜單中的餐車
             if ($params['keyword']) {
-                $keywordDiningCars = $keywordService->getDiningCarsByKeyword($params['keyword']);
-                $params['keywordDiningCarIds'] = $keywordDiningCars->pluck('dining_car_id')->toArray();
+                $keywordDiningCarIds = $keywordService->getDiningCarsByKeyword($params['keyword'])->pluck('dining_car_id')->toArray();
+
+                $menuDiningCarIds = $menuService->getDiningCarsByKeyword($params['keyword'])->pluck('dining_car_id')->toArray();
+
+                $params['keywordDiningCarIds'] = array_unique(array_merge($keywordDiningCarIds, $menuDiningCarIds));
             }
 
             $data = $this->service->map($params);

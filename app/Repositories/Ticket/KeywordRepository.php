@@ -62,9 +62,10 @@ class KeywordRepository extends BaseRepository
 
     /**
      * 依 關鍵字 找餐車
+     * @param  $keyword
      * @return mixed
      */
-    public function getDiningCarsByKeyword($keyword)
+    public function getDiningCarsByKeyword($keyword = '')
     {
         return $this->model->join('dining_car_keywords', 'keywords.keyword_id', '=', 'dining_car_keywords.keyword_id')
                             ->select('dining_car_keywords.dining_car_id')
