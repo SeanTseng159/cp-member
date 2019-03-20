@@ -35,7 +35,7 @@ class MenuRepository extends BaseRepository
                                     $query->select('prod_spec_id', 'prod_id');
                                 },
                                 'prodSpecPrice.prodSpec.product' => function($query) {
-                                    $query->select('prod_id');
+                                    $query->select('prod_id', 'prod_limit_num');
                                 }
                             ])
                             ->where('status', 1)
