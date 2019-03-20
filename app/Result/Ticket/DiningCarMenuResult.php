@@ -109,6 +109,7 @@ class DiningCarMenuResult extends BaseResult
         $product->spec_id = $prodSpecPrice->prodSpec->prod_spec_id;
         $product->price_id = $prodSpecPrice->prod_spec_price_id;
         $product->stock = $prodSpecPrice->prod_spec_price_stock;
+        $product->maxLimit = $prodSpecPrice->prodSpec->product->prod_limit_num;
 
         return $product;
     }
