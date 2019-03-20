@@ -87,11 +87,28 @@ class DiningCarMenuResult extends BaseResult
             $result->categoryName = $menu->category->name;
             $result->imgs = ImageHelper::urls($menu->imgs);
             $result->content = $menu->content;
+            $result->product = $this->getProduct($menu->prodSpecPrice);
         }
         else {
             $result->img = ImageHelper::url($menu->mainImg);
         }
 
         return $result;
+    }
+
+    /**
+     * 取綁定商品
+     * @param $prodSpecPrice
+     */
+    private function getProduct($prodSpecPrice)
+    {
+        if (!$prodSpecPrice || !$prodSpecPrice->prodSpec || !$prodSpecPrice->prodSpec->product) return null;
+
+        $product = new \stdClass;
+        $product->price_id = $prodSpecPrice->prod_spec_price_id;
+        $product->spec_id = $prodSpecPrice->prodSpec->prod_spec_id;
+        $product->id = $prodSpecPrice->prodSpec->product->prod_id;
+
+        return $product;
     }
 }

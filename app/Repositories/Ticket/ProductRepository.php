@@ -171,7 +171,8 @@ class ProductRepository extends BaseRepository
      */
     public function findByCheckout($id, $specId, $specPriceId, $hasTag = false)
     {
-        $prod = $this->model->with(['shippingFees', 'img', 'groups'])->leftJoin('prod_specs', 'prods.prod_id', '=', 'prod_specs.prod_id')
+        $prod = $this->model->with(['shippingFees', 'img', 'groups'])
+                            ->leftJoin('prod_specs', 'prods.prod_id', '=', 'prod_specs.prod_id')
                             ->leftJoin('prod_spec_prices', 'prod_specs.prod_spec_id', '=', 'prod_spec_prices.prod_spec_id')
                             ->where('prod_specs.prod_spec_id', $specId)
                             ->where('prod_spec_prices.prod_spec_price_id', $specPriceId)

@@ -25,7 +25,19 @@ class MenuRepository extends BaseRepository
      */
     public function find($id)
     {
-        return $this->model->with(['category', 'imgs'])
+        return $this->model->with([
+                                'category',
+                                'imgs',
+                                'prodSpecPrice' => function($query) {
+                                    $query->select('prod_spec_price_id', 'prod_spec_id');
+                                },
+                                'prodSpecPrice.prodSpec' => function($query) {
+                                    $query->select('prod_spec_id', 'prod_id');
+                                },
+                                'prodSpecPrice.prodSpec.product' => function($query) {
+                                    $query->select('prod_id');
+                                }
+                            ])
                             ->where('status', 1)
                             ->find($id);
     }

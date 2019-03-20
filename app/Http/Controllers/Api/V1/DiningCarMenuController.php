@@ -59,7 +59,8 @@ class DiningCarMenuController extends RestLaravelController
 
             return $this->success($result);
         } catch (Exception $e) {
-            return $this->failureCode('E0007');
+            var_dump($e->getMessage());
+            // return $this->failureCode('E0007');
         }
     }
 }
