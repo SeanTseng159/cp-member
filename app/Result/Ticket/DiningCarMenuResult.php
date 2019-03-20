@@ -105,9 +105,10 @@ class DiningCarMenuResult extends BaseResult
         if (!$prodSpecPrice || !$prodSpecPrice->prodSpec || !$prodSpecPrice->prodSpec->product) return null;
 
         $product = new \stdClass;
-        $product->price_id = $prodSpecPrice->prod_spec_price_id;
-        $product->spec_id = $prodSpecPrice->prodSpec->prod_spec_id;
         $product->id = $prodSpecPrice->prodSpec->product->prod_id;
+        $product->spec_id = $prodSpecPrice->prodSpec->prod_spec_id;
+        $product->price_id = $prodSpecPrice->prod_spec_price_id;
+        $product->stock = $prodSpecPrice->prod_spec_price_stock;
 
         return $product;
     }

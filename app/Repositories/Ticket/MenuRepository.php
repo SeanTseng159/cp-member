@@ -29,7 +29,7 @@ class MenuRepository extends BaseRepository
                                 'category',
                                 'imgs',
                                 'prodSpecPrice' => function($query) {
-                                    $query->select('prod_spec_price_id', 'prod_spec_id');
+                                    $query->select('prod_spec_price_id', 'prod_spec_id', 'prod_spec_price_stock');
                                 },
                                 'prodSpecPrice.prodSpec' => function($query) {
                                     $query->select('prod_spec_id', 'prod_id');
