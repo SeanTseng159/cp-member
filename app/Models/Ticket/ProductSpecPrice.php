@@ -15,4 +15,12 @@ class ProductSpecPrice extends BaseModel
     protected $primaryKey = 'prod_spec_price_id';
 
     public $timestamps = false;
+
+    /**
+     * 取得規格
+     */
+    public function prodSpec()
+    {
+        return $this->hasOne('App\Models\Ticket\ProductSpec', 'prod_spec_id', 'prod_spec_id')->notDeleted();
+    }
 }

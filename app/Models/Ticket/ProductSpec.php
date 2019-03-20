@@ -21,4 +21,12 @@ class ProductSpec extends BaseModel
     {
         return $this->hasMany('App\Models\Ticket\ProductSpecPrice', 'prod_spec_id')->notDeleted();
     }
+
+    /**
+     * 取得產品
+     */
+    public function product()
+    {
+        return $this->hasOne('App\Models\Ticket\Product', 'prod_id', 'prod_id')->onSale();
+    }
 }
