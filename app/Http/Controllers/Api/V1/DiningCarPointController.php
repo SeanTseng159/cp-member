@@ -123,11 +123,11 @@ class DiningCarPointController extends RestLaravelController
                 throw  new \Exception('E0002');
             }
 
-            //兌換後，剩餘禮物數
+            //兌換後，剩餘禮物數與點數
             return $this->success([
                 'qty' => ($qty < ($limiQty - $personalUsed - $exchangeQty)) ?
-                    $qty : ($limiQty - $personalUsed - $exchangeQty)
-
+                    $qty : ($limiQty - $personalUsed - $exchangeQty),
+                'point' => ($memberTotalPoint - $exchangePoint)
             ]);
 
 
