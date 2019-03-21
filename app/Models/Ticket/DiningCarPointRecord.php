@@ -55,7 +55,10 @@ class DiningCarPointRecord extends BaseModel
      */
     public function scopeAllow($query)
     {
-        return $query->where('status', 1)->where('expired_at', '>=', Carbon::now());
+
+        return $query->where('status', 1)
+            ->where('expired_at', '>=', Carbon::now())
+            ->orWhereNull('expired_at');
     }
 
     public function scopeActive($query)
