@@ -95,8 +95,8 @@ class MemberGiftController extends RestLaravelController
     {
         $memberId = $request->memberId;
         
-        //取得使用者的禮物清單
-        $result = $this->memberGiftItemService->findByUserGiftId($memberId, $id);
+
+        $result = $this->memberGiftItemService->findByGiftId($memberId, $id);
         
         if($result)
         {
@@ -189,9 +189,8 @@ class MemberGiftController extends RestLaravelController
             return $this->failureCode('E0007');
             
         }
-        
-        
     }
+
     
     
 }

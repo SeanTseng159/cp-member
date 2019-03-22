@@ -40,9 +40,9 @@ class MemberGiftItemService extends BaseService
     }
     
     
-    public function findByUserGiftId($memberID,$memberGiftId)
+    public function findByGiftId($memberID, $giftID)
     {
-        return $this->repository->findByUserGiftId($memberID,$memberGiftId);
+        return $this->repository->findByGiftId($memberID,$giftID);
     }
     
     public function update($memberId,$memberGiftId)
@@ -50,10 +50,7 @@ class MemberGiftItemService extends BaseService
         return $this->repository->update($memberId,$memberGiftId);
     }
     
-    public function findByItemID($id)
-    {
-        return $this->repository->findByItemID($id);
-    }
+
 
     /**
      * 取得特定禮物的使用數
@@ -63,6 +60,14 @@ class MemberGiftItemService extends BaseService
     public function getUsedCount(array $giftIds)
     {
         return $this->repository->getUsedCount($giftIds);
+    }
+
+    /*
+     * 取得使用者對某Clinet(餐車)的未使用禮物數
+     */
+    public function getUserAvailableGiftCount($memberId,$modelType,$modelSepcID)
+    {
+        return $this->repository->getUserAvailableGiftCount($memberId,$modelType,$modelSepcID);
     }
     
 

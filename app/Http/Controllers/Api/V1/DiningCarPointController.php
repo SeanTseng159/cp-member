@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\V1;
 
 
 use App\Core\Logger;
+use App\Enum\ClientType;
 use App\Exceptions\ErrorCode;
 use App\Result\Ticket\DiningCarPointResult;
 use App\Result\Ticket\DiningCarResult;
@@ -37,8 +38,12 @@ class DiningCarPointController extends RestLaravelController
         try {
             $memberId = $request->memberId;
             $point = $this->diningCarPointRecordService->total($diningCarID, $memberId);
+            $gift = $this->memberGiftItemService->getUserAvailableGiftCount($memberId, ClientType::dining_car, $diningCarID);
 
-            return $this->success(['point' => $point]);
+            return $this->success([
+                'point' => $point,
+                'gift' => $gift
+            ]);
         } catch (\Exception $e) {
             Logger::error('point total Error', $e->getMessage());
             return $this->failureCode('E0001');

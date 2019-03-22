@@ -9,6 +9,7 @@ namespace App\Repositories\Ticket;
 
 
 use App\Enum\ClientType;
+use App\Enum\GiftType;
 use App\Models\MemberGiftItem;
 use App\Repositories\BaseRepository;
 use App\Services\ImageService;
@@ -154,21 +155,19 @@ class MemberGiftItemRepository extends BaseRepository
      *
      * @return
      */
-    public function findByUserGiftId($memberId, $memberGiftId)
+    public function findByGiftId($memberId, $giftID)
     {
-        return $this->memberGiftItem
-            ->where('id', $memberGiftId)
+        $result = $this->memberGiftItem
             ->where('member_id', $memberId)
-            ->with('gift', 'gift.diningCar')
+            ->where('gift_id',$giftID)
+            ->with(['gift','gift.diningCar'])
             ->first();
+
+        return $result;
     }
 
 
-    public function findByItemID($id)
-    {
-        return $this->memberGiftItem->find($id)->first();
 
-    }
 
 
     public function update($memberId, $memberGiftId)
@@ -204,5 +203,23 @@ class MemberGiftItemRepository extends BaseRepository
             ->get();
 
         return $result;
+    }
+
+    public function getUserAvailableGiftCount($memberId, $modelType, $modelSepcID)
+    {
+
+
+        $result = $this->memberGiftItem
+            ->with(['gifts' => function ($query) use ($modelType, $modelSepcID) {
+                return $query
+                    ->where('model_type', $modelType)
+                    ->where('model_spec_id', $modelSepcID);
+            }])
+            ->where('member_id', $memberId)
+            ->whereNull('used_time')
+            ->count();
+
+        return $result;
+
     }
 }
