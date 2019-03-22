@@ -177,7 +177,7 @@ class MemberGiftItemRepository extends BaseRepository
             ->where('member_id', $memberId)
             ->first();
 
-        if ($row->used_time) {
+        if (!$row or $row->used_time) {
             return false;
         }
         $result = $this->memberGiftItem
