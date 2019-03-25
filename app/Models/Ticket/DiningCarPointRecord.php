@@ -27,12 +27,13 @@ class DiningCarPointRecord extends BaseModel
 
     public function pointRules()
     {
-        return $this->belongsTo(DiningCarPointRule::class,'model_spec_id','id');
+        return $this->belongsTo(DiningCarPointRule::class, 'model_spec_id', 'id');
 
     }
+
     public function gifts()
     {
-        return $this->belongsTo(Gift::class,'model_spec_id','id');
+        return $this->belongsTo(Gift::class, 'model_spec_id', 'id');
 
     }
 
@@ -44,8 +45,10 @@ class DiningCarPointRecord extends BaseModel
     {
 
         return $query->where('status', 1)
-            ->where('expired_at', '>=', Carbon::now())
-            ->orWhereNull('expired_at');
+            ->where(function ($query) {
+                $query->where('expired_at', '>=', Carbon::now())
+                    ->orWhereNull('expired_at');
+            });
     }
 
     public function scopeActive($query)
