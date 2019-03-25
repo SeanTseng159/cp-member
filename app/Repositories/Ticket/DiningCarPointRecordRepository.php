@@ -54,7 +54,7 @@ class DiningCarPointRecordRepository extends BaseRepository
                 $objList[] = [
                     'member_id' => $memberId,
                     'dining_car_id' => $diningCarId,
-                    'point' => $point*(-1),
+                    'point' => $point * (-1),
                     'status' => 1,
                     'expired_at' => $expired_at,
                     'model_spec_id' => $giftId,
@@ -110,7 +110,7 @@ class DiningCarPointRecordRepository extends BaseRepository
      * @param $memberId
      * @return mixed
      */
-    public function getRecordList($type, $memberId)
+    public function getRecordList($type, $memberId, $diningCarId)
     {
 
         //獲得點數紀錄
@@ -127,7 +127,12 @@ class DiningCarPointRecordRepository extends BaseRepository
                 });
         }
 
-        $result = $result->active()->orderBy('created_at','desc')->where('member_id', $memberId)->get();
+        $result = $result
+            ->active()
+            ->where('dining_car_id', $diningCarId)
+            ->where('member_id', $memberId)
+            ->orderBy('created_at', 'desc')
+            ->get();
 
         return $result;
     }

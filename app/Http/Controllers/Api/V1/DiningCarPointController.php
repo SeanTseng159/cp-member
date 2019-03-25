@@ -151,7 +151,7 @@ class DiningCarPointController extends RestLaravelController
     }
 
 
-    public function list(Request $request)
+    public function list(Request $request,$diningCarID)
     {
 
         try {
@@ -168,7 +168,7 @@ class DiningCarPointController extends RestLaravelController
                 throw New \Exception('E0001');
             }
 
-            $result = $this->diningCarPointRecordService->getPointRecord($status, $memberId);
+            $result = $this->diningCarPointRecordService->getPointRecord($status, $memberId,$diningCarID);
 
             $data = (new DiningCarPointResult())->list($result);
 
