@@ -15,12 +15,14 @@ use App\Services\NewsletterService;
 use App\Services\JWTTokenService;
 use App\Parameter\MemberParameter;
 use App\Traits\CryptHelper;
+use App\Traits\ValidatorHelper;
 
 use Hashids\Hashids;
 
 class MemberController extends RestLaravelController
 {
     use CryptHelper;
+    use ValidatorHelper;
 
     protected $memberService;
 
@@ -84,6 +86,44 @@ class MemberController extends RestLaravelController
             return $this->failureCode('E0012');
         } catch (Exception $e) {
             return $this->failureCode('E0012');
+        }
+    }
+
+    /**
+     *  檢查是否已註冊會員
+     * @param Request $request
+     * @param Int $id
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function registerCheck(Request $request)
+    {
+        try {
+            $params = (new MemberParameter)->registerCheck($request);
+
+            $phoneNumber = (new Hashids('PhoneNumber', 20))->decode($params['mobile']);
+            if (!$phoneNumber) return $this->failureCode('E0301');
+
+            // 確認手機格式
+            $phoneNumber = $this->VerifyPhoneNumber($params['country'], $phoneNumber[0], $phoneNumber[1]);
+            if (!$phoneNumber) return $this->failureCode('E0301');
+
+            // 確認手機是否使用
+            $member = $this->memberService->checkHasPhoneAndisRegistered($phoneNumber['country'], $phoneNumber['countryCode'], $phoneNumber['cellphone']);
+            if ($member) {
+                $isRegistered = true;
+                $memberToken = (new Hashids('Member', 12))->encode([$member->id, time()]);
+            }
+            else {
+                $isRegistered = false;
+                $memberToken = '';
+            }
+
+            return $this->success([
+                'isRegistered' => $isRegistered,
+                'token' => $memberToken
+            ]);
+        } catch (Exception $e) {
+            return $this->failureCode('E0007');
         }
     }
 }
