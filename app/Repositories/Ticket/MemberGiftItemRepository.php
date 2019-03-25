@@ -151,23 +151,19 @@ class MemberGiftItemRepository extends BaseRepository
      * 禮物詳細資料
      *
      * @param $memberId
-     * @param $memberGiftId
-     *
+     * @param $giftID
      * @return
      */
     public function findByGiftId($memberId, $giftID)
     {
         $result = $this->memberGiftItem
             ->where('member_id', $memberId)
-            ->where('gift_id',$giftID)
-            ->with(['gift','gift.diningCar'])
+            ->where('gift_id', $giftID)
+            ->with(['gift', 'gift.diningCar'])
             ->first();
 
         return $result;
     }
-
-
-
 
 
     public function update($memberId, $memberGiftId)
@@ -205,20 +201,19 @@ class MemberGiftItemRepository extends BaseRepository
         return $result;
     }
 
-    public function getUserAvailableGiftCount($memberId, $modelType, $modelSepcID)
+    public function getUserAvailableGiftCount($memberId, $modelType, $modelSpecID)
     {
 
-
         $result = $this->memberGiftItem
-            ->with(['gifts' => function ($query) use ($modelType, $modelSepcID) {
+            ->with('gift')
+            ->whereHas('gift',function ($query) use ($modelType, $modelSpecID) {
                 return $query
                     ->where('model_type', $modelType)
-                    ->where('model_spec_id', $modelSepcID);
-            }])
+                    ->where('model_spec_id', $modelSpecID);
+            })
             ->where('member_id', $memberId)
             ->whereNull('used_time')
             ->count();
-
         return $result;
 
     }

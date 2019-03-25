@@ -94,7 +94,7 @@ class GiftController extends RestLaravelController
                 $item->status = 2;
             }
 
-            //個人額度已用完
+            //個人額度是否已用完
             $personal = $mememberGiftStatus
                 ->where('member_id', $memberId)
                 ->where('gift_id', $giftID)

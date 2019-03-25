@@ -24,7 +24,7 @@ class MemberGiftItem extends BaseModel
 
     public function gift()
     {
-        return $this->belongsTo(Gift::class);
+        return $this->hasOne(Gift::class,'id','gift_id');
     }
 
 
