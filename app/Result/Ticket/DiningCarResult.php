@@ -121,7 +121,8 @@ class DiningCarResult extends BaseResult
         $result->shareUrl = CommonHelper::getWebHost('zh-TW/diningCar/detail/' . $car->id);
         $result->videos = $this->getVideos($car->media);
         $result->level = $this->getLevel($car->level, $car->expired_at);
-        $result->memberCard = $this->getMemberCard($car->memberCard, $car->memberLevels, $car->giftCount, $car->totalCount);
+        $result->memberCard = $this->getMemberCard($car->memberCard, $car->memberLevels);
+        $result->acls = $this->getAcls($result->level, $result->memberCard);
 
         return $result;
     }
@@ -337,23 +338,32 @@ class DiningCarResult extends BaseResult
      * 取會員卡資訊
      * @param $data
      */
-    public function getMemberCard($memberCard, $memberLevels, $giftCount = 0, $totalPoint = 0)
+    public function getMemberCard($memberCard, $memberLevels)
     {
         $result = new \stdClass;
-
-        if (!$memberCard) {
-            // 還未加入會員
-            $result->level = -1;
-            $result->point = 0;
-            $result->gift = 0;
-        }
-        else {
-            // 已加入會員
-            $result->level = $this->getMemberLevel($memberLevels, $memberCard->amount);
-            $result->point = (int) $totalPoint;
-            $result->gift = $giftCount;
-        }
+        $result->level = ($memberCard) ? $this->getMemberLevel($memberLevels, $memberCard->amount) : -1;
 
         return $result;
+    }
+
+    /**
+     * 取會餐車權限
+     * @param $data
+     */
+    public function getAcls($level = 0, $memberCard)
+    {
+        $member = ($memberCard->level > -1 || $level > 0) ? true : false;
+        $newsfeed = ($level >= 0) ? true : false;
+        $menu = ($level >= 0) ? true : false;
+        $coupon = ($member || $level > 0) ? true : false;
+        $gift = ($member || $level > 0) ? true : false;
+
+        return [
+            'member' => $member,
+            'newsfeed' => $newsfeed,
+            'menu' => $menu,
+            'coupon' => $coupon,
+            'gift' => $gift
+        ];
     }
 }

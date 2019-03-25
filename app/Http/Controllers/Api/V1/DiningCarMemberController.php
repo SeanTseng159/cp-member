@@ -89,7 +89,7 @@ class DiningCarMemberController extends RestLaravelController
             $data = $this->service->list($request->memberId, $params);
 
             $result['page'] = (int) $params['page'];
-            $result['total'] = $data->total;
+            $result['total'] = $data->total();
             $result['cars'] = (new DiningCarMemberResult)->list($data);
 
             return $this->success($result);
@@ -173,8 +173,7 @@ class DiningCarMemberController extends RestLaravelController
                                 'gift' => $gift
                             ]);
         } catch (Exception $e) {
-            var_dump($e->getMessage());
-            // return $this->failureCode('E0200');
+            return $this->failureCode('E0200');
         }
     }
 }

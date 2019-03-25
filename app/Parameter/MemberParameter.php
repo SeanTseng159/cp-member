@@ -85,4 +85,16 @@ class MemberParameter
 
         return $parameters;
     }
+
+    /**
+     * laravel request 參數處理
+     * @param $request
+     */
+    public function registerCheck($request)
+    {
+        return $request->only([
+            'country',
+            'mobile'
+        ]);
+    }
 }

@@ -37,9 +37,10 @@ class MobileController extends RestLaravelController
             if (!$country || !$code) return $this->failureCode('E0001');
 
             $phoneNumber = (new Hashids('PhoneNumber', 20))->decode($code);
+            if (!$phoneNumber) return $this->failureCode('E0301');
 
             $phoneNumber = $this->VerifyPhoneNumber($country, $phoneNumber[0], $phoneNumber[1]);
-            if (!$phoneNumber) return $this->apiRespFailCode('E0301');
+            if (!$phoneNumber) return $this->failureCode('E0301');
 
             return $this->success($phoneNumber);
         } catch (Exception $e) {

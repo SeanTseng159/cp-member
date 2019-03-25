@@ -163,10 +163,11 @@ class DiningCarPointRecordRepository extends BaseRepository
             }
 
             // 寫入消費記錄
-            $consumeRecordData['member_id'] = $member->member_id;
-            $consumeRecordData['dining_car_id'] = $member->dining_car_id;
-            $consumeRecordData['amount'] = $consumeAmount;
-            DiningCarConsumeRecord::insert($consumeRecordData);
+            $consumeRecord = new DiningCarConsumeRecord;
+            $consumeRecord->member_id = $member->member_id;
+            $consumeRecord->dining_car_id = $member->dining_car_id;
+            $consumeRecord->amount = $consumeAmount;
+            $consumeRecord->save();
 
             // 累積消費金額
             $member->amount += $consumeAmount;

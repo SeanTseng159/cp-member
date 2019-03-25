@@ -88,28 +88,6 @@ class DiningCarMemberService extends BaseService
      */
     public function list($memberId = 0, $params = [])
     {
-        $memberDiningCars = $this->repository->list($memberId, $params);
-
-        $total = $memberDiningCars->total();
-
-        // 取禮物數
-        if (!$memberDiningCars->isEmpty()) {
-            $memberDiningCars = $memberDiningCars->transform(function ($item) use ($memberId) {
-                $item->giftCount = $this->giftRepository->getMemberGiftItemsCountByDiningCarId($memberId, $item->dining_car_id);
-                $item->totalPoint = $this->pointRecordRepository->getTotalPointByDiningCarId($memberId, $item->dining_car_id);
-                return $item;
-            });
-        }
-        else {
-            $memberDiningCars = $memberDiningCars->transform(function ($item) {
-                $item->giftCount = 0;
-                $item->totalPoint = 0;
-                return $item;
-            });
-        }
-
-        $memberDiningCars->total = $total;
-
-        return $memberDiningCars;
+        return $this->repository->list($memberId, $params);
     }
 }
