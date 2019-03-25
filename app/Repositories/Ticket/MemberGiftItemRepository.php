@@ -210,7 +210,7 @@ class MemberGiftItemRepository extends BaseRepository
                 return $query
                     ->where('model_type', $modelType)
                     ->where('model_spec_id', $modelSpecID)
-                    ->where('expire_at',"<",Carbon::now()); //未過期
+                    ->where('expire_at',">=",Carbon::now()); //未過期
             })
             ->where('member_id', $memberId)
             ->whereNull('used_time')
