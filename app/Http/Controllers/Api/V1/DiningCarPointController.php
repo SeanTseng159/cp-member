@@ -35,7 +35,7 @@ class DiningCarPointController extends RestLaravelController
 
     public function total(Request $request, $diningCarID)
     {
-//        try {
+        try {
 
             $memberId = $request->memberId;
             $point = $this->diningCarPointRecordService->total($diningCarID, $memberId);
@@ -45,10 +45,10 @@ class DiningCarPointController extends RestLaravelController
                 'point' => $point,
                 'gift' => $gift
             ]);
-//        } catch (\Exception $e) {
-//            Logger::error('point total Error', $e->getMessage());
-//            return $this->failureCode('E0001');
-//        }
+        } catch (\Exception $e) {
+            Logger::error('point total Error', $e->getMessage());
+            return $this->failureCode('E0001');
+        }
     }
 
     public function exchange(Request $request, $giftId)

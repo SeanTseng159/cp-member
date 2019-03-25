@@ -209,7 +209,8 @@ class MemberGiftItemRepository extends BaseRepository
             ->whereHas('gift',function ($query) use ($modelType, $modelSpecID) {
                 return $query
                     ->where('model_type', $modelType)
-                    ->where('model_spec_id', $modelSpecID);
+                    ->where('model_spec_id', $modelSpecID)
+                    ->where('expire_at',"<",Carbon::now()); //未過期
             })
             ->where('member_id', $memberId)
             ->whereNull('used_time')
