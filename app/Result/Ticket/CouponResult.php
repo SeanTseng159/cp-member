@@ -103,32 +103,34 @@ class CouponResult extends BaseResult
     
         $startAt = Carbon::createFromFormat('Y-m-d i:s:u',$coupon->couponStartAt);
         $expiredAt = Carbon::createFromFormat('Y-m-d i:s:u',$coupon->couponExpireAt);
-    
-        
-        
+
         //優惠卷狀態
         if(!Carbon::now()->between($startAt, $expiredAt))
             $result->status = 3 ; //已失效
+
 
         $couponLimit = $coupon->couponLimitQty;
         $couponQty = $coupon->CouponQty;
     
         if ($memberCoupon)
         {
-            if ($memberCoupon->count >= $couponLimit)
-            {
-                $result->status = 1; // 已使用完個人限制
-            }
             if ($couponQty <= 0)
             {
                 $result->status = 2; // 所有已兌換完畢
             }
+
+            if ($memberCoupon->count >= $couponLimit)
+            {
+                $result->status = 1; // 已使用完個人限制
+            }
+
         
             if ($memberCoupon->is_collected)
             {
                 $result->favorite = true;
             }
         }
+
         return $result;
     }
     

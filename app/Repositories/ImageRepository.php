@@ -15,13 +15,13 @@ use App\Repositories\BaseRepository;
 class ImageRepository extends BaseRepository
 {
     private $limit = 20;
-    
-    
+
+
     public function __construct(Image $model)
     {
         $this->model = $model;
     }
-    
+
     /**
      * 取得圖片的路徑，若sort == null，則回傳所有相關的圖片
      *
@@ -32,49 +32,27 @@ class ImageRepository extends BaseRepository
      *
      * @return mixed
      */
-    public function path($modelType,$modeSpecID,$sort)
+    public function path($modelType, $modeSpecID, $sort = null)
     {
         $result = $this->model
-            ->select('folder', 'filename', 'ext','compressed_info')
+            ->select('folder', 'filename', 'ext', 'compressed_info')
             ->where('model_type', $modelType)
             ->where('model_spec_id', $modeSpecID)
-            ->when($sort,function ($query) use($sort) {
-                    return $query->where('sort', $sort);
-                })
+            ->when($sort, function ($query) use ($sort) {
+                return $query->where('sort', $sort);
+            })
             ->get();
-        
-        
-        if ($result->count() == 0)
-        {
+
+
+
+        if ($result->count() == 0) {
             return "";
         }
-        
+
         return $result;
-//        else if ($result->count() === 1)
-//        {
-//            return $result->first();
-////            return $this->getPath($result);
-//
-//        }
-//        else
-//        {
-//            $pathAry = [];
-//            foreach ($result as $item)
-//            {
-//                $path[] = $this->getPath($item);
-//            }
-//
-//            return $pathAry;
-//        }
-        
-        
+
+
     }
-    
-    private function getPath($model)
-    {
-        return $model->folder.$model->filename.$model->ext;
-    }
-   
-    
-    
+
+
 }
