@@ -64,7 +64,7 @@ class MemberGiftItemResult
         $gift = $item->gift;
         $diningCar = $gift->diningCar;
         
-        $data->id = $item->id;
+        $data->id = $gift->id;
         $data->Name = $diningCar->name;
         $data->title = $gift->name;
         $data->duration = Carbon::parse($gift->expire_at)->format('Y-m-d');
