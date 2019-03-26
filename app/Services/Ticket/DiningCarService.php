@@ -9,11 +9,11 @@ namespace App\Services\Ticket;
 
 use App\Services\BaseService;
 use App\Repositories\Ticket\DiningCarRepository;
+use Carbon\Carbon;
 
 class DiningCarService extends BaseService
 {
     protected $repository;
-    protected $giftRepository;
     protected $pointRecordRepository;
 
     public function __construct(DiningCarRepository $repository)
