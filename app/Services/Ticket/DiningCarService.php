@@ -10,6 +10,7 @@ namespace App\Services\Ticket;
 use App\Services\BaseService;
 use App\Repositories\Ticket\DiningCarRepository;
 use App\Repositories\Ticket\GiftRepository;
+use Carbon\Carbon;
 
 class DiningCarService extends BaseService
 {
@@ -57,5 +58,21 @@ class DiningCarService extends BaseService
         }
 
         return $diningCar;
+    }
+
+    /**
+     * 是否為付費餐車
+     * @param $id
+     * @return bool
+     */
+    public function isPaid($id)
+    {
+        $diningCar = $this->repository->find($id);
+        $isPaid = false;
+        if ($diningCar->level >= 1 && $diningCar->expired_at >= Carbon::now()) {
+            $isPaid = true;
+        }
+        return $isPaid;
+
     }
 }

@@ -27,6 +27,7 @@ class CouponResult extends BaseResult
      *
      * @param $coupons
      * @param $memberCoupons
+     * @param $isPaid
      *
      * @return array
      */

@@ -7,6 +7,7 @@ namespace App\Http\Controllers\Api\V1;
 use App\Enum\ClientType;
 use App\Helpers\ImageHelper;
 use App\Result\Ticket\GiftResult;
+use App\Services\Ticket\DiningCarService;
 use App\Services\Ticket\MemberGiftItemService;
 use Illuminate\Http\Request;
 use Ksd\Mediation\Core\Controller\RestLaravelController;
@@ -20,17 +21,22 @@ class GiftController extends RestLaravelController
     protected $lang = 'zh-TW';
     protected $giftService;
     protected $memberGiftItemService;
+    protected $diningCarService;
 
     /**
      *
      * @param GiftService $giftService
      * @param MemberGiftItemService $memberGiftItem
+     * @param DiningCarService $diningCarService
      */
-    public function __construct(GiftService $giftService, MemberGiftItemService $memberGiftItem)
+    public function __construct(GiftService $giftService,
+                                MemberGiftItemService $memberGiftItem,
+                                DiningCarService $diningCarService)
     {
 
         $this->giftService = $giftService;
         $this->memberGiftItemService = $memberGiftItem;
+        $this->diningCarService = $diningCarService;
     }
 
     /**
@@ -51,19 +57,34 @@ class GiftController extends RestLaravelController
             return $this->failureCode('E0007');
         }
 
-        //禮物清單
-        $gifts = $this->giftService->list($client, $clientId);
-
-        foreach ($gifts as $item) {
-            $item->photo = ImageHelper::getImageUrl(ClientType::gift, $item->id, 1);
+        //檢查餐車是否存在
+        $diningCar = $this->diningCarService->find($clientId);
+        if (!$diningCar) {
+            return $this->failureCode('E0007');
         }
 
+        //餐車付費狀態
+        $isPaid = $this->diningCarService->isPaid($clientId);
 
-        //設定禮物狀態(可使用/額度已用完)
-        $this->setGiftStatus($gifts, $memberId);
+        if ($isPaid) {
+            //禮物清單
+            $gifts = $this->giftService->list($client, $clientId);
 
-        $result = (new GiftResult())->list($gifts);
-        return $this->success($result);
+            foreach ($gifts as $item) {
+                $item->photo = ImageHelper::getImageUrl(ClientType::gift, $item->id, 1);
+            }
+
+            //設定禮物狀態(可使用/額度已用完)
+            $this->setGiftStatus($gifts, $memberId);
+
+            $result = (new GiftResult())->list($gifts, $isPaid);
+
+            return $this->success($result);
+
+        } else {
+            return $this->success([]);
+        }
+
 
     }
 
@@ -106,8 +127,7 @@ class GiftController extends RestLaravelController
                 if ($personalUsed >= $limiQty) {
                     $item->status = 1;
                 }
-            }
-            else{
+            } else {
                 $item->qty = $limiQty;
             }
 

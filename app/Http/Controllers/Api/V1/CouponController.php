@@ -62,15 +62,8 @@ class CouponController extends RestLaravelController
             //使用者的coupon列表
             $userCoupons = $this->memberCouponService->list($params->memberId, $couponId = null);
 
-            $diningCar = $this->diningCarService->find($modelSpecID);
-            $isPaid = false;
-
-
-            if ($diningCar->level >= 1 && $diningCar->expired_at >= Carbon::now()) {
-                $isPaid = true;
-            }
-//            dd($isPaid);
-
+            //餐車付費狀態
+            $isPaid = $this->diningCarService->isPaid($modelSpecID);
             $result = (new CouponResult())->list($coupons, $userCoupons, $isPaid);
 
 
