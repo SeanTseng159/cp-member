@@ -49,7 +49,7 @@ class DiningCarBlogResult extends BaseResult
         $result->id = $newsfeed->id;
         $result->diningCarId = $newsfeed->dining_car_id;
         $result->title = $newsfeed->title;
-        $result->date = $newsfeed->release_time;
+        $result->date = Carbon::parse($newsfeed->release_time)->format('Y-m-d');
         $result->img = ImageHelper::url($newsfeed->mainImg);
 
         if ($isDetail) {

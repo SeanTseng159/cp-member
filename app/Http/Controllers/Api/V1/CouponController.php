@@ -4,14 +4,16 @@
 namespace App\Http\Controllers\Api\V1;
 
 
-
 use App\Enum\ClientType;
 use App\Helpers\ImageHelper;
+use App\Models\Ticket\DiningCar;
 use App\Parameter\Ticket\CouponParameter;
 use App\Result\Ticket\CouponResult;
 use App\Services\Ticket\CouponService;
 use App\Services\ImageService;
+use App\Services\Ticket\DiningCarService;
 use App\Services\Ticket\MemberCouponService;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Ksd\Mediation\Core\Controller\RestLaravelController;
 
@@ -21,15 +23,20 @@ class CouponController extends RestLaravelController
     protected $couponService;
     protected $memberCouponService;
     protected $imageService;
-    
-    
-    public function __construct(CouponService $service, MemberCouponService $memberCouponService,ImageService $imageService)
+    protected $diningCarService;
+
+
+    public function __construct(CouponService $service,
+                                MemberCouponService $memberCouponService,
+                                ImageService $imageService,
+                                DiningCarService $diningCarService)
     {
         $this->couponService = $service;
         $this->memberCouponService = $memberCouponService;
         $this->imageService = $imageService;
+        $this->diningCarService = $diningCarService;
     }
-    
+
     /**
      *
      * 根據優惠卷類別與使用優惠卷單位(如餐車商家)之ID取得優惠卷列表
@@ -38,38 +45,42 @@ class CouponController extends RestLaravelController
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function list(Request $request) {
-        
-        try{
-            
+    public function list(Request $request)
+    {
+
+        try {
+
             $params = new CouponParameter($request);
-            
-            
+
+            $modelSpecID = $params->modelSpecId;
+            $modelType = $params->modelType;
+
+
             //coupon列表
-            $coupons = $this->couponService->list($params);
-            
+            $coupons = $this->couponService->list($modelSpecID, $modelType);
+
             //使用者的coupon列表
-            $userCoupons = $this->memberCouponService->list($params->memberId,$couponId = null);
-            
-            
-            $result = (new CouponResult())->list($coupons,$userCoupons);
-            
-        
+            $userCoupons = $this->memberCouponService->list($params->memberId, $couponId = null);
+
+            //餐車付費狀態
+            $isPaid = $this->diningCarService->isPaid($modelSpecID);
+            $result = (new CouponResult())->list($coupons, $userCoupons, $isPaid);
+
+
             return $this->success($result);
-        
-        }
-        catch (\Exception $e){
-            
+
+        } catch (\Exception $e) {
+
             $errCode = $e->getMessage();
-            if ($errCode){
+            if ($errCode) {
                 return $this->failureCode($errCode);
             }
-        
+
             return $this->failureCode('E0007');
         }
     }
-    
-    
+
+
     /**
      * 根據id取得優惠卷明細
      *
@@ -78,39 +89,39 @@ class CouponController extends RestLaravelController
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    
-    public function detail(Request $request,$id){
-        try{
-        
-           
+
+    public function detail(Request $request, $id)
+    {
+        try {
+
+
             //coupon詳細資料
             $couponDetail = $this->couponService->find($id);
-            
+
             $params = new CouponParameter($request);
             //使用者的coupon資訊
-            $userCoupons = $this->memberCouponService->list($params->memberId,$id)->first();
-            
+            $userCoupons = $this->memberCouponService->list($params->memberId, $id)->first();
+
             //圖片資訊
-            $images = ImageHelper::getImageUrl(ClientType::coupon,$id,1);
-            
-            $result = (new CouponResult())->detail($couponDetail,$userCoupons,$images);
-        
+            $images = ImageHelper::getImageUrl(ClientType::coupon, $id, 1);
+
+            $result = (new CouponResult())->detail($couponDetail, $userCoupons, $images);
+
             return $this->success($result);
-        
-        }
-        catch (\Exception $e){
-        
+
+        } catch (\Exception $e) {
+
             $errCode = $e->getMessage();
-            if ($errCode){
+            if ($errCode) {
                 return $this->failureCode($errCode);
             }
-        
+
             return $this->failureCode('E0007');
         }
-        
+
     }
-    
-    
+
+
 }
 
 

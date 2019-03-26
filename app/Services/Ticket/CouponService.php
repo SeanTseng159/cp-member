@@ -23,12 +23,13 @@ class CouponService extends BaseService
 
     /**
      * 取得該店家(或餐車)之優惠卷列表
-     * @param  $params
+     * @param $modelSpecID
+     * @param $modelType
      * @return mixed
      */
-    public function list($params)
+    public function list($modelSpecID,$modelType)
     {
-        return $this->repository->list($params);
+        return $this->repository->list($modelSpecID,$modelType);
     }
     
     /**

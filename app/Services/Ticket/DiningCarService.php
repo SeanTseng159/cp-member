@@ -50,4 +50,20 @@ class DiningCarService extends BaseService
     {
         return $this->repository->find($id, $memberId);
     }
+
+    /**
+     * 是否為付費餐車
+     * @param $id
+     * @return bool
+     */
+    public function isPaid($id)
+    {
+        $diningCar = $this->repository->find($id);
+        $isPaid = false;
+        if ($diningCar->level >= 1 && $diningCar->expired_at >= Carbon::now()) {
+            $isPaid = true;
+        }
+        return $isPaid;
+
+    }
 }

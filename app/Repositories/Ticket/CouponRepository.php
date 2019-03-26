@@ -21,18 +21,18 @@ class CouponRepository extends BaseRepository
     {
         $this->model = $model;
     }
-    
+
     /**
      * 取優惠卷之列表
      *
-     * @param  $params
-     *
+     * @param $modelSpecID
+     * @param $modelType
      * @return mixed
      */
-    public function list($params)
+    public function list($modelSpecID,$modelType)
     {
-        $modelSpecID = $params->modelSpecId;
-        $modelType = $params->modelType;
+//        $modelSpecID = $params->modelSpecId;
+//        $modelType = $params->modelType;
     
         //使用對象之表格與欄位設定
         $clientItemTable = '';
@@ -62,7 +62,7 @@ class CouponRepository extends BaseRepository
                 DB::raw('coupons.content as couponContent'),
                 DB::raw('coupons.desc AS couponDesc'),
                 DB::raw('coupons.qty as CouponQty'),
-                DB::raw("CONCAT(DATE_FORMAT(start_at, '%Y-%m-%e'),' ~ ',DATE_FORMAT(expire_at, '%Y-%m-%e')) AS duration"),
+                DB::raw("CONCAT(DATE_FORMAT(coupons.start_at, '%Y-%m-%d'),' ~ ',DATE_FORMAT(coupons.expire_at, '%Y-%m-%d')) AS duration"),
                 DB::raw('coupons.limit_qty as couponLimitQty'),
                 DB::raw('COALESCE(SUM(member_coupon.count), 0) AS totalUsedCount')
                 
@@ -75,6 +75,7 @@ class CouponRepository extends BaseRepository
             ->where('coupons.status', true)
             ->groupBy('coupons.id')
             ->get();
+
         
         return $result;
     }
@@ -96,7 +97,7 @@ class CouponRepository extends BaseRepository
                 DB::raw('coupons.content as couponContent'),
                 DB::raw('coupons.desc AS couponDesc'),
                 DB::raw('coupons.qty as CouponQty'),
-                DB::raw("CONCAT(DATE_FORMAT(NOW(), '%Y-%m-%e'),' ~ ',DATE_FORMAT(NOW(), '%Y-%m-%e')) AS duration"),
+                DB::raw("CONCAT(DATE_FORMAT(coupons.start_at, '%Y-%m-%d'),' ~ ',DATE_FORMAT(coupons.expire_at, '%Y-%m-%d')) AS duration"),
                 DB::raw('coupons.limit_qty as couponLimitQty'),
                 DB::raw('SUM(member_coupon.count) AS totalUsedCount'),
                 DB::raw('coupons.start_at AS couponStartAt'),

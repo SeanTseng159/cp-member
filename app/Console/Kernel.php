@@ -79,18 +79,18 @@ class Kernel extends ConsoleKernel
         $schedule->command(UpdateMagentoATMOrder::class)->dailyAt('00:00');
 
         // 清除過期購物車
-        $schedule->command(CleanExpiredCarts::class, [ProjectConfig::MAGENTO])->dailyAt('03:00');
-        $schedule->command(CleanExpiredCarts::class, [ProjectConfig::CITY_PASS])->dailyAt('04:30');
+        // $schedule->command(CleanExpiredCarts::class, [ProjectConfig::MAGENTO])->dailyAt('03:00');
+        // $schedule->command(CleanExpiredCarts::class, [ProjectConfig::CITY_PASS])->dailyAt('04:30');
 
-        //定期提醒購物車中尚有商品
-        $schedule->command(NotifyNotEmptyCarts::class)->dailyAt('05:30');
+        // 定期提醒購物車中尚有商品
+        // $schedule->command(NotifyNotEmptyCarts::class)->dailyAt('05:30');
 
         // 高捷市集發票 upload to 金財通FTP
         // 將排程移至 /etc/crontab 處理
         // $schedule->command(ProcessKrtmarketInvoice::class)->dailyAt('01:00');
 
         // 金財通FTP轉移資料：Download => DownloadBackup
-        $schedule->command(DownloadBPSCMFile::class)->dailyAt('05:00');
+        // $schedule->command(DownloadBPSCMFile::class)->dailyAt('05:00');
 
         // 金財通FTP(DownloadBackup) download match_file to 本機處理
         // 將排程移至 /etc/crontab 處理

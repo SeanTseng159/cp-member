@@ -77,12 +77,27 @@ trait StringHelper
     }
 
     /**
-     * 姓名隱碼處理
-     * @param id $id
+     * 清除html tag
+     * @param $str
+     * @return boolean
+     */
+    public function clearStripTag($str = '')
+    {
+        $str = strip_tags($str);
+        $str = trim($str);
+        $str = preg_replace( "/\s/", "" , $str);
+
+        return $str;
+    }
+
+    /**
+     * 限制輸出字數
+     * @param $str
+     * @param $length
      * @return boolean
      */
     public function outputStringLength($str = '', $length = 50)
     {
-        return mb_substr(strip_tags($str), 0, 50);
+        return mb_substr($this->clearStripTag($str), 0, 50);
     }
 }

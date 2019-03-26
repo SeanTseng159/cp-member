@@ -31,9 +31,9 @@ class DiningCarPointRecordService extends BaseService
 
         return $this->repository->create($memberId,$diningCarId,$point,$expired_at,$giftId,$qty);
     }
-    public function getPointRecord($type,$memberId)
+    public function getPointRecord($type,$memberId,$diningCarID)
     {
-        return $this->repository->getRecordList($type,$memberId);
+        return $this->repository->getRecordList($type,$memberId,$diningCarID);
     }
 
 
