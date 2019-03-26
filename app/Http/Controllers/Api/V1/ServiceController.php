@@ -12,6 +12,7 @@ use Ksd\Mediation\Core\Controller\RestLaravelController;
 
 use App\Services\Ticket\ServiceService;
 use App\Result\Ticket\ServiceResult;
+use App\Jobs\Mail\PartnerJoin;
 
 use App\Cache\Redis;
 use App\Cache\Config as CacheConfig;
@@ -49,6 +50,32 @@ class ServiceController extends RestLaravelController
             return $this->success($result);
         } catch (Exception $e) {
             return $this->success();
+        }
+    }
+
+    /**
+     * 合作廠商申請
+     * @param Request $request
+     * @param $id
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function partnerJoin(Request $request)
+    {
+        try {
+            $params = $request->only([
+                    'company',
+                    'contact_window',
+                    'phone',
+                    'email',
+                    'message'
+                ]);
+
+            dispatch(new PartnerJoin($params))->delay(5);
+
+            return $this->success();
+        } catch (Exception $e) {
+            var_dump($e->getMessage());
+            // return $this->failureCode('E0001');
         }
     }
 }

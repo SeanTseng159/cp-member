@@ -86,13 +86,12 @@ class ProductController extends RestLaravelController
      * @param Request $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function search(Request $request)
+    public function search(Request $request, KeywordService $keywordService)
     {
         $keyword = $request->input('search');
         $keyword = urldecode($keyword);
 
         // 關鍵字商品搜尋
-        $keywordService = app()->build(KeywordService::class);
         $keywordProducts = $keywordService->getProductsByKeyword($keyword);
         $resultKeywordProducts = (new ProductResult)->search($keywordProducts);
 

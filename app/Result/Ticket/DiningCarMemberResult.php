@@ -79,8 +79,6 @@ class DiningCarMemberResult extends BaseResult
     {
         $result = new \stdClass;
         $result->level = $this->getMemberLevel($memberCard->diningCar->memberLevels, $memberCard->amount);
-        $result->point = $memberCard->point;
-        $result->gift = $memberCard->gift_count;
 
         return $result;
     }

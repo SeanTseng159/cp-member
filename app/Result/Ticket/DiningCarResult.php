@@ -32,7 +32,7 @@ class DiningCarResult extends BaseResult
         $this->dayOfWeek = Carbon::today()->dayOfWeek;
         if ($this->dayOfWeek === 0) $this->dayOfWeek = 7;
     }
-    
+
     /**
      * 取餐車列表
      *
@@ -63,41 +63,6 @@ class DiningCarResult extends BaseResult
 
     /**
      * 餐車資訊
-     * @param $car
-     */
-    public function detail($car, $isFavorite = false, $lat, $lng)
-    {
-        if (!$car) return null;
-
-        $this->lat = $lat;
-        $this->lng = $lng;
-
-        $result = new \stdClass;
-        $result->id = $car->id;
-        $result->hashId = $this->encryptHashId('DiningCar', $car->id);
-        $result->name = $car->name;
-        $result->description = $car->description;
-        $result->img = $this->getImg($car->mainImg);
-        $result->imgs = $this->getImgs($car->imgs);
-        $result->categories = $this->getCategories($car->category, $car->subCategory);
-        $result->isFavorite = $isFavorite;
-        $result->openStatusCode = $car->open_status;
-        $result->openStatus = DiningCarConfig::OPEN_STATUS[$car->open_status];
-        $result->longitude = $car->longitude ?? '';
-        $result->latitude = $car->latitude ?? '';
-        $result->distance = ($result->longitude && $result->latitude) ? $this->calcDistance($this->lat, $this->lng, $car->latitude, $car->longitude, 2, 2) . '公里' : '未知';
-        $result->businessHoursDays = $this->getBusinessHoursDays($car->businessHoursDays);
-        $result->businessHoursDates = $this->getBusinessHoursDates($car->businessHoursDates);
-        $result->socialUrls = $this->getSocialUrls($car->socialUrls);
-        $result->shareUrl = CommonHelper::getWebHost('zh-TW/diningCar/detail/' . $car->id);
-        $result->level = $this->getLevel($car->level, $car->expired_at);
-        $result->memberCard = $this->getMemberCard($car->memberCard, $car->memberLevels, $car->gift_count);
-
-        return $result;
-    }
-    
-    /**
-     * 餐車資訊
      *
      * @param $car
      *
@@ -120,7 +85,44 @@ class DiningCarResult extends BaseResult
         // 計算距離
         $result->longitude = $car->longitude ?? '';
         $result->latitude = $car->latitude ?? '';
-        $result->distance = ($result->longitude && $result->latitude) ? $this->calcDistance($this->lat, $this->lng, $car->latitude, $car->longitude, 2, 2) . '公里' : '未知';
+        $result->distance = ($result->longitude && $result->latitude && $this->lat && $this->lng) ? $this->calcDistance($this->lat, $this->lng, $car->latitude, $car->longitude, 2, 2) . '公里' : '未知';
+
+        return $result;
+    }
+
+    /**
+     * 餐車資訊
+     * @param $car
+     */
+    public function detail($car, $isFavorite = false, $lat, $lng)
+    {
+        if (!$car) return null;
+
+        $this->lat = $lat;
+        $this->lng = $lng;
+
+        $result = new \stdClass;
+        $result->id = $car->id;
+        $result->hashId = $this->encryptHashId('DiningCar', $car->id);
+        $result->name = $car->name;
+        $result->description = $car->description;
+        $result->img = $this->getImg($car->mainImg);
+        $result->imgs = $this->getImgs($car->imgs);
+        $result->categories = $this->getCategories($car->category, $car->subCategory);
+        $result->isFavorite = $isFavorite;
+        $result->openStatusCode = $car->open_status;
+        $result->openStatus = DiningCarConfig::OPEN_STATUS[$car->open_status];
+        $result->longitude = $car->longitude ?? '';
+        $result->latitude = $car->latitude ?? '';
+        $result->distance = ($result->longitude && $result->latitude && $this->lat && $this->lng) ? $this->calcDistance($this->lat, $this->lng, $car->latitude, $car->longitude, 2, 2) . '公里' : '未知';
+        $result->businessHoursDays = $this->getBusinessHoursDays($car->businessHoursDays);
+        $result->businessHoursDates = $this->getBusinessHoursDates($car->businessHoursDates);
+        $result->socialUrls = $this->getSocialUrls($car->socialUrls);
+        $result->shareUrl = CommonHelper::getWebHost('zh-TW/diningCar/detail/' . $car->id);
+        $result->videos = $this->getVideos($car->media);
+        $result->level = $this->getLevel($car->level, $car->expired_at);
+        $result->memberCard = $this->getMemberCard($car->memberCard, $car->memberLevels);
+        $result->acls = $this->getAcls($result->level, $result->memberCard);
 
         return $result;
     }
@@ -271,7 +273,7 @@ class DiningCarResult extends BaseResult
     }
 
     /**
-     * 取分類
+     * 取營業狀態
      * @param $data
      */
     public function getOpenStatusList()
@@ -287,6 +289,34 @@ class DiningCarResult extends BaseResult
         }
 
         return $newList;
+    }
+
+    /**
+     * 取影片
+     * @param $media
+     */
+    private function getVideos($media)
+    {
+        $videos = [];
+
+        $video = $this->getVideo($media);
+        if ($video) $videos[] = $video;
+
+        return $videos;
+    }
+
+    /**
+     * 取影片
+     * @param $media
+     */
+    private function getVideo($media)
+    {
+        if (!$media) return null;
+
+        parse_str(parse_url($media->link, PHP_URL_QUERY), $query);
+        if (!$query || !isset($query['v']) || !$query['v']) return null;
+
+        return $query['v'];
     }
 
     /**
@@ -308,23 +338,32 @@ class DiningCarResult extends BaseResult
      * 取會員卡資訊
      * @param $data
      */
-    public function getMemberCard($memberCard, $memberLevels, $giftCount = 0)
+    public function getMemberCard($memberCard, $memberLevels)
     {
         $result = new \stdClass;
-
-        if (!$memberCard) {
-            // 還未加入會員
-            $result->level = -1;
-            $result->point = 0;
-            $result->gift = 0;
-        }
-        else {
-            // 已加入會員
-            $result->level = $this->getMemberLevel($memberLevels, $memberCard->amount);
-            $result->point = $memberCard->point;
-            $result->gift = $giftCount;
-        }
+        $result->level = ($memberCard) ? $this->getMemberLevel($memberLevels, $memberCard->amount) : -1;
 
         return $result;
+    }
+
+    /**
+     * 取會餐車權限
+     * @param $data
+     */
+    public function getAcls($level = 0, $memberCard)
+    {
+        $member = ($memberCard->level > -1 || $level > 0) ? true : false;
+        $newsfeed = ($level >= 0) ? true : false;
+        $menu = ($level >= 0) ? true : false;
+        $coupon = ($member || $level > 0) ? true : false;
+        $gift = ($member || $level > 0) ? true : false;
+
+        return [
+            'member' => $member,
+            'newsfeed' => $newsfeed,
+            'menu' => $menu,
+            'coupon' => $coupon,
+            'gift' => $gift
+        ];
     }
 }

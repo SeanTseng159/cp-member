@@ -22,8 +22,8 @@ class DiningCarParameter extends BaseParameter
     public function list()
     {
     	// 預設高雄火車站
-    	$params['longitude'] = $this->request->input('longitude', '120.3045522');
-		$params['latitude'] = $this->request->input('latitude', '22.6402112');
+    	$params['longitude'] = (float) $this->request->input('longitude', 120.3045522);
+        $params['latitude'] = (float) $this->request->input('latitude', 22.6402112);
         $params['keyword'] = $this->request->input('keyword');
         $params['county'] = $this->request->input('county');
         $params['category'] = $this->request->input('category');
@@ -38,8 +38,8 @@ class DiningCarParameter extends BaseParameter
 
     public function map()
     {
-        $params['longitude'] = $this->request->input('longitude', '120.3045522');
-        $params['latitude'] = $this->request->input('latitude', '22.6402112');
+        $params['longitude'] = (float) $this->request->input('longitude', 120.3045522);
+        $params['latitude'] = (float) $this->request->input('latitude', 22.6402112);
 
         // 範圍
         $minLatitude = (float) $this->request->input('minLatitude', -90);
@@ -59,8 +59,8 @@ class DiningCarParameter extends BaseParameter
     public function detail()
     {
         // 預設高雄火車站
-        $params['longitude'] = $this->request->input('longitude', '120.3045522');
-        $params['latitude'] = $this->request->input('latitude', '22.6402112');
+        $params['longitude'] = (float) $this->request->input('longitude', 120.3045522);
+        $params['latitude'] = (float) $this->request->input('latitude', 22.6402112);
         $params['memberId'] = $this->memberId;
 
         return $params;

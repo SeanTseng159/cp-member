@@ -86,6 +86,7 @@ class Kernel extends HttpKernel
         'verify.member.create' => \App\Http\Middleware\Verify\MemberCreate::class,
         'verify.member.update.data' => \App\Http\Middleware\Verify\MemberUpdateData::class,
         'verify.member.registerInvite' => \App\Http\Middleware\Verify\MemberRegisterInvite::class,
+        'verify.member.registerCheck' => \App\Http\Middleware\Verify\MemberRegisterCheck::class,
         'verify.member.changePassword' => \App\Http\Middleware\Verify\ChangePassword::class,
         'verify.send.validPhoneCode' => \App\Http\Middleware\Verify\SendValidPhoneCode::class,
 
@@ -99,5 +100,7 @@ class Kernel extends HttpKernel
 
         'verify.checkout.shipment' => \App\Http\Middleware\Verify\Checkout\Shipment::class,
         'verify.checkout.payment' => \App\Http\Middleware\Verify\Checkout\Payment::class,
+
+        'verify.partner.join' => \App\Http\Middleware\Verify\PartnerJoin::class,
     ];
 }

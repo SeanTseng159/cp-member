@@ -23,6 +23,8 @@ use App\Parameter\Ticket\DiningCarMemberParameter;
 use App\Result\Ticket\DiningCarMemberResult;
 use App\Result\Ticket\GiftResult;
 
+use App\Jobs\DiningCar\ConsumeAmountExchangePoint;
+
 class DiningCarMemberController extends RestLaravelController
 {
     use CryptHelper;
@@ -87,7 +89,7 @@ class DiningCarMemberController extends RestLaravelController
             $data = $this->service->list($request->memberId, $params);
 
             $result['page'] = (int) $params['page'];
-            $result['total'] = $data->total;
+            $result['total'] = $data->total();
             $result['cars'] = (new DiningCarMemberResult)->list($data);
 
             return $this->success($result);
@@ -138,7 +140,7 @@ class DiningCarMemberController extends RestLaravelController
      * @param Request $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function invite(Request $request)
+    public function invite(Request $request, DiningCarService $diningCarService)
     {
         try {
             $params = (new DiningCarMemberParameter($request))->invite();
@@ -149,24 +151,27 @@ class DiningCarMemberController extends RestLaravelController
             $isMember = $this->service->isMember($params['memberId'], $diningCarId);
             if ($isMember) return $this->failureCode('A0101');
 
-            $result = $this->service->add($params['memberId'], $diningCarId);
+            // 加入會員
+            $member = $this->service->add($params['memberId'], $diningCarId);
+            if (!$member) return $this->failureCode('E0200');
 
             // 發送禮物
             $gift = $this->giftService->giveAddDiningCarMemberGift($diningCarId, $params['memberId']);
             $gift = (new GiftResult)->detailByJoinDiningCar($gift);
 
-            // 取會員卡資料
-            $diningCarMember = $this->service->find($params['memberId'], $diningCarId);
-            $memberCard = (new DiningCarMemberResult)->getMemberCard($diningCarMember);
+            // 發送點數
+            dispatch(new ConsumeAmountExchangePoint($member, $params['consumeAmount']))->delay(5);
 
-            return ($result) ? $this->success([
-                                        'car' => [
-                                            'id' => $diningCarMember->diningCar->id,
-                                            'name' => $diningCarMember->diningCar->name
-                                        ],
-                                        'gift' => $gift,
-                                        'memberCard' => $memberCard
-                                    ]) : $this->failureCode('E0200');
+            // 取車餐資料
+            $diningCar = $diningCarService->find($diningCarId);
+
+            return $this->success([
+                                'car' => [
+                                    'id' => $diningCar->id,
+                                    'name' => $diningCar->name
+                                ],
+                                'gift' => $gift
+                            ]);
         } catch (Exception $e) {
             return $this->failureCode('E0200');
         }

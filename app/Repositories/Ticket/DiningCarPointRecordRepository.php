@@ -7,16 +7,18 @@
 
 namespace App\Repositories\Ticket;
 
-
 use App\Core\Logger;
 use App\Enum\DiningCarPointRecordType;
 use App\Models\Gift;
 use App\Models\MemberGiftItem;
 use App\Models\Ticket\DiningCarPointRecord;
+use App\Models\Ticket\DiningCarConsumeRecord;
+use App\Models\Ticket\DiningCarMember;
 use App\Repositories\BaseRepository;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
-
+use Illuminate\Database\QueryException;
+use Exception;
 
 class DiningCarPointRecordRepository extends BaseRepository
 {
@@ -38,8 +40,6 @@ class DiningCarPointRecordRepository extends BaseRepository
             ->where('member_id', $memberId)
             ->where('dining_car_id', $diningCarId)
             ->sum('point'));
-
-
     }
 
     public function create($memberId, $diningCarId, $point, $expired_at, $giftId, $qty)
@@ -98,7 +98,6 @@ class DiningCarPointRecordRepository extends BaseRepository
         } catch (\Exception $e) {
             Logger::error('QueryException Create Exchange Gift Error', $e->getMessage());
             DB::connection('backend')->rollBack();
-            dd($e->getMessage());
             return false;
         }
 
@@ -135,5 +134,77 @@ class DiningCarPointRecordRepository extends BaseRepository
             ->get();
 
         return $result;
+    }
+
+    /**
+     * 儲存兌換點數及消費記錄
+     * @param DiningCarMember $member
+     * @param int $consumeAmount
+     * @param $rule
+     * @return int [換得點數]
+     */
+    public function saveExchangePoint($member, $consumeAmount = 0, $rule)
+    {
+        try {
+            DB::connection('backend')->beginTransaction();
+
+            // 換得點數
+            $point = floor($consumeAmount / $rule->point);
+
+            // 寫入點數
+            if ($point > 0) {
+                $pointRecord = new DiningCarPointRecord;
+                $pointRecord->member_id = $member->member_id;
+                $pointRecord->dining_car_id = $member->dining_car_id;
+                $pointRecord->point = $point;
+                $pointRecord->status = 1;
+                $pointRecord->expired_at = $rule->expired_at;
+                $pointRecord->model_spec_id = $rule->id;
+                $pointRecord->model_type = 'dining_car_point_rule';
+                $pointRecord->model_name = 'DiningCarPointRule';
+                $pointRecord->save();
+
+                $consumeRecordData['dining_car_point_record_id'] = $pointRecord->id;
+            }
+
+            // 寫入消費記錄
+            $consumeRecord = new DiningCarConsumeRecord;
+            $consumeRecord->member_id = $member->member_id;
+            $consumeRecord->dining_car_id = $member->dining_car_id;
+            $consumeRecord->amount = $consumeAmount;
+            $consumeRecord->save();
+
+            // 累積消費金額
+            $member->amount += $consumeAmount;
+            $member->save();
+
+            DB::connection('backend')->commit();
+
+            return $point;
+        } catch (QueryException $e) {
+            Logger::error('QueryException saveExchangePoint Error', $e->getMessage());
+            DB::connection('backend')->rollBack();
+
+            return 0;
+        } catch (Exception $e) {
+            Logger::error('Exception saveExchangePoint Error', $e->getMessage());
+            DB::connection('backend')->rollBack();
+
+            return 0;
+        }
+    }
+
+    /**
+     * 取總點數
+     * @param int $memberId
+     * @param int $diningCarId
+     * @return int
+     */
+    public function getTotalPointByDiningCarId($memberId = 0, $diningCarId = 0)
+    {
+        return $this->diningCarPointRecord->where('member_id', $memberId)
+                            ->where('dining_car_id', $diningCarId)
+                            ->isEffective()
+                            ->sum('point');
     }
 }

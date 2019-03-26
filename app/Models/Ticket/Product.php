@@ -34,6 +34,22 @@ class Product extends BaseModel
         return $this->prod_county . $this->prod_district . $this->prod_address;
     }
 
+    /**
+     * 可以銷售
+    */
+    public function scopeOnSale($query)
+    {
+        $date = date('Y-m-d H:i:s');
+
+        return $query->notDeleted()
+                    ->where('prod_onshelf', 1)
+                    ->whereIn('prod_type', [1, 2])
+                    ->where('prod_onshelf_time', '<=', $date)
+                    ->where('prod_offshelf_time', '>=', $date)
+                    ->where('prod_onsale_time', '<=', $date)
+                    ->where('prod_offsale_time', '>=', $date);
+    }
+
 	/**
      * 取得商品所有圖片
      */
