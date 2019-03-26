@@ -21,18 +21,18 @@ class CouponRepository extends BaseRepository
     {
         $this->model = $model;
     }
-    
+
     /**
      * 取優惠卷之列表
      *
-     * @param  $params
-     *
+     * @param $modelSpecID
+     * @param $modelType
      * @return mixed
      */
-    public function list($params)
+    public function list($modelSpecID,$modelType)
     {
-        $modelSpecID = $params->modelSpecId;
-        $modelType = $params->modelType;
+//        $modelSpecID = $params->modelSpecId;
+//        $modelType = $params->modelType;
     
         //使用對象之表格與欄位設定
         $clientItemTable = '';
