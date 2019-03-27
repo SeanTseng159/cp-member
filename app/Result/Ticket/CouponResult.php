@@ -7,6 +7,7 @@
 
 namespace App\Result\Ticket;
 
+use App\Enum\ClientType;
 use App\Helpers\CommonHelper;
 use App\Result\BaseResult;
 use Carbon\Carbon;
@@ -23,7 +24,7 @@ class CouponResult extends BaseResult
     }
 
     /**
-     * 取動態消息列表
+     *
      *
      * @param $coupons
      * @param $memberCoupons
@@ -50,6 +51,10 @@ class CouponResult extends BaseResult
             if ($coupon->CouponQty <= 0) {
                 $result->allused = true;
             }
+
+            //圖片
+            $result->photo = ImageHelper::getImageUrl(ClientType::coupon, $coupon->couponID);
+
 
             $memberCoupon = null;
             if ($memberCoupons->isNotEmpty()) {
