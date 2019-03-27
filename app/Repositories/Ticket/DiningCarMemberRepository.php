@@ -11,6 +11,8 @@ use App\Repositories\BaseRepository;
 use Illuminate\Pagination\Paginator;
 use DB;
 use App\Models\Ticket\DiningCarMember;
+use Illuminate\Database\QueryException;
+use Exception;
 
 class DiningCarMemberRepository extends BaseRepository
 {
@@ -28,12 +30,18 @@ class DiningCarMemberRepository extends BaseRepository
      */
     public function add($memberId = 0, $id = 0)
     {
-        $model = new DiningCarMember;
-        $model->member_id = $memberId;
-        $model->dining_car_id = $id;
-        $model->save();
+        try {
+            $model = new DiningCarMember;
+            $model->member_id = $memberId;
+            $model->dining_car_id = $id;
+            $model->save();
 
-        return $model;
+            return $model;
+        } catch (QueryException $e) {
+            return null;
+        } catch (Exception $e) {
+            return null;
+        }
     }
 
     /**
