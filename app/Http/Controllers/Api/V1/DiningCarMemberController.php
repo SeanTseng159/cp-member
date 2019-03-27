@@ -147,6 +147,10 @@ class DiningCarMemberController extends RestLaravelController
 
             $diningCarId = $this->decryptHashId('DiningCar', $params['diningCarId']);
 
+            // 確認餐車是否付費
+            $isPaid = $diningCarService->isPaid($diningCarId);
+            if (!$isPaid) return $this->failureCode('E0201');
+
             // 是否加入會員
             $isMember = $this->service->isMember($params['memberId'], $diningCarId);
             if ($isMember) return $this->failureCode('A0101');
