@@ -71,7 +71,7 @@ class GiftController extends RestLaravelController
             $gifts = $this->giftService->list($client, $clientId);
 
             foreach ($gifts as $item) {
-                $item->photo = ImageHelper::getImageUrl(ClientType::gift, $item->id, 1);
+                $item->photo = ImageHelper::getImageUrl(ClientType::gift, $item->id);
             }
 
             //設定禮物狀態(可使用/額度已用完)
