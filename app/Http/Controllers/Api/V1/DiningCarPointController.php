@@ -80,13 +80,10 @@ class DiningCarPointController extends RestLaravelController
             //檢查是否還有額度可兌換
             $mememberGiftStatus = $this->memberGiftItemService->getUsedCount([$giftId]);
 
-            $giftID = $gift->id;
             $qty = $gift->qty;
             $limiQty = $gift->limit_qty;
-
             $gift->status = 0;
-
-//            $usedAll = $mememberGiftStatus->where('gift_id', $giftID)->sum('total');
+            $maxQty = $qty < $limiQty ? $qty : $limiQty;
 
             //全部額度已用完
             if ($qty <= 0) {
@@ -95,24 +92,21 @@ class DiningCarPointController extends RestLaravelController
 
             //個人額度已用完
             $personalUsed = $mememberGiftStatus->where('member_id', $memberId)->sum('total');
-
-
             if ($personalUsed >= $limiQty) {
                 throw new \Exception('E0078');
             }
 
+            //可兌換額度
+            $remainQty = $maxQty - $personalUsed;
 
-            //若可兌換張數不足，已超過全額或個人額度
-            if (($exchangeQty > $qty) or ($personalUsed + $exchangeQty > $limiQty)) {
-                $maxExchangeQty = ($qty < ($limiQty - $personalUsed)) ? $qty : ($limiQty - $personalUsed);
-
+            if ($remainQty < $exchangeQty) {
                 //格式特殊，直接丟回
                 return $this->responseFormat(
-                    ['maxExchangeQty' => $maxExchangeQty],
+                    ['maxExchangeQty' => $remainQty],
                     'E0079',
                     ErrorCode::message('E0079'));
-
             }
+
 
             //寫入DB dining_car_point_records & member_gift_items &gift.qty
             $diningCarId = $gift->model_spec_id;
@@ -131,8 +125,7 @@ class DiningCarPointController extends RestLaravelController
 
             //兌換後，剩餘禮物數與點數
             return $this->success([
-                'qty' => ($qty < ($limiQty - $personalUsed - $exchangeQty)) ?
-                    $qty : ($limiQty - $personalUsed - $exchangeQty),
+                'qty' => $remainQty - $exchangeQty,
                 'point' => ($memberTotalPoint - $exchangePoint)
             ]);
 
@@ -142,16 +135,14 @@ class DiningCarPointController extends RestLaravelController
             if ($e->getMessage()) {
                 $code = $e->getMessage();
             }
-
             return $this->failureCode($code);
-
         }
 
 
     }
 
 
-    public function list(Request $request,$diningCarID)
+    public function list(Request $request, $diningCarID)
     {
 
         try {
@@ -168,7 +159,7 @@ class DiningCarPointController extends RestLaravelController
                 throw New \Exception('E0001');
             }
 
-            $result = $this->diningCarPointRecordService->getPointRecord($status, $memberId,$diningCarID);
+            $result = $this->diningCarPointRecordService->getPointRecord($status, $memberId, $diningCarID);
 
             $data = (new DiningCarPointResult())->list($result);
 
