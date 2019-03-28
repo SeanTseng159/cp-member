@@ -106,9 +106,8 @@ class GiftController extends RestLaravelController
             $giftID = $item->id;
             $qty = $item->qty;
             $limiQty = $item->limit_qty;
-
-
             $item->status = 0;
+            $maxQty = $qty < $limiQty ? $qty : $limiQty;
 
             //全部額度已用完
             if ($qty <= 0) {
@@ -123,12 +122,16 @@ class GiftController extends RestLaravelController
 
             if ($personal) {
                 $personalUsed = $personal->total;
-                $item->qty = $limiQty - $personalUsed;
-                if ($personalUsed >= $limiQty) {
+                $remainingQty = $maxQty - $personalUsed;
+                if ($remainingQty <= 0) {
                     $item->status = 1;
+                    $item->qty = 0;
+                } else {
+                    $item->qty = $maxQty < $remainingQty ? $maxQty : $remainingQty;
                 }
             } else {
-                $item->qty = $limiQty;
+                //如果庫存量小於個人可使用的數量
+                $item->qty = $maxQty;
             }
 
         }
