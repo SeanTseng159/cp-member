@@ -106,18 +106,17 @@ class MemberGiftController extends RestLaravelController
         
         return $this->success($result);
     }
-    
-    
+
+
     /**
      * 格式: 編碼前 memberID.memberGiftItemID.$截止時間(timestamp)
      * ex.151.1.1551927111
      *
      * @param Request $request
-     * @param         $id
-     *
+     * @param $giftId
      * @return string
      */
-    public function getQrcode(Request $request, $id)
+    public function getQrcode(Request $request, $giftId)
     {
         try
         {
@@ -125,7 +124,7 @@ class MemberGiftController extends RestLaravelController
             
             //90秒
             $duration = Carbon::now()->addSeconds($this::DelayVerifySecond)->timestamp;
-            $code = $this->qrCodePrefix.base64_encode("$memberId.$id.$duration");
+            $code = $this->qrCodePrefix.base64_encode("$memberId.$giftId.$duration");
             $result = new \stdClass();
             $result->code = $code;
             
@@ -138,58 +137,8 @@ class MemberGiftController extends RestLaravelController
             
         }
         
-        
     }
     
-    /**
-     *
-     * 格式memberID.giftID.截止時間(timestamp)
-     *
-     * @param Request $request
-     *
-     *
-     * @return \Illuminate\Http\JsonResponse
-     */
-    
-    public function useQrcode(Request $request)
-    {
-        
-        try
-        {
-            $code = $request->gift_code;
-            
-            $info = base64_decode(str_replace($this->qrCodePrefix, '', $code));
-            $data = explode(".", $info);
-            $memberId = $data[0];
-            $memberGiftId = $data[1];
-            $duration = Carbon::createFromTimestamp(intval($data[2]));
-            
-            if ($duration->lt(Carbon::now()))
-            {
-                throw new \Exception('E0074');
-            }
-            
-            $result = $this->memberGiftItemService->update($memberId,$memberGiftId);
-            if(!$result)
-            {
-                throw new \Exception('E0075');
-            }
-            return $this->success();
-            
-            
-        }
-        catch (\Exception $e)
-        {
-            $errCode = $e->getMessage();
-            if ($errCode)
-            {
-                return $this->failureCode($errCode);
-            }
-            
-            return $this->failureCode('E0007');
-            
-        }
-    }
 
     
     
