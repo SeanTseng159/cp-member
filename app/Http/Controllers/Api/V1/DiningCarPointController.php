@@ -83,7 +83,7 @@ class DiningCarPointController extends RestLaravelController
             $qty = $gift->qty;
             $limiQty = $gift->limit_qty;
             $gift->status = 0;
-            $maxQty = $qty < $limiQty ? $qty : $limiQty;
+
 
             //全部額度已用完
             if ($qty <= 0) {
@@ -97,7 +97,7 @@ class DiningCarPointController extends RestLaravelController
             }
 
             //可兌換額度
-            $remainQty = $maxQty - $personalUsed;
+            $remainQty = $qty < ($limiQty - $personalUsed) ? $qty : ($limiQty - $personalUsed);
 
             if ($remainQty < $exchangeQty) {
                 //格式特殊，直接丟回
