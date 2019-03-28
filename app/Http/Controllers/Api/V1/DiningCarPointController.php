@@ -104,7 +104,7 @@ class DiningCarPointController extends RestLaravelController
 
             //若可兌換張數不足，已超過全額或個人額度
             if (($exchangeQty > $qty) or ($personalUsed + $exchangeQty > $limiQty)) {
-                $maxExchangeQty = $qty < ($limiQty - $personalUsed) ? $qty : ($limiQty - $personalUsed);
+                $maxExchangeQty = ($qty < ($limiQty - $personalUsed)) ? $qty : ($limiQty - $personalUsed);
 
                 //格式特殊，直接丟回
                 return $this->responseFormat(
