@@ -49,7 +49,7 @@ class DiningCarMemberResult extends BaseResult
         $result = new \stdClass;
         $result->id = $memberCar->diningCar->id;
         $result->name = $memberCar->diningCar->name;
-        $result->img = ImageHelper::url($memberCar->diningCar->mainImg);
+        $result->img = ImageHelper::url($memberCar->diningCar->mainImg, 's');
         $result->categories = $this->getCategories($memberCar->diningCar->category, $memberCar->diningCar->subCategory);
         $result->memberCard = $this->getMemberCard($memberCar);
 

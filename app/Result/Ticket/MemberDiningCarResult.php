@@ -69,7 +69,7 @@ class MemberDiningCarResult extends BaseResult
         $result->id = $car->id;
         $result->name = $car->name;
         $result->description = $car->description;
-        $result->img = ImageHelper::url($car->mainImg);
+        $result->img = ImageHelper::url($car->mainImg, 's');
         $result->categories = $this->getCategories($car->category, $car->subCategory);
         $result->memberCard = $this->getMemberCard($car->memberCard, $car->memberLevels);
 
@@ -105,14 +105,10 @@ class MemberDiningCarResult extends BaseResult
         if (!$memberCard) {
             // 還未加入會員
             $result->level = -1;
-            $result->point = 0;
-            $result->gift = 0;
         }
         else {
             // 已加入會員
             $result->level = $this->getMemberLevel($memberLevels, $memberCard->amount);
-            $result->point = $memberCard->point;
-            $result->gift = $memberCard->gift;
         }
 
         return $result;
