@@ -128,7 +128,7 @@ class DiningCar extends BaseModel
      */
     public function memberLevels()
     {
-        return $this->hasMany('App\Models\Ticket\DiningCarMemberLevel');
+        return $this->hasMany('App\Models\Ticket\DiningCarMemberLevel')->where('status',true);
     }
 
     /**
