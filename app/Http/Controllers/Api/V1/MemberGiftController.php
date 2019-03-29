@@ -109,14 +109,14 @@ class MemberGiftController extends RestLaravelController
      * @param $giftId
      * @return string
      */
-    public function getQrcode(Request $request, $giftId)
+    public function getQrcode(Request $request, $memberGiftId)
     {
         try {
             $memberId = $request->memberId;
 
             //90秒
             $duration = Carbon::now()->addSeconds($this::DelayVerifySecond)->timestamp;
-            $code = $this->qrCodePrefix . base64_encode("$memberId.$giftId.$duration");
+            $code = $this->qrCodePrefix . base64_encode("$memberId.$memberGiftId.$duration");
             $result = new \stdClass();
             $result->code = $code;
 
