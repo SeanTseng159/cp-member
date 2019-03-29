@@ -113,7 +113,7 @@ class MemberGiftItemRepository extends BaseRepository
 
 
         //會員的所有禮物
-        return $this->memberGiftItem
+        $result = $this->memberGiftItem
             ->byUser($memberId)
             ->when($type,
                 function ($query) use ($type) {
@@ -144,21 +144,21 @@ class MemberGiftItemRepository extends BaseRepository
             ->with('gift.diningCar')
             ->get();
 
+        return $result;
+
 
     }
 
     /**
      * 禮物詳細資料
      *
-     * @param $memberId
-     * @param $giftID
+     * @param $id
      * @return
      */
-    public function findByGiftId($memberId, $giftID)
+    public function findByID($id)
     {
         $result = $this->memberGiftItem
-            ->where('member_id', $memberId)
-            ->where('gift_id', $giftID)
+            ->where('id',$id)
             ->with(['gift', 'gift.diningCar'])
             ->first();
 
@@ -196,7 +196,6 @@ class MemberGiftItemRepository extends BaseRepository
             ->select('member_id', 'gift_id', DB::raw('count(*) as total'))
             ->groupBy('member_id', 'gift_id')
             ->whereIn('gift_id', $giftIds)
-            ->whereNotNull('used_time')
             ->get();
 
         return $result;
@@ -207,11 +206,11 @@ class MemberGiftItemRepository extends BaseRepository
 
         $result = $this->memberGiftItem
             ->with('gift')
-            ->whereHas('gift',function ($query) use ($modelType, $modelSpecID) {
+            ->whereHas('gift', function ($query) use ($modelType, $modelSpecID) {
                 return $query
                     ->where('model_type', $modelType)
                     ->where('model_spec_id', $modelSpecID)
-                    ->where('expire_at',">=",Carbon::now()); //未過期
+                    ->where('expire_at', ">=", Carbon::now()); //未過期
             })
             ->where('member_id', $memberId)
             ->whereNull('used_time')
