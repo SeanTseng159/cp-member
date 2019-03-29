@@ -1,0 +1,20 @@
+<?php
+
+namespace {{namespace}};
+
+use App\Models\{{className}};
+
+class {{className}}Repository
+{
+    /**
+     * Default model.
+     *
+     * @var string
+     */
+    protected $model;
+
+    public function __construct({{className}} $model)
+    {
+        $this->model = $model;
+    }
+}

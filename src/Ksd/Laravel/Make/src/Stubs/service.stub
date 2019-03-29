@@ -1,0 +1,20 @@
+<?php
+
+namespace {{namespace}};
+
+use App\Repositories\{{className}}Repository;
+
+class {{className}}Service
+{
+    /**
+     * Default repository.
+     *
+     * @var string
+     */
+    protected $repository;
+
+    public function __construct({{className}}Repository $repository)
+    {
+        $this->repository = $repository;
+    }
+}

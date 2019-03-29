@@ -1,0 +1,21 @@
+<?php
+
+namespace {{namespace}};
+
+use App\Repositories\BaseRepository;
+use App\Models\{{className}};
+
+class {{className}}Repository extends BaseRepository
+{
+    /**
+     * Default model.
+     *
+     * @var string
+     */
+    protected $model;
+
+    public function __construct({{className}} $model)
+    {
+        $this->model = $model;
+    }
+}

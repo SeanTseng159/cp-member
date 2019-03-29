@@ -1,0 +1,21 @@
+<?php
+
+namespace {{namespace}};
+
+use App\Services\BaseService;
+use App\Repositories\{{className}}Repository;
+
+class {{className}}Service extends BaseService
+{
+    /**
+     * Default repository.
+     *
+     * @var string
+     */
+    protected $repository;
+
+    public function __construct({{className}}Repository $repository)
+    {
+        $this->repository = $repository;
+    }
+}

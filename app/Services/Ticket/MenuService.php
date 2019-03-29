@@ -28,4 +28,14 @@ class MenuService extends BaseService
     {
         return $this->repository->find($id);
     }
+
+    /**
+     * 取關鍵字找菜單
+     * @param  $id
+     * @return mixed
+     */
+    public function getDiningCarsByKeyword($keyword = '')
+    {
+        return $this->repository->getDiningCarsByKeyword($keyword);
+    }
 }

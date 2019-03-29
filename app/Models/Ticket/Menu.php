@@ -16,7 +16,7 @@ class Menu extends BaseModel
      */
     public function category()
     {
-        return $this->belongsTo('App\Models\Ticket\MenuCategory', 'menu_category_id');
+        return $this->hasOne('App\Models\Ticket\MenuCategory', 'id', 'menu_category_id');
     }
 
 	/**
@@ -33,5 +33,13 @@ class Menu extends BaseModel
     public function imgs()
     {
         return $this->hasMany('App\Models\Ticket\MenuImg');
+    }
+
+    /**
+     * 取得票種
+     */
+    public function prodSpecPrice()
+    {
+        return $this->hasOne('App\Models\Ticket\ProductSpecPrice', 'prod_spec_price_id', 'prod_spec_price_id')->notDeleted();
     }
 }

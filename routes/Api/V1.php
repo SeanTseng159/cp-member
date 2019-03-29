@@ -18,6 +18,8 @@ Route::middleware('cors')->namespace('V1')->group(function () {
     Route::prefix('member')->group(function () {
         // 餐車邀請註冊會員
         Route::post('register/invite', 'MemberController@registerInvite')->middleware('verify.member.registerInvite');
+        // 檢查是否已註冊會員
+        Route::post('register/check', 'MemberController@registerCheck')->middleware('verify.member.registerCheck');
     });
 
     // 版為商品相關
@@ -138,6 +140,9 @@ Route::middleware('cors')->namespace('V1')->group(function () {
     Route::prefix('service')->group(function () {
         // 常見問題
         Route::get('qa', 'ServiceController@qa');
+
+        // 合作廠商申請
+        Route::post('partner/join', 'ServiceController@partnerJoin')->middleware('verify.partner.join');
     });
 
     // 行銷活動相關

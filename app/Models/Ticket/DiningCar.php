@@ -108,6 +108,14 @@ class DiningCar extends BaseModel
     }
 
     /**
+     * 取得影音
+     */
+    public function media()
+    {
+        return $this->hasOne('App\Models\Ticket\DiningCarMedia');
+    }
+
+    /**
      * 取得會員卡
      */
     public function memberCard()
@@ -122,6 +130,7 @@ class DiningCar extends BaseModel
     {
         return $this->hasMany('App\Models\Ticket\DiningCarMemberLevel');
     }
+
     /**
      * 取得禮物清單
      */
