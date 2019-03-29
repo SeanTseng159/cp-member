@@ -157,7 +157,7 @@ class DiningCarResult extends BaseResult
      */
     private function getImg($img)
     {
-        return ImageHelper::url($img);
+        return ImageHelper::url($img, 's');
     }
 
     /**
@@ -166,7 +166,7 @@ class DiningCarResult extends BaseResult
      */
     private function getImgs($imgs)
     {
-        return ImageHelper::urls($imgs);
+        return ImageHelper::urls($imgs, 'm');
     }
 
     /**
