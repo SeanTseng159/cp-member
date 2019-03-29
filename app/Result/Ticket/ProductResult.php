@@ -58,8 +58,8 @@ class ProductResult extends BaseResult
         $this->salePrice = (string) $this->arrayDefault($product, 'prod_price_retail');
         $this->discount = $this->arrayDefault($product, 'discount');
         $this->characteristic = $this->arrayDefault($product, 'prod_short');
-        $this->storeName = $this->arrayDefault($product, 'prod_store');
-        $this->place = $this->arrayDefault($product, 'prod_store');
+        $this->storeName = $this->arrayDefault($product, 'prod_county') . ', ' . $this->arrayDefault($product, 'prod_district');
+        $this->place = $this->storeName;
         $this->imageUrl = $this->getImg($this->arrayDefault($product, 'imgs'));
         $this->isWishlist = $this->arrayDefault($product, 'isWishlist', false);
 
