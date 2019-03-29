@@ -16,27 +16,33 @@ use App\Services\ImageService;
 Class ImageHelper
 {
     static $imageService;
-    
-    
+
+
     /**
      * 取單一照片
      *
      * @param $img
+     * @param $size
      *
      * @return string
      */
-    public static function url($img)
+    public static function url($img, $size = '')
     {
         if (!$img) return '';
 
         $filePath = '';
 
-        if (Agent::isMobile()) {
-            $filePath = SELF::getFitImage($img, 'm');
-        } elseif (Agent::isTablet()) {
-            $filePath = SELF::getFitImage($img, 'm');
-        } else {
-            $filePath = SELF::getFitImage($img, 'b');
+        if ($size) {
+            $filePath = SELF::getFitImage($img, $size);
+        }
+        else {
+            if (Agent::isMobile()) {
+                $filePath = SELF::getFitImage($img, 's');
+            } elseif (Agent::isTablet()) {
+                $filePath = SELF::getFitImage($img, 'm');
+            } else {
+                $filePath = SELF::getFitImage($img, 'b');
+            }
         }
 
         return CommonHelper::getBackendHost($filePath);
@@ -46,16 +52,17 @@ Class ImageHelper
      * 取所有照片
      *
      * @param $imgs
+     * @param $size
      *
      * @return array
      */
-    public static function urls($imgs)
+    public static function urls($imgs, $size = '')
     {
         if ($imgs->isEmpty()) return [];
 
         $urls = [];
         foreach ($imgs as $img) {
-            $urls[] = SELF::url($img);
+            $urls[] = SELF::url($img, $size);
         }
 
         return $urls;
@@ -110,7 +117,7 @@ Class ImageHelper
 
         $returnAry = [];
         foreach ($pathResult as $path) {
-            $returnAry[] = self::url($path);
+            $returnAry[] = self::url($path, 's');
         }
 
         if (count($returnAry) == 1) {
