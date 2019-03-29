@@ -92,7 +92,7 @@ class DiningCarMemberRepository extends BaseRepository
                             'diningCar.subCategory',
                             'diningCar.memberLevels'
                         ])
-                        ->select('dining_car_id', 'member_id')
+                        ->select('dining_car_id', 'member_id', 'amount')
                         ->where('member_id', $memberId)
                         //->paginate($params['limit']);
                         ->paginate(300);
