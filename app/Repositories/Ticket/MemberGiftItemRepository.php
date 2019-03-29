@@ -196,6 +196,7 @@ class MemberGiftItemRepository extends BaseRepository
             ->select('member_id', 'gift_id', DB::raw('count(*) as total'))
             ->groupBy('member_id', 'gift_id')
             ->whereIn('gift_id', $giftIds)
+            ->whereNotNull('used_time')
             ->get();
 
         return $result;
