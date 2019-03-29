@@ -58,8 +58,8 @@ class ProductResult extends BaseResult
         $this->salePrice = (string) $this->arrayDefault($product, 'prod_price_retail');
         $this->discount = $this->arrayDefault($product, 'discount');
         $this->characteristic = $this->arrayDefault($product, 'prod_short');
-        $this->storeName = $this->arrayDefault($product, 'prod_county') . ', ' . $this->arrayDefault($product, 'prod_district');
-        $this->place = $this->storeName;
+        $this->place = $this->getPlace($product);
+        $this->storeName = $this->place;
         $this->imageUrl = $this->getImg($this->arrayDefault($product, 'imgs'));
         $this->isWishlist = $this->arrayDefault($product, 'isWishlist', false);
 
@@ -301,6 +301,23 @@ class ProductResult extends BaseResult
         }
 
         return $newProducts;
+    }
+
+    /**
+     * 取得位置
+     * @param $product
+     * @return string
+     */
+    private function getPlace($product)
+    {
+        $county = $this->arrayDefault($product, 'prod_county', '');
+        $district = $this->arrayDefault($product, 'prod_district', '');
+
+        $places = [];
+        if ($county) $places[] = $county;
+        if ($district) $places[] = $district;
+
+        return implode(', ', $places);
     }
 
     /**
