@@ -11,6 +11,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Input;
 use Ksd\Mediation\Core\Controller\RestLaravelController;
+use stdClass;
 
 
 class MemberGiftController extends RestLaravelController
@@ -114,19 +115,30 @@ class MemberGiftController extends RestLaravelController
         try {
             $memberId = $request->memberId;
 
+            //檢查禮物是否屬於該會員
+            $memberGiftItem = $this->memberGiftItemService->findByID($memberGiftId);
+
+
+            if (!$memberGiftItem || $memberGiftItem->member_id !== $memberId) {
+                throw new \Exception('E0076');
+            }
+
             //90秒
             $duration = Carbon::now()->addSeconds($this::DelayVerifySecond)->timestamp;
             $code = $this->qrCodePrefix . base64_encode("$memberId.$memberGiftId.$duration");
-            $result = new \stdClass();
+            
+            $result = new stdClass();
+
             $result->code = $code;
 
             return $this->success($result);
 
         } catch (\Exception $e) {
+            if ($e->getMessage())
+                return $this->failureCode($e->getMessage());
             return $this->failureCode('E0007');
 
         }
-
     }
 
 
