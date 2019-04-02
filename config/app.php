@@ -55,6 +55,11 @@ return [
     'url' => env('APP_URL', 'http://localhost'),
 
     /*
+     * 前端 web url
+     */
+    'web_url' => env('CITY_PASS_WEB', 'https://dev.citypass.tw/'),
+
+    /*
     |--------------------------------------------------------------------------
     | Application Timezone
     |--------------------------------------------------------------------------

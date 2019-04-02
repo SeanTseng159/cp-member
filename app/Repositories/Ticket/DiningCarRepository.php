@@ -102,4 +102,12 @@ class DiningCarRepository extends BaseRepository
                             ->whereId($id)
                             ->first();
     }
+
+    public function getDiningCarByShorterUrlId($shorterUrlId)
+    {
+        return $this->model->select('id')
+                           ->where('shorter_url_id', $shorterUrlId)
+                           ->whereNotNull('shorter_url_id')
+                           ->first();
+    }
 }
