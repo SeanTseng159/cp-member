@@ -142,4 +142,23 @@ class DiningCarController extends RestLaravelController
         }
     }
 
+    /**
+     * 取得餐車詳細頁短網址
+     * @param string $id 短網址代號
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function shorterUrl($id)
+    {
+        try {
+            if (!$id) return $this->apiRespFailCode('E0006');
+
+            $url = $this->service->getDetailUrlByShorterUrlId($id);
+            if (!$url) return $this->apiRespFailCode('E0202');
+
+            return $this->success(['url' => $url]);
+        } catch (Exception $e) {
+            return $this->failureCode('E0007');
+        }
+    }
+
 }

@@ -66,4 +66,14 @@ class DiningCarService extends BaseService
         return $isPaid;
 
     }
+
+    public function getDetailUrlByShorterUrlId($shorterUrlId)
+    {
+        $diningCar = $this->repository->getDiningCarByShorterUrlId($shorterUrlId);
+        if ($diningCar) {
+            return config('app.web_url') . $diningCar->id;
+        } else {
+            return false;
+        }
+    }
 }
