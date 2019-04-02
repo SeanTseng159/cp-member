@@ -68,6 +68,17 @@ class DiningCarMemberService extends BaseService
     }
 
     /**
+     * 取單一
+     * @param $memberId
+     * @param $diningCarId
+     * @return mixed
+     */
+    public function easyFind($memberId = 0, $diningCarId = 0)
+    {
+        return $this->repository->find($memberId, $diningCarId);
+    }
+
+    /**
      * 是否已成為會員
      * @param $memberId
      * @param $id

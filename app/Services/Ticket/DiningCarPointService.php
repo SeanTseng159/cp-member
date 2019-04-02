@@ -18,7 +18,7 @@ class DiningCarPointService extends BaseService
     }
 
     /**
-     * 消費金額兌換點數
+     * 取餐車兌換規格
      * @param int $diningCarId
      * @return mixed
      */

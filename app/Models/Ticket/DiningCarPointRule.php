@@ -14,6 +14,8 @@ class DiningCarPointRule extends BaseModel
 {
 	use SoftDeletes;
 
+    protected $dates = ['deleted_at'];
+
     public function __construct()
     {
 
@@ -27,10 +29,6 @@ class DiningCarPointRule extends BaseModel
             ->where(function($query) use ($now) {
             	$query->where('start_time', '<=', $now)
             		->where('end_time', '>=', $now);
-            })
-            ->orWhere(function($query) {
-            	$query->whereNull('start_time')
-            		->whereNull('end_time');
             });
     }
 }

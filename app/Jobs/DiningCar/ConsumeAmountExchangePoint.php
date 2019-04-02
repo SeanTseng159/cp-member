@@ -13,8 +13,8 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 
-use Hashids\Hashids;
 use App\Services\Ticket\DiningCarPointService;
+use Cache;
 
 class ConsumeAmountExchangePoint implements ShouldQueue
 {
@@ -22,16 +22,18 @@ class ConsumeAmountExchangePoint implements ShouldQueue
 
     private $member;
     private $consumeAmount;
+    private $key;
 
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct($member, $consumeAmount)
+    public function __construct($member, $consumeAmount, $key = '')
     {
         $this->member = $member;
         $this->consumeAmount = $consumeAmount;
+        $this->key = $key;
     }
 
     /**
@@ -41,10 +43,25 @@ class ConsumeAmountExchangePoint implements ShouldQueue
      */
     public function handle(DiningCarPointService $pointService)
     {
-        $consumeAmount = (new Hashids('DiningCarConsumeAmount', 16))->decode($this->consumeAmount);
+        if ($this->getCache($this->key)) return;
 
-        if ($consumeAmount && $consumeAmount[0] > 0) {
-            $pointService->consumeAmountExchangePoint($this->member, $consumeAmount[0]);
+        if ($this->member && $this->consumeAmount > 0) {
+            $this->setCache($this->key);
+            $pointService->consumeAmountExchangePoint($this->member, $this->consumeAmount);
         }
+    }
+
+    private function getCache($key)
+    {
+        $key = sprintf('ConsumeAmountExchangePoint::%s', $key);
+
+        return (Cache::get($key)) ? true : false;
+    }
+
+    private function setCache($key)
+    {
+        $key = sprintf('ConsumeAmountExchangePoint::%s', $key);
+
+        return Cache::put($key, true, 3);
     }
 }
