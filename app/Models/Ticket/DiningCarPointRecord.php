@@ -7,6 +7,7 @@
 
 namespace App\Models\Ticket;
 
+use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Models\Ticket\BaseModel;
 use App\Enum\DiningCarPointRecordType;
 use App\Models\Gift;
@@ -14,6 +15,10 @@ use Carbon\Carbon;
 
 class DiningCarPointRecord extends BaseModel
 {
+    use SoftDeletes;
+
+    protected $dates = ['deleted_at'];
+
     public function __construct()
     {
 

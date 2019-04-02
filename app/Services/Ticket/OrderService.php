@@ -104,4 +104,13 @@ class OrderService extends BaseService
     {
         return $this->repository->updateForRepay($orderNo, $params);
     }
+
+    /**
+     * 取前一小時有付款的餐車訂單
+     * @return mixed
+     */
+    public function getOneHourAgoPaidDiningCarOrders()
+    {
+        return $this->repository->getOneHourAgoPaidDiningCarOrders();
+    }
 }
