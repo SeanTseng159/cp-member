@@ -7,6 +7,7 @@
 
 namespace App\Models\Ticket;
 
+use App\Models\Member;
 use App\Models\Ticket\BaseModel;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -29,4 +30,10 @@ class DiningCarMember extends BaseModel
     {
         return $this->hasMany('App\Models\Ticket\Gift', 'model_spec_id', 'dining_car_id')->where('model_type', 'dining_car');
     }
+
+    public function member()
+    {
+        return $this->belongsTo(Member::class);
+    }
 }
+

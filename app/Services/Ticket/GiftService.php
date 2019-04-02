@@ -81,4 +81,16 @@ class GiftService extends BaseService
         return $this->repository->getWithDiningCar($giftId);
     }
 
+    public function getDingingCarHasBirthDayGift()
+    {
+        return $this->repository->getBirthdayDingingMembers();
+
+    }
+
+    //發禮物，更新禮物庫存量與會員禮物清單
+    public function deliveryGifts($gifts,$memberGiftItems)
+    {
+        return $this->repository->deliveryGifts($gifts,$memberGiftItems);
+    }
+
 }

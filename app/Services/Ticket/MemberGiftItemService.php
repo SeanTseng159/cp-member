@@ -69,6 +69,16 @@ class MemberGiftItemService extends BaseService
     {
         return $this->repository->getUserAvailableGiftCount($memberId,$modelType,$modelSepcID);
     }
+
+    public function getMaxNumber($memberId,$gift_id)
+    {
+        return $this->repository->getMaxNumber($memberId,$gift_id);
+    }
+
+    public function canGetBirthday($memberId,$gift_id)
+    {
+        return $this->repository->canGetBirthday($memberId,$gift_id);
+    }
     
 
     

@@ -98,7 +98,7 @@ class DiningCarPointRecordRepository extends BaseRepository
         } catch (\Exception $e) {
             Logger::error('QueryException Create Exchange Gift Error', $e->getMessage());
             DB::connection('backend')->rollBack();
-            dd($e->getMessage());
+//            dd($e->getMessage());
             return false;
         }
 

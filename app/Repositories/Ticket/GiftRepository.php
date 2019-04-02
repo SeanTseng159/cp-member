@@ -7,21 +7,27 @@
 
 namespace App\Repositories\Ticket;
 
+use App\Core\Logger;
 use App\Enum\ClientType;
 use App\Enum\GiftType;
 use App\Models\Gift;
+use App\Models\MemberGiftItem;
 use App\Repositories\BaseRepository;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
+use function Matrix\trace;
 
 
 class GiftRepository extends BaseRepository
 {
     private $limit = 20;
     protected $model;
+    protected $memberGiftItem;
 
-    public function __construct(Gift $model)
+    public function __construct(Gift $model,MemberGiftItem $memberGiftItem)
     {
         $this->model = $model;
+        $this->memberGiftItem = $memberGiftItem;
     }
 
     /**
@@ -97,4 +103,56 @@ class GiftRepository extends BaseRepository
 
     }
 
+
+    /**
+     * 取得發送生日禮的會員資料
+     * @return mixed
+     */
+    public function getBirthdayDingingMembers()
+    {
+        $result = $this->model
+            ->exchangable()
+            ->isDiningCar()
+            ->with([
+                'diningCar',
+                'diningCar.members',
+                'diningCar.members.member' => function ($query) {
+                    $date = Carbon::now()->subDays(30);
+                    $month = $date->month;
+                    $day = $date->day;
+                    return $query->whereRaw("DATE_FORMAT(birthday,'%c')=$month")
+                        ->whereRaw("DATE_FORMAT(birthday,'%e')=$day");
+                }
+            ])
+            ->where('type', GiftType::birthday)
+            ->get();
+
+        return $result;
+
+
+    }
+
+    public function deliveryGifts($gifts,$memberGiftItems)
+    {
+        try {
+//            dd($gifts);
+//            dd($memberGiftItems);
+            DB::connection('backend')->beginTransaction();
+
+            $this->memberGiftItem->insert($memberGiftItems);
+
+            //update禮物庫存量
+           foreach ($gifts as $gift) {
+               $qty = $gift->qty;
+               $id = $gift->gift_id;
+               $this->model->where('id', $id)->update(['qty' => $qty]);
+           }
+
+            DB::connection('backend')->commit();
+        }
+        catch (\Exception $e) {
+            Logger::error('deliveryGifts: ', $e->getMessage());
+            DB::connection('backend')->rollBack();
+        }
+    }
 }

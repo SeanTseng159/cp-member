@@ -133,11 +133,21 @@ class DiningCar extends BaseModel
             ->where('model_type', ClientType::dining_car);
 
     }
+    public function birthdayGift(){
+        return $this
+            ->hasOne(Gift::class, 'model_spec_id', 'id')
+            ->where('model_type', ClientType::dining_car)
+            ->where('type','birthday');
+    }
 
     public function pointRules()
     {
         return $this->hasMany(DiningCarPointRule::class);
+    }
 
+    public function members()
+    {
+        return $this->hasMany(DiningCarMember::class);
     }
 
 }
