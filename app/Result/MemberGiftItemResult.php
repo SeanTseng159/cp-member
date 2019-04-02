@@ -60,11 +60,10 @@ class MemberGiftItemResult
         
         $data = new \stdClass();
         
-        
         $gift = $item->gift;
         $diningCar = $gift->diningCar;
         
-        $data->id = $gift->id;
+        $data->id = $item->id;
         $data->Name = $diningCar->name;
         $data->title = $gift->name;
         $data->duration = Carbon::parse($gift->expire_at)->format('Y-m-d');
@@ -97,10 +96,12 @@ class MemberGiftItemResult
         {
             return $data;
         }
+        //可使用
         else if ($type == 1 && $data->status == 0)
         {
             return $data;
         }
+        //已使用或過期
         else if ($type == 2 && $data->status != 0)
         {
             return $data;

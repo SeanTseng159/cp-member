@@ -11,24 +11,25 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Input;
 use Ksd\Mediation\Core\Controller\RestLaravelController;
+use stdClass;
 
 
 class MemberGiftController extends RestLaravelController
 {
-    const DelayVerifySecond = 90 ;
+    const DelayVerifySecond = 90;
     protected $lang = 'zh-TW';
     protected $memberGiftItemService;
     protected $imageService;
     protected $qrCodePrefix = 'gift_';
-    
-    
+
+
     public function __construct(MemberGiftItemService $memberGiftItemService, ImageService $imageService)
     {
-        
+
         $this->memberGiftItemService = $memberGiftItemService;
         $this->imageService = $imageService;
     }
-    
+
     /**
      * 我的禮物列表
      *
@@ -38,52 +39,46 @@ class MemberGiftController extends RestLaravelController
      */
     public function list(Request $request)
     {
-        try
-        {
+        try {
             $memberId = $request->memberId;
             $type = Input::get('type', 'current');
             $client = Input::get('client', null);
             $clientId = intval(Input::get('uid', null));
-            
-            if (!$memberId || !$type)
-            {
+
+            if (!$memberId || !$type) {
                 throw new \Exception('E0007');
             }
-            
-            
+
+
             //current 未使用 1 used 已使用 2
-            if ($type == 'current')
-            {
+            if ($type == 'current') {
                 $type = 1;
-            }
-            if ($type == 'used')
-            {
+            } else if ($type == 'used') {
                 $type = 2;
+            } else {
+                throw  new \Exception('E0001');
             }
-            
+
             //取得使用者的禮物清單
             $result = $this->memberGiftItemService->list($type, $memberId, $client, $clientId);
-            
+
             $result = (new MemberGiftItemResult())->list($result, $type);
-            
-            
+
+
             return $this->success($result);
-            
-        }
-        catch (\Exception $e)
-        {
-            if ($e->getMessage())
-            {
+
+        } catch (\Exception $e) {
+            if ($e->getMessage()) {
                 return $this->failureCode($e->getMessage());
             }
-            
+
             return $this->failureCode('E0007');
         }
-        
-        
+
+
     }
-    
-    
+
+
     /**
      * 我的禮物明細
      *
@@ -94,16 +89,15 @@ class MemberGiftController extends RestLaravelController
     public function show(Request $request, $id)
     {
         $memberId = $request->memberId;
-        
 
-        $result = $this->memberGiftItemService->findByGiftId($memberId, $id);
-        
-        if($result)
-        {
+
+        $result = $this->memberGiftItemService->findByID($id);
+
+        if ($result) {
             $result = (new MemberGiftItemResult())->show($result);
         }
-        
-        
+
+
         return $this->success($result);
     }
 
@@ -116,30 +110,34 @@ class MemberGiftController extends RestLaravelController
      * @param $giftId
      * @return string
      */
-    public function getQrcode(Request $request, $giftId)
+    public function getQrcode(Request $request, $memberGiftId)
     {
-        try
-        {
+        try {
             $memberId = $request->memberId;
-            
+
+            //檢查禮物是否屬於該會員
+            $memberGiftItem = $this->memberGiftItemService->findByID($memberGiftId);
+
+
+            if (!$memberGiftItem || $memberGiftItem->member_id !== $memberId) {
+                throw new \Exception('E0076');
+            }
+
             //90秒
             $duration = Carbon::now()->addSeconds($this::DelayVerifySecond)->timestamp;
-            $code = $this->qrCodePrefix.base64_encode("$memberId.$giftId.$duration");
-            $result = new \stdClass();
+            $code = $this->qrCodePrefix . base64_encode("$memberId.$memberGiftId.$duration");
+            $result = new stdClass();
             $result->code = $code;
-            
-            return $this->success($result);
-            
-        }
-        catch (\Exception $e)
-        {
-            return $this->failureCode('E0007');
-            
-        }
-        
-    }
-    
 
-    
-    
+            return $this->success($result);
+
+        } catch (\Exception $e) {
+            if ($e->getMessage())
+                return $this->failureCode($e->getMessage());
+            return $this->failureCode('E0007');
+
+        }
+    }
+
+
 }

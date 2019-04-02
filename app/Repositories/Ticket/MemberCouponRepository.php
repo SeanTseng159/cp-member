@@ -75,7 +75,7 @@ class MemberCouponRepository extends BaseRepository
             ->when($status,
                 function ($query) use ($status) {
                     if ($status === 1) {
-                        $query->where('count', 0)
+                        $query->whereRaw('count < limit_qty')
                             ->where('coupons.start_at', '<=', Carbon::now()->toDateTimeString())
                             ->where('coupons.expire_at', '>=', Carbon::now()->toDateTimeString());
                     } elseif ($status === 2) {
