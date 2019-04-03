@@ -71,7 +71,7 @@ class DiningCarService extends BaseService
     {
         $diningCar = $this->repository->getDiningCarByShorterUrlId($shorterUrlId);
         if ($diningCar) {
-            return config('app.web_url') . $diningCar->id;
+            return config('app.web_url') . 'zh-TW/diningCar/detail/' . $diningCar->id;
         } else {
             return false;
         }
