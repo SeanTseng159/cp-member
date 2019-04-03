@@ -245,6 +245,9 @@ Route::middleware(['cors', 'auth.jwt'])->namespace('V1')->group(function () {
         // 加入餐車會員
         Route::post('member/add', 'DiningCarMemberController@add');
 
+        // 可使用禮物數、優惠卷 與 總和
+        Route::get('tickets', 'DiningCarMemberController@tickets');
+
     });
 
     // 會員相關

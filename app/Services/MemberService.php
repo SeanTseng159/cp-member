@@ -615,4 +615,9 @@ class MemberService
             return false;
         }
     }
+
+    public function getDiningCarGift()
+    {
+        return $this->repository->getDiningCarGift();
+    }
 }

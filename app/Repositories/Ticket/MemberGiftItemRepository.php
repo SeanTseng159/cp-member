@@ -158,7 +158,7 @@ class MemberGiftItemRepository extends BaseRepository
     public function findByID($id)
     {
         $result = $this->memberGiftItem
-            ->where('id',$id)
+            ->where('id', $id)
             ->with(['gift', 'gift.diningCar'])
             ->first();
 
@@ -218,4 +218,57 @@ class MemberGiftItemRepository extends BaseRepository
         return $result;
 
     }
+
+    public function getMaxNumber($memberId, $gift_id)
+    {
+
+        $result = $this->memberGiftItem
+            ->where('member_id', $memberId)
+            ->where('gift_id', $gift_id)
+            ->max('number');
+        if (!$result)
+            return 0;
+        return $result;
+    }
+
+    public function canGetBirthday($memberId, $gift_id)
+    {
+        try {
+            $result = $this->memberGiftItem
+                ->where('member_id', $memberId)
+                ->where('gift_id', $gift_id)
+                ->orderBy('created_at', 'desc')
+                ->first(['created_at']);
+            $diffMonth = Carbon::now()->diffInMonths($result->created_at);
+            if ($diffMonth > 12)
+                return true;
+            return false;
+
+
+        } catch (\Exception $e) {
+            Logger::error('canGetBirthday:' . $e->getMessage());
+            return false;
+        }
+
+
+    }
+
+    /** 可使用的禮物數
+     * @param $memberId
+     * @return bool
+     */
+    public function availableGifts($memberId)
+    {
+        try {
+            $result = $this->memberGiftItem
+                ->where('member_id', $memberId)
+                ->whereNull('used_time')
+                ->count();
+            return $result;
+        } catch (\Exception $e) {
+            Logger::error('availableGifts:' . $e->getMessage());
+            return false;
+        }
+    }
+
 }

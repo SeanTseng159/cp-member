@@ -113,6 +113,11 @@ class CouponRepository extends BaseRepository
         return $result;
 
     }
+
+    public function availableCoupons($memberId)
+    {
+        return $this->repository->availableCoupons($memberId);
+    }
     
     
 }

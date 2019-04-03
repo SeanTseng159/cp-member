@@ -56,40 +56,7 @@ class MemberCouponRepository extends BaseRepository
     public function favoriteCouponList($memberID, $status)
     {
 
-        $result = $this->model
-            ->join('coupons', 'coupons.id', '=', "coupon_id")
-            ->select(
-                'coupons.id',
-                DB::raw('coupons.name AS title'),
-                'content',
-                DB::raw("CONCAT(DATE_FORMAT(start_at, '%Y-%m-%e'),' ~ ',DATE_FORMAT(expire_at, '%Y-%m-%e')) AS duration"),
-                'model_type',
-                'model_spec_id',
-                DB::raw('coupons.limit_qty AS limit_qty'),
-                DB::raw('member_coupon.count AS count')
-
-            )
-            ->where('member_id', $memberID)
-            ->where('status', 1)
-            ->where('is_collected', 1)
-            ->when($status,
-                function ($query) use ($status) {
-                    if ($status === 1) {
-                        $query->whereRaw('count < limit_qty')
-                            ->where('coupons.start_at', '<=', Carbon::now()->toDateTimeString())
-                            ->where('coupons.expire_at', '>=', Carbon::now()->toDateTimeString());
-                    } elseif ($status === 2) {
-                        $query->whereRaw('count = limit_qty')
-                            ->where('coupons.start_at', '<=', Carbon::now()->toDateTimeString())
-                            ->where('coupons.expire_at', '>=', Carbon::now()->toDateTimeString());
-                    } elseif ($status === 3) {
-                        $query->where('coupons.expire_at', '<=', Carbon::now()->toDateTimeString());
-                    }
-
-                })
-            ->orderBy('expire_at', 'asc')
-            ->orderBy('member_coupon.updated_at', 'asc')
-            ->get();
+        $result = $this->getCouponListByStatus($memberID, $status);
 
 
         //與client 端(ex.餐車)對應
@@ -263,6 +230,60 @@ class MemberCouponRepository extends BaseRepository
             return false;
         }
 
+    }
+
+    public function availableCoupons($memberId)
+    {
+        $favoriteList = $this->getCouponListByStatus($memberId,1);
+        return $favoriteList->count();
+
+    }
+
+    /**
+     * @param $memberID
+     * @param $status
+     *          current 可使用 1
+     *          used    已使用 2 (達最高使用次數)
+     *          expired 已失效 3
+     * @return mixed
+     */
+    private function getCouponListByStatus($memberID, $status)
+    {
+        $result = $this->model
+            ->join('coupons', 'coupons.id', '=', "coupon_id")
+            ->select(
+                'coupons.id',
+                DB::raw('coupons.name AS title'),
+                'content',
+                DB::raw("CONCAT(DATE_FORMAT(start_at, '%Y-%m-%e'),' ~ ',DATE_FORMAT(expire_at, '%Y-%m-%e')) AS duration"),
+                'model_type',
+                'model_spec_id',
+                DB::raw('coupons.limit_qty AS limit_qty'),
+                DB::raw('member_coupon.count AS count')
+
+            )
+            ->where('member_id', $memberID)
+            ->where('status', 1)
+            ->where('is_collected', 1)
+            ->when($status,
+                function ($query) use ($status) {
+                    if ($status === 1) {
+                        $query->whereRaw('count < limit_qty')
+                            ->where('coupons.start_at', '<=', Carbon::now()->toDateTimeString())
+                            ->where('coupons.expire_at', '>=', Carbon::now()->toDateTimeString());
+                    } elseif ($status === 2) {
+                        $query->whereRaw('count = limit_qty')
+                            ->where('coupons.start_at', '<=', Carbon::now()->toDateTimeString())
+                            ->where('coupons.expire_at', '>=', Carbon::now()->toDateTimeString());
+                    } elseif ($status === 3) {
+                        $query->where('coupons.expire_at', '<=', Carbon::now()->toDateTimeString());
+                    }
+
+                })
+            ->orderBy('expire_at', 'asc')
+            ->orderBy('member_coupon.updated_at', 'asc')
+            ->get();
+        return $result;
     }
 
 }
