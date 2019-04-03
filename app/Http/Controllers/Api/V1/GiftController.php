@@ -82,6 +82,7 @@ class GiftController extends RestLaravelController
             return $this->success($result);
 
         } else {
+            //沒有付費則不顯示，使用者只能從我的禮物進入
             return $this->success([]);
         }
 
