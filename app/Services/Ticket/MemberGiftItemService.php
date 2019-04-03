@@ -79,6 +79,11 @@ class MemberGiftItemService extends BaseService
     {
         return $this->repository->canGetBirthday($memberId,$gift_id);
     }
+    public function availableGifts($memberId)
+    {
+        return $this->repository->availableGifts($memberId);
+    }
+
     
 
     

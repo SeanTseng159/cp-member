@@ -8,6 +8,9 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Services\Ticket\MemberCouponService;
+use App\Services\Ticket\MemberGiftItemService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Ksd\Mediation\Core\Controller\RestLaravelController;
 use Exception;
@@ -29,18 +32,25 @@ class DiningCarMemberController extends RestLaravelController
 
     protected $service;
     protected $giftService;
+    protected $memberCouponService;
+    protected $memberGiftItemService;
 
-    public function __construct(DiningCarMemberService $service, GiftService $giftService)
+    public function __construct(DiningCarMemberService $service,
+                                GiftService $giftService,
+                                MemberCouponService $memberCouponService,
+                                MemberGiftItemService $memberGiftItemService
+    )
     {
         $this->service = $service;
         $this->giftService = $giftService;
+        $this->memberCouponService = $memberCouponService;
+        $this->memberGiftItemService = $memberGiftItemService;
     }
 
     /**
      * 加入餐車會員
      * @param Request $request
-     * @param $id
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
     public function add(Request $request)
     {
@@ -66,9 +76,9 @@ class DiningCarMemberController extends RestLaravelController
             $memberCard = (new DiningCarMemberResult)->getMemberCard($diningCarMember);
 
             return ($result) ? $this->success([
-                                        'gift' => $gift,
-                                        'memberCard' => $memberCard
-                                    ]) : $this->failureCode('E0200');
+                'gift' => $gift,
+                'memberCard' => $memberCard
+            ]) : $this->failureCode('E0200');
         } catch (Exception $e) {
             return $this->failureCode('E0200');
         }
@@ -77,7 +87,7 @@ class DiningCarMemberController extends RestLaravelController
     /**
      * 取使用者已加入會員的餐車
      * @param Request $request
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
     public function diningCars(Request $request)
     {
@@ -86,7 +96,7 @@ class DiningCarMemberController extends RestLaravelController
 
             $data = $this->service->list($request->memberId, $params);
 
-            $result['page'] = (int) $params['page'];
+            $result['page'] = (int)$params['page'];
             $result['total'] = $data->total;
             $result['cars'] = (new DiningCarMemberResult)->list($data);
 
@@ -99,7 +109,7 @@ class DiningCarMemberController extends RestLaravelController
     /**
      * 餐車&會員資料
      * @param Request $request
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
     public function info(Request $request, DiningCarService $diningCarService, MemberService $memberService, $id = '')
     {
@@ -118,16 +128,16 @@ class DiningCarMemberController extends RestLaravelController
             $member = $memberService->find($memberToken[0]);
 
             return $this->success([
-                    'car' => [
-                        'id' => $diningCar->id,
-                        'hashId' => $this->encryptHashId('DiningCar', $diningCarId[0]),
-                        'name' => $diningCar->name
-                    ],
-                    'member' => [
-                        'id' => $member->id,
-                        'name' => $member->name
-                    ]
-                ]);
+                'car' => [
+                    'id' => $diningCar->id,
+                    'hashId' => $this->encryptHashId('DiningCar', $diningCarId[0]),
+                    'name' => $diningCar->name
+                ],
+                'member' => [
+                    'id' => $member->id,
+                    'name' => $member->name
+                ]
+            ]);
         } catch (Exception $e) {
             return $this->failureCode('E0007');
         }
@@ -136,7 +146,7 @@ class DiningCarMemberController extends RestLaravelController
     /**
      * 餐車邀請加入會員
      * @param Request $request
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
     public function invite(Request $request)
     {
@@ -160,15 +170,41 @@ class DiningCarMemberController extends RestLaravelController
             $memberCard = (new DiningCarMemberResult)->getMemberCard($diningCarMember);
 
             return ($result) ? $this->success([
-                                        'car' => [
-                                            'id' => $diningCarMember->diningCar->id,
-                                            'name' => $diningCarMember->diningCar->name
-                                        ],
-                                        'gift' => $gift,
-                                        'memberCard' => $memberCard
-                                    ]) : $this->failureCode('E0200');
+                'car' => [
+                    'id' => $diningCarMember->diningCar->id,
+                    'name' => $diningCarMember->diningCar->name
+                ],
+                'gift' => $gift,
+                'memberCard' => $memberCard
+            ]) : $this->failureCode('E0200');
         } catch (Exception $e) {
             return $this->failureCode('E0200');
         }
+    }
+
+
+    /**
+     *  可使用禮物數、優惠卷 與 總和
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function tickets(Request $request)
+    {
+        try {
+            $memberId = $request->memberId;
+
+            $couponNum = $this->memberCouponService->availableCoupons($memberId);
+            $giftNum = $this->memberGiftItemService->availableGifts($memberId);
+            $total = $couponNum + $giftNum;
+
+            return $this->success([
+                'coupon_num' => $couponNum,
+                'gift_num' => $giftNum,
+                'total' => $total
+            ]);
+        } catch (Exception $e) {
+            return $this->failureCode('E0001');
+        }
+
     }
 }

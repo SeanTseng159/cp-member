@@ -252,4 +252,23 @@ class MemberGiftItemRepository extends BaseRepository
 
 
     }
+
+    /** 可使用的禮物數
+     * @param $memberId
+     * @return bool
+     */
+    public function availableGifts($memberId)
+    {
+        try {
+            $result = $this->memberGiftItem
+                ->where('member_id', $memberId)
+                ->whereNull('used_time')
+                ->count();
+            return $result;
+        } catch (\Exception $e) {
+            Logger::error('availableGifts:' . $e->getMessage());
+            return false;
+        }
+    }
+
 }
