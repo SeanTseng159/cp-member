@@ -12,6 +12,7 @@ use App\Result\Ticket\DiningCarResult;
 use App\Services\Ticket\DiningCarPointRecordService;
 use App\Services\Ticket\GiftService;
 use App\Services\Ticket\MemberGiftItemService;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Ksd\Mediation\Core\Controller\RestLaravelController;
 use mysql_xdevapi\Exception;
@@ -110,7 +111,7 @@ class DiningCarPointController extends RestLaravelController
 
             //寫入DB dining_car_point_records & member_gift_items &gift.qty
             $diningCarId = $gift->model_spec_id;
-            $expireTime = $gift->expire_at;
+            $expireTime = Carbon::maxValue();//$gift->expire_at;
             $ret = $this->diningCarPointRecordService->create(
                 $memberId,
                 $diningCarId,
