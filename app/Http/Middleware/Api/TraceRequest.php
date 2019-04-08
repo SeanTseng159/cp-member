@@ -41,7 +41,7 @@ class TraceRequest
         $responseTime = (microtime(true) - LARAVEL_START);
         Log::debug('time: ' . $responseTime);
 
-        if ($responseTime > 0.1) {
+        if ($responseTime > 1) {
             $obj = new \stdClass();
             $obj->method = $request->method();
             $obj->api = $request->path();
