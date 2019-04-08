@@ -150,10 +150,10 @@ class DiningCarController extends RestLaravelController
     public function shorterUrl($id)
     {
         try {
-            if (!$id) return $this->apiRespFailCode('E0006');
+            if (!$id) return $this->failureCode('E0006');
 
             $url = $this->service->getDetailUrlByShorterUrlId($id);
-            if (!$url) return $this->apiRespFailCode('E0202');
+            if (!$url) return $this->failureCode('E0202');
 
             return $this->success(['url' => $url]);
         } catch (Exception $e) {
