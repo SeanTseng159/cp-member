@@ -7,8 +7,9 @@
 
 namespace App\Result\Ticket;
 
-use App\Result\BaseResult;
 use Carbon\Carbon;
+use App\Result\BaseResult;
+use App\Config\Ticket\ProcuctConfig;
 use App\Helpers\ImageHelper;
 
 class DiningCarMenuResult extends BaseResult
@@ -105,9 +106,10 @@ class DiningCarMenuResult extends BaseResult
         if (!$prodSpecPrice || !$prodSpecPrice->prodSpec || !$prodSpecPrice->prodSpec->product) return null;
 
         $product = new \stdClass;
+        $product->source = ($prodSpecPrice->prodSpec->product->is_physical) ? ProcuctConfig::SOURCE_TPASS_PHYSICAL : ProcuctConfig::SOURCE_TICKET;
         $product->id = $prodSpecPrice->prodSpec->product->prod_id;
-        $product->spec_id = $prodSpecPrice->prodSpec->prod_spec_id;
-        $product->price_id = $prodSpecPrice->prod_spec_price_id;
+        $product->specId = $prodSpecPrice->prodSpec->prod_spec_id;
+        $product->priceId = $prodSpecPrice->prod_spec_price_id;
         $product->stock = $prodSpecPrice->prod_spec_price_stock;
         $product->maxLimit = $prodSpecPrice->prodSpec->product->prod_limit_num;
 
