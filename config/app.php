@@ -85,6 +85,8 @@ return [
 
     'locale' => 'zh_TW',
 
+    'faker_locale' => 'zh_TW',
+
     /*
     |--------------------------------------------------------------------------
     | Application Fallback Locale
