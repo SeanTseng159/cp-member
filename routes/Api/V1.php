@@ -20,6 +20,8 @@ Route::middleware('cors')->namespace('V1')->group(function () {
         Route::post('register/invite', 'MemberController@registerInvite')->middleware('verify.member.registerInvite');
         // 檢查是否已註冊會員
         Route::post('register/check', 'MemberController@registerCheck')->middleware('verify.member.registerCheck');
+        // 檢查是否已註冊會員
+        Route::post('register/check2', 'MemberController@registerCheck2')->middleware('verify.member.registerCheck2');
     });
 
     // 版為商品相關
