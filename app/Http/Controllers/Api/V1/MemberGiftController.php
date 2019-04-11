@@ -117,10 +117,13 @@ class MemberGiftController extends RestLaravelController
 
             //檢查禮物是否屬於該會員
             $memberGiftItem = $this->memberGiftItemService->findByID($memberGiftId);
-
-
             if (!$memberGiftItem || $memberGiftItem->member_id !== $memberId) {
                 throw new \Exception('E0076');
+            }
+
+            //檢查qr code是否已經使用過
+            if ($memberGiftItem->used_time ) {
+                throw new \Exception('E0078');
             }
 
             //90秒
