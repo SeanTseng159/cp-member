@@ -45,7 +45,7 @@ Class ImageHelper
             }
         }
 
-        return CommonHelper::getBackendHost($filePath);
+        return $filePath;
     }
 
     /**
@@ -72,13 +72,25 @@ Class ImageHelper
     {
         $info = json_decode($img->compressed_info);
 
-        if ($img->compressed_info && isset($info->compressed_sizes->{$size})) {
-            $filePath = (env('USE_CDN_IMAGE')) ? $filePath = $info->image_hosting_urls->{$size} : sprintf('%s%s_%s.%s', $img->folder, $img->filename, $size, $img->ext);
-        } else {
-            $filePath = sprintf('%s%s.%s', $img->folder, $img->filename, $img->ext);
-        }
+        $hasCompressedInfo = ($img->compressed_info && isset($info->compressed_sizes->{$size}));
 
-        return $filePath;
+        // 取遠端圖片
+        if ($hasCompressedInfo) {
+
+            if (env('USE_CDN_IMAGE', false)) {
+                $cdnImg = $info->image_hosting_urls->{$size};
+
+                if ($cdnImg) return $cdnImg;
+            }
+
+            // 如遠端無圖，取本地
+            $localImg = sprintf('%s%s_%s.%s', $img->folder, $img->filename, $size, $img->ext);
+            return CommonHelper::getBackendHost($localImg);
+        }
+        else {
+            $localImg = sprintf('%s%s.%s', $img->folder, $img->filename, $img->ext);
+            return CommonHelper::getBackendHost($localImg);
+        }
     }
 
     private static function getInstance()
