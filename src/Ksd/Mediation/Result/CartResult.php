@@ -91,6 +91,7 @@ class CartResult
                 $row->statusCode = $this->arrayDefault($item['status'], 'code');
                 $row->statusDesc = $this->arrayDefault($item['status'], 'desc');
             }
+            $row->isOneSpec = $this->arrayDefault($item, 'isOneSpec');
             $this->items[] = $row;
         }
         $this->itemTotal = $this->arrayDefault($result, 'itemTotal');

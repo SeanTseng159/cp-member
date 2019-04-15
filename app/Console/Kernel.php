@@ -21,6 +21,7 @@ use Ksd\Mediation\Config\ProjectConfig;
 
 use App\Console\Commands\RefreshLayoutCache;
 use App\Console\Commands\UpdateLinePayMapStores;
+use App\Console\Commands\DiningCar\ConsumeExchangePoint;
 
 use App\Jobs\SendNotification;
 
@@ -45,6 +46,7 @@ class Kernel extends ConsoleKernel
         ProcessBPSCMFile::class,
         RefreshLayoutCache::class,
         UpdateLinePayMapStores::class,
+        ConsumeExchangePoint::class
     ];
 
     /**
@@ -55,9 +57,6 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        // $schedule->command('inspire')
-        //          ->hourly();
-
         // 發送推播訊息
         // $schedule->job(new SendNotification())->everyMinute()->withoutOverlapping();
 
@@ -99,6 +98,8 @@ class Kernel extends ConsoleKernel
         // 重刷快取
         $schedule->command(RefreshLayoutCache::class)->dailyAt('04:30');
 
+        // 消費換點數，每小時46分執行
+        $schedule->command(ConsumeExchangePoint::class)->cron('46 * * * * *');
     }
 
     /**

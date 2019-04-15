@@ -164,7 +164,11 @@ class DiningCarMemberController extends RestLaravelController
             $gift = (new GiftResult)->detailByJoinDiningCar($gift);
 
             // 發送點數
-            dispatch(new ConsumeAmountExchangePoint($member, $params['consumeAmount']))->delay(5);
+            $consumeAmount = (new Hashids('DiningCarConsumeAmount', 16))->decode($params['consumeAmount');
+            if ($consumeAmount && $consumeAmount[0] > 0) {
+                $key = 'invite' . $member->id;
+                dispatch(new ConsumeAmountExchangePoint($member, $consumeAmount[0], $key))->delay(5);
+            }
 
             // 取車餐資料
             $diningCar = $diningCarService->find($diningCarId);

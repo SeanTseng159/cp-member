@@ -90,7 +90,7 @@ class MemberController extends RestLaravelController
     }
 
     /**
-     *  檢查是否已註冊會員
+     *  檢查是否已註冊會員 [加密手機碼]
      * @param Request $request
      * @param Int $id
      * @return \Illuminate\Http\JsonResponse
@@ -121,6 +121,40 @@ class MemberController extends RestLaravelController
             return $this->success([
                 'isRegistered' => $isRegistered,
                 'token' => $memberToken
+            ]);
+        } catch (Exception $e) {
+            return $this->failureCode('E0007');
+        }
+    }
+
+    /**
+     *  檢查是否已註冊會員 [手機明碼]
+     * @param Request $request
+     * @param Int $id
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function registerCheck2(Request $request)
+    {
+        try {
+            $phoneNumber = $request->phoneNumber;
+
+            // 確認手機是否使用
+            $member = $this->memberService->checkHasPhoneAndisRegistered($phoneNumber['country'], $phoneNumber['countryCode'], $phoneNumber['cellphone']);
+            if ($member) {
+                $isRegistered = true;
+                $memberToken = (new Hashids('Member', 12))->encode([$member->id, time()]);
+            }
+            else {
+                $isRegistered = false;
+                $memberToken = '';
+            }
+
+            $phoneEncode = (new Hashids('PhoneNumber', 20))->encode([$phoneNumber['countryCode'], $phoneNumber['cellphone']]);
+
+            return $this->success([
+                'isRegistered' => $isRegistered,
+                'token' => $memberToken,
+                'mobile' => $phoneEncode
             ]);
         } catch (Exception $e) {
             return $this->failureCode('E0007');
