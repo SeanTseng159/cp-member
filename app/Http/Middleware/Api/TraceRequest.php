@@ -1,7 +1,10 @@
 <?php
+
 namespace App\Http\Middleware\Api;
 
+use App\Notifications\ApiResponseNotify;
 use Closure;
+use Illuminate\Notifications\Notifiable;
 use Log;
 
 /**
@@ -12,20 +15,43 @@ use Log;
  */
 class TraceRequest
 {
+    use Notifiable;
+
+    public function routeNotificationForSlack() {
+        return env('LOG_SLACK_WEBHOOK_URL');
+    }
+
+
     /**
      * Handle an incoming request.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \Closure  $next
+     * @param \Illuminate\Http\Request $request
+     * @param \Closure $next
      * @return mixed
      */
     public function handle($request, Closure $next)
     {
-        Log::info('*******');
+        Log::info('**************************************************************************************************');
+        
         Log::info($request->method() . ' ' . $request->path());
-        Log::info('content-type: '. $request->header('content-type'));
+        Log::info('content-type: ' . $request->header('content-type'));
         Log::debug('auth: ' . $request->header('authorization'));
         Log::debug('body: ' . file_get_contents('php://input'));
-        return $next($request);
+        $response = $next($request);
+        $responseTime = (microtime(true) - LARAVEL_START);
+        Log::debug('time: ' . $responseTime);
+
+//        if ($responseTime > 1) {
+//            $obj = new \stdClass();
+//            $obj->method = $request->method();
+//            $obj->api = $request->path();
+//            $obj->responseTime = round($responseTime*1000,0);
+//
+//            $this->notify(new ApiResponseNotify($obj));
+//
+//        }
+        return $response;
+
     }
+
 }

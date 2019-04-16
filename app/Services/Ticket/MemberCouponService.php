@@ -106,4 +106,9 @@ class MemberCouponService extends BaseService
         return $this->repository->use($memberId, $couponID);
         
     }
+
+    public function availableCoupons($memberId)
+    {
+        return $this->repository->availableCoupons($memberId);
+    }
 }

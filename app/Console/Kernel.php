@@ -98,8 +98,13 @@ class Kernel extends ConsoleKernel
         // 重刷快取
         $schedule->command(RefreshLayoutCache::class)->dailyAt('04:30');
 
+
         // 消費換點數，每小時46分執行
         $schedule->command(ConsumeExchangePoint::class)->cron('46 * * * * *');
+
+        //餐車會員發送生日禮
+        $schedule->command(GiveBirthdayGift::class)->dailyAt('02:00');
+
     }
 
     /**
