@@ -288,7 +288,7 @@ class TicketResult extends BaseResult
                 $result['description']->date = $expireAry[1] . '小時內';
             }
         }
-        elseif ($ticketStatus === '1' || $ticketStatus === '3') {
+        elseif ($ticketStatus === '1' || $ticketStatus === '2' || $ticketStatus === '3') {
             $now = $this->now->toDateTimeString();
             $useValueAry = explode('~', $useValue);
 
