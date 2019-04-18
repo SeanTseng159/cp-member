@@ -41,15 +41,15 @@ class TraceRequest
         $responseTime = (microtime(true) - LARAVEL_START);
         Log::debug('time: ' . $responseTime);
 
-        if ($responseTime > 1) {
-            $obj = new \stdClass();
-            $obj->method = $request->method();
-            $obj->api = $request->path();
-            $obj->responseTime = round($responseTime*1000,0);
-
-            $this->notify(new ApiResponseNotify($obj));
-
-        }
+//        if ($responseTime > 1) {
+//            $obj = new \stdClass();
+//            $obj->method = $request->method();
+//            $obj->api = $request->path();
+//            $obj->responseTime = round($responseTime*1000,0);
+//
+//            $this->notify(new ApiResponseNotify($obj));
+//
+//        }
         return $response;
 
     }

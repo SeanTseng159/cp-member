@@ -241,8 +241,16 @@ class OrderDetailRepository extends BaseRepository
         if (!$parameter) return null;
 
         $query = $this->model->with(['combo' => function($query) use ($parameter) {
-                                if ($parameter->orderStatus === '1' || $parameter->orderStatus === '2')
-                                return $query->orderBy('verified_at', 'desc');
+                                if ($parameter->orderStatus === '4') {
+                                    $query->where('member_id', $parameter->memberId)->where('order_detail_member_id', '!=', $parameter->memberId);
+                                }
+                                else {
+                                    $query->where('order_detail_member_id', $parameter->memberId);
+                                }
+
+                                if ($parameter->orderStatus === '1' || $parameter->orderStatus === '2') {
+                                    $query->orderBy('verified_at', 'desc');
+                                }
                             }])
                             ->where('ticket_show_status', 1)
                             ->where('is_physical', 0)

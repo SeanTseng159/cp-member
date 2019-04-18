@@ -103,7 +103,6 @@ class Kernel extends ConsoleKernel
 
         //餐車會員發送生日禮
         $schedule->command(GiveBirthdayGift::class)->dailyAt('02:00');
-
     }
 
     /**

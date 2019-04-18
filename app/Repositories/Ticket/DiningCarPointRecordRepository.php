@@ -100,8 +100,6 @@ class DiningCarPointRecordRepository extends BaseRepository
             DB::connection('backend')->rollBack();
             return false;
         }
-
-
     }
 
     /** 取得點數兌換的紀錄
