@@ -9,7 +9,6 @@ namespace App\Models\Ticket;
 
 
 use App\Enum\ClientType;
-use App\Enum\DiningCarPointRecordType;
 use App\Models\Gift;
 
 
