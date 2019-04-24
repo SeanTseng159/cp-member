@@ -40,9 +40,9 @@ class ActivityResult extends BaseResult
             $result = new \stdClass;
             $result->id = $activity->id;
             $result->name = $activity->name;
-            $result->duration = Carbon::parse($activity->start_activity_time)->format('Y-m-d H:i') .
+            $result->duration = Carbon::parse($activity->start_activity_time)->format('Y-m-d') .
                 "~" .
-                Carbon::parse($activity->end_activity_time)->format('Y-m-d H:i');
+                Carbon::parse($activity->end_activity_time)->format('Y-m-d');
 
             //圖片
             $result->photo = AVRImageHelper::getImageUrl(AVRClientType::activity, $activity->id);
