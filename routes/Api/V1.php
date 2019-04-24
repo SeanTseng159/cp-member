@@ -175,7 +175,6 @@ Route::middleware('cors')->namespace('V1')->group(function () {
         Route::get('{modelType}/{modelSpecId}/list', 'GiftController@list');
     });
 
-
 });
 
 // 需 token 認證的 route
@@ -299,8 +298,12 @@ Route::middleware(['cors', 'auth.jwt'])->namespace('V1')->group(function () {
 
         //兌換點數
         Route::post('gift/{giftId}', 'DiningCarPointController@exchange');
+    });
 
-
-
+    //avr相關
+    Route::prefix('avr')->namespace('AVR')->group(function () {
+        Route::prefix('activity')->group(function () {
+            Route::get('list', 'ActivityController@list');
+        });
     });
 });

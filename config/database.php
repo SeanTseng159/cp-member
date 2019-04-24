@@ -68,6 +68,19 @@ return [
             'strict' => true,
             'engine' => 'InnoDB',
         ],
+        'avr' => [
+            'driver' => 'mysql',
+            'host' => env('AVR_DB_HOST', '127.0.0.1'),
+            'port' => env('AVR_DB_PORT', '3306'),
+            'database' => env('AVR_DB_DATABASE', 'forge'),
+            'username' => env('AVR_DB_USERNAME', 'forge'),
+            'password' => env('AVR_DB_PASSWORD', ''),
+            'charset' => 'utf8mb4',
+            'collation' => 'utf8mb4_unicode_ci',
+            'prefix' => '',
+            'strict' => true,
+            'engine' => 'InnoDB',
+        ],
 
         'pgsql' => [
             'driver' => 'pgsql',

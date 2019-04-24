@@ -5,27 +5,23 @@
  * Time: 上午 9:42
  */
 
-namespace App\Helpers;
+namespace App\AVR\Helpers;
 
 use Agent;
+use App\Helpers\BaseImageHelper;
+use App\Models\AVR\Image;
+use App\Repositories\AVR\ImageRepository;
+use App\Services\AVR\ImageService;
 
 
-use App\Models\Image;
-use App\Repositories\ImageRepository;
-use App\Services\ImageService;
-
-
-Class ImageHelper extends BaseImageHelper
+Class AVRImageHelper extends BaseImageHelper
 {
-
     protected static function getInstance()
     {
         if (is_null(static::$imageService)) {
             static::$imageService = new ImageService(new ImageRepository(new Image));
         }
         return static::$imageService;
-
     }
-
 
 }
