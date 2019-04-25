@@ -304,6 +304,7 @@ Route::middleware(['cors', 'auth.jwt'])->namespace('V1')->group(function () {
     Route::prefix('avr')->namespace('AVR')->group(function () {
         Route::prefix('activity')->group(function () {
             Route::get('list', 'ActivityController@list');
+            Route::get('/{activityId}', 'ActivityController@detail');
         });
     });
 });

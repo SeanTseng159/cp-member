@@ -52,59 +52,50 @@ class ActivityResult extends BaseResult
         return $resultAry;
     }
 
-//    /**
-//     * 優惠卷資訊
-//     *
-//     * @param      $coupon
-//     * @param      $memberCoupon
-//     *
-//     * @param      $images
-//     *
-//     * @return \stdClass|null
-//     */
-//    public function detail($coupon, $memberCoupon, $images)
-//    {
-//
-//        if (!$coupon) return null;
-//
-//        $result = new \stdClass;
-//        $result->title = $coupon->couponTitle;
-//        $result->content = $coupon->couponContent;
-//        $result->duration = $coupon->duration;
-//        $result->desc = $coupon->couponDesc;
-//        $result->favorite = false;
-//        $result->status = 0; //0:未使用 1:已使用 2:優惠券已兌換完畢 3.優惠券已失效(過期)
-//        $result->shareUrl = CommonHelper::getWebHost('zh-TW/diningCar/detail/' . $coupon->couponId);
-//        $result->photo = $images;
-//
-//        $startAt = Carbon::createFromFormat('Y-m-d i:s:u', $coupon->couponStartAt);
-//        $expiredAt = Carbon::createFromFormat('Y-m-d i:s:u', $coupon->couponExpireAt);
-//
-//        //優惠卷狀態
-//        if (!Carbon::now()->between($startAt, $expiredAt))
-//            $result->status = 3; //已失效
-//
-//
-//        $couponLimit = $coupon->couponLimitQty;
-//        $couponQty = $coupon->CouponQty;
-//
-//        if ($memberCoupon) {
-//            if ($couponQty <= 0) {
-//                $result->status = 2; // 所有已兌換完畢
-//            }
-//
-//            if ($memberCoupon->count >= $couponLimit) {
-//                $result->status = 1; // 已使用完個人限制
-//            }
-//
-//
-//            if ($memberCoupon->is_collected) {
-//                $result->favorite = true;
-//            }
-//        }
-//
-//        return $result;
-//    }
+
+    public function detail($activity)
+    {
+//        dd($activity);
+
+        //活動相關
+        $result = new \stdClass;
+        $result->id = $activity->id;
+        $result->name = $activity->name;
+        $result->duration = Carbon::parse($activity->start_activity_time)->format('Y-m-d') .
+            "~" .
+            Carbon::parse($activity->end_activity_time)->format('Y-m-d');
+
+        //圖片
+        $result->photo = AVRImageHelper::getImageUrl(AVRClientType::activity, $activity->id);
+
+        $result->description = $activity->introduction;
+
+
+
+        //mission 相關
+        $result->mission = [];
+        $missions = $activity->missions;
+        $finishNum = 0;
+
+        foreach ($missions as $mission) {
+            $ret = new \stdClass();
+            $ret->id = $mission->id;
+            $ret->name = $mission->name;
+            $user = $mission->members->first();
+            $ret->status = (bool)$user->isComplete;
+            $result->mission[] = $ret;
+
+            if ($ret->status)
+                $finishNum++;
+        }
+
+        $result->allNum = count($activity->missions);
+        $result->finishNum = $finishNum;
+
+
+        return $result;
+
+    }
 
 
 }

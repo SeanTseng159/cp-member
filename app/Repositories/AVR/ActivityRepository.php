@@ -25,12 +25,24 @@ class ActivityRepository extends BaseRepository
 
     public function list()
     {
-
-
         $launchData = $this->model->launched()->orderBy('sort')->get();
         return $launchData;
-
     }
 
+
+    public function detail($id, $memberID)
+    {
+        $data = $this->model->with('missions')
+            ->whereHas('missions.members', function($query) use ($memberID) {
+                    $query->where('member_id', $memberID);
+            })
+            ->with('missions.members')
+            ->where('id',$id)
+            ->first();
+
+
+        return $data;
+
+    }
 
 }
