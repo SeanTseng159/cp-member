@@ -55,7 +55,7 @@ class ActivityResult extends BaseResult
 
     public function detail($activity)
     {
-//        dd($activity);
+
 
         //活動相關
         $result = new \stdClass;
@@ -81,6 +81,8 @@ class ActivityResult extends BaseResult
             $ret = new \stdClass();
             $ret->id = $mission->id;
             $ret->name = $mission->name;
+            $ret->longitude = $mission->longitude;
+            $ret->latitude = $mission->latitude;
             $user = $mission->members->first();
             $ret->status = (bool)$user->isComplete;
             $result->mission[] = $ret;

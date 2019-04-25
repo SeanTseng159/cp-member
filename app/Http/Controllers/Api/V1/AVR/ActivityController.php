@@ -45,10 +45,11 @@ class ActivityController extends RestLaravelController
             }
 
             $data = $this->service->detail($activityId, $memberID);
+            if(!$data)
+                return $this->success();
             $data = (new ActivityResult)->detail($data);
             return $this->success($data);
         } catch (\Exception $e) {
-            dd($e);
             return $this->failureCode('E0001');
         }
     }
