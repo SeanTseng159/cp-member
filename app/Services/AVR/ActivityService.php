@@ -35,6 +35,11 @@ class ActivityService extends BaseService
         return $this->repository->list();
     }
 
+    public function detail($id,$memberID)
+    {
+        return $this->repository->detail($id,$memberID);
+    }
+
 
 
 }

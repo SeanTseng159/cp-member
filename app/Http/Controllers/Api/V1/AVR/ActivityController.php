@@ -33,7 +33,25 @@ class ActivityController extends RestLaravelController
         }
     }
 
-    
+    public function detail(Request $request, $activityId)
+    {
+
+        try {
+
+            $memberID = $request->memberId;
+
+            if (!$activityId) {
+                throw new \Exception('E0001');
+            }
+
+            $data = $this->service->detail($activityId, $memberID);
+            $data = (new ActivityResult)->detail($data);
+            return $this->success($data);
+        } catch (\Exception $e) {
+            dd($e);
+            return $this->failureCode('E0001');
+        }
+    }
 
 
 }
