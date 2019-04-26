@@ -19,8 +19,8 @@ class Activity extends AVRBaseModel
     {
         $now = Carbon::now();
         return $query
-            ->where('onShelfTime', '<=', $now)
-            ->where('offShelfTime', '>', $now)
+            ->where('on_shelf_time', '<=', $now)
+            ->where('off_shelf_time', '>', $now)
             ->where('status', 1);
     }
 
