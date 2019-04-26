@@ -5,30 +5,24 @@
  * Time: 上午 10:03
  */
 
-namespace App\Repositories\Ticket;
+namespace App\Repositories\AVR;
 
 
-use App\Models\AVR\Activity;
+
+use App\Models\AVR\Mission;
 use App\Repositories\BaseRepository;
 
 
-class ActivityRepository extends BaseRepository
+class MissionRepository extends BaseRepository
 {
     private $limit = 20;
     protected $model;
 
-    public function __construct(Activity $model)
+    public function __construct(Mission $model)
     {
 
         $this->model = $model;
     }
-
-    public function list()
-    {
-        $launchData = $this->model->launched()->orderBy('sort')->get();
-        return $launchData;
-    }
-
 
     public function detail($id)
     {
