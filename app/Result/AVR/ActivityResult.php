@@ -52,12 +52,8 @@ class ActivityResult extends BaseResult
         return $resultAry;
     }
 
-
-    public function detail($activity)
+    public function activityDetail($activity)
     {
-
-
-        //活動相關
         $result = new \stdClass;
         $result->id = $activity->id;
         $result->name = $activity->name;
@@ -70,9 +66,14 @@ class ActivityResult extends BaseResult
 
         $result->description = $activity->introduction;
 
+        return $result;
 
+    }
 
-        //mission 相關
+    public function missionList($activity,$memberID)
+    {
+        $result = new \stdClass;
+
         $result->mission = [];
         $missions = $activity->missions;
         $finishNum = 0;
@@ -83,7 +84,7 @@ class ActivityResult extends BaseResult
             $ret->name = $mission->name;
             $ret->longitude = $mission->longitude;
             $ret->latitude = $mission->latitude;
-            $user = $mission->members->first();
+            $user = $mission->members->where('member_id',$memberID)->first();
             $ret->status = (bool)$user->isComplete;
             $result->mission[] = $ret;
 
@@ -94,6 +95,26 @@ class ActivityResult extends BaseResult
         $result->allNum = count($activity->missions);
         $result->finishNum = $finishNum;
 
+        return $result;
+
+    }
+
+    public function missionDetail($mission,$memberID)
+    {
+        $result = new \stdClass;
+
+        $ret = new \stdClass();
+        $ret->id = $mission->id;
+        $ret->name = $mission->name;
+        $ret->description = $mission->introduction;
+        $ret->place = $mission->place_name;
+        $ret->longitude = $mission->longitude;
+        $ret->latitude = $mission->latitude;
+        $ret->photo = AVRImageHelper::getImageUrl(AVRClientType::mission, $mission->id);
+
+        $user = $mission->members->where('member_id',$memberID)->first();
+        $ret->status = (bool)$user->isComplete;
+        $result->mission[] = $ret;
 
         return $result;
 
