@@ -4,7 +4,6 @@
 namespace App\Http\Controllers\Api\V1\AVR;
 
 
-
 use App\Result\AVR\ActivityResult;
 use App\Services\AVR\ActivityService;
 use App\Services\AVR\MissionService;
@@ -17,7 +16,7 @@ class ActivityController extends RestLaravelController
     protected $activityService;
     protected $missionService;
 
-    public function __construct(ActivityService $service,MissionService $missionService)
+    public function __construct(ActivityService $service, MissionService $missionService)
     {
         $this->activityService = $service;
         $this->missionService = $missionService;
@@ -49,7 +48,7 @@ class ActivityController extends RestLaravelController
             }
 
             $data = $this->activityService->detail($activityId);
-            if(!$data)
+            if (!$data)
                 return $this->success();
             $data = (new ActivityResult)->activityDetail($data);
             return $this->success($data);
@@ -67,14 +66,14 @@ class ActivityController extends RestLaravelController
             if (!$activityId) {
                 throw new \Exception('E0001');
             }
-
+            $memberID = $request->memberId;
             $data = $this->activityService->detail($activityId);
-            if(!$data)
+            if (!$data)
                 return $this->success();
-            $data = (new ActivityResult)->missionList($data);
+            $data = (new ActivityResult)->missionList($data, $memberID);
             return $this->success($data);
         } catch (\Exception $e) {
-            dd($e);
+            \Log::error($e);
             return $this->failureCode('E0001');
         }
     }
@@ -85,10 +84,12 @@ class ActivityController extends RestLaravelController
         try {
             $memberID = $request->memberId;
             $data = $this->missionService->detail($missionId);
+            $data = (new ActivityResult)->missionDetail($data, $memberID);
             return $this->success($data);
 
-
         } catch (\Exception $e) {
+            \Log::error($e);
+            return $this->failureCode('E0001');
         }
     }
 
