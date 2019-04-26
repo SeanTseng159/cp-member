@@ -169,6 +169,8 @@ class DiningCarPointRecordRepository extends BaseRepository
             $consumeRecordData['member_id'] = $member->member_id;
             $consumeRecordData['dining_car_id'] = $member->dining_car_id;
             $consumeRecordData['amount'] = $consumeAmount;
+            $consumeRecordData['created_at'] = Carbon::now();
+            $consumeRecordData['updated_at'] = Carbon::now();
             DiningCarConsumeRecord::insert($consumeRecordData);
 
             // 累積消費金額
