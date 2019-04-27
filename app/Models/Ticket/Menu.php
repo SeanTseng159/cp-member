@@ -8,9 +8,14 @@
 namespace App\Models\Ticket;
 
 use App\Models\Ticket\BaseModel;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Menu extends BaseModel
 {
+    use SoftDeletes;
+
+    protected $dates = ['deleted_at'];
+
     /**
      * 取得所有分類
      */
@@ -41,5 +46,13 @@ class Menu extends BaseModel
     public function prodSpecPrice()
     {
         return $this->hasOne('App\Models\Ticket\ProductSpecPrice', 'prod_spec_price_id', 'prod_spec_price_id')->notDeleted();
+    }
+
+    /**
+     * 取得已付款餐車
+     */
+    public function diningCar()
+    {
+        return $this->belongsTo('App\Models\Ticket\DiningCar');
     }
 }
