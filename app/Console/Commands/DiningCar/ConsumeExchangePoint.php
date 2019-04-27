@@ -51,7 +51,7 @@ class ConsumeExchangePoint extends Command
 
         $count = 0;
         foreach ($orders as $order) {
-            $member = $memberService->easyFind($order->member_id, $order->dining_car_id);
+            $member = $memberService->easyFind($order->member_id, $order->menu->dining_car_id);
             if ($member) {
                 $key = 'order' . $order->order_id;
                 dispatch(new ConsumeAmountExchangePoint($member, $order->total_amount, $key));

@@ -10,15 +10,18 @@ namespace App\Services\Ticket;
 use App\Services\BaseService;
 use App\Repositories\Ticket\OrderRepository;
 use App\Repositories\Ticket\OrderDetailRepository;
+use App\Repositories\Ticket\MenuRepository;
 
 class OrderService extends BaseService
 {
     protected $orderDetailRepository;
+    protected $menuRepository;
 
-    public function __construct(OrderRepository $repository, OrderDetailRepository $orderDetailRepository)
+    public function __construct(OrderRepository $repository, OrderDetailRepository $orderDetailRepository, MenuRepository $menuRepository)
     {
         $this->repository = $repository;
         $this->orderDetailRepository = $orderDetailRepository;
+        $this->menuRepository = $menuRepository;
     }
 
     /**
@@ -111,6 +114,21 @@ class OrderService extends BaseService
      */
     public function getOneHourAgoPaidDiningCarOrders()
     {
-        return $this->repository->getOneHourAgoPaidDiningCarOrders();
+        $orders = $this->repository->getOneHourAgoOrders();
+
+        foreach ($orders as $order) {
+            $hasMenuInDinginCar = $this->menuRepository->findByPaidDiningCar($order->prod_spec_price_id);
+        }
+
+        $orders = $orders->transform(function ($item) {
+            $item->menu = $this->menuRepository->findByPaidDiningCar($item->prod_spec_price_id);
+            return $item;
+        });
+
+        $diningCarOrders = $orders->filter(function ($item) {
+            return $item->menu;
+        });
+
+        return $diningCarOrders;
     }
 }
