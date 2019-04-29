@@ -409,7 +409,7 @@ class OrderRepository extends BaseRepository
      * 取前一小時有付款的餐車訂單
      * @return mixed
      */
-    public function getOneHourAgoOrders()
+    public function getOneHourAgoPaidDiningCarOrders()
     {
         $now = date('Y-m-d H:i:s');
         $startTime = date('Y-m-d H:45:00', strtotime('-1 hour'));
@@ -418,15 +418,19 @@ class OrderRepository extends BaseRepository
         return $this->model->select([
                             'orders.order_id',
                             'orders.member_id',
-                            'order_details.prod_spec_price_id',
+                            'menus.dining_car_id',
                             DB::raw('SUM(order_details.price_off) as total_amount')
                         ])
                         ->rightJoin('order_details', 'orders.order_no', '=', 'order_details.order_no')
+                        ->rightJoin('menus', 'order_details.prod_spec_price_id', '=', 'menus.prod_spec_price_id')
+                        ->rightJoin('dining_cars', 'menus.dining_car_id', '=', 'dining_cars.id')
                         ->where('orders.order_status', 10)
                         ->where('orders.order_paid_at', '>=', $startTime)
                         ->where('orders.order_paid_at', '<', $endTime)
                         ->whereIn('order_details.prod_type', [1, 2])
-                        ->groupBy('orders.order_id', 'order_details.prod_spec_price_id')
+                        ->where('dining_cars.level', '>', 0)
+                        ->where('dining_cars.expired_at', '>=', $now)
+                        ->groupBy('orders.order_id', 'dining_cars.id')
                         ->get();
     }
 }
