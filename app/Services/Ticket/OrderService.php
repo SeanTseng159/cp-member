@@ -114,21 +114,6 @@ class OrderService extends BaseService
      */
     public function getOneHourAgoPaidDiningCarOrders()
     {
-        $orders = $this->repository->getOneHourAgoOrders();
-
-        foreach ($orders as $order) {
-            $hasMenuInDinginCar = $this->menuRepository->findByPaidDiningCar($order->prod_spec_price_id);
-        }
-
-        $orders = $orders->transform(function ($item) {
-            $item->menu = $this->menuRepository->findByPaidDiningCar($item->prod_spec_price_id);
-            return $item;
-        });
-
-        $diningCarOrders = $orders->filter(function ($item) {
-            return $item->menu;
-        });
-
-        return $diningCarOrders;
+        return $this->repository->getOneHourAgoPaidDiningCarOrders();
     }
 }
