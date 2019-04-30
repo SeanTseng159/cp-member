@@ -44,7 +44,12 @@ class Activity extends AVRBaseModel
     public function missions()
     {
         return $this->hasManyThrough(Mission::class,
-            ActivityMission::class,'activity_id' , 'id', 'id', 'id');
+            ActivityMission::class, 'activity_id', 'id', 'id', 'id');
+    }
+
+    public function awards()
+    {
+        return $this->hasMany(ActivityAward::class);
     }
 
 

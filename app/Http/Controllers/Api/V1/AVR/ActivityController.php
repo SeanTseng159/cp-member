@@ -89,6 +89,7 @@ class ActivityController extends RestLaravelController
 
         } catch (\Exception $e) {
             \Log::error($e);
+            dd($e);
             return $this->failureCode('E0001');
         }
     }

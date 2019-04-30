@@ -70,7 +70,7 @@ class ActivityResult extends BaseResult
 
     }
 
-    public function missionList($activity,$memberID)
+    public function missionList($activity, $memberID)
     {
         $result = new \stdClass;
 
@@ -84,8 +84,9 @@ class ActivityResult extends BaseResult
             $ret->name = $mission->name;
             $ret->longitude = $mission->longitude;
             $ret->latitude = $mission->latitude;
-            $user = $mission->members->where('member_id',$memberID)->first();
+            $user = $mission->members->where('member_id', $memberID)->first();
             $ret->status = (bool)$user->isComplete;
+            $ret->photo = AVRImageHelper::getImageUrl(AVRClientType::mission, $mission->id);
             $result->mission[] = $ret;
 
             if ($ret->status)
@@ -99,9 +100,9 @@ class ActivityResult extends BaseResult
 
     }
 
-    public function missionDetail($mission,$memberID)
+    public function missionDetail($mission, $memberID)
     {
-        $result = new \stdClass;
+
 
         $ret = new \stdClass();
         $ret->id = $mission->id;
@@ -112,11 +113,40 @@ class ActivityResult extends BaseResult
         $ret->latitude = $mission->latitude;
         $ret->photo = AVRImageHelper::getImageUrl(AVRClientType::mission, $mission->id);
 
-        $user = $mission->members->where('member_id',$memberID)->first();
+        //使用者相關
+        $user = $mission->members->where('member_id', $memberID)->first();
         $ret->status = (bool)$user->isComplete;
-        $result->mission[] = $ret;
 
-        return $result;
+        //遊戲相關
+        $gameData = $mission->typeData;
+
+        if ($gameData) {
+            $game = new \stdClass();
+            $game->time = $gameData->game_length;
+            $game->pass = $gameData->passing_grade;
+            $game->type = $mission->type;
+
+            $gameContent = $gameData->contents;
+
+            if ($gameContent) {
+                $content = [];
+                foreach ($gameContent as $item) {
+                    $obj = new \stdClass();
+                    $obj->target = $item->usage_type;
+                    $obj->type = $item->content_type;
+                    $obj->detail = $item->content;
+                    $content[] = $obj;
+                }
+                $game->content = $content;
+
+            }
+            $ret->game = $game;
+        }
+
+
+
+
+        return $ret;
 
     }
 
