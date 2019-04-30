@@ -7,6 +7,7 @@
 
 namespace App\Result\Ticket;
 
+use App\Models\Ticket\DiningCarSocialUrl;
 use App\Result\BaseResult;
 use Carbon\Carbon;
 use App\Config\Ticket\DiningCarConfig;
@@ -117,7 +118,7 @@ class DiningCarResult extends BaseResult
         $result->distance = ($result->longitude && $result->latitude && $this->lat && $this->lng) ? $this->calcDistance($this->lat, $this->lng, $car->latitude, $car->longitude, 2, 2) . '公里' : '未知';
         $result->businessHoursDays = $this->getBusinessHoursDays($car->businessHoursDays);
         $result->businessHoursDates = $this->getBusinessHoursDates($car->businessHoursDates);
-        $result->socialUrls = $this->getSocialUrls($car->socialUrls);
+        $result->socialUrls = $this->getSocialUrls($car->socialUrls, $car->enable_level);
         $result->shareUrl = CommonHelper::getWebHost('zh-TW/diningCar/detail/' . $car->id);
         $result->videos = $this->getVideos($car->media);
         $result->level = $this->getLevel($car->level, $car->expired_at);
@@ -247,12 +248,13 @@ class DiningCarResult extends BaseResult
      * 取社群連結
      * @param $socialUrls
      */
-    private function getSocialUrls($socialUrls)
+    private function getSocialUrls($socialUrls, $car_level)
     {
         if ($socialUrls->isEmpty()) return [];
 
         $newSocialUrls = [];
         foreach ($socialUrls as $social) {
+            if ($car_level == 0 && in_array($social->source, DiningCarSocialUrl::PAID_SOURCES)) continue;
             $newSocialUrls[] = $this->getSocialUrl($social);
         }
 
