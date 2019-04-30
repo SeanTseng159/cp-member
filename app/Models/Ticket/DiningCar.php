@@ -158,4 +158,14 @@ class DiningCar extends BaseModel
         return $this->hasMany(DiningCarMember::class);
     }
 
+    public function getEnableLevelAttribute()
+    {
+        $is_expired = $this->expired_at ?
+            (strtotime($this->expired_at) < time()) : false;
+
+        $level = $is_expired ? 0 : $this->level;
+
+        return $level;
+    }
+
 }
