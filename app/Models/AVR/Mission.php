@@ -10,4 +10,12 @@ class Mission extends AVRBaseModel
     {
         return $this->hasMany(MemberMission::class);
     }
+    public function typeData()
+    {
+        return $this->hasOne(MissionType::class);
+    }
+    public function awards()
+    {
+        return $this->hasMany(MissionAward::class);
+    }
 }
