@@ -64,18 +64,19 @@ class ServiceController extends RestLaravelController
         try {
             $params = $request->only([
                     'company',
-                    'contact_window',
+                    'contactWindow',
                     'phone',
                     'email',
-                    'message'
+                    'message',
+                    'taxID',
+                    'lineID'
                 ]);
 
             dispatch(new PartnerJoin($params))->delay(5);
 
             return $this->success();
         } catch (Exception $e) {
-            var_dump($e->getMessage());
-            // return $this->failureCode('E0001');
+            return $this->failureCode('E9300');
         }
     }
 }

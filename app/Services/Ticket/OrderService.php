@@ -10,15 +10,18 @@ namespace App\Services\Ticket;
 use App\Services\BaseService;
 use App\Repositories\Ticket\OrderRepository;
 use App\Repositories\Ticket\OrderDetailRepository;
+use App\Repositories\Ticket\MenuRepository;
 
 class OrderService extends BaseService
 {
     protected $orderDetailRepository;
+    protected $menuRepository;
 
-    public function __construct(OrderRepository $repository, OrderDetailRepository $orderDetailRepository)
+    public function __construct(OrderRepository $repository, OrderDetailRepository $orderDetailRepository, MenuRepository $menuRepository)
     {
         $this->repository = $repository;
         $this->orderDetailRepository = $orderDetailRepository;
+        $this->menuRepository = $menuRepository;
     }
 
     /**

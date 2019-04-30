@@ -54,4 +54,20 @@ class MenuRepository extends BaseRepository
                             ->where('name', 'like', '%' . $keyword . '%')
                             ->get();
     }
+
+    /**
+     * 取關鍵字找菜單
+     * @param  $keyword
+     * @return mixed
+     */
+    public function findByPaidDiningCar($prodSpecPriceId = 0)
+    {
+        return $this->model->with('diningCar')
+                            ->whereHas('diningCar', function($query) {
+                                $query->where('level', '>', 0)
+                                    ->where('expired_at', '>=', date('Y-m-d H:i:s'));
+                            })
+                            ->where('prod_spec_price_id', $prodSpecPriceId)
+                            ->first();
+    }
 }

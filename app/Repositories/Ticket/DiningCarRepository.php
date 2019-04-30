@@ -107,6 +107,7 @@ class DiningCarRepository extends BaseRepository
     {
         return $this->model->select('id')
                            ->where('level', '>', '0')              // 短網址為付費功能
+                           ->where('expired_at', '>=', Carbon::now())
                            ->where('shorter_url_id', $shorterUrlId)
                            ->whereNotNull('shorter_url_id')
                            ->first();
