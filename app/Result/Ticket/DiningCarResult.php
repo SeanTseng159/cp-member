@@ -357,7 +357,7 @@ class DiningCarResult extends BaseResult
         $member = ($memberCard->level > -1 || $level > 0) ? true : false;
         $newsfeed = ($level >= 0) ? true : false;
         $menu = ($level >= 0) ? true : false;
-        $coupon = ($member || $level > 0) ? true : false;
+        $coupon = ($level >= 0) ? true : false;
         $gift = ($member || $level > 0) ? true : false;
 
         return [
