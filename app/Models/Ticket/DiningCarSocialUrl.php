@@ -11,5 +11,7 @@ use App\Models\Ticket\BaseModel;
 
 class DiningCarSocialUrl extends BaseModel
 {
+    const SOURCES = ['mobile','line','facebook','instagram'];
 
+    const PAID_SOURCES = ['line','facebook','instagram'];
 }
