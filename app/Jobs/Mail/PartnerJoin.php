@@ -39,7 +39,7 @@ class PartnerJoin implements ShouldQueue
     public function handle()
     {
         $params = $this->params;
-        $msg = sprintf("申請成為合作廠商\n公司全名: %s\n聯絡人: %s\n聯絡電話: %s\nE-mail: %s\n商品簡述: %s\n統一編號: %s\nLINE ID: %s", $params['company'], $params['contact_window'], $params['phone'], $params['email'], $params['message'], $params['taxID'], $params['lineID']);
+        $msg = sprintf("申請成為合作廠商\n公司全名: %s\n聯絡人: %s\n聯絡電話: %s\nE-mail: %s\n商品簡述: %s\n統一編號: %s\nLINE ID: %s", $params['company'], $params['contactWindow'], $params['phone'], $params['email'], $params['message'], $params['taxID'], $params['lineID']);
         LineNotify::sendMessage(env('CUSTOMER_SERVICE_LINE_CHANNEL'), $msg);
     }
 }

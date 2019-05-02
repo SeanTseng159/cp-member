@@ -29,7 +29,7 @@ class PartnerJoin
     {
         $data = $request->only([
                     'company',
-                    'contact_window',
+                    'contactWindow',
                     'phone',
                     'email',
                     'message'
@@ -37,7 +37,7 @@ class PartnerJoin
 
         $validator = Validator::make($data, [
             'company' => 'required',
-            'contact_window' => 'required',
+            'contactWindow' => 'required',
             'phone' => 'required',
             'email' => 'required|email',
             'message' => 'required|max:255'
