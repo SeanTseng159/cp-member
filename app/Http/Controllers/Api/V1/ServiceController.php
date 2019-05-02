@@ -62,21 +62,20 @@ class ServiceController extends RestLaravelController
     public function partnerJoin(Request $request)
     {
         try {
-            $params = $request->only([
-                    'company',
-                    'contactWindow',
-                    'phone',
-                    'email',
-                    'message',
-                    'taxID',
-                    'lineID'
-                ]);
+            $params['company'] = $request->input('company');
+            $params['contactWindow'] = $request->input('contactWindow');
+            $params['phone'] = $request->input('phone');
+            $params['email'] = $request->input('email');
+            $params['message'] = $request->input('message');
+            $params['taxID'] = $request->input('taxID', '');
+            $params['lineID'] = $request->input('lineID', '');
 
             dispatch(new PartnerJoin($params))->delay(5);
 
             return $this->success();
         } catch (Exception $e) {
-            return $this->failureCode('E9300');
+            var_dump($e->getMessage());
+            // return $this->failureCode('E9300');
         }
     }
 }
