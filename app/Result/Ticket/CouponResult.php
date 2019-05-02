@@ -73,13 +73,8 @@ class CouponResult extends BaseResult
 
                 }
             }
-            //付費顯示全部的資訊，否則只顯示個人有加入書籤的資訊
-            if ($isPaid) {
-                $resultAry[] = $result;
-            } else {
-                if ($memberCoupon && $memberCoupon->is_collected)
-                    $resultAry[] = $result;
-            }
+            $resultAry[] = $result;
+
         }
         return $resultAry;
     }
