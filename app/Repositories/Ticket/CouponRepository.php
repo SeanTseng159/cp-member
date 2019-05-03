@@ -9,7 +9,7 @@ namespace App\Repositories\Ticket;
 
 use App\Models\Coupon;
 use App\Repositories\BaseRepository;
-use Illuminate\Support\Carbon;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
 class CouponRepository extends BaseRepository

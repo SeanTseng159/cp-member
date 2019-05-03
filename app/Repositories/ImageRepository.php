@@ -8,9 +8,7 @@
 namespace App\Repositories;
 
 use App\Models\Image;
-use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\DB;
-use App\Repositories\BaseRepository;
+
 
 class ImageRepository extends BaseRepository
 {
