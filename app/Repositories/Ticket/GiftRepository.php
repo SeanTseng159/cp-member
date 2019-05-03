@@ -106,6 +106,7 @@ class GiftRepository extends BaseRepository
 
     /**
      * 取得發送生日禮的會員資料
+     * @param $dateDiff
      * @return mixed
      */
     public function getBirthdayDingingMembers($dateDiff)
@@ -118,7 +119,7 @@ class GiftRepository extends BaseRepository
                     'diningCar',
                     'diningCar.members',
                     'diningCar.members.member' => function ($q) use ($dateDiff) {
-                        $q->whereRaw("DATE_FORMAT(birthday,'%m-%d') BETWEEN DATE_FORMAT(DATE_SUB(NOW(), INTERVAL $dateDiff DAY),'%m-%d') AND DATE_FORMAT(NOW(), '%m-%d')");
+                        $q->whereRaw("DATE_FORMAT(birthday,'%m-%d') BETWEEN DATE_FORMAT(NOW(), '%m-%d') AND DATE_FORMAT(DATE_ADD(NOW(), INTERVAL $dateDiff DAY),'%m-%d')");
 
                     }
                 ]
