@@ -72,13 +72,17 @@ class ActivityResult extends BaseResult
 
     public function missionList($activity, $memberID)
     {
+
         $result = new \stdClass;
 
         $result->mission = [];
-        $missions = $activity->missions;
+        $activityMissions = $activity->activityMissions;
+
         $finishNum = 0;
 
-        foreach ($missions as $mission) {
+        foreach ($activityMissions as $activityMission) {
+
+            $mission = $activityMission->mission;
             $ret = new \stdClass();
             $ret->id = $mission->id;
             $ret->name = $mission->name;
