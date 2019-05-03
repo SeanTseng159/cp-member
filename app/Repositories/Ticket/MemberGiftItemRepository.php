@@ -233,12 +233,17 @@ class MemberGiftItemRepository extends BaseRepository
 
     public function canGetBirthday($memberId, $gift_id)
     {
+
         try {
             $result = $this->memberGiftItem
                 ->where('member_id', $memberId)
                 ->where('gift_id', $gift_id)
                 ->orderBy('created_at', 'desc')
                 ->first(['created_at']);
+
+            if(!$result)
+                return true;
+
             $diffMonth = Carbon::now()->diffInMonths($result->created_at);
             if ($diffMonth > 12)
                 return true;
