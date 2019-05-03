@@ -32,8 +32,13 @@ class ActivityRepository extends BaseRepository
 
     public function detail($id)
     {
-        $data = $this->model->find($id);
-
+        $data = $this->model
+            ->with([
+                'activityMissions',
+                'activityMissions.mission'
+            ])
+            ->where('id', $id)
+            ->first();
         return $data;
 
     }
