@@ -16,7 +16,7 @@ class GiveBirthdayGift extends Command
      *
      * @var string
      */
-    protected $signature = 'command:birthday_gift';
+    protected $signature = 'run:birthday_gift';
 
     /**
      * The console command description.
@@ -27,6 +27,7 @@ class GiveBirthdayGift extends Command
 
     protected $giftService;
     protected $memberGiftItemService;
+    protected $duration = 30;//(day)
 
     /**
      * Create a new command instance.
@@ -53,19 +54,23 @@ class GiveBirthdayGift extends Command
             $memberGiftItemInsert = [];
             $giftUpdate = [];
 
+            Logger::info('give birthday gift -- start', null);
             //取得有設定生日禮物的餐車
-            $gifts = $this->giftService->getDingingCarHasBirthDayGift();
+            $gifts = $this->giftService->getDingingCarHasBirthDayGift($this->duration);
+
             if (!$gifts) {
-                Logger::info('give birthday gift finish -- no member');
+                Logger::info('give birthday gift finish -- no member', null);
                 return true;
             }
 
-
             foreach ($gifts as $gift) {
-                $giftQty = $gift->qty;
-                $dingingCar = $gift->diningCar;
 
-                if (!$dingingCar) continue;
+                $oriGiftQty = $gift->qty;
+                $giftQty = $oriGiftQty;
+                $dingingCar = $gift->diningCar;
+                if (!$dingingCar) {
+                    continue;
+                }
 
                 //餐車的會員
                 $dingingCarMembers = $dingingCar->members;
@@ -93,24 +98,26 @@ class GiveBirthdayGift extends Command
                             'created_at' => Carbon::now()
                         ];
                         $giftQty--;
-
                     }
 
                 }
 
                 //更新庫存量
-                $giftObj = new stdClass();
-                $giftObj->gift_id = $gift->id;
-                $giftObj->qty = $giftQty;
-                $giftUpdate[] = $giftObj;
+                if ($oriGiftQty != $giftQty) {
+                    $giftObj = new stdClass();
+                    $giftObj->gift_id = $gift->id;
+                    $giftObj->qty = $giftQty;
+                    $giftUpdate[] = $giftObj;
+
+                }
+
             }
-
             $this->giftService->deliveryGifts($giftUpdate, $memberGiftItemInsert);
-
+            Logger::info('give birthday gift -- finish', null);
             return true;
 
         } catch (\Exception $e) {
-            Logger::Error("give birthday gift : {$e->getMessage()}");
+            Logger::Error("give birthday gift error : ", $e);
             return true;
         }
     }
