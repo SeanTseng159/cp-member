@@ -89,7 +89,10 @@ class ActivityResult extends BaseResult
             $ret->longitude = $mission->longitude;
             $ret->latitude = $mission->latitude;
             $user = $mission->members->where('member_id', $memberID)->first();
-            $ret->status = (bool)$user->isComplete;
+            if (!$user) {
+                $ret->status = false;
+            } else
+                $ret->status = (bool)$user->isComplete;
             $ret->photo = AVRImageHelper::getImageUrl(AVRClientType::mission, $mission->id);
             $result->mission[] = $ret;
 
@@ -119,7 +122,10 @@ class ActivityResult extends BaseResult
 
         //使用者相關
         $user = $mission->members->where('member_id', $memberID)->first();
-        $ret->status = (bool)$user->isComplete;
+        if (!$user)
+            $ret->status = false;
+        else
+            $ret->status = (bool)$user->isComplete;
 
         //遊戲相關
         $gameData = $mission->typeData;
@@ -146,8 +152,6 @@ class ActivityResult extends BaseResult
             }
             $ret->game = $game;
         }
-
-
 
 
         return $ret;

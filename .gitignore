@@ -17,3 +17,4 @@ dist/
 package-lock.json
 .editorconfig
 /.vscode
+/storage/debugbar

@@ -303,10 +303,26 @@ Route::middleware(['cors', 'auth.jwt'])->namespace('V1')->group(function () {
     //avr相關
     Route::prefix('avr')->namespace('AVR')->group(function () {
         Route::prefix('activity')->group(function () {
+            //活動列表
             Route::get('list', 'ActivityController@list');
+
+            //活動明細
             Route::get('/{activityId}', 'ActivityController@detail');
+
+            //活動完成的獎品 todo
+            Route::get('/{activityId}/awards', 'ActivityController@awards');
+
+            //任務列表
             Route::get('/{activityId}/missions', 'ActivityController@missionList');
+
+            //任務明細
             Route::get('/mission/{missionId}', 'ActivityController@missionDetail');
+
+            //任務結束
+            Route::post('/mission/{missionId}', 'ActivityController@end');
+
+            //任務完成取得獎品 todo
+            Route::get('/mission/{missionId}/awards', 'ActivityController@missionAwards');
         });
     });
 });

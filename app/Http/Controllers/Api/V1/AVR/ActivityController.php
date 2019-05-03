@@ -67,10 +67,17 @@ class ActivityController extends RestLaravelController
                 throw new \Exception('E0001');
             }
             $memberID = $request->memberId;
+
+            //檢查是否此user在DB內有資料
+
+
             $data = $this->activityService->detail($activityId);
             if (!$data)
                 return $this->success();
+
+
             $data = (new ActivityResult)->missionList($data, $memberID);
+
             return $this->success($data);
         } catch (\Exception $e) {
             \Log::error($e);
@@ -92,6 +99,28 @@ class ActivityController extends RestLaravelController
             dd($e);
             return $this->failureCode('E0001');
         }
+    }
+
+    public function end(Request $request, $missionId)
+    {
+        try {
+            $memberID = $request->memberId;
+            $point = $request->point;
+            if (!$point) {
+                throw  new \Exception('E0001');
+            }
+
+            $mission = $this->missionService->detail($missionId);
+            $ret = $this->missionService->end($mission->id, $memberID, $mission->typeData->passing_grade, $point);
+
+            return $this->success();
+
+        } catch (\Exception $e) {
+            dd($e);
+            \Log::error($e);
+            return $this->failureCode('E0001');
+        }
+
     }
 
 
