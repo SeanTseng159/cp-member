@@ -26,9 +26,10 @@ class DiningCarPointRule extends BaseModel
         $now = date('Y-m-d H:i:d');
 
         return $query->where('status', 1)
-            ->where(function($query) use ($now) {
-            	$query->where('start_time', '<=', $now)
-            		->where('end_time', '>=', $now);
-            });
+                    ->whereNull('deleted_at')
+                    ->where(function($query) use ($now) {
+                    	$query->where('start_time', '<=', $now)
+                    		->where('end_time', '>=', $now);
+                    });
     }
 }
