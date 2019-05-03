@@ -81,9 +81,9 @@ class GiftService extends BaseService
         return $this->repository->getWithDiningCar($giftId);
     }
 
-    public function getDingingCarHasBirthDayGift()
+    public function getDingingCarHasBirthDayGift($dateDiff)
     {
-        return $this->repository->getBirthdayDingingMembers();
+        return $this->repository->getBirthdayDingingMembers($dateDiff);
 
     }
 
