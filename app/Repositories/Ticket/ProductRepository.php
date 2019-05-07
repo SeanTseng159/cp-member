@@ -35,7 +35,7 @@ class ProductRepository extends BaseRepository
     {
         $this->date = Carbon::now()->toDateTimeString();
 
-        $this->model = $model;
+        $this->missionModel = $model;
         $this->productAdditionalRepository = $productAdditionalRepository;
         $this->productGroupRepository = $productGroupRepository;
         $this->tagProdRepository = $tagProdRepository;
@@ -50,7 +50,7 @@ class ProductRepository extends BaseRepository
      */
     public function find($id, $onShelf = false, $memberId = 0)
     {
-        $prod = $this->model->with(['imgs' => function($query) {
+        $prod = $this->missionModel->with(['imgs' => function($query) {
                                 return $query->orderBy('img_sort')->get();
                             }, 'specs.specPrices'])
                             ->notDeleted()
@@ -98,7 +98,7 @@ class ProductRepository extends BaseRepository
      */
     public function findPurchase($id, $onShelf = false)
     {
-        $prod = $this->model->when($onShelf, function($query){
+        $prod = $this->missionModel->when($onShelf, function($query){
                                 $query->where('prod_onshelf', 1);
                             })
                             ->notDeleted()
@@ -124,7 +124,7 @@ class ProductRepository extends BaseRepository
      */
     public function findComboItem($id, $onShelf = false)
     {
-        $prod = $this->model->with(['imgs' => function($query) {
+        $prod = $this->missionModel->with(['imgs' => function($query) {
                                 return $query->orderBy('img_sort')->get();
                             }])
                             ->notDeleted()
@@ -147,7 +147,7 @@ class ProductRepository extends BaseRepository
      */
     public function easyFind($id, $onShelf = false)
     {
-        $prod = $this->model->with(['specs.specPrices', 'imgs' => function($query) {
+        $prod = $this->missionModel->with(['specs.specPrices', 'imgs' => function($query) {
                                 return $query->orderBy('img_sort')->first();
                             }])
                             ->notDeleted()
@@ -171,7 +171,7 @@ class ProductRepository extends BaseRepository
      */
     public function findByCheckout($id, $specId, $specPriceId, $hasTag = false)
     {
-        $prod = $this->model->with(['shippingFees', 'img', 'groups'])
+        $prod = $this->missionModel->with(['shippingFees', 'img', 'groups'])
                             ->leftJoin('prod_specs', 'prods.prod_id', '=', 'prod_specs.prod_id')
                             ->leftJoin('prod_spec_prices', 'prod_specs.prod_spec_id', '=', 'prod_spec_prices.prod_spec_id')
                             ->where('prod_specs.prod_spec_id', $specId)
@@ -216,7 +216,7 @@ class ProductRepository extends BaseRepository
      */
     public function findAdditionalByCheckout($id, $specId, $specPriceId, $hasTag = false)
     {
-        $prod = $this->model->with(['shippingFees', 'img'])->leftJoin('prod_specs', 'prods.prod_id', '=', 'prod_specs.prod_id')
+        $prod = $this->missionModel->with(['shippingFees', 'img'])->leftJoin('prod_specs', 'prods.prod_id', '=', 'prod_specs.prod_id')
                             ->leftJoin('prod_spec_prices', 'prod_specs.prod_spec_id', '=', 'prod_spec_prices.prod_spec_id')
                             ->where('prod_specs.prod_spec_id', $specId)
                             ->where('prod_spec_prices.prod_spec_price_id', $specPriceId)
@@ -244,7 +244,7 @@ class ProductRepository extends BaseRepository
      */
     public function findSubCobmoByCheckout($id, $specId, $specPriceId, $hasTag = false)
     {
-        $prod = $this->model->leftJoin('prod_specs', 'prods.prod_id', '=', 'prod_specs.prod_id')
+        $prod = $this->missionModel->leftJoin('prod_specs', 'prods.prod_id', '=', 'prod_specs.prod_id')
                             ->leftJoin('prod_spec_prices', 'prod_specs.prod_spec_id', '=', 'prod_spec_prices.prod_spec_id')
                             ->where('prod_specs.prod_spec_id', $specId)
                             ->where('prod_spec_prices.prod_spec_price_id', $specPriceId)
@@ -266,7 +266,7 @@ class ProductRepository extends BaseRepository
      */
     public function mainProductFind($id, $onShelf = false, $onSearch = false)
     {
-        $prod = $this->model->with(['specs.specPrices', 'imgs' => function($query) {
+        $prod = $this->missionModel->with(['specs.specPrices', 'imgs' => function($query) {
                                 return $query->orderBy('img_sort')->first();
                             }])
                             ->notDeleted()
@@ -292,7 +292,7 @@ class ProductRepository extends BaseRepository
      */
     public function allById($idArray = [], $onShelf = false)
     {
-        $prods = $this->model->with(['specs.specPrices', 'img'])
+        $prods = $this->missionModel->with(['specs.specPrices', 'img'])
                             ->when($onShelf, function($query){
                                 $query->where('prod_onshelf', 1);
                             })
@@ -312,7 +312,7 @@ class ProductRepository extends BaseRepository
      */
     public function search($keyword)
     {
-        $data = $this->model->with(['specs.specPrices', 'imgs' => function($query) {
+        $data = $this->missionModel->with(['specs.specPrices', 'imgs' => function($query) {
                                 return $query->orderBy('img_sort')->first();
                             }])
                             ->notDeleted()
@@ -410,7 +410,7 @@ class ProductRepository extends BaseRepository
             return $page;
         });
 
-        $data = $this->model->with(['specs.specPrices', 'img'])
+        $data = $this->missionModel->with(['specs.specPrices', 'img'])
                     ->where('supplier_id', $supplierId)
                     ->notDeleted()
                     ->where('prod_onshelf', 1)

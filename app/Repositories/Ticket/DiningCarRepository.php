@@ -17,7 +17,7 @@ class DiningCarRepository extends BaseRepository
 
     public function __construct(DiningCar $model)
     {
-        $this->model = $model;
+        $this->missionModel = $model;
     }
 
     /**
@@ -33,7 +33,7 @@ class DiningCarRepository extends BaseRepository
         });
 
 
-        return $this->model->with(['category', 'subCategory', 'mainImg'])
+        return $this->missionModel->with(['category', 'subCategory', 'mainImg'])
                             ->where('status', 1)
                             ->when($params['keyword'], function($query) use ($params) {
                                 $query->where('name', 'like', '%' . $params['keyword'] . '%')
@@ -60,7 +60,7 @@ class DiningCarRepository extends BaseRepository
      */
     public function map($params = [])
     {
-        return $this->model->with(['category', 'subCategory', 'mainImg'])
+        return $this->missionModel->with(['category', 'subCategory', 'mainImg'])
                             ->where('status', 1)
                             ->when($params['keyword'], function($query) use ($params) {
                                 $query->where('name', 'like', '%' . $params['keyword'] . '%')
@@ -85,7 +85,7 @@ class DiningCarRepository extends BaseRepository
      */
     public function find($id = 0, $memberId = 0)
     {
-        return $this->model->with([
+        return $this->missionModel->with([
                                 'category',
                                 'subCategory',
                                 'mainImg',
@@ -105,7 +105,7 @@ class DiningCarRepository extends BaseRepository
 
     public function getDiningCarByShorterUrlId($shorterUrlId)
     {
-        return $this->model->select('id')
+        return $this->missionModel->select('id')
                            ->where('level', '>', '0')              // 短網址為付費功能
                            ->where('expired_at', '>=', Carbon::now())
                            ->where('shorter_url_id', $shorterUrlId)

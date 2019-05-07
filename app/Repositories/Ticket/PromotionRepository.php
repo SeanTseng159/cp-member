@@ -27,7 +27,7 @@ class PromotionRepository extends BaseRepository
                                 PPSPRepository $ppspRepository,
                                 TagProdRepository $tagProdRepository)
     {
-        $this->model = $model;
+        $this->missionModel = $model;
         $this->productRepository = $productRepository;
         $this->ppspRepository = $ppspRepository;
         $this->tagProdRepository = $tagProdRepository;
@@ -42,7 +42,7 @@ class PromotionRepository extends BaseRepository
      */
     public function find($id = 0)
     {
-        $promo = $this->model->with(['conditions', 'prodSpecPrices', 'shipping', 'banner'])
+        $promo = $this->missionModel->with(['conditions', 'prodSpecPrices', 'shipping', 'banner'])
                             ->where('status', 1)
                             ->where('onshelf_time', '<=', $this->now)
                             ->where('offshelf_time', '>=', $this->now)

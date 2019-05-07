@@ -319,10 +319,7 @@ Route::middleware(['cors', 'auth.jwt'])->namespace('V1')->group(function () {
             Route::get('/mission/{missionId}', 'ActivityController@missionDetail');
 
             //任務結束
-            Route::post('/mission/{missionId}', 'ActivityController@end');
-
-            //任務完成取得獎品 todo
-            Route::get('/mission/{missionId}/awards', 'ActivityController@missionAwards');
+            Route::post('/mission/{missionId}', 'ActivityController@missionEnd');
         });
     });
 });

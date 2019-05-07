@@ -20,7 +20,7 @@ class MenuProductRepository extends BaseRepository
 
     public function __construct(MenuProd $model, ProductRepository $productRepository, MagentoProductRepository $MagentoProductRepository)
     {
-        $this->model = $model;
+        $this->missionModel = $model;
         $this->productRepository = $productRepository;
         $this->MagentoProductRepository = $MagentoProductRepository;
     }
@@ -32,7 +32,7 @@ class MenuProductRepository extends BaseRepository
      */
     public function productsByTagUpperId($lang, $id)
     {
-        $data = $this->model->select('source', 'prod_id')
+        $data = $this->missionModel->select('source', 'prod_id')
                             ->notDeleted()
                             ->where('tag_upper_id', $id)
                             ->get()
@@ -86,7 +86,7 @@ class MenuProductRepository extends BaseRepository
      */
     public function productsByTagId($lang, $id)
     {
-        $data = $this->model->select('source', 'prod_id')
+        $data = $this->missionModel->select('source', 'prod_id')
                             ->notDeleted()
                             ->where('tag_id', $id)
                             ->get()
@@ -140,7 +140,7 @@ class MenuProductRepository extends BaseRepository
      */
     public function productCategories($id)
     {
-        return $this->model->with('upperTag')->notDeleted()->where('prod_id', $id)->get();
+        return $this->missionModel->with('upperTag')->notDeleted()->where('prod_id', $id)->get();
     }
 
     /**
@@ -150,7 +150,7 @@ class MenuProductRepository extends BaseRepository
      */
     public function productTags($id)
     {
-        return $this->model->with('tag')->notDeleted()->where('prod_id', $id)->get();
+        return $this->missionModel->with('tag')->notDeleted()->where('prod_id', $id)->get();
     }
 
     /**
@@ -160,7 +160,7 @@ class MenuProductRepository extends BaseRepository
      */
     public function tags($id)
     {
-        $menuProducts = $this->model->notDeleted()->where('prod_id', $id)->get();
+        $menuProducts = $this->missionModel->notDeleted()->where('prod_id', $id)->get();
 
         if ($menuProducts->isEmpty()) return [];
 

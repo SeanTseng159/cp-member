@@ -15,7 +15,7 @@ class ShippingFeeRepository extends BaseRepository
 
     public function __construct(ShippingFee $model)
     {
-        $this->model = $model;
+        $this->missionModel = $model;
     }
 
     /**
@@ -25,7 +25,7 @@ class ShippingFeeRepository extends BaseRepository
      */
     public function allByProductId($productId)
     {
-        return $this->model->where('prod_id', $productId)
+        return $this->missionModel->where('prod_id', $productId)
                             ->orderBy('lower', 'asc')
                             ->get();
     }

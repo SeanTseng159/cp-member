@@ -19,7 +19,7 @@ class CouponRepository extends BaseRepository
     
     public function __construct(Coupon $model)
     {
-        $this->model = $model;
+        $this->missionModel = $model;
     }
 
     /**
@@ -51,7 +51,7 @@ class CouponRepository extends BaseRepository
         
     
         //取得該餐車所有的優惠卷
-        $result = $this->model
+        $result = $this->missionModel
             ->join($clientItemTable, 'coupons.model_spec_id', '=', "{$clientItemTable}.id")
             ->leftjoin('member_coupon', 'coupons.id', '=', "member_coupon.coupon_id")
             ->select(
@@ -89,7 +89,7 @@ class CouponRepository extends BaseRepository
      */
     public function find($id)
     {
-        $result = $this->model
+        $result = $this->missionModel
             ->leftjoin('member_coupon', 'coupons.id', '=', "member_coupon.coupon_id")
             ->select(
                 DB::raw('coupons.id AS couponId'),

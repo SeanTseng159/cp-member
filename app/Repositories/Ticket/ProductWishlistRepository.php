@@ -14,7 +14,7 @@ class ProductWishlistRepository extends BaseRepository
 {
     public function __construct(ProductWishlist $model)
     {
-        $this->model = $model;
+        $this->missionModel = $model;
     }
 
     /**
@@ -24,7 +24,7 @@ class ProductWishlistRepository extends BaseRepository
      */
     public function allByMemberId($memberId = 0)
     {
-        return $this->model->with([
+        return $this->missionModel->with([
                                 'product.specs.specPrices',
                                 'product.img',
                                 'menuProds.upperTag'

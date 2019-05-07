@@ -15,7 +15,7 @@ class MenuCategoryRepository extends BaseRepository
 {
     public function __construct(MenuCategory $model)
     {
-        $this->model = $model;
+        $this->missionModel = $model;
     }
 
     /**
@@ -25,7 +25,7 @@ class MenuCategoryRepository extends BaseRepository
      */
     public function list($params = [])
     {
-        return $this->model->with(['menus.mainImg'])
+        return $this->missionModel->with(['menus.mainImg'])
                             ->where('dining_car_id', $params['diningCarId'])
                             ->orderBy('sort', 'asc')
                             ->get();

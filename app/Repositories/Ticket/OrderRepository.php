@@ -39,7 +39,7 @@ class OrderRepository extends BaseRepository
                                 OrderShipmentRepository $orderShipmentRepository)
     {
         $this->redis = new Redis;
-        $this->model = $model;
+        $this->missionModel = $model;
         $this->orderDetailRepository = $orderDetailRepository;
         $this->seqOrderRepository = $seqOrderRepository;
         $this->orderShipmentRepository = $orderShipmentRepository;
@@ -170,7 +170,7 @@ class OrderRepository extends BaseRepository
         if (!$data) return false;
 
         try {
-            return $this->model->where('order_no', $orderNo)
+            return $this->missionModel->where('order_no', $orderNo)
                                 ->update($data);
         } catch (QueryException $e) {
             return false;
@@ -254,7 +254,7 @@ class OrderRepository extends BaseRepository
         if (!$id) return false;
 
         try {
-            return $this->model->where('order_id', $id)
+            return $this->missionModel->where('order_id', $id)
                                 ->update([
                                     'order_recipient_status' => $status
                                 ]);
@@ -272,7 +272,7 @@ class OrderRepository extends BaseRepository
     {
         if (!$orderNo) return null;
 
-        return $this->model->with(['details.combo', 'shipment'])
+        return $this->missionModel->with(['details.combo', 'shipment'])
                             ->notDeleted()
                             ->where('order_no', $orderNo)
                             ->first();
@@ -288,7 +288,7 @@ class OrderRepository extends BaseRepository
     {
         if (!$orderNo) return null;
 
-        $order = $this->model->with(['details.combo', 'shipment'])
+        $order = $this->missionModel->with(['details.combo', 'shipment'])
                             ->notDeleted()
                             ->where('member_id', $memberId)
                             ->where('order_no', $orderNo)
@@ -307,7 +307,7 @@ class OrderRepository extends BaseRepository
     {
         if (!$orderNo) return null;
 
-        return $this->model->where('order_no', $orderNo)
+        return $this->missionModel->where('order_no', $orderNo)
                             ->where('order_status', 0)
                             ->first();
     }
@@ -319,7 +319,7 @@ class OrderRepository extends BaseRepository
      */
     public function getMemberOrdersByDate($params = [])
     {
-        $orders = $this->model->with(['details', 'shipment'])
+        $orders = $this->missionModel->with(['details', 'shipment'])
                             ->notDeleted()
                             ->where('member_id', $params['memberId'])
                             ->where(function($query) use ($params) {
@@ -382,7 +382,7 @@ class OrderRepository extends BaseRepository
     {
         if ($shipmentMethod === 2) {
             // 實體商品
-            $orders = $this->model->with(['detail', 'detail.productSpecPrice'])
+            $orders = $this->missionModel->with(['detail', 'detail.productSpecPrice'])
                                     ->notDeleted()
                                     ->whereHas('shipment', function($query) use ($shipmentStatus) {
                                         $query->where('status', $shipmentStatus);
@@ -394,7 +394,7 @@ class OrderRepository extends BaseRepository
         }
         else {
             // 票券商品
-            $orders = $this->model->with(['detail', 'detail.productSpecPrice'])
+            $orders = $this->missionModel->with(['detail', 'detail.productSpecPrice'])
                                     ->notDeleted()
                                     ->where('order_shipment_method', $shipmentMethod)
                                     ->where('order_status', $status)
@@ -415,7 +415,7 @@ class OrderRepository extends BaseRepository
         $startTime = date('Y-m-d H:45:00', strtotime('-1 hour'));
         $endTime = date('Y-m-d H:45:00');
 
-        return $this->model->select([
+        return $this->missionModel->select([
                             'orders.order_id',
                             'orders.member_id',
                             'menus.dining_car_id',

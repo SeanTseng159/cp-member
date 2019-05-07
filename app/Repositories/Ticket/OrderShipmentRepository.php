@@ -16,7 +16,7 @@ class OrderShipmentRepository extends BaseRepository
 {
     public function __construct(OrderShipment $model)
     {
-        $this->model = $model;
+        $this->missionModel = $model;
     }
 
     /**

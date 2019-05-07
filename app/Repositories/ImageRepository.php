@@ -17,7 +17,7 @@ class ImageRepository extends BaseRepository
 
     public function __construct(Image $model)
     {
-        $this->model = $model;
+        $this->missionModel = $model;
     }
 
     /**
@@ -32,7 +32,7 @@ class ImageRepository extends BaseRepository
      */
     public function path($modelType, $modeSpecID, $sort = null)
     {
-        $result = $this->model
+        $result = $this->missionModel
             ->select('folder', 'filename', 'ext', 'compressed_info')
             ->where('model_type', $modelType)
             ->where('model_spec_id', $modeSpecID)

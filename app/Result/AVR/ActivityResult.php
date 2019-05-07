@@ -8,7 +8,7 @@
 namespace App\Result\AVR;
 
 use App\AVR\Helpers\AVRImageHelper;
-use App\Enum\AVRClientType;
+use App\Enum\AVRImageType;
 use App\Enum\ClientType;
 use App\Helpers\CommonHelper;
 use App\Result\BaseResult;
@@ -45,7 +45,7 @@ class ActivityResult extends BaseResult
                 Carbon::parse($activity->end_activity_time)->format('Y-m-d');
 
             //圖片
-            $result->photo = AVRImageHelper::getImageUrl(AVRClientType::activity, $activity->id);
+            $result->photo = AVRImageHelper::getImageUrl(AVRImageType::activity, $activity->id);
 
             $resultAry[] = $result;
         }
@@ -62,7 +62,7 @@ class ActivityResult extends BaseResult
             Carbon::parse($activity->end_activity_time)->format('Y-m-d');
 
         //圖片
-        $result->photo = AVRImageHelper::getImageUrl(AVRClientType::activity, $activity->id);
+        $result->photo = AVRImageHelper::getImageUrl(AVRImageType::activity, $activity->id);
 
         $result->description = $activity->introduction;
 
@@ -78,11 +78,13 @@ class ActivityResult extends BaseResult
         $result->mission = [];
         $activityMissions = $activity->activityMissions;
 
+
         $finishNum = 0;
 
         foreach ($activityMissions as $activityMission) {
 
-            $mission = $activityMission->mission;
+            $mission = $activityMission->missions->first();
+
             $ret = new \stdClass();
             $ret->id = $mission->id;
             $ret->name = $mission->name;
@@ -93,14 +95,14 @@ class ActivityResult extends BaseResult
                 $ret->status = false;
             } else
                 $ret->status = (bool)$user->isComplete;
-            $ret->photo = AVRImageHelper::getImageUrl(AVRClientType::mission, $mission->id);
+            $ret->photo = AVRImageHelper::getImageUrl(AVRImageType::mission, $mission->id);
             $result->mission[] = $ret;
 
             if ($ret->status)
                 $finishNum++;
         }
 
-        $result->allNum = count($activity->missions);
+        $result->allNum = count($activityMissions);
         $result->finishNum = $finishNum;
 
         return $result;
@@ -118,7 +120,7 @@ class ActivityResult extends BaseResult
         $ret->place = $mission->place_name;
         $ret->longitude = $mission->longitude;
         $ret->latitude = $mission->latitude;
-        $ret->photo = AVRImageHelper::getImageUrl(AVRClientType::mission, $mission->id);
+        $ret->photo = AVRImageHelper::getImageUrl(AVRImageType::mission, $mission->id);
 
         //使用者相關
         $user = $mission->members->where('member_id', $memberID)->first();

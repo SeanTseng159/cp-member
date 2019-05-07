@@ -53,6 +53,7 @@ class ActivityController extends RestLaravelController
             $data = (new ActivityResult)->activityDetail($data);
             return $this->success($data);
         } catch (\Exception $e) {
+
             return $this->failureCode('E0001');
         }
     }
@@ -80,6 +81,7 @@ class ActivityController extends RestLaravelController
 
             return $this->success($data);
         } catch (\Exception $e) {
+            dd($e);
             \Log::error($e);
             return $this->failureCode('E0001');
         }
@@ -101,7 +103,7 @@ class ActivityController extends RestLaravelController
         }
     }
 
-    public function end(Request $request, $missionId)
+    public function missionEnd(Request $request, $missionId)
     {
         try {
             $memberID = $request->memberId;
@@ -111,9 +113,9 @@ class ActivityController extends RestLaravelController
             }
 
             $mission = $this->missionService->detail($missionId);
-            $ret = $this->missionService->end($mission->id, $memberID, $mission->typeData->passing_grade, $point);
-
-            return $this->success();
+            $activityID = $mission->activityMission->activity_id;
+            $ret = $this->missionService->end($activityID,$mission->id, $memberID, $mission->typeData->passing_grade, $point);
+            return $this->success($ret);
 
         } catch (\Exception $e) {
             dd($e);
