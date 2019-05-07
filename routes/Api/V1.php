@@ -175,6 +175,24 @@ Route::middleware('cors')->namespace('V1')->group(function () {
         Route::get('{modelType}/{modelSpecId}/list', 'GiftController@list');
     });
 
+    Route::prefix('avr')->namespace('AVR')->group(function () {
+
+    });
+
+    //avr相關
+    Route::prefix('avr')->namespace('AVR')->group(function () {
+        Route::prefix('activity')->group(function () {
+            //活動列表
+            Route::get('list', 'ActivityController@list');
+
+            //活動明細
+            Route::get('/{activityId}', 'ActivityController@detail');
+
+            //任務列表
+            Route::get('/{activityId}/missions', 'ActivityController@missionList');
+        });
+    });
+
 });
 
 // 需 token 認證的 route
@@ -303,17 +321,9 @@ Route::middleware(['cors', 'auth.jwt'])->namespace('V1')->group(function () {
     //avr相關
     Route::prefix('avr')->namespace('AVR')->group(function () {
         Route::prefix('activity')->group(function () {
-            //活動列表
-            Route::get('list', 'ActivityController@list');
 
-            //活動明細
-            Route::get('/{activityId}', 'ActivityController@detail');
-
-            //活動完成的獎品 todo
+            //活動完成的獎品
             Route::get('/{activityId}/awards', 'ActivityController@awards');
-
-            //任務列表
-            Route::get('/{activityId}/missions', 'ActivityController@missionList');
 
             //任務明細
             Route::get('/mission/{missionId}', 'ActivityController@missionDetail');
