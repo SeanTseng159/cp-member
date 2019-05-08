@@ -35,4 +35,9 @@ return [
         'secret' => env('STRIPE_SECRET'),
     ],
 
+    'recaptcha' => [
+        'verifyUrl' => 'https://www.google.com/recaptcha/api/siteverify',
+        'apiKey' => env('GOOGLE_RECAPTCHA_KEY')
+    ],
+
 ];
