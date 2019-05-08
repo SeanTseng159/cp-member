@@ -15,7 +15,7 @@ class DiningCarCategoryRepository extends BaseRepository
 
     public function __construct(DiningCarCategory $model)
     {
-        $this->model = $model;
+        $this->missionModel = $model;
     }
 
     /**
@@ -25,7 +25,7 @@ class DiningCarCategoryRepository extends BaseRepository
      */
     public function categories($type = 'all', $id = 0)
     {
-        return $this->model->where(function($query) use ($type, $id) {
+        return $this->missionModel->where(function($query) use ($type, $id) {
                                 if ($type === 'main' || $type === 'sub') {
                                     return $query->where('parent_id', $id);
                                 }

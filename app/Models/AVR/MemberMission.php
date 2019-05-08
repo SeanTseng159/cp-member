@@ -9,4 +9,6 @@ class MemberMission extends AVRBaseModel
     public $timestamps = true;
     protected $fillable = ['member_id', 'mission_id', 'point','isComplete'];
 
+
+
 }

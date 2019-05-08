@@ -22,7 +22,7 @@ class OrderDetailRepository extends BaseRepository
 
     public function __construct(OrderDetail $model)
     {
-        $this->model = $model;
+        $this->missionModel = $model;
     }
 
     /**
@@ -154,7 +154,7 @@ class OrderDetailRepository extends BaseRepository
         if (!$id) return false;
 
         try {
-            return $this->model->where('order_detail_id', $id)
+            return $this->missionModel->where('order_detail_id', $id)
                                 ->update([
                                     'recipient_status' => $status,
                                     'recipient_price' => $price
@@ -169,7 +169,7 @@ class OrderDetailRepository extends BaseRepository
         if (empty($order_detail_sn) || empty($member_id)) return false;
 
         try {
-            return $this->model->where([
+            return $this->missionModel->where([
                                     'order_detail_sn' => $order_detail_sn,
                                     'prod_api' => 1
                                 ])
@@ -198,7 +198,7 @@ class OrderDetailRepository extends BaseRepository
         if (empty($order_detail_sn) || empty($member_id)) return false;
 
         try {
-            return $this->model->where([
+            return $this->missionModel->where([
                                     'order_detail_sn' => $order_detail_sn,
                                     'prod_api' => 1
                                 ])
@@ -222,7 +222,7 @@ class OrderDetailRepository extends BaseRepository
     public function getCountByProdAndMember($productId = 0, $memberId = 0)
     {
         try {
-            return $this->model->where('prod_id', $productId)
+            return $this->missionModel->where('prod_id', $productId)
                                 ->where('member_id', $memberId)
                                 ->whereNotNull('order_paid_at')
                                 ->count();
@@ -240,7 +240,7 @@ class OrderDetailRepository extends BaseRepository
     {
         if (!$parameter) return null;
 
-        $query = $this->model->with(['combo' => function($query) use ($parameter) {
+        $query = $this->missionModel->with(['combo' => function($query) use ($parameter) {
                                 if ($parameter->orderStatus === '4') {
                                     $query->where('member_id', $parameter->memberId)->where('order_detail_member_id', '!=', $parameter->memberId);
                                 }

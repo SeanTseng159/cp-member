@@ -8,9 +8,13 @@ class ActivityMission extends AVRBaseModel
     protected $table = 'avr_activity_missions';
 
    
-    public function mission()
+    public function missions()
     {
-        return $this->hasOne(Mission::class,'id','mission_id');
+        return $this->hasMany(Mission::class,'id','mission_id');
+    }
+    public function activity()
+    {
+        return $this->belongsTo(Activity::class,'activity_id','id');
     }
 
 

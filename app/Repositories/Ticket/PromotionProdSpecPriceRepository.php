@@ -14,7 +14,7 @@ class PromotionProdSpecPriceRepository extends BaseRepository
 {
     public function __construct(PromotionProdSpecPrice $model)
     {
-        $this->model = $model;
+        $this->missionModel = $model;
     }
 
     /**
@@ -27,7 +27,7 @@ class PromotionProdSpecPriceRepository extends BaseRepository
      */
     public function findBySpecPrice($promotionId = 0, $prodId = 0, $specId = 0, $priceId = 0)
     {
-        return $this->model->where('promotion_id', $promotionId)
+        return $this->missionModel->where('promotion_id', $promotionId)
                             ->where('prod_id', $prodId)
                             ->where('spec_id', $specId)
                             ->where('price_id', $priceId)

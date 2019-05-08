@@ -22,7 +22,7 @@ class PaymentMethodRepository extends BaseRepository
 
     public function __construct(PaymentMethod $model)
     {
-        $this->model = $model;
+        $this->missionModel = $model;
         $this->redis = new Redis;
     }
 
@@ -34,7 +34,7 @@ class PaymentMethodRepository extends BaseRepository
     {
         try {
             return $this->redis->remember(CheckoutKey::PAYMENT_METHOD_KEY, CacheConfig::ONE_DAY, function() {
-                return $this->model->where('status', 1)->get();
+                return $this->missionModel->where('status', 1)->get();
             });
         } catch (Exception $e) {
             return null;

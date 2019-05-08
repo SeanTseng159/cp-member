@@ -15,27 +15,27 @@ use App\Repositories\BaseRepository;
 class ActivityRepository extends BaseRepository
 {
     private $limit = 20;
-    protected $model;
+    protected $missionModel;
 
     public function __construct(Activity $model)
     {
 
-        $this->model = $model;
+        $this->missionModel = $model;
     }
 
     public function list()
     {
-        $launchData = $this->model->launched()->orderBy('sort')->get();
+        $launchData = $this->missionModel->launched()->orderBy('sort')->get();
         return $launchData;
     }
 
 
     public function detail($id)
     {
-        $data = $this->model
+        $data = $this->missionModel
             ->with([
-                'activityMissions',
-                'activityMissions.mission'
+                'activityMissions.missions',
+
             ])
             ->where('id', $id)
             ->first();

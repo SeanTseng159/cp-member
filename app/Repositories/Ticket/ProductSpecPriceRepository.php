@@ -14,7 +14,7 @@ class ProductSpecPriceRepository extends BaseRepository
 {
     public function __construct(ProductSpecPrice $model)
     {
-        $this->model = $model;
+        $this->missionModel = $model;
     }
 
     /**
@@ -27,7 +27,7 @@ class ProductSpecPriceRepository extends BaseRepository
     {
         if (!$data) return false;
 
-        return $this->model->where('prod_spec_price_id', $id)
+        return $this->missionModel->where('prod_spec_price_id', $id)
                             ->update($data);
     }
 }

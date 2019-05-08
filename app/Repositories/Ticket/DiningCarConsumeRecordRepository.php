@@ -15,11 +15,11 @@ class DiningCarConsumeRecordRepository extends BaseRepository
      *
      * @var string
      */
-    protected $model;
+    protected $missionModel;
 
     public function __construct(DiningCarConsumeRecord $model)
     {
-        $this->model = $model;
+        $this->missionModel = $model;
     }
 
     /**

@@ -16,7 +16,7 @@ class ServiceRepository extends BaseRepository
 
     public function __construct(FaqCategory $model)
     {
-        $this->model = $model;
+        $this->missionModel = $model;
     }
 
     /**
@@ -26,7 +26,7 @@ class ServiceRepository extends BaseRepository
     public function all($lang)
     {
         $date = Carbon::now()->toDateTimeString();
-        return $this->model->with(['contents' => function($query) use ($lang, $date) {
+        return $this->missionModel->with(['contents' => function($query) use ($lang, $date) {
                                 return $query->notDeleted()
                                             ->where('faq_content_status', 1)
                                             ->where('faq_content_lang', $lang)

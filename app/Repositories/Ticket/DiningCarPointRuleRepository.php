@@ -12,11 +12,11 @@ class DiningCarPointRuleRepository extends BaseRepository
      *
      * @var string
      */
-    protected $model;
+    protected $missionModel;
 
     public function __construct(DiningCarPointRule $model)
     {
-        $this->model = $model;
+        $this->missionModel = $model;
     }
 
     /**
@@ -27,7 +27,7 @@ class DiningCarPointRuleRepository extends BaseRepository
      */
     public function findByType($diningCarId = 0, $type = 0)
     {
-        return $this->model->isActive()
+        return $this->missionModel->isActive()
                             ->where('type', $type)
                             ->where('dining_car_id', $diningCarId)
                             ->first();

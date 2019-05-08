@@ -15,7 +15,7 @@ class TagProdRepository extends BaseRepository
 
     public function __construct(TagProduct $model)
     {
-        $this->model = $model;
+        $this->missionModel = $model;
     }
 
     /**
@@ -24,7 +24,7 @@ class TagProdRepository extends BaseRepository
      */
     public function getTagsByProdId($productId)
     {
-        return $this->model->where('prod_id', $productId)
+        return $this->missionModel->where('prod_id', $productId)
                             ->get();
     }
 }

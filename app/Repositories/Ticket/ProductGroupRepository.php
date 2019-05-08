@@ -14,7 +14,7 @@ class ProductGroupRepository extends BaseRepository
 {
     public function __construct(ProductGroup $model)
     {
-        $this->model = $model;
+        $this->missionModel = $model;
     }
 
     /**
@@ -24,6 +24,6 @@ class ProductGroupRepository extends BaseRepository
      */
     public function getAllByProdId($id)
     {
-        return $this->model->with('product')->notDeleted()->where('prod_id', $id)->orderBy('prod_group_sort', 'asc')->get();
+        return $this->missionModel->with('product')->notDeleted()->where('prod_id', $id)->orderBy('prod_group_sort', 'asc')->get();
     }
 }

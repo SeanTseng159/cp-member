@@ -20,7 +20,7 @@ class KeywordRepository extends BaseRepository
 
     public function __construct(Keyword $model, ProductRepository $productRepository, MagentoProductRepository $MagentoProductRepository)
     {
-        $this->model = $model;
+        $this->missionModel = $model;
         $this->productRepository = $productRepository;
         $this->MagentoProductRepository = $MagentoProductRepository;
     }
@@ -31,7 +31,7 @@ class KeywordRepository extends BaseRepository
      */
     public function getProductsByKeyword($keyword)
     {
-        $data = $this->model->with(['keywordProducts'])
+        $data = $this->missionModel->with(['keywordProducts'])
                             ->notDeleted()
                             ->where('keyword_text', 'like', '%' . $keyword . '%')
                             ->get();
@@ -67,7 +67,7 @@ class KeywordRepository extends BaseRepository
      */
     public function getDiningCarsByKeyword($keyword = '')
     {
-        return $this->model->join('dining_car_keywords', 'keywords.keyword_id', '=', 'dining_car_keywords.keyword_id')
+        return $this->missionModel->join('dining_car_keywords', 'keywords.keyword_id', '=', 'dining_car_keywords.keyword_id')
                             ->select('dining_car_keywords.dining_car_id')
                             ->notDeleted()
                             ->where('keywords.keyword_text', 'like', '%' . $keyword . '%')

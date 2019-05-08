@@ -47,9 +47,9 @@ class Activity extends AVRBaseModel
             ActivityMission::class, 'activity_id', 'id', 'id', 'id');
     }
 
-    public function awards()
+    public function award()
     {
-        return $this->hasMany(ActivityAward::class);
+        return $this->hasOne(ActivityAward::class);
     }
 
 
