@@ -5,6 +5,7 @@ namespace App\Http\Middleware\Verify;
 use Closure;
 use Validator;
 use Response;
+use App\Rules\Recaptcha;
 
 use App\Traits\ApiResponseHelper;
 
@@ -27,21 +28,21 @@ class PartnerJoin
 
     public function handle($request, Closure $next)
     {
-        $data = $request->only([
-                    'company',
-                    'contactWindow',
-                    'phone',
-                    'email',
-                    'message'
-                ]);
+        $data = $request->all();
 
-        $validator = Validator::make($data, [
-            'company' => 'required',
-            'contactWindow' => 'required',
-            'phone' => 'required',
-            'email' => 'required|email',
-            'message' => 'required|max:255'
-        ]);
+        $validatorData = [
+                'company' => 'required',
+                'contactWindow' => 'required',
+                'phone' => 'required',
+                'email' => 'required|email',
+                'message' => 'required|max:255'
+            ];
+
+        if ($request->has('recaptchaToken')) {
+            $validatorData['recaptchaToken'] = ['required', new Recaptcha];
+        }
+
+        $validator = Validator::make($data, $validatorData);
 
         if ($validator->fails()) {
             return $this->apiRespFail('E0001', join(' ', $validator->errors()->all()));
