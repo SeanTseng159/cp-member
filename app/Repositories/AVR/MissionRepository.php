@@ -36,7 +36,7 @@ class MissionRepository extends BaseRepository
 
     public function detail($id)
     {
-        $data = $this->missionModel->with('typeData', 'activityMission.activity')->where('id', $id)->first();
+        $data = $this->missionModel->where('id', $id)->first();
         return $data;
 
     }

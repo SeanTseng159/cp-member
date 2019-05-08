@@ -7,12 +7,15 @@ namespace App\Http\Controllers\Api\V1\AVR;
 use App\Result\AVR\ActivityResult;
 use App\Services\AVR\ActivityService;
 use App\Services\AVR\MissionService;
+use App\Traits\MemberHelper;
 use Illuminate\Http\Request;
 use Ksd\Mediation\Core\Controller\RestLaravelController;
 
 
 class ActivityController extends RestLaravelController
 {
+    use MemberHelper;
+
     protected $activityService;
     protected $missionService;
 
@@ -41,8 +44,6 @@ class ActivityController extends RestLaravelController
 
         try {
 
-            $memberID = $request->memberId;
-
             if (!$activityId) {
                 throw new \Exception('E0001');
             }
@@ -53,7 +54,8 @@ class ActivityController extends RestLaravelController
             $data = (new ActivityResult)->activityDetail($data);
             return $this->success($data);
         } catch (\Exception $e) {
-
+//            dd($e);
+            \Log::error($e);
             return $this->failureCode('E0001');
         }
     }
@@ -67,21 +69,17 @@ class ActivityController extends RestLaravelController
             if (!$activityId) {
                 throw new \Exception('E0001');
             }
-            $memberID = $request->memberId;
-
-            //檢查是否此user在DB內有資料
-
 
             $data = $this->activityService->detail($activityId);
             if (!$data)
                 return $this->success();
 
+            $memberID = $this->getMemberId();
 
             $data = (new ActivityResult)->missionList($data, $memberID);
 
             return $this->success($data);
         } catch (\Exception $e) {
-            dd($e);
             \Log::error($e);
             return $this->failureCode('E0001');
         }
@@ -92,13 +90,13 @@ class ActivityController extends RestLaravelController
 
         try {
             $memberID = $request->memberId;
-            $data = $this->missionService->detail($missionId);
-            $data = (new ActivityResult)->missionDetail($data, $memberID);
+            $mission = $this->missionService->detail($missionId);
+            $data = (new ActivityResult)->missionDetail($mission, $memberID);
             return $this->success($data);
 
         } catch (\Exception $e) {
-            \Log::error($e);
             dd($e);
+            \Log::error($e);
             return $this->failureCode('E0001');
         }
     }
@@ -114,7 +112,7 @@ class ActivityController extends RestLaravelController
 
             $mission = $this->missionService->detail($missionId);
             $activityID = $mission->activityMission->activity_id;
-            $ret = $this->missionService->end($activityID,$mission->id, $memberID, $mission->typeData->passing_grade, $point);
+            $ret = $this->missionService->end($activityID, $mission->id, $memberID, $mission->typeData->passing_grade, $point);
             return $this->success($ret);
 
         } catch (\Exception $e) {

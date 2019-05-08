@@ -10,6 +10,7 @@ namespace App\Result\AVR;
 use App\AVR\Helpers\AVRImageHelper;
 use App\Enum\AVRImageType;
 use App\Enum\ClientType;
+use App\Enum\MissionFileType;
 use App\Helpers\CommonHelper;
 use App\Result\BaseResult;
 use Carbon\Carbon;
@@ -76,21 +77,18 @@ class ActivityResult extends BaseResult
         $result = new \stdClass;
 
         $result->mission = [];
-        $activityMissions = $activity->activityMissions;
-
+        $missions = $activity->missions;
 
         $finishNum = 0;
 
-        foreach ($activityMissions as $activityMission) {
-
-            $mission = $activityMission->missions->first();
-
+        foreach ($missions as $mission) {
             $ret = new \stdClass();
             $ret->id = $mission->id;
             $ret->name = $mission->name;
             $ret->longitude = $mission->longitude;
             $ret->latitude = $mission->latitude;
             $user = $mission->members->where('member_id', $memberID)->first();
+
             if (!$user) {
                 $ret->status = false;
             } else
@@ -102,7 +100,7 @@ class ActivityResult extends BaseResult
                 $finishNum++;
         }
 
-        $result->allNum = count($activityMissions);
+        $result->allNum = count($missions);
         $result->finishNum = $finishNum;
 
         return $result;
@@ -111,8 +109,6 @@ class ActivityResult extends BaseResult
 
     public function missionDetail($mission, $memberID)
     {
-
-
         $ret = new \stdClass();
         $ret->id = $mission->id;
         $ret->name = $mission->name;
@@ -129,29 +125,34 @@ class ActivityResult extends BaseResult
         else
             $ret->status = (bool)$user->isComplete;
 
+        $game = new \stdClass();
+        $game->type = $mission->type;
+        $game->time = $mission->game_length;
+        $game->pass = $mission->passing_grade;
+
+
         //遊戲相關
-        $gameData = $mission->typeData;
+        $gameContent = $mission->contents;
 
-        if ($gameData) {
-            $game = new \stdClass();
-            $game->time = $gameData->game_length;
-            $game->pass = $gameData->passing_grade;
-            $game->type = $mission->type;
+        if ($gameContent) {
+            $content = [];
+            foreach ($gameContent as $item) {
+                $obj = new \stdClass();
+                $obj->target = $item->usage_type;
+                $obj->type = $item->content_type;
 
-            $gameContent = $gameData->contents;
-
-            if ($gameContent) {
-                $content = [];
-                foreach ($gameContent as $item) {
-                    $obj = new \stdClass();
-                    $obj->target = $item->usage_type;
-                    $obj->type = $item->content_type;
+                if ($item->content_type == MissionFileType::recognition_id) {
+                    $obj->detail = $item->recognition->name;
+                } else {
                     $obj->detail = $item->content;
-                    $content[] = $obj;
                 }
-                $game->content = $content;
 
+
+                $content[] = $obj;
             }
+            $game->content = $content;
+
+
             $ret->game = $game;
         }
 

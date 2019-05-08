@@ -33,10 +33,6 @@ class ActivityRepository extends BaseRepository
     public function detail($id)
     {
         $data = $this->missionModel
-            ->with([
-                'activityMissions.missions',
-
-            ])
             ->where('id', $id)
             ->first();
         return $data;
