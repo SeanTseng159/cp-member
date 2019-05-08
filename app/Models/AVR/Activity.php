@@ -36,15 +36,9 @@ class Activity extends AVRBaseModel
             ->where('status', 1);
     }
 
-    public function activityMissions()
-    {
-        return $this->hasMany(ActivityMission::class)->orderBy('sort');
-    }
-
     public function missions()
     {
-        return $this->hasManyThrough(Mission::class,
-            ActivityMission::class, 'activity_id', 'id', 'id', 'id');
+        return $this->hasMany(Mission::class)->orderBy('sort');
     }
 
     public function award()
