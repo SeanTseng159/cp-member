@@ -111,11 +111,14 @@ class ActivityController extends RestLaravelController
             }
 
             $mission = $this->missionService->detail($missionId);
-            $activityID = $mission->activityMission->activity_id;
-            $ret = $this->missionService->end($activityID, $mission->id, $memberID, $mission->typeData->passing_grade, $point);
+
+            $activityID = $mission->activity_id;
+
+            $ret = $this->missionService->end($activityID, $mission->id,$mission->name, $memberID, $mission->passing_grade, $point);
             return $this->success($ret);
 
         } catch (\Exception $e) {
+            dd($e);
             \Log::error($e);
             return $this->failureCode('E0001');
         }

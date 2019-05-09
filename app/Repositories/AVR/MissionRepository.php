@@ -41,7 +41,7 @@ class MissionRepository extends BaseRepository
 
     }
 
-    public function end($activityID, $missionID, $memberID, $passPoint, $userPoint)
+    public function end($activityID, $missionID, $missionName,$memberID, $passPoint, $userPoint)
     {
 
         $mishionStatus = $this->memberMissionModel
@@ -73,12 +73,13 @@ class MissionRepository extends BaseRepository
         $ret = new \stdClass;
 
         \DB::connection('avr')->transaction(function () use (
-            $mishionStatus, $isComplete, $missionID, $activityID, $memberID, $ret
+            $mishionStatus, $isComplete, $missionID, $activityID, $memberID, $ret,$missionName
         ) {
             try {
                 $mishionStatus->save();
 
                 $ret->mission = new \stdClass();
+                $ret->mission->name = $missionName;
                 $ret->mission->complete = $isComplete;
 
                 //取得禮物
@@ -101,7 +102,9 @@ class MissionRepository extends BaseRepository
                         }])
                         ->where('id', $activityID)
                         ->first();
+
                     $missions = $activityMissionStatus->missions;
+                    $activityName = $activityMissionStatus->name;
 
 
                     $activityComplete = true;
@@ -117,6 +120,7 @@ class MissionRepository extends BaseRepository
                     }
                     $ret->activity = new \stdClass();
                     $ret->activity->complete = $activityComplete;
+                    $ret->activity->name = $activityName;
 
                     \DB::connection('backend')->transaction(function () use (
                         $award, $missionID, $activityID, $memberID, $ret, $activityComplete

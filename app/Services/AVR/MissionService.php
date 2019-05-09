@@ -28,9 +28,9 @@ class MissionService extends BaseService
         return $this->repository->detail($id);
     }
 
-    public function end($activityID,$missionID,$memberID,$passPoint,$point)
+    public function end($activityID,$missionID,$missionName,$memberID,$passPoint,$point)
     {
-        return $this->repository->end($activityID,$missionID,$memberID,$passPoint,$point);
+        return $this->repository->end($activityID,$missionID,$missionName,$memberID,$passPoint,$point);
     }
 
 
