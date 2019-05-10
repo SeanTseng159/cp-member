@@ -19,6 +19,7 @@ class MemberGiftItemService extends BaseService
     
     public function __construct(MemberGiftItemRepository $repository)
     {
+        parent::__construct();
         $this->repository = $repository;
     }
     

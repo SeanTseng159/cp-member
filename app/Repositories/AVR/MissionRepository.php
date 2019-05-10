@@ -41,10 +41,25 @@ class MissionRepository extends BaseRepository
 
     }
 
-    public function end($activityID, $missionID, $missionName,$memberID, $passPoint, $userPoint)
+    public function delete($missionID, $memberID)
     {
 
-        $mishionStatus = $this->memberMissionModel
+        return $this->memberMissionModel
+            ->where('mission_id', $missionID)
+            ->where('member_id', $memberID)
+            ->update(
+                [
+                    'point' => 0,
+                    'isComplete' => 0
+                ]
+            );
+    }
+
+
+    public function end($activityID, $missionID, $missionName, $memberID, $passPoint, $userPoint)
+    {
+
+        $missionStatus = $this->memberMissionModel
             ->firstOrNew([
                 'member_id' => $memberID,
                 'mission_id' => $missionID
@@ -55,28 +70,28 @@ class MissionRepository extends BaseRepository
         if ($userPoint >= $passPoint)
             $isComplete = true;
 
-        if ($mishionStatus && $mishionStatus->isComplete) {
+        if ($missionStatus && $missionStatus->isComplete) {
             return [];
         }
-        if (!$mishionStatus) {
-            $mishionStatus = $this->memberMissionModel->create([
+        if (!$missionStatus) {
+            $missionStatus = $this->memberMissionModel->create([
                 'member_id' => $memberID,
                 'mission_id' => $missionID,
                 'point' => $userPoint,
                 'isComplete' => $isComplete
             ]);
         } else {
-            $mishionStatus->isComplete = $isComplete;
-            $mishionStatus->point = $userPoint;
+            $missionStatus->isComplete = $isComplete;
+            $missionStatus->point = $userPoint;
         }
 
         $ret = new \stdClass;
 
         \DB::connection('avr')->transaction(function () use (
-            $mishionStatus, $isComplete, $missionID, $activityID, $memberID, $ret,$missionName
+            $missionStatus, $isComplete, $missionID, $activityID, $memberID, $ret, $missionName
         ) {
             try {
-                $mishionStatus->save();
+                $missionStatus->save();
 
                 $ret->mission = new \stdClass();
                 $ret->mission->name = $missionName;
@@ -95,6 +110,7 @@ class MissionRepository extends BaseRepository
                     }
 
                     //檢查activity是否完成
+
                     $activityMissionStatus = $this->activityModel->with([
                         'missions',
                         'missions.members' => function ($query) use ($memberID) {
@@ -109,7 +125,9 @@ class MissionRepository extends BaseRepository
 
                     $activityComplete = true;
                     foreach ($missions as $mission) {
-                        if (!$mission->members) {
+
+                        //不存在此會員
+                        if (count($mission->members) == 0) {
                             $activityComplete = false;
                             break;
                         }

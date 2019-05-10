@@ -330,6 +330,9 @@ Route::middleware(['cors', 'auth.jwt'])->namespace('V1')->group(function () {
 
             //任務結束
             Route::post('/mission/{missionId}', 'ActivityController@missionEnd');
+
+            //刪除user任務資訊
+            Route::delete('/mission/{missionId}', 'ActivityController@cancelMission');
         });
     });
 });

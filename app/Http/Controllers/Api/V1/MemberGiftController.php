@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\V1;
 
 
 use App\Result\MemberGiftItemResult;
+use App\Services\AwardRecordService;
 use App\Services\ImageService;
 use App\Services\Ticket\MemberGiftItemService;
 
@@ -20,14 +21,21 @@ class MemberGiftController extends RestLaravelController
     protected $lang = 'zh-TW';
     protected $memberGiftItemService;
     protected $imageService;
+    protected $awardRecordService;
     protected $qrCodePrefix = 'gift_';
+    protected $awardCodePrefix = 'award_';
 
 
-    public function __construct(MemberGiftItemService $memberGiftItemService, ImageService $imageService)
+    public function __construct(
+        MemberGiftItemService $memberGiftItemService,
+        ImageService $imageService,
+        AwardRecordService $awardRecordService
+    )
     {
 
         $this->memberGiftItemService = $memberGiftItemService;
         $this->imageService = $imageService;
+        $this->awardRecordService = $awardRecordService;
     }
 
     /**
@@ -60,9 +68,12 @@ class MemberGiftController extends RestLaravelController
             }
 
             //取得使用者的禮物清單
-            $result = $this->memberGiftItemService->list($type, $memberId, $client, $clientId);
+            $diningCarGift = $this->memberGiftItemService->list($type, $memberId, $client, $clientId);
 
-            $result = (new MemberGiftItemResult())->list($result, $type);
+            //取得活動的獎品清單
+            $reward = $this->awardRecordService->list($type,$memberId);
+
+            $result = (new MemberGiftItemResult())->list($diningCarGift, $type);
 
 
             return $this->success($result);
@@ -122,14 +133,14 @@ class MemberGiftController extends RestLaravelController
             }
 
             //檢查qr code是否已經使用過
-            if ($memberGiftItem->used_time ) {
+            if ($memberGiftItem->used_time) {
                 throw new \Exception('E0078');
             }
 
             //90秒
             $duration = Carbon::now()->addSeconds($this::DelayVerifySecond)->timestamp;
             $code = $this->qrCodePrefix . base64_encode("$memberId.$memberGiftId.$duration");
-            
+
             $result = new stdClass();
 
             $result->code = $code;

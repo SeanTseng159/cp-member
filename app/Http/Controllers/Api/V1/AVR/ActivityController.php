@@ -95,7 +95,7 @@ class ActivityController extends RestLaravelController
             return $this->success($data);
 
         } catch (\Exception $e) {
-            dd($e);
+//            dd($e);
             \Log::error($e);
             return $this->failureCode('E0001');
         }
@@ -103,26 +103,45 @@ class ActivityController extends RestLaravelController
 
     public function missionEnd(Request $request, $missionId)
     {
-        try {
-            $memberID = $request->memberId;
-            $point = $request->point;
-            if (!$point) {
-                throw  new \Exception('E0001');
-            }
+            try {
+                $memberID = $request->memberId;
+                $point = $request->point;
+                if (is_null($point)) {
+                    throw  new \Exception('E0001');
+                }
 
             $mission = $this->missionService->detail($missionId);
 
             $activityID = $mission->activity_id;
 
-            $ret = $this->missionService->end($activityID, $mission->id,$mission->name, $memberID, $mission->passing_grade, $point);
+            $ret = $this->missionService->end($activityID, $mission->id, $mission->name, $memberID, $mission->passing_grade, $point);
             return $this->success($ret);
+
+        } catch (\Exception $e) {
+//            dd($e);
+            \Log::error($e);
+            return $this->failureCode('E0001');
+        }
+
+    }
+
+    public function cancelMission(Request $request,$missionId)
+    {
+        try {
+            $memberID = $request->memberId;
+
+            if (is_null($missionId)) {
+                throw  new \Exception('E0001');
+            }
+
+            $ret = $this->missionService->delete($missionId, $memberID);
+            return $this->success();
 
         } catch (\Exception $e) {
             dd($e);
             \Log::error($e);
             return $this->failureCode('E0001');
         }
-
     }
 
 
