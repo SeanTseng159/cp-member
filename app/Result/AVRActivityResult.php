@@ -5,19 +5,16 @@
  * Time: 上午 11:55
  */
 
-namespace App\Result\AVR;
+namespace App\Result;
 
-use App\AVR\Helpers\AVRImageHelper;
+
 use App\Enum\AVRImageType;
-use App\Enum\ClientType;
 use App\Enum\MissionFileType;
-use App\Helpers\CommonHelper;
-use App\Result\BaseResult;
+use App\Helpers\AVRImageHelper;
 use Carbon\Carbon;
 use App\Traits\StringHelper;
-use App\Helpers\ImageHelper;
 
-class ActivityResult extends BaseResult
+class AVRActivityResult extends BaseResult
 {
     use StringHelper;
 

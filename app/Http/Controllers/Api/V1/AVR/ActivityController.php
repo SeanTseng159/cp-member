@@ -4,7 +4,8 @@
 namespace App\Http\Controllers\Api\V1\AVR;
 
 
-use App\Result\AVR\ActivityResult;
+
+use App\Result\AVRActivityResult;
 use App\Services\AVR\ActivityService;
 use App\Services\AVR\MissionService;
 use App\Traits\MemberHelper;
@@ -32,7 +33,7 @@ class ActivityController extends RestLaravelController
 
         try {
             $data = $this->activityService->list();
-            $data = (new ActivityResult)->list($data);
+            $data = (new AVRActivityResult)->list($data);
             return $this->success($data);
         } catch (\Exception $e) {
             return $this->failureCode('E0001');
@@ -51,7 +52,7 @@ class ActivityController extends RestLaravelController
             $data = $this->activityService->detail($activityId);
             if (!$data)
                 return $this->success();
-            $data = (new ActivityResult)->activityDetail($data);
+            $data = (new AVRActivityResult)->activityDetail($data);
             return $this->success($data);
         } catch (\Exception $e) {
 //            dd($e);
@@ -76,7 +77,7 @@ class ActivityController extends RestLaravelController
 
             $memberID = $this->getMemberId();
 
-            $data = (new ActivityResult)->missionList($data, $memberID);
+            $data = (new AVRActivityResult)->missionList($data, $memberID);
 
             return $this->success($data);
         } catch (\Exception $e) {
@@ -91,7 +92,7 @@ class ActivityController extends RestLaravelController
         try {
             $memberID = $request->memberId;
             $mission = $this->missionService->detail($missionId);
-            $data = (new ActivityResult)->missionDetail($mission, $memberID);
+            $data = (new AVRActivityResult)->missionDetail($mission, $memberID);
             return $this->success($data);
 
         } catch (\Exception $e) {

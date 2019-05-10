@@ -93,7 +93,7 @@ class MemberGiftItemRepository extends BaseRepository
 
     /** 取得使用者之禮物列表，如果$client與$clientID非null，則取得該餐車的資料即可
      *
-     * @param        $type :0:可使用/1:已使用or過期
+     * @param        $type :1:可使用/2:已使用or過期
      * @param        $memberId
      *
      * @param        $client

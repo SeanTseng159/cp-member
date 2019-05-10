@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Ticket\Supplier;
 use Illuminate\Database\Eloquent\Model;
 
 class Award extends Model
@@ -15,6 +16,10 @@ class Award extends Model
 
     public function image()
     {
-        return $this->hasOne(AwardImage::class, 'award_id');
+        return $this->hasOne(AwardImage::class, 'award_id','award_id');
+    }
+    public function supplier()
+    {
+        return $this->hasOne(Supplier::class, 'supplier_id','supplier_id');
     }
 }
