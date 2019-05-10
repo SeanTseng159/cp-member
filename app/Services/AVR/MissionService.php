@@ -33,6 +33,10 @@ class MissionService extends BaseService
         return $this->repository->end($activityID,$missionID,$missionName,$memberID,$passPoint,$point);
     }
 
+    public function delete($missionID, $memberID)
+    {
+        return $this->repository->delete($missionID, $memberID);
+    }
 
 
 }

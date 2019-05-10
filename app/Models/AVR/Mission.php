@@ -8,7 +8,7 @@ class Mission extends AVRBaseModel
 
     public function members()
     {
-        return $this->hasMany(MemberMission::class);
+        return $this->hasMany(MemberMission::class,'mission_id','id');
     }
     public function contents()
     {
