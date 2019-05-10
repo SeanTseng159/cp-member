@@ -12,9 +12,8 @@ namespace App\Enum;
 use BenSampo\Enum\Enum;
 
 
-final class GiftType extends Enum
+final class MyGiftType extends Enum
 {
-    const join = 1;
-    const birthday = 2;
-    const point = 3;
+    const gift = 'gift';
+    const award = 'award';
 }

@@ -5,10 +5,8 @@
  * Time: 上午 9:42
  */
 
-namespace App\AVR\Helpers;
+namespace App\Helpers;
 
-use Agent;
-use App\Helpers\BaseImageHelper;
 use App\Models\AVR\Image;
 use App\Repositories\AVR\ImageRepository;
 use App\Services\AVR\ImageService;

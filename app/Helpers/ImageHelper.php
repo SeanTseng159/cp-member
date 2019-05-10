@@ -7,8 +7,6 @@
 
 namespace App\Helpers;
 
-use Agent;
-
 
 use App\Models\Image;
 use App\Repositories\ImageRepository;

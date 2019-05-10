@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V1;
 
 
+use App\Result\AwardRecordsResult;
 use App\Result\MemberGiftItemResult;
 use App\Services\AwardRecordService;
 use App\Services\ImageService;
@@ -71,10 +72,13 @@ class MemberGiftController extends RestLaravelController
             $diningCarGift = $this->memberGiftItemService->list($type, $memberId, $client, $clientId);
 
             //取得活動的獎品清單
-            $reward = $this->awardRecordService->list($type,$memberId);
+            $award = $this->awardRecordService->list($type, $memberId);
 
-            $result = (new MemberGiftItemResult())->list($diningCarGift, $type);
 
+            $resultGift = (new MemberGiftItemResult())->list($diningCarGift, $type);
+            $resultAward = (new AwardRecordsResult())->list($award);
+            $result = array_merge($resultGift, $resultAward);
+            $result = array_values(collect($result)->sortBy('duration')->toArray());
 
             return $this->success($result);
 

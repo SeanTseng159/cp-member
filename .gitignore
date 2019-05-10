@@ -18,3 +18,4 @@ package-lock.json
 .editorconfig
 /.vscode
 /storage/debugbar
+.phpstorm.meta.php

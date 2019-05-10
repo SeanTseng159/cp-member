@@ -10,6 +10,7 @@ namespace App\Result;
 
 
 use App\Enum\ClientType;
+use App\Enum\MyGiftType;
 use App\Helpers\ImageHelper;
 use Carbon\Carbon;
 
@@ -71,6 +72,7 @@ class MemberGiftItemResult
 
 
         $data->status = 0;
+        $data->type = MyGiftType::gift;
         
         //detail's information
         if (!$type)
