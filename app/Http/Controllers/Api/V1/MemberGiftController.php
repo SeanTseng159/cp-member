@@ -3,13 +3,15 @@
 namespace App\Http\Controllers\Api\V1;
 
 
-use App\Result\AwardRecordsResult;
+use App\Enum\MyGiftType;
+use App\Result\AwardRecordResult;
 use App\Result\MemberGiftItemResult;
 use App\Services\AwardRecordService;
 use App\Services\ImageService;
 use App\Services\Ticket\MemberGiftItemService;
 
 use Carbon\Carbon;
+use Illuminate\Http\JsonResponse as JsonResponseAlias;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Input;
 use Ksd\Mediation\Core\Controller\RestLaravelController;
@@ -24,7 +26,6 @@ class MemberGiftController extends RestLaravelController
     protected $imageService;
     protected $awardRecordService;
     protected $qrCodePrefix = 'gift_';
-    protected $awardCodePrefix = 'award_';
 
 
     public function __construct(
@@ -44,7 +45,7 @@ class MemberGiftController extends RestLaravelController
      *
      * @param Request $request
      *
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponseAlias
      */
     public function list(Request $request)
     {
@@ -76,7 +77,7 @@ class MemberGiftController extends RestLaravelController
 
 
             $resultGift = (new MemberGiftItemResult())->list($diningCarGift, $type);
-            $resultAward = (new AwardRecordsResult())->list($award);
+            $resultAward = (new AwardRecordResult())->list($award);
             $result = array_merge($resultGift, $resultAward);
             $result = array_values(collect($result)->sortBy('duration')->toArray());
 
@@ -99,21 +100,43 @@ class MemberGiftController extends RestLaravelController
      *
      * @param Request $request
      *
-     * @return \Illuminate\Http\JsonResponse
+     * @param $id
+     * @param $type
+     * @return JsonResponseAlias
+     * @throws \Exception
      */
-    public function show(Request $request, $id)
+    public function show(Request $request, $id, $type)
     {
-        $memberId = $request->memberId;
+        try {
+            $memberId = $request->memberId;
 
+            if (!$memberId || !$type) {
+                throw new \Exception('E0007');
+            }
 
-        $result = $this->memberGiftItemService->findByID($id);
+            if ($type == MyGiftType::gift) {
+                $result = $this->memberGiftItemService->findByID($id);
+            } else if ($type == MyGiftType::award) {
+                $result = $this->awardRecordService->find($id);
+            }
 
-        if ($result) {
-            $result = (new MemberGiftItemResult())->show($result);
+            if ($result) {
+                if ($type == MyGiftType::gift) {
+                    $result = (new MemberGiftItemResult())->show($result);
+                } else if ($type == MyGiftType::award) {
+                    $result = (new AwardRecordResult())->show($result);
+                }
+            }
+            return $this->success($result);
+
+        } catch (\Exception $e) {
+            if ($e->getMessage()) {
+                return $this->failureCode($e->getMessage());
+            }
+
+            return $this->failureCode('E0007');
         }
 
-
-        return $this->success($result);
     }
 
 
@@ -122,33 +145,53 @@ class MemberGiftController extends RestLaravelController
      * ex.151.1.1551927111
      *
      * @param Request $request
-     * @param $giftId
+     * @param $memberGiftId
+     * @param $type : gift or award
      * @return string
      */
-    public function getQrcode(Request $request, $memberGiftId)
+    public function getQrcode(Request $request, $memberGiftId, $type)
     {
+
         try {
             $memberId = $request->memberId;
 
-            //檢查禮物是否屬於該會員
-            $memberGiftItem = $this->memberGiftItemService->findByID($memberGiftId);
-            if (!$memberGiftItem || $memberGiftItem->member_id !== $memberId) {
-                throw new \Exception('E0076');
+            if (!$memberGiftId or !$type) {
+                throw  new \Exception('E0007');
             }
 
-            //檢查qr code是否已經使用過
-            if ($memberGiftItem->used_time) {
-                throw new \Exception('E0078');
+            if ($type == MyGiftType::gift) {
+                //檢查禮物是否屬於該會員
+                $memberGiftItem = $this->memberGiftItemService->findByID($memberGiftId);
+                if (!$memberGiftItem || $memberGiftItem->member_id !== $memberId) {
+                    throw new \Exception('E0076');
+                }
+
+                //檢查qr code是否已經使用過
+                if ($memberGiftItem->used_time) {
+                    throw new \Exception('E0078');
+                }
+
+                //90秒
+                $duration = Carbon::now()->addSeconds($this::DelayVerifySecond)->timestamp;
+                $code = $this->qrCodePrefix . base64_encode("$memberId.$memberGiftId.$duration");
+                $result = new stdClass();
+                $result->code = $code;
             }
+            else if($type == MyGiftType::award)
+            {
+                //檢查禮物是否屬於該會員
+                $awardRecord = $this->awardRecordService->find($memberGiftId);
+                if (!$awardRecord || $awardRecord->user_id !== $memberId) {
+                    throw new \Exception('E0076');
+                }
 
-            //90秒
-            $duration = Carbon::now()->addSeconds($this::DelayVerifySecond)->timestamp;
-            $code = $this->qrCodePrefix . base64_encode("$memberId.$memberGiftId.$duration");
-
-            $result = new stdClass();
-
-            $result->code = $code;
-
+                //檢查qr code是否已經使用過
+                if ($awardRecord->verified_at) {
+                    throw new \Exception('E0078');
+                }
+                $result = new stdClass();
+                $result->code = $awardRecord->qrcode;
+            }
             return $this->success($result);
 
         } catch (\Exception $e) {
