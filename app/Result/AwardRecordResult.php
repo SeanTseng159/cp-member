@@ -12,7 +12,7 @@ namespace App\Result;
 use App\Enum\MyGiftType;
 use Carbon\Carbon;
 
-class AwardRecordsResult
+class AwardRecordResult
 {
 
     public function list($awardList)
@@ -39,6 +39,35 @@ class AwardRecordsResult
             $result[] = $data;
         }
         return $result;
+    }
+
+    /** detail
+     * @param $awardRecord
+     * @return \stdClass
+     */
+    public function show($awardRecord)
+    {
+        $result = new \stdClass();
+        $result->name = $awardRecord->award->supplier->supplier_name;
+
+
+        $result->phote = $awardRecord->award->image->img_path;
+        $result->title = $awardRecord->award->award_name;
+        $result->duration = $awardRecord->award->award_validity_end_at;
+        $result->content = $awardRecord->award->award_name;
+        $result->desc = $awardRecord->award->award_description;
+        $result->status = 0;
+
+        //已使用
+        if ($awardRecord->verified_at) {
+            $result->status = 1;
+        }
+        //已過期
+        if (Carbon::now() >= Carbon::parse($awardRecord->award->award_validity_end_at)) {
+            $result->status = 2;
+        }
+        return $result;
+
     }
 
 

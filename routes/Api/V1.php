@@ -299,10 +299,10 @@ Route::middleware(['cors', 'auth.jwt'])->namespace('V1')->group(function () {
         Route::get('/list', 'MemberGiftController@list');
 
         //禮物詳細
-        Route::get('/{id}', 'MemberGiftController@show');
+        Route::get('/{id}/type/{type}', 'MemberGiftController@show');
 
         // 產生禮物Qrcode
-        Route::get('/qrcode/{giftId}', 'MemberGiftController@getQrcode');
+        Route::get('/qrcode/{giftId}/type/{type}', 'MemberGiftController@getQrcode');
 
 
     });
