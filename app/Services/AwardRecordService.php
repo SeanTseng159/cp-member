@@ -20,8 +20,8 @@ class AwardRecordService extends BaseService
     {
         return $this->repository->list($type,$memberId);
     }
-    public function find($id)
+    public function find($id,$memberId)
     {
-        return $this->repository->find($id);
+        return $this->repository->find($id,$memberId);
     }
 }

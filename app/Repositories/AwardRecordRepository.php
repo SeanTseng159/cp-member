@@ -58,11 +58,12 @@ class AwardRecordRepository extends BaseRepository
         return $result;
     }
 
-    public function find($id)
+    public function find($id,$memberId)
     {
         return $this->model
             ->with(['award.supplier', 'award.image'])
             ->where('award_record_id', $id)
+            ->where('user_id',$memberId)
             ->first();
 
     }

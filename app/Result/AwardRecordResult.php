@@ -20,7 +20,7 @@ class AwardRecordResult
         $result = [];
         foreach ($awardList as $item) {
             $data = new \stdClass();
-            $data->id = $item->award_id;
+            $data->id = $item->award_record_id;
             $data->Name = $item->award->supplier->supplier_name;
             $data->title = $item->award->award_name;
             $data->duration = Carbon::parse($item->award->award_validity_end_at)->format('Y-m-d');
@@ -53,7 +53,7 @@ class AwardRecordResult
 
         $result->phote = $awardRecord->award->image->img_path;
         $result->title = $awardRecord->award->award_name;
-        $result->duration = $awardRecord->award->award_validity_end_at;
+        $result->duration = Carbon::parse($awardRecord->award->award_validity_end_at)->format('Y-m-d');
         $result->content = $awardRecord->award->award_name;
         $result->desc = $awardRecord->award->award_description;
         $result->status = 0;
