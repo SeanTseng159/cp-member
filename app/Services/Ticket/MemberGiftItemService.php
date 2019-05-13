@@ -41,9 +41,9 @@ class MemberGiftItemService extends BaseService
     }
     
     
-    public function findByID($id)
+    public function findByID($id,$memberID)
     {
-        return $this->repository->findByID($id);
+        return $this->repository->findByID($id,$memberID);
     }
     
     public function update($memberId,$memberGiftId)

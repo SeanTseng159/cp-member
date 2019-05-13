@@ -155,10 +155,11 @@ class MemberGiftItemRepository extends BaseRepository
      * @param $id
      * @return
      */
-    public function findByID($id)
+    public function findByID($id,$memberID)
     {
         $result = $this->memberGiftItem
             ->where('id', $id)
+            ->where('member_id',$memberID)
             ->with(['gift', 'gift.diningCar'])
             ->first();
 

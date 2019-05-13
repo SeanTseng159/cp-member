@@ -23,4 +23,15 @@ Route::middleware(['cors', 'auth.jwt'])->namespace('V2')->group(function () {
         // 取得單一訂單
         Route::get('detail/{orderNo}', 'OrderController@detail');
     });
+
+    //禮物相關
+    Route::prefix('gift')->group(function () {
+        //禮物詳細
+        Route::get('/{id}/type/{type}', 'MemberGiftController@show');
+
+        // 產生禮物Qrcode
+        Route::get('/qrcode/{giftId}/type/{type}', 'MemberGiftController@getQrcode');
+
+
+    });
 });
