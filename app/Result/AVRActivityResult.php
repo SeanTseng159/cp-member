@@ -11,6 +11,7 @@ namespace App\Result;
 use App\Enum\AVRImageType;
 use App\Enum\MissionFileType;
 use App\Helpers\AVRImageHelper;
+use App\Helpers\CommonHelper;
 use Carbon\Carbon;
 use App\Traits\StringHelper;
 
@@ -140,9 +141,11 @@ class AVRActivityResult extends BaseResult
 
                 if ($item->content_type == MissionFileType::recognition_id) {
                     $obj->detail = $item->recognition->name;
-                } else {
+                } else if ($item->content_type == MissionFileType::url)
                     $obj->detail = $item->content;
-                }
+                else
+
+                    $obj->detail = CommonHelper::getAdHost($item->content);
 
 
                 $content[] = $obj;
