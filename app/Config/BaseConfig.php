@@ -18,6 +18,10 @@ class BaseConfig
     const   WEB_HOST_BETA    = 'https://beta.citypass.tw/';   // 前台路徑
     const   WEB_HOST_TEST    = 'https://dev.citypass.tw/';   // 前台路徑
 
+    const   AD_HOST         = 'https://ad.citypass.tw/';
+    const   AD_HOST_BETA    = 'https://beta.ad.citypass.tw/';
+    const   AD_HOST_TEST    = 'https://dev.ad.citypass.tw/';
+
     const   DATA_COLLECTION_HOST = 'https://galera.touchcity.tw';
 
     # 來源

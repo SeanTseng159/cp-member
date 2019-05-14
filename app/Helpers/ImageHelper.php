@@ -25,5 +25,10 @@ Class ImageHelper extends BaseImageHelper
 
     }
 
+    protected static function getHost()
+    {
+        return CommonHelper::getBackendHost();
+    }
+
 
 }

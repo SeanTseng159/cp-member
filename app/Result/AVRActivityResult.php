@@ -81,7 +81,7 @@ class AVRActivityResult extends BaseResult
         foreach ($missions as $mission) {
             $ret = new \stdClass();
             $ret->id = $mission->id;
-            $ret->name = $mission->name;
+            $ret->Name = $mission->name;
             $ret->longitude = $mission->longitude;
             $ret->latitude = $mission->latitude;
             $user = $mission->members->where('member_id', $memberID)->first();

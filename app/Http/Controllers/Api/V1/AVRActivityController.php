@@ -1,7 +1,7 @@
 <?php
 
 
-namespace App\Http\Controllers\Api\V1\AVR;
+namespace App\Http\Controllers\Api\V1;
 
 
 
@@ -13,7 +13,7 @@ use Illuminate\Http\Request;
 use Ksd\Mediation\Core\Controller\RestLaravelController;
 
 
-class ActivityController extends RestLaravelController
+class AVRActivityController extends RestLaravelController
 {
     use MemberHelper;
 

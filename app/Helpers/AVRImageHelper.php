@@ -22,4 +22,9 @@ Class AVRImageHelper extends BaseImageHelper
         return static::$imageService;
     }
 
+    protected static function getHost()
+    {
+        return CommonHelper::getAdHost();
+    }
+
 }
