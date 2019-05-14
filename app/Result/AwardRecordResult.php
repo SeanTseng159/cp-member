@@ -27,6 +27,7 @@ class AwardRecordResult
             $data->duration = Carbon::parse($item->award->award_validity_end_at)->format('Y-m-d');
             $data->photo = CommonHelper::getBackendHost($item->award->image->img_path);
 
+
             //$status 0:可使用  1:已使用 2:已過期
             if (is_null($item->verified_at)) {
                 if (Carbon::now()->greaterThan($item->award->award_validity_end_at)) {
@@ -52,7 +53,7 @@ class AwardRecordResult
         $result->name = $awardRecord->award->supplier->supplier_name;
 
 
-        $result->phote = $awardRecord->award->image->img_path;
+        $result->phote = CommonHelper::getBackendHost($awardRecord->award->image->img_path);
         $result->title = $awardRecord->award->award_name;
         $result->duration = Carbon::parse($awardRecord->award->award_validity_end_at)->format('Y-m-d');
         $result->content = $awardRecord->award->award_name;

@@ -71,9 +71,7 @@ class MemberGiftController extends RestLaravelController
                 } else if ($type == MyGiftType::award) {
                     $result = (new AwardRecordResult())->show($result);
                 }
-            }
-            else
-            {
+            } else {
                 throw New \Exception('E0076');
             }
             return $this->success($result);
@@ -110,8 +108,9 @@ class MemberGiftController extends RestLaravelController
 
             if ($type == MyGiftType::gift) {
                 //檢查禮物是否屬於該會員
-                $memberGiftItem = $this->memberGiftItemService->findByID($memberGiftId,$memberId);
-                if (!$memberGiftItem || $memberGiftItem->member_id !== $memberId) {
+                $memberGiftItem = $this->memberGiftItemService->findByID($memberGiftId, $memberId);
+
+                if (!$memberGiftItem) {
                     throw new \Exception('E0076');
                 }
 
@@ -127,7 +126,7 @@ class MemberGiftController extends RestLaravelController
                 $result->code = $code;
             } else if ($type == MyGiftType::award) {
                 //檢查禮物是否屬於該會員
-                $awardRecord = $this->awardRecordService->find($memberGiftId,$memberId);
+                $awardRecord = $this->awardRecordService->find($memberGiftId, $memberId);
                 if (!$awardRecord) {
                     throw new \Exception('E0076');
                 }
@@ -143,8 +142,8 @@ class MemberGiftController extends RestLaravelController
 
         } catch (\Exception $e) {
             if ($e->getMessage())
-                return $this->failureCode($e->getMessage());
-            return $this->failureCode('E0007');
+                return $this->failureCode($e->getMessage(), '');
+            return $this->failureCode('E0007', '');
 
         }
     }
