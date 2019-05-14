@@ -10,6 +10,7 @@ namespace App\Result;
 
 
 use App\Enum\MyGiftType;
+use App\Helpers\CommonHelper;
 use Carbon\Carbon;
 
 class AwardRecordResult
@@ -24,7 +25,7 @@ class AwardRecordResult
             $data->Name = $item->award->supplier->supplier_name;
             $data->title = $item->award->award_name;
             $data->duration = Carbon::parse($item->award->award_validity_end_at)->format('Y-m-d');
-            $data->photo = $item->award->image->img_path;
+            $data->photo = CommonHelper::getBackendHost($item->award->image->img_path);
 
             //$status 0:可使用  1:已使用 2:已過期
             if (is_null($item->verified_at)) {
