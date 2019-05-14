@@ -106,6 +106,7 @@ class MemberGiftController extends RestLaravelController
                 throw  new \Exception('E0007');
             }
 
+            $result = new stdClass();
             if ($type == MyGiftType::gift) {
                 //檢查禮物是否屬於該會員
                 $memberGiftItem = $this->memberGiftItemService->findByID($memberGiftId, $memberId);
@@ -122,7 +123,7 @@ class MemberGiftController extends RestLaravelController
                 //90秒
                 $duration = Carbon::now()->addSeconds($this::DelayVerifySecond)->timestamp;
                 $code = $this->qrCodePrefix . base64_encode("$memberId.$memberGiftId.$duration");
-                $result = new stdClass();
+
                 $result->code = $code;
             } else if ($type == MyGiftType::award) {
                 //檢查禮物是否屬於該會員
@@ -135,11 +136,9 @@ class MemberGiftController extends RestLaravelController
                 if ($awardRecord->verified_at) {
                     throw new \Exception('E0078');
                 }
-                $result = new stdClass();
                 $result->code = $awardRecord->qrcode;
             }
             return $this->success($result);
-
         } catch (\Exception $e) {
             if ($e->getMessage())
                 return $this->failureCode($e->getMessage(), '');

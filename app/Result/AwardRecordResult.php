@@ -22,7 +22,7 @@ class AwardRecordResult
         foreach ($awardList as $item) {
             $data = new \stdClass();
             $data->id = $item->award_record_id;
-            $data->Name = $item->award->supplier->supplier_name;
+            $data->name = $item->award->supplier->supplier_name;
             $data->title = $item->award->award_name;
             $data->duration = Carbon::parse($item->award->award_validity_end_at)->format('Y-m-d');
             $data->photo = CommonHelper::getBackendHost($item->award->image->img_path);
