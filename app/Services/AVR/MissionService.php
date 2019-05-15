@@ -8,8 +8,6 @@
 namespace App\Services\AVR;
 
 
-
-
 use App\Repositories\AVR\MissionRepository;
 use App\Services\BaseService;
 
@@ -28,14 +26,14 @@ class MissionService extends BaseService
         return $this->repository->detail($id);
     }
 
-    public function end($activityID,$missionID,$missionName,$memberID,$passPoint,$point)
+    public function end($activityID, $missionID, $missionName, $memberID, $passPoint, $point, $orderId = null)
     {
-        return $this->repository->end($activityID,$missionID,$missionName,$memberID,$passPoint,$point);
+        return $this->repository->end($activityID, $missionID, $missionName, $memberID, $passPoint, $point, $orderId);
     }
 
-    public function delete($missionID, $memberID)
+    public function delete($missionID, $memberID, $orderId = null)
     {
-        return $this->repository->delete($missionID, $memberID);
+        return $this->repository->delete($missionID, $memberID, $orderId);
     }
 
 

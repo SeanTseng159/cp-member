@@ -14,7 +14,7 @@ class ProductAdditionalRepository extends BaseRepository
 {
     public function __construct(ProductAdditional $model)
     {
-        $this->missionModel = $model;
+        $this->model = $model;
     }
 
     /**
@@ -24,7 +24,7 @@ class ProductAdditionalRepository extends BaseRepository
      */
     public function getAllByProdId($id)
     {
-        $additionals = $this->missionModel->with(['product.specs.specPrices', 'product.imgs' => function($query) {
+        $additionals = $this->model->with(['product.specs.specPrices', 'product.imgs' => function($query) {
                                         return $query->orderBy('img_sort')->first();
                                     }])
                                     ->whereHas('product', function($query) {

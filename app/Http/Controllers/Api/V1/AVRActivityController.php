@@ -4,7 +4,7 @@
 namespace App\Http\Controllers\Api\V1;
 
 
-
+use App\Models\AVR\Activity;
 use App\Result\AVRActivityResult;
 use App\Services\AVR\ActivityService;
 use App\Services\AVR\MissionService;
@@ -32,8 +32,8 @@ class AVRActivityController extends RestLaravelController
     {
 
         try {
-            $data = $this->activityService->list();
-            $data = (new AVRActivityResult)->list($data);
+            $memberID = $this->getMemberId();
+            $data = $this->activityService->list($memberID);
             return $this->success($data);
         } catch (\Exception $e) {
             return $this->failureCode('E0001');
@@ -62,7 +62,7 @@ class AVRActivityController extends RestLaravelController
     }
 
 
-    public function missionList(Request $request, $activityId)
+    public function missionList(Request $request, $activityId, $orderId)
     {
 
         try {
@@ -71,18 +71,29 @@ class AVRActivityController extends RestLaravelController
                 throw new \Exception('E0001');
             }
 
-            $data = $this->activityService->detail($activityId);
+            $memberID = $this->getMemberId();
+
+            if (!$memberID && $orderId != 0) {
+                throw new \Exception('E0001');
+            }
+            if ($orderId == 0) $orderId = null;
+
+            $data = $this->activityService->detail($activityId, $orderId);
+
+            //檢查訂單編號
+            if ($data->has_prod_spec_price_id && $data->prod_spec_price_id && !$orderId)
+                throw new \Exception('E0080');
+
             if (!$data)
                 return $this->success();
 
-            $memberID = $this->getMemberId();
 
-            $data = (new AVRActivityResult)->missionList($data, $memberID);
+            $data = (new AVRActivityResult)->missionList($data, $memberID, $orderId);
 
             return $this->success($data);
         } catch (\Exception $e) {
-            \Log::error($e);
-            return $this->failureCode('E0001');
+            $code = $e->getMessage() ? $e->getMessage() : 'E0001';
+            return $this->failureCode($code);
         }
     }
 
@@ -98,35 +109,43 @@ class AVRActivityController extends RestLaravelController
         } catch (\Exception $e) {
 //            dd($e);
             \Log::error($e);
-            return $this->failureCode('E0001');
+            $code = $e->getMessage() ? $e->getMessage() : 'E0001';
+            return $this->failureCode($code);
         }
     }
 
-    public function missionEnd(Request $request, $missionId)
+    public function missionEnd(Request $request, $orderId, $missionId)
     {
-            try {
-                $memberID = $request->memberId;
-                $point = $request->point;
-                if (is_null($point)) {
-                    throw  new \Exception('E0001');
-                }
+        try {
+            $memberID = $request->memberId;
+            $point = $request->point;
+
+            if (is_null($point)) {
+                throw  new \Exception('E0001');
+            }
+
+            if ($orderId == 0) $orderId = null;
 
             $mission = $this->missionService->detail($missionId);
 
             $activityID = $mission->activity_id;
+            $activity = Activity::find($activityID);
+            //檢查訂單編號
+            if ($activity->has_prod_spec_price_id && $activity->prod_spec_price_id && !$orderId)
+                throw new \Exception('E0080');
 
-            $ret = $this->missionService->end($activityID, $mission->id, $mission->name, $memberID, $mission->passing_grade, $point);
+            $ret = $this->missionService->end($activityID, $mission->id, $mission->name, $memberID, $mission->passing_grade, $point, $orderId);
             return $this->success($ret);
 
         } catch (\Exception $e) {
-//            dd($e);
             \Log::error($e);
-            return $this->failureCode('E0001');
+            $code = $e->getMessage() ? $e->getMessage() : 'E0001';
+            return $this->failureCode($code);
         }
 
     }
 
-    public function cancelMission(Request $request,$missionId)
+    public function cancelMission(Request $request, $orderId, $missionId)
     {
         try {
             $memberID = $request->memberId;
@@ -134,14 +153,13 @@ class AVRActivityController extends RestLaravelController
             if (is_null($missionId)) {
                 throw  new \Exception('E0001');
             }
-
-            $ret = $this->missionService->delete($missionId, $memberID);
+            if ($orderId == 0) $orderId = null;
+            $ret = $this->missionService->delete($missionId, $memberID, $orderId);
             return $this->success();
 
         } catch (\Exception $e) {
-            dd($e);
-            \Log::error($e);
-            return $this->failureCode('E0001');
+            $code = $e->getMessage() ? $e->getMessage() : 'E0001';
+            return $this->failureCode($code);
         }
     }
 

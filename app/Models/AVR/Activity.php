@@ -3,6 +3,7 @@
 namespace App\Models\AVR;
 
 
+use App\Models\Ticket\ProductSpecPrice;
 use Carbon\Carbon;
 
 class Activity extends AVRBaseModel
@@ -44,6 +45,13 @@ class Activity extends AVRBaseModel
     public function award()
     {
         return $this->hasOne(ActivityAward::class);
+    }
+
+    public function productPriceId()
+    {
+        return $this->hasOne(ProductSpecPrice::class, 'prod_spec_price_id', 'prod_spec_price_id');
+
+
     }
 
 

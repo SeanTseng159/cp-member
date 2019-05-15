@@ -15,7 +15,7 @@ class TagRepository extends BaseRepository
 
     public function __construct(Tag $model)
     {
-        $this->missionModel = $model;
+        $this->model = $model;
     }
 
     /**
@@ -24,7 +24,7 @@ class TagRepository extends BaseRepository
      */
     public function all($lang)
     {
-        return $this->missionModel->with(['subMenus' => function($query) {
+        return $this->model->with(['subMenus' => function($query) {
                                 return $query->where('tag_status', 1)
                                             ->where('tag_type', 5)
                                             ->orderBy('tag_top', 'desc')
@@ -45,7 +45,7 @@ class TagRepository extends BaseRepository
      */
     public function one($lang, $id)
     {
-        return $this->missionModel->with(['subMenus' => function($query) {
+        return $this->model->with(['subMenus' => function($query) {
                                 return $query->where('tag_status', 1)
                                             ->where('tag_type', 5)
                                             ->orderBy('tag_top', 'desc')
@@ -63,7 +63,7 @@ class TagRepository extends BaseRepository
      */
     public function oneWithUpperId($lang, $id)
     {
-        return $this->missionModel->with(['subMenus' => function($query) {
+        return $this->model->with(['subMenus' => function($query) {
                                 return $query->where('tag_status', 1)
                                             ->where('tag_type', 5)
                                             ->orderBy('tag_top', 'desc')
@@ -82,7 +82,7 @@ class TagRepository extends BaseRepository
      */
     public function getSubTagsOnlyId($lang, $id)
     {
-        return $this->missionModel->select('tag_id')
+        return $this->model->select('tag_id')
                             ->where('tag_upper_id', $id)
                             ->where('tag_type', 5)
                             ->where('tag_status', 1)

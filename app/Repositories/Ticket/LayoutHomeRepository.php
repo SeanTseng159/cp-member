@@ -19,7 +19,7 @@ class LayoutHomeRepository extends BaseRepository
 
     public function __construct(LayoutHome $model, ProductRepository $productRepository, MagentoProductRepository $MagentoProductRepository)
     {
-        $this->missionModel = $model;
+        $this->model = $model;
         $this->productRepository = $productRepository;
         $this->MagentoProductRepository = $MagentoProductRepository;
     }
@@ -30,7 +30,7 @@ class LayoutHomeRepository extends BaseRepository
      */
     public function all($lang)
     {
-        $data = $this->missionModel->with(['products' => function($query) {
+        $data = $this->model->with(['products' => function($query) {
                                 return $query->notDeleted()
                                             ->orderBy('layout_home_prod_sort', 'asc');
                             }])

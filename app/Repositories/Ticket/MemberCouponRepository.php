@@ -20,7 +20,7 @@ class MemberCouponRepository extends BaseRepository
 
     public function __construct(MemberCoupon $model)
     {
-        $this->missionModel = $model;
+        $this->model = $model;
     }
 
     /** 取得使用者之優惠劵列表，若$couponId 有值，則取得該coupon資料
@@ -33,7 +33,7 @@ class MemberCouponRepository extends BaseRepository
     {
 
 
-        return $this->missionModel
+        return $this->model
             ->select('coupon_id', 'is_collected', 'count')
             ->where('member_id', $memberID)
             ->when($couponID, function ($query) use ($couponID) {
@@ -126,7 +126,7 @@ class MemberCouponRepository extends BaseRepository
 
     public function update($memberId, $couponID, $isFavorite)
     {
-        return $this->missionModel
+        return $this->model
             ->where('member_id', $memberId)
             ->where('coupon_id', $couponID)
             ->update(['is_collected' => $isFavorite]);
@@ -154,7 +154,7 @@ class MemberCouponRepository extends BaseRepository
             $returnObj->status = 0;
             $returnObj->used = false;
 
-            $memberCoupon = $this->missionModel
+            $memberCoupon = $this->model
                 ->where('member_id', $memberId)
                 ->where('coupon_id', $couponID)
                 ->first();
@@ -249,7 +249,7 @@ class MemberCouponRepository extends BaseRepository
      */
     private function getCouponListByStatus($memberID, $status)
     {
-        $result = $this->missionModel
+        $result = $this->model
             ->join('coupons', 'coupons.id', '=', "coupon_id")
             ->select(
                 'coupons.id',

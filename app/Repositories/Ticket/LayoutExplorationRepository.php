@@ -15,7 +15,7 @@ class LayoutExplorationRepository extends BaseRepository
 
     public function __construct(LayoutExploration $model)
     {
-        $this->missionModel = $model;
+        $this->model = $model;
     }
 
     /**
@@ -24,7 +24,7 @@ class LayoutExplorationRepository extends BaseRepository
      */
     public function all($lang)
     {
-        $data = $this->missionModel->with('tag')
+        $data = $this->model->with('tag')
                             ->notDeleted()
                             ->where('layout_exploration_lang', $lang)
                             ->where('layout_exploration_status', 1)
