@@ -17,7 +17,7 @@ class LayoutAppRepository extends BaseRepository
 
     public function __construct(LayoutApp $model)
     {
-        $this->missionModel = $model;
+        $this->model = $model;
 
         $this->date = Carbon::now()->toDateTimeString();
     }
@@ -28,7 +28,7 @@ class LayoutAppRepository extends BaseRepository
      */
     public function all()
     {
-        $data = $this->missionModel->where('status', 1)
+        $data = $this->model->where('status', 1)
                             ->where('start_time', '<=', $this->date)
                             ->where('end_time', '>=', $this->date)
                             ->orderBy('sort', 'asc')
@@ -43,7 +43,7 @@ class LayoutAppRepository extends BaseRepository
      */
     public function findInHome()
     {
-        $slide = $this->missionModel->where('status', 1)
+        $slide = $this->model->where('status', 1)
                             ->where('index_display', 1)
                             ->where('start_time', '<=', $this->date)
                             ->where('end_time', '>=', $this->date)

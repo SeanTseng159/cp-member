@@ -17,7 +17,7 @@ class OrderRefundRepository extends BaseRepository
 
     public function __construct(OrderRefund $model)
     {
-        $this->missionModel = $model;
+        $this->model = $model;
     }
 
 
@@ -30,7 +30,7 @@ class OrderRefundRepository extends BaseRepository
     {
         if (!$orderId) return null;
 
-        return $this->missionModel->where('order_id', $orderId)->first();
+        return $this->model->where('order_id', $orderId)->first();
     }
 
     /**
@@ -42,6 +42,6 @@ class OrderRefundRepository extends BaseRepository
     {
         if (!$id) return null;
 
-        return $this->missionModel->find($id);
+        return $this->model->find($id);
     }
 }

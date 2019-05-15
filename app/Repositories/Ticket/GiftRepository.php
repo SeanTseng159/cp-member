@@ -21,12 +21,12 @@ use function Matrix\trace;
 class GiftRepository extends BaseRepository
 {
     private $limit = 20;
-    protected $missionModel;
+    protected $model;
     protected $memberGiftItem;
 
     public function __construct(Gift $model,MemberGiftItem $memberGiftItem)
     {
-        $this->missionModel = $model;
+        $this->model = $model;
         $this->memberGiftItem = $memberGiftItem;
     }
 
@@ -41,7 +41,7 @@ class GiftRepository extends BaseRepository
      */
     public function findByType($modelType = '', $modelSpecId = 0, $type = '')
     {
-        return $this->missionModel->where('model_type', $modelType)
+        return $this->model->where('model_type', $modelType)
             ->where('model_spec_id', $modelSpecId)
             ->where('type', $type)
             ->isActive()
@@ -59,7 +59,7 @@ class GiftRepository extends BaseRepository
      */
     public function getMemberGiftItemsCountByDiningCarId($memberId = 0, $diningCarId = 0)
     {
-        return $this->missionModel->join('member_gift_items', function ($join) use ($memberId) {
+        return $this->model->join('member_gift_items', function ($join) use ($memberId) {
             $join->on('gifts.id', '=', 'member_gift_items.gift_id')
                 ->where('member_gift_items.member_id', '=', $memberId);
         })
@@ -78,7 +78,7 @@ class GiftRepository extends BaseRepository
     public function list($modelType, $modeSpecId)
     {
         $client = ClientType::transform($modelType);
-        $result = $this->missionModel->where('model_type', $client)
+        $result = $this->model->where('model_type', $client)
             ->where('model_spec_id', $modeSpecId)
             ->where('type', GiftType::point)
             ->isActive()
@@ -95,7 +95,7 @@ class GiftRepository extends BaseRepository
      */
     public function getWithDiningCar($giftId)
     {
-        return $this->missionModel
+        return $this->model
             ->exchangable()
             ->isDiningCar()
             ->where('id', $giftId)
@@ -111,7 +111,7 @@ class GiftRepository extends BaseRepository
      */
     public function getBirthdayDingingMembers($dateDiff)
     {
-        $result = $this->missionModel
+        $result = $this->model
             ->exchangable()
             ->isDiningCar()
             ->with(
@@ -144,7 +144,7 @@ class GiftRepository extends BaseRepository
            foreach ($gifts as $gift) {
                $qty = $gift->qty;
                $id = $gift->gift_id;
-               $this->missionModel->where('id', $id)->update(['qty' => $qty]);
+               $this->model->where('id', $id)->update(['qty' => $qty]);
            }
 
             DB::connection('backend')->commit();

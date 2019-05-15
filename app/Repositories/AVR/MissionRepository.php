@@ -22,31 +22,32 @@ use Carbon\Carbon;
 
 class MissionRepository extends BaseRepository
 {
-    protected $missionModel;
+    protected $model;
     protected $memberMissionModel;
     protected $activityModel;
 
     public function __construct(Activity $activityModel, Mission $model, MemberMission $memberMission)
     {
 
-        $this->missionModel = $model;
+        $this->model = $model;
         $this->memberMissionModel = $memberMission;
         $this->activityModel = $activityModel;
     }
 
     public function detail($id)
     {
-        $data = $this->missionModel->where('id', $id)->first();
+        $data = $this->model->where('id', $id)->first();
         return $data;
 
     }
 
-    public function delete($missionID, $memberID)
+    public function delete($missionID, $memberID, $orderId = null)
     {
 
         return $this->memberMissionModel
             ->where('mission_id', $missionID)
             ->where('member_id', $memberID)
+            ->where('order_detail_id', $orderId)
             ->update(
                 [
                     'point' => 0,
@@ -56,13 +57,14 @@ class MissionRepository extends BaseRepository
     }
 
 
-    public function end($activityID, $missionID, $missionName, $memberID, $passPoint, $userPoint)
+    public function end($activityID, $missionID, $missionName, $memberID, $passPoint, $userPoint, $orderId = null)
     {
 
         $missionStatus = $this->memberMissionModel
             ->firstOrNew([
                 'member_id' => $memberID,
-                'mission_id' => $missionID
+                'mission_id' => $missionID,
+                'order_detail_id' => $orderId
             ]);
 
 
@@ -78,17 +80,26 @@ class MissionRepository extends BaseRepository
                 'member_id' => $memberID,
                 'mission_id' => $missionID,
                 'point' => $userPoint,
-                'isComplete' => $isComplete
+                'isComplete' => $isComplete,
+                'order_detail_id' => $orderId
             ]);
         } else {
             $missionStatus->isComplete = $isComplete;
             $missionStatus->point = $userPoint;
+            $missionStatus->order_detail_id = $orderId;
         }
 
         $ret = new \stdClass;
 
         \DB::connection('avr')->transaction(function () use (
-            $missionStatus, $isComplete, $missionID, $activityID, $memberID, $ret, $missionName
+            $missionStatus,
+            $isComplete,
+            $missionID,
+            $activityID,
+            $memberID,
+            $ret,
+            $missionName,
+            $orderId
         ) {
             try {
                 $missionStatus->save();
@@ -113,8 +124,8 @@ class MissionRepository extends BaseRepository
 
                     $activityMissionStatus = $this->activityModel->with([
                         'missions',
-                        'missions.members' => function ($query) use ($memberID) {
-                            $query->where('member_id', $memberID);
+                        'missions.members' => function ($query) use ($memberID, $orderId) {
+                            $query->where('member_id', $memberID)->where('order_detail_id', $orderId);
                         }])
                         ->where('id', $activityID)
                         ->first();
@@ -145,6 +156,10 @@ class MissionRepository extends BaseRepository
                     ) {
                         try {
                             if ($award) {
+                                //獎品紀錄
+                                $award->award_used_quantity = $award->award_used_quantity++;
+                                $award->modified_at = Carbon::now();
+                                $award->save();
                                 //獲獎紀錄
                                 $awardRecord = new AwardRecord;
                                 $awardRecord->award_id = $award->award_id;
@@ -163,9 +178,6 @@ class MissionRepository extends BaseRepository
                                 $awardRecord->modified_at = Carbon::now();
                                 $awardRecord->save();
 
-                                //獎品紀錄
-                                $award->award_used_quantity = $award->award_used_quantity++;
-                                $award->save();
                             }
 
 
@@ -177,6 +189,10 @@ class MissionRepository extends BaseRepository
                                     $ret->activity->award->photo = $activityAward->image->img_path;
 
                                     //寫入DB
+                                    $activityAward->award_used_quantity = $activityAward->award_used_quantity++;
+                                    $activityAward->modified_at = Carbon::now();
+                                    $activityAward->save();
+
                                     $awardRecord = new AwardRecord;
                                     $awardRecord->award_id = $activityAward->award_id;
                                     $awardRecord->user_id = $memberID;
@@ -192,9 +208,6 @@ class MissionRepository extends BaseRepository
                                     $awardRecord->created_at = Carbon::now();
                                     $awardRecord->modified_at = Carbon::now();
                                     $awardRecord->save();
-
-                                    $activityAward->award_used_quantity = $activityAward->award_used_quantity++;
-                                    $activityAward->save();
                                 }
                             }
                         } catch (\Exception $e) {
@@ -215,7 +228,7 @@ class MissionRepository extends BaseRepository
      */
     private function getMissionAward($missionId)
     {
-        $mission = $this->missionModel
+        $mission = $this->model
             ->with('missionAwards')
             ->where('id', $missionId)
             ->first();

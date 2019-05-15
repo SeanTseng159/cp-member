@@ -15,7 +15,7 @@ class MenuRepository extends BaseRepository
 {
     public function __construct(Menu $model)
     {
-        $this->missionModel = $model;
+        $this->model = $model;
     }
 
     /**
@@ -25,7 +25,7 @@ class MenuRepository extends BaseRepository
      */
     public function find($id)
     {
-        return $this->missionModel->with([
+        return $this->model->with([
                                 'category',
                                 'imgs',
                                 'prodSpecPrice' => function($query) {
@@ -49,7 +49,7 @@ class MenuRepository extends BaseRepository
      */
     public function getDiningCarsByKeyword($keyword = '')
     {
-        return $this->missionModel->select('dining_car_id')
+        return $this->model->select('dining_car_id')
                             ->where('status', 1)
                             ->where('name', 'like', '%' . $keyword . '%')
                             ->get();
@@ -62,7 +62,7 @@ class MenuRepository extends BaseRepository
      */
     public function findByPaidDiningCar($prodSpecPriceId = 0)
     {
-        return $this->missionModel->with('diningCar')
+        return $this->model->with('diningCar')
                             ->whereHas('diningCar', function($query) {
                                 $query->where('level', '>', 0)
                                     ->where('expired_at', '>=', date('Y-m-d H:i:s'));

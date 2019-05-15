@@ -27,16 +27,17 @@ class ActivityService extends BaseService
     }
 
     /**
-     *
+     * @param null $memberID
+     * @return |null
      */
-    public function list()
+    public function list($memberID = null)
     {
-        return $this->repository->list();
+        return $this->repository->list($memberID);
     }
 
-    public function detail($id)
+    public function detail($id,$orderId = null)
     {
-        return $this->repository->detail($id);
+        return $this->repository->detail($id,$orderId);
     }
 
 

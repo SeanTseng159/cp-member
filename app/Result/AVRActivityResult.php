@@ -24,32 +24,6 @@ class AVRActivityResult extends BaseResult
         parent::__construct();
     }
 
-    /**
-     *
-     *
-     * @param $activities
-     * @return array
-     */
-    public function list($activities)
-    {
-        $resultAry = [];
-
-
-        foreach ($activities as $activity) {
-            $result = new \stdClass;
-            $result->id = $activity->id;
-            $result->name = $activity->name;
-            $result->duration = Carbon::parse($activity->start_activity_time)->format('Y-m-d') .
-                "~" .
-                Carbon::parse($activity->end_activity_time)->format('Y-m-d');
-
-            //圖片
-            $result->photo = AVRImageHelper::getImageUrl(AVRImageType::activity, $activity->id);
-
-            $resultAry[] = $result;
-        }
-        return $resultAry;
-    }
 
     public function activityDetail($activity)
     {
@@ -69,30 +43,58 @@ class AVRActivityResult extends BaseResult
 
     }
 
-    public function missionList($activity, $memberID)
+    public function missionList($activity, $memberID = null, $orderId = null)
     {
 
         $result = new \stdClass;
 
         $result->mission = [];
         $missions = $activity->missions;
+        $hasOrder = $activity->is_mission; //必須依照排序
+
+
 
         $finishNum = 0;
 
         foreach ($missions as $mission) {
+            static $preMission;
             $ret = new \stdClass();
             $ret->id = $mission->id;
             $ret->name = $mission->name;
             $ret->longitude = $mission->longitude;
             $ret->latitude = $mission->latitude;
-            $user = $mission->members->where('member_id', $memberID)->first();
 
-            if (!$user) {
-                $ret->status = false;
-            } else
-                $ret->status = (bool)$user->isComplete;
+            $user = $mission->members
+                ->where('member_id', $memberID)
+                ->where('order_detail_id', $orderId)
+                ->first();
+
+            $status = false;
+            $enable = false;
+
+            if ($user) {
+                $status = (bool)$user->isComplete;
+            }
+
+            if ($hasOrder) {
+                if (!$preMission) {
+                    $enable = true;
+                } else if ($preMission->enable && $preMission->status) {
+                    $enable = true;
+                }
+            } else {
+                $enable = true;
+            }
+            $ret->status = $status;
+            $ret->enable = $enable;
+
             $ret->photo = AVRImageHelper::getImageUrl(AVRImageType::mission, $mission->id);
             $result->mission[] = $ret;
+
+            $preMission = $mission; //上一個
+            $preMission->enable = $enable;
+            $preMission->status = $status;
+
 
             if ($ret->status)
                 $finishNum++;
@@ -144,11 +146,17 @@ class AVRActivityResult extends BaseResult
                 } else if ($item->content_type == MissionFileType::url)
                     $obj->detail = $item->content;
                 else
-
                     $obj->detail = CommonHelper::getAdHost($item->content);
 
+                if ($item->content_type != MissionFileType::color) {
+                    $content[] = $obj;
+                }
+                //顏色放在game的property裡面
+                if ($item->content_type == MissionFileType::color) {
+                    $game->color = $item->content;
+                }
 
-                $content[] = $obj;
+
             }
             $game->content = $content;
 

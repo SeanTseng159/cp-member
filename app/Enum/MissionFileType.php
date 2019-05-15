@@ -20,4 +20,5 @@ final class MissionFileType extends Enum
     const image = 'image';
     const url = 'url';
     const recognition_id = 'recognition_id';
+    const color = 'color';
 }

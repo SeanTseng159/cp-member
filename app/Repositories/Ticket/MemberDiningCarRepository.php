@@ -16,7 +16,7 @@ class MemberDiningCarRepository extends BaseRepository
 
     public function __construct(MemberDiningCar $model)
     {
-        $this->missionModel = $model;
+        $this->model = $model;
     }
 
     /**
@@ -43,7 +43,7 @@ class MemberDiningCarRepository extends BaseRepository
      */
     public function delete($memberId = 0, $id = 0)
     {
-        return $this->missionModel->where('member_id', $memberId)
+        return $this->model->where('member_id', $memberId)
                             ->where('dining_car_id', $id)
                             ->delete();
     }
@@ -56,7 +56,7 @@ class MemberDiningCarRepository extends BaseRepository
      */
     public function find($memberId = 0, $id = 0)
     {
-        return $this->missionModel->where('member_id', $memberId)
+        return $this->model->where('member_id', $memberId)
                             ->where('dining_car_id', $id)
                             ->first();
     }
@@ -74,7 +74,7 @@ class MemberDiningCarRepository extends BaseRepository
             return $currentPage;
         });
 
-        return $this->missionModel->with([
+        return $this->model->with([
                                 'diningCar.subCategory',
                                 'diningCar.memberCard' => function($query) use ($memberId) {
                                     $query->where('member_id', $memberId);
@@ -97,7 +97,7 @@ class MemberDiningCarRepository extends BaseRepository
      */
     public function getAllByMemberId($memberId = 0)
     {
-        return $this->missionModel->select('dining_car_id')
+        return $this->model->select('dining_car_id')
                             ->where('member_id', $memberId)
                             ->get();
     }
@@ -109,7 +109,7 @@ class MemberDiningCarRepository extends BaseRepository
      */
     public function getCategoriesByMemberId($memberId = 0)
     {
-        return $this->missionModel->with(['diningCar'])
+        return $this->model->with(['diningCar'])
                             ->where('member_id', $memberId)
                             ->get();
     }

@@ -15,7 +15,7 @@ class UberCouponRepository extends BaseRepository
 
     public function __construct(UberCoupon $model)
     {
-        $this->missionModel = $model;
+        $this->model = $model;
     }
 
     /**
@@ -24,6 +24,6 @@ class UberCouponRepository extends BaseRepository
      */
     public function findByOrderDetailId($order_detail_id = 0)
     {
-        return $this->missionModel->where('order_detail_id', $order_detail_id)->first();
+        return $this->model->where('order_detail_id', $order_detail_id)->first();
     }
 }

@@ -14,7 +14,7 @@ class ProductImgRepository extends BaseRepository
 {
     public function __construct(ProductImg $model)
     {
-        $this->missionModel = $model;
+        $this->model = $model;
     }
 
     /**
@@ -24,6 +24,6 @@ class ProductImgRepository extends BaseRepository
      */
     public function findMain($productId = 0)
     {
-        return $this->missionModel->where('prod_id', $productId)->orderBy('img_sort')->first();
+        return $this->model->where('prod_id', $productId)->orderBy('img_sort')->first();
     }
 }

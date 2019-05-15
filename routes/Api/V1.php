@@ -189,7 +189,10 @@ Route::middleware('cors')->namespace('V1')->group(function () {
             Route::get('/{activityId}', 'AVRActivityController@detail');
 
             //任務列表
-            Route::get('/{activityId}/missions', 'AVRActivityController@missionList');
+            Route::get('/{activityId}/order/{orderId}/missions', 'AVRActivityController@missionList');
+
+            //任務明細
+            Route::get('/mission/{missionId}', 'AVRActivityController@missionDetail');
         });
     });
 
@@ -322,14 +325,11 @@ Route::middleware(['cors', 'auth.jwt'])->namespace('V1')->group(function () {
     Route::prefix('avr')->group(function () {
         Route::prefix('activity')->group(function () {
 
-            //任務明細
-            Route::get('/mission/{missionId}', 'AVRActivityController@missionDetail');
-
             //任務結束
-            Route::post('/mission/{missionId}', 'AVRActivityController@missionEnd');
+            Route::post('order/{orderId}/mission/{missionId}', 'AVRActivityController@missionEnd');
 
             //刪除user任務資訊
-            Route::delete('/mission/{missionId}', 'AVRActivityController@cancelMission');
+            Route::delete('order/{orderId}/mission/{missionId}', 'AVRActivityController@cancelMission');
         });
     });
 });

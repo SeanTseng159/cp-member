@@ -20,7 +20,7 @@ class SeqOrderRepository extends BaseRepository
 {
     public function __construct(SeqOrder $model)
     {
-        $this->missionModel = $model;
+        $this->model = $model;
     }
 
     /**
@@ -32,7 +32,7 @@ class SeqOrderRepository extends BaseRepository
         try {
             // DB::connection('backend')->beginTransaction();
 
-            $seqOrder = $this->missionModel->where('seq_order_id', 1)->lockForUpdate()->first();
+            $seqOrder = $this->model->where('seq_order_id', 1)->lockForUpdate()->first();
 
             $isToday = Carbon::parse($seqOrder->modified_at)->isToday();
 

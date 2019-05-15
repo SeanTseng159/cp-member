@@ -19,7 +19,7 @@ class LayoutCategoryRepository extends BaseRepository
 
     public function __construct(LayoutCategory $model, ProductRepository $productRepository, MagentoProductRepository $MagentoProductRepository)
     {
-        $this->missionModel = $model;
+        $this->model = $model;
         $this->productRepository = $productRepository;
         $this->MagentoProductRepository = $MagentoProductRepository;
     }
@@ -32,7 +32,7 @@ class LayoutCategoryRepository extends BaseRepository
      */
     public function allById($lang, $id)
     {
-        $data = $this->missionModel->with(['products' => function($query) {
+        $data = $this->model->with(['products' => function($query) {
                                 return $query->notDeleted()
                                             ->orderBy('layout_category_prod_sort', 'asc');
                             }])

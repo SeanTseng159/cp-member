@@ -21,7 +21,7 @@ class NewsfeedRepository extends BaseRepository
     {
         $this->date = Carbon::now()->toDateTimeString();
 
-        $this->missionModel = $model;
+        $this->model = $model;
     }
 
     /**
@@ -36,7 +36,7 @@ class NewsfeedRepository extends BaseRepository
             return $currentPage;
         });
 
-        return $this->missionModel->with(['mainImg'])
+        return $this->model->with(['mainImg'])
                             ->where('dining_car_id', $params['diningCarId'])
                             ->where('status', 1)
                             ->where('onshelf_time', '<=', $this->date)
@@ -52,7 +52,7 @@ class NewsfeedRepository extends BaseRepository
      */
     public function find($id = 0)
     {
-        return $this->missionModel->with(['mainImg'])
+        return $this->model->with(['mainImg'])
                             ->find($id);
     }
 }

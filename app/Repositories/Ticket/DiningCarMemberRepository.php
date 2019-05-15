@@ -19,7 +19,7 @@ class DiningCarMemberRepository extends BaseRepository
 
     public function __construct(DiningCarMember $model)
     {
-        $this->missionModel = $model;
+        $this->model = $model;
     }
 
     /**
@@ -52,7 +52,7 @@ class DiningCarMemberRepository extends BaseRepository
      */
     public function delete($memberId = 0, $id = 0)
     {
-        return $this->missionModel->where('member_id', $memberId)
+        return $this->model->where('member_id', $memberId)
                             ->where('dining_car_id', $id)
                             ->delete();
     }
@@ -65,7 +65,7 @@ class DiningCarMemberRepository extends BaseRepository
      */
     public function find($memberId = 0, $id = 0)
     {
-        return $this->missionModel->with([
+        return $this->model->with([
                                 'diningCar.memberLevels'
                             ])
                             ->where('member_id', $memberId)
@@ -86,7 +86,7 @@ class DiningCarMemberRepository extends BaseRepository
             return $currentPage;
         });*/
 
-        return $this->missionModel->with([
+        return $this->model->with([
                             'diningCar.mainImg',
                             'diningCar.category',
                             'diningCar.subCategory',

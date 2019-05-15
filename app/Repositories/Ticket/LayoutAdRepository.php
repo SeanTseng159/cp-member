@@ -16,7 +16,7 @@ class LayoutAdRepository extends BaseRepository
 
     public function __construct(LayoutAd $model)
     {
-        $this->missionModel = $model;
+        $this->model = $model;
     }
 
     /**
@@ -26,7 +26,7 @@ class LayoutAdRepository extends BaseRepository
     public function getByArea($areaId = 0, $lang)
     {
         $date = Carbon::now()->toDateTimeString();
-        $slide = $this->missionModel->notDeleted()
+        $slide = $this->model->notDeleted()
                             ->where('layout_ad_area_id', $areaId)
                             ->where('layout_ad_lang', $lang)
                             ->where('layout_ad_status', 1)
