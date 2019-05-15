@@ -37,7 +37,8 @@ class DiningCarRepository extends BaseRepository
                             ->where('status', 1)
                             ->when($params['keyword'], function($query) use ($params) {
                                 $query->where('name', 'like', '%' . $params['keyword'] . '%')
-                                    ->orWhereIn('id', $params['keywordDiningCarIds']);
+                                    ->orWhereIn('id', $params['keywordDiningCarIds'])
+                                    ->where('status', 1);
                             })
                             ->when($params['county'], function($query) use ($params) {
                                 $query->where('county', $params['county']);
@@ -64,7 +65,8 @@ class DiningCarRepository extends BaseRepository
                             ->where('status', 1)
                             ->when($params['keyword'], function($query) use ($params) {
                                 $query->where('name', 'like', '%' . $params['keyword'] . '%')
-                                    ->orWhereIn('id', $params['keywordDiningCarIds']);
+                                    ->orWhereIn('id', $params['keywordDiningCarIds'])
+                                    ->where('status', 1);
                             })
                             ->when($params['category'], function($query) use ($params) {
                                 $query->where('dining_car_category_id', $params['category']);
@@ -100,6 +102,7 @@ class DiningCarRepository extends BaseRepository
                                 'memberLevels'
                             ])
                             ->whereId($id)
+                            ->where('status', 1)
                             ->first();
     }
 
