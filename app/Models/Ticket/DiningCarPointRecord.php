@@ -24,12 +24,12 @@ class DiningCarPointRecord extends BaseModel
 
     }
 
-
     public function scopeIsEffective($query)
     {
     	$now = date('Y-m-d H:i:d');
 
         return $query->where('status', 1)
+            ->whereNull('deleted_at')
             ->where(function($query) use ($now) {
             	$query->where('expired_at', '>=', $now)
             		->orWhereNull('expired_at');
@@ -60,8 +60,8 @@ class DiningCarPointRecord extends BaseModel
      */
     public function scopeAllow($query)
     {
-
         return $query->where('status', 1)
+            ->whereNull('deleted_at')
             ->where(function ($query) {
                 $query->where('expired_at', '>=', Carbon::now())
                     ->orWhereNull('expired_at');

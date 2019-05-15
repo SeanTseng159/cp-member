@@ -26,8 +26,8 @@ class InfoParameter extends BaseParameter
     public function info()
     {
     	$today = Carbon::today();
-		$this->endDate = $today->addDays(1)->format('Y-m-d');
-		$this->startDate = $today->subMonths(6)->format('Y-m-d'); // 往後推六個月
+		$this->endDate = $today->addDays(1)->format('Y-m-d 23:59:59');
+		$this->startDate = $today->subMonths(6)->format('Y-m-d 00:00:00'); // 往後推六個月
 
     	$this->parameters['startDate'] = $this->startDate;
 		$this->parameters['endDate'] = $this->endDate;
@@ -40,8 +40,8 @@ class InfoParameter extends BaseParameter
 
     public function search()
     {
-    	$this->parameters['startDate'] = $this->request->input('startDate');
-		$this->parameters['endDate'] = $this->request->input('endDate');
+    	$this->parameters['startDate'] = Carbon::parse($this->request->input('startDate'))->format('Y-m-d 00:00:00');
+		$this->parameters['endDate'] = Carbon::parse($this->request->input('endDate'))->format('Y-m-d 23:59:59');
 
 		$this->parameters['status'] = $this->request->input('status', '99');
 		$this->parameters['orderNo'] = $this->request->input('orderNo');
