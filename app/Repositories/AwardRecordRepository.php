@@ -65,6 +65,6 @@ class AwardRecordRepository extends BaseRepository
             ->where('award_record_id', $id)
             ->where('user_id',$memberId)
             ->first();
-
     }
+
 }
