@@ -42,7 +42,7 @@ class ActivityRepository extends BaseRepository
             $item->id = $free->id;
             $item->name = $free->name;
             $item->duration = StringHelper::getDate($free->start_activity_time, $free->end_activity_time);
-            $item->phote = AVRImageHelper::getImageUrl(AVRImageType::activity, $free->id);
+            $item->photo = AVRImageHelper::getImageUrl(AVRImageType::activity, $free->id);
             $item->orderID = 0;
             $freeActivity[] = $item;
         }
@@ -65,7 +65,7 @@ class ActivityRepository extends BaseRepository
                     $paid->id = $item->id;
                     $paid->name = $item->name;
                     $paid->duration = StringHelper::getDate($item->start_activity_time, $item->end_activity_time);
-                    $paid->phote = AVRImageHelper::getImageUrl(AVRImageType::activity, $item->id);
+                    $paid->photo = AVRImageHelper::getImageUrl(AVRImageType::activity, $item->id);
                     $paid->orderID = $orderDetail->order_detail_id;
                     $paidActivity[] = $paid;
                 }
