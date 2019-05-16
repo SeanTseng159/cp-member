@@ -10,7 +10,7 @@ use Carbon\Carbon;
 class AwardRecordRepository extends BaseRepository
 {
     private $limit = 20;
-    private $model;
+    protected $model;
 
 
     public function __construct(AwardRecord $model)
