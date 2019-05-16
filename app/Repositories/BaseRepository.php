@@ -11,10 +11,10 @@ use Illuminate\Database\QueryException;
 
 class BaseRepository
 {
-    protected $missionModel;
+    protected $model;
     
     public function getModel()
     {
-        return $this->missionModel;
+        return $this->model;
     }
 }

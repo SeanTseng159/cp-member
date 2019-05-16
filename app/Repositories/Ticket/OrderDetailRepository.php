@@ -7,6 +7,8 @@
 
 namespace App\Repositories\Ticket;
 
+use App\Config\Ticket\TicketConfig;
+use Carbon\Carbon;
 use DB;
 use Illuminate\Database\QueryException;
 use Exception;
@@ -18,7 +20,7 @@ use App\Models\Ticket\OrderDetail;
 class OrderDetailRepository extends BaseRepository
 {
 
-    protected $memberModel;
+    protected $model;
 
     public function __construct(OrderDetail $model)
     {
@@ -291,5 +293,18 @@ class OrderDetailRepository extends BaseRepository
         if ($orderDetails->isEmpty()) return null;
 
         return $orderDetails;
+    }
+
+    //活動核銷
+    public function activityObliterate($orderDetailID)
+    {
+        $orderDetail = $this->model->find($orderDetailID);
+        if(is_null($orderDetail->verified_at))
+        {
+            $orderDetail->verified_at = Carbon::now();
+            $orderDetail->verifier_id = 1 ;
+            $orderDetail->verified_status = TicketConfig::DB_STATUS[1] ;
+            $orderDetail->save();
+        }
     }
 }

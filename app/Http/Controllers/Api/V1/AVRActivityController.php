@@ -8,6 +8,7 @@ use App\Models\AVR\Activity;
 use App\Result\AVRActivityResult;
 use App\Services\AVR\ActivityService;
 use App\Services\AVR\MissionService;
+use App\Services\Ticket\OrderService;
 use App\Traits\MemberHelper;
 use Illuminate\Http\Request;
 use Ksd\Mediation\Core\Controller\RestLaravelController;
@@ -19,11 +20,13 @@ class AVRActivityController extends RestLaravelController
 
     protected $activityService;
     protected $missionService;
+    protected $orderDetailService;
 
-    public function __construct(ActivityService $service, MissionService $missionService)
+    public function __construct(ActivityService $service, MissionService $missionService,OrderService $orderDetailService)
     {
         $this->activityService = $service;
         $this->missionService = $missionService;
+        $this->orderDetailService = $orderDetailService;
 
     }
 
@@ -128,13 +131,29 @@ class AVRActivityController extends RestLaravelController
 
             $mission = $this->missionService->detail($missionId);
 
+            if(!$mission){
+                throw  new \Exception('E0001');
+            }
+
             $activityID = $mission->activity_id;
             $activity = Activity::find($activityID);
+
+
             //檢查訂單編號
             if ($activity->has_prod_spec_price_id && $activity->prod_spec_price_id && !$orderId)
                 throw new \Exception('E0080');
 
+            //發送禮物與寫入DB
             $ret = $this->missionService->end($activityID, $mission->id, $mission->name, $memberID, $mission->passing_grade, $point, $orderId);
+
+            //成功就核銷票卷
+            if( isset($ret->mission) && $ret->mission->complete)
+            {
+                if($activity->prod_spec_price_id)
+                {
+                    $this->orderDetailService->activityObliterate($orderId);
+                }
+            }
             return $this->success($ret);
 
         } catch (\Exception $e) {

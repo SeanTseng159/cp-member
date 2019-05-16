@@ -29,7 +29,7 @@ class ActivityRepository extends BaseRepository
 
     public function list($memberID = null)
     {
-//        $memberID = 49;
+
         $freeActivity = [];
         $paidActivity = [];
         $frees = $this->model->launched()
@@ -73,7 +73,8 @@ class ActivityRepository extends BaseRepository
         }
 
         $result = array_merge($freeActivity, $paidActivity);
-        return collect($result)->sortBy('duration');
+        $result = collect($result)->sortBy('duration')->toArray();
+        return array_values($result);
     }
 
 
