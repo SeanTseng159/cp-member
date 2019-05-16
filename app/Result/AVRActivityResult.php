@@ -116,6 +116,7 @@ class AVRActivityResult extends BaseResult
         $ret->place = $mission->place_name;
         $ret->longitude = $mission->longitude;
         $ret->latitude = $mission->latitude;
+        $ret->checkGps = $mission->check_gps;
         $ret->photo = AVRImageHelper::getImageUrl(AVRImageType::mission, $mission->id);
 
         //使用者相關
