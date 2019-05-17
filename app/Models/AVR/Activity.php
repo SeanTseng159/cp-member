@@ -27,13 +27,15 @@ class Activity extends AVRBaseModel
 
     /**
      * 執行中
+     * @param $query
+     * @return
      */
     public function scopeExecute($query)
     {
         $now = Carbon::now();
         return $query
-            ->where('start_activity_time', '>=', $now)
-            ->where('end_activity_time', '<', $now)
+            ->where('start_activity_time', '<=', $now)
+            ->where('end_activity_time', '>', $now)
             ->where('status', 1);
     }
 
