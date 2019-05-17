@@ -8,8 +8,10 @@
 namespace App\Repositories\AVR;
 
 
+
 use App\Enum\ActivityType;
 use App\Enum\BarCodeType;
+use App\Models\AVR\ActivityAward;
 use App\Services\UUID;
 use App\Models\AVR\Activity;
 use App\Models\AVR\MemberMission;
@@ -34,9 +36,23 @@ class MissionRepository extends BaseRepository
         $this->activityModel = $activityModel;
     }
 
-    public function detail($id)
+    public function detail($id, $memberId = null, $orderId = null)
     {
-        $data = $this->model->where('id', $id)->first();
+
+        if (!$orderId) {
+            $data = $this->model->where('id', $id)->first();
+        } else {
+
+            $data = $this->model
+                ->with(['activity',
+                    'activity.productPriceId',
+                    'activity.productPriceId.orderDetail' => function ($query) use ($memberId, $orderId) {
+                        $query->where('order_detail_id', $orderId)->where('member_id',$memberId);
+                    }])
+                ->where('id', $id)
+                ->first();
+        }
+
         return $data;
 
     }
@@ -236,33 +252,15 @@ class MissionRepository extends BaseRepository
         if (!$mission)
             return false;
 
-
-        $probability = [];
-        $sum = 0;
-
         $missionAwards = $mission->missionAwards;
         if ($missionAwards->count() <= 0)
             return null;
 
-        foreach ($missionAwards as $missionAward) {
 
-            $sum += $missionAward->probability;
-            $probability[] = $sum;
-        }
+        $probabilityList = $missionAwards->pluck('probability')->toArray();
 
-        $randon = rand(1, 100);
-        $award = 0;
-
-        for ($i = 0; $i < count($probability); $i++) {
-            $next = $i + 1;
-
-            if ($randon >= $probability[$i] and $randon < $probability[$next]) {
-                $award = $next;
-                break;
-            }
-        }
+        $award = $this->getAwardByProbability($probabilityList);
         $awardID = $missionAwards[$award]->award_id;
-
         $award = Award::with('image')->where('award_id', $awardID)->first();
 
         if (
@@ -270,8 +268,9 @@ class MissionRepository extends BaseRepository
             $award->award_stock_quantity - $award->award_used_quantity > 0 &&
             $award->award_budget_cancellation_status == false &&
             $award->award_status == true &&
-            Carbon::now() >= $award->award_launch_start_at &&
-            Carbon::now() < $award->award_launch_end_at) {
+            Carbon::now() >= $award->award_validity_start_at &&
+            Carbon::now() < $award->award_validity_end_at) {
+
             return $award;
         }
         return null;
@@ -281,28 +280,64 @@ class MissionRepository extends BaseRepository
 
     private function getActivityAward($activityID)
     {
-        $activityAward = $this->activityModel
-            ->with('award')
-            ->where('id', $activityID)
-            ->first();
+        $activityAwards =
+            ActivityAward::where('activity_id', $activityID)
+                ->with('awards')
+                ->get();
 
-        if (!$activityAward or !$activityAward->award)
-            return false;
+        if (!$activityAwards) return null;
 
-        $award = Award::with('image')->where('award_id', $activityAward->award->award_id)->first();
+        $probabilityList = $activityAwards->pluck('probability')->toArray();
+
+        $awardIndex = $this->getAwardByProbability($probabilityList);
+        $awardID = $activityAwards[$awardIndex]->award_id;
+        $award = Award::with('image')->where('award_id', $awardID)->first();
+
 
         if (
             $award &&
             $award->award_stock_quantity - $award->award_used_quantity > 0 &&
             $award->award_budget_cancellation_status == false &&
             $award->award_status == true &&
-            Carbon::now() >= $award->award_launch_start_at &&
-            Carbon::now() < $award->award_launch_end_at) {
+            Carbon::now() >= $award->award_validity_start_at &&
+            Carbon::now() < $award->award_validity_end_at) {
+
             return $award;
         }
 
         return null;
 
+    }
+
+    /**
+     * 根據亂數產生的結果，取得他在機率陣列內的index
+     * @param $probabilities
+     * @return int
+     */
+    private function getAwardByProbability($probabilities): int
+    {
+
+        $probabilityList = [];
+        $sum = 0;
+        foreach ($probabilities as $probability) {
+
+            $sum += $probability;
+            $probabilityList[] = $sum;
+        }
+
+        $random = rand(1, $sum);
+        $index = 0;
+
+        for ($i = 0; $i < count($probabilityList); $i++) {
+            $next = $i + 1;
+
+            if ($random >= $probabilityList[$i] and $random < $probabilityList[$next]) {
+                $index = $next;
+                break;
+            }
+        }
+
+        return $index;
     }
 
 

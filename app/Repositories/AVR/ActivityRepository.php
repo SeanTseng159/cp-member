@@ -13,12 +13,12 @@ use App\Helpers\AVRImageHelper;
 use App\Helpers\StringHelper;
 use App\Models\AVR\Activity;
 use App\Repositories\BaseRepository;
-use Carbon\Carbon;
+
 
 
 class ActivityRepository extends BaseRepository
 {
-    private $limit = 20;
+
     protected $model;
 
     public function __construct(Activity $model)
@@ -31,7 +31,7 @@ class ActivityRepository extends BaseRepository
     {
 
         $freeActivity = [];
-        $paidActivity = [];
+
         $frees = $this->model->launched()
             ->where('has_prod_spec_price_id', 0)
             ->get(['id', 'name', 'start_activity_time', 'end_activity_time']);
@@ -48,6 +48,7 @@ class ActivityRepository extends BaseRepository
         }
 
         //檢查是否有付費id
+        $paidActivity = [];
         if ($memberID) {
             $paidActivitites = $this->model->launched()->with(
                 [
@@ -68,6 +69,7 @@ class ActivityRepository extends BaseRepository
                     $paid->photo = AVRImageHelper::getImageUrl(AVRImageType::activity, $item->id);
                     $paid->orderID = $orderDetail->order_detail_id;
                     $paidActivity[] = $paid;
+
                 }
             }
         }

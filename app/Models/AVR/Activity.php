@@ -42,10 +42,7 @@ class Activity extends AVRBaseModel
         return $this->hasMany(Mission::class)->orderBy('sort');
     }
 
-    public function award()
-    {
-        return $this->hasOne(ActivityAward::class);
-    }
+
 
     public function productPriceId()
     {

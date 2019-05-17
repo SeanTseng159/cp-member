@@ -100,13 +100,22 @@ class AVRActivityController extends RestLaravelController
         }
     }
 
-    public function missionDetail(Request $request, $missionId)
+    public function missionDetail(Request $request, $orderId,$missionId)
     {
 
         try {
-            $memberID = $request->memberId;
-            $mission = $this->missionService->detail($missionId);
-            $data = (new AVRActivityResult)->missionDetail($mission, $memberID);
+
+            $memberID = $this->getMemberId();
+
+            if (!$memberID && $orderId != 0) {
+                throw new \Exception('E0080');
+            }
+
+            if ($orderId == 0) $orderId = null;
+
+
+            $mission = $this->missionService->detail($missionId,$memberID,$orderId);
+            $data = (new AVRActivityResult)->missionDetail($mission, $memberID,$orderId);
             return $this->success($data);
 
         } catch (\Exception $e) {
@@ -122,6 +131,7 @@ class AVRActivityController extends RestLaravelController
         try {
             $memberID = $request->memberId;
             $point = $request->point;
+
 
             if (is_null($point)) {
                 throw  new \Exception('E0001');

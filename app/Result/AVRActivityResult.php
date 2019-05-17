@@ -53,7 +53,6 @@ class AVRActivityResult extends BaseResult
         $hasOrder = $activity->is_mission; //必須依照排序
 
 
-
         $finishNum = 0;
 
         foreach ($missions as $mission) {
@@ -107,8 +106,9 @@ class AVRActivityResult extends BaseResult
 
     }
 
-    public function missionDetail($mission, $memberID)
+    public function missionDetail($mission, $memberID= null, $orderId = null)
     {
+
         $ret = new \stdClass();
         $ret->id = $mission->id;
         $ret->name = $mission->name;
@@ -120,7 +120,8 @@ class AVRActivityResult extends BaseResult
         $ret->photo = AVRImageHelper::getImageUrl(AVRImageType::mission, $mission->id);
 
         //使用者相關
-        $user = $mission->members->where('member_id', $memberID)->first();
+        $user = $mission->members->where('member_id', $memberID)->where('order_detail_id', $orderId)->first();
+
         if (!$user)
             $ret->status = false;
         else

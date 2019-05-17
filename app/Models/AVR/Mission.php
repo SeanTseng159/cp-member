@@ -18,5 +18,9 @@ class Mission extends AVRBaseModel
     {
         return $this->hasMany(MissionAward::class)->orderBy('probability');
     }
+    public function activity()
+    {
+        return $this->belongsTo(Activity::class,'activity_id','id');
+    }
 
 }
