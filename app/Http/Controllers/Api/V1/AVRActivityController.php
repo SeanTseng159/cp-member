@@ -4,6 +4,7 @@
 namespace App\Http\Controllers\Api\V1;
 
 
+use App\Enum\TimeStatus;
 use App\Models\AVR\Activity;
 use App\Result\AVRActivityResult;
 use App\Services\AVR\ActivityService;
@@ -67,6 +68,14 @@ class AVRActivityController extends RestLaravelController
     }
 
 
+    /**
+     * 任務清單
+     * @param Request $request
+     * @param $activityId
+     * @param $orderId
+     * @return \Illuminate\Http\JsonResponse
+     */
+
     public function missionList(Request $request, $activityId, $orderId)
     {
 
@@ -84,6 +93,9 @@ class AVRActivityController extends RestLaravelController
             if ($orderId == 0) $orderId = null;
 
             $data = $this->activityService->detail($activityId, $orderId);
+            if (is_null($data)) {
+                throw new \Exception('E0001');
+            }
 
             //檢查訂單編號
             if ($data->has_prod_spec_price_id && $data->prod_spec_price_id && !$orderId)
@@ -93,10 +105,12 @@ class AVRActivityController extends RestLaravelController
                 return $this->success();
 
 
-            $data = (new AVRActivityResult)->missionList($data, $memberID, $orderId);
+            $activityStatus = TimeStatus::checkStatus($data->start_activity_time, $data->end_activity_time);
+            $data = (new AVRActivityResult)->missionList($data, $activityStatus, $memberID, $orderId);
 
             return $this->success($data);
         } catch (\Exception $e) {
+//            dd($e);
             $code = $e->getMessage() ? $e->getMessage() : 'E0001';
             return $this->failureCode($code);
         }
@@ -142,8 +156,7 @@ class AVRActivityController extends RestLaravelController
             if ($orderId == 0) $orderId = null;
 
             //檢查orderID是否屬於member
-            if($orderId)
-            {
+            if ($orderId) {
                 $orderRecord = $this->orderDetailService->find($orderId);
                 if (is_null($orderRecord)) {
                     throw  new \Exception('E0081');
@@ -153,14 +166,14 @@ class AVRActivityController extends RestLaravelController
                 }
             }
 
-            $mission = $this->missionService->detail($missionId,$memberID,$orderId);
+            $mission = $this->missionService->detail($missionId, $memberID, $orderId);
 
 
             if (!$mission) {
                 throw  new \Exception('E0001');
             }
 
-            $activity  = $mission->activity;
+            $activity = $mission->activity;
             //檢查訂單編號
             if ($activity->has_prod_spec_price_id && $activity->prod_spec_price_id && !$orderId)
                 throw new \Exception('E0080');
