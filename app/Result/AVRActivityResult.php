@@ -68,30 +68,33 @@ class AVRActivityResult extends BaseResult
                 ->where('order_detail_id', $orderId)
                 ->first();
 
-            $status = false;
-            $enable = false;
+
+            //status 1:不可執行 2:可執行 3:已完成
+            $status = 1;
+
 
             if ($user) {
-                $status = (bool)$user->isComplete;
+                $status = $user->isComplete ? 3 : 2;
             }
-
-            if ($hasOrder) {
-                if (!$preMission) {
-                    $enable = true;
-                } else if ($preMission->enable && $preMission->status) {
-                    $enable = true;
+            else
+            {
+                //按照順序執行的任務，前一個任務已完成，才能執行
+                if ($hasOrder) {
+                    if (!$preMission) {
+                        $status = 2;
+                    } else if ($preMission->status == 3) {
+                        $status = 2;
+                    }
+                } else {
+                    $status = 2;
                 }
-            } else {
-                $enable = true;
             }
             $ret->status = $status;
-            $ret->enable = $enable;
 
             $ret->photo = AVRImageHelper::getImageUrl(AVRImageType::mission, $mission->id);
             $result->mission[] = $ret;
 
             $preMission = $mission; //上一個
-            $preMission->enable = $enable;
             $preMission->status = $status;
 
 
@@ -106,7 +109,7 @@ class AVRActivityResult extends BaseResult
 
     }
 
-    public function missionDetail($mission, $memberID= null, $orderId = null)
+    public function missionDetail($mission, $memberID = null, $orderId = null)
     {
 
         $ret = new \stdClass();

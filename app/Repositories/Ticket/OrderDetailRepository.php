@@ -41,7 +41,7 @@ class OrderDetailRepository extends BaseRepository
 
             $seq = 0;
             foreach ($products as $k => $product) {
-                for ($i=0; $i < $product->quantity; $i++) {
+                for ($i = 0; $i < $product->quantity; $i++) {
                     $seq += 1;
                     $this->create($memberId, $orderNo, $paymentMethod, $seq, $seq, $product);
                     $mainSeq = $seq;
@@ -157,10 +157,10 @@ class OrderDetailRepository extends BaseRepository
 
         try {
             return $this->model->where('order_detail_id', $id)
-                                ->update([
-                                    'recipient_status' => $status,
-                                    'recipient_price' => $price
-                                ]);
+                ->update([
+                    'recipient_status' => $status,
+                    'recipient_price' => $price
+                ]);
         } catch (QueryException $e) {
             return false;
         }
@@ -172,23 +172,23 @@ class OrderDetailRepository extends BaseRepository
 
         try {
             return $this->model->where([
-                                    'order_detail_sn' => $order_detail_sn,
-                                    'prod_api' => 1
-                                ])
-                                ->where(function($query) use ($member_id){
-                                    $query->where('member_id', $member_id)
-                                          ->orWhere('order_detail_member_id', $member_id);
-                                })
-                                ->select(
-                                    'order_no',
-                                    'prod_name',
-                                    'prod_spec_name',
-                                    'prod_spec_price_name',
-                                    'price_company_qty',
-                                    'price_off',
-                                    'print_mrt_certificate_at',
-                                    'created_at'
-                                )->first();
+                'order_detail_sn' => $order_detail_sn,
+                'prod_api' => 1
+            ])
+                ->where(function ($query) use ($member_id) {
+                    $query->where('member_id', $member_id)
+                        ->orWhere('order_detail_member_id', $member_id);
+                })
+                ->select(
+                    'order_no',
+                    'prod_name',
+                    'prod_spec_name',
+                    'prod_spec_price_name',
+                    'price_company_qty',
+                    'price_off',
+                    'print_mrt_certificate_at',
+                    'created_at'
+                )->first();
 
         } catch (QueryException $e) {
             return false;
@@ -201,14 +201,14 @@ class OrderDetailRepository extends BaseRepository
 
         try {
             return $this->model->where([
-                                    'order_detail_sn' => $order_detail_sn,
-                                    'prod_api' => 1
-                                ])
-                                ->whereNull('print_mrt_certificate_at')
-                                ->where(function($query) use ($member_id){
-                                    $query->where('member_id', $member_id)
-                                          ->orWhere('order_detail_member_id', $member_id);
-                                })->update(['print_mrt_certificate_at' => date('Y-m-d H:i:s')]);
+                'order_detail_sn' => $order_detail_sn,
+                'prod_api' => 1
+            ])
+                ->whereNull('print_mrt_certificate_at')
+                ->where(function ($query) use ($member_id) {
+                    $query->where('member_id', $member_id)
+                        ->orWhere('order_detail_member_id', $member_id);
+                })->update(['print_mrt_certificate_at' => date('Y-m-d H:i:s')]);
 
         } catch (QueryException $e) {
             return false;
@@ -225,9 +225,9 @@ class OrderDetailRepository extends BaseRepository
     {
         try {
             return $this->model->where('prod_id', $productId)
-                                ->where('member_id', $memberId)
-                                ->whereNotNull('order_paid_at')
-                                ->count();
+                ->where('member_id', $memberId)
+                ->whereNotNull('order_paid_at')
+                ->count();
         } catch (QueryException $e) {
             return 0;
         }
@@ -242,40 +242,37 @@ class OrderDetailRepository extends BaseRepository
     {
         if (!$parameter) return null;
 
-        $query = $this->model->with(['combo' => function($query) use ($parameter) {
-                                if ($parameter->orderStatus === '4') {
-                                    $query->where('member_id', $parameter->memberId)->where('order_detail_member_id', '!=', $parameter->memberId);
-                                }
-                                else {
-                                    $query->where('order_detail_member_id', $parameter->memberId);
-                                }
+        $query = $this->model->with(['combo' => function ($query) use ($parameter) {
+            if ($parameter->orderStatus === '4') {
+                $query->where('member_id', $parameter->memberId)->where('order_detail_member_id', '!=', $parameter->memberId);
+            } else {
+                $query->where('order_detail_member_id', $parameter->memberId);
+            }
 
-                                if ($parameter->orderStatus === '1' || $parameter->orderStatus === '2') {
-                                    $query->orderBy('verified_at', 'desc');
-                                }
-                            }])
-                            ->where('ticket_show_status', 1)
-                            ->where('is_physical', 0)
-                            ->whereIn('prod_type', [1, 2, 3])
-                            ->where(function($query) use ($parameter) {
-                                if ($parameter->orderStatus === '4') {
-                                    return $query->where('member_id', $parameter->memberId)->where('order_detail_member_id', '!=', $parameter->memberId);
-                                }
-                                else {
-                                    return $query->where('order_detail_member_id', $parameter->memberId)->where('verified_status', $parameter->status);
-                                }
-                            })
-                            ->where(function($query) use ($parameter) {
-                                if ($parameter->orderStatus === '3') {
-                                    return $query->where('order_detail_expire_due', '<=', date('Y-m-d H:i:s'));
-                                }
-                                elseif ($parameter->orderStatus === '0') {
-                                    return $query->where('order_detail_expire_due', '>=', date('Y-m-d H:i:s'))
-                                        ->orWhere('order_detail_expire_due', null);
-                                }
-                            });
-                            //->offset($parameter->offset())
-                            //->limit($parameter->limit);
+            if ($parameter->orderStatus === '1' || $parameter->orderStatus === '2') {
+                $query->orderBy('verified_at', 'desc');
+            }
+        }])
+            ->where('ticket_show_status', 1)
+            ->where('is_physical', 0)
+            ->whereIn('prod_type', [1, 2, 3])
+            ->where(function ($query) use ($parameter) {
+                if ($parameter->orderStatus === '4') {
+                    return $query->where('member_id', $parameter->memberId)->where('order_detail_member_id', '!=', $parameter->memberId);
+                } else {
+                    return $query->where('order_detail_member_id', $parameter->memberId)->where('verified_status', $parameter->status);
+                }
+            })
+            ->where(function ($query) use ($parameter) {
+                if ($parameter->orderStatus === '3') {
+                    return $query->where('order_detail_expire_due', '<=', date('Y-m-d H:i:s'));
+                } elseif ($parameter->orderStatus === '0') {
+                    return $query->where('order_detail_expire_due', '>=', date('Y-m-d H:i:s'))
+                        ->orWhere('order_detail_expire_due', null);
+                }
+            });
+        //->offset($parameter->offset())
+        //->limit($parameter->limit);
 
         switch ($parameter->orderStatus) {
             case '1':
@@ -295,16 +292,9 @@ class OrderDetailRepository extends BaseRepository
         return $orderDetails;
     }
 
-    //活動核銷
-    public function activityObliterate($orderDetailID)
+    //
+    public function find($orderDetailID)
     {
-        $orderDetail = $this->model->find($orderDetailID);
-        if(is_null($orderDetail->verified_at))
-        {
-            $orderDetail->verified_at = Carbon::now();
-            $orderDetail->verifier_id = 1 ;
-            $orderDetail->verified_status = TicketConfig::DB_STATUS[1] ;
-            $orderDetail->save();
-        }
+        return $this->model->find($orderDetailID);
     }
 }

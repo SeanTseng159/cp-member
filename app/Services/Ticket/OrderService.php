@@ -117,8 +117,4 @@ class OrderService extends BaseService
         return $this->repository->getOneHourAgoPaidDiningCarOrders();
     }
 
-    public function activityObliterate($orderDetailId)
-    {
-        return $this->orderDetailRepository->activityObliterate($orderDetailId);
-    }
 }

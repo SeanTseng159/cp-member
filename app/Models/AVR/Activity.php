@@ -39,11 +39,16 @@ class Activity extends AVRBaseModel
             ->where('status', 1);
     }
 
+    public function scopeActive($query)
+    {
+        return $query->where('status', 1);
+
+    }
+
     public function missions()
     {
         return $this->hasMany(Mission::class)->orderBy('sort');
     }
-
 
 
     public function productPriceId()

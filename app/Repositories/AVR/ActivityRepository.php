@@ -9,6 +9,7 @@ namespace App\Repositories\Ticket;
 
 
 use App\Enum\AVRImageType;
+use App\Enum\TimeStatus;
 use App\Helpers\AVRImageHelper;
 use App\Helpers\StringHelper;
 use App\Models\AVR\Activity;
@@ -32,7 +33,7 @@ class ActivityRepository extends BaseRepository
 
         $freeActivity = [];
 
-        $frees = $this->model->launched()
+        $frees = $this->model->active()
             ->where('has_prod_spec_price_id', 0)
             ->get(['id', 'name', 'start_activity_time', 'end_activity_time']);
 
@@ -42,11 +43,8 @@ class ActivityRepository extends BaseRepository
             $item->name = $free->name;
             $item->duration = StringHelper::getDate($free->start_activity_time, $free->end_activity_time);
             $item->photo = AVRImageHelper::getImageUrl(AVRImageType::activity, $free->id);
+            $item->status = TimeStatus::checkStatus($free->start_activity_time,$free->end_activity_time);
             $item->orderID = 0;
-            $item->status = (
-                Carbon::now() >= ($free->start_activity_time) &&
-                Carbon::now() < ($free->end_activity_time)
-            ) ? true : false;
             $freeActivity[] = $item;
         }
 
@@ -70,10 +68,7 @@ class ActivityRepository extends BaseRepository
                     $paid->name = $item->name;
                     $paid->duration = StringHelper::getDate($item->start_activity_time, $item->end_activity_time);
                     $paid->photo = AVRImageHelper::getImageUrl(AVRImageType::activity, $item->id);
-                    $paid->status = (
-                        Carbon::now() >= ($item->start_activity_time) &&
-                        Carbon::now() < ($item->end_activity_time)
-                    ) ? true : false;
+                    $paid->status = TimeStatus::checkStatus($item->start_activity_time,$item->end_activity_time);
                     $paid->orderID = $orderDetail->order_detail_id;
                     $paidActivity[] = $paid;
 
@@ -100,6 +95,7 @@ class ActivityRepository extends BaseRepository
                         }
                     }
                 ])->where('has_prod_spec_price_id', 1)
+                ->where('id',$id)
                 ->first();
 
         } else {
@@ -110,5 +106,7 @@ class ActivityRepository extends BaseRepository
         return $data;
 
     }
+
+
 
 }

@@ -8,7 +8,7 @@ use App\Models\AVR\Activity;
 use App\Result\AVRActivityResult;
 use App\Services\AVR\ActivityService;
 use App\Services\AVR\MissionService;
-use App\Services\Ticket\OrderService;
+use App\Services\Ticket\OrderDetailService;
 use App\Traits\MemberHelper;
 use Illuminate\Http\Request;
 use Ksd\Mediation\Core\Controller\RestLaravelController;
@@ -22,7 +22,8 @@ class AVRActivityController extends RestLaravelController
     protected $missionService;
     protected $orderDetailService;
 
-    public function __construct(ActivityService $service, MissionService $missionService,OrderService $orderDetailService)
+    public function __construct(ActivityService $service, MissionService $missionService,
+                                OrderDetailService $orderDetailService)
     {
         $this->activityService = $service;
         $this->missionService = $missionService;
@@ -39,6 +40,7 @@ class AVRActivityController extends RestLaravelController
             $data = $this->activityService->list($memberID);
             return $this->success($data);
         } catch (\Exception $e) {
+            dd($e);
             return $this->failureCode('E0001');
         }
     }
@@ -100,7 +102,7 @@ class AVRActivityController extends RestLaravelController
         }
     }
 
-    public function missionDetail(Request $request, $orderId,$missionId)
+    public function missionDetail(Request $request, $orderId, $missionId)
     {
 
         try {
@@ -114,8 +116,8 @@ class AVRActivityController extends RestLaravelController
             if ($orderId == 0) $orderId = null;
 
 
-            $mission = $this->missionService->detail($missionId,$memberID,$orderId);
-            $data = (new AVRActivityResult)->missionDetail($mission, $memberID,$orderId);
+            $mission = $this->missionService->detail($missionId, $memberID, $orderId);
+            $data = (new AVRActivityResult)->missionDetail($mission, $memberID, $orderId);
             return $this->success($data);
 
         } catch (\Exception $e) {
@@ -139,34 +141,35 @@ class AVRActivityController extends RestLaravelController
 
             if ($orderId == 0) $orderId = null;
 
-            $mission = $this->missionService->detail($missionId);
+            //檢查orderID是否屬於member
+            $orderRecord = $this->orderDetailService->find($orderId);
+            if (is_null($orderRecord)) {
+                throw  new \Exception('E0081');
+            }
+            if ($orderRecord->member_id != $memberID) {
+                throw  new \Exception('E0081');
+            }
 
-            if(!$mission){
+            $mission = $this->missionService->detail($missionId,$memberID,$orderId);
+
+
+            if (!$mission) {
                 throw  new \Exception('E0001');
             }
 
-            $activityID = $mission->activity_id;
-            $activity = Activity::find($activityID);
-
-
+            $activity  = $mission->activity;
             //檢查訂單編號
             if ($activity->has_prod_spec_price_id && $activity->prod_spec_price_id && !$orderId)
                 throw new \Exception('E0080');
 
-            //發送禮物與寫入DB
-            $ret = $this->missionService->end($activityID, $mission->id, $mission->name, $memberID, $mission->passing_grade, $point, $orderId);
 
-            //成功就核銷票卷
-            if( isset($ret->mission) && $ret->mission->complete)
-            {
-                if($activity->prod_spec_price_id)
-                {
-                    $this->orderDetailService->activityObliterate($orderId);
-                }
-            }
+            //發送禮物與寫入DB，也核銷票卷
+            $ret = $this->missionService->end($activity->id, $mission->id, $mission->name, $memberID, $mission->passing_grade, $point, $orderId);
+
             return $this->success($ret);
 
         } catch (\Exception $e) {
+            dd($e);
             \Log::error($e);
             $code = $e->getMessage() ? $e->getMessage() : 'E0001';
             return $this->failureCode($code);
@@ -183,6 +186,16 @@ class AVRActivityController extends RestLaravelController
                 throw  new \Exception('E0001');
             }
             if ($orderId == 0) $orderId = null;
+
+            //檢查orderID是否屬於member
+            $orderRecord = $this->orderDetailService->find($orderId);
+            if (is_null($orderRecord)) {
+                throw  new \Exception('E0081');
+            }
+            if ($orderRecord->member_id != $memberID) {
+                throw  new \Exception('E0081');
+            }
+
             $ret = $this->missionService->delete($missionId, $memberID, $orderId);
             return $this->success();
 
