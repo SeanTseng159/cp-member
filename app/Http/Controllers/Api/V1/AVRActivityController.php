@@ -142,12 +142,15 @@ class AVRActivityController extends RestLaravelController
             if ($orderId == 0) $orderId = null;
 
             //檢查orderID是否屬於member
-            $orderRecord = $this->orderDetailService->find($orderId);
-            if (is_null($orderRecord)) {
-                throw  new \Exception('E0081');
-            }
-            if ($orderRecord->member_id != $memberID) {
-                throw  new \Exception('E0081');
+            if($orderId)
+            {
+                $orderRecord = $this->orderDetailService->find($orderId);
+                if (is_null($orderRecord)) {
+                    throw  new \Exception('E0081');
+                }
+                if ($orderRecord->member_id != $memberID) {
+                    throw  new \Exception('E0081');
+                }
             }
 
             $mission = $this->missionService->detail($missionId,$memberID,$orderId);
