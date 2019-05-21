@@ -27,14 +27,22 @@ class Activity extends AVRBaseModel
 
     /**
      * 執行中
+     * @param $query
+     * @return
      */
     public function scopeExecute($query)
     {
         $now = Carbon::now();
         return $query
-            ->where('start_activity_time', '>=', $now)
-            ->where('end_activity_time', '<', $now)
+            ->where('start_activity_time', '<=', $now)
+            ->where('end_activity_time', '>', $now)
             ->where('status', 1);
+    }
+
+    public function scopeActive($query)
+    {
+        return $query->where('status', 1);
+
     }
 
     public function missions()
@@ -42,10 +50,6 @@ class Activity extends AVRBaseModel
         return $this->hasMany(Mission::class)->orderBy('sort');
     }
 
-    public function award()
-    {
-        return $this->hasOne(ActivityAward::class);
-    }
 
     public function productPriceId()
     {

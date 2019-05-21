@@ -4,10 +4,12 @@
 namespace App\Http\Controllers\Api\V1;
 
 
+use App\Enum\TimeStatus;
 use App\Models\AVR\Activity;
 use App\Result\AVRActivityResult;
 use App\Services\AVR\ActivityService;
 use App\Services\AVR\MissionService;
+use App\Services\Ticket\OrderDetailService;
 use App\Traits\MemberHelper;
 use Illuminate\Http\Request;
 use Ksd\Mediation\Core\Controller\RestLaravelController;
@@ -19,11 +21,14 @@ class AVRActivityController extends RestLaravelController
 
     protected $activityService;
     protected $missionService;
+    protected $orderDetailService;
 
-    public function __construct(ActivityService $service, MissionService $missionService)
+    public function __construct(ActivityService $service, MissionService $missionService,
+                                OrderDetailService $orderDetailService)
     {
         $this->activityService = $service;
         $this->missionService = $missionService;
+        $this->orderDetailService = $orderDetailService;
 
     }
 
@@ -36,6 +41,7 @@ class AVRActivityController extends RestLaravelController
             $data = $this->activityService->list($memberID);
             return $this->success($data);
         } catch (\Exception $e) {
+            dd($e);
             return $this->failureCode('E0001');
         }
     }
@@ -62,6 +68,14 @@ class AVRActivityController extends RestLaravelController
     }
 
 
+    /**
+     * 任務清單
+     * @param Request $request
+     * @param $activityId
+     * @param $orderId
+     * @return \Illuminate\Http\JsonResponse
+     */
+
     public function missionList(Request $request, $activityId, $orderId)
     {
 
@@ -79,6 +93,9 @@ class AVRActivityController extends RestLaravelController
             if ($orderId == 0) $orderId = null;
 
             $data = $this->activityService->detail($activityId, $orderId);
+            if (is_null($data)) {
+                throw new \Exception('E0001');
+            }
 
             //檢查訂單編號
             if ($data->has_prod_spec_price_id && $data->prod_spec_price_id && !$orderId)
@@ -88,22 +105,33 @@ class AVRActivityController extends RestLaravelController
                 return $this->success();
 
 
-            $data = (new AVRActivityResult)->missionList($data, $memberID, $orderId);
+            $activityStatus = TimeStatus::checkStatus($data->start_activity_time, $data->end_activity_time);
+            $data = (new AVRActivityResult)->missionList($data, $activityStatus, $memberID, $orderId);
 
             return $this->success($data);
         } catch (\Exception $e) {
+//            dd($e);
             $code = $e->getMessage() ? $e->getMessage() : 'E0001';
             return $this->failureCode($code);
         }
     }
 
-    public function missionDetail(Request $request, $missionId)
+    public function missionDetail(Request $request, $orderId, $missionId)
     {
 
         try {
-            $memberID = $request->memberId;
-            $mission = $this->missionService->detail($missionId);
-            $data = (new AVRActivityResult)->missionDetail($mission, $memberID);
+
+            $memberID = $this->getMemberId();
+
+            if (!$memberID && $orderId != 0) {
+                throw new \Exception('E0080');
+            }
+
+            if ($orderId == 0) $orderId = null;
+
+
+            $mission = $this->missionService->detail($missionId, $memberID, $orderId);
+            $data = (new AVRActivityResult)->missionDetail($mission, $memberID, $orderId);
             return $this->success($data);
 
         } catch (\Exception $e) {
@@ -120,24 +148,44 @@ class AVRActivityController extends RestLaravelController
             $memberID = $request->memberId;
             $point = $request->point;
 
+
             if (is_null($point)) {
                 throw  new \Exception('E0001');
             }
 
             if ($orderId == 0) $orderId = null;
 
-            $mission = $this->missionService->detail($missionId);
+            //檢查orderID是否屬於member
+            if ($orderId) {
+                $orderRecord = $this->orderDetailService->find($orderId);
+                if (is_null($orderRecord)) {
+                    throw  new \Exception('E0081');
+                }
+                if ($orderRecord->member_id != $memberID) {
+                    throw  new \Exception('E0081');
+                }
+            }
 
-            $activityID = $mission->activity_id;
-            $activity = Activity::find($activityID);
+            $mission = $this->missionService->detail($missionId, $memberID, $orderId);
+
+
+            if (!$mission) {
+                throw  new \Exception('E0001');
+            }
+
+            $activity = $mission->activity;
             //檢查訂單編號
             if ($activity->has_prod_spec_price_id && $activity->prod_spec_price_id && !$orderId)
                 throw new \Exception('E0080');
 
-            $ret = $this->missionService->end($activityID, $mission->id, $mission->name, $memberID, $mission->passing_grade, $point, $orderId);
+
+            //發送禮物與寫入DB，也核銷票卷
+            $ret = $this->missionService->end($activity->id, $mission->id, $mission->name, $memberID, $mission->passing_grade, $point, $orderId);
+
             return $this->success($ret);
 
         } catch (\Exception $e) {
+            dd($e);
             \Log::error($e);
             $code = $e->getMessage() ? $e->getMessage() : 'E0001';
             return $this->failureCode($code);
@@ -154,6 +202,17 @@ class AVRActivityController extends RestLaravelController
                 throw  new \Exception('E0001');
             }
             if ($orderId == 0) $orderId = null;
+
+            //檢查orderID是否屬於member
+            if ($orderId) {
+                $orderRecord = $this->orderDetailService->find($orderId);
+                if (is_null($orderRecord)) {
+                    throw  new \Exception('E0081');
+                }
+                if ($orderRecord->member_id != $memberID) {
+                    throw  new \Exception('E0081');
+                }
+            }
             $ret = $this->missionService->delete($missionId, $memberID, $orderId);
             return $this->success();
 

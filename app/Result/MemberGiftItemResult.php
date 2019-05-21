@@ -65,7 +65,7 @@ class MemberGiftItemResult
         $diningCar = $gift->diningCar;
         
         $data->id = $item->id;
-        $data->Name = $diningCar->name;
+        $data->name = $diningCar->name;
         $data->title = $gift->name;
         $data->duration = Carbon::parse($gift->expire_at)->format('Y-m-d');
         $data->photo = ImageHelper::getImageUrl(ClientType::gift, $gift->id);

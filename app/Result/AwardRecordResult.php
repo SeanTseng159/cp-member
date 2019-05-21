@@ -53,7 +53,7 @@ class AwardRecordResult
         $result->name = $awardRecord->award->supplier->supplier_name;
 
 
-        $result->phote = CommonHelper::getBackendHost($awardRecord->award->image->img_path);
+        $result->photo = CommonHelper::getBackendHost($awardRecord->award->image->img_path);
         $result->title = $awardRecord->award->award_name;
         $result->duration = Carbon::parse($awardRecord->award->award_validity_end_at)->format('Y-m-d');
         $result->content = $awardRecord->award->award_name;

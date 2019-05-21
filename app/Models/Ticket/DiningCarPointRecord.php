@@ -70,6 +70,6 @@ class DiningCarPointRecord extends BaseModel
 
     public function scopeActive($query)
     {
-        return $query->where('status', 1);
+        return $query->where('status', 1)->whereNull('deleted_at');
     }
 }

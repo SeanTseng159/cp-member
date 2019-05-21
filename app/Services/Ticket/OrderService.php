@@ -116,4 +116,5 @@ class OrderService extends BaseService
     {
         return $this->repository->getOneHourAgoPaidDiningCarOrders();
     }
+
 }

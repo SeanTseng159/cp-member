@@ -9,6 +9,7 @@ namespace App\Repositories\Ticket;
 
 
 use App\Enum\AVRImageType;
+use App\Enum\TimeStatus;
 use App\Helpers\AVRImageHelper;
 use App\Helpers\StringHelper;
 use App\Models\AVR\Activity;
@@ -18,7 +19,7 @@ use Carbon\Carbon;
 
 class ActivityRepository extends BaseRepository
 {
-    private $limit = 20;
+
     protected $model;
 
     public function __construct(Activity $model)
@@ -29,25 +30,26 @@ class ActivityRepository extends BaseRepository
 
     public function list($memberID = null)
     {
-//        $memberID = 49;
+
         $freeActivity = [];
-        $paidActivity = [];
-        $frees = $this->model->launched()
+
+        $frees = $this->model->active()
             ->where('has_prod_spec_price_id', 0)
             ->get(['id', 'name', 'start_activity_time', 'end_activity_time']);
-
 
         foreach ($frees as $free) {
             $item = new \stdClass();
             $item->id = $free->id;
             $item->name = $free->name;
             $item->duration = StringHelper::getDate($free->start_activity_time, $free->end_activity_time);
-            $item->phote = AVRImageHelper::getImageUrl(AVRImageType::activity, $free->id);
+            $item->photo = AVRImageHelper::getImageUrl(AVRImageType::activity, $free->id);
+            $item->status = TimeStatus::checkStatus($free->start_activity_time,$free->end_activity_time);
             $item->orderID = 0;
             $freeActivity[] = $item;
         }
 
         //檢查是否有付費id
+        $paidActivity = [];
         if ($memberID) {
             $paidActivitites = $this->model->launched()->with(
                 [
@@ -65,15 +67,18 @@ class ActivityRepository extends BaseRepository
                     $paid->id = $item->id;
                     $paid->name = $item->name;
                     $paid->duration = StringHelper::getDate($item->start_activity_time, $item->end_activity_time);
-                    $paid->phote = AVRImageHelper::getImageUrl(AVRImageType::activity, $item->id);
+                    $paid->photo = AVRImageHelper::getImageUrl(AVRImageType::activity, $item->id);
+                    $paid->status = TimeStatus::checkStatus($item->start_activity_time,$item->end_activity_time);
                     $paid->orderID = $orderDetail->order_detail_id;
                     $paidActivity[] = $paid;
+
                 }
             }
         }
 
         $result = array_merge($freeActivity, $paidActivity);
-        return collect($result)->sortBy('duration');
+        $result = collect($result)->sortBy('duration')->toArray();
+        return array_values($result);
     }
 
 
@@ -90,6 +95,7 @@ class ActivityRepository extends BaseRepository
                         }
                     }
                 ])->where('has_prod_spec_price_id', 1)
+                ->where('id',$id)
                 ->first();
 
         } else {
@@ -100,5 +106,7 @@ class ActivityRepository extends BaseRepository
         return $data;
 
     }
+
+
 
 }

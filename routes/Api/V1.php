@@ -192,7 +192,7 @@ Route::middleware('cors')->namespace('V1')->group(function () {
             Route::get('/{activityId}/order/{orderId}/missions', 'AVRActivityController@missionList');
 
             //任務明細
-            Route::get('/mission/{missionId}', 'AVRActivityController@missionDetail');
+            Route::get('/order/{orderId}/mission/{missionId}', 'AVRActivityController@missionDetail');
         });
     });
 

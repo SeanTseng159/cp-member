@@ -10,6 +10,7 @@ namespace App\Result;
 
 use App\Enum\AVRImageType;
 use App\Enum\MissionFileType;
+use App\Enum\TimeStatus;
 use App\Helpers\AVRImageHelper;
 use App\Helpers\CommonHelper;
 use Carbon\Carbon;
@@ -43,7 +44,13 @@ class AVRActivityResult extends BaseResult
 
     }
 
-    public function missionList($activity, $memberID = null, $orderId = null)
+    /**任務的狀態需要活動狀態一致  若活動未開始或已過期，都為不可執行，除非任務已完成
+     * @param $activity
+     * @param null $memberID
+     * @param null $orderId
+     * @return \stdClass
+     */
+    public function missionList($activity, $activityStatus, $memberID = null, $orderId = null)
     {
 
         $result = new \stdClass;
@@ -51,7 +58,6 @@ class AVRActivityResult extends BaseResult
         $result->mission = [];
         $missions = $activity->missions;
         $hasOrder = $activity->is_mission; //必須依照排序
-
 
 
         $finishNum = 0;
@@ -69,34 +75,43 @@ class AVRActivityResult extends BaseResult
                 ->where('order_detail_id', $orderId)
                 ->first();
 
-            $status = false;
-            $enable = false;
+
+            //status 1:不可執行 2:可執行 3:已完成
+            $status = 1;
+
 
             if ($user) {
-                $status = (bool)$user->isComplete;
-            }
-
-            if ($hasOrder) {
-                if (!$preMission) {
-                    $enable = true;
-                } else if ($preMission->enable && $preMission->status) {
-                    $enable = true;
-                }
+                $status = $user->isComplete ? 3 : 2;
             } else {
-                $enable = true;
+                //按照順序執行的任務，前一個任務已完成，才能執行
+                if ($hasOrder) {
+                    if (!$preMission) {
+                        $status = 2;
+                    } else if ($preMission->status == 3) {
+                        $status = 2;
+                    }
+                } else {
+                    $status = 2;
+                }
             }
-            $ret->status = $status;
-            $ret->enable = $enable;
 
+            //如果活動已過期或未開始，則任務皆為不可執行，除非任務已經完成
+            if ($activityStatus != TimeStatus::PROCESSING) {
+                if ($status != 3)
+                    $status = 1;
+            }
+
+
+
+            $ret->status = $status;
             $ret->photo = AVRImageHelper::getImageUrl(AVRImageType::mission, $mission->id);
             $result->mission[] = $ret;
 
             $preMission = $mission; //上一個
-            $preMission->enable = $enable;
             $preMission->status = $status;
 
 
-            if ($ret->status)
+            if ($ret->status == 3)
                 $finishNum++;
         }
 
@@ -107,8 +122,9 @@ class AVRActivityResult extends BaseResult
 
     }
 
-    public function missionDetail($mission, $memberID)
+    public function missionDetail($mission, $memberID = null, $orderId = null)
     {
+
         $ret = new \stdClass();
         $ret->id = $mission->id;
         $ret->name = $mission->name;
@@ -116,10 +132,12 @@ class AVRActivityResult extends BaseResult
         $ret->place = $mission->place_name;
         $ret->longitude = $mission->longitude;
         $ret->latitude = $mission->latitude;
+        $ret->checkGps = (bool)$mission->check_gps;
         $ret->photo = AVRImageHelper::getImageUrl(AVRImageType::mission, $mission->id);
 
         //使用者相關
-        $user = $mission->members->where('member_id', $memberID)->first();
+        $user = $mission->members->where('member_id', $memberID)->where('order_detail_id', $orderId)->first();
+
         if (!$user)
             $ret->status = false;
         else
