@@ -58,13 +58,28 @@ class AwardRecordRepository extends BaseRepository
         return $result;
     }
 
-    public function find($id,$memberId)
+    public function find($id, $memberId)
     {
         return $this->model
             ->with(['award.supplier', 'award.image'])
             ->where('award_record_id', $id)
-            ->where('user_id',$memberId)
+            ->where('user_id', $memberId)
             ->first();
+    }
+
+    public function availableAward($memberId)
+    {
+        //獎品
+        $result = $this->model
+            ->byUser($memberId)->whereNull('verified_at')
+            ->whereHas('award', function ($query) {
+                $now = Carbon::now();
+                $query->where('award_validity_start_at', '<=', $now)->where('award_validity_end_at', '>', $now)->where('award_status', "1");
+            })
+            ->with('award')
+            ->count();
+
+        return $result;
     }
 
 }
