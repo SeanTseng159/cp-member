@@ -46,6 +46,7 @@ class AVRActivityResult extends BaseResult
 
     /**任務的狀態需要活動狀態一致  若活動未開始或已過期，都為不可執行，除非任務已完成
      * @param $activity
+     * @param $activityStatus
      * @param null $memberID
      * @param null $orderId
      * @return \stdClass
@@ -102,7 +103,6 @@ class AVRActivityResult extends BaseResult
             }
 
 
-
             $ret->status = $status;
             $ret->photo = AVRImageHelper::getImageUrl(AVRImageType::mission, $mission->id);
             $result->mission[] = $ret;
@@ -122,7 +122,7 @@ class AVRActivityResult extends BaseResult
 
     }
 
-    public function missionDetail($mission, $memberID = null, $orderId = null)
+    public function missionDetail($activityStatus, $mission, $memberID = null, $orderId = null)
     {
 
         $ret = new \stdClass();
@@ -138,10 +138,16 @@ class AVRActivityResult extends BaseResult
         //使用者相關
         $user = $mission->members->where('member_id', $memberID)->where('order_detail_id', $orderId)->first();
 
-        if (!$user)
-            $ret->status = false;
-        else
-            $ret->status = (bool)$user->isComplete;
+        //status 1:不可執行 2:可執行 3:已完成
+        $status = 1;
+
+        if ($user) {
+            $status = $user->isComplete ? 3 : 2;
+        } else {
+            $status = $activityStatus;
+        }
+        $ret->status = $status;
+
 
         $game = new \stdClass();
         $game->type = $mission->type;

@@ -48,7 +48,7 @@ class ActivityRepository extends BaseRepository
             $freeActivity[] = $item;
         }
 
-        //檢查是否有付費id
+        //檢查是否有付費id ，且未退費
         $paidActivity = [];
         if ($memberID) {
             $paidActivitites = $this->model->launched()->with(

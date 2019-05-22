@@ -45,7 +45,7 @@ class MissionRepository extends BaseRepository
     {
 
         if (!$orderId) {
-            $data = $this->model->where('id', $id)->first();
+            $data = $this->model->with('activity')->where('id', $id)->first();
         } else {
 
             $data = $this->model
@@ -207,7 +207,7 @@ class MissionRepository extends BaseRepository
                     try {
                         if ($award) {
                             //獎品紀錄
-                            $award->award_used_quantity = $award->award_used_quantity+1;
+                            $award->award_used_quantity = $award->award_used_quantity + 1;
                             $award->modified_at = Carbon::now();
                             $award->save();
                             //獲獎紀錄
@@ -229,7 +229,7 @@ class MissionRepository extends BaseRepository
                             $awardRecord->save();
                         }
                         if ($activityAward) {
-                            $activityAward->award_used_quantity = $activityAward->award_used_quantity+1;
+                            $activityAward->award_used_quantity = $activityAward->award_used_quantity + 1;
                             $activityAward->modified_at = Carbon::now();
                             $activityAward->save();
 
@@ -326,7 +326,7 @@ class MissionRepository extends BaseRepository
                 ->with('awards')
                 ->get();
 
-        if (!$activityAwards) return null;
+        if (count($activityAwards) == 0) return null;
 
         $probabilityList = $activityAwards->pluck('probability')->toArray();
 
