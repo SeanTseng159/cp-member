@@ -37,16 +37,17 @@ class ImageRepository extends BaseRepository
             ->select('folder', 'filename', 'ext', 'compressed_info')
             ->where('model_type', $modelType)
             ->where('model_spec_id', $modeSpecID)
+            ->whereNull('deleted_at')
             ->when($sort, function ($query) use ($sort) {
                 return $query->where('sort', $sort);
             })
             ->get();
 
 
-
         if ($result->count() == 0) {
             return "";
         }
+
 
         return $result;
 
