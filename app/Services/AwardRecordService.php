@@ -24,4 +24,8 @@ class AwardRecordService extends BaseService
     {
         return $this->repository->find($id,$memberId);
     }
+    public function availableAward($memberId)
+    {
+        return $this->repository->availableAward($memberId);
+    }
 }

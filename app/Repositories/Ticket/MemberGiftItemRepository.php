@@ -16,6 +16,7 @@ use App\Services\ImageService;
 use Carbon\Carbon;
 use DB;
 use App\Core\Logger;
+use function foo\func;
 
 
 class MemberGiftItemRepository extends BaseRepository
@@ -267,6 +268,12 @@ class MemberGiftItemRepository extends BaseRepository
     {
         try {
             $result = $this->memberGiftItem
+                ->with('gift')
+                ->whereHas('gift', function ($query)  {
+                    return $query
+                        ->where('status', 1)
+                        ->where('expire_at', ">=", Carbon::now()); //未過期
+                })
                 ->where('member_id', $memberId)
                 ->whereNull('used_time')
                 ->count();

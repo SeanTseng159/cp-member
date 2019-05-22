@@ -8,6 +8,7 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Services\AwardRecordService;
 use App\Services\Ticket\MemberCouponService;
 use App\Services\Ticket\MemberGiftItemService;
 use Illuminate\Http\JsonResponse;
@@ -36,17 +37,21 @@ class DiningCarMemberController extends RestLaravelController
     protected $giftService;
     protected $memberCouponService;
     protected $memberGiftItemService;
+    protected $awardRecordService;
 
     public function __construct(DiningCarMemberService $service,
                                 GiftService $giftService,
                                 MemberCouponService $memberCouponService,
-                                MemberGiftItemService $memberGiftItemService
+                                MemberGiftItemService $memberGiftItemService,
+                                AwardRecordService $awardRecordService
+
     )
     {
         $this->service = $service;
         $this->giftService = $giftService;
         $this->memberCouponService = $memberCouponService;
         $this->memberGiftItemService = $memberGiftItemService;
+        $this->awardRecordService = $awardRecordService;
     }
 
     /**
@@ -213,11 +218,13 @@ class DiningCarMemberController extends RestLaravelController
 
             $couponNum = $this->memberCouponService->availableCoupons($memberId);
             $giftNum = $this->memberGiftItemService->availableGifts($memberId);
-            $total = $couponNum + $giftNum;
+            //獎品清單
+            $awardNum = $this->awardRecordService->availableAward($memberId);
+            $total = $couponNum + $giftNum + $awardNum;
 
             return $this->success([
                 'coupon_num' => $couponNum,
-                'gift_num' => $giftNum,
+                'gift_num' => $giftNum + $awardNum,
                 'total' => $total
             ]);
         } catch (Exception $e) {
