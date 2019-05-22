@@ -24,8 +24,13 @@ class ProductSpecPrice extends BaseModel
         return $this->hasOne('App\Models\Ticket\ProductSpec', 'prod_spec_id', 'prod_spec_id')->notDeleted();
     }
 
+    /**
+     *
+     */
     public function orderDetail()
     {
-        return $this->hasMany(OrderDetail::class,'prod_spec_price_id','prod_spec_price_id');
+        return $this->hasMany(OrderDetail::class, 'prod_spec_price_id', 'prod_spec_price_id')
+            ->where('verified_status', '10')
+            ->orWhere('verified_status', '11');
     }
 }

@@ -61,7 +61,6 @@ class AVRActivityController extends RestLaravelController
             $data = (new AVRActivityResult)->activityDetail($data);
             return $this->success($data);
         } catch (\Exception $e) {
-//            dd($e);
             \Log::error($e);
             return $this->failureCode('E0001');
         }
@@ -92,25 +91,17 @@ class AVRActivityController extends RestLaravelController
             }
             if ($orderId == 0) $orderId = null;
 
-            $data = $this->activityService->detail($activityId, $orderId);
-            if (is_null($data)) {
-                throw new \Exception('E0001');
-            }
+            $activity = $this->checkOrderId($activityId, $orderId);
 
-            //檢查訂單編號
-            if ($data->has_prod_spec_price_id && $data->prod_spec_price_id && !$orderId)
-                throw new \Exception('E0080');
-
-            if (!$data)
+            if (!$activity)
                 return $this->success();
 
 
-            $activityStatus = TimeStatus::checkStatus($data->start_activity_time, $data->end_activity_time);
-            $data = (new AVRActivityResult)->missionList($data, $activityStatus, $memberID, $orderId);
+            $activityStatus = TimeStatus::checkStatus($activity->start_activity_time, $activity->end_activity_time);
+            $data = (new AVRActivityResult)->missionList($activity, $activityStatus, $memberID, $orderId);
 
             return $this->success($data);
         } catch (\Exception $e) {
-//            dd($e);
             $code = $e->getMessage() ? $e->getMessage() : 'E0001';
             return $this->failureCode($code);
         }
@@ -131,11 +122,13 @@ class AVRActivityController extends RestLaravelController
 
 
             $mission = $this->missionService->detail($missionId, $memberID, $orderId);
-            $data = (new AVRActivityResult)->missionDetail($mission, $memberID, $orderId);
+
+            $activityStatus = TimeStatus::checkStatus($mission->activity->start_activity_time, $mission->activity->end_activity_time);
+
+            $data = (new AVRActivityResult)->missionDetail($activityStatus, $mission, $memberID, $orderId);
             return $this->success($data);
 
         } catch (\Exception $e) {
-//            dd($e);
             \Log::error($e);
             $code = $e->getMessage() ? $e->getMessage() : 'E0001';
             return $this->failureCode($code);
@@ -166,6 +159,7 @@ class AVRActivityController extends RestLaravelController
                 }
             }
 
+
             $mission = $this->missionService->detail($missionId, $memberID, $orderId);
 
 
@@ -185,7 +179,6 @@ class AVRActivityController extends RestLaravelController
             return $this->success($ret);
 
         } catch (\Exception $e) {
-            dd($e);
             \Log::error($e);
             $code = $e->getMessage() ? $e->getMessage() : 'E0001';
             return $this->failureCode($code);
@@ -220,6 +213,25 @@ class AVRActivityController extends RestLaravelController
             $code = $e->getMessage() ? $e->getMessage() : 'E0001';
             return $this->failureCode($code);
         }
+    }
+
+    /**
+     * @param $activityId
+     * @param $orderId
+     * @return mixed
+     * @throws \Exception
+     */
+    private function checkOrderId($activityId, $orderId)
+    {
+        $data = $this->activityService->detail($activityId, $orderId);
+        if (is_null($data)) {
+            throw new \Exception('E0001');
+        }
+
+        //檢查訂單編號
+        if ($data->has_prod_spec_price_id && $data->prod_spec_price_id && !$orderId)
+            throw new \Exception('E0080');
+        return $data;
     }
 
 
