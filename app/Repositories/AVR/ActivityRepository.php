@@ -55,7 +55,7 @@ class ActivityRepository extends BaseRepository
                 [
                     'productPriceId',
                     'productPriceId.orderDetail' => function ($query) use ($memberID) {
-                        $query->where('member_id', $memberID);
+                        $query->where('order_detail_member_id', $memberID);
                     }
                 ])->where('has_prod_spec_price_id', 1)
                 ->get();

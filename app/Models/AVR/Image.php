@@ -9,8 +9,12 @@ namespace App\Models\AVR;
 
 
 
+use Illuminate\Database\Eloquent\SoftDeletes;
+
 class Image extends AVRBaseModel
 {
+    use SoftDeletes;
+
     protected $table = 'fimages';
 
     public function __construct(){

@@ -52,7 +52,7 @@ class MissionRepository extends BaseRepository
                 ->with(['activity',
                     'activity.productPriceId',
                     'activity.productPriceId.orderDetail' => function ($query) use ($memberId, $orderId) {
-                        $query->where('order_detail_id', $orderId)->where('member_id', $memberId);
+                        $query->where('order_detail_id', $orderId)->where('order_detail_member_id', $memberId);
                     }])
                 ->where('id', $id)
                 ->first();
