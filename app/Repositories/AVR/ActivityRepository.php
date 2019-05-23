@@ -35,17 +35,17 @@ class ActivityRepository extends BaseRepository
 
         $frees = $this->model->active()
             ->where('has_prod_spec_price_id', 0)
-            ->get(['id', 'name', 'start_activity_time', 'end_activity_time','sort']);
+            ->get(['id', 'name', 'start_activity_time', 'end_activity_time', 'sort']);
 
         foreach ($frees as $free) {
             $item = new \stdClass();
             $item->id = $free->id;
             $item->name = $free->name;
             $item->sort = $free->sort;
-            $item->endTime = Carbon::parse($free->end_activity_time)->format('Y-m-d') ;
+            $item->endTime = Carbon::parse($free->end_activity_time)->format('Y-m-d');
             $item->duration = StringHelper::getDate($free->start_activity_time, $free->end_activity_time);
             $item->photo = AVRImageHelper::getImageUrl(AVRImageType::activity, $free->id);
-            $item->status = TimeStatus::checkStatus($free->start_activity_time,$free->end_activity_time);
+            $item->status = TimeStatus::checkStatus($free->start_activity_time, $free->end_activity_time);
             $item->orderID = 0;
             $freeActivity[] = $item;
         }
@@ -69,10 +69,10 @@ class ActivityRepository extends BaseRepository
                     $paid->id = $item->id;
                     $paid->name = $item->name;
                     $paid->sort = $item->sort;
-                    $paid->endTime = Carbon::parse($item->end_activity_time)->format('Y-m-d') ;
+                    $paid->endTime = Carbon::parse($item->end_activity_time)->format('Y-m-d');
                     $paid->duration = StringHelper::getDate($item->start_activity_time, $item->end_activity_time);
                     $paid->photo = AVRImageHelper::getImageUrl(AVRImageType::activity, $item->id);
-                    $paid->status = TimeStatus::checkStatus($item->start_activity_time,$item->end_activity_time);
+                    $paid->status = TimeStatus::checkStatus($item->start_activity_time, $item->end_activity_time);
                     $paid->orderID = $orderDetail->order_detail_id;
                     $paidActivity[] = $paid;
 
@@ -81,7 +81,9 @@ class ActivityRepository extends BaseRepository
         }
 
         $result = array_merge($freeActivity, $paidActivity);
-        $result = collect($result)->sortBy('sort')->sortBy('endTime')->toArray();
+        $result = collect($result)->sortBy(function ($item) {
+            return sprintf('%-2s%s', $item->sort, $item->endTime);
+        })->toArray();
         return array_values($result);
     }
 
@@ -99,7 +101,7 @@ class ActivityRepository extends BaseRepository
                         }
                     }
                 ])->where('has_prod_spec_price_id', 1)
-                ->where('id',$id)
+                ->where('id', $id)
                 ->first();
 
         } else {
@@ -110,7 +112,6 @@ class ActivityRepository extends BaseRepository
         return $data;
 
     }
-
 
 
 }
