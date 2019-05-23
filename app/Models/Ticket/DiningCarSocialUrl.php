@@ -13,5 +13,5 @@ class DiningCarSocialUrl extends BaseModel
 {
     const SOURCES = ['mobile','line','facebook','instagram'];
 
-    const PAID_SOURCES = ['line','facebook','instagram'];
+    const PAID_SOURCES = ['mobile', 'website', 'line', 'facebook', 'instagram'];
 }

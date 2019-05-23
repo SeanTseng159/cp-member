@@ -25,7 +25,7 @@ class MenuCategoryRepository extends BaseRepository
      */
     public function list($params = [])
     {
-        return $this->model->with(['menus.mainImg'])
+        return $this->model->with(['menus.mainImg', 'menus.prodSpecPrice'])
                             ->where('dining_car_id', $params['diningCarId'])
                             ->orderBy('sort', 'asc')
                             ->get();

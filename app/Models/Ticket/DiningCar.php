@@ -135,17 +135,24 @@ class DiningCar extends BaseModel
      */
     public function gifts()
     {
-
         return $this
             ->hasMany(Gift::class, 'model_spec_id', 'id')
             ->where('model_type', ClientType::dining_car);
-
     }
+
     public function birthdayGift(){
         return $this
             ->hasOne(Gift::class, 'model_spec_id', 'id')
             ->where('model_type', ClientType::dining_car)
             ->where('type','birthday');
+    }
+
+    /**
+     * 取得動態消息
+     */
+    public function newsfeeds()
+    {
+        return $this->hasMany('App\Models\Ticket\Newsfeed');
     }
 
     public function pointRules()
@@ -167,5 +174,4 @@ class DiningCar extends BaseModel
 
         return $level;
     }
-
 }
