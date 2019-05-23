@@ -11,9 +11,12 @@ use Carbon\Carbon;
 use App\Result\BaseResult;
 use App\Config\Ticket\ProcuctConfig;
 use App\Helpers\ImageHelper;
+use App\Traits\StringHelper;
 
 class DiningCarMenuResult extends BaseResult
 {
+    use StringHelper;
+
     public function __construct()
     {
         parent::__construct();
@@ -63,6 +66,7 @@ class DiningCarMenuResult extends BaseResult
 
         $newMenus = [];
         foreach ($menus as $menu) {
+            // var_dump($menu);
             $newMenu = $this->getMenu($menu);
             if ($newMenu) $newMenus[] = $newMenu;
         }
@@ -83,15 +87,16 @@ class DiningCarMenuResult extends BaseResult
         $result->diningCarId = $menu->dining_car_id;
         $result->name = $menu->name;
         $result->price = $menu->price;
+        $result->product = $this->getProduct($menu->prodSpecPrice);
 
         if ($isDetail) {
             $result->categoryName = $menu->category->name;
             $result->imgs = ImageHelper::urls($menu->imgs);
             $result->content = $menu->content;
-            $result->product = $this->getProduct($menu->prodSpecPrice);
         }
         else {
             $result->img = ImageHelper::url($menu->mainImg);
+            $result->content = $this->outputStringLength($menu->content, 30);
         }
 
         return $result;
