@@ -30,7 +30,10 @@ class ProductSpecPrice extends BaseModel
     public function orderDetail()
     {
         return $this->hasMany(OrderDetail::class, 'prod_spec_price_id', 'prod_spec_price_id')
-            ->where('verified_status', '10')
-            ->orWhere('verified_status', '11');
+            ->where(function ($query) {
+                $query->where('verified_status', '10')->orWhere('verified_status', '11');
+            });
+
+
     }
 }
