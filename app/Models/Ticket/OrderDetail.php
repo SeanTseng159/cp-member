@@ -11,7 +11,6 @@ use App\Models\Ticket\BaseModel;
 
 class OrderDetail extends BaseModel
 {
-	// protected $table = 'prods';
 	protected $primaryKey = 'order_detail_id';
 
 	public $timestamps = false;
