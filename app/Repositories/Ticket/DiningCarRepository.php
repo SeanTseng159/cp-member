@@ -99,6 +99,7 @@ class DiningCarRepository extends BaseRepository
                                 },
                                 'memberLevels'
                             ])
+                            ->withCount(['gifts', 'newsfeeds'])
                             ->whereId($id)
                             ->first();
     }
