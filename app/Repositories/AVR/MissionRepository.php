@@ -306,7 +306,6 @@ class MissionRepository extends BaseRepository
         if (
             $award &&
             $award->award_stock_quantity - $award->award_used_quantity > 0 &&
-            $award->award_budget_cancellation_status == false &&
             $award->award_status == true &&
             Carbon::now() >= $award->award_validity_start_at &&
             Carbon::now() < $award->award_validity_end_at) {
@@ -334,7 +333,6 @@ class MissionRepository extends BaseRepository
         if (
             $award &&
             $award->award_stock_quantity - $award->award_used_quantity > 0 &&
-            $award->award_budget_cancellation_status == false &&
             $award->award_status == true &&
             Carbon::now() >= $award->award_validity_start_at &&
             Carbon::now() < $award->award_validity_end_at) {
