@@ -137,7 +137,8 @@ class DiningCar extends BaseModel
     {
         return $this
             ->hasMany(Gift::class, 'model_spec_id', 'id')
-            ->where('model_type', ClientType::dining_car);
+            ->where('model_type', ClientType::dining_car)
+            ->isActive();
     }
 
     public function birthdayGift(){
@@ -152,7 +153,8 @@ class DiningCar extends BaseModel
      */
     public function newsfeeds()
     {
-        return $this->hasMany('App\Models\Ticket\Newsfeed');
+        return $this->hasMany('App\Models\Ticket\Newsfeed')
+                    ->isActive();
     }
 
     public function pointRules()
