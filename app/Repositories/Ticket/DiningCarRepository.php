@@ -8,6 +8,7 @@
 namespace App\Repositories\Ticket;
 
 use App\Repositories\BaseRepository;
+use Carbon\Carbon;
 use Illuminate\Pagination\Paginator;
 use App\Models\Ticket\DiningCar;
 

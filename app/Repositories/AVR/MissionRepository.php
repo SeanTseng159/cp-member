@@ -11,6 +11,7 @@ namespace App\Repositories\AVR;
 use App\Config\Ticket\TicketConfig;
 use App\Enum\ActivityType;
 use App\Enum\BarCodeType;
+use App\Helpers\CommonHelper;
 use App\Models\AVR\ActivityAward;
 use App\Models\Ticket\OrderDetail;
 use App\Services\UUID;
@@ -21,7 +22,6 @@ use App\Models\Award;
 use App\Models\AwardRecord;
 use App\Repositories\BaseRepository;
 use Carbon\Carbon;
-
 
 
 class MissionRepository extends BaseRepository
@@ -126,7 +126,7 @@ class MissionRepository extends BaseRepository
             if ($award) {
                 $ret->mission->award = new \stdClass();
                 $ret->mission->award->name = $award->award_name;
-                $ret->mission->award->photo = $award->image->img_path;
+                $ret->mission->award->photo = CommonHelper::getBackendHost($award->image->img_path);
             }
 
             //檢查活動是否完成
@@ -142,17 +142,15 @@ class MissionRepository extends BaseRepository
             $activityName = $activityMissionStatus->name;
 
             $activityComplete = true;
-            foreach ($missions as $mission) {
-                //不存在此會員
-                if (count($mission->members) == 0) {
-                    $activityComplete = false;
-                    break;
-                }
 
-                //除了這筆之外的任務都已經完成
-                if (!$mission->members[0]->isComplete && $mission->id != $missionID) {
-                    $activityComplete = false;
-                    break;
+            //除了這筆之外的任務都已經完成
+            foreach ($missions as $mission) {
+                if ($mission->id != $missionID) {
+                    if ($mission->members->count() == 0) {
+                        $activityComplete = false;
+                    } else if (!$mission->members[0]->isComplete) {
+                        $activityComplete = false;
+                    }
                 }
             }
 
@@ -166,7 +164,7 @@ class MissionRepository extends BaseRepository
                 if ($activityAward) {
                     $ret->activity->award = new \stdClass();
                     $ret->activity->award->name = $activityAward->award_name;
-                    $ret->activity->award->photo = $activityAward->image->img_path;
+                    $ret->activity->award->photo = CommonHelper::getBackendHost($activityAward->image->img_path);
                 }
             }
         }
@@ -200,7 +198,7 @@ class MissionRepository extends BaseRepository
                 }
                 $missionStatus->save();
 
-                //award/award_record/order_detail DB 更新
+//award/award_record/order_detail DB 更新
                 \DB::connection('backend')->transaction(function () use (
                     $award, $activityAward, $memberID, $activityID, $missionID, $orderId
                 ) {
@@ -267,7 +265,8 @@ class MissionRepository extends BaseRepository
                 });
 
 
-            } catch (\Exception $e) {
+            } catch
+            (\Exception $e) {
                 throw new \Exception($e);
             }
 
@@ -325,7 +324,6 @@ class MissionRepository extends BaseRepository
             ActivityAward::where('activity_id', $activityID)
                 ->with('awards')
                 ->get();
-
         if (count($activityAwards) == 0) return null;
 
         $probabilityList = $activityAwards->pluck('probability')->toArray();
@@ -333,8 +331,6 @@ class MissionRepository extends BaseRepository
         $awardIndex = $this->getAwardByProbability($probabilityList);
         $awardID = $activityAwards[$awardIndex]->award_id;
         $award = Award::with('image')->where('award_id', $awardID)->first();
-
-
         if (
             $award &&
             $award->award_stock_quantity - $award->award_used_quantity > 0 &&
