@@ -11,6 +11,22 @@ use App\Models\Ticket\BaseModel;
 
 class Newsfeed extends BaseModel
 {
+    /**
+     * 取得已啟用且上架中的消息
+     *
+     * @param  $query
+     *
+     * @return
+     */
+    public function scopeIsActive($query)
+    {
+        $now = date('Y-m-d H:i:s');
+
+        return $query->where('status', 1)
+            ->where('onshelf_time', '<=', $now)
+            ->where('offshelf_time', '>=', $now);
+    }
+
 	/**
      * 取得封面圖
      */
