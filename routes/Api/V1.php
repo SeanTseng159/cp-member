@@ -194,7 +194,21 @@ Route::middleware('cors')->namespace('V1')->group(function () {
             //任務明細
             Route::get('/order/{orderId}/mission/{missionId}', 'AVRActivityController@missionDetail');
         });
+
+        Route::prefix('place')->group(function () {
+            //地點列表
+//            Route::get('/', 'PlaceController@list');
+
+            //地點detail
+//            Route::get('/{id}', 'PlaceController@detail');
+
+            //地點icon
+            Route::get('/icons', 'PlaceController@icons');
+
+        });
     });
+
+
 
 });
 
