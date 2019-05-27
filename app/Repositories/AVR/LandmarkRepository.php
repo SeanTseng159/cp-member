@@ -14,9 +14,12 @@ use App\Helpers\CommonHelper;
 use App\Models\AVR\Landmark;
 use App\Models\AVR\LandmarkCategory;
 use App\Repositories\BaseRepository;
+use App\Traits\MapHelper;
 
 class LandmarkRepository extends BaseRepository
 {
+    use MapHelper;
+
     protected $landmarkModel = null;
     protected $landmarkCategoryModel = null;
 
@@ -25,6 +28,43 @@ class LandmarkRepository extends BaseRepository
     {
         $this->landmarkCategoryModel = $landmarkCategory;
         $this->landmarkModel = $landmark;
+    }
+
+    public function aroundPlace($lat, $lng, $distance)
+    {
+        $landmarks = $this->landmarkModel->where('status', 1)->get();
+        $ret = [];
+        foreach ($landmarks as $landmark) {
+            $diff = $this->calcDistance($landmark->latitude, $landmark->longitude, $lat, $lng, 1, 2);
+            if ($diff <= $distance) {
+                $data = new \stdClass();
+                $data->id = $landmark->id;
+                $data->name = $landmark->name;
+                $data->iconId = $landmark->landmark_category_id;
+                $data->lat = $landmark->latitude;
+                $data->lng = $landmark->longitude;
+                $data->isInfo = $landmark->is_intro;
+                $ret[] = $data;
+            }
+        }
+        return $ret;
+    }
+
+    public function placeInfo($id)
+    {
+        $landmark = $this->landmarkModel->where('status', 1)->where('id', $id)->first();
+        if ($landmark) {
+
+            $data = new \stdClass();
+            $data->id = $landmark->id;
+            $data->name = $landmark->name;
+            $data->iconId = $landmark->landmark_category_id;
+            $data->address = $landmark->zipcode . ' ' . $landmark->county . $landmark->district . $landmark->address;
+            $data->photo = AVRImageHelper::getImageUrl(AVRImageType::landmark, $landmark->id);
+            $data->description = $landmark->intro;
+            return $data;
+        }
+        return null;
     }
 
     public function icons($hash = null)
@@ -43,6 +83,7 @@ class LandmarkRepository extends BaseRepository
 
 
         $dbHash = md5(serialize($data));
+
         if ($dbHash == $hash) {
             return null;
         } else {

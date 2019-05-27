@@ -26,5 +26,14 @@ class LandmarkService extends BaseService
     {
         return $this->repository->icons($hash);
     }
+    public function aroundPlace($lat,$lng,$distance)
+    {
+        return $this->repository->aroundPlace($lat,$lng,$distance);
+    }
+
+    public function placeInfo($id)
+    {
+        return $this->repository->placeInfo($id);
+    }
 
 }

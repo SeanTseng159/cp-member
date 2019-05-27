@@ -197,10 +197,10 @@ Route::middleware('cors')->namespace('V1')->group(function () {
 
         Route::prefix('place')->group(function () {
             //地點列表
-//            Route::get('/', 'PlaceController@list');
+            Route::get('/', 'PlaceController@list');
 
             //地點detail
-//            Route::get('/{id}', 'PlaceController@detail');
+            Route::get('/{id}', 'PlaceController@detail');
 
             //地點icon
             Route::get('/icons', 'PlaceController@icons');
