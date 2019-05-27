@@ -203,7 +203,7 @@ Route::middleware('cors')->namespace('V1')->group(function () {
             Route::get('/{id}', 'PlaceController@detail');
 
             //地點icon
-            Route::get('/icons', 'PlaceController@icons');
+            Route::get('/icons/list', 'PlaceController@icons');
 
         });
     });

@@ -46,6 +46,7 @@ class PlaceController extends RestLaravelController
     {
         try {
             $data = $this->landmarkService->placeInfo($id);
+
             return $this->success($data);
 
         } catch (\Exception $e) {
@@ -55,7 +56,7 @@ class PlaceController extends RestLaravelController
 
     public function icons(Request $request)
     {
-        dd($request);
+
         try {
             $hash = $request->input('hash');
 
