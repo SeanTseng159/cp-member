@@ -36,15 +36,15 @@ trait MapHelper
     }
 
     /**
-    * 計算兩組經緯度座標 之間的距離
-    * @param $lat1 緯度1
-    * @param $lng1 經度1
-    * @param $lat2 緯度2
-    * @param $lng2 經度2
-    * @param $len_type （1:m or 2:km);
-    * @param $decimal 取小點後幾位
-    * @return m or km
-    */
+     * 計算兩組經緯度座標 之間的距離
+     * @param $lat1 緯度1
+     * @param $lng1 經度1
+     * @param $lat2 緯度2
+     * @param $lng2 經度2
+     * @param int $lenType （1:m or 2:km);
+     * @param int $decimal 取小點後幾位
+     * @return m or km
+     */
     public function calcDistance($lat1, $lng1, $lat2, $lng2, $lenType = 2, $decimal = 2)
     {
         $PI = 3.1415926535898;
