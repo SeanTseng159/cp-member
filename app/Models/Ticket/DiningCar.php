@@ -158,6 +158,16 @@ class DiningCar extends BaseModel
                     ->isActive();
     }
 
+    /**
+     * 取得優惠券
+     */
+    public function coupons()
+    {
+        return $this->hasMany('App\Models\Coupon', 'model_spec_id', 'id')
+                    ->where('model_type', ClientType::dining_car)
+                    ->isActive();
+    }
+
     public function pointRules()
     {
         return $this->hasMany(DiningCarPointRule::class);

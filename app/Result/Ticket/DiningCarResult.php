@@ -255,7 +255,7 @@ class DiningCarResult extends BaseResult
         $newSocialUrls = [];
         foreach ($socialUrls as $social) {
             $socialUrl = $this->getSocialUrl($social);
-            if ($socialUrl->url) $newSocialUrls[] = $socialUrl;
+            if ( ! empty($socialUrl->url)) $newSocialUrls[] = $socialUrl;
         }
 
         return $newSocialUrls;
@@ -267,6 +267,8 @@ class DiningCarResult extends BaseResult
      */
     private function getSocialUrl($social)
     {
+        if ($social->source === 'mobile') return null;
+
         $result = new \stdClass;
         $result->source = $social->source;
         $result->url = $social->url;
@@ -357,8 +359,8 @@ class DiningCarResult extends BaseResult
         $member = ($memberCard->level > -1 || $level > 0) ? true : false;
         $newsfeed = ($level >= 0 && $car->newsfeeds_count > 0) ? true : false;
         $menu = ($level >= 0) ? true : false;
-        $coupon = ($level >= 0) ? true : false;
-        $gift = (($member || $level > 0) && $car->gifts_count > 0) ? true : false;
+        $coupon = ($level >= 0 && $car->coupons_count > 0) ? true : false;
+        $gift = ($member || ($level > 0 && $car->gifts_count > 0)) ? true : false;
 
         return [
             'member' => $member,
