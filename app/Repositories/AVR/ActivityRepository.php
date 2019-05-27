@@ -44,7 +44,7 @@ class ActivityRepository extends BaseRepository
             $item->sort = $free->sort;
             $item->endTime = Carbon::parse($free->end_activity_time)->format('Y-m-d');
             $item->duration = StringHelper::getDate($free->start_activity_time, $free->end_activity_time);
-            $item->photo = AVRImageHelper::getImageUrl(AVRImageType::activity, $free->id);
+            $item->photo = AVRImageHelper::getImageUrl(AVRImageType::avr_activity, $free->id);
             $item->status = TimeStatus::checkStatus($free->start_activity_time, $free->end_activity_time);
             $item->orderID = 0;
             $freeActivity[] = $item;
@@ -71,7 +71,7 @@ class ActivityRepository extends BaseRepository
                     $paid->sort = $item->sort;
                     $paid->endTime = Carbon::parse($item->end_activity_time)->format('Y-m-d');
                     $paid->duration = StringHelper::getDate($item->start_activity_time, $item->end_activity_time);
-                    $paid->photo = AVRImageHelper::getImageUrl(AVRImageType::activity, $item->id);
+                    $paid->photo = AVRImageHelper::getImageUrl(AVRImageType::avr_activity, $item->id);
                     $paid->status = TimeStatus::checkStatus($item->start_activity_time, $item->end_activity_time);
                     $paid->orderID = $orderDetail->order_detail_id;
                     $paidActivity[] = $paid;

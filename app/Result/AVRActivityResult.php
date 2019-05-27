@@ -36,7 +36,7 @@ class AVRActivityResult extends BaseResult
             Carbon::parse($activity->end_activity_time)->format('Y-m-d');
 
         //圖片
-        $result->photo = AVRImageHelper::getImageUrl(AVRImageType::activity, $activity->id);
+        $result->photo = AVRImageHelper::getImageUrl(AVRImageType::avr_activity, $activity->id);
 
         $result->description = $activity->introduction;
 
@@ -104,12 +104,11 @@ class AVRActivityResult extends BaseResult
 
 
             $ret->status = $status;
-            $ret->photo = AVRImageHelper::getImageUrl(AVRImageType::mission, $mission->id);
+            $ret->photo = AVRImageHelper::getImageUrl(AVRImageType::avr_mission, $mission->id);
             $result->mission[] = $ret;
 
             $preMission = $mission; //上一個
             $preMission->status = $status;
-
 
             if ($ret->status == 3)
                 $finishNum++;
@@ -133,7 +132,7 @@ class AVRActivityResult extends BaseResult
         $ret->longitude = $mission->longitude;
         $ret->latitude = $mission->latitude;
         $ret->checkGps = (bool)$mission->check_gps;
-        $ret->photo = AVRImageHelper::getImageUrl(AVRImageType::mission, $mission->id);
+        $ret->photo = AVRImageHelper::getImageUrl(AVRImageType::avr_mission, $mission->id);
 
         //使用者相關
         $user = $mission->members->where('member_id', $memberID)->where('order_detail_id', $orderId)->first();
