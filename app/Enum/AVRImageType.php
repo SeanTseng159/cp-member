@@ -18,6 +18,7 @@ final class AVRImageType extends Enum
 
 {
     const activity = 1;
-    const mission = 2;
+    const avr_activity = 2;
+    const avr_mission = 3;
 
 }

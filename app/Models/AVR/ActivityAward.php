@@ -11,9 +11,9 @@ class ActivityAward extends AVRBaseModel
     protected $table = 'avr_activity_awards';
 
 
-    public function awards()
+    public function award()
     {
-        return $this->hasMany(Award::class,'award_id','award_id');
+        return $this->hasOne(Award::class,'award_id','award_id');
     }
 
 
