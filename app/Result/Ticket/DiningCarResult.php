@@ -118,12 +118,12 @@ class DiningCarResult extends BaseResult
         $result->distance = ($result->longitude && $result->latitude && $this->lat && $this->lng) ? $this->calcDistance($this->lat, $this->lng, $car->latitude, $car->longitude, 2, 2) . '公里' : '未知';
         $result->businessHoursDays = $this->getBusinessHoursDays($car->businessHoursDays);
         $result->businessHoursDates = $this->getBusinessHoursDates($car->businessHoursDates);
-        $result->socialUrls = $this->getSocialUrls($car->socialUrls, $car->enable_level);
+        $result->level = $this->getLevel($car->level, $car->expired_at); // 是否付費
+        $result->socialUrls = $this->getSocialUrls($car->socialUrls, $result->level);
         $result->shareUrl = CommonHelper::getWebHost('zh-TW/diningCar/detail/' . $car->id);
         $result->videos = $this->getVideos($car->media);
-        $result->level = $this->getLevel($car->level, $car->expired_at);
         $result->memberCard = $this->getMemberCard($car->memberCard, $car->memberLevels);
-        $result->acls = $this->getAcls($result->level, $result->memberCard);
+        $result->acls = $this->getAcls($car, $result->level, $result->memberCard);
 
         return $result;
     }
@@ -248,14 +248,14 @@ class DiningCarResult extends BaseResult
      * 取社群連結
      * @param $socialUrls
      */
-    private function getSocialUrls($socialUrls, $car_level)
+    private function getSocialUrls($socialUrls, $carLevel)
     {
-        if ($socialUrls->isEmpty()) return [];
+        if ($carLevel === 0 || $socialUrls->isEmpty()) return [];
 
         $newSocialUrls = [];
         foreach ($socialUrls as $social) {
-            if ($car_level == 0 && in_array($social->source, DiningCarSocialUrl::PAID_SOURCES)) continue;
-            $newSocialUrls[] = $this->getSocialUrl($social);
+            $socialUrl = $this->getSocialUrl($social);
+            if ( ! empty($socialUrl->url)) $newSocialUrls[] = $socialUrl;
         }
 
         return $newSocialUrls;
@@ -267,6 +267,8 @@ class DiningCarResult extends BaseResult
      */
     private function getSocialUrl($social)
     {
+        if ($social->source === 'mobile') return null;
+
         $result = new \stdClass;
         $result->source = $social->source;
         $result->url = $social->url;
@@ -352,13 +354,13 @@ class DiningCarResult extends BaseResult
      * 取會餐車權限
      * @param $data
      */
-    public function getAcls($level = 0, $memberCard)
+    public function getAcls($car, $level = 0, $memberCard)
     {
         $member = ($memberCard->level > -1 || $level > 0) ? true : false;
-        $newsfeed = ($level >= 0) ? true : false;
+        $newsfeed = ($level >= 0 && $car->newsfeeds_count > 0) ? true : false;
         $menu = ($level >= 0) ? true : false;
-        $coupon = ($level >= 0) ? true : false;
-        $gift = ($member || $level > 0) ? true : false;
+        $coupon = ($level >= 0 && $car->coupons_count > 0) ? true : false;
+        $gift = ($member || ($level > 0 && $car->gifts_count > 0)) ? true : false;
 
         return [
             'member' => $member,

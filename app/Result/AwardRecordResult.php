@@ -50,16 +50,15 @@ class AwardRecordResult
     public function show($awardRecord)
     {
         $result = new \stdClass();
+        $result->id = $awardRecord->award_record_id;
         $result->name = $awardRecord->award->supplier->supplier_name;
-
-
-        $result->photo = CommonHelper::getBackendHost($awardRecord->award->image->img_path);
         $result->title = $awardRecord->award->award_name;
         $result->duration = Carbon::parse($awardRecord->award->award_validity_end_at)->format('Y-m-d');
+        $result->photo = CommonHelper::getBackendHost($awardRecord->award->image->img_path);
+        $result->status = 0;
+        $result->type = MyGiftType::award;
         $result->content = $awardRecord->award->award_name;
         $result->desc = $awardRecord->award->award_description;
-        $result->status = 0;
-
         //已使用
         if ($awardRecord->verified_at) {
             $result->status = 1;
