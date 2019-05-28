@@ -10,6 +10,7 @@ namespace App\Repositories\AVR;
 
 use App\Config\Ticket\TicketConfig;
 use App\Enum\AVRImageType;
+use App\Enum\AwardRecordType;
 use App\Enum\BarCodeType;
 use App\Helpers\CommonHelper;
 use App\Models\AVR\ActivityAward;
@@ -187,7 +188,7 @@ class MissionRepository extends BaseRepository
                             $awardRecord->user_id = $memberID;
                             $awardRecord->activity_id = $activityID;
                             $awardRecord->model_name = Mission::class;
-                            $awardRecord->model_type = AVRImageType::avr_mission;
+                            $awardRecord->model_type = AwardRecordType::avr_mission;
                             $awardRecord->model_spec_id = $missionID;
 
                             $awardRecord->qrcode = (new UUID())->setCreate()->getToString();
@@ -218,7 +219,7 @@ class MissionRepository extends BaseRepository
                                     $awardRecord->user_id = $memberID;
                                     $awardRecord->activity_id = $activityID;
                                     $awardRecord->model_name = Activity::class;
-                                    $awardRecord->model_type = AVRImageType::avr_activity;
+                                    $awardRecord->model_type = AwardRecordType::avr_activity;
                                     $awardRecord->model_spec_id = $activityID;
                                     $awardRecord->qrcode = (new UUID())->setCreate()->getToString();
                                     $awardRecord->supplier_id = $activityAward->supplier_id;
