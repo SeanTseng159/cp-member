@@ -136,12 +136,14 @@ class MissionRepository extends BaseRepository
         //檢查mission是否有禮物
         if ($isComplete) {
             list($missionAward, $photo, $allOut) = $this->getMissionAward($missionID);
+
+            $ret->mission->award = new \stdClass();
+            $ret->mission->award->allOut = $allOut;
             if ($missionAward) {
-                $ret->mission->award = new \stdClass();
                 $ret->mission->award->name = $missionAward->award_name;
                 $ret->mission->award->photo = $photo;
-                $ret->mission->award->allOut = $allOut;
             }
+
         } else {
             //失敗就回傳
             return $ret;
@@ -176,8 +178,6 @@ class MissionRepository extends BaseRepository
                     $activityComplete, $ret, $allOut
                 ) {
                     try {
-
-
                         if ($missionAward && !$allOut) {
                             $missionAward->award_used_quantity = $missionAward->award_used_quantity + 1;
                             $missionAward->modified_at = Carbon::now();
@@ -203,12 +203,12 @@ class MissionRepository extends BaseRepository
                         //如果活動完成，確認是否有禮物
                         if ($activityComplete) {
                             list($activityAward, $photo, $activityAllOut) = $this->getActivityAward($activityID);
+
+                            $ret->activity->award = new \stdClass();
+                            $ret->activity->award->allOut = $activityAllOut;
                             if ($activityAward) {
-                                $ret->activity->award = new \stdClass();
                                 $ret->activity->award->name = $activityAward->award_name;
                                 $ret->activity->award->photo = $photo;
-                                $ret->activity->award->allOut = $activityAllOut;
-
                                 if (!$activityAllOut) {
                                     $activityAward->award_used_quantity = $activityAward->award_used_quantity + 1;
                                     $activityAward->modified_at = Carbon::now();
@@ -263,7 +263,7 @@ class MissionRepository extends BaseRepository
     private function getMissionAward($missionId)
     {
 
-        $award = null;
+        $missionAward = null;
         $awardPhoto = null;
         $allOut = false;
 
@@ -273,18 +273,19 @@ class MissionRepository extends BaseRepository
             ->first();
 
         if (!$mission) {
-            return [$award, $awardPhoto, $allOut];
+            return [$missionAward, $awardPhoto, $allOut];
         }
 
 
         $missionAwards = $mission->missionAwards;
 
         if ($missionAwards->count() <= 0) {
-            return [$award, $awardPhoto, $allOut];
+            return [$missionAward, $awardPhoto, $allOut];
         }
 
 
         $probabilityList = [];
+
         //取得還有數量的禮物做比例分配
         foreach ($missionAwards as $item) {
             $award = $item->award;
@@ -294,27 +295,30 @@ class MissionRepository extends BaseRepository
         }
 
         if (!count($probabilityList)) {
-            return [$award, $awardPhoto, $allOut];
+            $allOut = true;
+            return [$missionAward, $awardPhoto, $allOut];
         }
 
 
         $awardID = $this->getAwardByProbability($probabilityList);
-        $award = Award::with('image')->where('award_id', $awardID)->first();
+        $missionAward = Award::with('image')->where('award_id', $awardID)->first();
 
-        if ($award &&
-            $award->award_status == true &&
-            Carbon::now() >= $award->award_validity_start_at &&
-            Carbon::now() < $award->award_validity_end_at) {
 
-            $awardPhoto = CommonHelper::getBackendHost($award->image->img_path);
+        if ($missionAward &&
+            $missionAward->award_status == true &&
+            Carbon::now() >= $missionAward->award_validity_start_at &&
+            Carbon::now() < $missionAward->award_validity_end_at) {
 
-            if ($award->award_stock_quantity - $award->award_used_quantity > 0) {
+            $awardPhoto = CommonHelper::getBackendHost($missionAward->image->img_path);
+
+            if ($missionAward->award_stock_quantity - $missionAward->award_used_quantity > 0) {
                 $allOut = false;
             } else {
                 $allOut = true;
             }
-            return [$award, $awardPhoto, $allOut];
+
         }
+        return [$missionAward, $awardPhoto, $allOut];
     }
 
     private function getActivityAward($activityID)
@@ -328,8 +332,10 @@ class MissionRepository extends BaseRepository
                 ->with('award')
                 ->get();
 
-        if (count($activityAwards) == 0)
+        if (count($activityAwards) == 0) {
+            $allOut = true;
             return [$activityAward, $photo, $allOut];
+        }
 
 
         $probabilityList = [];
@@ -339,6 +345,10 @@ class MissionRepository extends BaseRepository
             if ($award->award_stock_quantity - $award->award_used_quantity > 0) {
                 $probabilityList[$award->award_id] = $item->probability;
             }
+        }
+        if (count($probabilityList) <= 0) {
+            $allOut = true;
+            return [$activityAward, $photo, $allOut];
         }
 
         $awardIndex = $this->getAwardByProbability($probabilityList);

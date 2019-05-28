@@ -82,11 +82,10 @@ class ActivityRepository extends BaseRepository
 
         $result = array_merge($freeActivity, $paidActivity);
         $result = collect($result)
+            ->sortByDesc('orderID')
             ->sortBy(function ($item) {
                 return sprintf('%-2s%s', $item->sort, $item->endTime);
-            })
-            ->sortByDesc('orderID')
-            ->toArray();
+            })->toArray();
         return array_values($result);
     }
 
