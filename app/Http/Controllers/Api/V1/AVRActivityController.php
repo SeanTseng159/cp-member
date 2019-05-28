@@ -41,7 +41,6 @@ class AVRActivityController extends RestLaravelController
             $data = $this->activityService->list($memberID);
             return $this->success($data);
         } catch (\Exception $e) {
-            dd($e);
             return $this->failureCode('E0001');
         }
     }
