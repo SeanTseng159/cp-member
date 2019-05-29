@@ -19,3 +19,5 @@ package-lock.json
 /.vscode
 /storage/debugbar
 .phpstorm.meta.php
+.env-local
+.env-beta
