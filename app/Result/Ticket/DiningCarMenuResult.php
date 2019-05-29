@@ -86,8 +86,8 @@ class DiningCarMenuResult extends BaseResult
         $result->id = $menu->id;
         $result->diningCarId = $menu->dining_car_id;
         $result->name = $menu->name;
-        $result->price = $menu->price;
         $result->product = $this->getProduct($menu->prodSpecPrice);
+        $result->price = ($result->product) ? $result->product->price : $menu->price;
 
         if ($isDetail) {
             $result->categoryName = $menu->category->name;
@@ -115,9 +115,43 @@ class DiningCarMenuResult extends BaseResult
         $product->id = $prodSpecPrice->prodSpec->product->prod_id;
         $product->specId = $prodSpecPrice->prodSpec->prod_spec_id;
         $product->priceId = $prodSpecPrice->prod_spec_price_id;
-        $product->stock = $prodSpecPrice->prod_spec_price_stock;
+        $product->price = $prodSpecPrice->prod_spec_price_value;
+        $product->stock = $this->getStock($prodSpecPrice);
         $product->maxLimit = $prodSpecPrice->prodSpec->product->prod_limit_num;
 
         return $product;
+    }
+
+    /**
+     * 取庫存
+     * @param $prodSpecPrice
+     */
+    private function getStock($prodSpecPrice)
+    {
+        // 檢查票種銷售時間
+        if (!$this->checkOnSale($prodSpecPrice->prod_spec_price_onsale_time, $prodSpecPrice->prod_spec_price_offsale_time)) return 0;
+
+        return $prodSpecPrice->prod_spec_price_stock;
+    }
+
+    /**
+     * 取綁定商品
+     * @param $onSaleTime
+     * @param $offSaleTime
+     */
+    private function checkOnSale($onSaleTime, $offSaleTime)
+    {
+        $result = true;
+        if ($onSaleTime && $offSaleTime) {
+            $onSaleTime = Carbon::parse($onSaleTime);
+            $offSaleTime = Carbon::parse($offSaleTime);
+            $now = Carbon::now();
+
+            if ($now->lte($onSaleTime) || $now->gte($offSaleTime)) {
+                $result = false;
+            }
+        }
+
+        return $result;
     }
 }
