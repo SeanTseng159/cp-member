@@ -81,17 +81,22 @@ class ActivityRepository extends BaseRepository
         }
         $result = array_merge($freeActivity, $paidActivity);
 
+        $data = [];
+        $result = collect($result)->groupBy(['sort', 'endTime']);
 
-        $result = collect($result)
-            ->sortByDesc(function ($item) {
-                return sprintf('%s', $item->orderID);
-            })
-            ->sortBy(function ($item) {
-                return sprintf('%s-%s', $item->sort,$item->endTime);
-            })
-            ->toArray();
+        //排序 sort,endTime , orderID desc
+        foreach ($result as $sortItemList) {
+            foreach ($sortItemList as $endTimeItemList) {
+                $temp = collect($endTimeItemList)
+                    ->sortByDesc(function ($item) {
+                        return sprintf('%s', $item->orderID);
+                    })
+                    ->toArray();
+                $data = array_merge($data, $temp);
 
-        return array_values($result);
+            }
+        }
+        return $data;
     }
 
 
