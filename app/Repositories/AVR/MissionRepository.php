@@ -333,21 +333,21 @@ class MissionRepository extends BaseRepository
                 ->get();
 
         if (count($activityAwards) == 0) {
-            $allOut = true;
             return [$activityAward, $photo, $allOut];
         }
 
 
         $probabilityList = [];
+
         //取得還有數量的禮物做比例分配
         foreach ($activityAwards as $item) {
             $award = $item->award;
-            if ($award->award_stock_quantity - $award->award_used_quantity > 0) {
+            if ($award->award_stock_quantity - $award->award_used_quantity > 0 && $item->probability > 0) {
                 $probabilityList[$award->award_id] = $item->probability;
             }
         }
+
         if (count($probabilityList) <= 0) {
-            $allOut = true;
             return [$activityAward, $photo, $allOut];
         }
 
@@ -384,6 +384,8 @@ class MissionRepository extends BaseRepository
 
             $sum += $probability;
             $probabilityList[$index] = $sum;
+
+
         }
 
         $random = rand(1, $sum);
@@ -391,6 +393,7 @@ class MissionRepository extends BaseRepository
 
         //從大到小比較
         $preserved = array_reverse($probabilityList, true);
+
         foreach ($preserved as $i => $probability) {
             if ($random <= $probability) {
                 $index = $i;
