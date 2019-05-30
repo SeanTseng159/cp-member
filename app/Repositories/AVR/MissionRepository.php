@@ -300,7 +300,7 @@ class MissionRepository extends BaseRepository
         //取得還有數量的禮物做比例分配
         foreach ($missionAwards as $item) {
             $award = $item->award;
-            if ($award->award_stock_quantity - $award->award_used_quantity > 0) {
+            if ($award->award_stock_quantity - $award->award_used_quantity > 0 && $item->probability > 0) {
                 $probabilityList[$award->award_id] = $item->probability;
             }
         }
