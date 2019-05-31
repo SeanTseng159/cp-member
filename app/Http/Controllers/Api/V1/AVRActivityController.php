@@ -153,7 +153,7 @@ class AVRActivityController extends RestLaravelController
                 if (is_null($orderRecord)) {
                     throw  new \Exception('E0081');
                 }
-                if ($orderRecord->member_id != $memberID) {
+                if ($orderRecord->order_detail_member_id != $memberID) {
                     throw  new \Exception('E0081');
                 }
             }
@@ -201,7 +201,7 @@ class AVRActivityController extends RestLaravelController
                 if (is_null($orderRecord)) {
                     throw  new \Exception('E0081');
                 }
-                if ($orderRecord->member_id != $memberID) {
+                if ($orderRecord->order_detail_member_id != $memberID) {
                     throw  new \Exception('E0081');
                 }
             }
