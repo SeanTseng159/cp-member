@@ -9,12 +9,10 @@ namespace App\Repositories\AVR;
 
 
 use App\Config\Ticket\TicketConfig;
-use App\Enum\AVRImageType;
 use App\Enum\AwardRecordType;
 use App\Enum\BarCodeType;
 use App\Helpers\CommonHelper;
 use App\Models\AVR\ActivityAward;
-use App\Models\PayReceive;
 use App\Models\Ticket\OrderDetail;
 use App\Services\UUID;
 use App\Models\AVR\Activity;

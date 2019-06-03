@@ -274,6 +274,12 @@ class MemberGiftItemRepository extends BaseRepository
                         ->where('status', 1)
                         ->where('expire_at', ">=", Carbon::now()); //未過期
                 })
+                ->whereHas('gift.diningCar',
+                    function ($q) {
+                        //餐車是enabled
+                        $q->where('status', 1);
+                    })
+                ->with('gift.diningCar')
                 ->where('member_id', $memberId)
                 ->whereNull('used_time')
                 ->count();
