@@ -33,7 +33,8 @@ class ActivityRepository extends BaseRepository
 
         $freeActivity = [];
 
-        $frees = $this->model->active()
+        $frees = $this->model
+            ->launched()
             ->where('has_prod_spec_price_id', 0)
             ->get(['id', 'name', 'start_activity_time', 'end_activity_time', 'sort']);
 
@@ -53,13 +54,16 @@ class ActivityRepository extends BaseRepository
         //檢查是否有付費id ，且未退費
         $paidActivity = [];
         if ($memberID) {
-            $paidActivitites = $this->model->launched()->with(
-                [
-                    'productPriceId',
-                    'productPriceId.orderDetail' => function ($query) use ($memberID) {
-                        $query->where('order_detail_member_id', $memberID);
-                    }
-                ])->where('has_prod_spec_price_id', 1)
+            $paidActivitites = $this->model
+                ->launched()
+                ->where('has_prod_spec_price_id', 1)
+                ->with(
+                    [
+                        'productPriceId',
+                        'productPriceId.orderDetail' => function ($query) use ($memberID) {
+                            $query->where('order_detail_member_id', $memberID);
+                        }
+                    ])
                 ->get();
 
             foreach ($paidActivitites as $item) {
