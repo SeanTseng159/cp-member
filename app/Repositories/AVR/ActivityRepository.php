@@ -83,7 +83,46 @@ class ActivityRepository extends BaseRepository
                 }
             }
         }
+        //檢查活動是否完成
+        // 先從member_mission & mission 取得 該活動的完成數
+        // 在從mission 取得總活動數
+        // 計算是否相等
+        $sql = "SELECT
+                missions.activity_id,
+                COUNT(missions.activity_id) AS member_missions,
+                cnt AS activity_missions,
+                order_detail_id
+            FROM
+                member_missions
+                    INNER JOIN
+                missions ON mission_id = missions.id
+                    LEFT JOIN
+                (SELECT
+                    activity_id,
+                    COUNT(*) cnt
+                FROM
+                    missions
+                GROUP BY activity_id) tbl ON missions.activity_id = tbl.activity_id
+            WHERE
+                member_id = $memberID 
+            GROUP BY activity_id,order_detail_id
+            HAVING COUNT(missions.activity_id) = activity_missions";
+
+        $finishList = collect(\DB::connection('avr')->select($sql));
+
         $result = array_merge($freeActivity, $paidActivity);
+        foreach ($result as $item) {
+            $activityId = $item->id;
+            $orderDetailId = $item->orderID;
+            $finishItem = $finishList->filter(function ($f) use ($activityId, $orderDetailId) {
+                return $f->activity_id == $activityId && $f->order_detail_id == $orderDetailId;
+            });
+            $item->isFinish = false;
+            if (count($finishItem) > 0) {
+                $item->isFinish = true;
+            }
+        }
+
 
         $data = [];
         $result = collect($result)->groupBy(['sort', 'endTime']);
