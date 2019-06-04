@@ -12,7 +12,7 @@ use Ksd\Mediation\Core\Controller\RestLaravelController;
 class PlaceController extends RestLaravelController
 {
     protected $landmarkService;
-    protected $distance = 1000;//公尺
+    protected $distance = 200;//公尺
 
     public function __construct(LandmarkService $landmarkService)
     {
