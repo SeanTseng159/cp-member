@@ -53,6 +53,7 @@ class ActivityRepository extends BaseRepository
 
         //檢查是否有付費id ，且未退費
         $paidActivity = [];
+        $finishList = null;
         if ($memberID) {
             $paidActivitites = $this->model
                 ->launched()
@@ -82,12 +83,12 @@ class ActivityRepository extends BaseRepository
 
                 }
             }
-        }
-        //檢查活動是否完成
-        // 先從member_mission & mission 取得 該活動的完成數
-        // 在從mission 取得總活動數
-        // 計算是否相等
-        $sql = "SELECT
+
+            //檢查活動是否完成
+            // 先從member_mission & mission 取得 該活動的完成數
+            // 在從mission 取得總活動數
+            // 計算是否相等
+            $sql = "SELECT
                 missions.activity_id,
                 COUNT(missions.activity_id) AS member_missions,
                 cnt AS activity_missions,
@@ -108,27 +109,35 @@ class ActivityRepository extends BaseRepository
             GROUP BY activity_id,order_detail_id
             HAVING COUNT(missions.activity_id) = activity_missions";
 
-        $finishList = collect(\DB::connection('avr')->select($sql));
+            $finishList = collect(\DB::connection('avr')->select($sql));
+        }
 
         $result = array_merge($freeActivity, $paidActivity);
         foreach ($result as $item) {
             $activityId = $item->id;
             $orderDetailId = $item->orderID;
-            $finishItem = $finishList->filter(function ($f) use ($activityId, $orderDetailId) {
-                return $f->activity_id == $activityId && $f->order_detail_id == $orderDetailId;
-            });
-            if (count($finishItem) > 0) {
-                $item->status = 4;
+            if ($finishList) {
+                $finishItem = $finishList->filter(function ($f) use ($activityId, $orderDetailId) {
+                    return $f->activity_id == $activityId && $f->order_detail_id == $orderDetailId;
+                });
+                if (count($finishItem) > 0) {
+                    $item->status = 4;
+                }
             }
+
         }
 
 
         $data = [];
-        $result = collect($result)->groupBy(['sort', 'endTime']);
-
         //排序 sort,endTime , orderID desc
+        $result = collect($result)->sortBy(function ($item) {
+            return sprintf('%s-%s', $item->sort, $item->endTime);
+        })->groupBy(['sort', 'endTime']);
+
         foreach ($result as $sortItemList) {
+            //相同sort
             foreach ($sortItemList as $endTimeItemList) {
+                //相同結束時間，晚買的在前面
                 $temp = collect($endTimeItemList)
                     ->sortByDesc(function ($item) {
                         return sprintf('%s', $item->orderID);
