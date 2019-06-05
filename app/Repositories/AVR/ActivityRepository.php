@@ -117,9 +117,8 @@ class ActivityRepository extends BaseRepository
             $finishItem = $finishList->filter(function ($f) use ($activityId, $orderDetailId) {
                 return $f->activity_id == $activityId && $f->order_detail_id == $orderDetailId;
             });
-            $item->isFinish = false;
             if (count($finishItem) > 0) {
-                $item->isFinish = true;
+                $item->status = 4;
             }
         }
 
