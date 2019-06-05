@@ -124,11 +124,15 @@ class ActivityRepository extends BaseRepository
 
 
         $data = [];
-        $result = collect($result)->groupBy(['sort', 'endTime']);
-
         //排序 sort,endTime , orderID desc
+        $result = collect($result)->sortBy(function ($item) {
+            return sprintf('%s-%s', $item->sort, $item->sort);
+        })->groupBy(['sort', 'endTime']);
+
         foreach ($result as $sortItemList) {
+            //相同sort
             foreach ($sortItemList as $endTimeItemList) {
+                //相同結束時間，晚買的在前面
                 $temp = collect($endTimeItemList)
                     ->sortByDesc(function ($item) {
                         return sprintf('%s', $item->orderID);
