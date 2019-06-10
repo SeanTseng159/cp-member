@@ -43,7 +43,7 @@ class LandmarkRepository extends BaseRepository
                 $data->iconId = $landmark->landmark_category_id;
                 $data->lat = $landmark->latitude;
                 $data->lng = $landmark->longitude;
-                $data->isInfo = $landmark->is_intro;
+                $data->isInfo = (bool)$landmark->is_intro;
                 $ret[] = $data;
             }
         }
