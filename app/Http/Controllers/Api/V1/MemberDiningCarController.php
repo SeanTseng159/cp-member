@@ -104,12 +104,14 @@ class MemberDiningCarController extends RestLaravelController
             // 全部分類
             $mainCategories = $categoryService->mainCategory();
             // 使用者收藏分類
-            $memberCategories = $this->service->getCategoriesByMemberId($memberId)->map(function ($item, $key) {
-                return $item->diningCar->dining_car_category_id;
-            })->toArray();
+            $memberCategoriesAry = [];
+            $memberCategories = $this->service->getCategoriesByMemberId($memberId);
+            foreach ($memberCategories as $mc) {
+                if ($mc->diningCar) $memberCategoriesAry[] = $mc->diningCar->dining_car_category_id;
+            }
 
-            $filtered = $mainCategories->filter(function ($item) use ($memberCategories) {
-                return in_array($item->id, $memberCategories);
+            $filtered = $mainCategories->filter(function ($item) use ($memberCategoriesAry) {
+                return in_array($item->id, $memberCategoriesAry);
             });
 
             $result = (new DiningCarCategoryResult)->main($filtered);
