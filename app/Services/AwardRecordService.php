@@ -16,14 +16,16 @@ class AwardRecordService extends BaseService
         $this->repository = $repository;
     }
 
-    public function list($type,$memberId)
+    public function list($type, $memberId, $client, $clientId)
     {
-        return $this->repository->list($type,$memberId);
+        return $this->repository->list($type, $memberId, $client, $clientId);
     }
-    public function find($id,$memberId)
+
+    public function find($id, $memberId)
     {
-        return $this->repository->find($id,$memberId);
+        return $this->repository->find($id, $memberId);
     }
+
     public function availableAward($memberId)
     {
         return $this->repository->availableAward($memberId);
