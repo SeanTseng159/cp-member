@@ -21,14 +21,20 @@ class AwardRecordRepository extends BaseRepository
     /** 我的獎品清單
      * @param $type $type :1:可使用/2:已使用or過期
      * @param $memberId
+     * @param $client
+     * @param $clientId
      * @return
      */
-    public function list($type, $memberId)
+    public function list($type, $memberId, $client, $clientId)
     {
 
         //獎品
         $result = $this->model
             ->byUser($memberId)
+            ->when($client, function ($query) use ($client, $clientId) {
+                $query->where('model_type', $client)
+                    ->where('model_spec_id', $clientId);
+            })
             ->when($type,
                 function ($query) use ($type) {
                     //獎品未使用

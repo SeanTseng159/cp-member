@@ -73,7 +73,7 @@ class MemberGiftController extends RestLaravelController
             $diningCarGift = $this->memberGiftItemService->list($type, $memberId, $client, $clientId);
 
             //取得活動的獎品清單
-            $award = $this->awardRecordService->list($type, $memberId);
+            $award = $this->awardRecordService->list($type, $memberId, $client, $clientId);
 
 
             $resultGift = (new MemberGiftItemResult())->list($diningCarGift, $type);
