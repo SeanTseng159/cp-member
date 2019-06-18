@@ -12,10 +12,6 @@ namespace App\Http\Controllers\Api;
 use Illuminate\Http\Request;
 use Ksd\Mediation\Core\Controller\RestLaravelController;
 use Ksd\Mediation\Services\NotificationService;
-
-use Illuminate\Console\Scheduling\Schedule;
-use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
-
 use Validator;
 
 class NotificationController extends RestLaravelController
@@ -28,13 +24,14 @@ class NotificationController extends RestLaravelController
     }
 
     //註冊裝置推播金鑰
-    public function register(Request $request){
+    public function register(Request $request)
+    {
 
 
         $data = $request->only([
-            'token',
-            'platform',
-            'memberId',
+                'token',
+                'platform',
+                'memberId',
             ]
         );
 
@@ -43,20 +40,26 @@ class NotificationController extends RestLaravelController
             'platform' => 'required',
         ]);
 
+
         if ($validator->fails()) {
             return $this->failure('E0001', '傳送參數錯誤');
         }
 
-        if($this->notificationService->register($data)){
+        $memberId = $data['memberId'];
+        $token = $data['token'];
+        $platform = $data['platform'];
+
+        if ($this->notificationService->register($token, $platform,$memberId)) {
             return $this->success();
-        }else{
+        } else {
             return $this->failure('E0002', '推播金鑰註冊失敗');
         }
 
     }
 
     //發送推播訊息
-    public function send(Request $request){
+    public function send(Request $request)
+    {
 
         $data = $request->only([
                 'id',
@@ -89,28 +92,28 @@ class NotificationController extends RestLaravelController
 
         //測試指定用戶推播
         //缺少用戶資料
-        if($data['platform'] === '3' && !array_key_exists('memberId',$data)){
+        if ($data['platform'] === '3' && !array_key_exists('memberId', $data)) {
             return $this->failure('E0001', '傳送參數錯誤');
         }
 
-        if($data['platform'] === '3' && array_key_exists('memberId',$data)){
+        if ($data['platform'] === '3' && array_key_exists('memberId', $data)) {
             $this->notificationService->send($data);
-            return $this->success(['data'=>$data]);
+            return $this->success(['data' => $data]);
             exit;
         }
 
 
         //推播資料寫入資料庫
-        if(array_key_exists('id',$data)){
+        if (array_key_exists('id', $data)) {
             //更新
             $id = $this->notificationService->updateMessage($data);
-            if(!is_null($id)){
+            if (!is_null($id)) {
                 return $this->success(['id' => $id]);
-            }else{
+            } else {
                 return $this->failure('E0001', '訊息id不存在');
             }
 
-        }else{
+        } else {
             //新增
             $id = $this->notificationService->createMessage($data);
             return $this->success(['id' => $id]);
@@ -120,7 +123,8 @@ class NotificationController extends RestLaravelController
     }
 
     //所有推播訊息
-    public function allMessage(Request $request){
+    public function allMessage(Request $request)
+    {
 
         $data = $request->only([
             'date',
@@ -132,13 +136,14 @@ class NotificationController extends RestLaravelController
     }
 
     //查詢推播訊息內容
-    public function queryMessage($id){
+    public function queryMessage($id)
+    {
 
         $message = $this->notificationService->queryMessage($id);
 
-        if(!is_null($message)){
+        if (!is_null($message)) {
             return $this->success($message);
-        }else{
+        } else {
             return $this->failure('E0001', '訊息id不存在');
         }
     }

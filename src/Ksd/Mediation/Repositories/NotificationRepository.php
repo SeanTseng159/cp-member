@@ -8,6 +8,7 @@
 
 namespace Ksd\Mediation\Repositories;
 
+use App\Enum\DevicePlatform;
 use App\Models\NotificationMobile;
 use App\Models\Notification;
 
@@ -22,44 +23,51 @@ class NotificationRepository extends BaseRepository
     }
 
     //註冊裝置推播金鑰
-    public function register($parameter){
-        try{
-            $notimob = new NotificationMobile();
 
-            $old_registed = $notimob->where([
-                ['platform', '=', $parameter['platform']],
-                ['mobile_token', '=', $parameter['token']]
-            ])
-            ->get();
+    /**
+     * 如果有memberID -> 刪除舊的資料app/web 並新增一筆新的資料
+     * 如果沒有        -> insert一筆
+     * @param $token
+     * @param $platform
+     * @param null $memberId
+     * @return bool
+     */
+    public function register($token, $platform, $memberId = null)
+    {
 
-            if($old_registed->count() == 0){
 
-                    $notimob->mobile_token = $parameter['token'];
-                    $notimob->platform = $parameter['platform'];
-                    if(array_key_exists('memberId',$parameter)){
-                        $notimob->member_id = $parameter['memberId'];
-                    }
-                    //$notimob->device_id = $parameter['deviceId'];
-                    $notimob->save();
-                return $notimob;
-            }else{
-                $update_record = $old_registed->first();
-                if(array_key_exists('memberId',$parameter)){
-                    $update_record->member_id = $parameter['memberId'];
-                    $update_record->save();
-                }
+        if ($memberId) {
+            if ($platform == DevicePlatform::iOS or $platform == DevicePlatform::Android) {
 
-                return true;
+                NotificationMobile::where('member_id', $memberId)
+                    ->whereIn('platform', [DevicePlatform::iOS, DevicePlatform::Android])
+                    ->delete();
+
+            } else if ($platform == DevicePlatform::web) {
+                NotificationMobile::where('member_id', $memberId)
+                    ->where('platform', DevicePlatform::web)
+                    ->delete();
             }
 
-        }catch(QueryException $e){
-
-            return false;
+            $newToken = new NotificationMobile();
+            $newToken->mobile_token = $token;
+            $newToken->platform = $platform;
+            $newToken->member_id = $memberId;
+            $newToken->save();
+            return true;
+        } else {
+            $newToken = new NotificationMobile();
+            $newToken->mobile_token = $token;
+            $newToken->platform = $platform;
+            $newToken->save();
+            return true;
         }
+        return false;
     }
 
     //取得平台裝置註冊金鑰
-    public function devicesByPlatform($platform){
+    public function devicesByPlatform($platform)
+    {
 
         $notimob = new NotificationMobile();
 
@@ -73,7 +81,8 @@ class NotificationRepository extends BaseRepository
 
 
     //取得使用者註冊金鑰
-    public function devicesByMember($member){
+    public function devicesByMember($member)
+    {
 
         $notimob = new NotificationMobile();
 
@@ -86,7 +95,8 @@ class NotificationRepository extends BaseRepository
     }
 
     //刪除token
-    public function deleteByToken($token){
+    public function deleteByToken($token)
+    {
         $notimob = new NotificationMobile();
 
         $notimob->where([
@@ -97,7 +107,8 @@ class NotificationRepository extends BaseRepository
     }
 
     //刪除toekn-platform
-    public function deleteByTokenPlatform($token, $platform){
+    public function deleteByTokenPlatform($token, $platform)
+    {
         $notimob = new NotificationMobile();
 
         $notimob->where([
@@ -109,14 +120,15 @@ class NotificationRepository extends BaseRepository
 
 
     //新增推播訊錫
-    public function createMessage($data){
+    public function createMessage($data)
+    {
         $notification = new Notification();
 
         $notification->title = $data['title'];
         $notification->body = $data['body'];
-        if(array_key_exists('type',$data)){
+        if (array_key_exists('type', $data)) {
             $notification->type = $data['type'];
-        }else{
+        } else {
             $notification->type = 0;
         }
 
@@ -134,24 +146,25 @@ class NotificationRepository extends BaseRepository
     }
 
     //更新推播訊錫
-    public function updateMessage($data){
+    public function updateMessage($data)
+    {
 
         $notification = Notification::find($data['id']);
 
-        if($notification){
+        if ($notification) {
 
             $notification->modifier = $data['modifier'];
 
-            if(array_key_exists('delete',$data) && $data['delete'] == '1' ){
+            if (array_key_exists('delete', $data) && $data['delete'] == '1') {
                 $notification->delete();
                 return $notification->id;
             }
 
             $notification->title = $data['title'];
             $notification->body = $data['body'];
-            if(array_key_exists('type',$data)){
+            if (array_key_exists('type', $data)) {
                 $notification->type = $data['type'];
-            }else{
+            } else {
                 $notification->type = 0;
             }
 
@@ -172,16 +185,17 @@ class NotificationRepository extends BaseRepository
     }
 
     //所有推播訊息
-    public function allMessage($data){
+    public function allMessage($data)
+    {
 
         $notifications = new Notification();
 
         $notis = null;
 
-        if(array_key_exists('date',$data)){
+        if (array_key_exists('date', $data)) {
             $notis = $notifications->getAfterDate($data['date']);
 
-        }else{
+        } else {
             $notis = $notifications->all();
         }
 
@@ -190,7 +204,8 @@ class NotificationRepository extends BaseRepository
     }
 
     //查詢推播訊息
-    public function queryMessage($id){
+    public function queryMessage($id)
+    {
 
         $notification = new Notification();
 
