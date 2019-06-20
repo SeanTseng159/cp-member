@@ -47,9 +47,8 @@ gulp.task('filter', function() {
     ], { dot: true }).pipe(copy(debRoot + installPath));
 });
 
-gulp.task('build', function() {
-    return runSequence('clean', 'filter', function() {
-        return gulp.src([
+gulp.task('build', gulp.series('clean', 'filter', function() {
+    return gulp.src([
             debRoot + '/**/*',
             '!.gitignore'
         ], { dot: true })
@@ -69,7 +68,4 @@ gulp.task('build', function() {
                     'postinst': fs.readFileSync("./deb/scripts/postinst", "utf8")
                 }
             })).pipe(gulp.dest('./dist'));
-    });
-});
-
-gulp.task('default', ['build']);
+}));
