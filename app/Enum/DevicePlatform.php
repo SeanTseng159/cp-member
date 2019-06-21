@@ -16,5 +16,6 @@ final class DevicePlatform extends Enum
 {
     const web = 'web';
     const iOS = 'iOS';
+    const iOS_DEV = 'iOS-Dev';
     const Android = 'Android';
 }

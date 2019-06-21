@@ -40,7 +40,7 @@ class NotificationRepository extends BaseRepository
             if ($platform == DevicePlatform::iOS or $platform == DevicePlatform::Android) {
 
                 NotificationMobile::where('member_id', $memberId)
-                    ->whereIn('platform', [DevicePlatform::iOS, DevicePlatform::Android])
+                    ->whereIn('platform', [DevicePlatform::iOS, DevicePlatform::Android, DevicePlatform::iOS_DEV])
                     ->delete();
 
             } else if ($platform == DevicePlatform::web) {
