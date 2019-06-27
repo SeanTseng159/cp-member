@@ -34,26 +34,44 @@ class NotificationRepository extends BaseRepository
      */
     public function register($token, $platform, $memberId = null)
     {
-
-
         if ($memberId) {
-            if ($platform == DevicePlatform::iOS or $platform == DevicePlatform::Android) {
-
-                NotificationMobile::where('member_id', $memberId)
-                    ->whereIn('platform', [DevicePlatform::iOS, DevicePlatform::Android, DevicePlatform::iOS_DEV])
-                    ->delete();
+            $memberNotification = null;
+            if ($platform == DevicePlatform::iOS or
+                $platform == DevicePlatform::iOS_DEV or
+                $platform == DevicePlatform::Android) {
+                $memberNotification = NotificationMobile::where('member_id', $memberId)
+                    ->whereIn('platform',
+                        [
+                            DevicePlatform::iOS,
+                            DevicePlatform::Android,
+                            DevicePlatform::iOS_DEV
+                        ]
+                    );
 
             } else if ($platform == DevicePlatform::web) {
-                NotificationMobile::where('member_id', $memberId)
-                    ->where('platform', DevicePlatform::web)
-                    ->delete();
+                $memberNotification = NotificationMobile::where('member_id', $memberId)
+                    ->where('platform', DevicePlatform::web);
+
             }
 
-            $newToken = new NotificationMobile();
-            $newToken->mobile_token = $token;
-            $newToken->platform = $platform;
-            $newToken->member_id = $memberId;
-            $newToken->save();
+            if ($memberNotification->get()->count() == 1) {
+                $item = $memberNotification->first();
+
+                if ($item->mobile_token != $token) {
+                    $item->mobile_token = $token;
+                    $item->platform = $platform;
+                    $item->save();
+                }
+            } else {
+                if ($memberNotification) {
+                    $memberNotification->delete();
+                }
+                $newToken = new NotificationMobile();
+                $newToken->mobile_token = $token;
+                $newToken->platform = $platform;
+                $newToken->member_id = $memberId;
+                $newToken->save();
+            }
             return true;
         } else {
             $newToken = new NotificationMobile();
@@ -62,7 +80,7 @@ class NotificationRepository extends BaseRepository
             $newToken->save();
             return true;
         }
-        return false;
+
     }
 
     //取得平台裝置註冊金鑰
