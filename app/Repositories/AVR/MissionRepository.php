@@ -20,6 +20,7 @@ use App\Models\AVR\MemberMission;
 use App\Models\AVR\Mission;
 use App\Models\Award;
 use App\Models\AwardRecord;
+use App\Models\AwardBarcode;
 use App\Repositories\BaseRepository;
 use Carbon\Carbon;
 
@@ -99,7 +100,6 @@ class MissionRepository extends BaseRepository
                 'order_detail_id' => $orderId
             ]);
 
-
         $isComplete = false;
         if ($userPoint >= $passPoint)
             $isComplete = true;
@@ -109,14 +109,12 @@ class MissionRepository extends BaseRepository
             return [];
         }
 
-
         //回傳資料
         $ret = new \stdClass;
 
         $ret->mission = new \stdClass();
         $ret->mission->complete = $isComplete;
         $ret->mission->name = $missionName;
-
 
         $missionAward = null;
         $activityAward = null;
@@ -129,7 +127,6 @@ class MissionRepository extends BaseRepository
         $ret->activity = new \stdClass();
         $ret->activity->complete = $activityComplete;
         $ret->activity->name = $activityName;
-
 
         //檢查mission是否有禮物
         if (!$isComplete) {
@@ -152,8 +149,6 @@ class MissionRepository extends BaseRepository
             $ret->mission->award->allOut = $allOut;
         }
         //其他 沒禮物
-
-
         //DB Transaction
         //會員-任務狀態
         \DB::connection('avr')->transaction(function () use (
@@ -184,6 +179,20 @@ class MissionRepository extends BaseRepository
                 ) {
                     try {
                         if ($missionAward && !$allOut) {
+                            //可用barcode
+                            $barcode = AwardBarcode::where('award_id',$missionAward->award_id)
+                            ->where('award_barcode_is_used','0')
+                            ->orderBy('award_barcode_sort')
+                            ->first();
+                            //update已被使用的barcode狀態
+                            AwardBarcode::where('award_barcode_id',$barcode->award_barcode_id)
+                            ->update([
+                                'award_barcode_is_used' => '1'
+                            ]);
+                            //update獎品使用數
+                            Award::where('award_id',$barcode->award_id)
+                            ->increment('award_used_quantity',1);
+
                             $missionAward->award_used_quantity = $missionAward->award_used_quantity + 1;
                             $missionAward->modified_at = Carbon::now();
                             $missionAward->save();
@@ -198,13 +207,14 @@ class MissionRepository extends BaseRepository
 
                             $awardRecord->qrcode = (new UUID())->setCreate()->getToString();
                             $awardRecord->supplier_id = $missionAward->supplier_id;
-                            $awardRecord->barcode = '';
-                            $awardRecord->barcode_type = BarCodeType::code_39;
+                            $awardRecord->barcode = $barcode->award_barcode_serial_no;
+                            $awardRecord->barcode_type = $barcode->award_barcode_type;
                             $awardRecord->verifier_id = 0;
                             $awardRecord->created_at = Carbon::now();
                             $awardRecord->modified_at = Carbon::now();
                             $awardRecord->save();
                         }
+
                         //如果活動完成，確認是否有禮物
                         if ($activityComplete) {
                             list($activityAward, $photo, $activityAllOut) = $this->getActivityAward($activityID);
@@ -222,6 +232,20 @@ class MissionRepository extends BaseRepository
                                     $activityAward->modified_at = Carbon::now();
                                     $activityAward->save();
 
+                                    //可用barcode
+                                    $barcode = AwardBarcode::where('award_id',$missionAward->award_id)
+                                    ->where('award_barcode_is_used','0')
+                                    ->orderBy('award_barcode_sort')
+                                    ->first();
+                                    //update已被使用的barcode狀態
+                                    AwardBarcode::where('award_barcode_id',$barcode->award_barcode_id)
+                                    ->update([
+                                        'award_barcode_is_used' => '1'
+                                    ]);
+                                    //update獎品使用數
+                                    Award::where('award_id',$barcode->award_id)
+                                    ->increment('award_used_quantity',1);
+
                                     $awardRecord = new AwardRecord;
                                     $awardRecord->award_id = $activityAward->award_id;
                                     $awardRecord->user_id = $memberID;
@@ -231,8 +255,8 @@ class MissionRepository extends BaseRepository
                                     $awardRecord->model_spec_id = $activityID;
                                     $awardRecord->qrcode = (new UUID())->setCreate()->getToString();
                                     $awardRecord->supplier_id = $activityAward->supplier_id;
-                                    $awardRecord->barcode = '';
-                                    $awardRecord->barcode_type = BarCodeType::code_39;
+                                    $awardRecord->barcode = $barcode->award_barcode_serial_no;
+                                    $awardRecord->barcode_type = $barcode->award_barcode_type;
                                     $awardRecord->verifier_id = 0;
                                     $awardRecord->created_at = Carbon::now();
                                     $awardRecord->modified_at = Carbon::now();
@@ -307,7 +331,6 @@ class MissionRepository extends BaseRepository
         $allOut = true;
 
         if (!count($probabilityList)) {
-
             return [$missionAward, $awardPhoto, $allOut];
         }
 
@@ -350,7 +373,7 @@ class MissionRepository extends BaseRepository
                 $probabilityList[$award->award_id] = $item->probability;
             }
         }
-
+    
         if (count($probabilityList) <= 0) {
             return [$activityAward, $photo, $allOut];
         }
@@ -379,16 +402,12 @@ class MissionRepository extends BaseRepository
      * @return int
      */
     private function getAwardByProbability($probabilities): int
-    {
-
+    {  
         $probabilityList = [];
         $sum = 0;
         foreach ($probabilities as $index => $probability) {
-
             $sum += $probability;
             $probabilityList[$index] = $sum;
-
-
         }
 
         $random = rand(1, $sum);
