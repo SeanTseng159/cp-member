@@ -403,12 +403,14 @@ class MemberService
         if (!$member) return false;
 
         if ($member->isRegistered == 1 && $member->isValidEmail == 0) {
+            //寄送註冊信
             $job = (new SendRegisterMail($member))->delay(5);
             $this->dispatch($job);
 
             return true;
         }
-        elseif ($member->openPlateform !== 'citypass' && $member->isRegistered == 1 && $member->isValidEmail == 1) {
+        elseif ($member->isRegistered == 1 && $member->isValidEmail == 1) {
+            //第三方註冊寄送優惠券
             $job = (new SendRegisterCompleteMail($member))->delay(5);
             $this->dispatch($job);
 
@@ -571,7 +573,7 @@ class MemberService
 
         return $member;
     }
-    
+
     public function verifyThirdPartLoginToken($token, $inputs)
     {
         switch ($inputs['openPlateform']) {
