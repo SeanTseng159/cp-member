@@ -11,6 +11,7 @@ use Ksd\Mediation\Core\Controller\RestLaravelController;
 use App\Services\MemberService;
 use App\Services\JWTTokenService;
 use App\Services\NewsletterService;
+use App\Services\DiscountCodeService;
 use App\Parameter\MemberParameter;
 use GuzzleHttp\Client;
 use Illuminate\Http\Request;
@@ -28,10 +29,11 @@ class MemberController extends RestLaravelController
     protected $memberService;
     protected $newsletterService;
 
-    public function __construct(MemberService $memberService, NewsletterService $newsletterService)
+    public function __construct(MemberService $memberService, NewsletterService $newsletterService, DiscountCodeService $discountCodeService)
     {
         $this->memberService = $memberService;
         $this->newsletterService = $newsletterService;
+        $this->discountCodeService = $discountCodeService;
     }
 
     /**
@@ -482,6 +484,9 @@ class MemberController extends RestLaravelController
             $inputs = array_merge($data, $inputs);
             $member = $this->memberService->create($inputs);
             $isFirstLogin = true;
+
+            // 發信
+            $this->memberService->sendRegisterEmail($member);
         }
         if (!$member || $member->status == 0 || $member->isRegistered == 0) {
             return $this->failure('E0021','會員驗證失效');
