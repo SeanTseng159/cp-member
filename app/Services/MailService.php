@@ -78,9 +78,10 @@ class MailService
         $discountFirst = $this->discountCodeService->discountFirst();
         $data['discountFirst'] = count($discountFirst)>0 ? $discountFirst[0]->discount_code_value:'';
 
+        //如果有首購活動則寄送通知
         if(!empty($data['discountFirst']))
         {
-            return $this->send('歡迎使用 CityPass都會通 - 會員註冊成功', $recipient, 'emails/registerComplete', $data);
+            return $this->send('歡迎使用 CityPass都會通 - 會員註冊成功', $recipient, 'emails/registerFirstDiscount', $data);
         }
     }
 
