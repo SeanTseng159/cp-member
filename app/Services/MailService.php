@@ -8,6 +8,7 @@
 namespace App\Services;
 
 use Ksd\Mediation\Services\LanguageService;
+use App\Services\DiscountCodeService;
 
 use Mail;
 use Carbon;
@@ -18,9 +19,10 @@ class MailService
 {
     protected $lang;
 
-    public function __construct(LanguageService $langService)
+    public function __construct(LanguageService $langService, DiscountCodeService $discountCodeService)
     {
         $this->lang = $langService->getLang();
+        $this->discountCodeService = $discountCodeService;
         if (!$this->lang) $this->lang = env('APP_LANG');
     }
 
@@ -51,16 +53,35 @@ class MailService
      */
     public function sendRegisterCompleteMail($member)
     {
-        $recipient = [
+
+        if($member->openPlateform!=='ipass')
+        {
+            $recipient = [
+                'email' => $member->openId,
+                'name' => $member->name
+            ];
+            $data['email'] = $member->openId;
+        }else
+        {
+            $recipient = [
                 'email' => $member->email,
                 'name' => $member->name
             ];
-
-        $data['email'] = $member->email;
+            $data['email'] = $member->email;
+        }
+        
+        
         if ($member->openPlateform === 'ipass') $data['plateform'] = '愛PASS';
-        else $data['plateform'] = ucfirst($data['plateform']);
+        else $data['plateform'] = ucfirst($member->openPlateform);
 
-        return $this->send('歡迎使用 CityPass都會通 - 會員註冊成功', $recipient, 'emails/registerComplete', $data);
+        // 檢查現在是否有首購活動
+        $discountFirst = $this->discountCodeService->discountFirst();
+        $data['discountFirst'] = count($discountFirst)>0 ? $discountFirst[0]->discount_code_value:'';
+
+        if(!empty($data['discountFirst']))
+        {
+            return $this->send('歡迎使用 CityPass都會通 - 會員註冊成功', $recipient, 'emails/registerComplete', $data);
+        }
     }
 
     /**
