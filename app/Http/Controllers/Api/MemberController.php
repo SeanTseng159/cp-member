@@ -362,7 +362,17 @@ class MemberController extends RestLaravelController
 
         $result = $this->memberService->validateEmail($validEmailCode);
 
-        return ($result) ? $this->success() : $this->failure('E0014', 'Email驗證碼錯誤');
+        if($result)
+        {
+            // // 發信
+            $this->memberService->sendRegisterEmail($result);
+            return $this->success();
+        }else
+        {
+            return $this->failure('E0014', 'Email驗證碼錯誤');
+        }
+
+        //return ($result) ? $this->success() : $this->failure('E0014', 'Email驗證碼錯誤');
     }
 
     /**
