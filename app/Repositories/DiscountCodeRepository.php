@@ -25,6 +25,7 @@ class DiscountCodeRepository
                             ->where('discount_code_status',1)
                             ->where('discount_code_starttime', '<=', $date)
                             ->where('discount_code_endtime', '>', $date)
+                            ->whereColumn('discount_code_limit_count','>','discount_code_used_count')
                             ->get();
     }
 }
