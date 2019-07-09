@@ -410,7 +410,7 @@ class MemberService
             return true;
         }
         elseif ($member->isRegistered == 1 && $member->isValidEmail == 1) {
-            //第三方註冊寄送優惠券
+            //寄送優惠券
             $job = (new SendRegisterCompleteMail($member))->delay(5);
             $this->dispatch($job);
 

@@ -495,7 +495,7 @@ class MemberController extends RestLaravelController
             $member = $this->memberService->create($inputs);
             $isFirstLogin = true;
 
-            // 發信
+            // 發信(首購優惠券通知)
             $this->memberService->sendRegisterEmail($member);
         }
         if (!$member || $member->status == 0 || $member->isRegistered == 0) {
