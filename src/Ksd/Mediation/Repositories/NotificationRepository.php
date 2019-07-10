@@ -53,8 +53,8 @@ class NotificationRepository extends BaseRepository
                     ->where('platform', DevicePlatform::web);
 
             }
-
-            if ($memberNotification->get()->count() == 1) {
+            //只有一筆，直接更新
+            if ($memberNotification && $memberNotification->get()->count() == 1) {
                 $item = $memberNotification->first();
 
                 if ($item->mobile_token != $token) {

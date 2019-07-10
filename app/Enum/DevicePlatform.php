@@ -14,7 +14,7 @@ use BenSampo\Enum\Enum;
 
 final class DevicePlatform extends Enum
 {
-    const web = 'web';
+    const web = 'Web';
     const iOS = 'iOS';
     const iOS_DEV = 'iOS-Dev';
     const Android = 'Android';
