@@ -33,7 +33,7 @@ class NotificationRepository extends BaseRepository
      * @return bool
      */
     public function register($token, $platform, $memberId = null)
-    {   
+    {
         if ($memberId) {
             $memberNotification = null;
             if ($platform == DevicePlatform::iOS or
