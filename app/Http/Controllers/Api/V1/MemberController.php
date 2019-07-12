@@ -13,6 +13,7 @@ use Ksd\Mediation\Core\Controller\RestLaravelController;
 use App\Services\MemberService;
 use App\Services\NewsletterService;
 use App\Services\JWTTokenService;
+use App\Services\Ticket\InvitationService;
 use App\Parameter\MemberParameter;
 use App\Traits\CryptHelper;
 use App\Traits\ValidatorHelper;
@@ -158,6 +159,33 @@ class MemberController extends RestLaravelController
             ]);
         } catch (Exception $e) {
             return $this->failureCode('E0007');
+        }
+    }
+
+    public function invitationInput(Request $request,InvitationService $invitationService)
+    {
+        $memberId = $request->memberId;
+        $invitation = $request->invitation;
+
+        //查詢被邀請碼會員
+        $passiveMember = $this->memberService->invitationFind($invitation);
+        $passiveMemberId = $passiveMember->id;
+        if($passiveMember)
+        {   
+            $member = $this->memberService->find($memberId);
+            $gifts = $invitationService->allPromoteGift();
+            if (count($gifts)==0) return $this->failureCode('E0078');
+            //新增送禮紀錄
+            $invitationService->addRecord($gifts,$memberId,$passiveMemberId);
+
+            return $this->success();
+
+            //寄信
+            // $this->memberService->sendRegisterEmail($member);
+            // $this->memberService->sendInvitationInput($passiveMember);
+        }else
+        {
+            return $this->failureCode('E0090');
         }
     }
 }

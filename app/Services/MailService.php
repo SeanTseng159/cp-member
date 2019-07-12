@@ -123,6 +123,25 @@ class MailService
     }
 
     /**
+     * 邀請碼被輸入信
+     * @param string $member
+     * @return \App\Models\Member
+     */
+    public function sendInvitationMail($member)
+    {
+        $recipient = [
+                'email' => $member->email,
+                'name' => $member->name
+            ];
+
+        $expires = Carbon\Carbon::now()->timestamp + 1800;
+        $key = Crypt::encrypt($member->email . '_' . $expires);
+        $data['name'] = $member->name;
+
+        return $this->send('CityPass都會通 - 邀請碼獲得禮物', $recipient, 'emails/invitation', $data);
+    }
+
+    /**
      * 客服QA通知信
      * @param string $member
      * @param string $parameters

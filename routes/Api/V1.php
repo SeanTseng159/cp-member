@@ -346,4 +346,10 @@ Route::middleware(['cors', 'auth.jwt'])->namespace('V1')->group(function () {
             Route::delete('order/{orderId}/mission/{missionId}', 'AVRActivityController@cancelMission');
         });
     });
+
+    //邀請碼相關
+    Route::prefix('invitation')->group(function () {
+        //填寫邀請碼
+        Route::post('input', 'MemberController@invitationInput');
+    });
 });
