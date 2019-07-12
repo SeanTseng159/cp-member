@@ -164,28 +164,34 @@ class MemberController extends RestLaravelController
 
     public function invitationInput(Request $request,InvitationService $invitationService)
     {
-        $memberId = $request->memberId;
-        $invitation = $request->invitation;
-
-        //查詢被邀請碼會員
-        $passiveMember = $this->memberService->invitationFind($invitation);
-        $passiveMemberId = $passiveMember->id;
-        if($passiveMember)
-        {   
-            $member = $this->memberService->find($memberId);
-            $gifts = $invitationService->allPromoteGift();
-            if (count($gifts)==0) return $this->failureCode('E0078');
-            //新增送禮紀錄
-            $invitationService->addRecord($gifts,$memberId,$passiveMemberId);
-
-            return $this->success();
-
-            //寄信
-            // $this->memberService->sendRegisterEmail($member);
-            // $this->memberService->sendInvitationInput($passiveMember);
-        }else
-        {
-            return $this->failureCode('E0090');
-        }
+        try {
+                $memberId = $request->memberId;
+                $invitation = $request->invitation;
+                //檢查邀請碼格式
+                if (!preg_match("/^[A-Za-z0-9]{6}$/",$invitation)) return $this->failureCode('E0091');
+                //查詢被邀請碼會員
+                $passiveMember = $this->memberService->invitationFind($invitation);
+                if($passiveMember)
+                {   
+                    $passiveMemberId = $passiveMember->id;
+                    $member = $this->memberService->find($memberId);
+                    $gifts = $invitationService->allPromoteGift();
+                    if (count($gifts)==0) return $this->failureCode('E0078');
+                    //新增送禮紀錄
+                    $invitationService->addRecord($gifts,$memberId,$passiveMemberId);
+        
+                    return $this->success();
+        
+                    //寄信
+                    // $this->memberService->sendRegisterEmail($member);
+                    // $this->memberService->sendInvitationInput($passiveMember);
+                }else
+                {
+                    return $this->failureCode('E0090');
+                }
+            }catch (Exception $e) {
+                    return $this->failureCode('E0007');
+            }
+        
     }
 }
