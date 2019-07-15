@@ -24,8 +24,18 @@ class InvitationService extends BaseService
         return $this->promoteRepository->allPromoteGift();
     }
 
-    public function addRecord($gifts = null, $id = null,$passiveMemberId = null)
+    public function addRecord($gifts = null, $MemberId = null,$passiveMemberId = null)
     {
-        return $this->promoteRepository->addRecord($gifts, $id,$passiveMemberId);
+        return $this->promoteRepository->addRecord($gifts, $MemberId,$passiveMemberId);
+    }
+
+    public function friendValue($memberId)
+    {
+        return $this->promoteRepository->friendValue($memberId);
+    }
+
+    public function invitationCheck($passiveMemberId)
+    {
+        return $this->promoteRepository->invitationCheck($passiveMemberId);
     }
 }

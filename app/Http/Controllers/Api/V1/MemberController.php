@@ -176,22 +176,60 @@ class MemberController extends RestLaravelController
                     $passiveMemberId = $passiveMember->id;
                     $member = $this->memberService->find($memberId);
                     $gifts = $invitationService->allPromoteGift();
+                    //判斷是否還有禮物
                     if (count($gifts)==0) return $this->failureCode('E0078');
+                    //判斷每個會員只能輸入一次邀請碼
+                    $invitationCheck = $invitationService->invitationCheck($memberId);
+                    if (!$invitationCheck) return $this->failureCode('E0094');
+                    //會員無法輸入自己的邀請碼
+                    if ($passiveMemberId === $memberId) return $this->failureCode('E0093');
                     //新增送禮紀錄
                     $invitationService->addRecord($gifts,$memberId,$passiveMemberId);
-        
+                    //寄信
+                    $parameter['friendName'] = $member->name;
+                    foreach ($gifts as $key => $gift) {
+                        switch ($gift->send_condition) {
+                        //2:被邀請者 3:邀請者
+                        case '2':
+                             $passiveParameter['giftName'] = $gift->name;
+                            $this->memberService->invitationInput($member,$passiveParameter);
+                            break;
+                        case '3':
+                            $parameter['giftName'] = $gift->name;
+                            $this->memberService->findFriendInvitation($passiveMember,$parameter);
+                            break;
+                        default:
+                            # code...
+                            break;
+                        }
+                    }
+                    //寄信end
                     return $this->success();
         
-                    //寄信
-                    // $this->memberService->sendRegisterEmail($member);
-                    // $this->memberService->sendInvitationInput($passiveMember);
                 }else
                 {
                     return $this->failureCode('E0090');
                 }
             }catch (Exception $e) {
                     return $this->failureCode('E0007');
-            }
+                }
         
+            }
+
+    public function info(Request $request,InvitationService $invitationService)
+    {
+        try{
+            $memberId = $request->memberId;
+            $member = $this->memberService->find($memberId);
+            $friendValue = $invitationService->friendValue($memberId);
+            if(empty($member->invited_code))return $this->failureCode('E0092');
+            return $this->success([
+                    'invitation' => $member->invited_code,
+                    'link' => sprintf(secure_url('/invite/%s'),$member->invited_code),
+                    'friendValue' => $friendValue
+                ]);
+        }catch (Exception $e){
+            return $this->failureCode('E0061');
+        }
     }
 }
