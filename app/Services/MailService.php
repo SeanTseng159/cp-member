@@ -75,12 +75,14 @@ class MailService
 
         // 檢查現在是否有首購活動
         $discountFirst = $this->discountCodeService->discountFirst();
-        $data['discountFirst'] = count($discountFirst)>0 ? $discountFirst[0]->discount_code_value:'';
-
+        $data['name'] = $member->name;
+        $data['codeValue'] = count($discountFirst)>0 ? $discountFirst[0]->discount_code_value:'';
+        $data['codeName'] = count($discountFirst)>0 ? $discountFirst[0]->discount_code_name:'';
+        $data['endTime'] = count($discountFirst)>0 ? $discountFirst[0]->discount_code_endtime:'';
         //如果有首購活動則寄送通知
-        if(!empty($data['discountFirst']))
+        if(!empty($data['codeValue']))
         {
-            return $this->send('歡迎使用 CityPass都會通 - 優待券通知', $recipient, 'emails/registerFirstDiscount', $data);
+            return $this->send('專屬CityPass都會通新會員的福利來囉！', $recipient, 'emails/registerFirstDiscount', $data);
         }
     }
 
