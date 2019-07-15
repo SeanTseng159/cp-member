@@ -26,10 +26,12 @@ class MemberController extends RestLaravelController
     use ValidatorHelper;
 
     protected $memberService;
+    protected $lang;
 
     public function __construct(MemberService $memberService)
     {
         $this->memberService = $memberService;
+        $this->lang = env('APP_LANG');
     }
 
     /**
@@ -223,9 +225,11 @@ class MemberController extends RestLaravelController
             $member = $this->memberService->find($memberId);
             $friendValue = $invitationService->friendValue($memberId);
             if(empty($member->invited_code))return $this->failureCode('E0092');
+            $url = env('CITY_PASS_WEB');
+            $url .= $this->lang;
             return $this->success([
                     'invitation' => $member->invited_code,
-                    'link' => sprintf('https://citypass.tw/zh-TW/invite/%s',$member->invited_code),
+                    'link' => $url.'/'.$member->invited_code,
                     'friendValue' => $friendValue
                 ]);
         }catch (Exception $e){
