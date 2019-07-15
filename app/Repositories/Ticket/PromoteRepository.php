@@ -79,8 +79,8 @@ class PromoteRepository extends BaseRepository
 
     public function invitationCheck($passiveMemberId)
     {
-        $check = $this->PromoteGiftRecordModel->where('inviter_member_id', $passiveMemberId)
-            ->count('member_id');
+        $check = $this->PromoteGiftRecordModel->where('member_id', $passiveMemberId)
+            ->count('inviter_member_id');
         if($check==0){
             return true; 
         }else

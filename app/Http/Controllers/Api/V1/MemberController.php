@@ -225,7 +225,7 @@ class MemberController extends RestLaravelController
             if(empty($member->invited_code))return $this->failureCode('E0092');
             return $this->success([
                     'invitation' => $member->invited_code,
-                    'link' => sprintf(secure_url('/invite/%s'),$member->invited_code),
+                    'link' => sprintf('https://citypass.tw/zh-TW/invite/%s',$member->invited_code),
                     'friendValue' => $friendValue
                 ]);
         }catch (Exception $e){
