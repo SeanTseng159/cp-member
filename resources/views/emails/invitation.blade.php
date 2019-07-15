@@ -12,31 +12,16 @@
                         <td>親愛的會員{{ $name }}您好:</td>
                     </tr>
                     <tr>
-                        <td>您的好友{{ $friendName }}成功加入CityPass都會通！</td>
+                        <td>您的好友{{ $friendName }}成功加入CityPass都會通！<br>恭喜您可以免費獲得：<br>{{ $giftName }}<br>您還可以推廣給更多的朋友，獲得更多豐富獎勵！</td>
                     </tr>
                     <tr>
-                        <td>恭喜您可以免費獲得：</td>
-                    </tr>
-                    <tr>
-                        <td>{{ $giftName }}</td>
-                    </tr>
-                    <tr>
-                        <td>您還可以推廣給更多的朋友，獲得更多豐富獎勵！</td>
-                    </tr>
-                    <tr>
-                        <td>※禮物說明詳見登入會員我的帳戶後「我的禮物」專區</td>
-                    </tr>
-                    <tr>
-                        <td>※CityPass保留公告變更、修改或終止本活動之權利。</td>
+                        <td>※禮物說明詳見登入會員我的帳戶後「我的禮物」專區<br>※CityPass保留公告變更、修改或終止本活動之權利。</td>
                     </tr>
                     <tr>
                         <td>CityPass都會通 敬上</td>
                     </tr>
                     <tr>
-                        <td>官方網站 https://citypass.tw</td>
-                    </tr>
-                    <tr>
-                        <td>FB粉絲團 https://www.facebook.com/citypass520</td>
+                        <td>官方網站 https://citypass.tw<br>FB粉絲團 https://www.facebook.com/citypass520</td>
                     </tr>
                     <tr>
                         <td>
