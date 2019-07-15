@@ -16,7 +16,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use App\Models\Member;
 use App\Services\MailService;
 
-class FindFriendInvitationMail implements ShouldQueue
+class InvitationInputMail implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
@@ -41,6 +41,6 @@ class FindFriendInvitationMail implements ShouldQueue
      */
     public function handle(MailService $mailService)
     {
-        $mailService->findFriendInvitationMail($this->member,$this->parameter);
+        $mailService->invitationInputMail($this->member,$this->parameter);
     }
 }

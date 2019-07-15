@@ -17,9 +17,10 @@ class PromoteRepository extends BaseRepository
 {
     protected $model;
 
-    public function __construct(PromoteGift $model)
+    public function __construct(PromoteGift $model, PromoteGiftRecord $PromoteGiftRecordModel)
     {
         $this->model = $model;
+        $this->PromoteGiftRecordModel = $PromoteGiftRecordModel;
     }
 
     public function allPromoteGift()
@@ -35,46 +36,56 @@ class PromoteRepository extends BaseRepository
             ->get();
     }
 
-    public function addRecord($gifts = null, $id = null,$passiveMemberId = null)
+    public function addRecord($gifts = null, $MemberId = null,$passiveMemberId = null)
     {
         \DB::connection('backend')->transaction(function () use (
-                    $gifts,$id,$passiveMemberId
+                    $gifts,$MemberId,$passiveMemberId
                 )
         {
             $now = Carbon::now();
             //禮物紀錄
             foreach ($gifts as $key => $gift) {
+                $model = new PromoteGiftRecord;
+                $model->sent_at = $now;
+                $model->promote_gift_id = $gift->id;
             switch ($gift->send_condition) {
                 //2:被邀請者 3:邀請者
                 case '2':
-                    $model = new PromoteGiftRecord;
-                    $model->member_id = $id;
+                    $model->member_id = $MemberId;
                     $model->inviter_member_id = $passiveMemberId;
-                    $model->sent_at = $now;
-                    $model->promote_gift_id = $gift->id;
-                    $model->save();
-
-                    //update已發送禮物
-                    $this->model->where('id',$gift->id)
-                    ->increment('used_qty',1);
                     break;
                 case '3':
-                    $model = new PromoteGiftRecord;
                     $model->member_id = $passiveMemberId;
                     $model->inviter_member_id = null;
-                    $model->sent_at = $now;
-                    $model->promote_gift_id = $gift->id;
-                    $model->save();
-
-                    //update已發送禮物
-                    $this->model->where('id',$gift->id)
-                    ->increment('used_qty',1);
                     break;
                 default:
                     # code...
                     break;
                 }
+                $model->save();
+                //update已發送禮物
+                $this->model->where('id',$gift->id)
+                ->increment('used_qty',1);
             }
         }); 
+    }
+
+    public function friendValue($memberId)
+    {
+        return $this->PromoteGiftRecordModel->where('inviter_member_id', $memberId)
+            ->distinct('member_id')
+            ->count('member_id');
+    }
+
+    public function invitationCheck($passiveMemberId)
+    {
+        $check = $this->PromoteGiftRecordModel->where('inviter_member_id', $passiveMemberId)
+            ->count('member_id');
+        if($check==0){
+            return true; 
+        }else
+        {
+            return false; 
+        }
     }
 }
