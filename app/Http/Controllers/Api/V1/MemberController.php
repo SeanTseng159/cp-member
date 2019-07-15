@@ -229,7 +229,7 @@ class MemberController extends RestLaravelController
             $url .= $this->lang;
             return $this->success([
                     'invitation' => $member->invited_code,
-                    'link' => $url.'/'.$member->invited_code,
+                    'link' => $url.'/invite/'.$member->invited_code,
                     'friendValue' => $friendValue
                 ]);
         }catch (Exception $e){
