@@ -9,13 +9,22 @@
             <div id="con">
                 <table width="100%" border="0" cellspacing="0" cellpadding="8">
                     <tr>
-                        <td>親愛的會員，您好:</td>
+                        <td>親愛的會員{{ $name }}您好： </td>
                     </tr>
                     <tr>
-                        <td>感謝您成功註冊為CityPass都會通的會員！</td>
+                        <td>我們準備了限量優惠給新加入的您，期待藉由這次機會，購買心目中的美好商品！<br>立即動動手指，加滿你的購物車吧！</td>
                     </tr>
                     <tr>
-                        <td>您可以使用此優惠代碼來折價：{{ $discountFirst }}</td>
+                        <td>優惠代碼名稱：{{ $codeName }}<br>代碼：{{ $codeValue }}<br>兌換期限：至{{ $endTime }}止</td>
+                    </tr>
+                    <tr>
+                        <td>※結帳時輸入即可折抵。<br>※每人限使用一次，不得與其它優惠併用。<br>※特殊商品恕不提供折扣。<br>※使用代碼折抵後，該訂單商品一經核銷使用後不得申請退款。<br>※CityPass保留公告變更、修改或終止本活動之權利。</td>
+                    </tr>
+                    <tr>
+                        <td>CityPass都會通 敬上</td>
+                    </tr>
+                    <tr>
+                        <td>官方網站 https://citypass.tw<br>FB粉絲團 https://www.facebook.com/citypass520</td>
                     </tr>
                     <tr>
                         <td>
