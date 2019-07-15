@@ -12,31 +12,16 @@
                         <td>親愛的會員{{ $name }}您好:</td>
                     </tr>
                     <tr>
-                        <td>CityPass的使命是帶給您更優質的吃喝玩樂享受， </td>
+                        <td>CityPass的使命是帶給您更優質的吃喝玩樂享受，<br>您的加入是我們的榮幸，現在送給您一份好禮！<br>免費獲得：<br>{{ $giftName }}</td>
                     </tr>
                     <tr>
-                        <td>您的加入是我們的榮幸，現在送給您一份好禮！</td>
-                    </tr>
-                    <tr>
-                        <td>免費獲得：</td>
-                    </tr>
-                    <tr>
-                        <td>{{ $giftName }}</td>
-                    </tr>
-                    <tr>
-                        <td>※禮物說明詳見登入會員我的帳戶後「我的禮物」專區</td>
-                    </tr>
-                    <tr>
-                        <td>※CityPass保留公告變更、修改或終止本活動之權利。</td>
+                        <td>※禮物說明詳見登入會員我的帳戶後「我的禮物」專區<br>※CityPass保留公告變更、修改或終止本活動之權利。</td>
                     </tr>
                     <tr>
                         <td>CityPass都會通 敬上</td>
                     </tr>
                     <tr>
-                        <td>官方網站 https://citypass.tw</td>
-                    </tr>
-                    <tr>
-                        <td>FB粉絲團 https://www.facebook.com/citypass520</td>
+                        <td>官方網站 https://citypass.tw<br>FB粉絲團 https://www.facebook.com/citypass520</td>
                     </tr>
                     <tr>
                         <td>
