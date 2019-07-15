@@ -171,6 +171,9 @@ class MemberController extends RestLaravelController
                 $invitation = $request->invitation;
                 //檢查邀請碼格式
                 if (!preg_match("/^[A-Za-z0-9]{6}$/",$invitation)) return $this->failureCode('E0091');
+                //判斷每個會員只能輸入一次邀請碼
+                $invitationCheck = $invitationService->invitationCheck($memberId);
+                if (!$invitationCheck) return $this->failureCode('E0094');
                 //查詢被邀請碼會員
                 $passiveMember = $this->memberService->invitationFind($invitation);
                 if($passiveMember)
@@ -180,9 +183,6 @@ class MemberController extends RestLaravelController
                     $gifts = $invitationService->allPromoteGift();
                     //會員無法輸入自己的邀請碼
                     if ($passiveMemberId === $memberId) return $this->failureCode('E0093');
-                    //判斷每個會員只能輸入一次邀請碼
-                    $invitationCheck = $invitationService->invitationCheck($memberId);
-                    if (!$invitationCheck) return $this->failureCode('E0094');
                     //判斷是否還有禮物
                     if (count($gifts)==0) return $this->failureCode('E0078');
                     //新增送禮紀錄
