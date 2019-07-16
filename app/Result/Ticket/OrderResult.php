@@ -35,7 +35,7 @@ class OrderResult extends BaseResult
         parent::__construct();
 
         $this->memberService = app()->build(MemberService::class);
-        $this->orderRefundService = app()->build(MemberService::class);
+        $this->orderRefundService = app()->build(OrderRefundService::class);
         $this->uberCouponService = app()->build(UberCouponService::class);
         $this->time = time();
     }
@@ -498,7 +498,7 @@ class OrderResult extends BaseResult
             $orderRefundTime = ($orderRefund) ? $orderRefund->order_refund_payment_date : '';
             $show[] = ["label" => "訂單編號：", "text" => $orderSeq, "color" => null];
             $show[] = ["label" => "票券號碼：", "text" => (string) $item['order_detail_sn'], "color" => null];
-            $show[] = ["label" => "", "text" => "已於".$orderRefundTime."完成退貨", "color" => "#90c320"];
+            $show[] = ["label" => "", "text" => "已於 {$orderRefundTime} 完成退貨", "color" => "#90c320"];
         }
         elseif ($statusCode === '02') {
             $show[] = ["label" => "訂單編號：", "text" => $orderSeq, "color" => null];
