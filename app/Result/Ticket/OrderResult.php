@@ -35,7 +35,7 @@ class OrderResult extends BaseResult
         parent::__construct();
 
         $this->memberService = app()->build(MemberService::class);
-        $this->orderRefundService = app()->build(MemberService::class);
+        $this->orderRefundService = app()->build(OrderRefundService::class);
         $this->uberCouponService = app()->build(UberCouponService::class);
         $this->time = time();
     }
