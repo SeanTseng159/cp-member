@@ -121,6 +121,7 @@ class MissionRepository extends BaseRepository
         $activityComplete = false;
 
 
+
         list($activityName, $activityComplete) =
             $this->checkIsActivityFinish($activityID, $missionID, $memberID, $orderId, $isComplete);
 
@@ -180,19 +181,28 @@ class MissionRepository extends BaseRepository
                     try {
                         if ($missionAward && !$allOut) {
                             //可用barcode
-                            $barcode = AwardBarcode::where('award_id',$missionAward->award_id)
+                            $barcodeValue = AwardBarcode::where('award_id',$missionAward->award_id)
                             ->where('award_barcode_is_used','0')
                             ->orderBy('award_barcode_sort')
                             ->first();
-                            //update已被使用的barcode狀態
-                            AwardBarcode::where('award_barcode_id',$barcode->award_barcode_id)
-                            ->update([
-                                'award_barcode_is_used' => '1'
-                            ]);
-                            //update獎品使用數
-                            Award::where('award_id',$barcode->award_id)
-                            ->increment('award_used_quantity',1);
 
+                            $barcode = null;
+                            $barcodeType = null;}
+
+                            if($barcodeValue)
+                            {
+                                $barcode = $barcodeValue->award_barcode_serial_no;
+                                $barcodeType = $barcodeValue->award_barcode_type;
+                                //update已被使用的barcode狀態
+                                AwardBarcode::where('award_barcode_id',$barcodeValue->award_barcode_id)
+                                ->update([
+                                    'award_barcode_is_used' => '1'
+                                ]);
+                                //update獎品使用數
+                                Award::where('award_id',$barcodeValue->award_id)
+                                ->increment('award_used_quantity',1);
+                            }
+                            
                             $missionAward->award_used_quantity = $missionAward->award_used_quantity + 1;
                             $missionAward->modified_at = Carbon::now();
                             $missionAward->save();
@@ -207,8 +217,8 @@ class MissionRepository extends BaseRepository
 
                             $awardRecord->qrcode = (new UUID())->setCreate()->getToString();
                             $awardRecord->supplier_id = $missionAward->supplier_id;
-                            $awardRecord->barcode = $barcode->award_barcode_serial_no;
-                            $awardRecord->barcode_type = $barcode->award_barcode_type;
+                            $awardRecord->barcode = $barcode;
+                            $awardRecord->barcode_type = $barcodeType;
                             $awardRecord->verifier_id = 0;
                             $awardRecord->created_at = Carbon::now();
                             $awardRecord->modified_at = Carbon::now();
@@ -233,18 +243,27 @@ class MissionRepository extends BaseRepository
                                     $activityAward->save();
 
                                     //可用barcode
-                                    $barcode = AwardBarcode::where('award_id',$missionAward->award_id)
+                                    $barcodeValue = AwardBarcode::where('award_id',$activityAward->award_id)
                                     ->where('award_barcode_is_used','0')
                                     ->orderBy('award_barcode_sort')
                                     ->first();
+
+                                    $barcode = null;
+                                    $barcodeType = null;
+
                                     //update已被使用的barcode狀態
-                                    AwardBarcode::where('award_barcode_id',$barcode->award_barcode_id)
-                                    ->update([
-                                        'award_barcode_is_used' => '1'
-                                    ]);
-                                    //update獎品使用數
-                                    Award::where('award_id',$barcode->award_id)
-                                    ->increment('award_used_quantity',1);
+                                    if($barcodeValue)
+                                    {
+                                        $barcode = $barcodeValue->award_barcode_serial_no;
+                                        $barcodeType = $barcodeValue->award_barcode_type;
+                                        AwardBarcode::where('award_barcode_id',$barcodeValue->award_barcode_id)
+                                        ->update([
+                                            'award_barcode_is_used' => '1'
+                                        ]);
+                                        //update獎品使用數
+                                        Award::where('award_id',$barcodeValue->award_id)
+                                        ->increment('award_used_quantity',1);
+                                    }
 
                                     $awardRecord = new AwardRecord;
                                     $awardRecord->award_id = $activityAward->award_id;
@@ -255,8 +274,8 @@ class MissionRepository extends BaseRepository
                                     $awardRecord->model_spec_id = $activityID;
                                     $awardRecord->qrcode = (new UUID())->setCreate()->getToString();
                                     $awardRecord->supplier_id = $activityAward->supplier_id;
-                                    $awardRecord->barcode = $barcode->award_barcode_serial_no;
-                                    $awardRecord->barcode_type = $barcode->award_barcode_type;
+                                    $awardRecord->barcode = $barcode;
+                                    $awardRecord->barcode_type = $barcodeType;
                                     $awardRecord->verifier_id = 0;
                                     $awardRecord->created_at = Carbon::now();
                                     $awardRecord->modified_at = Carbon::now();
