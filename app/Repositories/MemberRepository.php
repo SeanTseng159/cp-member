@@ -281,4 +281,11 @@ class MemberRepository
 
         return $member;
     }
+
+    //根據invitation,查詢使用者
+    public function invitationFind($code)
+    {
+        $member = $this->model->where(['invited_code' => $code])->first();
+        return $member;
+    }
 }

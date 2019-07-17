@@ -22,6 +22,8 @@ use App\Jobs\SendValidateEmail;
 use App\Jobs\SendRegisterMail;
 use App\Jobs\SendRegisterCompleteMail;
 use App\Jobs\SendForgetPasswordMail;
+use App\Jobs\FindFriendInvitationMail;
+use App\Jobs\InvitationInputMail;
 use Illuminate\Contracts\Encryption\DecryptException;
 
 class MemberService
@@ -380,6 +382,42 @@ class MemberService
     }
 
     /**
+     * 邀請好友後獲得的獲得禮物信件
+     * @param $member
+     * @param $parameter
+     * @return bool
+     */
+    public function findFriendInvitation($member,$parameter)
+    {
+        if ($member && $member->isRegistered == 1) {
+            $job = (new FindFriendInvitationMail($member,$parameter))->delay(5);
+            $this->dispatch($job);
+
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * 填寫邀請碼後獲得的禮物信件
+     * @param $member
+     * @param $parameter
+     * @return bool
+     */
+    public function invitationInput($member,$parameter)
+    {
+        if ($member && $member->isRegistered == 1) {
+            $job = (new InvitationInputMail($member,$parameter))->delay(5);
+            $this->dispatch($job);
+
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
      * 驗證-重設密碼key
      * @param $email
      * @param $expires
@@ -621,5 +659,10 @@ class MemberService
     public function getDiningCarGift()
     {
         return $this->repository->getDiningCarGift();
+    }
+
+    public function invitationFind($code = null)
+    {
+        return $this->repository->invitationFind($code);
     }
 }

@@ -125,6 +125,60 @@ class MailService
     }
 
     /**
+     * 邀請好友獲得禮物信件
+     * @param string $member
+     * @param array $parameter
+     * @return \App\Models\Member
+     */
+    public function findFriendInvitationMail($member,$parameter)
+    {
+        if($member->openPlateform==='facebook' || $member->openPlateform==='google')
+        {
+            $recipient = [
+                'email' => $member->openId,
+                'name' => $member->name
+            ];
+        }else
+        {
+            $recipient = [
+                'email' => $member->email,
+                'name' => $member->name
+            ];
+        }
+        $data['name'] = $member->name;
+        $data['friendName'] = $parameter['friendName'];
+        $data['giftName'] = $parameter['giftName'];
+
+        return $this->send('邀請好友註冊CityPass成功！', $recipient, 'emails/invitation', $data);
+    }
+
+    /**
+     * 輸入邀請碼獲得禮物信件
+     * @param string $member
+     * @return \App\Models\Member
+     */
+    public function invitationInputMail($member,$parameter)
+    {
+        if($member->openPlateform==='facebook' || $member->openPlateform==='google')
+        {
+            $recipient = [
+                'email' => $member->openId,
+                'name' => $member->name
+            ];
+        }else
+        {
+            $recipient = [
+                'email' => $member->email,
+                'name' => $member->name
+            ];
+        }
+        $data['name'] = $member->name;
+        $data['giftName'] = $parameter['giftName'];
+
+        return $this->send('感謝您註冊CityPass，送上好禮一份！ ', $recipient, 'emails/invitationInput', $data);
+    }
+
+    /**
      * 客服QA通知信
      * @param string $member
      * @param string $parameters
