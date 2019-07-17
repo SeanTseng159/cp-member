@@ -187,7 +187,7 @@ class MissionRepository extends BaseRepository
                             ->first();
 
                             $barcode = null;
-                            $barcodeType = null;}
+                            $barcodeType = null;
 
                             if($barcodeValue)
                             {
