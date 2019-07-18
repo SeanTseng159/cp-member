@@ -354,4 +354,10 @@ Route::middleware(['cors', 'auth.jwt'])->namespace('V1')->group(function () {
         //邀請碼連結資訊
         Route::get('/info', 'MemberController@info');
     });
+
+    //會員通知相關
+    Route::prefix('memberNotic')->group(function () {
+        //通知列表資訊
+        Route::get('/info', 'MemberController@NoticInfo');
+    });
 });
