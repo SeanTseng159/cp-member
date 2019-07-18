@@ -26,7 +26,7 @@ class SalesRule extends Client
     public function addCoupon($parameters)
     {
 
-        $response = $this->putParameters($parameters)->request('POST', 'coupon/add');
+        $response = $this->putParameters($parameters)->request('POST', 'DiscountCode/add');
         $result = json_decode($response->getBody(), true);
 
         return ($result['statusCode'] === 201) ? true : false;
@@ -40,7 +40,7 @@ class SalesRule extends Client
     public function deleteCoupon($parameters)
     {
 
-        $response = $this->putParameters($parameters)->request('POST', 'coupon/remove');
+        $response = $this->putParameters($parameters)->request('POST', 'DiscountCode/remove');
         $result = json_decode($response->getBody(), true);
 
         return ($result['statusCode'] === 203) ? true : false;
