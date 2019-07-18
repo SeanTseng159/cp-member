@@ -8,6 +8,7 @@
 namespace App\Result\Ticket;
 
 use App\Result\BaseResult;
+use App\Helpers\CommonHelper;
 
 class MemberNoticResult extends BaseResult
 {
@@ -39,12 +40,13 @@ class MemberNoticResult extends BaseResult
     public function getNotic($info)
     {
         if (!$info) return null;
-        $url = env('BACKEND_DOMAIN');
+        $url = $info->mainImg->folder.$info->mainImg->filename.'.'.$info->mainImg->ext;
+        $diningCarUrl = CommonHelper::getBackendHost($url);
 
         $result = new \stdClass;
         $result->id = $info->id;
         $result->diningCarName = $info->diningCar->name;
-        $result->imgUrl = $url.'/'.$info->mainImg->folder.$info->mainImg->filename.'.'.$info->mainImg->ext;
+        $result->imgUrl = $diningCarUrl;
         $result->message = $info->notification_message;
         $result->prodType = $info->prod_type;
         $result->prodId = $info->prod_id;
