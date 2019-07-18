@@ -13,10 +13,12 @@ use Ksd\Mediation\Core\Controller\RestLaravelController;
 use App\Services\MemberService;
 use App\Services\NewsletterService;
 use App\Services\JWTTokenService;
+use App\Services\Ticket\MemberNoticService;
 use App\Services\Ticket\InvitationService;
 use App\Parameter\MemberParameter;
 use App\Traits\CryptHelper;
 use App\Traits\ValidatorHelper;
+use App\Result\Ticket\MemberNoticResult;
 
 use Hashids\Hashids;
 
@@ -235,5 +237,18 @@ class MemberController extends RestLaravelController
         }catch (Exception $e){
             return $this->failureCode('E0061');
         }
+    }
+
+    public function NoticInfo(Request $request,MemberNoticService $MemberNoticService)
+    {
+
+            $params['memberId'] = $request->memberId;
+            $params['page'] = empty(!$request->page) ? $request->page : 1;
+            $params['limit'] = empty(!$request->limit) ? $request->limit : 20;
+            $data = $MemberNoticService->memberNoticInfo($params);
+            $result['page'] = (int) $params['page'];
+            $result['items'] = (new MemberNoticResult)->list($data);
+            return $this->success($result);
+
     }
 }
