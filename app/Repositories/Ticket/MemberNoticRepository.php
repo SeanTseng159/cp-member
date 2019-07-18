@@ -32,4 +32,11 @@ class MemberNoticRepository extends BaseRepository
                             ->orderBy('created_at','asc')
                             ->paginate($params['limit']);
     }
+
+    public function memberNoticInfoTotal($params)
+    {
+        return $this->model->with(['diningCar'])
+                            ->where('member_id', $params['memberId'])
+                            ->count();
+    }
 }

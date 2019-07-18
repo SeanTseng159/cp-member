@@ -24,4 +24,9 @@ class MemberNoticService extends BaseService
         return $this->memberNoticRepository->memberNoticInfo($params);
     }
 
+    public function memberNoticInfoTotal($params)
+    {
+        return $this->memberNoticRepository->memberNoticInfoTotal($params);
+    }
+
 }
