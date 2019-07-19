@@ -35,9 +35,15 @@ class MemberNoticService extends BaseService
 
         return ($notification) ? true : false;
     }
+    
     public function updateReadStatus($notificationId)
     {
         return $this->memberNoticRepository->updateReadStatus($notificationId);
+    }
+
+    public function availableNotic($memberId)
+    {
+        return $this->memberNoticRepository->availableNotic($memberId);
     }
 
 }
