@@ -249,6 +249,7 @@ class MemberController extends RestLaravelController
             //取得全部訊息數
             $total = $MemberNoticService->memberNoticInfoTotal($params);
             $result['total'] = $total;
+            $result['limit'] = $params['limit'];
             $result['page'] = (int) $params['page'];
             $result['items'] = (new MemberNoticResult)->list($data);
             return $this->success($result);
