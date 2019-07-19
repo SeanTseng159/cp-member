@@ -39,4 +39,25 @@ class MemberNoticRepository extends BaseRepository
                             ->where('member_id', $params['memberId'])
                             ->count();
     }
+
+    public function find($memberId = 0, $notificationId = 0)
+    {
+        return $this->model->where('member_id', $memberId)
+                            ->where('id', $notificationId)
+                            ->first();
+    }
+
+    public function updateReadStatus($notificationId)
+    {
+        if (!$notificationId) return false;
+
+        try {
+            return $this->model->where('id', $notificationId)
+                ->update([
+                    'read_status' => 1
+                ]);
+        } catch (QueryException $e) {
+            return false;
+        }
+    }
 }

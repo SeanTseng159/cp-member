@@ -359,5 +359,7 @@ Route::middleware(['cors', 'auth.jwt'])->namespace('V1')->group(function () {
     Route::prefix('memberNotic')->group(function () {
         //通知列表資訊
         Route::get('/info', 'MemberController@NoticInfo');
+        //修改已讀狀態
+        Route::post('read', 'MemberController@readStatusChange');
     });
 });

@@ -235,13 +235,13 @@ class MemberController extends RestLaravelController
                     'friendValue' => $friendValue
                 ]);
         }catch (Exception $e){
-            return $this->failureCode('E0061');
+            return $this->failureCode('E0007');
         }
     }
 
     public function NoticInfo(Request $request,MemberNoticService $MemberNoticService)
     {
-
+        try{
             $params['memberId'] = $request->memberId;
             $params['page'] = empty(!$request->page) ? $request->page : 1;
             $params['limit'] = empty(!$request->limit) ? $request->limit : 20;
@@ -253,6 +253,25 @@ class MemberController extends RestLaravelController
             $result['page'] = (int) $params['page'];
             $result['items'] = (new MemberNoticResult)->list($data);
             return $this->success($result);
+        }catch (Exception $e){
+            return $this->failureCode('E0007');
+        }
+
+    }
+
+    public function readStatusChange(Request $request,MemberNoticService $MemberNoticService)
+    {
+        try{
+            $memberId = $request->memberId;
+            $notificationId = $request->notificationId;
+            //確認是否有此通知
+            $isNotic = $MemberNoticService->isNotic($memberId, $notificationId);
+            if (!$isNotic) return $this->failureCode('E0095');
+            $MemberNoticService->updateReadStatus($notificationId);
+            return $this->success();
+        }catch(Exception $e){
+            return $this->failureCode('E0007');
+        }
 
     }
 }
