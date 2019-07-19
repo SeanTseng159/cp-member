@@ -60,4 +60,11 @@ class MemberNoticRepository extends BaseRepository
             return false;
         }
     }
+
+    public function availableNotic($memberId)
+    {
+        return $this->model->where('member_id', $memberId)
+                            ->where('read_status', 0)
+                            ->count();
+    }
 }

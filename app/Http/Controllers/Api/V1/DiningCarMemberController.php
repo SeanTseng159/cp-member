@@ -22,6 +22,7 @@ use App\Services\Ticket\DiningCarMemberService;
 use App\Services\Ticket\DiningCarService;
 use App\Services\MemberService;
 use App\Services\Ticket\GiftService;
+use App\Services\Ticket\MemberNoticService;
 
 use App\Parameter\Ticket\DiningCarMemberParameter;
 use App\Result\Ticket\DiningCarMemberResult;
@@ -38,12 +39,14 @@ class DiningCarMemberController extends RestLaravelController
     protected $memberCouponService;
     protected $memberGiftItemService;
     protected $awardRecordService;
+    protected $memberNoticService;
 
     public function __construct(DiningCarMemberService $service,
                                 GiftService $giftService,
                                 MemberCouponService $memberCouponService,
                                 MemberGiftItemService $memberGiftItemService,
-                                AwardRecordService $awardRecordService
+                                AwardRecordService $awardRecordService,
+                                MemberNoticService $memberNoticService
 
     )
     {
@@ -52,6 +55,7 @@ class DiningCarMemberController extends RestLaravelController
         $this->memberCouponService = $memberCouponService;
         $this->memberGiftItemService = $memberGiftItemService;
         $this->awardRecordService = $awardRecordService;
+        $this->memberNoticService = $memberNoticService;
     }
 
     /**
@@ -220,11 +224,13 @@ class DiningCarMemberController extends RestLaravelController
             $giftNum = $this->memberGiftItemService->availableGifts($memberId);
             //獎品清單
             $awardNum = $this->awardRecordService->availableAward($memberId);
-            $total = $couponNum + $giftNum + $awardNum;
+            $noticNum = $this->memberNoticService->availableNotic($memberId);
+            $total = $couponNum + $giftNum + $awardNum + $noticNum;
 
             return $this->success([
                 'coupon_num' => $couponNum,
                 'gift_num' => $giftNum + $awardNum,
+                'notic_num' => $noticNum,
                 'total' => $total
             ]);
         } catch (Exception $e) {

@@ -239,15 +239,15 @@ class MemberController extends RestLaravelController
         }
     }
 
-    public function NoticInfo(Request $request,MemberNoticService $MemberNoticService)
+    public function NoticInfo(Request $request,MemberNoticService $memberNoticService)
     {
         try{
             $params['memberId'] = $request->memberId;
             $params['page'] = empty(!$request->page) ? $request->page : 1;
             $params['limit'] = empty(!$request->limit) ? $request->limit : 20;
-            $data = $MemberNoticService->memberNoticInfo($params);
+            $data = $memberNoticService->memberNoticInfo($params);
             //取得全部訊息數
-            $total = $MemberNoticService->memberNoticInfoTotal($params);
+            $total = $memberNoticService->memberNoticInfoTotal($params);
             $result['total'] = $total;
             $result['limit'] = $params['limit'];
             $result['page'] = (int) $params['page'];
@@ -259,15 +259,15 @@ class MemberController extends RestLaravelController
 
     }
 
-    public function readStatusChange(Request $request,MemberNoticService $MemberNoticService)
+    public function readStatusChange(Request $request,MemberNoticService $memberNoticService)
     {
         try{
             $memberId = $request->memberId;
             $notificationId = $request->notificationId;
             //確認是否有此通知
-            $isNotic = $MemberNoticService->isNotic($memberId, $notificationId);
+            $isNotic = $memberNoticService->isNotic($memberId, $notificationId);
             if (!$isNotic) return $this->failureCode('E0095');
-            $MemberNoticService->updateReadStatus($notificationId);
+            $memberNoticService->updateReadStatus($notificationId);
             return $this->success();
         }catch(Exception $e){
             return $this->failureCode('E0007');
