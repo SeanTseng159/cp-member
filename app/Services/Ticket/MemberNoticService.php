@@ -29,4 +29,15 @@ class MemberNoticService extends BaseService
         return $this->memberNoticRepository->memberNoticInfoTotal($params);
     }
 
+    public function isNotic($memberId = 0, $notificationId = 0)
+    {
+        $notification = $this->memberNoticRepository->find($memberId, $notificationId);
+
+        return ($notification) ? true : false;
+    }
+    public function updateReadStatus($notificationId)
+    {
+        return $this->memberNoticRepository->updateReadStatus($notificationId);
+    }
+
 }
