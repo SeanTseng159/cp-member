@@ -27,7 +27,12 @@ class SalesRuleController extends RestLaravelController
         $parameters = new CouponParameter();
         $parameters->laravelRequest($request);
         $salesRule = $this->service->addCoupon($parameters);
-        return ($salesRule) ? $this->success($salesRule) : $this->failure('E0002', '新增失敗');
+
+        $returnObj = new \stdClass();
+        $returnObj->code = ($salesRule['statusCode'] == 201) ? '00000' : 'E00002';
+        $returnObj->message = ($returnObj->code == '00000') ? 'success' : $salesRule['data'];
+
+        return ($returnObj->code == '00000') ? $this->success($salesRule['data']) : $this->failure($returnObj->code, $returnObj->message);
     }
 
     /**
