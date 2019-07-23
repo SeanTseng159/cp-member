@@ -39,9 +39,10 @@ class SalesRule extends Client
     {
 
         $response = $this->putParameters($parameters)->request('POST', 'DiscountCode/remove');
-        $result = json_decode($response->getBody(), true);
 
-        return ($result['statusCode'] === 203) ? true : false;
+        $result = json_decode($response->getBody(), true);
+        return $result;
+//        return ($result['statusCode'] === 203) ? true : false;
     }
 
 

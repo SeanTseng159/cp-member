@@ -42,9 +42,18 @@ class SalesRuleController extends RestLaravelController
      */
     public function deleteCoupon(Request $request)
     {
+
         $parameters = new CouponParameter();
         $parameters->laravelRequest($request);
+
         $salesRule = $this->service->deleteCoupon($parameters);
-        return ($salesRule) ? $this->success($salesRule) : $this->failure('E0004', '刪除失敗');
+
+
+        $returnObj = new \stdClass();
+        $returnObj->code = ($salesRule['statusCode'] == 203) ? '00000' : 'E00002';
+        $returnObj->message = ($returnObj->code == '00000') ? 'success' : $salesRule['data'];
+
+        return ($returnObj->code == '00000') ? $this->success() : $this->failure($returnObj->code, $returnObj->message);
+
     }
 }
