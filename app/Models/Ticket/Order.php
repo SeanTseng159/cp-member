@@ -7,6 +7,8 @@
 
 namespace App\Models\Ticket;
 
+use App\Models\DiscountCode;
+use App\Models\OrderDiscount;
 use App\Models\Ticket\BaseModel;
 
 class Order extends BaseModel
@@ -38,5 +40,12 @@ class Order extends BaseModel
     public function shipment()
     {
         return $this->hasOne('App\Models\Ticket\OrderShipment', 'order_id', 'order_id');
+    }
+
+    /*
+     * 優惠代碼資訊
+     */
+    public function discountCode(){
+        return $this->hasOne(OrderDiscount::class, 'order_no', 'order_no');
     }
 }
