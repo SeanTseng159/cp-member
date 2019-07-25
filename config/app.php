@@ -191,6 +191,7 @@ return [
         // App\Providers\BroadcastServiceProvider::class,
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
+        LaravelFCM\FCMServiceProvider::class,
 
     ],
 
@@ -242,6 +243,7 @@ return [
         'View'         => Illuminate\Support\Facades\View::class,
         'LineNotify'   => Royalmar\LineNotify\Facades\LineNotify::class,
         'Agent'        => Jenssegers\Agent\Facades\Agent::class,
+        'FCM'      => LaravelFCM\Facades\FCM::class
     ],
 
 ];

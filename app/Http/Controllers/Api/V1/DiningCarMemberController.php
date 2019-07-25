@@ -23,6 +23,7 @@ use App\Services\Ticket\DiningCarService;
 use App\Services\MemberService;
 use App\Services\Ticket\GiftService;
 use App\Services\Ticket\MemberNoticService;
+use App\Services\FCMService;
 
 use App\Parameter\Ticket\DiningCarMemberParameter;
 use App\Result\Ticket\DiningCarMemberResult;
@@ -35,14 +36,18 @@ class DiningCarMemberController extends RestLaravelController
     use CryptHelper;
 
     protected $service;
+    protected $diningCarService;
     protected $giftService;
+    protected $fcmService;
     protected $memberCouponService;
     protected $memberGiftItemService;
     protected $awardRecordService;
     protected $memberNoticService;
 
     public function __construct(DiningCarMemberService $service,
+                                DiningCarService $diningCarService, 
                                 GiftService $giftService,
+                                FCMService $fcmService,
                                 MemberCouponService $memberCouponService,
                                 MemberGiftItemService $memberGiftItemService,
                                 AwardRecordService $awardRecordService,
@@ -51,7 +56,9 @@ class DiningCarMemberController extends RestLaravelController
     )
     {
         $this->service = $service;
+        $this->diningCarService = $diningCarService;
         $this->giftService = $giftService;
+        $this->fcmService = $fcmService;
         $this->memberCouponService = $memberCouponService;
         $this->memberGiftItemService = $memberGiftItemService;
         $this->awardRecordService = $awardRecordService;
@@ -77,6 +84,13 @@ class DiningCarMemberController extends RestLaravelController
             if ($isMember) return $this->failureCode('A0101');
 
             $result = $this->service->add($memberId, $diningCarId);
+            //推播
+            $memberIds[0] = $memberId;
+            $data['url'] = null;
+            $data['prodType'] = 5;
+            $data['prodId'] = $diningCarId;
+            $data['diningCarName'] = $this->diningCarService->find($diningCarId)->name;
+            $this->fcmService->memberNotify('addMember',$memberIds,$data);
 
             // 發送禮物
             $gift = $this->giftService->giveAddDiningCarMemberGift($diningCarId, $memberId);
