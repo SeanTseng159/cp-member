@@ -63,4 +63,31 @@ class CartService
     {
         return $this->repository->find($type, $memberId);
     }
+
+    /**
+     * 購物車加入優惠折扣碼
+     * @param $cart
+     * @param $code
+     * @param $memberId
+     * @return bool
+     */
+    public function setAddDiscountCode($cart, $code, $memberId)
+    {
+        if (empty($cart)) return false;
+
+
+        foreach ($cart->items as $cartItem) {
+
+            // 判斷商品在可用清單中
+
+            // 判斷商品不在排除清單中
+        }
+
+        // 比對最低可用金額
+
+        // 折扣金額：1.折扣(x) 2.折價(-)  加價購(?)
+
+        $cart->discountCode = $code;
+        $this->add('buyNow', $memberId, serialize($cart));
+    }
 }

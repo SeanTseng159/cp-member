@@ -30,4 +30,9 @@ class DiscountCodeService
     {
         return $this->repository->discountFirst();
     }
+
+    public function getEnableDiscountByCode($code)
+    {
+        return $this->repository->getEnableDiscountCode($code);
+    }
 }
