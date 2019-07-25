@@ -101,6 +101,11 @@ class CartResult
         }else {
             $this->useCoupon = $this->arrayDefault($result, 'useCoupon');
         }
+        if(empty($this->arrayDefault($result, 'DiscountCode'))){
+            $this->DiscountCode = null;
+        }else {
+            $this->DiscountCode = $this->arrayDefault($result, 'DiscountCode');
+        }
         $this->discountAmount = $this->arrayDefault($result, 'discountAmount');
         $this->discountTotal = $this->arrayDefault($result, 'discountTotal') ?: $this->arrayDefault($result, 'payAmount');
         $this->payAmount = $this->arrayDefault($result, 'payAmount');

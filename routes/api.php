@@ -136,7 +136,7 @@ Route::middleware(['cors', 'auth.jwt'])->namespace('Api')->group(function () {
         Route::post('hide', 'MyTicketController@hide');
     });
 
-    Route::prefix('coupon')->group(function () {
+    Route::prefix('DiscountCode')->group(function () {
         Route::post('add', 'SalesRuleController@addCoupon');
         Route::post('remove', 'SalesRuleController@deleteCoupon');
     });

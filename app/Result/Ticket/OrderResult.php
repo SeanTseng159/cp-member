@@ -95,6 +95,9 @@ class OrderResult extends BaseResult
         $result['shipment'] = $this->getShipment($order['order_shipment_method'], $order['shipment'], $order['order_shipment_fee']);
         $result['items'] = $this->processItems($order['details'], $isDetail);
         $result['orderer'] = $this->getOrderer($order['member_id']);
+        $result['discountName'] = !(empty($this->arrayDefault($order, 'discount_code'))) ?
+            $this->arrayDefault($this->arrayDefault($order, 'discount_code'), 'discount_name') :
+            "";
 
         return $result;
     }

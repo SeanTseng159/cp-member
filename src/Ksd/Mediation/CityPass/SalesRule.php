@@ -7,11 +7,9 @@
  */
 
 namespace Ksd\Mediation\CityPass;
-use GuzzleHttp\Exception\ClientException;
+
 use Ksd\Mediation\Helper\EnvHelper;
-use Ksd\Mediation\Result\SalesRule\CouponResult;
-use Ksd\Mediation\Result\SalesRule\SalesRuleResult;
-use Log;
+
 
 class SalesRule extends Client
 {
@@ -20,30 +18,31 @@ class SalesRule extends Client
 
     /**
      * 使用優惠券
-     *  @param $parameters
+     * @param $parameters
      * @return bool
      */
     public function addCoupon($parameters)
     {
 
-        $response = $this->putParameters($parameters)->request('POST', 'coupon/add');
+        $response = $this->putParameters($parameters)->request('POST', 'DiscountCode/add');
         $result = json_decode($response->getBody(), true);
+        return $result;
 
-        return ($result['statusCode'] === 201) ? true : false;
     }
 
     /**
      * 取消優惠券
-     *  @param $parameters
+     * @param $parameters
      * @return bool
      */
     public function deleteCoupon($parameters)
     {
 
-        $response = $this->putParameters($parameters)->request('POST', 'coupon/remove');
-        $result = json_decode($response->getBody(), true);
+        $response = $this->putParameters($parameters)->request('POST', 'DiscountCode/remove');
 
-        return ($result['statusCode'] === 203) ? true : false;
+        $result = json_decode($response->getBody(), true);
+        return $result;
+//        return ($result['statusCode'] === 203) ? true : false;
     }
 
 
