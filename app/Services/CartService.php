@@ -121,8 +121,7 @@ class CartService
             default:
                 break;
         }
-        $cart->discountCode = $discount->discount_code_id;
-        $this->add('buyNow', $memberId, serialize($cart));
+        
         //以下待重購
         $DiscountCode = new \stdClass();
         $DiscountCode->id = $discount->discount_code_id;
@@ -130,6 +129,8 @@ class CartService
         $DiscountCode->method = $discount->discount_code_type;
         $DiscountCode->price = $discount->discount_code_price;
         $DiscountCode->amount = $amount;
+        $cart->discountCode = $DiscountCode;
+        $this->add('buyNow', $memberId, serialize($cart));
         $data = new \stdClass();
         $data->DiscountCode = $DiscountCode;
         $data->totalAmount = $cart->totalAmount;
