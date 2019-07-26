@@ -99,6 +99,7 @@ class CartService
         }
 
         // 折扣金額：1.折扣(x) 2.折價(-)  加價購(?)
+        $amount = 0 ;
         switch ($discount->discount_code_type) {
             case '1':
                 $format = "0.%u";
@@ -130,14 +131,16 @@ class CartService
         $DiscountCode->price = $discount->discount_code_price;
         $DiscountCode->amount = $amount;
         $cart->discountCode = $DiscountCode;
+
         $this->add('buyNow', $memberId, serialize($cart));
+
         $data = new \stdClass();
         $data->DiscountCode = $DiscountCode;
         $data->totalAmount = $cart->totalAmount;
         $data->discountAmount =  $cart->discountAmount;
         $data->discountTotalAmount = $data->totalAmount - $data->discountAmount;
         $data->payAmount = $data->discountTotalAmount;
-        $data->shippingFee = $cart->shippingFee; $cart->discountAmount;
+        $data->shippingFee = $cart->shippingFee;
         return $data;
     }
 }

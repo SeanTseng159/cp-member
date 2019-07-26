@@ -90,6 +90,17 @@ class SalesRuleController extends RestLaravelController
     public function deleteCoupon(Request $request)
     {
         try {
+            // 取出現有購物車
+            $cart = $this->cartService->find('buyNow', $this->getMemberId());
+            $cart = unserialize($cart);
+
+            //刪除
+            unset($cart->DiscountCode);
+
+            $cart->discountAmount = 0;
+            $cart->discountTotalAmount = 0;
+            $cart->payAmount = $data->totalAmount;
+            $this->cartService->add('buyNow',$this->getMemberId(),$cart);
 
             return $this->success();
         } catch (\Exception $e) {
