@@ -91,10 +91,10 @@ class CartService
         }
         foreach ($cart->items as $cartItem) {
             // 判斷商品在可用清單中tag_prods
-            $tagCheck = $this->orderDiscountRepository->tagCheck($discount->discount_code_id, $cartItem['id']);
+            $tagCheck = $this->orderDiscountRepository->tagCheck($discount->discount_code_id, $cartItem->id);
             if(!$tagCheck) return false;
             // 判斷商品不在排除清單中
-            $prodCheck = $this->orderDiscountRepository->prodCheck($discount->discount_code_id, $cartItem['id']);
+            $prodCheck = $this->orderDiscountRepository->prodCheck($discount->discount_code_id, $cartItem->id);
             if(!$prodCheck) return false;
         }
 
