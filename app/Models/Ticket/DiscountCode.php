@@ -6,7 +6,6 @@ use App\Traits\BackendSoftDeletes;
 
 class DiscountCode extends BaseModel
 {
-    use BackendSoftDeletes;
 
     protected $table = 'discount_codes';
 

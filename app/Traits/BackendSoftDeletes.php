@@ -1,7 +1,7 @@
 <?php
 namespace App\Traits;
 
-use App\Scopes\BackendSoftDeletes as BackendSoftDeletesScope;
+use App\Scope\BackendSoftDeletes as BackendSoftDeletesScope;
 
 trait BackendSoftDeletes
 {
