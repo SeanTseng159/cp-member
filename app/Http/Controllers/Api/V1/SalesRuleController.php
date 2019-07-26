@@ -37,7 +37,7 @@ class SalesRuleController extends RestLaravelController
             $cart = unserialize($cart);
 
             // 檢查是否可使用優惠碼
-            $check_result = $this->service->checkCodeDiscount($discount,$this->getMemberId());
+            $check_result = $this->service->checkCodeDiscount($discount, $this->getMemberId());
 
             //測試資料
             // $spec['id'] = 377;
@@ -68,11 +68,11 @@ class SalesRuleController extends RestLaravelController
             // $cart->hasPhysical = true;
             // $cart->promotion = null;
             // $cart->items = $items;
-            
+
             if ($check_result) {
                 // 加入優惠碼至購物車
                 $data = $this->cartService->setAddDiscountCode($cart, $discount, $this->getMemberId());
-                if(!$data) return $this->failureCode('E0503');
+                if (!$data) return $this->failureCode('E0503');
             }
 
             return $this->success($data);
@@ -96,13 +96,19 @@ class SalesRuleController extends RestLaravelController
 
             //刪除
             unset($cart->DiscountCode);
-
             $cart->discountAmount = 0;
-            $cart->discountTotalAmount = 0;
-            $cart->payAmount = $data->totalAmount;
-            $this->cartService->add('buyNow',$this->getMemberId(),$cart);
+            $cart->discountTotalAmount = $cart->totalAmount;
+            $cart->payAmount = $cart->totalAmount + $cart->shippingFee;
+            $this->cartService->add('buyNow', $this->getMemberId(), serialize($cart));
 
-            return $this->success();
+
+            $data = new \stdClass();
+            $data->totalAmount = $cart->totalAmount;
+            $data->discountAmount = 0;
+            $data->discountTotalAmount = $data->totalAmount;
+            $data->payAmount = $cart->payAmount + $cart->shippingFee;
+            $data->shippingFee = $cart->shippingFee;
+            return $this->success($data);
         } catch (\Exception $e) {
             \Log::error(__METHOD__, ['message' => $e->getMessage()]);
             return $this->failureCode('E0102');
