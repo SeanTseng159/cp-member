@@ -102,11 +102,15 @@ class CartService
         switch ($discount->discount_code_type) {
             case '1':
                 $format = "0.%u";
+                //折扣%數
                 $discount_code_price = sprintf($format,$discount->discount_code_price);
-                $cart->discountAmount = $cart->discountAmount + ( $cart->totalAmount - round($cart->totalAmount * (float)$discount_code_price));
+                //折扣價格(四捨五入) 總金額-乘上%數後的金額
+                $cart->discountAmount = $cart->totalAmount - round($cart->totalAmount * (float)$discount_code_price);
+                //總折扣金額 原本折扣金額+折扣價格
                 $cart->discountTotalAmount = $cart->discountTotalAmount + $cart->discountAmount;
                 $cart->payAmount = $cart->discountTotalAmount;
-                $amount = $cart->totalAmount - round($cart->totalAmount * (float)$discount_code_price);
+                //此張優惠券折抵的金額
+                $amount = $cart->discountAmount;
                 break;
             case '2':
                 $cart->discountAmount = $cart->discountAmount + $discount->discount_code_price;

@@ -41,7 +41,7 @@ class OrderDiscountRepository
                                       ->join('tag_prods as tp', 'dct.tag_id', 'tp.tag_id')
                                       ->where('discount_codes.discount_code_id' , $discountCodeId)
                                       ->where('dct.deleted_at' ,0)
-                                      ->where('tp.prod_id' , 298) 
+                                      ->where('tp.prod_id' , $prodId) 
                                       ->count();
         $check = ($count>0) ? true:false;
         return $check;
@@ -50,7 +50,7 @@ class OrderDiscountRepository
     public function prodCheck($discountCodeId, $prodId)
     {
         $count = $this->discountCodeBlockProdModel->where('discount_code_id' ,$discountCodeId)
-                                                  ->where('prod_id' ,298)
+                                                  ->where('prod_id' ,$prodId)
                                                   ->count();
 
         $check = ($count==0) ? true:false;
