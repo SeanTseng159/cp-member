@@ -247,6 +247,11 @@ Route::middleware(['cors', 'auth.jwt'])->namespace('V1')->group(function () {
         Route::get('buyNow/info', 'CartController@info')->middleware('verify.cart.buyNow.info');
     });
 
+    Route::prefix('DiscountCode')->group(function () {
+        Route::post('add', 'SalesRuleController@addCoupon');
+        Route::post('remove', 'SalesRuleController@deleteCoupon');
+    });
+
     // 結帳相關
     Route::prefix('checkout')->group(function () {
         // 付款資訊

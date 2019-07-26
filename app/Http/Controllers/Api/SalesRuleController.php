@@ -26,6 +26,7 @@ class SalesRuleController extends RestLaravelController
     {
         $parameters = new CouponParameter();
         $parameters->laravelRequest($request);
+
         $salesRule = $this->service->addCoupon($parameters);
 
         $returnObj = new \stdClass();
