@@ -28,9 +28,14 @@ class MemberController extends RestLaravelController
     protected $memberService;
     protected $lang;
 
+  
+
+
+
     public function __construct(MemberService $memberService)
     {
         $this->memberService = $memberService;
+        
         $this->lang = env('APP_LANG');
     }
 
@@ -227,10 +232,33 @@ class MemberController extends RestLaravelController
             if(empty($member->invited_code))return $this->failureCode('E0092');
             $url = env('CITY_PASS_WEB');
             $url .= $this->lang;
+
+            //笨蛋式寫法
+            $friendInviteApp = '<style="font-size:20px;"> <style="font-family:"MicrosoftJhengHeiRegular", "Microsoft JhengHei";">一次分享雙重獎勵 <style="font-size:14px;"> <style="font-family:"MicrosoftJhengHeiRegular", "Microsoft JhengHei";"><br> <style="font-size:13px;"> <style="font-family:"PingFangTC-Regular", "PingFang TC";">1. 透過您的Email、網路社群或通訊軟體轉貼專屬邀請碼邀請朋友加入 CityPass都會通 會員。 <style="font-size:13px;"> <style="font-family:"PingFangTC-Regular", "PingFang TC";"><br><br> <style="font-size:13px;"> <style="font-family:"PingFangTC-Regular", "PingFang TC";">2. 當您的好朋友註冊 CityPass都會通 時填入您的邀請碼，註冊成功後即可獲得 <style="font-family:"PingFangTC-Regular", "PingFang TC";color:#3FAEDE;"> iPhone抽獎一次 <style="font-family:"PingFangTC-Regular", "PingFang TC";">。您同時也可獲得 <style="font-family:"PingFangTC-Regular", "PingFang TC";color:#3FAEDE;"> iPhone抽獎一次 <style="font-family:"PingFangTC-Regular", "PingFang TC";">。 <style="font-size:13px;"> <style="font-family:"PingFangTC-Regular", "PingFang TC";"><br><br> <style="font-size:13px;"> <style="font-family:"PingFangTC-Regular", "PingFang TC";">3. 獎勵可累積，邀請好友成功次數越多抽獎次數也越多，得獎機會越大。 <style="font-size:13px;"> <style="font-family:"PingFangTC-Regular", "PingFang TC";"><br><br> <style="font-size:13px;"> <style="font-family:"PingFangTC-Regular", "PingFang TC";">4. 新註冊會員，註冊成功即可獲得 CityPass都會通  <style="font-family:"PingFangTC-Regular", "PingFang TC";color:#3FAEDE;">首次購物9折優惠。 <br><style="font-size:13px;"> <style="font-family:"PingFangTC-Regular", "PingFang TC";">5. 活動時間： <style="font-family:"PingFangTC-Regular", "PingFang TC";color:#3FAEDE;">即日起至2019.12.31止。 <style="font-size:13px;"> <style="font-family:"PingFangTC-Regular", "PingFang TC";color:#3FAEDE;"><br>';
+
+
+
+
+            //取的 PromoteGift 相關資訊
+            $promoteGiftRow = $invitationService->findPromoteGift();
+            //取的 ID排序最後的代表最新的活動
+            $productInfo=$promoteGiftRow[sizeof($promoteGiftRow)-1]->name;
+            //如果沒有小名的話，用全名
+            if(empty($member->nick)) {$nick= $member->name;} else{$nick = $member->nick;}
+            //做成最後的型態
+            $friendInviteWeb = '嗨！您的好友'.$nick.'邀請您加入CityPass都會通會員，現在註冊立即享有吃喝玩樂優惠！還有好康'.$productInfo.'等你拿！';
+
+
+
+
+
             return $this->success([
                     'invitation' => $member->invited_code,
                     'link' => $url.'/invite/'.$member->invited_code,
-                    'friendValue' => $friendValue
+                    'friendValue' => $friendValue,
+                    'friendInviteApp' => $friendInviteApp,
+                    'friendInviteWeb' => $friendInviteWeb
+
                 ]);
         }catch (Exception $e){
             return $this->failureCode('E0007');
