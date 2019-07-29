@@ -208,6 +208,12 @@ Route::middleware('cors')->namespace('V1')->group(function () {
         });
     });
 
+    //邀請碼相關
+    Route::prefix('invitation')->group(function () {
+         //邀請碼對應名字
+        Route::post('memberName', 'MemberController@memberName');
+    });
+
 
 
 });
