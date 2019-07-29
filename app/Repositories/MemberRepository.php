@@ -217,7 +217,19 @@ class MemberRepository
     }
 
     /**
-     * 依據手機,查詢使用者(增加國家代碼)
+     * 依據邀請碼,查詢使用者
+     * @param $invitation
+     * @return mixed
+     */
+    public function findByInvitation($invitation)
+    {
+        $member = $this->model->where(['invited_code' => $invitation])->first();
+
+        return $member;
+    }
+
+    /**
+     * 依據邀請碼,查詢使用者
      * @param $country
      * @param $countryCode
      * @param $cellphone
