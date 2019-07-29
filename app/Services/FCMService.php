@@ -112,6 +112,16 @@ class FCMService
                 $this->memberNoticRepository->addRecord($params);
                 $this->notifyMultiple($memberIds, $title, $body, $data);
                 break;
+            case 'addGift':
+                $title = '獲得禮物通知';
+                $body = '您獲得了'.$data['giftName'];
+                //推播紀錄存放資料庫
+                $params = (new DiningCarParameter)->noticInfo($data,$body);
+                $params['member_id'] = $memberIds[0];
+                $params['created_at'] = Carbon::now();
+                $this->memberNoticRepository->addRecord($params);
+                $this->notifyMultiple($memberIds, $title, $body, $data);
+                break;
             default:
                 # code...
                 break;
