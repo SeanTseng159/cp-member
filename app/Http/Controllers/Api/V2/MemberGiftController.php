@@ -139,6 +139,11 @@ class MemberGiftController extends RestLaravelController
                 }
                 $result->type = $awardRecord->barcode_type ? $awardRecord->barcode_type:'QrCode';
                 $result->code = $result->type =='QrCode' ? $awardRecord->qrcode:$awardRecord->barcode;
+                if($result->type == 'code_39' && $result->code == '')
+                {
+                    $result->type = 'QrCode';
+                    $result->code = $awardRecord->qrcode;
+                }
             }
             return $this->success($result);
         } catch (\Exception $e) {
