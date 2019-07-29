@@ -36,6 +36,19 @@ class PromoteRepository extends BaseRepository
             ->get();
     }
 
+    public function findPromoteGift()
+    {
+        $now = Carbon::now();   
+        return $this->model->where('activity_start_at', '<=', $now)
+            ->where('activity_end_at', '>=', $now)
+            ->where('usage_start_at', '<=', $now)
+            ->where('usage_end_at', '>=', $now)
+            ->where('status',2)
+            ->WhereColumn('stock_qty','>','used_qty')
+            ->where('send_condition',3)
+            ->get();
+    }
+
     public function addRecord($gifts = null, $MemberId = null,$passiveMemberId = null)
     {
         \DB::connection('backend')->transaction(function () use (
