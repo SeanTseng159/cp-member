@@ -84,7 +84,7 @@ class DiningCarMemberController extends RestLaravelController
             if ($isMember) return $this->failureCode('A0101');
 
             $result = $this->service->add($memberId, $diningCarId);
-            //推播
+            //加入餐車推播
             $memberIds[0] = $memberId;
             $data['url'] = null;
             $data['prodType'] = 5;
@@ -92,9 +92,18 @@ class DiningCarMemberController extends RestLaravelController
             $data['diningCarName'] = $this->diningCarService->find($diningCarId)->name;
             $this->fcmService->memberNotify('addMember',$memberIds,$data);
 
-            // 發送禮物
+            //發送禮物
             $gift = $this->giftService->giveAddDiningCarMemberGift($diningCarId, $memberId);
             $gift = (new GiftResult)->detailByJoinDiningCar($gift);
+            //發送禮物推播
+            if($gift)
+            {
+                $data['url'] = null;
+                $data['prodType'] = 6;
+                $data['prodId'] = $diningCarId;
+                $data['giftName'] = $gift->name;
+                $this->fcmService->memberNotify('addGift',$memberIds,$data);
+            }
 
             // 取會員卡資料
             $diningCarMember = $this->service->find($memberId, $diningCarId);
