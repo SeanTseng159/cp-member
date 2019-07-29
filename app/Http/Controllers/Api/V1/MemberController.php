@@ -237,17 +237,17 @@ class MemberController extends RestLaravelController
         }
     }
 
-    public function memberName(Request $request,InvitationService $invitationService)
-    {
-        try{
-            $memberId = $request->memberId;
-            $member = $this->memberService->find($memberId);
-            if(empty($member->invited_code))return $this->failureCode('E0092');
-            return $this->success([
-                    'name' => $member->name
-                ]);
-        }catch (Exception $e){
-            return $this->failureCode('E0061');
-        }
-    }
+    // public function memberName(Request $request,InvitationService $invitationService)
+    // {
+    //     try{
+    //         $memberId = $request->memberId;
+    //         $member = $this->memberService->find($memberId);
+    //         if(empty($member->invited_code))return $this->failureCode('E0092');
+    //         return $this->success([
+    //                 'name' => $member->name
+    //             ]);
+    //     }catch (Exception $e){
+    //         return $this->failureCode('E0061');
+    //     }
+    // }
 }
