@@ -574,6 +574,16 @@ class MemberService
     }
 
     /**
+     * 依據邀請碼,查詢使用者
+     * @param $invitation
+     * @return mixed
+     */
+    public function findByInvitation($invitation)
+    {
+        return $this->repository->findByInvitation($invitation);
+    }
+
+    /**
      * 查詢已驗證手機的使用者
      * @param $country
      * @param $countryCode
