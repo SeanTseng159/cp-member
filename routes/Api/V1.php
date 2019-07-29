@@ -357,7 +357,7 @@ Route::middleware(['cors', 'auth.jwt'])->namespace('V1')->group(function () {
         //填寫邀請碼
         Route::post('input', 'MemberController@invitationInput');
          //填寫邀請碼
-        Route::post('memberName', 'MemberController@memberName');
+        // Route::post('memberName', 'MemberController@memberName');
         //邀請碼連結資訊
         Route::get('/info', 'MemberController@info');
     });
