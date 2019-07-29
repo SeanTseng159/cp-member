@@ -109,7 +109,7 @@ class FCMService
                 $params = (new DiningCarParameter)->noticInfo($data,$body);
                 $params['member_id'] = $memberIds[0];
                 $params['created_at'] = Carbon::now();
-                //$this->memberNoticRepository->addRecord($params);
+                $this->memberNoticRepository->addRecord($params);
                 $this->notifyMultiple($memberIds, $title, $body, $data);
                 break;
             default:
