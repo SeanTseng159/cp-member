@@ -36,9 +36,6 @@ class SalesRuleController extends RestLaravelController
             $cart = $this->cartService->find('buyNow', $this->getMemberId());
             $cart = unserialize($cart);
 
-            // 檢查是否可使用優惠碼
-            $check_result = $this->service->checkCodeDiscount($discount, $this->getMemberId());
-
             //測試資料
             // $spec['id'] = 377;
             // $spec['name'] = "test_spec";
@@ -69,6 +66,9 @@ class SalesRuleController extends RestLaravelController
             // $cart->promotion = null;
             // $cart->items = $items;
 
+             // 檢查是否可使用優惠碼
+            $check_result = $this->service->checkCodeDiscount($discount, $this->getMemberId());
+
             if ($check_result) {
                 // 加入優惠碼至購物車
                 $data = $this->cartService->setAddDiscountCode($cart, $discount, $this->getMemberId());
@@ -78,7 +78,7 @@ class SalesRuleController extends RestLaravelController
             return $this->success($data);
         } catch (\Exception $e) {
             \Log::error(__METHOD__, ['message' => $e->getMessage()]);
-            return $this->failureCode('E0101');
+            return $this->failureCode('E0501');
         }
     }
 
