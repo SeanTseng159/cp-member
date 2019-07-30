@@ -51,6 +51,7 @@ class OrderDiscountRepository
     {
         $count = $this->discountCodeBlockProdModel->where('discount_code_id' ,$discountCodeId)
                                                   ->where('prod_id' ,$prodId)
+                                                  ->where('deleted_at' ,0)
                                                   ->count();
 
         $check = ($count==0) ? true:false;
