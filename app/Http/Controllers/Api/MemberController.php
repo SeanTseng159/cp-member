@@ -54,11 +54,15 @@ class MemberController extends RestLaravelController
 
         $member = ($member) ? $this->memberService->update($member->id, $data) : $this->memberService->create($data);
 
+        //增加邀請碼並且寫入DB
+        $inviteCode=$this->memberService->createInviteCode($member->id);
+
         //傳送簡訊認證
         $this->memberService->sendRegisterSMS($member);
         return ($member) ? $this->success([
                                 'id' => $member->id,
-                                'validPhoneCode' => $member->validPhoneCode
+                                'validPhoneCode' => $member->validPhoneCode,
+                                'inviteCode' => $inviteCode
                             ]) : $this->failureCode('E0011');
     }
 
