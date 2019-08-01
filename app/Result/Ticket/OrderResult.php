@@ -72,7 +72,7 @@ class OrderResult extends BaseResult
         $this->source = ($this->isCommodity) ? OrderConfig::SOURCE_CT_COMMODITY : OrderConfig::SOURCE_TICKET;
 
         $result['source'] = $this->source;
-        $result['orderNo'] = (string) $this->arrayDefault($order, 'order_no');
+        $result['orderNo'] = (string)$this->arrayDefault($order, 'order_no');
         // 小計, 總金額減運費
         $result['totalAmount'] = $this->arrayDefault($order, 'order_amount', 0) - $this->arrayDefault($order, 'order_shipment_fee', 0) + $this->arrayDefault($order, 'order_off', 0);
         // 折扣價格
@@ -87,7 +87,7 @@ class OrderResult extends BaseResult
         // 付款價格 for old api
         $result['orderAmount'] = $this->arrayDefault($order, 'order_amount');
 
-        $result['isRePayment'] = $this->isRepay($order['order_status'], $order['order_payment_method'], $order['order_atm_virtual_account']);
+        $result['isRePayment'] = $this->isRepay($order['order_status'], $order['order_payment_method'], $order['order_atm_virtual_account'], $result['payAmount']);
         $result['orderStatusCode'] = $this->getMergeStatusCode($this->changeStatusCode($order['order_status'], $result['isRePayment']));
         $result['orderStatus'] = $this->getOrderStatus($result['orderStatusCode']);
         $result['orderDate'] = $this->arrayDefault($order, 'created_at');
@@ -107,18 +107,22 @@ class OrderResult extends BaseResult
      * @param $orderStatus
      * @param $orderPayMethod
      * @param $atmVirtualAccount
+     * @param $payAmount
      * @return string
      */
-    private function isRepay($orderStatus, $orderPayMethod, $atmVirtualAccount)
+    private function isRepay($orderStatus, $orderPayMethod, $atmVirtualAccount, $payAmount)
     {
         $isRepay = false;
 
         $orderPayMethod = $orderPayMethod ?: 0;
 
         if (OrderConfig::PAYMENT_METHOD[$orderPayMethod] === 'atm') {
-            $isRepay = empty($atmVirtualAccount);
-        }
-        else {
+            if ($payAmount != 0) {
+                $isRepay = empty($atmVirtualAccount);
+            } else {
+                $isRepay = true;
+            }
+        } else {
             $isRepay = ($orderStatus === 0) ? true : false;
         }
 
@@ -238,8 +242,7 @@ class OrderResult extends BaseResult
             $newShipment->status = OrderConfig::SHIPMENT_STATUS[$newShipment->statusCode];
             $newShipment->traceCode = $shipment['trace_code'];
             $newShipment->fee = $shipmentFee;
-        }
-        else {
+        } else {
             $newShipment = new \stdClass;
             $newShipment->name = '';
             $newShipment->address = '';
@@ -267,13 +270,11 @@ class OrderResult extends BaseResult
                 foreach ($orderDetail as $detail) {
                     $items[] = $this->getItem($detail, $isDetail);
                 }
-            }
-            else {
+            } else {
                 foreach ($orderDetail as $detail) {
                     if (!isset($items[$detail['prod_cust_id']])) {
                         $items[$detail['prod_cust_id']] = $this->getItem($detail, $isDetail);
-                    }
-                    else {
+                    } else {
                         $items[$detail['prod_cust_id']]->quantity++;
                     }
                 }
@@ -308,13 +309,14 @@ class OrderResult extends BaseResult
      * @param $isDetail
      * @return string
      */
-    private function getItem($item, $isDetail = false, $isCombo = false, $comboIsSyncExpire = false, $comboSyncExpireDate = '')
+    private function getItem($item, $isDetail = false, $isCombo = false, $comboIsSyncExpire = false,
+                             $comboSyncExpireDate = '')
     {
         $newDetail = new \stdClass;
         $newDetail->source = $this->source;
         $newDetail->productId = $item['prod_id'];
         $newDetail->orderNoSeq = $item['order_no'] . '-' . str_pad($item['order_detail_seq'], 3, '0', STR_PAD_LEFT);
-        $newDetail->sn = (string) $item['order_detail_sn'];
+        $newDetail->sn = (string)$item['order_detail_sn'];
         $newDetail->name = $item['prod_name'];
         $newDetail->spec = $this->getSpecName($item['prod_spec_name'], $item['prod_spec_price_name']);
         $newDetail->quantity = $item['price_company_qty'];
@@ -343,8 +345,7 @@ class OrderResult extends BaseResult
                 if ($newDetail->statusCode === '05') {
                     // 轉贈
                     $newDetail->combos = $this->getCombos($item['combo'], $comboIsSyncExpire, $expireDate);
-                }
-                else {
+                } else {
                     $comboSyncExpireDate = $this->getComboSyncExpireDate($statusCode, $item['sync_expire_due'], $item['use_value']);
                     $newDetail->combos = $this->getCombos($item['combo'], $comboIsSyncExpire, $comboSyncExpireDate);
                 }
@@ -389,7 +390,7 @@ class OrderResult extends BaseResult
 
         // 過期未使用，同失效
         if ($statusCode === '10' && $detail['prod_expire_type'] !== 0 && $this->time > strtotime($detail['order_detail_expire_due'])) {
-                $statusCode = '01';
+            $statusCode = '01';
         }
 
         // 組合同步失效，未使用，同失效
@@ -475,11 +476,10 @@ class OrderResult extends BaseResult
             $show[] = ["label" => "轉贈對象：", "text" => ($member) ? $this->hideName($member->name) : '', "color" => null];
             $show[] = ["label" => "手機號碼：", "text" => ($member) ? '+' . $member->countryCode . $this->hidePhoneNumber($member->cellphone) : '', "color" => null];
             $show[] = ["label" => "轉贈時間：", "text" => $item['ticket_gift_at'], "color" => null];
-        }
-        // 未使用 or 已使用
+        } // 未使用 or 已使用
         elseif ($statusCode === '10' || $statusCode === '11') {
             $show[] = ["label" => "訂單編號：", "text" => $orderSeq, "color" => null];
-            $show[] = ["label" => "票券號碼：", "text" => (string) $item['order_detail_sn'], "color" => null];
+            $show[] = ["label" => "票券號碼：", "text" => (string)$item['order_detail_sn'], "color" => null];
             $show[] = ["label" => "地點：", "text" => $item['prod_locate'], "color" => null];
             $show[] = ["label" => "地址：", "text" => $item['prod_address'], "color" => null];
             $show[] = ["label" => "使用效期：", "text" => $this->getUseExpireTime($item['prod_expire_type'], $item['order_detail_expire_start'], $item['order_detail_expire_due']), "color" => null];
@@ -495,25 +495,22 @@ class OrderResult extends BaseResult
                 $show[] = ["label" => "優惠內容：", "text" => $uber['msg'], "color" => "#ea4335"];
                 $show[] = ["label" => "優惠期限：", "text" => $uber['limitDate'], "color" => "#ea4335"];
             }
-        }
-        elseif ($statusCode === '23') {
+        } elseif ($statusCode === '23') {
             $orderRefund = $this->orderRefundService->find($item['refund_id']);
             $orderRefundTime = ($orderRefund) ? $orderRefund->order_refund_payment_date : '';
             $show[] = ["label" => "訂單編號：", "text" => $orderSeq, "color" => null];
-            $show[] = ["label" => "票券號碼：", "text" => (string) $item['order_detail_sn'], "color" => null];
+            $show[] = ["label" => "票券號碼：", "text" => (string)$item['order_detail_sn'], "color" => null];
             $show[] = ["label" => "", "text" => "已於 {$orderRefundTime} 完成退貨", "color" => "#90c320"];
-        }
-        elseif ($statusCode === '02') {
+        } elseif ($statusCode === '02') {
             $show[] = ["label" => "訂單編號：", "text" => $orderSeq, "color" => null];
-            $show[] = ["label" => "票券號碼：", "text" => (string) $item['order_detail_sn'], "color" => null];
+            $show[] = ["label" => "票券號碼：", "text" => (string)$item['order_detail_sn'], "color" => null];
             $show[] = ["label" => "地點：", "text" => $item['prod_locate'], "color" => null];
             $show[] = ["label" => "地址：", "text" => $item['prod_address'], "color" => null];
             $show[] = ["label" => "使用效期：", "text" => $this->getUseExpireTime($item['prod_expire_type'], $item['order_detail_expire_start'], $item['order_detail_expire_due']), "color" => null];
             $show[] = ["label" => "", "text" => "*此商品已超過使用效期", "color" => "#90c320"];
-        }
-        else {
+        } else {
             $show[] = ["label" => "訂單編號：", "text" => $orderSeq, "color" => null];
-            $show[] = ["label" => "票券號碼：", "text" => (string) $item['order_detail_sn'], "color" => null];
+            $show[] = ["label" => "票券號碼：", "text" => (string)$item['order_detail_sn'], "color" => null];
         }
 
         return $show;
@@ -535,7 +532,7 @@ class OrderResult extends BaseResult
         if ($expireType === 0) return '無限制';
 
         $expireTimeStart = substr($expireStart, 0, 16);
-        $expireTimeEnd   = substr($expireDue, 0, 16);
+        $expireTimeEnd = substr($expireDue, 0, 16);
 
         return "{$expireTimeStart}~{$expireTimeEnd}";
     }
@@ -555,8 +552,7 @@ class OrderResult extends BaseResult
             $uberTypeMsg = '';
             if ($uberCoupon->type == 1) {
                 $uberTypeMsg = '2 趟 75 折優惠 (限高屏地區上或下車方可折抵)';
-            }
-            elseif ($uberCoupon->type == 2) {
+            } elseif ($uberCoupon->type == 2) {
                 $uberTypeMsg = '5 趟 7 折優惠 (限高屏地區上或下車方可折抵)';
             }
 
@@ -596,7 +592,7 @@ class OrderResult extends BaseResult
      */
     private function getHasVoucher($statusCode, $prodType, $prodApi)
     {
-        return (in_array($statusCode, [ '10', '11', '05', '01']) && $prodType === 1 && $prodApi === 1);
+        return (in_array($statusCode, ['10', '11', '05', '01']) && $prodType === 1 && $prodApi === 1);
     }
 
     /**
@@ -627,8 +623,8 @@ class OrderResult extends BaseResult
 
 
     /*********************
-    /* 過渡期用
-    *********************/
+     * /* 過渡期用
+     *********************/
 
     /**
      * 處理所有取得資料
@@ -658,10 +654,10 @@ class OrderResult extends BaseResult
         $order = $order->toArray();
         $result['source'] = OrderConfig::SOURCE_TICKET;
         $result['id'] = $this->arrayDefault($order, 'order_id');
-        $result['orderNo'] = (string) $this->arrayDefault($order, 'order_no');
+        $result['orderNo'] = (string)$this->arrayDefault($order, 'order_no');
         $result['orderAmount'] = $this->arrayDefault($order, 'order_amount');
         $result['orderDiscountAmount'] = $this->arrayDefault($order, 'order_off', 0);
-        $result['isRePayment'] = $this->isRepay($order['order_status'], $order['order_payment_method'], $order['order_atm_virtual_account']);
+        $result['isRePayment'] = $this->isRepay($order['order_status'], $order['order_payment_method'], $order['order_atm_virtual_account'], $result['orderAmount']);
         $result['orderStatusCode'] = $this->getMergeStatusCode($this->changeStatusCode($order['order_status'], $result['isRePayment']));
         $result['orderStatus'] = $this->getOrderStatus($result['orderStatusCode']);
         $result['orderDate'] = $this->arrayDefault($order, 'created_at');
@@ -684,8 +680,7 @@ class OrderResult extends BaseResult
             foreach ($orderDetail as $detail) {
                 if (!isset($items[$detail['prod_cust_id']])) {
                     $items[$detail['prod_cust_id']] = $this->getItemV1($detail);
-                }
-                else {
+                } else {
                     $items[$detail['prod_cust_id']]->quantity++;
                 }
             }
@@ -694,6 +689,7 @@ class OrderResult extends BaseResult
         }
         return $items;
     }
+
     /**
      *  處理購買項目
      * @param $detail
@@ -703,7 +699,7 @@ class OrderResult extends BaseResult
     {
         $newDetail = new \stdClass;
         $newDetail->source = OrderConfig::SOURCE_TICKET;
-        $newDetail->itemId = (string) $detail['prod_id'];
+        $newDetail->itemId = (string)$detail['prod_id'];
         $newDetail->no = null;
         $newDetail->name = $detail['prod_name'];
         $newDetail->spec = $detail['prod_spec_name'];
