@@ -72,7 +72,7 @@ class OrderRepository extends BaseRepository
             $order->order_items = $cart->totalQuantity;
             $order->order_shipment_fee = $cart->shippingFee;
             $order->order_off = $cart->discountAmount;
-            $order->order_amount = $cart->payAmount;
+            $order->order_amount = $cart->payAmount - $cart->discountAmount;
             $order->order_status = 0;
             $order->order_receipt_title = $params->billing['invoiceTitle'] ?? '';
             $order->order_receipt_ubn = $params->billing['unifiedBusinessNo'] ?? '';
