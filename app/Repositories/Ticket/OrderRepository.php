@@ -74,15 +74,16 @@ class OrderRepository extends BaseRepository
             switch (($cart->discountCode)->method) {
                 case '1':
                     $order->order_off = $cart->discountAmount + ($cart->totalAmount - round($cart->totalAmount * (float)(optional($cart->discountCode)->price)));
+                    $order->order_amount = $cart->payAmount - $order->order_off;
                     break;
                 case '2':
                    $order->order_off = (int)(optional($cart->discountCode)->price);
+                   $order->order_amount = $cart->payAmount - $order->order_off;
                     break;
                 default:
                     # code...
                     break;
             } 
-            $order->order_amount = $cart->payAmount - (int)(optional($cart->discountCode)->price);
             $order->order_status = 0;
             $order->order_receipt_title = $params->billing['invoiceTitle'] ?? '';
             $order->order_receipt_ubn = $params->billing['unifiedBusinessNo'] ?? '';
