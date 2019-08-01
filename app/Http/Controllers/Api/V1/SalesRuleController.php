@@ -48,19 +48,19 @@ class SalesRuleController extends RestLaravelController
             // $items[0]['id'] = 289;
             // $items[0]['name'] = 'test_name';
             // $items[0]['quantity'] = 1;
-            // $items[0]['price'] = 4;
+            // $items[0]['price'] = 99;
             // $items[0]['imageUrl'] = "https://devbackend.citypass.tw/storage/prod/141/07159caf07b851883afa7b0f04ba5348_s.jpg";
             // $items[0]['additional'] = $additional;
             // $items[0]['purchase'] = [];
-            // $items[0]['retailPrice'] = 5;
+            // $items[0]['retailPrice'] = 99;
             // $cart = new \stdClass();
             // $cart->type = 'buyNow';
             // $cart->totalQuantity = 1;
-            // $cart->totalAmount = 1114;
+            // $cart->totalAmount = 99;
             // $cart->discountAmount = 0;
             // $cart->discountTotalAmount = 0;
-            // $cart->shippingFee = 3;
-            // $cart->payAmount = 7;
+            // $cart->shippingFee = 0;
+            // $cart->payAmount = 99;
             // $cart->canCheckout = true;
             // $cart->hasPhysical = true;
             // $cart->promotion = null;
@@ -95,12 +95,11 @@ class SalesRuleController extends RestLaravelController
             $cart = unserialize($cart);
 
             //刪除
-            unset($cart->DiscountCode);
+            unset($cart->discountCode);
             $cart->discountAmount = 0;
             $cart->discountTotalAmount = $cart->totalAmount;
             $cart->payAmount = $cart->totalAmount + $cart->shippingFee;
             $this->cartService->add('buyNow', $this->getMemberId(), serialize($cart));
-
 
             $data = new \stdClass();
             $data->totalAmount = $cart->totalAmount;
