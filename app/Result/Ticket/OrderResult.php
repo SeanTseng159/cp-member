@@ -120,7 +120,7 @@ class OrderResult extends BaseResult
             if ($payAmount != 0) {
                 $isRepay = empty($atmVirtualAccount);
             } else {
-                $isRepay = true;
+                $isRepay = false;
             }
         } else {
             $isRepay = ($orderStatus === 0) ? true : false;
