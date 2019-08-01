@@ -675,4 +675,15 @@ class MemberService
     {
         return $this->repository->invitationFind($code);
     }
+
+
+    //創建會員時，自動產生邀請碼
+    public function createInviteCode($id)
+    {
+        $invite = $this->repository->createInviteCode($id);
+
+        return $invite;
+    }
+
+
 }
