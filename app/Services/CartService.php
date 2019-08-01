@@ -104,16 +104,16 @@ class CartService
                 //折扣%數
                 $discount_code_price = sprintf($format,$discount->discount_code_price);
                 //折扣價格(四捨五入) 總金額-乘上%數後的金額
-                $cart->discountAmount = $cart->totalAmount - round($cart->totalAmount * (float)$discount_code_price);
-                //總折扣金額 原本折扣金額+折扣價格
-                $cart->discountTotalAmount = $cart->discountTotalAmount + $cart->discountAmount;
+                $cart->discountAmount = $cart->discountAmount + ($cart->totalAmount - round($cart->totalAmount * (float)$discount_code_price));
+                //折抵後小記
+                $cart->discountTotalAmount = $cart->totalAmount - $cart->discountAmount;
                 $cart->payAmount = $cart->discountTotalAmount;
                 //此張優惠券折抵的金額
                 $amount = $cart->discountAmount;
                 break;
             case '2':
                 $cart->discountAmount = $cart->discountAmount + $discount->discount_code_price;
-                $cart->discountTotalAmount = $cart->discountAmount + $cart->discountAmount;
+                $cart->discountTotalAmount = $cart->totalAmount - $cart->discountAmount;
                 $cart->payAmount = $cart->discountTotalAmount;
                 $amount = $discount->discount_code_price;
                 break;
@@ -129,6 +129,7 @@ class CartService
         $DiscountCode->price = $discount->discount_code_price;
         $DiscountCode->amount = $amount;
         $cart->discountCode = $DiscountCode;
+
 
         $this->add('buyNow', $memberId, serialize($cart));
 
