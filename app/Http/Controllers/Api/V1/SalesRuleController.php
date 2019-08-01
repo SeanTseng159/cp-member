@@ -105,7 +105,7 @@ class SalesRuleController extends RestLaravelController
             $data->totalAmount = $cart->totalAmount;
             $data->discountAmount = 0;
             $data->discountTotalAmount = $data->totalAmount;
-            $data->payAmount = $cart->payAmount + $cart->shippingFee;
+            $data->payAmount = $cart->payAmount;
             $data->shippingFee = $cart->shippingFee;
             return $this->success($data);
         } catch (\Exception $e) {
