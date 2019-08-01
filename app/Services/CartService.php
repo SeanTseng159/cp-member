@@ -104,17 +104,17 @@ class CartService
                 //折扣%數
                 $discount_code_price = sprintf($format,$discount->discount_code_price);
                 //折扣價格(四捨五入) 總金額-乘上%數後的金額
-                $cart->discountAmount = $cart->discountAmount + ($cart->totalAmount - round($cart->totalAmount * (float)$discount_code_price));
+                $discountAmount = $cart->discountAmount + ($cart->totalAmount - round($cart->totalAmount * (float)$discount_code_price));
                 //折抵後小記
-                $cart->discountTotalAmount = $cart->totalAmount - $cart->discountAmount;
-                $cart->payAmount = $cart->discountTotalAmount + $cart->shippingFee;
+                $discountTotalAmount = $cart->totalAmount - $discountAmount;
+                $payAmount = $discountTotalAmount + $cart->shippingFee;
                 //此張優惠券折抵的金額
                 $amount = $cart->discountAmount;
                 break;
             case '2':
-                $cart->discountAmount = $cart->discountAmount + $discount->discount_code_price;
-                $cart->discountTotalAmount = $cart->totalAmount - $cart->discountAmount;
-                $cart->payAmount = $cart->discountTotalAmount + $cart->shippingFee;
+                $discountAmount = $cart->discountAmount + $discount->discount_code_price;
+                $discountTotalAmount = $cart->totalAmount - $discountAmount;
+                $payAmount = $discountTotalAmount + $cart->shippingFee;
                 $amount = $discount->discount_code_price;
                 break;
             default:
@@ -136,9 +136,9 @@ class CartService
         $data = new \stdClass();
         $data->DiscountCode = $DiscountCode;
         $data->totalAmount = $cart->totalAmount;
-        $data->discountAmount =  $cart->discountAmount;
-        $data->discountTotalAmount = $data->totalAmount - $data->discountAmount;
-        $data->payAmount = $data->discountTotalAmount +  $cart->shippingFee;
+        $data->discountAmount =  $discountAmount;
+        $data->discountTotalAmount = $discountTotalAmount <= 0 ? 0: $discountTotalAmount;
+        $data->payAmount = $discountTotalAmount +  $cart->shippingFee;
         $data->shippingFee = $cart->shippingFee;
         return $data;
     }
