@@ -73,7 +73,10 @@ class OrderRepository extends BaseRepository
             $order->order_shipment_fee = $cart->shippingFee;
             switch (($cart->discountCode)->method) {
                 case '1':
-                    $order->order_off = $cart->discountAmount + ($cart->totalAmount - round($cart->totalAmount * (float)(optional($cart->discountCode)->price)));
+                    $format = "0.%u";
+                    //折扣%數
+                    $discount_code_price = sprintf($format,$cart->discountCode->price);
+                    $order->order_off = $cart->discountAmount + ($cart->totalAmount - round($cart->totalAmount * (float)$discount_code_price)));
                     $order->order_amount = $cart->payAmount - $order->order_off;
                     break;
                 case '2':
