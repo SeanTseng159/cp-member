@@ -109,7 +109,7 @@ class CartService
                 $discountTotalAmount = $cart->totalAmount - $discountAmount;
                 $payAmount = $discountTotalAmount + $cart->shippingFee;
                 //此張優惠券折抵的金額
-                $amount = $cart->discountAmount;
+                $amount = $discountAmount;
                 break;
             case '2':
                 $discountAmount = $cart->discountAmount + $discount->discount_code_price;
