@@ -109,10 +109,10 @@ class OrderRepository extends BaseRepository
             //建立訂單折扣紀錄
             $orderDiscount = new OrderDiscount;
             $orderDiscount->order_no = $orderNo;
-            $orderDiscount->discount_id = $cart->discountCode->discount_code_id;
+            $orderDiscount->discount_id = $cart->discountCode->id;
             $orderDiscount->discount_type = 1;
             $orderDiscount->discount_name = $cart->discountCode->name;
-            $orderDiscount->discount_price = $cart->discountCode->discount_code_price;
+            $orderDiscount->discount_price = $cart->discountCode->price;
             $orderDiscount->created_at = date('Y-m-d H:i:s');
             $orderDiscount->modified_at = date('Y-m-d H:i:s');
             $orderDiscount->save();
