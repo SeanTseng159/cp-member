@@ -17,6 +17,7 @@ use App\Plugins\CI_Encryption;
 
 use App\Repositories\BaseRepository;
 use App\Models\Ticket\Order;
+use App\Models\Ticket\OrderDiscount;
 use App\Models\Ticket\ProductSpecPrice;
 use App\Models\Ticket\PromotionProdSpecPrice;
 use App\Repositories\Ticket\OrderDetailRepository;
@@ -104,6 +105,17 @@ class OrderRepository extends BaseRepository
             // 建立訂單詳細
             $result = $this->orderDetailRepository->createDetails($order->member_id, $order->order_no, $order->order_payment_gateway, $cart->items);
             if (!$result) throw new Exception('Create Order Details Error');
+
+            //建立訂單折扣紀錄
+            $orderDiscount = new OrderDiscount;
+            $orderDiscount->order_no = $orderNo;
+            $orderDiscount->discount_id = $cart->discountCode->discount_code_id;
+            $orderDiscount->discount_type = 1;
+            $orderDiscount->discount_name = $cart->discountCode->name;
+            $orderDiscount->discount_price = $cart->discountCode->discount_code_price;
+            $orderDiscount->created_at = date('Y-m-d H:i:s');
+            $orderDiscount->modified_at = date('Y-m-d H:i:s');
+            $orderDiscount->save();
 
             // 扣掉庫存
             foreach ($cart->items as $item) {
