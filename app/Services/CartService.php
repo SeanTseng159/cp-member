@@ -138,7 +138,7 @@ class CartService
         $data->totalAmount = $cart->totalAmount;
         $data->discountAmount =  $cart->discountAmount;
         $data->discountTotalAmount = $data->totalAmount - $data->discountAmount;
-        $data->payAmount = $data->discountTotalAmount;
+        $data->payAmount = $data->discountTotalAmount +  $cart->shippingFee;
         $data->shippingFee = $cart->shippingFee;
         return $data;
     }
