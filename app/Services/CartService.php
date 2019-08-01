@@ -106,15 +106,15 @@ class CartService
                 //折扣價格(四捨五入) 總金額-乘上%數後的金額
                 $discountAmount = $cart->discountAmount + ($cart->totalAmount - round($cart->totalAmount * (float)$discount_code_price));
                 //折抵後小記
-                $discountTotalAmount = $cart->totalAmount - $cart->discountAmount;
-                $payAmount = $cart->discountTotalAmount + $cart->shippingFee;
+                $discountTotalAmount = $cart->totalAmount - $discountAmount;
+                $payAmount = $discountTotalAmount + $cart->shippingFee;
                 //此張優惠券折抵的金額
                 $amount = $cart->discountAmount;
                 break;
             case '2':
                 $discountAmount = $cart->discountAmount + $discount->discount_code_price;
-                $discountTotalAmount = $cart->totalAmount - $cart->discountAmount;
-                $payAmount = $cart->discountTotalAmount + $cart->shippingFee;
+                $discountTotalAmount = $cart->totalAmount - $discountAmount;
+                $payAmount = $discountTotalAmount + $cart->shippingFee;
                 $amount = $discount->discount_code_price;
                 break;
             default:
