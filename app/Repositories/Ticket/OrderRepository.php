@@ -71,7 +71,14 @@ class OrderRepository extends BaseRepository
             $order->order_receipt_method = 1;
             $order->order_items = $cart->totalQuantity;
             $order->order_shipment_fee = $cart->shippingFee;
-            $order->order_off = (int)(optional($cart->discountCode)->price);
+            if($cart->discountCode->method == 1)
+            {
+                $order->order_off = $cart->discountAmount + ($cart->totalAmount - round($cart->totalAmount * (float)(optional($cart->discountCode)->price)));
+            }else if($cart->discountCode->method == 2)
+            {
+                $order->order_off = (int)(optional($cart->discountCode)->price);
+            }
+            
             $order->order_amount = $cart->payAmount - (int)(optional($cart->discountCode)->price);
             $order->order_status = 0;
             $order->order_receipt_title = $params->billing['invoiceTitle'] ?? '';
