@@ -73,9 +73,9 @@ class OrderRepository extends BaseRepository
             $order->order_shipment_fee = $cart->shippingFee;
             $order->order_off = $cart->discountAmount;
             $order->order_amount = $cart->payAmount;
-            if(!empty($cart->discountCode))
+            if(!empty($cart->DiscountCode))
             {
-                $order->order_off = $cart->discountCode->amount;
+                $order->order_off = $cart->DiscountCode->amount;
                 $order->order_amount = $cart->payAmount - $order->order_off;
             }
             $order->order_status = 0;
