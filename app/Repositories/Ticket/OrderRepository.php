@@ -119,7 +119,7 @@ class OrderRepository extends BaseRepository
                 $orderDiscount->discount_id = $cart->DiscountCode->id;
                 $orderDiscount->discount_type = 1;
                 $orderDiscount->discount_name = $cart->DiscountCode->name;
-                $orderDiscount->discount_price = $cart->DiscountCode->price;
+                $orderDiscount->discount_price = $cart->DiscountCode->price > $cart->payAmount ? $cart->payAmount : $cart->DiscountCode->amount;;
                 $orderDiscount->created_at = date('Y-m-d H:i:s');
                 $orderDiscount->modified_at = date('Y-m-d H:i:s');
                 $orderDiscount->save();
