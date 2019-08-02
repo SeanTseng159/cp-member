@@ -110,19 +110,19 @@ class CartService
         }
         
         //以下待重購
-        $DiscountCode = new \stdClass();
-        $DiscountCode->id = $discount->discount_code_id;
-        $DiscountCode->name = $discount->discount_code_name;
-        $DiscountCode->method = $discount->discount_code_type;
-        $DiscountCode->price = $discount->discount_code_price;
-        $DiscountCode->amount = $amount;
-        $cart->discountCode = $DiscountCode;
+        $discountCode = new \stdClass();
+        $discountCode->id = $discount->discount_code_id;
+        $discountCode->name = $discount->discount_code_name;
+        $discountCode->method = $discount->discount_code_type;
+        $discountCode->price = $discount->discount_code_price;
+        $discountCode->amount = $amount;
+        $cart->discountCode = $discountCode;
 
 
         $this->add('buyNow', $memberId, serialize($cart));
 
         $data = new \stdClass();
-        $data->DiscountCode = $DiscountCode;
+        $data->discountCode = $discountCode;
         $data->totalAmount = $cart->totalAmount;
         $data->discountAmount =  $amount;
         $data->discountTotalAmount = ($cart->totalAmount - $amount) > 0 ? ($cart->totalAmount - $amount) : 0;
