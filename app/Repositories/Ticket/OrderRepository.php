@@ -71,7 +71,11 @@ class OrderRepository extends BaseRepository
             $order->order_receipt_method = 1;
             $order->order_items = $cart->totalQuantity;
             $order->order_shipment_fee = $cart->shippingFee;
-            switch (($cart->discountCode)->method) {
+            $order->order_amount = $cart->payAmount;
+            $order->order_off = $cart->discountAmount;
+            if(!empty($cart->discountCode))
+            {
+               switch (($cart->discountCode)->method) {
                 case '1':
                     $format = "0.%u";
                     //折扣%數
@@ -86,7 +90,8 @@ class OrderRepository extends BaseRepository
                 default:
                     # code...
                     break;
-            } 
+                }  
+            }
             $order->order_status = 0;
             $order->order_receipt_title = $params->billing['invoiceTitle'] ?? '';
             $order->order_receipt_ubn = $params->billing['unifiedBusinessNo'] ?? '';
@@ -121,7 +126,7 @@ class OrderRepository extends BaseRepository
             if (!$result) throw new Exception('Create Order Details Error');
 
             //建立訂單折扣紀錄
-            if($cart->discountCode)
+            if(!empty($cart->discountCode))
             {
                 $orderDiscount = new OrderDiscount;
                 $orderDiscount->order_no = $orderNo;
