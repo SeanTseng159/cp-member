@@ -100,7 +100,7 @@ class CartService
         $amount = 0;
         switch ($discount->discount_code_type) {
             case '1':
-                $amount = $cart->totalAmount * round((100 - $discount->discount_code_price) / 100);
+                $amount = round($cart->totalAmount * ((100 - $discount->discount_code_price) / 100));
                 break;
             case '2':
                 $amount = $discount->discount_code_price;
@@ -110,19 +110,19 @@ class CartService
         }
         
         //以下待重購
-        $discountCode = new \stdClass();
-        $discountCode->id = $discount->discount_code_id;
-        $discountCode->name = $discount->discount_code_name;
-        $discountCode->method = $discount->discount_code_type;
-        $discountCode->price = $discount->discount_code_price;
-        $discountCode->amount = $amount;
-        $cart->discountCode = $discountCode;
+        $DiscountCode = new \stdClass();
+        $DiscountCode->id = $discount->discount_code_id;
+        $DiscountCode->name = $discount->discount_code_name;
+        $DiscountCode->method = $discount->discount_code_type;
+        $DiscountCode->price = $discount->discount_code_price;
+        $DiscountCode->amount = $amount;
+        $cart->DiscountCode = $DiscountCode;
 
 
         $this->add('buyNow', $memberId, serialize($cart));
 
         $data = new \stdClass();
-        $data->discountCode = $discountCode;
+        $data->DiscountCode = $DiscountCode;
         $data->totalAmount = $cart->totalAmount;
         $data->discountAmount =  $amount;
         $data->discountTotalAmount = ($cart->totalAmount - $amount) > 0 ? ($cart->totalAmount - $amount) : 0;
