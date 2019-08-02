@@ -74,6 +74,9 @@ class MemberController extends RestLaravelController
                 // 發信
                 $this->memberService->sendRegisterEmail($member);
 
+                //增加邀請碼並且寫入DB
+                $inviteCode=$this->memberService->createInviteCode($member->id);
+
                 return $this->success([
                     'member' => [
                         'id' => $member->id,
@@ -87,7 +90,8 @@ class MemberController extends RestLaravelController
                         'gender' => $member->gender,
                         'zipcode' => $member->zipcode,
                         'address' => $member->address,
-                        'openPlateform' => $member->openPlateform
+                        'openPlateform' => $member->openPlateform,
+                        'inviteCode' => $inviteCode
                     ],
                     'hashId' => $this->encryptHashId($type, $typeId[0])
                 ]);
