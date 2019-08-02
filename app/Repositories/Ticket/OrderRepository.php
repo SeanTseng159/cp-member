@@ -76,7 +76,7 @@ class OrderRepository extends BaseRepository
             if(!empty($cart->DiscountCode))
             {
                 $order->order_off = $cart->DiscountCode->amount;
-                $order->order_amount = $cart->payAmount - $order->order_off <=0 ? 0 : $cart->payAmount - $order->order_off;
+                $order->order_amount = $cart->payAmount - $cart->DiscountCode->amount > 0 ? $cart->payAmount - $cart->DiscountCode->amount : 0;
             }
             $order->order_status = 0;
             $order->order_receipt_title = $params->billing['invoiceTitle'] ?? '';
@@ -112,14 +112,14 @@ class OrderRepository extends BaseRepository
             if (!$result) throw new Exception('Create Order Details Error');
 
             //建立訂單折扣紀錄
-            if(!empty($cart->discountCode))
+            if(!empty($cart->DiscountCode))
             {
                 $orderDiscount = new OrderDiscount;
                 $orderDiscount->order_no = $orderNo;
-                $orderDiscount->discount_id = $cart->discountCode->id;
+                $orderDiscount->discount_id = $cart->DiscountCode->id;
                 $orderDiscount->discount_type = 1;
-                $orderDiscount->discount_name = $cart->discountCode->name;
-                $orderDiscount->discount_price = $cart->discountCode->price;
+                $orderDiscount->discount_name = $cart->DiscountCode->name;
+                $orderDiscount->discount_price = $cart->DiscountCode->price;
                 $orderDiscount->created_at = date('Y-m-d H:i:s');
                 $orderDiscount->modified_at = date('Y-m-d H:i:s');
                 $orderDiscount->save();
