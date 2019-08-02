@@ -75,8 +75,8 @@ class OrderRepository extends BaseRepository
             $order->order_amount = $cart->payAmount;
             if(!empty($cart->DiscountCode))
             {
-                $order->order_off = $cart->DiscountCode->amount;
-                $order->order_amount = $cart->payAmount - $order->order_off <=0 ? 0 : $cart->payAmount - $order->order_off;
+                $order->order_off = $cart->DiscountCode->amount > $cart->payAmount ? $cart->payAmount : $cart->DiscountCode->amount;
+                $order->order_amount = $cart->payAmount - $order->order_off;
             }
             $order->order_status = 0;
             $order->order_receipt_title = $params->billing['invoiceTitle'] ?? '';
