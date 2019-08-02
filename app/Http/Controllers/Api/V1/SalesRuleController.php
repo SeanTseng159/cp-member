@@ -95,7 +95,7 @@ class SalesRuleController extends RestLaravelController
             $cart = unserialize($cart);
 
             //刪除
-            unset($cart->discountCode);
+            unset($cart->DiscountCode);
             $cart->discountAmount = 0;
             $cart->discountTotalAmount = $cart->totalAmount;
             $cart->payAmount = $cart->totalAmount + $cart->shippingFee;
