@@ -73,23 +73,25 @@ class OrderRepository extends BaseRepository
             $order->order_shipment_fee = $cart->shippingFee;
             $order->order_amount = $cart->payAmount;
             $order->order_off = $cart->discountAmount;
-
-            switch ((optional($cart->discountCode)->method) {
-            case '1':
-                $format = "0.%u";
-                //折扣%數
-                $discount_code_price = sprintf($format,$cart->discountCode->price);
-                $order->order_off = $cart->discountAmount + ($cart->totalAmount - round($cart->totalAmount * (float)$discount_code_price));
-                $order->order_amount = $cart->payAmount - $order->order_off;
-                break;
-            case '2':
-               $order->order_off = (int)(optional($cart->discountCode)->price);
-               $order->order_amount = $cart->payAmount - $order->order_off;
-                break;
-            default:
-                # code...
-                break;
-            }  
+            if(count($cart->discountCode) > 0)
+            {
+               switch (($cart->discountCode)->method) {
+                case '1':
+                    $format = "0.%u";
+                    //折扣%數
+                    $discount_code_price = sprintf($format,$cart->discountCode->price);
+                    $order->order_off = $cart->discountAmount + ($cart->totalAmount - round($cart->totalAmount * (float)$discount_code_price));
+                    $order->order_amount = $cart->payAmount - $order->order_off;
+                    break;
+                case '2':
+                   $order->order_off = (int)(optional($cart->discountCode)->price);
+                   $order->order_amount = $cart->payAmount - $order->order_off;
+                    break;
+                default:
+                    # code...
+                    break;
+                }  
+            }
             $order->order_status = 0;
             $order->order_receipt_title = $params->billing['invoiceTitle'] ?? '';
             $order->order_receipt_ubn = $params->billing['unifiedBusinessNo'] ?? '';
@@ -124,7 +126,7 @@ class OrderRepository extends BaseRepository
             if (!$result) throw new Exception('Create Order Details Error');
 
             //建立訂單折扣紀錄
-            if($cart->discountCode)
+            if(count($cart->discountCode)>0)
             {
                 $orderDiscount = new OrderDiscount;
                 $orderDiscount->order_no = $orderNo;
