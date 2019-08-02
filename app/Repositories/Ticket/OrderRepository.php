@@ -73,7 +73,7 @@ class OrderRepository extends BaseRepository
             $order->order_shipment_fee = $cart->shippingFee;
             $order->order_amount = $cart->payAmount;
             $order->order_off = $cart->discountAmount;
-            if(count($cart->discountCode) > 0)
+            if(!empty($cart->discountCode))
             {
                switch (($cart->discountCode)->method) {
                 case '1':
@@ -126,7 +126,7 @@ class OrderRepository extends BaseRepository
             if (!$result) throw new Exception('Create Order Details Error');
 
             //建立訂單折扣紀錄
-            if(count($cart->discountCode)>0)
+            if(!empty($cart->discountCode))
             {
                 $orderDiscount = new OrderDiscount;
                 $orderDiscount->order_no = $orderNo;
