@@ -124,6 +124,7 @@ class MemberGiftController extends RestLaravelController
                 $duration = Carbon::now()->addSeconds($this::DelayVerifySecond)->timestamp;
                 $code = $this->qrCodePrefix . base64_encode("$memberId.$memberGiftId.$duration");
 
+                $result->type = 'QrCode';
                 $result->code = $code;
             } else if ($type == MyGiftType::award) {
                 //檢查禮物是否屬於該會員
@@ -136,7 +137,14 @@ class MemberGiftController extends RestLaravelController
                 if ($awardRecord->verified_at) {
                     throw new \Exception('E0078');
                 }
-                $result->code = $awardRecord->qrcode;
+
+                if ($awardRecord->barcode) {
+                    $result->type = $awardRecord->barcode_type;
+                    $result->code = $awardRecord->barcode;
+                } else {
+                    $result->type = 'QrCode';
+                    $result->code = $awardRecord->qrcode;
+                }
             }
             return $this->success($result);
         } catch (\Exception $e) {

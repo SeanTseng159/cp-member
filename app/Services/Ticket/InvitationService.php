@@ -38,4 +38,9 @@ class InvitationService extends BaseService
     {
         return $this->promoteRepository->invitationCheck($passiveMemberId);
     }
+
+    public function findPromoteGift()
+    {
+        return $this->promoteRepository->findPromoteGift();
+    }  
 }

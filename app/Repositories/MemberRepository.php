@@ -10,6 +10,7 @@ namespace App\Repositories;
 use Illuminate\Database\QueryException;
 
 use App\Models\Member;
+use Hashids\Hashids;
 use Crypt;
 use Hash;
 use Log;
@@ -217,7 +218,19 @@ class MemberRepository
     }
 
     /**
-     * 依據手機,查詢使用者(增加國家代碼)
+     * 依據邀請碼,查詢使用者
+     * @param $invitation
+     * @return mixed
+     */
+    public function findByInvitation($invitation)
+    {
+        $member = $this->model->where(['invited_code' => $invitation])->first();
+
+        return $member;
+    }
+
+    /**
+     * 依據邀請碼,查詢使用者
      * @param $country
      * @param $countryCode
      * @param $cellphone
@@ -288,4 +301,33 @@ class MemberRepository
         $member = $this->model->where(['invited_code' => $code])->first();
         return $member;
     }
+
+
+
+    //創建會員時，自動產生邀請碼，並一併上傳至資料庫
+    public function createInviteCode($id)
+    {
+        //產生邀請碼
+        $hashids = new Hashids('', 6, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'); // all lowercase
+        //利用id產生邀請碼
+        $inviteCode =$hashids ->encode($id);
+
+        //上傳邀請碼回至資料庫
+        try {
+            $member = $this->model->find($id);
+            if ($member) {   
+                $member->invited_code = $inviteCode;
+                $member->save();                
+            } else {
+                Log::error('找不到使用者，無法更新');
+                return false;
+            }
+        } catch (QueryException $e) {
+            return false;
+        }        
+
+        return $inviteCode;
+    }
+
+    
 }

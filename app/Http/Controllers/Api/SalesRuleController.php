@@ -54,7 +54,8 @@ class SalesRuleController extends RestLaravelController
         $returnObj->code = ($salesRule['statusCode'] == 203) ? '00000' : 'E00002';
         $returnObj->message = ($returnObj->code == '00000') ? 'success' : $salesRule['data'];
 
-        return ($returnObj->code == '00000') ? $this->success() : $this->failure($returnObj->code, $returnObj->message);
+
+        return ($returnObj->code == '00000') ? $this->success($salesRule['data']) : $this->failure($returnObj->code, $returnObj->message);
 
     }
 }
