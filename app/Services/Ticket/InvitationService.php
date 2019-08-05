@@ -42,5 +42,15 @@ class InvitationService extends BaseService
     public function findPromoteGift()
     {
         return $this->promoteRepository->findPromoteGift();
-    }  
+    }
+
+    public function list($type, $memberId, $client, $clientId)
+    {
+        return $this->promoteRepository->list($type, $memberId, $client, $clientId);
+    }
+
+    public function findPromoteGiftRecord($id, $memberId)
+    {
+        return $this->promoteRepository->findPromoteGiftRecord($id, $memberId);
+    }
 }
