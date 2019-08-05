@@ -14,6 +14,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 
 use App\Services\Ticket\DiningCarPointService;
+use App\Services\FCMService;
 use Cache;
 
 class ConsumeAmountExchangePoint implements ShouldQueue
@@ -23,17 +24,29 @@ class ConsumeAmountExchangePoint implements ShouldQueue
     private $member;
     private $consumeAmount;
     private $key;
+    private $diningCarId;
+    private $rule;
+    private $addmemberCheck;
+    private $giftCheck;
+    private $diningCarName;
+    private $giftName;
 
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct($member, $consumeAmount, $key = '')
+    public function __construct($member, $consumeAmount, $key = '', $diningCarId = '', $rule = '',$addmemberCheck = false ,$giftCheck = false ,$diningCarName = '' ,$giftName ='')
     {
         $this->member = $member;
         $this->consumeAmount = $consumeAmount;
         $this->key = $key;
+        $this->diningCarId = $diningCarId;
+        $this->rule = $rule;
+        $this->addmemberCheck = $addmemberCheck;
+        $this->giftCheck = $giftCheck;
+        $this->diningCarName = $diningCarName;
+        $this->giftName = $giftName;
     }
 
     /**
@@ -41,13 +54,24 @@ class ConsumeAmountExchangePoint implements ShouldQueue
      *
      * @return void
      */
-    public function handle(DiningCarPointService $pointService)
+    public function handle(DiningCarPointService $pointService ,FCMService $fcmService)
     {
         if ($this->getCache($this->key)) return;
 
         if ($this->member && $this->consumeAmount > 0) {
             $this->setCache($this->key);
             $pointService->consumeAmountExchangePoint($this->member, $this->consumeAmount);
+            //推播
+            $data['point'] = floor($this->consumeAmount / $this->rule->point);
+            $data['url'] = null;
+            $data['prodType'] = 5;
+            $data['prodId'] = $this->diningCarId;
+            $data['addmemberCheck'] = $this->addmemberCheck;
+            $data['giftCheck'] = $this->giftCheck;
+            $data['diningCarName'] = $this->diningCarName;
+            $data['giftName'] = $this->giftName;
+            $memberIds[0] = $this->member->member_id;
+            $fcmService->memberNotify('getPoint',$memberIds,$data);
         }
     }
 
