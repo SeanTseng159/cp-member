@@ -20,9 +20,11 @@ use Hashids\Hashids;
 
 use App\Services\Ticket\DiningCarMemberService;
 use App\Services\Ticket\DiningCarService;
+use App\Services\Ticket\DiningCarPointService;
 use App\Services\MemberService;
 use App\Services\Ticket\GiftService;
 use App\Services\Ticket\MemberNoticService;
+use App\Services\FCMService;
 
 use App\Parameter\Ticket\DiningCarMemberParameter;
 use App\Result\Ticket\DiningCarMemberResult;
@@ -35,14 +37,20 @@ class DiningCarMemberController extends RestLaravelController
     use CryptHelper;
 
     protected $service;
+    protected $diningCarService;
+    protected $diningCarPointService;
     protected $giftService;
+    protected $fcmService;
     protected $memberCouponService;
     protected $memberGiftItemService;
     protected $awardRecordService;
     protected $memberNoticService;
 
     public function __construct(DiningCarMemberService $service,
+                                DiningCarService $diningCarService, 
+                                DiningCarPointService $diningCarPointService,
                                 GiftService $giftService,
+                                FCMService $fcmService,
                                 MemberCouponService $memberCouponService,
                                 MemberGiftItemService $memberGiftItemService,
                                 AwardRecordService $awardRecordService,
@@ -51,7 +59,9 @@ class DiningCarMemberController extends RestLaravelController
     )
     {
         $this->service = $service;
+        $this->diningCarService = $diningCarService;
         $this->giftService = $giftService;
+        $this->fcmService = $fcmService;
         $this->memberCouponService = $memberCouponService;
         $this->memberGiftItemService = $memberGiftItemService;
         $this->awardRecordService = $awardRecordService;
@@ -77,10 +87,26 @@ class DiningCarMemberController extends RestLaravelController
             if ($isMember) return $this->failureCode('A0101');
 
             $result = $this->service->add($memberId, $diningCarId);
+            //加入餐車推播
+            $memberIds[0] = $memberId;
+            $data['url'] = null;
+            $data['prodType'] = 5;
+            $data['prodId'] = $diningCarId;
+            $data['diningCarName'] = $this->diningCarService->find($diningCarId)->name;
+            $this->fcmService->memberNotify('addMember',$memberIds,$data);
 
-            // 發送禮物
+            //發送禮物
             $gift = $this->giftService->giveAddDiningCarMemberGift($diningCarId, $memberId);
             $gift = (new GiftResult)->detailByJoinDiningCar($gift);
+            //發送禮物推播
+            if($gift)
+            {
+                $data['url'] = null;
+                $data['prodType'] = 6;
+                $data['prodId'] = $diningCarId;
+                $data['giftName'] = $gift->name;
+                $this->fcmService->memberNotify('addGift',$memberIds,$data);
+            }
 
             // 取會員卡資料
             $diningCarMember = $this->service->find($memberId, $diningCarId);
@@ -163,11 +189,10 @@ class DiningCarMemberController extends RestLaravelController
      * @param DiningCarService $diningCarService
      * @return JsonResponse
      */
-    public function invite(Request $request, DiningCarService $diningCarService)
+    public function invite(Request $request, DiningCarService $diningCarService, DiningCarPointService $diningCarPointService)
     {
         try {
             $params = (new DiningCarMemberParameter($request))->invite();
-
             $diningCarId = $this->decryptHashId('DiningCar', $params['diningCarId']);
 
             // 確認餐車是否付費
@@ -181,16 +206,28 @@ class DiningCarMemberController extends RestLaravelController
             // 加入會員
             $member = $this->service->add($params['memberId'], $diningCarId);
             if (!$member) return $this->failureCode('E0200');
-
+            //加入餐車推播
+             $addmemberCheck = true;
             // 發送禮物
             $gift = $this->giftService->giveAddDiningCarMemberGift($diningCarId, $params['memberId']);
             $gift = (new GiftResult)->detailByJoinDiningCar($gift);
+            $giftCheck = false;
+            $giftName = '';
+            //禮物推播確認
+            if($gift)
+            {
+                $giftCheck = true;
+                $giftName = $gift->name;
+            }
 
             // 發送點數
             $consumeAmount = (new Hashids('DiningCarConsumeAmount', 16))->decode($params['consumeAmount']);
             if ($consumeAmount && $consumeAmount[0] > 0) {
                 $key = 'invite' . $member->id;
-                dispatch(new ConsumeAmountExchangePoint($member, $consumeAmount[0], $key))->delay(5);
+                $rule = $diningCarPointService->getExchangeRateRule($diningCarId);
+                //dispatch(new ConsumeAmountExchangePoint($member, $consumeAmount[0], $key ,$diningCarId ,$rule))->delay(5);
+                $diningCarName = $this->diningCarService->find($diningCarId)->name;
+                dispatch(new ConsumeAmountExchangePoint($member, $consumeAmount[0], $key ,$diningCarId ,$rule ,$addmemberCheck ,$giftCheck ,$diningCarName ,$giftName))->delay(5);
             }
 
 

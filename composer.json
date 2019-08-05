@@ -9,6 +9,7 @@
         "awobaz/compoships": "^1.1",
         "barryvdh/laravel-cors": "^0.9.3",
         "bensampo/laravel-enum": "^1.17",
+        "brozot/laravel-fcm": "^1.2",
         "doctrine/dbal": "^2.5",
         "fideloper/proxy": "~3.3",
         "firebase/php-jwt": "^5.0",
