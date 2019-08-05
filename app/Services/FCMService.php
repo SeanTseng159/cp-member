@@ -134,6 +134,17 @@ class FCMService
                 $this->memberNoticRepository->addRecord($params);
                 $this->notifyMultiple($memberIds, $title, $body, $data);
                 break;
+            case 'remindMemberGiftAndCoupon':
+                $title = '到期通知';
+                $body = '您的 '.$data['name'].' 即將過期，請儘速使用！';
+                //推播紀錄存放資料庫
+                $params = (new DiningCarParameter)->noticInfo($data,$body);
+                $params['member_id'] = $memberIds[0];
+                $params['created_at'] = Carbon::now();
+                $this->memberNoticRepository->addRecord($params);
+                echo($body);
+                $this->notifyMultiple($memberIds, $title, $body, $data);
+                break;
             default:
                 # code...
                 break;

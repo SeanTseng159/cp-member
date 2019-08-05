@@ -124,8 +124,8 @@ class CouponRepository extends BaseRepository
     public function findCouponEndTime()
     {
         $today = Carbon::today();
-        $a1= Carbon::today('Asia/Taipei')->addDay(6);
-        $a2= Carbon::today('Asia/Taipei')->addDay(5);
+        $a1= Carbon::today('Asia/Taipei')->addDay(8);
+        $a2= Carbon::today('Asia/Taipei')->addDay(7);
 
         $data=$this->model->where('status', '1')
         ->where('expire_at', '<',$a1)
