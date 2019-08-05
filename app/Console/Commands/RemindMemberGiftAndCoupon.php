@@ -12,6 +12,8 @@ use App\Services\Ticket\MemberGiftItemService;
 use App\Services\Ticket\CouponService;
 use App\Services\Ticket\MemberCouponService;
 
+use App\Services\FCMService;
+
 class RemindMemberGiftAndCoupon extends Command
 {
     protected $service;
@@ -48,7 +50,7 @@ class RemindMemberGiftAndCoupon extends Command
      */
 
 
-    public function handle(GiftService $giftService,MemberGiftItemService $memberGiftItemService,CouponService $couponService,MemberCouponService $memberCouponService)
+    public function handle(GiftService $giftService,MemberGiftItemService $memberGiftItemService,CouponService $couponService,MemberCouponService $memberCouponService,FCMService $fCMService)
     {
         $data=$giftService ->findGiftEndTime();
         //echo (sizeof($data));
@@ -62,12 +64,14 @@ class RemindMemberGiftAndCoupon extends Command
             foreach ($memberGiftIdArray as $memberId) 
             {
               //echo($memberId);
-              $MGId=$memberId;
-              $MGpush=array('types'  => 5,
-                          'typeId' => $gift->model_spec_id,
+              $MGId=array($memberId);
+              $MGpush=array('prodType'  => 5,
+                          'prodId' => $gift->model_spec_id,
                           'url' => "",
-                          'giftname' => $gift->name );
+                          'name' => $gift->name );
+              $fCMService->memberNotify('remindMemberGiftAndCoupon',$MGId,$MGpush);
             }
+
 
             
         }
@@ -92,13 +96,14 @@ class RemindMemberGiftAndCoupon extends Command
                 else
                 {
 
-                    $MCId=$memberCoupon->member_id;
+                    $MCId=array($memberCoupon->member_id);
                     //echo($MCId);
-                    $MCpush=array('types'  => 5,
-                        'typeId' => $coupon->model_spec_id,
+                    $MCpush=array('prodType'  => 5,
+                        'prodId' => $coupon->model_spec_id,
                         'url' => "",
-                        'giftname' => $coupon->name );  
+                        'name' => $coupon->name );  
                     //echo($MCId);
+                    $fCMService->memberNotify('remindMemberGiftAndCoupon',$MCId,$MCpush);
                 }
                 
             }

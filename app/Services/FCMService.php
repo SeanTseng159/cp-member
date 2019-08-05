@@ -134,14 +134,24 @@ class FCMService
                 $this->memberNoticRepository->addRecord($params);
                 $this->notifyMultiple($memberIds, $title, $body, $data);
                 break;
+<<<<<<< HEAD
             case 'inviteSuccess':
                 $title = '邀請好友註冊成功';
                 $body = '您的好友'.$data['name'].'成功加入CityPass都會通！恭喜您可以獲得'.$data['giftName'];
+=======
+            case 'remindMemberGiftAndCoupon':
+                $title = '到期通知';
+                $body = '您的 '.$data['name'].' 即將過期，請儘速使用！';
+>>>>>>> feature/crontabGiftAndCouponFCM
                 //推播紀錄存放資料庫
                 $params = (new DiningCarParameter)->noticInfo($data,$body);
                 $params['member_id'] = $memberIds[0];
                 $params['created_at'] = Carbon::now();
                 $this->memberNoticRepository->addRecord($params);
+<<<<<<< HEAD
+=======
+                echo($body);
+>>>>>>> feature/crontabGiftAndCouponFCM
                 $this->notifyMultiple($memberIds, $title, $body, $data);
                 break;
             default:
