@@ -85,6 +85,11 @@ class MemberGiftItemService extends BaseService
         return $this->repository->availableGifts($memberId);
     }
 
+    //使用giftID來尋找mermberId
+    public function findByGiftId($giftId)
+    {
+        return $this->repository->findByGiftId($giftId);
+    }
     
 
     
