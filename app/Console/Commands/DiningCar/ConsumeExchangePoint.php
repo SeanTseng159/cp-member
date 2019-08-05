@@ -55,7 +55,7 @@ class ConsumeExchangePoint extends Command
             $member = $memberService->easyFind($order->member_id, $order->dining_car_id);
             if ($member) {
                 $key = 'order' . $order->order_id;
-                $rule = $diningCarPointService->getExchangeRateRule($diningCarId);
+                $rule = $diningCarPointService->getExchangeRateRule($order->dining_car_id);
                 dispatch(new ConsumeAmountExchangePoint($member, $order->total_amount, $key ,$order->dining_car_id ,$rule));
                 $count++;
             }
