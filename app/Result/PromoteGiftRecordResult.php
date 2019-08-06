@@ -21,15 +21,20 @@ class PromoteGiftRecordResult
             $data->photo = $img->folder ? CommonHelper::getBackendHost($img->folder . $img->filename . '_s.' . $img->ext) : '';
             $data->type = MyGiftType::PROMOTE_GIFT;
 
-            //$status 0:可使用  1:已使用 2:已過期
+            //$status 0:可使用  1:已使用 2:已過期 3:免核銷
             if (is_null($item->verified_at)) {
                 if (Carbon::now()->greaterThan($item->promoteGift->usage_end_at)) {
                     $data->status = 2;
                 } else {
-                    $data->status = 0;
+                    if ($item->promoteGift->verify_status == 1) {
+                        $data->status = 3;
+                    } else{
+                        $data->status = 0;
+                    }
                 }
-            } else
+            } else {
                 $data->status = 1;
+            }
             $result[] = $data;
         };
 
@@ -53,7 +58,11 @@ class PromoteGiftRecordResult
         $result->content = $promoteGiftRecord->promoteGift->content;
         $result->desc = $promoteGiftRecord->promoteGift->usage_desc;
 
-        $result->status = 0;
+        if ($promoteGiftRecord->promoteGift->verify_status == 1) {
+            $result->status = 3;
+        } else {
+            $result->status = 0;
+        }
 
         //已使用
         if ($promoteGiftRecord->verified_at) {
