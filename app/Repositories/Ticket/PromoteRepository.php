@@ -135,14 +135,18 @@ class PromoteRepository extends BaseRepository
         }
 
         if ($type == 2) {
-            $result = $this->PromoteGiftRecordModel
+            $used = $this->PromoteGiftRecordModel
                 ->whereMemberId($memberId)
-                ->when($type,
+                ->whereNotNull('verifier_at')
+                ->whereHas('promoteGift',
                     function ($query) use ($type) {
-                        $query->whereNotNull('verifier_at');
-                        return $query;
+                        $query->where('status', 2);
                     })
-                ->orWhereHas('promoteGift',
+                ->with(['promoteGift', 'promoteGift.image'])
+                ->get();
+            $expired = $this->PromoteGiftRecordModel
+                ->whereMemberId($memberId)
+                ->whereHas('promoteGift',
                     function ($query) use ($type) {
                         $now = Carbon::now();
                         $query->where('usage_end_at', '<', $now);
@@ -150,6 +154,7 @@ class PromoteRepository extends BaseRepository
                     })
                 ->with(['promoteGift', 'promoteGift.image'])
                 ->get();
+            $result = $used->merge($expired)->unique();
         }
         return $result;
     }
