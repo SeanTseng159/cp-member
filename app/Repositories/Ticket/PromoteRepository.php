@@ -128,6 +128,19 @@ class PromoteRepository extends BaseRepository
                             }
                             return $query;
                         })
+                    ->whereHas('promoteGift',
+                        function ($query) use ($type) {
+                            $now = Carbon::now();
+                            //獎品未使用
+                            if ($type == 1) {
+                                $query->where('usage_start_at', '<=', $now)->where('usage_end_at', '>', $now);
+                            }
+                            //已使用或過期
+                            if ($type == 2) {
+                                $query->where('usage_end_at', '>', $now);
+                            }
+                            $query->where('status', "2");
+                        })
                     ->with(['promoteGift', 'promoteGift.image'])
                     ->get();
     }
@@ -138,5 +151,17 @@ class PromoteRepository extends BaseRepository
                     ->whereMemberId($memberId)
                     ->whereId($id)
                     ->first();
+    }
+
+    public function availablePromoteGift($memberId)
+    {
+        return $this->PromoteGiftRecordModel
+                    ->whereNull('verifier_at')
+                    ->whereHas('promoteGift', function ($query) {
+                        $now = Carbon::now();
+                        $query->where('usage_start_at', '<=', $now)->where('usage_end_at', '>', $now)->where('status', 2);
+                    })
+                    ->whereMemberId($memberId)
+                    ->count();
     }
 }
