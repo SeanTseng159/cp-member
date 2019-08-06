@@ -288,6 +288,22 @@ class MemberGiftItemRepository extends BaseRepository
             Logger::error('availableGifts:' . $e->getMessage());
             return false;
         }
+    
     }
+
+
+    //使用giftID來尋找mermberId
+    public function findByGiftId($giftId)
+    {
+        $member_id=$this->memberGiftItem
+                ->where('gift_id',$giftId)
+                ->whereNull('used_time')
+                ->distinct()
+                ->pluck('member_id');
+
+        return $member_id;
+    }
+    
+
 
 }
