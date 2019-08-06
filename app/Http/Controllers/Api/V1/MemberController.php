@@ -254,10 +254,10 @@ class MemberController extends RestLaravelController
             //做成最後的型態
             if(empty($productInfo))
                 {
-                    $friendInviteWeb = '嗨！您的好友'.$nick.'邀請您加入CityPass都會通會員，現在註冊立即享有吃喝玩樂優惠！'.'\\n 會員代碼：'.$member->invited_code.'\\n https://dev.citypass.tw/zh-TW/invite/'.$member->invited_code;
+                    $friendInviteWeb = '嗨！您的好友'.$nick.'邀請您加入CityPass都會通會員，現在註冊立即享有吃喝玩樂優惠！'.'\n 會員代碼：'.$member->invited_code.'\n https://dev.citypass.tw/zh-TW/invite/'.$member->invited_code;
                 }else
                 {
-                    $friendInviteWeb = '嗨！您的好友'.$nick.'邀請您加入CityPass都會通會員，現在註冊立即享有吃喝玩樂優惠！還有好康'.$productInfo.'等你拿！'.'\\n 會員代碼：'.$member->invited_code.'\\n https://dev.citypass.tw/zh-TW/invite/'.$member->invited_code;;
+                    $friendInviteWeb = '嗨！您的好友'.$nick.'邀請您加入CityPass都會通會員，現在註冊立即享有吃喝玩樂優惠！還有好康'.$productInfo.'等你拿！'.'\n 會員代碼：'.$member->invited_code.'\n https://dev.citypass.tw/zh-TW/invite/'.$member->invited_code;;
                 }
 
 
