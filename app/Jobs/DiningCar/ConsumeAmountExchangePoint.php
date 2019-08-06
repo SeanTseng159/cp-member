@@ -72,7 +72,7 @@ class ConsumeAmountExchangePoint implements ShouldQueue
             $data['diningCarName'] = $this->diningCarName;
             $data['giftName'] = $this->giftName;
             $memberIds[0] = $this->member->member_id;
-            if($data['point']>0){$fcmService->memberNotify('getPoint',$memberIds,$data);}
+            $fcmService->memberNotify('getPoint',$memberIds,$data);
         }
     }
 
