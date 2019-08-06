@@ -16,6 +16,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use App\Services\Ticket\DiningCarPointService;
 use App\Services\FCMService;
 use Cache;
+use App\Helpers\CommonHelper;
 
 class ConsumeAmountExchangePoint implements ShouldQueue
 {
@@ -63,7 +64,7 @@ class ConsumeAmountExchangePoint implements ShouldQueue
             $pointService->consumeAmountExchangePoint($this->member, $this->consumeAmount);
             //推播
             $data['point'] = floor($this->consumeAmount / $this->rule->point);
-            $data['url'] = null;
+            $data['url'] = CommonHelper::getWebHost('zh-TW/diningCar/detail/' . $this->diningCarId);
             $data['prodType'] = 5;
             $data['prodId'] = $this->diningCarId;
             $data['addmemberCheck'] = $this->addmemberCheck;
@@ -71,7 +72,7 @@ class ConsumeAmountExchangePoint implements ShouldQueue
             $data['diningCarName'] = $this->diningCarName;
             $data['giftName'] = $this->giftName;
             $memberIds[0] = $this->member->member_id;
-            $fcmService->memberNotify('getPoint',$memberIds,$data);
+            if($data['point']>0){$fcmService->memberNotify('getPoint',$memberIds,$data);}
         }
     }
 

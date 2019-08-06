@@ -119,5 +119,18 @@ class CouponRepository extends BaseRepository
         return $this->repository->availableCoupons($memberId);
     }
     
-    
+
+    //取得優惠卷倒數過期前7天前資料
+    public function findCouponEndTime()
+    {
+        $today = Carbon::today();
+        $a1= Carbon::today('Asia/Taipei')->addDay(8);
+        $a2= Carbon::today('Asia/Taipei')->addDay(7);
+
+        $data=$this->model->where('status', '1')
+        ->where('expire_at', '<',$a1)
+        ->where('expire_at', '>=',$a2)
+        ->where('qty','>',0)->get();        
+      return $data;     
+    } 
 }

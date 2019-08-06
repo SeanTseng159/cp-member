@@ -92,5 +92,11 @@ class GiftService extends BaseService
     {
         return $this->repository->deliveryGifts($gifts,$memberGiftItems);
     }
+    
+    //取得禮物卷倒數過期前7天前資料
+    public function findGiftEndTime()
+    {
+        return $this->repository->findGiftEndTime();
+    }  
 
 }
