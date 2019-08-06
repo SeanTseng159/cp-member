@@ -247,12 +247,18 @@ class MemberController extends RestLaravelController
 
             //取的 PromoteGift 相關資訊
             $promoteGiftRow = $invitationService->findPromoteGift();
-            //取的 ID排序最後的代表最新的活動
-            $productInfo=$promoteGiftRow[sizeof($promoteGiftRow)-1]->name;
+            //怕沒有資訊如果沒資訊就不要取出,有資訊取的 ID排序最後的代表最新的活動
+            if(sizeof($promoteGiftRow)==0){$productInfo="";}else{$productInfo=$promoteGiftRow[sizeof($promoteGiftRow)-1]->name;}
             //如果沒有小名的話，用全名
             if(empty($member->nick)) {$nick= $member->name;} else{$nick = $member->nick;}
             //做成最後的型態
-            $friendInviteWeb = '嗨！您的好友'.$nick.'邀請您加入CityPass都會通會員，現在註冊立即享有吃喝玩樂優惠！還有好康'.$productInfo.'等你拿！';
+            if(empty($productInfo))
+                {
+                    $friendInviteWeb = '嗨！您的好友'.$nick.'邀請您加入CityPass都會通會員，現在註冊立即享有吃喝玩樂優惠！'.'<br>會員代碼：'.$member->invited_code.'<br>https://dev.citypass.tw/zh-TW/invite/'.$member->invited_code;
+                }else
+                {
+                    $friendInviteWeb = '嗨！您的好友'.$nick.'邀請您加入CityPass都會通會員，現在註冊立即享有吃喝玩樂優惠！還有好康'.$productInfo.'等你拿！'.'<br>會員代碼：'.$member->invited_code.'<br>https://dev.citypass.tw/zh-TW/invite/'.$member->invited_code;;
+                }
 
 
 
