@@ -19,6 +19,7 @@ class PromoteGiftRecordResult
             $data->title = $item->promoteGift->name;
             $data->duration = Carbon::parse($item->promoteGift->award_validity_end_at)->format('Y-m-d');
             $data->photo = $img->folder ? CommonHelper::getBackendHost($img->folder . $img->filename . '_s.' . $img->ext) : '';
+            $data->type = MyGiftType::PROMOTE_GIFT;
 
             //$status 0:可使用  1:已使用 2:已過期
             if (is_null($item->verified_at)) {
