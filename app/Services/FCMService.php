@@ -105,7 +105,7 @@ class FCMService
                 $this->notifyMultiple($memberIds, $title, $body, $data);
                 break;
             case 'getPoint':
-                $title = '獲得點數通知';
+                $title = '訊息通知';
                 $body = $data['point'] > 0 ?'您消費獲得了'.$data['point'].'點':'';
                 if($data['addmemberCheck']){$body = '您已成功加入'.$data['diningCarName'].'，'.$body;}
                 if($data['giftCheck']){$body = $body.'並獲得了'.$data['giftName'];}
