@@ -10,14 +10,15 @@ class PromoteGiftRecordResult
 
     public function list($promoteGifts)
     {
-        $result = $promoteGifts->each(function($item, $key){
+        $result = [];
+        foreach ($promoteGifts as $item) {
             $img = optional($item->promoteGift->image);
             $data = new \stdClass();
             $data->id = $item->id;
             $data->name = $item->promoteGift->name;
             $data->title = $item->promoteGift->name;
             $data->duration = Carbon::parse($item->promoteGift->award_validity_end_at)->format('Y-m-d');
-            $data->photo = $img->folder ? CommonHelper::getBackendHost($img->folder . $img->filename . '.' . $img->ext . '_s') : '';
+            $data->photo = $img->folder ? CommonHelper::getBackendHost($img->folder . $img->filename . '_s.' . $img->ext) : '';
 
             //$status 0:可使用  1:已使用 2:已過期
             if (is_null($item->verified_at)) {
@@ -29,7 +30,8 @@ class PromoteGiftRecordResult
             } else
                 $data->status = 1;
             $result[] = $data;
-        });
+        };
+
         return $result;
     }
 
@@ -45,7 +47,7 @@ class PromoteGiftRecordResult
         $result->name = $promoteGiftRecord->promoteGift->name;
         $result->title = $promoteGiftRecord->promoteGift->name;
         $result->duration = Carbon::parse($promoteGiftRecord->promoteGift->award_validity_end_at)->format('Y-m-d');
-        $result->photo = $img->folder ? CommonHelper::getBackendHost($img->folder . $img->filename . '.' . $img->ext . '_s') : '';
+        $result->photo = $img->folder ? CommonHelper::getBackendHost($img->folder . $img->filename . '_s.' . $img->ext) : '';
         $result->type = MyGiftType::PROMOTE_GIFT;
         $result->content = $promoteGiftRecord->promoteGift->content;
         $result->desc = $promoteGiftRecord->promoteGift->usage_desc;

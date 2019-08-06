@@ -121,14 +121,14 @@ class PromoteRepository extends BaseRepository
                         function ($query) use ($type) {
                             //禮物未使用
                             if ($type === 1) {
-                                $query->whereNull('verified_at');
+                                $query->whereNull('verifier_at');
                             } //已使用或過期
                             else if ($type === 2) {
-                                $query->whereNotNull('verified_at');
+                                $query->whereNotNull('verifier_at');
                             }
                             return $query;
                         })
-                    ->with(['promoteGift', 'image'])
+                    ->with(['promoteGift', 'promoteGift.image'])
                     ->get();
     }
 

@@ -2,6 +2,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+
 class PromoteGiftRecord extends Model
 {
     protected $table = 'promote_gift_records';
@@ -10,6 +11,6 @@ class PromoteGiftRecord extends Model
 
     public function promoteGift()
     {
-        return $this->belongsTo('promote_gift_id');
+        return $this->belongsTo(PromoteGift::class, 'promote_gift_id');
     }
 }

@@ -9,6 +9,7 @@ use App\Result\MemberGiftItemResult;
 use App\Result\PromoteGiftRecordResult;
 use App\Services\AwardRecordService;
 use App\Services\ImageService;
+use App\Services\Ticket\InvitationService;
 use App\Services\Ticket\MemberGiftItemService;
 
 use Carbon\Carbon;
