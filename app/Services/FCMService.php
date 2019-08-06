@@ -87,59 +87,39 @@ class FCMService
             case 'addMember':
                 $title = '加入餐車會員';
                 $body = '您已成功加入'.$data['diningCarName'];
-                //推播紀錄存放資料庫
-                $params = (new DiningCarParameter)->noticInfo($data,$body);
-                $params['member_id'] = $memberIds[0];
-                $params['created_at'] = Carbon::now();
-                $this->memberNoticRepository->addRecord($params);
-                $this->notifyMultiple($memberIds, $title, $body, $data);
                 break;
             case 'addGift':
                 $title = '獲得禮物通知';
                 $body = '您獲得了'.$data['giftName'];
-                //推播紀錄存放資料庫
-                $params = (new DiningCarParameter)->noticInfo($data,$body);
-                $params['member_id'] = $memberIds[0];
-                $params['created_at'] = Carbon::now();
-                $this->memberNoticRepository->addRecord($params);
-                $this->notifyMultiple($memberIds, $title, $body, $data);
                 break;
             case 'getPoint':
                 $title = '獲得點數通知';
                 $body = '您消費獲得了'.$data['point'].'點';
                 if($data['addmemberCheck']){$body = '您已成功加入'.$data['diningCarName'].'，'.$body;}
                 if($data['giftCheck']){$body = $body.'並獲得了'.$data['giftName'];}
-                //推播紀錄存放資料庫
-                $params = (new DiningCarParameter)->noticInfo($data,$body);
-                $params['member_id'] = $memberIds[0];
-                $params['created_at'] = Carbon::now();
-                $this->memberNoticRepository->addRecord($params);
-                $this->notifyMultiple($memberIds, $title, $body, $data);
                 break;
             case 'inviteSuccess':
                 $title = '邀請好友註冊成功';
                 $body = '您的好友'.$data['name'].'成功加入CityPass都會通！恭喜您可以獲得'.$data['giftName'];
-                //推播紀錄存放資料庫
-                $params = (new DiningCarParameter)->noticInfo($data,$body);
-                $params['member_id'] = $memberIds[0];
-                $params['created_at'] = Carbon::now();
-                $this->memberNoticRepository->addRecord($params);
-                $this->notifyMultiple($memberIds, $title, $body, $data);
                 break;
             case 'remindMemberGiftAndCoupon':
                 $title = '到期通知';
                 $body = '您的 '.$data['name'].' 即將過期，請儘速使用！';
-                //推播紀錄存放資料庫
-                $params = (new DiningCarParameter)->noticInfo($data,$body);
-                $params['member_id'] = $memberIds[0];
-                $params['created_at'] = Carbon::now();
-                $this->memberNoticRepository->addRecord($params);
-                $this->notifyMultiple($memberIds, $title, $body, $data);
+                break;
+            case 'giftChange':
+                $title = '點數兌換通知';
+                $body = '您以'.$data['point'].'點兌換了'.$data['name'];
                 break;
             default:
                 # code...
                 break;
         }
+        //推播紀錄存放資料庫
+        $params = (new DiningCarParameter)->noticInfo($data,$body);
+        $params['member_id'] = $memberIds[0];
+        $params['created_at'] = Carbon::now();
+        $this->memberNoticRepository->addRecord($params);
+        $this->notifyMultiple($memberIds, $title, $body, $data);
     }
 
     public function notify($notificationId)

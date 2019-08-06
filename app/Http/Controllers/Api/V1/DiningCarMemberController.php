@@ -89,7 +89,6 @@ class DiningCarMemberController extends RestLaravelController
 
             $result = $this->service->add($memberId, $diningCarId);
             //加入餐車推播
-            $frond_domain = env('FRONTEND_DOMAIN');
             $memberIds[0] = $memberId;
             $data['url'] = CommonHelper::getWebHost('zh-TW/diningCar/detail/' . $diningCarId);
             $data['prodType'] = 5;
