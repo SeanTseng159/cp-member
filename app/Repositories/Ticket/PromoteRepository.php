@@ -7,6 +7,7 @@
 
 namespace App\Repositories\Ticket;
 
+use App\Enum\ClientType;
 use Illuminate\Database\QueryException;
 use App\Repositories\BaseRepository;
 use App\Models\PromoteGift;
@@ -100,5 +101,42 @@ class PromoteRepository extends BaseRepository
         {
             return false; 
         }
+    }
+
+    /** 取得使用者之禮物列表，如果$client與$clientID非null，則取得該餐車的資料即可
+     *
+     * @param        $type :1:可使用/2:已使用or過期
+     * @param        $memberId
+     *
+     * @param        $client
+     * @param        $clientId
+     *
+     * @return mixed
+     */
+    public function list($type, $memberId, $client, $clientId)
+    {
+        return $this->PromoteGiftRecordModel
+                    ->whereMemberId($memberId)
+                    ->when($type,
+                        function ($query) use ($type) {
+                            //禮物未使用
+                            if ($type === 1) {
+                                $query->whereNull('verifier_at');
+                            } //已使用或過期
+                            else if ($type === 2) {
+                                $query->whereNotNull('verifier_at');
+                            }
+                            return $query;
+                        })
+                    ->with(['promoteGift', 'promoteGift.image'])
+                    ->get();
+    }
+
+    public function findPromoteGiftRecord($id, $memberId)
+    {
+        return $this->PromoteGiftRecordModel
+                    ->whereMemberId($memberId)
+                    ->whereId($id)
+                    ->first();
     }
 }

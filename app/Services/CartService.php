@@ -108,6 +108,9 @@ class CartService
             default:
                 break;
         }
+
+        if ($amount > $cart->totalAmount)
+            $amount = $cart->totalAmount;
         
         //以下待重購
         $DiscountCode = new \stdClass();
@@ -125,7 +128,7 @@ class CartService
         $data->DiscountCode = $DiscountCode;
         $data->totalAmount = $cart->totalAmount;
         $data->discountAmount =  $amount;
-        $data->discountTotalAmount = ($cart->totalAmount - $amount) > 0 ? ($cart->totalAmount - $amount) : 0;
+        $data->discountTotalAmount = $cart->totalAmount - $amount;
         $data->payAmount = $data->discountTotalAmount +  $cart->shippingFee;
         $data->shippingFee = $cart->shippingFee;
         return $data;

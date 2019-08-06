@@ -55,6 +55,7 @@ class OrderRepository extends BaseRepository
     public function create($params, $cart)
     {
         try {
+
             DB::connection('backend')->beginTransaction();
 
             $orderNo = $this->seqOrderRepository->getOrderNo();
@@ -71,13 +72,9 @@ class OrderRepository extends BaseRepository
             $order->order_receipt_method = 1;
             $order->order_items = $cart->totalQuantity;
             $order->order_shipment_fee = $cart->shippingFee;
-            $order->order_off = $cart->discountAmount;
-            $order->order_amount = $cart->payAmount;
-            if(!empty($cart->DiscountCode))
-            {
-                $order->order_off = $cart->DiscountCode->amount > $cart->payAmount ? $cart->payAmount : $cart->DiscountCode->amount;
-                $order->order_amount = $cart->payAmount - $order->order_off;
-            }
+            $order->order_off = isset($cart->DiscountCode) ? $cart->DiscountCode->amount : 0;
+            $order->order_amount = $cart->payAmount - $order->order_off;
+
             $order->order_status = 0;
             $order->order_receipt_title = $params->billing['invoiceTitle'] ?? '';
             $order->order_receipt_ubn = $params->billing['unifiedBusinessNo'] ?? '';
@@ -119,7 +116,7 @@ class OrderRepository extends BaseRepository
                 $orderDiscount->discount_id = $cart->DiscountCode->id;
                 $orderDiscount->discount_type = 1;
                 $orderDiscount->discount_name = $cart->DiscountCode->name;
-                $orderDiscount->discount_price = $cart->DiscountCode->amount > $cart->payAmount ? $cart->payAmount : $cart->DiscountCode->amount;
+                $orderDiscount->discount_price = $cart->DiscountCode->amount;
                 $orderDiscount->created_at = date('Y-m-d H:i:s');
                 $orderDiscount->modified_at = date('Y-m-d H:i:s');
                 $orderDiscount->save();

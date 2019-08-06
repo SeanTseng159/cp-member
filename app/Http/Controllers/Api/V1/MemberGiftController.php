@@ -4,10 +4,13 @@ namespace App\Http\Controllers\Api\V1;
 
 
 use App\Enum\MyGiftType;
+use App\Models\PromoteGift;
 use App\Result\AwardRecordResult;
 use App\Result\MemberGiftItemResult;
+use App\Result\PromoteGiftRecordResult;
 use App\Services\AwardRecordService;
 use App\Services\ImageService;
+use App\Services\Ticket\InvitationService;
 use App\Services\Ticket\MemberGiftItemService;
 
 use Carbon\Carbon;
@@ -25,19 +28,22 @@ class MemberGiftController extends RestLaravelController
     protected $memberGiftItemService;
     protected $imageService;
     protected $awardRecordService;
+    protected $invitationService;
     protected $qrCodePrefix = 'gift_';
 
 
     public function __construct(
         MemberGiftItemService $memberGiftItemService,
         ImageService $imageService,
-        AwardRecordService $awardRecordService
+        AwardRecordService $awardRecordService,
+        InvitationService $invitationService
     )
     {
 
         $this->memberGiftItemService = $memberGiftItemService;
         $this->imageService = $imageService;
         $this->awardRecordService = $awardRecordService;
+        $this->invitationService = $invitationService;
     }
 
     /**
@@ -75,10 +81,12 @@ class MemberGiftController extends RestLaravelController
             //取得活動的獎品清單
             $award = $this->awardRecordService->list($type, $memberId, $client, $clientId);
 
+            $promoteGifts = $this->invitationService->list($type, $memberId, $client, $clientId);
 
             $resultGift = (new MemberGiftItemResult())->list($diningCarGift, $type);
             $resultAward = (new AwardRecordResult())->list($award);
-            $result = array_merge($resultGift, $resultAward);
+            $resultPromote = (new PromoteGiftRecordResult())->list($promoteGifts);
+            $result = array_merge($resultGift, $resultAward, $resultPromote);
             $result = array_values(collect($result)->sortBy('duration')->toArray());
 
             return $this->success($result);
