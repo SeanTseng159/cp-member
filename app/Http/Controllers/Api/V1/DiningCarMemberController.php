@@ -31,6 +31,7 @@ use App\Result\Ticket\DiningCarMemberResult;
 use App\Result\Ticket\GiftResult;
 
 use App\Jobs\DiningCar\ConsumeAmountExchangePoint;
+use App\Helpers\CommonHelper;
 
 class DiningCarMemberController extends RestLaravelController
 {
@@ -88,8 +89,9 @@ class DiningCarMemberController extends RestLaravelController
 
             $result = $this->service->add($memberId, $diningCarId);
             //加入餐車推播
+            $frond_domain = env('FRONTEND_DOMAIN');
             $memberIds[0] = $memberId;
-            $data['url'] = 'https://citypass.tw/zh-TW/diningCar/detail/'.$diningCarId;
+            $data['url'] = CommonHelper::getWebHost('zh-TW/diningCar/detail/' . $diningCarId);
             $data['prodType'] = 5;
             $data['prodId'] = $diningCarId;
             $data['diningCarName'] = $this->diningCarService->find($diningCarId)->name;
@@ -101,7 +103,7 @@ class DiningCarMemberController extends RestLaravelController
             //發送禮物推播
             if($gift)
             {
-                $data['url'] = 'https://citypass.tw/zh-TW/diningCar/detail/'.$diningCarId;
+                $data['url'] = CommonHelper::getWebHost('zh-TW/diningCar/detail/' . $diningCarId);
                 $data['prodType'] = 6;
                 $data['prodId'] = $diningCarId;
                 $data['giftName'] = $gift->name;
