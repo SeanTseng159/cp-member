@@ -89,7 +89,7 @@ class DiningCarMemberController extends RestLaravelController
             $result = $this->service->add($memberId, $diningCarId);
             //加入餐車推播
             $memberIds[0] = $memberId;
-            $data['url'] = null;
+            $data['url'] = 'https://citypass.tw/zh-TW/diningCar/detail/'.$diningCarId;
             $data['prodType'] = 5;
             $data['prodId'] = $diningCarId;
             $data['diningCarName'] = $this->diningCarService->find($diningCarId)->name;
@@ -101,7 +101,7 @@ class DiningCarMemberController extends RestLaravelController
             //發送禮物推播
             if($gift)
             {
-                $data['url'] = null;
+                $data['url'] = 'https://citypass.tw/zh-TW/diningCar/detail/'.$diningCarId;
                 $data['prodType'] = 6;
                 $data['prodId'] = $diningCarId;
                 $data['giftName'] = $gift->name;

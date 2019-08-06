@@ -67,7 +67,7 @@ class RemindMemberGiftAndCoupon extends Command
               $MGId=array($memberId);
               $MGpush=array('prodType'  => 5,
                           'prodId' => $gift->model_spec_id,
-                          'url' => "",
+                          'url' => "https://citypass.tw/zh-TW/diningCar/detail/".$gift->model_spec_id,
                           'name' => $gift->name );
               $fCMService->memberNotify('remindMemberGiftAndCoupon',$MGId,$MGpush);
             }
@@ -100,7 +100,7 @@ class RemindMemberGiftAndCoupon extends Command
                     //echo($MCId);
                     $MCpush=array('prodType'  => 5,
                         'prodId' => $coupon->model_spec_id,
-                        'url' => "",
+                        'url' => "https://citypass.tw/zh-TW/diningCar/detail/".$coupon->model_spec_id,
                         'name' => $coupon->name );  
                     //echo($MCId);
                     $fCMService->memberNotify('remindMemberGiftAndCoupon',$MCId,$MCpush);
