@@ -115,34 +115,43 @@ class PromoteRepository extends BaseRepository
      */
     public function list($type, $memberId, $client, $clientId)
     {
-        return $this->PromoteGiftRecordModel
-                    ->whereMemberId($memberId)
-                    ->when($type,
-                        function ($query) use ($type) {
-                            //禮物未使用
-                            if ($type === 1) {
-                                $query->whereNull('verifier_at');
-                            } //已使用或過期
-                            else if ($type === 2) {
-                                $query->whereNotNull('verifier_at');
-                            }
-                            return $query;
-                        })
-                    ->whereHas('promoteGift',
-                        function ($query) use ($type) {
-                            $now = Carbon::now();
-                            //獎品未使用
-                            if ($type == 1) {
-                                $query->where('usage_start_at', '<=', $now)->where('usage_end_at', '>', $now);
-                            }
-                            //已使用或過期
-                            if ($type == 2) {
-                                $query->where('usage_end_at', '<', $now);
-                            }
-                            $query->where('status', "2");
-                        })
-                    ->with(['promoteGift', 'promoteGift.image'])
-                    ->get();
+        if($type == 1) {
+            $result = $this->PromoteGiftRecordModel
+                ->whereMemberId($memberId)
+                ->when($type,
+                    function ($query) use ($type) {
+                        $query->whereNull('verifier_at');
+                        return $query;
+                    })
+                ->whereHas('promoteGift',
+                    function ($query) use ($type) {
+                        $now = Carbon::now();
+                        //獎品未使用
+                        $query->where('usage_start_at', '<=', $now)->where('usage_end_at', '>', $now);
+                        $query->where('status', 2);
+                    })
+                ->with(['promoteGift', 'promoteGift.image'])
+                ->get();
+        }
+
+        if ($type == 2) {
+            $result = $this->PromoteGiftRecordModel
+                ->whereMemberId($memberId)
+                ->when($type,
+                    function ($query) use ($type) {
+                        $query->whereNotNull('verifier_at');
+                        return $query;
+                    })
+                ->orWhereHas('promoteGift',
+                    function ($query) use ($type) {
+                        $now = Carbon::now();
+                        $query->where('usage_end_at', '<', $now);
+                        $query->where('status', 2);
+                    })
+                ->with(['promoteGift', 'promoteGift.image'])
+                ->get();
+        }
+        return $result;
     }
 
     public function findPromoteGiftRecord($id, $memberId)
