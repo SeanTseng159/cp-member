@@ -53,4 +53,9 @@ class InvitationService extends BaseService
     {
         return $this->promoteRepository->findPromoteGiftRecord($id, $memberId);
     }
+
+    public function availablePromoteGift($memberId)
+    {
+        return $this->promoteRepository->availablePromoteGift($memberId);
+    }
 }

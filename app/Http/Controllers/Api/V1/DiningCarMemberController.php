@@ -9,6 +9,7 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Services\AwardRecordService;
+use App\Services\Ticket\InvitationService;
 use App\Services\Ticket\MemberCouponService;
 use App\Services\Ticket\MemberGiftItemService;
 use Illuminate\Http\JsonResponse;
@@ -40,13 +41,15 @@ class DiningCarMemberController extends RestLaravelController
     protected $memberGiftItemService;
     protected $awardRecordService;
     protected $memberNoticService;
+    protected $invitationService;
 
     public function __construct(DiningCarMemberService $service,
                                 GiftService $giftService,
                                 MemberCouponService $memberCouponService,
                                 MemberGiftItemService $memberGiftItemService,
                                 AwardRecordService $awardRecordService,
-                                MemberNoticService $memberNoticService
+                                MemberNoticService $memberNoticService,
+                                InvitationService $invitationService
 
     )
     {
@@ -56,6 +59,7 @@ class DiningCarMemberController extends RestLaravelController
         $this->memberGiftItemService = $memberGiftItemService;
         $this->awardRecordService = $awardRecordService;
         $this->memberNoticService = $memberNoticService;
+        $this->invitationService = $invitationService;
     }
 
     /**
@@ -224,12 +228,14 @@ class DiningCarMemberController extends RestLaravelController
             $giftNum = $this->memberGiftItemService->availableGifts($memberId);
             //獎品清單
             $awardNum = $this->awardRecordService->availableAward($memberId);
+            //平台禮物券
+            $promoteGiftNum = $this->invitationService->availablePromoteGift($memberId);
             $noticNum = $this->memberNoticService->availableNotic($memberId);
             $total = $couponNum + $giftNum + $awardNum + $noticNum;
 
             return $this->success([
                 'coupon_num' => $couponNum,
-                'gift_num' => $giftNum + $awardNum,
+                'gift_num' => $giftNum + $awardNum + $promoteGiftNum,
                 'notic_num' => $noticNum,
                 'total' => $total
             ]);
