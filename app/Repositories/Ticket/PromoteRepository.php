@@ -137,7 +137,7 @@ class PromoteRepository extends BaseRepository
                             }
                             //已使用或過期
                             if ($type == 2) {
-                                $query->where('usage_end_at', '>', $now);
+                                $query->where('usage_end_at', '<', $now);
                             }
                             $query->where('status', "2");
                         })
