@@ -511,6 +511,8 @@ class MemberController extends RestLaravelController
         if (!$member) {
             return $this->failure('E0025','Token產生失敗');
         }
+        //增加邀請碼並且寫入DB
+        $inviteCode=$this->memberService->createInviteCode($member->id);
 
         return $this->success([
             'id' => $member->id,
@@ -526,6 +528,7 @@ class MemberController extends RestLaravelController
             'gender' => $member->gender,
             'zipcode' => $member->zipcode,
             'address' => $member->address,
+            'inviteCode' => $inviteCode
         ]);
     }
 }
