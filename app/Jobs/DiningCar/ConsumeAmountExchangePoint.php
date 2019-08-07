@@ -91,12 +91,12 @@ class ConsumeAmountExchangePoint implements ShouldQueue
             //推播升等提示!!
             if($nekey>$stkey)
             {
-                $memberId=array($this->member->member_id);
+                $memberId=array($Info->id);
                     //echo($MCId);
                 $pushData=array('prodType'  => 5,
-                        'prodId' => $this->diningCarId,
+                        'prodId' => $Info->dining_car_id,
                         'url' => [],
-                        'name' => $data->diningCar->memberLevels[$nekey]->name );  
+                        'name' => $Info->diningCar->memberLevels[$nekey]->name );  
                 $fcmService->memberNotify('diningCarMemberLevelUp',$memberId,$pushData);
             }
 
