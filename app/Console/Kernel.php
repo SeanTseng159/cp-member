@@ -109,8 +109,8 @@ class Kernel extends ConsoleKernel
         //餐車會員發送生日禮
         $schedule->command(GiveBirthdayGift::class)->dailyAt('02:00');
 
-        //餐車會員發送生日禮
-        $schedule->command(RemindMemberGiftAndCoupon::class)->dailyAt('08:00');
+        //提醒禮物到期了!
+        $schedule->command(RemindMemberGiftAndCoupon::class)->everyTenMinutes();
 
     }
 
