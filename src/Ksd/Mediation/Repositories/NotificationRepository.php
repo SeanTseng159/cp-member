@@ -72,6 +72,12 @@ class NotificationRepository extends BaseRepository
                 $newToken->member_id = $memberId;
                 $newToken->save();
             }
+
+            //如果有相同token不同帳號，則刪除
+            NotificationMobile::where('mobile_token', $token)
+                ->where('member_id', '<>',$memberId)
+                ->delete();
+
             return true;
         } else {
             $newToken = new NotificationMobile();
