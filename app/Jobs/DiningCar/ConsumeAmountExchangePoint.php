@@ -17,7 +17,6 @@ use App\Services\Ticket\DiningCarPointService;
 use App\Services\FCMService;
 use Cache;
 use App\Helpers\CommonHelper;
-use App\Services\Ticket\DiningCarPointService;
 use App\Services\Ticket\DiningCarMemberService;
 
 class ConsumeAmountExchangePoint implements ShouldQueue
