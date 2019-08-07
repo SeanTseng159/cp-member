@@ -75,7 +75,17 @@ class ConsumeAmountExchangePoint implements ShouldQueue
             //寫入消費記錄及點數並記錄兌換
             $pointService->consumeAmountExchangePoint($this->member, $this->consumeAmount);
 
-
+            //推播升等提示!!
+            if($nekey>$stkey)
+            {
+                $memberId=array($Info->id);
+                    //echo($MCId);
+                $pushData=array('prodType'  => 5,
+                        'prodId' => $Info->dining_car_id,
+                        'url' => [],
+                        'name' => $Info->diningCar->memberLevels[$nekey]->name );  
+                $fcmService->memberNotify('diningCarMemberLevelUp',$memberId,$pushData);
+            }
 
             //推播
             $data['point'] = floor($this->consumeAmount / $this->rule->point);
@@ -89,17 +99,7 @@ class ConsumeAmountExchangePoint implements ShouldQueue
             $memberIds[0] = $this->member->member_id;
             $fcmService->memberNotify('getPoint',$memberIds,$data);
 
-            //推播升等提示!!
-            if($nekey>$stkey)
-            {
-                $memberId=array($Info->id);
-                    //echo($MCId);
-                $pushData=array('prodType'  => 5,
-                        'prodId' => $Info->dining_car_id,
-                        'url' => [],
-                        'name' => $Info->diningCar->memberLevels[$nekey]->name );  
-                $fcmService->memberNotify('diningCarMemberLevelUp',$memberId,$pushData);
-            }
+
 
 
 
