@@ -9,6 +9,7 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Services\AwardRecordService;
+use App\Services\Ticket\InvitationService;
 use App\Services\Ticket\MemberCouponService;
 use App\Services\Ticket\MemberGiftItemService;
 use Illuminate\Http\JsonResponse;
@@ -20,6 +21,7 @@ use Hashids\Hashids;
 
 use App\Services\Ticket\DiningCarMemberService;
 use App\Services\Ticket\DiningCarService;
+use App\Services\Ticket\DiningCarPointService;
 use App\Services\MemberService;
 use App\Services\Ticket\GiftService;
 use App\Services\Ticket\MemberNoticService;
@@ -30,6 +32,7 @@ use App\Result\Ticket\DiningCarMemberResult;
 use App\Result\Ticket\GiftResult;
 
 use App\Jobs\DiningCar\ConsumeAmountExchangePoint;
+use App\Helpers\CommonHelper;
 
 class DiningCarMemberController extends RestLaravelController
 {
@@ -37,21 +40,25 @@ class DiningCarMemberController extends RestLaravelController
 
     protected $service;
     protected $diningCarService;
+    protected $diningCarPointService;
     protected $giftService;
     protected $fcmService;
     protected $memberCouponService;
     protected $memberGiftItemService;
     protected $awardRecordService;
     protected $memberNoticService;
+    protected $invitationService;
 
     public function __construct(DiningCarMemberService $service,
                                 DiningCarService $diningCarService, 
+                                DiningCarPointService $diningCarPointService,
                                 GiftService $giftService,
                                 FCMService $fcmService,
                                 MemberCouponService $memberCouponService,
                                 MemberGiftItemService $memberGiftItemService,
                                 AwardRecordService $awardRecordService,
-                                MemberNoticService $memberNoticService
+                                MemberNoticService $memberNoticService,
+                                InvitationService $invitationService
 
     )
     {
@@ -63,6 +70,7 @@ class DiningCarMemberController extends RestLaravelController
         $this->memberGiftItemService = $memberGiftItemService;
         $this->awardRecordService = $awardRecordService;
         $this->memberNoticService = $memberNoticService;
+        $this->invitationService = $invitationService;
     }
 
     /**
@@ -86,7 +94,7 @@ class DiningCarMemberController extends RestLaravelController
             $result = $this->service->add($memberId, $diningCarId);
             //加入餐車推播
             $memberIds[0] = $memberId;
-            $data['url'] = null;
+            $data['url'] = CommonHelper::getWebHost('zh-TW/diningCar/detail/' . $diningCarId);
             $data['prodType'] = 5;
             $data['prodId'] = $diningCarId;
             $data['diningCarName'] = $this->diningCarService->find($diningCarId)->name;
@@ -98,7 +106,7 @@ class DiningCarMemberController extends RestLaravelController
             //發送禮物推播
             if($gift)
             {
-                $data['url'] = null;
+                $data['url'] = CommonHelper::getWebHost('zh-TW/diningCar/detail/' . $diningCarId);
                 $data['prodType'] = 6;
                 $data['prodId'] = $diningCarId;
                 $data['giftName'] = $gift->name;
@@ -186,11 +194,10 @@ class DiningCarMemberController extends RestLaravelController
      * @param DiningCarService $diningCarService
      * @return JsonResponse
      */
-    public function invite(Request $request, DiningCarService $diningCarService)
+    public function invite(Request $request, DiningCarService $diningCarService, DiningCarPointService $diningCarPointService)
     {
         try {
             $params = (new DiningCarMemberParameter($request))->invite();
-
             $diningCarId = $this->decryptHashId('DiningCar', $params['diningCarId']);
 
             // 確認餐車是否付費
@@ -204,16 +211,28 @@ class DiningCarMemberController extends RestLaravelController
             // 加入會員
             $member = $this->service->add($params['memberId'], $diningCarId);
             if (!$member) return $this->failureCode('E0200');
-
+            //加入餐車推播
+             $addmemberCheck = true;
             // 發送禮物
             $gift = $this->giftService->giveAddDiningCarMemberGift($diningCarId, $params['memberId']);
             $gift = (new GiftResult)->detailByJoinDiningCar($gift);
+            $giftCheck = false;
+            $giftName = '';
+            //禮物推播確認
+            if($gift)
+            {
+                $giftCheck = true;
+                $giftName = $gift->name;
+            }
 
             // 發送點數
             $consumeAmount = (new Hashids('DiningCarConsumeAmount', 16))->decode($params['consumeAmount']);
             if ($consumeAmount && $consumeAmount[0] > 0) {
                 $key = 'invite' . $member->id;
-                dispatch(new ConsumeAmountExchangePoint($member, $consumeAmount[0], $key))->delay(5);
+                $rule = $diningCarPointService->getExchangeRateRule($diningCarId);
+                //dispatch(new ConsumeAmountExchangePoint($member, $consumeAmount[0], $key ,$diningCarId ,$rule))->delay(5);
+                $diningCarName = $this->diningCarService->find($diningCarId)->name;
+                dispatch(new ConsumeAmountExchangePoint($member, $consumeAmount[0], $key ,$diningCarId ,$rule ,$addmemberCheck ,$giftCheck ,$diningCarName ,$giftName))->delay(5);
             }
 
 
@@ -247,12 +266,14 @@ class DiningCarMemberController extends RestLaravelController
             $giftNum = $this->memberGiftItemService->availableGifts($memberId);
             //獎品清單
             $awardNum = $this->awardRecordService->availableAward($memberId);
+            //平台禮物券
+            $promoteGiftNum = $this->invitationService->availablePromoteGift($memberId);
             $noticNum = $this->memberNoticService->availableNotic($memberId);
             $total = $couponNum + $giftNum + $awardNum + $noticNum;
 
             return $this->success([
                 'coupon_num' => $couponNum,
-                'gift_num' => $giftNum + $awardNum,
+                'gift_num' => $giftNum + $awardNum + $promoteGiftNum,
                 'notic_num' => $noticNum,
                 'total' => $total
             ]);

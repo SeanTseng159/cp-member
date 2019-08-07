@@ -68,9 +68,15 @@ class FCMService
 
     public function notifyMultiple($memberIds, $title, $body, $data)
     {
-        $tokens = NotificationMobile::whereIn('member_id', $memberIds)->get();
+        $webtokens = NotificationMobile::whereIn('member_id', $memberIds)->where('platform','web')->get();
+        $webtokens = $webtokens->pluck('mobile_token')->toArray();
+        $isweb = true;
+        $this->toDevice($webtokens, $title, $body, $data ,$isweb);
+        //
+        $tokens = NotificationMobile::whereIn('member_id', $memberIds)->where('platform','!=','web')->get();
         $tokens = $tokens->pluck('mobile_token')->toArray();
-        $this->toDevice($tokens, $title, $body, $data);
+        $isweb = false;
+        $this->toDevice($tokens, $title, $body, $data ,$isweb);
 
         return $data;
     }
@@ -78,54 +84,47 @@ class FCMService
     public function memberNotify($event,$memberIds,$data)
     {
         switch ($event) {
-            case 'updateOpenStatus':
-                $title = '營業通知';
-                $body = $data['diningCarName'].'目前開始營業囉，等你來光顧喔！';
-                //推播紀錄存放資料庫
-                $params = (new DiningCarParameter)->noticInfo($data,$body);
-                foreach ($memberIds as $key => $memberId) {
-                    $params['member_id'] = $memberId;
-                    $params['created_at'] = Carbon::now();
-                    $this->memberNoticRepository->addRecord($params);
-                }
-                $this->notifyMultiple($memberIds, $title, $body, $data);
-                break;
-            case 'addMenu':
-                $title = '新商品通知';
-                $body = $data['diningCarName'].'更新商品資訊囉～歡迎來看看！';
-                //推播紀錄存放資料庫
-                $params = (new DiningCarParameter)->noticInfo($data,$body);
-                foreach ($memberIds as $key => $memberId) {
-                    $params['member_id'] = $memberId;
-                    $params['created_at'] = Carbon::now();
-                    $this->memberNoticRepository->addRecord($params);
-                }
-                $this->notifyMultiple($memberIds, $title, $body, $data);
-                break;
             case 'addMember':
                 $title = '加入餐車會員';
                 $body = '您已成功加入'.$data['diningCarName'];
-                //推播紀錄存放資料庫
-                $params = (new DiningCarParameter)->noticInfo($data,$body);
-                $params['member_id'] = $memberIds[0];
-                $params['created_at'] = Carbon::now();
-                $this->memberNoticRepository->addRecord($params);
-                $this->notifyMultiple($memberIds, $title, $body, $data);
                 break;
             case 'addGift':
                 $title = '獲得禮物通知';
                 $body = '您獲得了'.$data['giftName'];
-                //推播紀錄存放資料庫
-                $params = (new DiningCarParameter)->noticInfo($data,$body);
-                $params['member_id'] = $memberIds[0];
-                $params['created_at'] = Carbon::now();
-                $this->memberNoticRepository->addRecord($params);
-                $this->notifyMultiple($memberIds, $title, $body, $data);
                 break;
+            case 'getPoint':
+                $title = '訊息通知';
+                $body = $data['point'] > 0 ?'您消費獲得了'.$data['point'].'點':'';
+                if($data['addmemberCheck']){$body = '您已成功加入'.$data['diningCarName'].'，'.$body;}
+                if($data['giftCheck']){$body = $body.'並獲得了'.$data['giftName'];}
+                break;
+            case 'inviteSuccess':
+                $title = '邀請好友註冊成功';
+                $body = '您的好友'.$data['name'].'成功加入CityPass都會通！恭喜您可以獲得'.$data['giftName'];
+                break;
+            case 'remindMemberGiftAndCoupon':
+                $title = '到期通知';
+                $body = '您的 '.$data['name'].' 即將過期，請儘速使用！';
+                break;
+            case 'giftChange':
+                $title = '點數兌換通知';
+                $body = '您以'.$data['point'].'點兌換了'.$data['name'];
+                break;
+            case 'diningCarMemberLevelUp':
+                $title = '會員等級變更';
+                $body = '您已升等為 '.$data['name'];
+                break;
+
             default:
                 # code...
                 break;
         }
+        //推播紀錄存放資料庫
+        $params = (new DiningCarParameter)->noticInfo($data,$body);
+        $params['member_id'] = $memberIds[0];
+        $params['created_at'] = Carbon::now();
+        $this->memberNoticRepository->addRecord($params);
+        $this->notifyMultiple($memberIds, $title, $body, $data);
     }
 
     public function notify($notificationId)
@@ -190,7 +189,7 @@ class FCMService
 
     }
 
-    private function toDevice($tokens, $title, $body, $data)
+    private function toDevice($tokens, $title, $body, $data, $isweb = false)
     {
         if (empty($tokens)) {
             return;
@@ -201,6 +200,10 @@ class FCMService
         $notificationBuilder = new PayloadNotificationBuilder($title);
         $notificationBuilder->setBody($body)
             ->setSound('default');
+        if($isweb)
+        {
+            $notificationBuilder->setClickAction($data['url']);
+        }
 
         $dataBuilder = new PayloadDataBuilder();
         $dataBuilder->addData($data);

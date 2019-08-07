@@ -286,4 +286,22 @@ class MemberCouponRepository extends BaseRepository
         return $result;
     }
 
+
+
+
+
+
+    //使用couponID來尋找mermberId
+    public function findByCouponId($couponId)
+    {
+        $coupon=$this->model
+                ->where('coupon_id',$couponId)
+                ->distinct('member_id')
+                ->get();
+        return $coupon;
+    }
+
+
+
+
 }

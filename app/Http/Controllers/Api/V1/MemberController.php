@@ -13,6 +13,7 @@ use Ksd\Mediation\Core\Controller\RestLaravelController;
 use App\Services\MemberService;
 use App\Services\NewsletterService;
 use App\Services\JWTTokenService;
+use App\Services\FCMService;
 use App\Services\Ticket\MemberNoticService;
 use App\Services\Ticket\InvitationService;
 use App\Parameter\MemberParameter;
@@ -175,7 +176,7 @@ class MemberController extends RestLaravelController
         }
     }
 
-    public function invitationInput(Request $request,InvitationService $invitationService)
+    public function invitationInput(Request $request,InvitationService $invitationService ,FCMService $fcmService)
     {
         try {
                 $memberId = $request->memberId;
@@ -210,6 +211,15 @@ class MemberController extends RestLaravelController
                         case '3':
                             $parameter['giftName'] = $gift->name;
                             $this->memberService->findFriendInvitation($passiveMember,$parameter);
+                            //推播
+                            $data['url'] = '';
+                            $data['prodType'] = 0;
+                            $data['prodId'] = 0;
+                            $data['name'] = $member->name;
+                            $data['giftName'] = $gift->name;
+                            $memberIds[0] = $passiveMemberId;
+                            $fcmService->memberNotify('inviteSuccess',$memberIds,$data);
+                            return $this->success();
                             break;
                         default:
                             # code...
@@ -218,7 +228,6 @@ class MemberController extends RestLaravelController
                     }
                     //寄信end
                     return $this->success();
-        
                 }else
                 {
                     return $this->failureCode('E0090');
@@ -252,8 +261,16 @@ class MemberController extends RestLaravelController
             //如果沒有小名的話，用全名
             if(empty($member->nick)) {$nick= $member->name;} else{$nick = $member->nick;}
             //做成最後的型態
-            if(empty($productInfo)){$friendInviteWeb = '嗨！您的好友'.$nick.'邀請您加入CityPass都會通會員，現在註冊立即享有吃喝玩樂優惠！';}else{
-                $friendInviteWeb = '嗨！您的好友'.$nick.'邀請您加入CityPass都會通會員，現在註冊立即享有吃喝玩樂優惠！還有好康'.$productInfo.'等你拿！';}
+
+
+            if(empty($productInfo))
+                {
+                    $friendInviteWeb = '嗨！您的好友'.$nick.'邀請您加入CityPass都會通會員，現在註冊立即享有吃喝玩樂優惠！'.'\n 會員代碼：'.$member->invited_code.'\n https://dev.citypass.tw/zh-TW/invite/'.$member->invited_code;
+                }else
+                {
+                    $friendInviteWeb = '嗨！您的好友'.$nick.'邀請您加入CityPass都會通會員，現在註冊立即享有吃喝玩樂優惠！還有好康'.$productInfo.'等你拿！'.'\n 會員代碼：'.$member->invited_code.'\n https://dev.citypass.tw/zh-TW/invite/'.$member->invited_code;;
+                }
+
 
 
 
