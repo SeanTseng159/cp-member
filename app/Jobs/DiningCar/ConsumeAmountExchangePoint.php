@@ -67,9 +67,9 @@ class ConsumeAmountExchangePoint implements ShouldQueue
             //查詢尚未寫入資料表的的總和
             $Info=$diningCarMemberService->findLevel($this->member->member_id, $this->diningCarId);
             //查詢現在的等級
-            $stkey=findNowLevel($Info);
+            $stkey=$this->findNowLevel($Info);
             //判斷加上新的消費後是否有改變等級
-            $nekey=checkIfLevelUp($Info, $this->consumeAmount,$stkey);
+            $nekey=$this->checkIfLevelUp($Info, $this->consumeAmount,$stkey);
 
 
             //寫入消費記錄及點數並記錄兌換
