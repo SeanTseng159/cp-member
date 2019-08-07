@@ -146,6 +146,7 @@ class PromoteRepository extends BaseRepository
                 ->get();
             $expired = $this->PromoteGiftRecordModel
                 ->whereMemberId($memberId)
+                ->whereNull('verifier_at')
                 ->whereHas('promoteGift',
                     function ($query) use ($type) {
                         $now = Carbon::now();
@@ -154,7 +155,7 @@ class PromoteRepository extends BaseRepository
                     })
                 ->with(['promoteGift', 'promoteGift.image'])
                 ->get();
-            $result = $used->merge($expired)->unique();
+            $result = $used->merge($expired);
         }
         return $result;
     }
