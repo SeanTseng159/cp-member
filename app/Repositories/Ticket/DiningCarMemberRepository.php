@@ -84,7 +84,8 @@ class DiningCarMemberRepository extends BaseRepository
         /*$currentPage = $params['page'];
         Paginator::currentPageResolver(function () use ($currentPage) {
             return $currentPage;
-        });*/
+        });*/     
+
 
         return $this->model->with([
                             'diningCar.mainImg',
@@ -96,5 +97,20 @@ class DiningCarMemberRepository extends BaseRepository
                         ->where('member_id', $memberId)
                         //->paginate($params['limit']);
                         ->paginate(300);
+    }
+
+    //利用memberId 及餐車ID 查找現在是否可以升等!
+    public function findLevel($memberId = 0, $dining_car_id = 0)
+    {
+        $data=$this->model->with('diningCar.memberLevels')
+                        ->where('member_id', $memberId)
+                        ->where('dining_car_id', $dining_car_id)
+                        ->first();
+        //echo($data->diningCar);                
+        //echo($data->diningCar->memberLevels);
+
+        return $data;
+
+
     }
 }

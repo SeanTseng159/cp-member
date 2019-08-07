@@ -101,4 +101,10 @@ class DiningCarMemberService extends BaseService
     {
         return $this->repository->list($memberId, $params);
     }
+
+    //利用memberId 及餐車ID 查找，找出餐車的升等規則,現在是否可以升等!
+    public function findLevel($memberId = 0, $dining_car_id = 0)
+    {
+        return $this->repository->findLevel($memberId, $dining_car_id);
+    }
 }
