@@ -66,7 +66,7 @@ class RemindMemberGiftAndCoupon extends Command
             {
               //echo($memberId);
               $MGId=array($memberId);
-              $MGpush=array('prodType'  => 5,
+              $MGpush=array('prodType'  => 6,
                           'prodId' => $gift->model_spec_id,
                           'url' => CommonHelper::getWebHost('zh-TW/diningCar/detail/' . $gift->model_spec_id),
                           'name' => $gift->name );
