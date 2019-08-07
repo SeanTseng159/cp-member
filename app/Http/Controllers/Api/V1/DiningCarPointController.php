@@ -130,7 +130,7 @@ class DiningCarPointController extends RestLaravelController
             $data['prodType'] = 6;
             $data['prodId'] = $diningCarId;
             $data['name'] = $gift->name;
-            $data['point'] = $gift->points;
+            $data['point'] = $exchangePoint;
             $memberIds[0] = $memberId;
             $this->fcmService->memberNotify('giftChange', $memberIds, $data);
 
