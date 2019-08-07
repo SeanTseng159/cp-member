@@ -87,7 +87,7 @@ class ConsumeAmountExchangePoint implements ShouldQueue
             }
 
             //推播
-            $data['point'] = floor($this->consumeAmount / $this->rule->point);
+            $data['point'] = empty($this->rule) ? 0 : floor($this->consumeAmount / $this->rule->point);
             $data['url'] = CommonHelper::getWebHost('zh-TW/diningCar/detail/' . $this->diningCarId);
             $data['prodType'] = 5;
             $data['prodId'] = $this->diningCarId;
