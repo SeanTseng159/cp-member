@@ -203,6 +203,7 @@ class FCMService
         if($isweb)
         {
             $notificationBuilder->setClickAction($data['url']);
+            $notificationBuilder->setIcon('https://scontent.fkhh1-1.fna.fbcdn.net/v/t1.0-9/60443313_2371437916474915_6204651090290409472_n.jpg?_nc_cat=102&_nc_oc=AQn8HkrJaV57l3fCG1y3rpFKiWu_Lq8Jg8df2bmx_iJV4itYAWOhPDOiQkgAmi-o3QE&_nc_ht=scontent.fkhh1-1.fna&oh=fbac926b0cba076eee39010173c3784f&oe=5DC24FDB');
         }
 
         $dataBuilder = new PayloadDataBuilder();
