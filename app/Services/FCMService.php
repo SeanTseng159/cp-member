@@ -110,6 +110,11 @@ class FCMService
                 $title = '點數兌換通知';
                 $body = '您以'.$data['point'].'點兌換了'.$data['name'];
                 break;
+            case 'diningCarMemberLevelUp':
+                $title = '會員等級變更';
+                $body = '您已升等為 '.$data['name'];
+                break;
+
             default:
                 # code...
                 break;
