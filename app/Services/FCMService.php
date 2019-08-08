@@ -68,12 +68,12 @@ class FCMService
 
     public function notifyMultiple($memberIds, $title, $body, $data)
     {
-        $webtokens = NotificationMobile::whereIn('member_id', $memberIds)->where('platform','web')->get();
+        $webtokens = NotificationMobile::whereIn('member_id', $memberIds)->where('platform','web')->whereNull('deleted_at')->get();
         $webtokens = $webtokens->pluck('mobile_token')->toArray();
         $isweb = true;
         $this->toDevice($webtokens, $title, $body, $data ,$isweb);
         //
-        $tokens = NotificationMobile::whereIn('member_id', $memberIds)->where('platform','!=','web')->get();
+        $tokens = NotificationMobile::whereIn('member_id', $memberIds)->where('platform','!=','web')->whereNull('deleted_at')->get();
         $tokens = $tokens->pluck('mobile_token')->toArray();
         $isweb = false;
         $this->toDevice($tokens, $title, $body, $data ,$isweb);
