@@ -213,7 +213,7 @@ class MemberController extends RestLaravelController
                             $parameter['giftName'] = $gift->name;
                             $this->memberService->findFriendInvitation($passiveMember,$parameter);
                             //推播
-                            $data['url'] = '';
+                            $data['url'] = CommonHelper::getWebHost('zh-TW/invite');
                             $data['prodType'] = 10;
                             $data['prodId'] = 0;
                             $data['name'] = $member->name;
