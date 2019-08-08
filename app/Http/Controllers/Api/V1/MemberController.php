@@ -214,7 +214,7 @@ class MemberController extends RestLaravelController
                             $this->memberService->findFriendInvitation($passiveMember,$parameter);
                             //推播
                             $data['url'] = '';
-                            $data['prodType'] = 0;
+                            $data['prodType'] = 10;
                             $data['prodId'] = 0;
                             $data['name'] = $member->name;
                             $data['giftName'] = $gift->name;
