@@ -43,4 +43,11 @@ class CouponService extends BaseService
     {
         return $this->repository->find($id);
     }
+
+    //取得優惠卷倒數過期前7天前資料
+    public function findCouponEndTime()
+    {
+        return $this->repository->findCouponEndTime();
+    }  
+
 }

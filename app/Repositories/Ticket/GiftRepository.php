@@ -154,4 +154,18 @@ class GiftRepository extends BaseRepository
             DB::connection('backend')->rollBack();
         }
     }
+
+    //取得禮物卷倒數過期前7天前資料
+    public function findGiftEndTime()
+    {
+        $today = Carbon::today();
+        $a1= Carbon::today('Asia/Taipei')->addDay(8);
+        $a2= Carbon::today('Asia/Taipei')->addDay(7);
+
+        $data=$this->model->where('status', '1')
+        ->where('expire_at', '<',$a1)
+        ->where('expire_at', '>=',$a2)
+        ->where('qty','>',0)->get();        
+      return $data;     
+    } 
 }

@@ -13,6 +13,7 @@ use Ksd\Mediation\Core\Controller\RestLaravelController;
 use App\Services\MemberService;
 use App\Services\NewsletterService;
 use App\Services\JWTTokenService;
+use App\Services\FCMService;
 use App\Services\Ticket\MemberNoticService;
 use App\Services\Ticket\InvitationService;
 use App\Parameter\MemberParameter;
@@ -176,7 +177,7 @@ class MemberController extends RestLaravelController
         }
     }
 
-    public function invitationInput(Request $request,InvitationService $invitationService)
+    public function invitationInput(Request $request,InvitationService $invitationService ,FCMService $fcmService)
     {
         try {
                 $memberId = $request->memberId;
@@ -211,6 +212,15 @@ class MemberController extends RestLaravelController
                         case '3':
                             $parameter['giftName'] = $gift->name;
                             $this->memberService->findFriendInvitation($passiveMember,$parameter);
+                            //推播
+                            $data['url'] = CommonHelper::getWebHost('zh-TW/invite');
+                            $data['prodType'] = 10;
+                            $data['prodId'] = 0;
+                            $data['name'] = $member->name;
+                            $data['giftName'] = $gift->name;
+                            $memberIds[0] = $passiveMemberId;
+                            $fcmService->memberNotify('inviteSuccess',$memberIds,$data);
+                            return $this->success();
                             break;
                         default:
                             # code...
@@ -219,7 +229,6 @@ class MemberController extends RestLaravelController
                     }
                     //寄信end
                     return $this->success();
-        
                 }else
                 {
                     return $this->failureCode('E0090');

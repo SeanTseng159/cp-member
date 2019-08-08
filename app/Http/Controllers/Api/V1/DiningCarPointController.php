@@ -12,10 +12,12 @@ use App\Result\Ticket\DiningCarResult;
 use App\Services\Ticket\DiningCarPointRecordService;
 use App\Services\Ticket\GiftService;
 use App\Services\Ticket\MemberGiftItemService;
+use App\Services\FCMService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Ksd\Mediation\Core\Controller\RestLaravelController;
 use mysql_xdevapi\Exception;
+use App\Helpers\CommonHelper;
 
 class DiningCarPointController extends RestLaravelController
 {
@@ -23,14 +25,18 @@ class DiningCarPointController extends RestLaravelController
     protected $diningCarPointRecordService;
     protected $giftService;
     protected $memberGiftItemService;
+    protected $fcmService;
 
 
-    public function __construct(DiningCarPointRecordService $diningCarPointRecordService, GiftService $giftService,
-                                MemberGiftItemService $memberGiftItemService)
+    public function __construct(DiningCarPointRecordService $diningCarPointRecordService, 
+                                GiftService $giftService,
+                                MemberGiftItemService $memberGiftItemService,
+                                FCMService $fcmService)
     {
         $this->diningCarPointRecordService = $diningCarPointRecordService;
         $this->giftService = $giftService;
         $this->memberGiftItemService = $memberGiftItemService;
+        $this->fcmService = $fcmService;
     }
 
 
@@ -119,6 +125,15 @@ class DiningCarPointController extends RestLaravelController
                 $expireTime,
                 $gift->id,
                 $exchangeQty);
+            //推播
+            $data['url'] = CommonHelper::getWebHost('zh-TW/diningCar/detail/' . $diningCarId);
+            $data['prodType'] = 6;
+            $data['prodId'] = $diningCarId;
+            $data['name'] = $gift->name;
+            $data['point'] = $exchangePoint;
+            $data['qty'] = $exchangeQty;
+            $memberIds[0] = $memberId;
+            $this->fcmService->memberNotify('giftChange', $memberIds, $data);
 
             if (!$ret) {
                 throw  new \Exception('E0002');
@@ -138,8 +153,6 @@ class DiningCarPointController extends RestLaravelController
             }
             return $this->failureCode($code);
         }
-
-
     }
 
 

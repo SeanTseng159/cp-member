@@ -22,6 +22,7 @@ use Ksd\Mediation\Config\ProjectConfig;
 
 use App\Console\Commands\RefreshLayoutCache;
 use App\Console\Commands\UpdateLinePayMapStores;
+use App\Console\Commands\RemindMemberGiftAndCoupon;
 use App\Console\Commands\DiningCar\ConsumeExchangePoint;
 
 use App\Jobs\SendNotification;
@@ -48,7 +49,8 @@ class Kernel extends ConsoleKernel
         RefreshLayoutCache::class,
         UpdateLinePayMapStores::class,
         ConsumeExchangePoint::class,
-        GiveBirthdayGift::class
+        GiveBirthdayGift::class,
+        RemindMemberGiftAndCoupon::class
     ];
 
     /**
@@ -102,9 +104,14 @@ class Kernel extends ConsoleKernel
 
         // 消費換點數，每小時46分執行
         $schedule->command(ConsumeExchangePoint::class)->cron('46 * * * * *');
+        // $schedule->command(ConsumeExchangePoint::class)->everyFiveMinutes();
 
         //餐車會員發送生日禮
         $schedule->command(GiveBirthdayGift::class)->dailyAt('02:00');
+
+        //提醒禮物到期了!
+        $schedule->command(RemindMemberGiftAndCoupon::class)->everyTenMinutes();
+
     }
 
     /**
