@@ -20,6 +20,7 @@ use App\Parameter\MemberParameter;
 use App\Traits\CryptHelper;
 use App\Traits\ValidatorHelper;
 use App\Result\Ticket\MemberNoticResult;
+use App\Helpers\CommonHelper;
 
 use Hashids\Hashids;
 
@@ -208,7 +209,7 @@ class MemberController extends RestLaravelController
                             $parameter['giftName'] = $gift->name;
                             $this->memberService->findFriendInvitation($passiveMember,$parameter);
                             //推播
-                            $data['url'] = '';
+                            $data['url'] = CommonHelper::getWebHost('zh-TW/invite');
                             $data['prodType'] = 10;
                             $data['prodId'] = 0;
                             $data['name'] = $member->name;
