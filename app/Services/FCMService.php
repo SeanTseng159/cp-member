@@ -214,7 +214,8 @@ class FCMService
         $data = $dataBuilder->build();
         $downstreamResponse = FCM::sendTo($tokens, $option, $notification, $data);
 
-        Log::info('==== notification 測試 ===== :' . $downstreamResponse);
+        Log::info('==== notification 測試 ===== :' );
+         Log::info($downstreamResponse );
 
         //return Array - you must remove all this tokens in your database
         //$deleteTokes = $downstreamResponse->tokensToDelete();
