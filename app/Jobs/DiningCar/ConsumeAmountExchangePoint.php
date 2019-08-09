@@ -59,6 +59,7 @@ class ConsumeAmountExchangePoint implements ShouldQueue
      */
     public function handle(DiningCarPointService $pointService ,FCMService $fcmService,DiningCarMemberService $diningCarMemberService)
     {
+        \Log::info('進來handle了');
         if ($this->getCache($this->key)) return;
 
         if ($this->member && $this->consumeAmount > 0) {
