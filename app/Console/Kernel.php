@@ -110,7 +110,7 @@ class Kernel extends ConsoleKernel
         $schedule->command(GiveBirthdayGift::class)->dailyAt('02:00');
 
         //提醒禮物到期了!
-        $schedule->command(RemindMemberGiftAndCoupon::class)->everyTenMinutes();
+        $schedule->command(RemindMemberGiftAndCoupon::class)->dailyAt('08:00');
 
     }
 
