@@ -59,15 +59,10 @@ class ConsumeAmountExchangePoint implements ShouldQueue
      */
     public function handle(DiningCarPointService $pointService ,FCMService $fcmService,DiningCarMemberService $diningCarMemberService)
     {
-        \Log::info('進來handle了');
-        \Log::info('key             =>' . $this->getCache($this->key));
-        \Log::info('member          =>' . $this->member);
-        \Log::info('consumeAmount   =>' . $this->consumeAmount);
-        // if ($this->getCache($this->key)) return;
 
+        // if ($this->getCache($this->key)) return;
         if ($this->member && $this->consumeAmount > 0) {
             $this->setCache($this->key);
-            \Log::info('111');
             //查詢尚未寫入資料表的的總和
             $Info=$diningCarMemberService->findLevel($this->member->member_id, $this->diningCarId);
             if(empty($Info))
@@ -80,7 +75,6 @@ class ConsumeAmountExchangePoint implements ShouldQueue
                 $car=$Info->diningCar->memberLevels;
                 $amount=$Info->amount;
             }
-            \Log::info('222');
             //查詢現在的等級
             $stkey=$this->findNowLevel($car,$amount);
             //判斷加上新的消費後是否有改變等級
@@ -89,7 +83,6 @@ class ConsumeAmountExchangePoint implements ShouldQueue
 
             //寫入消費記錄及點數並記錄兌換
             $pointService->consumeAmountExchangePoint($this->member, $this->consumeAmount);
-            \Log::info('333');
             //推播升等提示!!
             if($nekey>$stkey)
             {
@@ -101,7 +94,6 @@ class ConsumeAmountExchangePoint implements ShouldQueue
                         'name' => $car[$nekey]->name );  
                 $fcmService->memberNotify('diningCarMemberLevelUp',$memberId,$pushData);
             }
-            \Log::info('444');
             //推播
             $data['point'] = floor($this->consumeAmount / $this->rule->point);
             $data['url'] = CommonHelper::getWebHost('zh-TW/diningCar/detail/' . $this->diningCarId);
@@ -113,12 +105,6 @@ class ConsumeAmountExchangePoint implements ShouldQueue
             $data['giftName'] = $this->giftName;
             $memberIds[0] = $this->member->member_id;
             $fcmService->memberNotify('getPoint',$memberIds,$data);
-            \Log::info('555');
-
-
-
-
-
         }
     }
 
