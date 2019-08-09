@@ -61,6 +61,8 @@ class ConsumeAmountExchangePoint implements ShouldQueue
     {
         \Log::info('進來handle了');
         \Log::info('key=>' . $this->key);
+        \Log::info('key=>' . $this->member);
+        \Log::info('key=>' . $this->consumeAmount);
         // if ($this->getCache($this->key)) return;
 
         if ($this->member && $this->consumeAmount > 0) {
