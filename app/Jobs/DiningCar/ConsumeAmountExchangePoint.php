@@ -16,6 +16,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use App\Services\Ticket\DiningCarPointService;
 use App\Services\FCMService;
 use Cache;
+use Log;
 use App\Helpers\CommonHelper;
 use App\Services\Ticket\DiningCarMemberService;
 
