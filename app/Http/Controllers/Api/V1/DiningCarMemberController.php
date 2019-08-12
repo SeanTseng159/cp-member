@@ -31,6 +31,7 @@ use App\Result\Ticket\DiningCarMemberResult;
 use App\Result\Ticket\GiftResult;
 
 use App\Jobs\DiningCar\ConsumeAmountExchangePoint;
+use App\Jobs\FCMSendPush;
 use App\Helpers\CommonHelper;
 
 class DiningCarMemberController extends RestLaravelController
@@ -94,7 +95,8 @@ class DiningCarMemberController extends RestLaravelController
             $data['prodType'] = 5;
             $data['prodId'] = $diningCarId;
             $data['diningCarName'] = $this->diningCarService->find($diningCarId)->name;
-            $this->fcmService->memberNotify('addMember',$memberIds,$data);
+            //$this->fcmService->memberNotify('addMember',$memberIds,$data);
+            dispatch(new FCMSendPush('addMember',$memberIds,$data));
 
             //發送禮物
             $gift = $this->giftService->giveAddDiningCarMemberGift($diningCarId, $memberId);
@@ -106,7 +108,8 @@ class DiningCarMemberController extends RestLaravelController
                 $data['prodType'] = 6;
                 $data['prodId'] = $diningCarId;
                 $data['giftName'] = $gift->name;
-                $this->fcmService->memberNotify('addGift',$memberIds,$data);
+                //$this->fcmService->memberNotify('addGift',$memberIds,$data);
+                dispatch(new FCMSendPush('addGift',$memberIds,$data));
             }
 
             // 取會員卡資料

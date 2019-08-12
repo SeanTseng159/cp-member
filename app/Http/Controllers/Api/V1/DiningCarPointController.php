@@ -18,6 +18,7 @@ use Illuminate\Http\Request;
 use Ksd\Mediation\Core\Controller\RestLaravelController;
 use mysql_xdevapi\Exception;
 use App\Helpers\CommonHelper;
+use App\Jobs\FCMSendPush;
 
 class DiningCarPointController extends RestLaravelController
 {
@@ -133,7 +134,8 @@ class DiningCarPointController extends RestLaravelController
             $data['point'] = $exchangePoint;
             $data['qty'] = $exchangeQty;
             $memberIds[0] = $memberId;
-            $this->fcmService->memberNotify('giftChange', $memberIds, $data);
+            //$this->fcmService->memberNotify('giftChange', $memberIds, $data);
+            dispatch(new FCMSendPush('giftChange', $memberIds, $data));
 
             if (!$ret) {
                 throw  new \Exception('E0002');

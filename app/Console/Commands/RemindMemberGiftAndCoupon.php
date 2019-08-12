@@ -15,6 +15,8 @@ use App\Services\Ticket\MemberCouponService;
 use App\Services\FCMService;
 use App\Helpers\CommonHelper;
 
+use App\Jobs\FCMSendPush;
+
 class RemindMemberGiftAndCoupon extends Command
 {
     protected $service;
@@ -70,7 +72,8 @@ class RemindMemberGiftAndCoupon extends Command
                           'prodId' => $gift->model_spec_id,
                           'url' => CommonHelper::getWebHost('zh-TW/diningCar/detail/' . $gift->model_spec_id),
                           'name' => $gift->name );
-              $fCMService->memberNotify('remindMemberGiftAndCoupon',$MGId,$MGpush);
+              //$fCMService->memberNotify('remindMemberGiftAndCoupon',$MGId,$MGpush);
+              dispatch(new FCMSendPush('remindMemberGiftAndCoupon', $MGId, $MGpush));
             }
 
 
@@ -104,7 +107,8 @@ class RemindMemberGiftAndCoupon extends Command
                         'url' => CommonHelper::getWebHost('zh-TW/diningCar/detail/' . $coupon->model_spec_id),
                         'name' => $coupon->name );  
                     //echo($MCId);
-                    $fCMService->memberNotify('remindMemberGiftAndCoupon',$MCId,$MCpush);
+                    //$fCMService->memberNotify('remindMemberGiftAndCoupon',$MCId,$MCpush);
+                    dispatch(new FCMSendPush('remindMemberGiftAndCoupon', $MCId, $MCpush));
                 }
                 
             }
