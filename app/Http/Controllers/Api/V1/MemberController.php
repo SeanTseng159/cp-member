@@ -24,6 +24,8 @@ use App\Helpers\CommonHelper;
 
 use Hashids\Hashids;
 
+use App\Jobs\FCMSendPush;
+
 class MemberController extends RestLaravelController
 {
     use CryptHelper;
@@ -219,7 +221,8 @@ class MemberController extends RestLaravelController
                             $data['name'] = $member->name;
                             $data['giftName'] = $gift->name;
                             $memberIds[0] = $passiveMemberId;
-                            $fcmService->memberNotify('inviteSuccess',$memberIds,$data);
+                            //$fcmService->memberNotify('inviteSuccess',$memberIds,$data);
+                            dispatch(new FCMSendPush('inviteSuccess',$memberIds,$data));
                             return $this->success();
                             break;
                         default:
