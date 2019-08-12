@@ -253,7 +253,7 @@ class MemberController extends RestLaravelController
             $url .= $this->lang;
 
             //笨蛋式寫法
-            $friendInviteApp = '<p>一次分享雙重獎勵</p><ol style="padding-inline-start: 20px;"><li>透過您的Email、網路社群或通訊軟體轉貼專屬邀請碼邀請朋友加入 CityPass都會通 會員。</li><li>當您的好朋友註冊 CityPass都會通 時填入您的邀請碼，註冊成功後即可獲得 iPhone抽獎一次。您同時也可獲得 iPhone抽獎一次。</li><li>獎勵可累積，邀請好友成功次數越多抽獎次數也越多，得獎機會越大。</li><li>新註冊會員，註冊成功即可獲得 CityPass都會通 首次購物9折優惠。</li><li>活動時間：即日起至2019.12.31止。</li></ol>';
+            $friendInviteApp = '<p>一次分享雙重獎勵</p><ol style="padding-left: 20px;"><li>透過您的Email、網路社群或通訊軟體轉貼專屬邀請碼邀請朋友加入 CityPass都會通 會員。</li><li>當您的好朋友註冊 CityPass都會通 時填入您的邀請碼，註冊成功後即可獲得 iPhone抽獎一次。您同時也可獲得 iPhone抽獎一次。</li><li>獎勵可累積，邀請好友成功次數越多抽獎次數也越多，得獎機會越大。</li><li>新註冊會員，註冊成功即可獲得 CityPass都會通 首次購物9折優惠。</li><li>活動時間：即日起至2019.12.31止。</li></ol>';
 
 
 
