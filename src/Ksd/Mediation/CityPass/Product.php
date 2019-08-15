@@ -131,6 +131,7 @@ class Product extends Client
             $product = new ProductResult();
             $product->cityPass($item);
             if ($item['source'] === 'magento') $product->source = 'magento';
+            if ($item['source'] === 'market') $product->source = 'market';
             $data[] = $product;
         }
 
