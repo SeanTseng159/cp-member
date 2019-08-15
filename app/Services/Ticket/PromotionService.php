@@ -23,8 +23,8 @@ class PromotionService extends BaseService
 
     /**
      * 取資料
-     * @param $id
-     * @return App\Repositories\Ticket\Promotion
+     * @param int $id
+     * @return \App\Repositories\Ticket\App\Repositories\Ticket\Promotion
      */
     public function find($id = 0)
     {
@@ -48,5 +48,10 @@ class PromotionService extends BaseService
         if ($product && !$this->checkExpire($product)) return NULL;
 
         return $product;
+    }
+
+    public function search($keyword)
+    {
+        return $this->repository->search($keyword);
     }
 }
