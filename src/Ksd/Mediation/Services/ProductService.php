@@ -140,8 +140,16 @@ class ProductService
      */
     private function processList($products)
     {
+
         foreach ($products->result as $key => $product) {
-            $products->result[$key] = $this->process($product);
+
+            if (is_array($product) && $product['source'] == 'market') {
+                $products->result[$key] = $product;
+            } else {
+                $products->result[$key] = $this->process($product);
+            }
+
+
         }
         return $products;
 

@@ -122,16 +122,23 @@ class Product extends Client
         $keyword = $key->search;
         $path = "product/search";
 
-        $response  = $this->putQuery('search',$keyword)->request('GET', $path);
+        $response = $this->putQuery('search', $keyword)->request('GET', $path);
         $body = $response->getBody();
         $result = json_decode($body, true);
 
-        $data =[];
+        $data = [];
         foreach ($result['data'] as $item) {
-            $product = new ProductResult();
-            $product->cityPass($item);
-            if ($item['source'] === 'magento') $product->source = 'magento';
-            if ($item['source'] === 'market') $product->source = 'market';
+
+
+            if ($item['source'] != 'market') {
+                $product = new ProductResult();
+
+                $product->cityPass($item);
+                if ($item['source'] === 'magento') $product->source = 'magento';
+            } else {
+                $product = $item;
+            }
+
             $data[] = $product;
         }
 
