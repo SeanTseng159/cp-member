@@ -11,6 +11,7 @@ use App\Config\BaseConfig;
 use App\Result\BaseResult;
 use App\Traits\ObjectHelper;
 use App\Result\Ticket\ProductResult;
+use App\Result\Ticket\PromotionResult;
 use App\Result\MagentoProductResult;
 
 class LayoutResult extends BaseResult
@@ -156,6 +157,9 @@ class LayoutResult extends BaseResult
             }
             elseif ($item->source === BaseConfig::SOURCE_COMMODITY) {
                 $newItems[] = (new MagentoProductResult)->get($item);
+            }else
+            {
+                $newItems[] = (new PromotionResult)->get($item);
             }
         }
 
