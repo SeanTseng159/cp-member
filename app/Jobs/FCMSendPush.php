@@ -1,7 +1,7 @@
 <?php
 /**
  * User: Danny
- * Date: 2019/07/11
+ * Date: 2019/08/12
  * Time: 上午 9:42
  */
 
@@ -13,25 +13,27 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 
-use App\Models\Member;
-use App\Services\MailService;
+use App\Services\FCMService;
+use Log;
 
-class FindFriendInvitationMail implements ShouldQueue
+class FCMSendPush implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    protected $member;
-    protected $parameter;
+    private $event;
+    private $memberIds;
+    private $data;
 
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct(Member $member,$parameter)
+    public function __construct($event, $memberIds, $data)
     {
-        $this->member = $member;
-        $this->parameter = $parameter;
+        $this->event = $event;
+        $this->memberIds = $memberIds;
+        $this->data = $data;
     }
 
     /**
@@ -39,8 +41,9 @@ class FindFriendInvitationMail implements ShouldQueue
      *
      * @return void
      */
-    public function handle(MailService $mailService)
+    public function handle(FCMService $fcmService)
     {
-        $mailService->findFriendInvitationMail($this->member,$this->parameter);
+        Log::info('發送推播 ：'. $this->event);
+        $fcmService->memberNotify($this->event, $this->memberIds, $this->data);
     }
 }

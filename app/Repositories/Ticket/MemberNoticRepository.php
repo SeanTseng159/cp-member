@@ -29,7 +29,7 @@ class MemberNoticRepository extends BaseRepository
 
         return $this->model->with(['diningCar'])
                             ->where('member_id', $params['memberId'])
-                            ->orderBy('created_at','asc')
+                            ->orderBy('created_at','desc')
                             ->paginate($params['limit']);
     }
 
@@ -66,5 +66,10 @@ class MemberNoticRepository extends BaseRepository
         return $this->model->where('member_id', $memberId)
                             ->where('read_status', 0)
                             ->count();
+    }
+
+     public function addRecord($params)
+    {
+        return $this->model->insert($params);
     }
 }

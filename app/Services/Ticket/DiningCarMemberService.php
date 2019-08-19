@@ -11,6 +11,7 @@ namespace App\Services\Ticket;
 use App\Services\BaseService;
 use App\Repositories\Ticket\DiningCarMemberRepository;
 use App\Repositories\Ticket\GiftRepository;
+use App\Repositories\Ticket\DiningCarMemberLevelsRepository;
 use App\Repositories\Ticket\DiningCarPointRecordRepository as PointRecordRepository;
 
 class DiningCarMemberService extends BaseService
@@ -18,12 +19,14 @@ class DiningCarMemberService extends BaseService
     protected $repository;
     protected $giftRepository;
     protected $pointRecordRepository;
+    protected $diningCarMemberLevelsRepository;
 
-    public function __construct(DiningCarMemberRepository $repository, GiftRepository $giftRepository, PointRecordRepository $pointRecordRepository)
+    public function __construct(DiningCarMemberRepository $repository, GiftRepository $giftRepository, PointRecordRepository $pointRecordRepository,DiningCarMemberLevelsRepository $diningCarMemberLevelsRepository)
     {
         $this->repository = $repository;
         $this->giftRepository = $giftRepository;
         $this->pointRecordRepository = $pointRecordRepository;
+        $this->diningCarMemberLevelsRepository=$diningCarMemberLevelsRepository;
     }
 
     /**
@@ -100,5 +103,17 @@ class DiningCarMemberService extends BaseService
     public function list($memberId = 0, $params = [])
     {
         return $this->repository->list($memberId, $params);
+    }
+
+    //利用memberId 及餐車ID 查找，找出餐車的升等規則,現在是否可以升等!
+    public function findLevel($memberId = 0, $dining_car_id = 0)
+    {
+        return $this->repository->findLevel($memberId, $dining_car_id);
+    }
+
+    //利用餐車ID 查找Level，找出餐車的升等規則,現在是否可以升等!
+    public function findCarLevel( $dining_car_id = 0)
+    {
+        return $this->diningCarMemberLevelsRepository->findCarLevel($dining_car_id);
     }
 }

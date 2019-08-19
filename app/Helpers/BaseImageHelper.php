@@ -31,11 +31,10 @@ abstract Class BaseImageHelper
         if (!$img) return '';
 
         $filePath = '';
-
         if ($size) {
             $filePath = static::getFitImage($img, $size);
         } else {
-            if (Agent::isMobile()) {
+            if (Agent::isMobile() || \Request::header('platform') == 'app') {
                 $filePath = static::getFitImage($img, 's');
             } elseif (Agent::isTablet()) {
                 $filePath = static::getFitImage($img, 'm');

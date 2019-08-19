@@ -111,4 +111,13 @@ class MemberCouponService extends BaseService
     {
         return $this->repository->availableCoupons($memberId);
     }
+
+
+    //使用couponID來尋找mermberId
+    public function findByCouponId($couponId)
+    {
+        return $this->repository->findByCouponId($couponId);
+    }
+
+
 }

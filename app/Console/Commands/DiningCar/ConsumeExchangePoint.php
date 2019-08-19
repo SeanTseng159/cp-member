@@ -5,6 +5,7 @@ namespace App\Console\Commands\DiningCar;
 use Illuminate\Console\Command;
 use App\Services\Ticket\OrderService;
 use App\Services\Ticket\DiningCarMemberService;
+use App\Services\Ticket\DiningCarPointService;
 use App\Jobs\DiningCar\ConsumeAmountExchangePoint;
 use App\Core\Logger;
 
@@ -41,7 +42,7 @@ class ConsumeExchangePoint extends Command
      *
      * @return mixed
      */
-    public function handle(OrderService $orderService, DiningCarMemberService $memberService)
+    public function handle(OrderService $orderService, DiningCarMemberService $memberService, DiningCarPointService $diningCarPointService)
     {
         $orders = $orderService->getOneHourAgoPaidDiningCarOrders();
 
@@ -54,7 +55,8 @@ class ConsumeExchangePoint extends Command
             $member = $memberService->easyFind($order->member_id, $order->dining_car_id);
             if ($member) {
                 $key = 'order' . $order->order_id;
-                dispatch(new ConsumeAmountExchangePoint($member, $order->total_amount, $key));
+                $rule = $diningCarPointService->getExchangeRateRule($order->dining_car_id);
+                dispatch(new ConsumeAmountExchangePoint($member, $order->total_amount, $key ,$order->dining_car_id ,$rule))->delay(5);;
                 $count++;
             }
         }
