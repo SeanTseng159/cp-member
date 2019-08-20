@@ -42,7 +42,7 @@ class PromotionRepository extends BaseRepository
      */
     public function find($id = 0)
     {
-        $promo = $this->model->with(['conditions', 'prodSpecPrices', 'shipping', 'banner'])
+        $promo = $this->model->with(['conditions', 'prodSpecPrices', 'shipping', 'banner', 'prodSpecPrices.proudct.img'])
                             ->where('status', 1)
                             ->where('onshelf_time', '<=', $this->now)
                             ->where('offshelf_time', '>=', $this->now)
