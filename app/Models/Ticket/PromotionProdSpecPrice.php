@@ -11,5 +11,10 @@ use App\Models\Ticket\BaseModel;
 
 class PromotionProdSpecPrice extends BaseModel
 {
+    public function proudct()
+    {
+        return $this->belongsTo(Product::class,'prod_id','prod_id');
+
+    }
 
 }
