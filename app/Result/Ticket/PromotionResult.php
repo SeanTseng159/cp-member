@@ -102,6 +102,7 @@ class PromotionResult extends BaseResult
                 $retString .= "送禮物 ";
                 break;
             case 4:
+                $offer = (int)$offer;
                 $retString .= "$offer 元";
                 break;
         }
