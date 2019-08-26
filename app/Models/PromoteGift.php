@@ -11,7 +11,6 @@ class PromoteGift extends Model
 
     public function image()
     {
-        return $this->hasOne(Image::class, 'model_spec_id')
-                    ->whereModelType('promote_gift');
+        return $this->hasOne(PromoteGiftImg::class);
     }
 }
