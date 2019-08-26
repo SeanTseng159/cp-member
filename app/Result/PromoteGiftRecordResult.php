@@ -53,7 +53,7 @@ class PromoteGiftRecordResult
         $result->name = $promoteGiftRecord->promoteGift->name;
         $result->title = $promoteGiftRecord->promoteGift->name;
         $result->duration = Carbon::parse($promoteGiftRecord->promoteGift->usage_end_at)->format('Y-m-d');
-        $result->photo = $img->folder ? CommonHelper::getBackendHost($img->folder . $img->filename . '_s.' . $img->ext) : '';
+        $result->photo = $img->img_path ? CommonHelper::getBackendHost($img->img_path) : '';
         $result->type = MyGiftType::PROMOTE_GIFT;
         $result->content = $promoteGiftRecord->promoteGift->content;
         $result->desc = $promoteGiftRecord->promoteGift->usage_desc;
