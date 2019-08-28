@@ -222,8 +222,7 @@ class MemberController extends RestLaravelController
                             $data['giftName'] = $gift->name;
                             $memberIds[0] = $passiveMemberId;
                             //$fcmService->memberNotify('inviteSuccess',$memberIds,$data);
-                            dispatch(new FCMSendPush('inviteSuccess',$memberIds,$data));
-                            return $this->success();
+                            dispatch(new FCMSendPush('inviteSuccess',$memberIds,$data));      
                             break;
                         default:
                             # code...

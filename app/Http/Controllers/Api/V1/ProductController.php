@@ -7,6 +7,8 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Result\Ticket\PromotionResult;
+use App\Services\Ticket\PromotionService;
 use Illuminate\Http\Request;
 use Ksd\Mediation\Core\Controller\RestLaravelController;
 
@@ -23,11 +25,13 @@ class ProductController extends RestLaravelController
 {
     protected $productService;
     protected $magentoProductService;
+    protected $promotionService;
 
-    public function __construct(ProductService $productService, MagentoProductService $magentoProductService)
+    public function __construct(ProductService $productService, MagentoProductService $magentoProductService,PromotionService $promotionService)
     {
         $this->productService = $productService;
         $this->magentoProductService = $magentoProductService;
+        $this->promotionService = $promotionService;
     }
 
     /**
@@ -103,8 +107,13 @@ class ProductController extends RestLaravelController
         $products = $this->productService->search($keyword);
         $resultProducts = (new ProductResult)->all($products);
 
+        //獨立賣場
+        $market = $this->promotionService->search($keyword);
+
+        $markeResult = (new PromotionResult)->all($market);
+
         // 合併商品
-        $result = array_merge($resultKeywordProducts, $resultMagentoProducts, $resultProducts);
+        $result = array_merge($markeResult,$resultKeywordProducts, $resultMagentoProducts, $resultProducts);
 
         // 排除重複商品
         $result = collect($result)->unique('id')->values()->all();
