@@ -45,7 +45,7 @@ class DiningCarResult extends BaseResult
      *
      * @return array
      */
-    public function list($cars, $memberDiningCars = null, $lat, $lng)
+    public function list($cars, $lat, $lng, $memberDiningCars = null)
     {
         if (!$cars) return [];
 
@@ -148,7 +148,9 @@ class DiningCarResult extends BaseResult
      */
     public function getFavorite($id)
     {
-        if (!$this->memberDiningCars) return false;
+
+        if (!$this->memberDiningCars)
+            return false;
         return ($this->memberDiningCars->where('dining_car_id', $id)->first()) ? true : false;
     }
 
@@ -255,7 +257,7 @@ class DiningCarResult extends BaseResult
         $newSocialUrls = [];
         foreach ($socialUrls as $social) {
             $socialUrl = $this->getSocialUrl($social);
-            if ( ! empty($socialUrl->url)) $newSocialUrls[] = $socialUrl;
+            if (!empty($socialUrl->url)) $newSocialUrls[] = $socialUrl;
         }
 
         return $newSocialUrls;

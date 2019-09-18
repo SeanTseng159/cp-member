@@ -132,6 +132,46 @@ Route::middleware('cors')->namespace('V1')->group(function () {
         Route::get('shorterUrl/{id}', 'DiningCarController@shorterUrl');
     });
 
+
+    // 店鋪相關
+    Route::prefix('shop')->group(function () {
+        // 店家類型列表
+        Route::get('categories/main', 'ShopController@mainCategories');
+
+        // 取營業狀態列表
+        Route::get('openStatus/list', 'ShopController@openStatusList');
+
+        // 餐車列表
+        Route::get('list', 'ShopController@list');
+
+        // 餐車地圖
+        Route::get('map', 'ShopController@map')->middleware('verify.diningCar.map');
+
+        // 餐車詳細
+        Route::get('detail/{id}', 'ShopController@detail');
+
+        // 餐車動態消息
+//        Route::get('/{diningCarId}/blogs', 'DiningCarBlogController@list');
+
+        // 餐車動態消息詳細
+//        Route::get('blog/{id}', 'DiningCarBlogController@detail');
+
+        // 餐車菜單
+//        Route::get('/{diningCarId}/menus', 'DiningCarMenuController@list');
+
+        // 餐車菜單詳細
+//        Route::get('menu/{id}', 'DiningCarMenuController@detail');
+
+        // 餐車&會員資料
+//        Route::get('{id}/member/info', 'DiningCarMemberController@info');
+
+        // 餐車加入會員
+//        Route::post('member/invite', 'DiningCarMemberController@invite');
+
+        // 餐車縮網址
+        Route::get('shorterUrl/{id}', 'ShopController@shorterUrl');
+    });
+
     // linepay相關
     Route::prefix('linepay')->group(function () {
         Route::post('confirm/callback', 'LinePayController@confirmCallback');
