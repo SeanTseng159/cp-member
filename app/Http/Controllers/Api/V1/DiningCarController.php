@@ -29,6 +29,7 @@ class DiningCarController extends RestLaravelController
     protected $redis;
     protected $type = StoreType::DiningCar;
     protected $result ;
+    protected $attribute = 'cars';
 
 
 
@@ -101,7 +102,7 @@ class DiningCarController extends RestLaravelController
 
             $result['page'] = (int)$params['page'];
             $result['total'] = $data->total();
-            $result['cars'] = $this->result->list($data, $params['latitude'], $params['longitude'], $memberDiningCars);
+            $result[$this->attribute] = $this->result->list($data, $params['latitude'], $params['longitude'], $memberDiningCars);
             return $this->success($result);
 
         } catch (Exception $e) {

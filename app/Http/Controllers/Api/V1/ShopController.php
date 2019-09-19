@@ -13,12 +13,14 @@ class ShopController extends DiningCarController
 {
     protected $type = StoreType::Shop;
 
+
     public function __construct(DiningCarService $service, DiningCarCategoryService $categoryService,
                                 ShopResult $result)
     {
         parent::__construct($service, $categoryService, $result);
         $this->result = $result;
         $this->service->setStoreType($this->type);
+        $this->attribute = 'shops';
     }
 
 

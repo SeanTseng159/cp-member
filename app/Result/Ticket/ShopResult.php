@@ -26,8 +26,8 @@ class ShopResult extends DiningCarResult
         $result->openStatusCode = $car->open_status;
         $result->openStatus = DiningCarConfig::OPEN_STATUS[$car->open_status];
 
-        $result->canBooking = $car->anBooking;
-        $result->canWaiting = $car->canWaiting;
+        $result->canBooking = (bool)$car->canBooking;
+        $result->canWaiting = (bool)$car->canWaiting;
         //是付費店家
         $result->canPointing = ($car->level == 1 && (Carbon::parse($car->expired_at)->gt(Carbon::now())))
             ? true : false;
