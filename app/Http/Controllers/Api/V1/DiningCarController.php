@@ -28,12 +28,17 @@ class DiningCarController extends RestLaravelController
     protected $categoryService;
     protected $redis;
     protected $type = StoreType::DiningCar;
+    protected $result ;
 
-    public function __construct(DiningCarService $service, DiningCarCategoryService $categoryService)
+
+
+    public function __construct(DiningCarService $service, DiningCarCategoryService $categoryService,DiningCarResult $result)
     {
         $this->service = $service;
         $this->categoryService = $categoryService;
+
         $this->service->setStoreType($this->type);
+        $this->result = $result;
     }
 
     /**
@@ -96,9 +101,9 @@ class DiningCarController extends RestLaravelController
 
             $result['page'] = (int)$params['page'];
             $result['total'] = $data->total();
-            $result['cars'] = (new DiningCarResult)->list($data, $params['latitude'], $params['longitude'],$memberDiningCars);
-
+            $result['cars'] = $this->result->list($data, $params['latitude'], $params['longitude'], $memberDiningCars);
             return $this->success($result);
+
         } catch (Exception $e) {
 
             return $this->failureCode('E0007');
@@ -127,7 +132,7 @@ class DiningCarController extends RestLaravelController
             }
 
             $data = $this->service->map($params);
-            $result = (new DiningCarResult)->list($data, $params['latitude'], $params['longitude'],NULL);
+            $result = $this->result->list($data, $params['latitude'], $params['longitude'], NULL);
 
             return $this->success($result);
         } catch (Exception $e) {
