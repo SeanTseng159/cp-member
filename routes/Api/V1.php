@@ -146,7 +146,7 @@ Route::middleware('cors')->namespace('V1')->group(function () {
         Route::get('detail/{id}', 'ShopController@detail');
 
         //服務列表
-        Route::get('service/', 'ShopController@detail');
+        Route::get('service/list', 'ShopController@mainCategories');
 
     });
 

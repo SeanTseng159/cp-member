@@ -159,7 +159,7 @@ class DiningCarController extends RestLaravelController
 
             $data = $this->service->find($id, $params['memberId']);
             $result = (new DiningCarResult)->detail($data, $isFavorite, $params['latitude'], $params['longitude']);
-
+     
             return $this->success($result);
         } catch (Exception $e) {
             return $this->failureCode('E0007');

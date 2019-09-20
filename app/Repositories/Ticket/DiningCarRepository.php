@@ -63,7 +63,6 @@ class DiningCarRepository extends BaseRepository
                     $query->where('open_status', $params['openStatus']);
                 }
             })
-
             ->paginate($params['limit']);
     }
 
@@ -89,7 +88,7 @@ class DiningCarRepository extends BaseRepository
                     $query->where('open_status', $params['openStatus']);
                 }
             })
-            ->wheer('type',$this->type)
+            ->where('type',$this->type)
             ->withinLocation($params['range']['longitude'], $params['range']['latitude'])
             ->get();
     }
@@ -118,6 +117,7 @@ class DiningCarRepository extends BaseRepository
             ->withCount(['gifts', 'newsfeeds', 'coupons'])
             ->whereId($id)
             ->where('status', 1)
+            ->where('type',$this->type)
             ->first();
     }
 
