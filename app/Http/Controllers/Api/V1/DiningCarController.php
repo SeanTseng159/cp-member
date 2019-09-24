@@ -149,7 +149,7 @@ class DiningCarController extends RestLaravelController
      * @return \Illuminate\Http\JsonResponse
      */
     public function detail(Request $request, MemberDiningCarService $memberDiningCarService, $id)
-    {
+    {   
         try {
             if (!$id) return $this->apiRespFailCode('E0006');
 
@@ -158,8 +158,8 @@ class DiningCarController extends RestLaravelController
             $isFavorite = ($params['memberId']) ? $memberDiningCarService->isFavorite($params['memberId'], $id) : false;
 
             $data = $this->service->find($id, $params['memberId']);
-            $result = (new DiningCarResult)->detail($data, $isFavorite, $params['latitude'], $params['longitude']);
-     
+            //$result = (new DiningCarResult)->detail($data, $isFavorite, $params['latitude'], $params['longitude']);
+            $result = $this->result->detail($data, $isFavorite, $params['latitude'], $params['longitude']);
             return $this->success($result);
         } catch (Exception $e) {
             return $this->failureCode('E0007');

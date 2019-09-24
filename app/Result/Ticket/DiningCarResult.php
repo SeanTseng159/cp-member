@@ -301,7 +301,7 @@ class DiningCarResult extends BaseResult
      * 取影片
      * @param $media
      */
-    private function getVideos($media)
+    protected function getVideos($media)
     {
         $videos = [];
 
@@ -315,7 +315,7 @@ class DiningCarResult extends BaseResult
      * 取影片
      * @param $media
      */
-    private function getVideo($media)
+    protected function getVideo($media)
     {
         if (!$media) return null;
 

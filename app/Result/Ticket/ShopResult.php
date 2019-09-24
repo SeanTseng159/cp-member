@@ -8,7 +8,7 @@ namespace App\Result\Ticket;
 
 use App\Config\Ticket\DiningCarConfig;
 use Carbon\Carbon;
-
+use App\Helpers\CommonHelper;
 class ShopResult extends DiningCarResult
 {
 
@@ -44,5 +44,64 @@ class ShopResult extends DiningCarResult
         return $result;
     }
 
+    /**
+     * 店鋪資訊
+     * @param $car
+     */
+    public function detail($car, $isFavorite = false, $lat, $lng)
+    {
 
+        if (!$car) return null;
+
+        $this->lat = $lat;
+        $this->lng = $lng;
+
+        $result = new \stdClass;
+        $result->id = $car->id;
+        $result->hashId = $this->encryptHashId('DiningCar', $car->id);
+        $result->name = $car->name;
+        $result->description = $car->description;
+        $result->img = $this->getImg($car->mainImg);
+        $result->imgs = $this->getImgs($car->imgs);
+        $result->categories = $this->getCategories($car->category, $car->subCategory);
+
+        $result->isFoodCategory=$car->category->isfood;
+
+        $result->isFavorite = $isFavorite;
+        $result->openStatusCode = $car->open_status;
+        $result->openStatus = DiningCarConfig::OPEN_STATUS[$car->open_status];
+
+        $result->shop=$this->getShopInfo($car);
+
+        $result->longitude = $car->longitude ?? '';
+        $result->latitude = $car->latitude ?? '';
+        $result->distance = ($result->longitude && $result->latitude && $this->lat && $this->lng) ? $this->calcDistance($this->lat, $this->lng, $car->latitude, $car->longitude, 2, 2) . '公里' : '未知';
+
+        $result->businessHoursDays = $this->getBusinessHoursDays($car->businessHoursDays);
+        $result->businessHoursDates = $this->getBusinessHoursDates($car->businessHoursDates);
+        $result->level = $this->getLevel($car->level, $car->expired_at); // 是否付費
+        $result->socialUrls = $this->getSocialUrls($car->socialUrls, $result->level);
+
+        $result->shareUrl = CommonHelper::getWebHost('zh-TW/shop/detail/' . $car->id);
+        $result->videos = $this->getVideos($car->media);
+        $result->memberCard = $this->getMemberCard($car->memberCard, $car->memberLevels);
+        $result->acls = $this->getAcls($car, $result->level, $result->memberCard);
+
+
+
+
+        return $result;
+    }
+
+
+    public function getShopInfo($car)
+    {
+        //整理成array
+        $shop = new \stdClass;
+        $shop->canBooking = (bool)$car->canBooking;
+        $shop->canWaiting = (bool)$car->canWaiting;
+        $shop->canPointing = ($car->level == 1 && (Carbon::parse($car->expired_at)->gt(Carbon::now())))
+             ? true : false;
+        return $shop;
+    }
 }
