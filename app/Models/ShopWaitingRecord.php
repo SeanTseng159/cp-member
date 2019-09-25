@@ -2,11 +2,12 @@
 
 namespace App\Models;
 
-use App\Models\Ticket\Supplier;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class ShopWaitingRecord extends Model
 {
+    use SoftDeletes;
     protected $primaryKey = 'id';
     protected $table = 'dining_car_waiting_records';
     protected $connection = 'backend';

@@ -51,4 +51,20 @@ class ShopWaitingRepository extends BaseRepository
 
     }
 
+    public function get($shopId,$waitingId)
+    {
+        return $this->waitingRecord
+            ->where('dining_car_id', $shopId)
+            ->where('id',$waitingId)
+            ->first();
+    }
+
+    public function delete($shopId,$waitingId)
+    {
+        return $this->waitingRecord
+            ->where('dining_car_id', $shopId)
+            ->where('id',$waitingId)
+            ->delete();
+    }
+
 }

@@ -80,16 +80,7 @@ class ShopWaitingController extends RestLaravelController
                 throw new \Exception("僅提供人數{$maxCapacity}位內的候位");
             }
 
-            //取得目前叫號
-            $onCallList = $waiting->waitingList->filter(function ($item) {
-                return $item->status == WaitingStatus::OnCall;
-            });
-
-            $currentNo = 0;
-            if (count($onCallList) > 0) {
-                $first = $onCallList->first();
-                $currentNo = $first->waiting_no;
-            }
+            $currentNo = $this->getCurrentWaitingNo($waiting);
 
 
             $memberID = $this->getMemberId();
@@ -119,14 +110,65 @@ class ShopWaitingController extends RestLaravelController
 
     }
 
-    public function get(Request $request)
+    public function get(Request $request, $id, $waitingId)
     {
+        try {
+            $waiting = $this->service->find($id);
+            $currentNo = $this->getCurrentWaitingNo($waiting);
+            $record = $this->service->get($id, $waitingId);
+
+            $data = new \stdClass();
+            $data->id = $record->id;
+            $data->name = $record->name;
+            $data->cellphone = $record->cellphone;
+            $data->number = $record->number;
+            $data->waitingNo = $record->waiting_no;
+            $data->date = $record->date;
+            $data->time = $record->time;
+            $data->currentNo = $currentNo;
+            $data->status = $record->status;
+            return $this->success($data);
+        } catch (\Exception $e) {
+            Logger::error('ShopWaitingController::get', $e->getMessage());
+            return $this->failureCode('E0007');
+        }
+
 
     }
 
-    public function delete(Request $request)
+    public function delete(Request $request, $id, $waitingId)
+    {
+        try
+        {
+            $result = $this->service->delete($id, $waitingId);
+            return $this->success();
+        }
+        catch (\Exception $e)
+        {
+            Logger::error('ShopWaitingController::delete', $e->getMessage());
+            return $this->failureCode('E0004');
+        }
+
+
+    }
+
+    /**取得目前叫號
+     * @param $waiting
+     * @return int
+     */
+    private function getCurrentWaitingNo($waiting): int
     {
 
+        $onCallList = $waiting->waitingList->filter(function ($item) {
+            return $item->status == WaitingStatus::OnCall;
+        });
+
+        $currentNo = 0;
+        if (count($onCallList) > 0) {
+            $first = $onCallList->first();
+            $currentNo = $first->waiting_no;
+        }
+        return $currentNo;
     }
 
 }
