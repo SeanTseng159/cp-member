@@ -148,6 +148,15 @@ Route::middleware('cors')->namespace('V1')->group(function () {
         //服務列表
         Route::get('service/list', 'ShopController@mainCategories');
 
+        //候位相關======
+        Route::get('{id}/waiting', 'ShopWaitingController@info');
+        Route::post('{id}/waiting', 'ShopWaitingController@create');
+        Route::get('{id}/waiting/{waitingId}', 'ShopWaitingController@get');
+        Route::post('{id}/waiting/{waitingId}', 'ShopWaitingController@delete');
+
+
+
+
     });
 
     // linepay相關
@@ -193,9 +202,6 @@ Route::middleware('cors')->namespace('V1')->group(function () {
         Route::get('{modelType}/{modelSpecId}/list', 'GiftController@list');
     });
 
-    Route::prefix('avr')->namespace('AVR')->group(function () {
-
-    });
 
     //avr相關
     Route::prefix('avr')->group(function () {
@@ -228,10 +234,9 @@ Route::middleware('cors')->namespace('V1')->group(function () {
 
     //邀請碼相關
     Route::prefix('invitation')->group(function () {
-         //邀請碼對應名字
+        //邀請碼對應名字
         Route::post('memberName', 'MemberController@memberName');
     });
-
 
 
 });
