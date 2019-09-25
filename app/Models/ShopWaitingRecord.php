@@ -10,7 +10,9 @@ class ShopWaitingRecord extends Model
     protected $primaryKey = 'id';
     protected $table = 'dining_car_waiting_records';
     protected $connection = 'backend';
-    protected $fillable = ['dining_car_id', 'capacity', 'advance_notification', 'editor'];
+    protected $fillable = ['dining_car_id', 'waiting_no', 'member_id', 'date','time','name','cellphone','number','status'];
+
+
 
 
 
