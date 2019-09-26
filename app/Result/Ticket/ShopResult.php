@@ -93,7 +93,7 @@ class ShopResult extends DiningCarResult
         return $result;
     }
 
-
+    //取出shop相關狀態
     public function getShopInfo($car)
     {
         //整理成array
@@ -103,5 +103,22 @@ class ShopResult extends DiningCarResult
         $shop->canPointing = ($car->level == 1 && (Carbon::parse($car->expired_at)->gt(Carbon::now())))
              ? true : false;
         return $shop;
+    }
+
+
+    public function servicelist()
+    {        
+        $result = [];
+        $dataname=['會員集點','線上訂位','現場候位'];
+
+        foreach ($dataname as $id => $value)        
+        {
+          $data = new \stdClass();
+          $data->id = $id;
+          $data->name = $value;
+          $result[] = $data;
+        }
+        
+        return $result;
     }
 }
