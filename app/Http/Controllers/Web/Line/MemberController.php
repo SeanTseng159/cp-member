@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Services\Line\MemberService as LineMemberService;
 use App\Services\MemberService;
-use Ksd\Mediation\Services\LanguageService;
+use App\Parameter\Line\MemberParameter;
 use Log;
 
 class MemberController extends Controller
@@ -14,18 +14,11 @@ class MemberController extends Controller
     protected $service;
     protected $memberService;
     protected $platform = 'web';
-    protected $citypassUrl;
-    protected $lang;
 
-    const OPEN_PLATEFORM = 'line';
-
-    public function __construct(LanguageService $langService, LineMemberService $service, MemberService $memberService)
+    public function __construct(LineMemberService $service, MemberService $memberService)
     {
         $this->service = $service;
         $this->memberService = $memberService;
-
-        $this->lang = $langService->getLang();
-        $this->citypassUrl = env('CITY_PASS_WEB');
     }
 
     /**
@@ -49,15 +42,23 @@ class MemberController extends Controller
         $this->platform = $platform;
         // Log::info('=== line callback check ===');
 
-        if(isset($request->query()['error'])) return $this->failureRedirect($request->query());
-        // return $this->successRedirect($request->query());
+        if(isset($request->query()['error'])) return $this->failureRedirect('E0001','無法取得使用者資訊');
         $code = $request->query()['code'];
         $state = $request->query()['state'];
         //取access_token
-        $access_token = $this->service->accessToken($code, $platform);
+        $tokenInfo = $this->service->accessToken($code, $platform);
 
-        // return redirect($this->citypassUrl . $this->lang);
-        dd($access_token);
+        if(!$tokenInfo->access_token) return $this->failureRedirect('無法取得使用者資訊');
+        $user_profile = $this->service->getUserProfile($tokenInfo->access_token);
+
+        if(!$tokenInfo->id_token) return $this->failureRedirect('無法取得使用者資訊');
+        $payload = $this->service->getPayload($tokenInfo);
+        if(!isset($payload->email)) return $this->failureRedirect('E0002','無法取得Email');
+
+        // $result = (new MemberParameter)->member($tokenInfo, $user_profile, $payload);
+
+        // return $this->successRedirect($request->query());
+        dd($tokenInfo);
       // }
       // catch (\Exception $e) {
       //     // Log::info('=== ipass 會員登入錯誤 ===');
@@ -65,13 +66,23 @@ class MemberController extends Controller
       // }
     }
 
-    private function failureRedirect()
+    private function failureRedirect($errorCode, $message)
     {
-      return view('line.error');
+      $result = [
+        'code' => $errorCode,
+        'message' => $message
+      ];
+
+      return view('line.error', json_encode($result));
     }
 
-    private function successRedirect()
+    private function successRedirect($data)
     {
-      return view('line.success');
+      $result = [
+        'code' => '00000',
+        'message' => $data
+      ];
+
+      return view('line.success', json_encode($result));
     }
 }

@@ -2,17 +2,17 @@
 
 namespace App\Services\Line;
 
-use App\Repositories\Line\MemberRepository;
 use GuzzleHttp\Client;
+use Firebase\JWT\JWT;
 
 class MemberService
 {
 
     protected $repository;
 
-    public function __construct(MemberRepository $repository)
+    public function __construct()
     {
-        $this->repository = $repository;
+        // $this->repository = $repository;
     }
 
     /**
@@ -55,9 +55,28 @@ class MemberService
      * @param $data
      * @return mixed
      */
-    public function member($parameters)
+    public function getUserProfile($token)
     {
-        return $this->repository->member($parameters);
+        $client = new Client();
+        $headers = [
+            'Authorization' => 'Bearer ' . $token,
+            'Accept'        => 'application/json',
+        ];
+        $response = $client->request('GET', 'https://api.line.me/v2/profile', [
+            'headers' => $headers
+        ]);
+
+        return json_decode($response->getBody()->getContents(), true);
+    }
+
+    /**
+     * 解析JWT取得payload
+     * @param $data
+     * @return mixed
+     */
+    public function getPayload($tokenInfo)
+    {
+      return JWT::decode($tokenInfo->id_token, config('social.line.channel_secret'), ['HS256']);
     }
 
     /**
@@ -67,7 +86,7 @@ class MemberService
      */
     public function logout($parameters)
     {
-        return $this->repository->logout($parameters);
+        // return $this->repository->logout($parameters);
     }
 
 }
