@@ -154,6 +154,12 @@ Route::middleware('cors')->namespace('V1')->group(function () {
         Route::get('{id}/waiting/{waitingId}', 'ShopWaitingController@get');
         Route::post('{id}/waiting/{waitingId}', 'ShopWaitingController@delete');
 
+        //訂位相關 ====
+        Route::get('{id}/booking/people', 'ShopBookingController@maxpeople');
+        
+        
+        
+
 
 
 
