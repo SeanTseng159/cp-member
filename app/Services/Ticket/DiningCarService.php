@@ -7,18 +7,28 @@
 
 namespace App\Services\Ticket;
 
+use App\Enum\StoreType;
 use App\Services\BaseService;
 use App\Repositories\Ticket\DiningCarRepository;
+use BenSampo\Enum\Enum;
 use Carbon\Carbon;
 
 class DiningCarService extends BaseService
 {
     protected $repository;
     protected $pointRecordRepository;
+    protected $storeType = StoreType::DiningCar;
 
     public function __construct(DiningCarRepository $repository)
     {
         $this->repository = $repository;
+
+    }
+
+    public function setStoreType($type)
+    {
+        $this->storeType = $type;
+        $this->repository->setStoreType($this->storeType);
     }
 
     /**
