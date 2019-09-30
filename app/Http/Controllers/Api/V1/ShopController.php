@@ -30,33 +30,6 @@ class ShopController extends DiningCarController
     	
     }
 
-     /**
-     * 取餐車列表
-     *
-     * @param $cars
-     * @param $memberDiningCars
-     * @param $lat
-     *
-     * @param $lng
-     *
-     * @return array
-     */
-    public function list($cars, $lat, $lng, $memberDiningCars = null)
-    {
-        if (!$cars) return [];
-
-        $this->lat = $lat;
-        $this->lng = $lng;
-        $this->memberDiningCars = $memberDiningCars;
-
-        $newCars = [];
-        foreach ($cars as $car) {
-            $newCar = $this->getCar($car);
-            if ($newCar) $newCars[] = $newCar;
-        }
-
-        return $newCars;
-    }
 
 
 }
