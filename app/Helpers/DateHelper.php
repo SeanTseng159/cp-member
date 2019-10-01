@@ -15,5 +15,16 @@ class DateHelper
     {
         return Carbon::parse($datetime)->format($format);
     }
+
+    public static function chinese(String $datetime, String $format)
+    {
+        setlocale(LC_TIME, 'Chinese');
+        $Carbon = new Carbon;
+        $Carbon->setLocale('zh');
+        $time = Carbon::parse($datetime)->formatLocalized($format);
+        $time = iconv('GBK', 'UTF-8', $time);
+        return $time;
+    }
+
 }
 

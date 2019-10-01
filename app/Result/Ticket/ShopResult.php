@@ -67,7 +67,7 @@ class ShopResult extends DiningCarResult
 
         $result->isFoodCategory=$car->category->isfood;
 
-        $result->isFavorite = $isFavorite;
+        $result->isFavorite = $this->getFavorite($car->id);
         $result->openStatusCode = $car->open_status;
         $result->openStatus = DiningCarConfig::OPEN_STATUS[$car->open_status];
 
@@ -107,18 +107,18 @@ class ShopResult extends DiningCarResult
 
 
     public function servicelist()
-    {        
+    {
         $result = [];
         $dataname=['會員集點','線上訂位','現場候位'];
 
-        foreach ($dataname as $id => $value)        
+        foreach ($dataname as $id => $value)
         {
           $data = new \stdClass();
           $data->id = $id;
           $data->name = $value;
           $result[] = $data;
         }
-        
+
         return $result;
     }
 }

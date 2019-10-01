@@ -14,7 +14,8 @@ class ShopController extends DiningCarController
     protected $type = StoreType::Shop;
 
 
-    public function __construct(DiningCarService $service, DiningCarCategoryService $categoryService,ShopResult $result)
+    public function __construct(DiningCarService $service, DiningCarCategoryService $categoryService,
+                                ShopResult $result)
     {
         parent::__construct($service, $categoryService, $result);
         $this->result = $result;
@@ -25,11 +26,10 @@ class ShopController extends DiningCarController
     //取得服務列表
     public function servicelist()
     {
-    	$result=$this->result->servicelist();
-    	return $this->success($result);
-    	
-    }
+        $result = $this->result->servicelist();
+        return $this->success($result);
 
+    }
 
 
 }

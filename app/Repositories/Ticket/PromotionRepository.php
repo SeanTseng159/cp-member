@@ -43,25 +43,30 @@ class PromotionRepository extends BaseRepository
     public function find($id = 0)
     {
         $promo = $this->model->with(['conditions', 'prodSpecPrices', 'shipping', 'banner', 'prodSpecPrices.proudct.img'])
-                            ->where('status', 1)
-                            ->where('onshelf_time', '<=', $this->now)
-                            ->where('offshelf_time', '>=', $this->now)
-                            ->find($id);
+            ->where('status', 1)
+            ->where('onshelf_time', '<=', $this->now)
+            ->where('offshelf_time', '>=', $this->now)
+            ->find($id);
+
+        if(!$promo)
+            return null;
 
         $products = [];
-        foreach ($promo->prodSpecPrices as $row) {
-            // 庫存不存，排除
-            if ($row->stock <= 0) continue;
+        if ($promo->prodSpecPrices) {
+            foreach ($promo->prodSpecPrices as $row) {
+                // 庫存不存，排除
+                if ($row->stock <= 0) continue;
 
-            $prod = $this->productRepository->findByCheckout($row->prod_id, $row->spec_id, $row->price_id);
+                $prod = $this->productRepository->findByCheckout($row->prod_id, $row->spec_id, $row->price_id);
 
-            // 商品不可銷售，排除
-            if (!$prod) continue;
+                // 商品不可銷售，排除
+                if (!$prod) continue;
 
-            $prod->marketPrice = $row->price;
-            $prod->marketStock = $row->stock;
+                $prod->marketPrice = $row->price;
+                $prod->marketStock = $row->stock;
 
-            $products[] = $prod;
+                $products[] = $prod;
+            }
         }
 
         $promo->products = $products;

@@ -62,4 +62,13 @@ class ShopWaitingService extends BaseService
         return $this->repository->delete($shopId,$waitingId);
     }
 
+    public function getWaitingNumber($shopId,$waitingNo)
+    {
+        return $this->repository->getWaitingNumber($shopId,$waitingNo);
+    }
+
+    public function getMemberList($memberId)
+    {
+        return $this->repository->getMemberList($memberId);
+    }
 }

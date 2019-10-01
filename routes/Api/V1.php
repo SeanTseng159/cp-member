@@ -156,12 +156,6 @@ Route::middleware('cors')->namespace('V1')->group(function () {
 
         //訂位相關 ====
         Route::get('{id}/booking/people', 'ShopBookingController@maxpeople');
-        
-        
-        
-
-
-
 
     });
 
@@ -401,5 +395,15 @@ Route::middleware(['cors', 'auth.jwt'])->namespace('V1')->group(function () {
         Route::get('/info', 'MemberController@NoticInfo');
         //修改已讀狀態
         Route::post('read', 'MemberController@readStatusChange');
+    });
+
+    //店鋪相關
+    Route::prefix('shop')->group(function () {
+
+        //候位相關
+        Route::prefix('waiting')->group(function () {
+            //通知列表資訊
+            Route::get('/list', 'ShopWaitingController@memberList');
+        });
     });
 });
