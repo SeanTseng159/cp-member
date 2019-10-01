@@ -85,8 +85,10 @@ class ShopWaitingRepository extends BaseRepository
     {
         return $this->waitingRecord->with('shop')
             ->where('member_id', $memberId)
+            ->where('date','>=',Carbon::now()->subDays(30))
             ->orderBy('date', 'desc')
             ->orderBy('time', 'desc')
+
             ->get();
 
     }

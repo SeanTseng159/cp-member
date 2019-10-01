@@ -200,10 +200,10 @@ class DiningCar extends BaseModel
     public function waitingList()
     {
         return $this->hasMany(ShopWaitingRecord::class, 'dining_car_id', 'id')
-            ->where('status', '!=', WaitingStatus::Called)
+//            ->where('status', '!=', WaitingStatus::Called)
             ->where('date', Carbon::now()->format('Y-m-d'))
             ->whereNull('deleted_at')
-            ->orderBy('waiting_no');
+            ->orderBy('waiting_no','desc');
     }
 
 }

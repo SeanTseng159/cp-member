@@ -133,8 +133,6 @@ class ShopWaitingController extends RestLaravelController
             $data->cellphone = $record->cellphone;
             $data->number = $record->number;
             $data->waitingNo = $this->getWaitNoString($record->waiting_no);
-            //$data->date = $record->date;
-            //$data->time = $record->time;
             $data->currentNo = $currentNo;
             $data->WaitingNum = $count;
             $data->status = $record->status;
@@ -146,15 +144,19 @@ class ShopWaitingController extends RestLaravelController
 
     }
 
-    public function get(Request $request, $id, $waitingId)
+    public function get(Request $request, $shopId, $waitingId)
     {
         try {
-//            $waiting = $this->service->find($id);
-//            $currentNo = $this->getCurrentWaitingNo($waiting);
-            $record = $this->service->get($id, $waitingId);
+            $waiting = $this->service->find($shopId);
+            $currentNo = $this->getCurrentWaitingNo($waiting);
+
+            $record = $this->service->get($shopId, $waitingId);
             $ret = (new ShopWaitingResult())->get($record);
-
-
+            $isToday = $record->date == Carbon::now()->format('Y-m-d');
+            if ($isToday) {
+                $ret->WaitingNum = $this->service->getWaitingNumber($shopId, $record->waiting_no);
+                $ret->currentNo = $currentNo;
+            }
             return $this->success($ret);
         } catch (\Exception $e) {
             Logger::error('ShopWaitingController::get', $e->getMessage());
@@ -185,7 +187,7 @@ class ShopWaitingController extends RestLaravelController
     {
 
         $onCallList = $waiting->waitingList->filter(function ($item) {
-            return $item->status == WaitingStatus::OnCall;
+            return $item->status == WaitingStatus::Called;
         });
 
         $currentNo = 0;
@@ -202,6 +204,8 @@ class ShopWaitingController extends RestLaravelController
             $memberId = $request->memberId;
             // 取收藏列表
             $memberDiningCars = $this->memberDiningCarService->getAllByMemberId($memberId);
+
+            //後位清單
             $data = $this->service->getMemberList($memberId);
             $result = (new ShopWaitingResult())->memberList($data, $memberDiningCars);
             return $this->success($result);

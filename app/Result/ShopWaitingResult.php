@@ -30,16 +30,14 @@ class ShopWaitingResult
             $result->capacity = optional($waiting->waitingSetting)->capacity;
             return $result;
         }
-
-        $oncallRecords = $waiting->waitingList->filter(function ($item) {
+        $calledRecords = $waiting->waitingList->filter(function ($item) {
             return $item->status == WaitingStatus::Called;
         });
-        dd($oncallRecords);
 
         $WaitingRecords = $waiting->waitingList->filter(function ($item) {
             return $item->status == WaitingStatus::Waiting;
         });
-        $currentNo = count($oncallRecords) > 0 ? ($oncallRecords->first())->waiting_no : 0;
+        $currentNo = count($calledRecords) > 0 ? ($calledRecords->first())->waiting_no : 0;
         $WaitingNum = count($WaitingRecords);
         $result->currentNo = $this->getWaitNoString($currentNo);
         $result->WaitingNum = $WaitingNum;
@@ -86,12 +84,10 @@ class ShopWaitingResult
         $data->shop->id = $shop->id;
         $data->shop->name = $shop->name;
         $data->shop->shareUrl = $this->getWebHost($shop->id);
+        $data->name = $waiting->name;
         $data->cellphone = $waiting->cellphone;
         $data->number = $waiting->number;
-        $data->date = $waiting->date;
-        $data->time = $waiting->time;
         $data->waitingNo = $this->getWaitNoString($waiting->waiting_no);
-//        $data->currentNo = $currentNo;
         $data->status = $waiting->status;
 
         return $data;

@@ -15,6 +15,5 @@ final class WaitingStatus extends Enum
 {
     //等候狀態 0:等待交號 1:目前叫號 2:已叫號
     const Waiting = 0;
-    const  OnCall = 1;
-    const  Called = 2;
+    const  Called = 1;
 }
