@@ -98,7 +98,7 @@ class DiningCar extends BaseModel
      */
     public function businessHoursDays()
     {
-        return $this->hasMany('App\Models\Ticket\DiningCarBusinessHoursDay')->where('status', 1)->orderBy('day');
+        return $this->hasMany(DiningCarBusinessHoursDay::class)->where('status', 1)->orderBy('day');
     }
 
     /**

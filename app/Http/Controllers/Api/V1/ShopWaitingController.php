@@ -4,20 +4,19 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Core\Logger;
 use App\Enum\WaitingStatus;
-use App\Helpers\CommonHelper;
-use App\Models\Ticket\Product;
 use App\Result\ShopWaitingResult;
 use App\Services\ShopWaitingService;
 use App\Services\Ticket\MemberDiningCarService;
 use App\Traits\MemberHelper;
+use App\Traits\ShopHelper;
 use Carbon\Carbon;
-use function GuzzleHttp\is_host_in_noproxy;
 use Illuminate\Http\Request;
 use Ksd\Mediation\Core\Controller\RestLaravelController;
 
 class ShopWaitingController extends RestLaravelController
 {
     use MemberHelper;
+    use ShopHelper;
 
     private $service;
     private $memberDiningCarService;
@@ -28,10 +27,10 @@ class ShopWaitingController extends RestLaravelController
         $this->memberDiningCarService = $memberDiningCarService;
     }
 
-    public function info(Request $request, $id)
+    public function info(Request $request, $shopId)
     {
         try {
-            $waiting = $this->service->find($id);
+            $waiting = $this->service->find($shopId);
             $data = (new ShopWaitingResult())->info($waiting);
             return $this->success($data);
         } catch (\Exception $e) {
@@ -68,7 +67,7 @@ class ShopWaitingController extends RestLaravelController
                 throw new \Exception('查無此店鋪');
 
             if (!$waiting->canWaiting) {
-                throw new \Exception('未開放候位');
+                throw new \Exception('商家不開放候位');
             }
 
             //沒有設定候位資訊
@@ -150,21 +149,13 @@ class ShopWaitingController extends RestLaravelController
     public function get(Request $request, $id, $waitingId)
     {
         try {
-            $waiting = $this->service->find($id);
-            $currentNo = $this->getCurrentWaitingNo($waiting);
+//            $waiting = $this->service->find($id);
+//            $currentNo = $this->getCurrentWaitingNo($waiting);
             $record = $this->service->get($id, $waitingId);
+            $ret = (new ShopWaitingResult())->get($record);
 
-            $data = new \stdClass();
-            $data->id = $record->id;
-            $data->name = $record->name;
-            $data->cellphone = $record->cellphone;
-            $data->number = $record->number;
-            $data->waitingNo = $record->waiting_no;
-            $data->date = $record->date;
-            $data->time = $record->time;
-            $data->currentNo = $currentNo;
-            $data->status = $record->status;
-            return $this->success($data);
+
+            return $this->success($ret);
         } catch (\Exception $e) {
             Logger::error('ShopWaitingController::get', $e->getMessage());
             return $this->failureCode('E0007');
@@ -218,12 +209,6 @@ class ShopWaitingController extends RestLaravelController
             Logger::error('ShopWaitingController::memberList', $e->getMessage());
             return $this->failureCode('E0001', $e->getMessage());
         }
-    }
-
-    private function getWaitNoString($value)
-    {
-        return sprintf("%04d", $value);
-
     }
 
 

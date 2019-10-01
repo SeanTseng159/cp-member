@@ -7,15 +7,21 @@
 
 namespace App\Result;
 
-
 use App\Enum\WaitingStatus;
+use App\Helpers\CommonHelper;
+use App\Helpers\DateHelper;
+use App\Traits\ShopHelper;
+
 
 class ShopWaitingResult
 {
+    use shopHelper;
+
 
     public function info($waiting)
     {
         $result = new \stdClass;
+
 
         //沒有候位清單
         if (!$waiting->waitingList) {
@@ -25,169 +31,80 @@ class ShopWaitingResult
             return $result;
         }
 
-
         $oncallRecords = $waiting->waitingList->filter(function ($item) {
-            return $item->status == WaitingStatus::OnCall;
+            return $item->status == WaitingStatus::Called;
         });
+        dd($oncallRecords);
 
         $WaitingRecords = $waiting->waitingList->filter(function ($item) {
             return $item->status == WaitingStatus::Waiting;
         });
         $currentNo = count($oncallRecords) > 0 ? ($oncallRecords->first())->waiting_no : 0;
         $WaitingNum = count($WaitingRecords);
-
-        $result->currentNo = $currentNo;
+        $result->currentNo = $this->getWaitNoString($currentNo);
         $result->WaitingNum = $WaitingNum;
         $result->capacity = $waiting->waitingSetting->capacity;
         return $result;
     }
 
-    /**任務的狀態需要活動狀態一致  若活動未開始或已過期，都為不可執行，除非任務已完成
-     * @param $activity
-     * @param $activityStatus
-     * @param null $memberID
-     * @param null $orderId
-     * @return \stdClass
-     */
-    public function missionList($activity, $activityStatus, $memberID = null, $orderId = null)
+    public function memberList($data, $memberDiningCars)
     {
 
-        $result = new \stdClass;
+        $ret = [];
+        foreach ($data as $waitingRecord) {
+            $result = new \stdClass;
+            //shop
+            $shop = $waitingRecord->shop->first();
+            $result->shop = new \stdClass();
 
-        $result->mission = [];
-        $missions = $activity->missions;
-        $hasOrder = $activity->is_mission; //必須依照排序
+            $shopId = $shop->id;
+            $result->shop->id = $shopId;
+            $result->shop->name = $shop->name;
 
+            $favoriteList = $memberDiningCars->filter(function ($item) use ($shopId) {
+                return $item->dining_car_id = $shopId;
+            });
+            $result->shop->isFavorite = (count($favoriteList)) > 0 ? true : false;
+            $result->shop->shareUrl = $this->getWebHost($shopId);
 
-        $finishNum = 0;
+            //waiting Record
+            $result->waitingId = $waitingRecord->id;
+            $result->number = $waitingRecord->number;
+            $result->date = DateHelper::chinese($waitingRecord->date, '%Y/%m/%d (%A)');
+            $result->waitingNo = $this->getWaitNoString($waitingRecord->waiting_no);
+            $ret[] = $result;
 
-        foreach ($missions as $mission) {
-            static $preMission;
-            $ret = new \stdClass();
-            $ret->id = $mission->id;
-            $ret->name = $mission->name;
-            $ret->longitude = $mission->longitude;
-            $ret->latitude = $mission->latitude;
-
-            $user = $mission->members
-                ->where('member_id', $memberID)
-                ->where('order_detail_id', $orderId)
-                ->first();
-
-
-            //status 1:不可執行 2:可執行 3:已完成
-            $status = 1;
-
-
-            if ($user) {
-                $status = $user->isComplete ? 3 : 2;
-            } else {
-                //按照順序執行的任務，前一個任務已完成，才能執行
-                if ($hasOrder) {
-                    if (!$preMission) {
-                        $status = 2;
-                    } else if ($preMission->status == 3) {
-                        $status = 2;
-                    }
-                } else {
-                    $status = 2;
-                }
-            }
-
-            //如果活動已過期或未開始，則任務皆為不可執行，除非任務已經完成
-            if ($activityStatus != TimeStatus::PROCESSING) {
-                if ($status != 3)
-                    $status = 1;
-            }
-
-
-            $ret->status = $status;
-            $ret->photo = AVRImageHelper::getImageUrl(AVRImageType::avr_mission, $mission->id);
-            $result->mission[] = $ret;
-
-            $preMission = $mission; //上一個
-            $preMission->status = $status;
-
-            if ($ret->status == 3)
-                $finishNum++;
         }
+        return $ret;
+    }
 
-        $result->allNum = count($missions);
-        $result->finishNum = $finishNum;
+    public function get($waiting)
+    {
+        $shop = $waiting->shop;
+        $data = new \stdClass();
+        $data->shop = new \stdClass();
+        $data->shop->id = $shop->id;
+        $data->shop->name = $shop->name;
+        $data->shop->shareUrl = $this->getWebHost($shop->id);
+        $data->cellphone = $waiting->cellphone;
+        $data->number = $waiting->number;
+        $data->date = $waiting->date;
+        $data->time = $waiting->time;
+        $data->waitingNo = $this->getWaitNoString($waiting->waiting_no);
+//        $data->currentNo = $currentNo;
+        $data->status = $waiting->status;
 
-        return $result;
+        return $data;
 
     }
 
-    public function missionDetail($activityStatus, $mission, $memberID = null, $orderId = null)
+    /**
+     * @param $shopId
+     * @return string
+     */
+    private function getWebHost($shopId): string
     {
-
-        $ret = new \stdClass();
-        $ret->id = $mission->id;
-        $ret->name = $mission->name;
-        $ret->description = $mission->introduction;
-        $ret->place = $mission->place_name;
-        $ret->longitude = $mission->longitude;
-        $ret->latitude = $mission->latitude;
-        $ret->checkGps = (bool)$mission->check_gps;
-        $ret->photo = AVRImageHelper::getImageUrl(AVRImageType::avr_mission, $mission->id);
-
-        //使用者相關
-        $user = $mission->members->where('member_id', $memberID)->where('order_detail_id', $orderId)->first();
-
-        //status 1:不可執行 2:可執行 3:已完成
-        $status = 1;
-
-        if ($user) {
-            $status = $user->isComplete ? 3 : 2;
-        } else {
-            $status = $activityStatus;
-        }
-        $ret->status = $status;
-
-
-        $game = new \stdClass();
-        $game->type = $mission->type;
-        $game->time = $mission->game_length;
-        $game->pass = $mission->passing_grade;
-
-
-        //遊戲相關
-        $gameContent = $mission->contents;
-
-        if ($gameContent) {
-            $content = [];
-            foreach ($gameContent as $item) {
-                $obj = new \stdClass();
-                $obj->target = $item->usage_type;
-                $obj->type = $item->content_type;
-
-                if ($item->content_type == MissionFileType::recognition_id) {
-                    $obj->detail = $item->recognition->name;
-                } else if ($item->content_type == MissionFileType::url)
-                    $obj->detail = $item->content;
-                else
-                    $obj->detail = CommonHelper::getAdHost($item->content);
-
-                if ($item->content_type != MissionFileType::color) {
-                    $content[] = $obj;
-                }
-                //顏色放在game的property裡面
-                if ($item->content_type == MissionFileType::color) {
-                    $game->color = $item->content;
-                }
-
-
-            }
-            $game->content = $content;
-
-
-            $ret->game = $game;
-        }
-
-
-        return $ret;
-
+        return CommonHelper::getWebHost('zh-TW/shop/detail/' . $shopId);
     }
 
 
