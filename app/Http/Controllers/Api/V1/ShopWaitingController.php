@@ -4,9 +4,13 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Core\Logger;
 use App\Enum\WaitingStatus;
+use App\Helpers\CommonHelper;
+use App\Models\Ticket\Product;
 use App\Result\ShopWaitingResult;
 use App\Services\ShopWaitingService;
+use App\Services\Ticket\MemberDiningCarService;
 use App\Traits\MemberHelper;
+use Carbon\Carbon;
 use function GuzzleHttp\is_host_in_noproxy;
 use Illuminate\Http\Request;
 use Ksd\Mediation\Core\Controller\RestLaravelController;
@@ -16,10 +20,12 @@ class ShopWaitingController extends RestLaravelController
     use MemberHelper;
 
     private $service;
+    private $memberDiningCarService;
 
-    public function __construct(ShopWaitingService $service)
+    public function __construct(ShopWaitingService $service, MemberDiningCarService $memberDiningCarService)
     {
         $this->service = $service;
+        $this->memberDiningCarService = $memberDiningCarService;
     }
 
     public function info(Request $request, $id)
@@ -61,13 +67,40 @@ class ShopWaitingController extends RestLaravelController
             if (is_null($waiting))
                 throw new \Exception('查無此店鋪');
 
-            if (is_null($waiting->canWaiting)) {
-                throw new \Exception('尚未開放候位');
+            if (!$waiting->canWaiting) {
+                throw new \Exception('未開放候位');
             }
 
             //沒有設定候位資訊
             if (is_null($waiting->waitingSetting)) {
                 throw new \Exception('無法候位，尚未設定候位資訊');
+            }
+
+            $isOpen = false;
+            //檢查今天是否有營業
+            $todayBusiness = $waiting->businessHoursDays
+                ->filter(function ($day) {
+                    $dayofWeek = Carbon::now()->dayOfWeekIso;
+                    return $day->day == $dayofWeek && ($day->status == 1);
+                });
+
+            //檢查現在是否在今天的營業時間內
+            if ($todayBusiness) {
+                $times = $todayBusiness->first()->times;
+                $todayBusinessTimes = $times->filter(function ($time) {
+                    $start = explode(":", $time->start_time);
+                    $end = explode(":", $time->end_time);
+                    $startTime = Carbon::create(Carbon::now()->year, Carbon::now()->month, Carbon::now()->day, $start[0], $start[1]);
+                    $endTime = Carbon::create(Carbon::now()->year, Carbon::now()->month, Carbon::now()->day, $end[0], $end[1]);
+                    return Carbon::now()->between($startTime, $endTime) && ($time->status == 1);
+                });
+                if (count($todayBusinessTimes) > 0)
+                    $isOpen = true;
+            }
+
+            //尚未開始營業
+            if (!$isOpen) {
+                throw new \Exception('非營業時間，無法候位');
             }
 
             $name = $request->input('name');
@@ -92,15 +125,19 @@ class ShopWaitingController extends RestLaravelController
             //傳送簡訊認證
             $this->service->sendWaitingSMS($host, $shopName, $shopId, $userName, $cellphone, $record->id, $record->waiting_no);
 
+            //取得候位組數
+            $count = $this->service->getWaitingNumber($shopId, $record->waiting_no);
+
             $data = new \stdClass();
             $data->id = $record->id;
             $data->name = $userName;
             $data->cellphone = $record->cellphone;
             $data->number = $record->number;
-            $data->waitingNo = $record->waiting_no;
-            $data->date = $record->date;
-            $data->time = $record->time;
+            $data->waitingNo = $this->getWaitNoString($record->waiting_no);
+            //$data->date = $record->date;
+            //$data->time = $record->time;
             $data->currentNo = $currentNo;
+            $data->WaitingNum = $count;
             $data->status = $record->status;
             return $this->success($data);
         } catch (\Exception $e) {
@@ -138,13 +175,10 @@ class ShopWaitingController extends RestLaravelController
 
     public function delete(Request $request, $id, $waitingId)
     {
-        try
-        {
+        try {
             $result = $this->service->delete($id, $waitingId);
             return $this->success();
-        }
-        catch (\Exception $e)
-        {
+        } catch (\Exception $e) {
             Logger::error('ShopWaitingController::delete', $e->getMessage());
             return $this->failureCode('E0004');
         }
@@ -170,5 +204,27 @@ class ShopWaitingController extends RestLaravelController
         }
         return $currentNo;
     }
+
+    public function memberList(Request $request)
+    {
+        try {
+            $memberId = $request->memberId;
+            // 取收藏列表
+            $memberDiningCars = $this->memberDiningCarService->getAllByMemberId($memberId);
+            $data = $this->service->getMemberList($memberId);
+            $result = (new ShopWaitingResult())->memberList($data, $memberDiningCars);
+            return $this->success($result);
+        } catch (\Exception $e) {
+            Logger::error('ShopWaitingController::memberList', $e->getMessage());
+            return $this->failureCode('E0001', $e->getMessage());
+        }
+    }
+
+    private function getWaitNoString($value)
+    {
+        return sprintf("%04d", $value);
+
+    }
+
 
 }
