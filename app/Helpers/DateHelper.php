@@ -18,6 +18,7 @@ class DateHelper
 
     public static function chinese(String $datetime, String $format)
     {
+        //server要裝中文
         setlocale(LC_TIME, 'cht');
         $carbon = new Carbon;
         $carbon->setLocale('zh_TW.utf8');
