@@ -41,7 +41,7 @@ class ShopWaitingResult
         $WaitingNum = count($WaitingRecords);
         $result->currentNo = $this->getWaitNoString($currentNo);
         $result->WaitingNum = $WaitingNum;
-        $result->capacity = $waiting->waitingSetting->capacity;
+        $result->capacity = is_null(optional($waiting->waitingSetting)->capacity) ? 0 : $waiting->waitingSetting->capacity;
         return $result;
     }
 
@@ -93,6 +93,8 @@ class ShopWaitingResult
         return $data;
 
     }
+
+
 
     /**
      * @param $shopId

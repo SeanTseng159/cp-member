@@ -9,6 +9,7 @@ use App\Models\ShopWaiting;
 use App\Models\ShopWaitingRecord;
 use App\Models\Ticket\DiningCar;
 use Carbon\Carbon;
+use Hashids\Hashids;
 
 
 class ShopWaitingRepository extends BaseRepository
@@ -41,7 +42,7 @@ class ShopWaitingRepository extends BaseRepository
             ->max('waiting_no');
 
 
-        return $this->waitingRecord->create([
+        $record = $this->waitingRecord->create([
             'dining_car_id' => $id,
             'waiting_no' => ++$maxNo,
             'member_id' => $memberId,
@@ -52,6 +53,16 @@ class ShopWaitingRepository extends BaseRepository
             'number' => $number,
             'status' => WaitingStatus::Waiting
         ]);
+        $waitingId = $record->id;
+        $code = $this->getWaitingCode($waitingId);
+
+        $this->waitingRecord
+            ->where('id', $waitingId)
+            ->update([
+                'code' => $code
+            ]);
+
+        return $record;
 
     }
 
@@ -85,12 +96,25 @@ class ShopWaitingRepository extends BaseRepository
     {
         return $this->waitingRecord->with('shop')
             ->where('member_id', $memberId)
-            ->where('date','>=',Carbon::now()->subDays(30))
+            ->where('date', '>=', Carbon::now()->subDays(30))
             ->orderBy('date', 'desc')
             ->orderBy('time', 'desc')
-
             ->get();
 
+    }
+
+    public function decode($code)
+    {
+        return $this->waitingRecord
+            ->where('code', $code)
+            ->first();
+
+    }
+
+    private function getWaitingCode($waitingId)
+    {
+        $hashids = new Hashids('citypass', 7);
+        return $hashids->encode($waitingId);
     }
 
 }
