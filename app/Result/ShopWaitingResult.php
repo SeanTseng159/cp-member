@@ -11,6 +11,7 @@ use App\Enum\WaitingStatus;
 use App\Helpers\CommonHelper;
 use App\Helpers\DateHelper;
 use App\Traits\ShopHelper;
+use Carbon\Carbon;
 
 
 class ShopWaitingResult
@@ -52,7 +53,7 @@ class ShopWaitingResult
         foreach ($data as $waitingRecord) {
             $result = new \stdClass;
             //shop
-            $shop = $waitingRecord->shop->first();
+            $shop = $waitingRecord->shop;
             $result->shop = new \stdClass();
 
             $shopId = $shop->id;
@@ -70,6 +71,7 @@ class ShopWaitingResult
             $result->number = $waitingRecord->number;
 //            $result->date = DateHelper::chinese($waitingRecord->date, '%Y/%m/%d (%A)');
             $result->date = DateHelper::format($waitingRecord->date, 'Y/m/d');
+            $result->time = Carbon::parse($waitingRecord->time)->format('H:i') ;
             $result->waitingNo = $this->getWaitNoString($waitingRecord->waiting_no);
             $ret[] = $result;
 
@@ -94,7 +96,6 @@ class ShopWaitingResult
         return $data;
 
     }
-
 
 
     /**
