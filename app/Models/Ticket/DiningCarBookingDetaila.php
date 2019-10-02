@@ -12,5 +12,8 @@ class DiningCarBookingDetail extends BaseModel
 
     protected $primaryKey = 'id';
 
+    protected $connection = 'backend';
+
+    protected $fillable = ['shop_id','name', 'phone', 'booking_number','booking_dayofweek','booking_date','booking_time','booking_people','status','editor','code'];
 
 }
