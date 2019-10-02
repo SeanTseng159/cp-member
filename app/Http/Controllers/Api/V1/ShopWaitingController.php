@@ -121,8 +121,11 @@ class ShopWaitingController extends RestLaravelController
             $host = $request->getSchemeAndHttpHost();
             $shopName = $waiting->name;
             $userName = $record->name;
+
+
+            $userWaitingNo = $this->getWaitNoString($record->waiting_no);
             //傳送簡訊認證
-            $this->service->sendWaitingSMS($host, $shopName, $userName, $cellphone, $record->waiting_no,$record->code);
+            $this->service->sendWaitingSMS($host, $shopName, $userName, $cellphone, $userWaitingNo,$record->code);
             //取得候位組數
             $count = $this->service->getWaitingNumber($shopId, $record->waiting_no);
 
