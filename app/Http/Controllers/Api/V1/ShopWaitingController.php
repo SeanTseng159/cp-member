@@ -162,7 +162,7 @@ class ShopWaitingController extends RestLaravelController
             return $this->success($ret);
         } catch (\Exception $e) {
             Logger::error('ShopWaitingController::get', $e->getMessage());
-            return $this->failureCode('E0007');
+            return $this->failureCode('E0007',$e->getMessage());
         }
 
 
@@ -200,25 +200,10 @@ class ShopWaitingController extends RestLaravelController
         return $currentNo;
     }
 
-    public function memberList(Request $request)
-    {
-        try {
-            $memberId = $request->memberId;
-            // 取收藏列表
-            $memberDiningCars = $this->memberDiningCarService->getAllByMemberId($memberId);
-
-            //後位清單
-            $data = $this->service->getMemberList($memberId);
-            $result = (new ShopWaitingResult())->memberList($data, $memberDiningCars);
-            return $this->success($result);
-        } catch (\Exception $e) {
-            Logger::error('ShopWaitingController::memberList', $e->getMessage());
-            return $this->failureCode('E0001', $e->getMessage());
-        }
-    }
 
     public function decode(Request $request, $code)
     {
+
         try {
             if (!$code)
                 throw new \Exception('缺少$code');
@@ -233,6 +218,24 @@ class ShopWaitingController extends RestLaravelController
             return $this->success($ret);
         } catch (\Exception $e) {
             Logger::error('ShopWaitingController::decode', $e->getMessage());
+            return $this->failureCode('E0001', $e->getMessage());
+        }
+    }
+
+    public function memberList(Request $request)
+    {
+        try {
+
+            $memberId = $request->memberId;
+            // 取收藏列表
+            $memberDiningCars = $this->memberDiningCarService->getAllByMemberId($memberId);
+
+            //後位清單
+            $data = $this->service->getMemberList($memberId);
+            $result = (new ShopWaitingResult())->memberList($data, $memberDiningCars);
+            return $this->success($result);
+        } catch (\Exception $e) {
+            Logger::error('ShopWaitingController::memberList', $e->getMessage());
             return $this->failureCode('E0001', $e->getMessage());
         }
     }
