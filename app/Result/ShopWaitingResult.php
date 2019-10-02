@@ -68,7 +68,8 @@ class ShopWaitingResult
             //waiting Record
             $result->waitingId = $waitingRecord->id;
             $result->number = $waitingRecord->number;
-            $result->date = DateHelper::chinese($waitingRecord->date, '%Y/%m/%d (%A)');
+//            $result->date = DateHelper::chinese($waitingRecord->date, '%Y/%m/%d (%A)');
+            $result->date = DateHelper::format($waitingRecord->date, 'Y/m/d');
             $result->waitingNo = $this->getWaitNoString($waitingRecord->waiting_no);
             $ret[] = $result;
 
