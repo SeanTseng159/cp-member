@@ -154,12 +154,22 @@ Route::middleware('cors')->namespace('V1')->group(function () {
         Route::post('{id}/waiting', 'ShopWaitingController@create');
         Route::get('{id}/waiting/{waitingId}', 'ShopWaitingController@get');
         Route::post('{id}/waiting/{waitingId}', 'ShopWaitingController@delete');
+
         Route::get('waiting/{code}', 'ShopWaitingController@decode');
 
-
-
         //訂位相關 ====
+        //店鋪訂位取得人數及注意事
         Route::get('{id}/booking/people', 'ShopBookingController@maxpeople');
+        //取得店舖可訂位日期
+        Route::get('{id}/booking/date', 'ShopBookingController@findBookingCanDate');
+        //完成訂位
+        Route::post('{id}/booking/finished', 'ShopBookingController@finishedBooking');
+        //取得單一訂單資訊
+        Route::get('{shopId}/booking/{id}', 'ShopBookingController@getOenDetailInfo');
+        
+        
+        
+
 
     });
 
