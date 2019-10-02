@@ -149,11 +149,14 @@ Route::middleware('cors')->namespace('V1')->group(function () {
         Route::get('service/list', 'ShopController@servicelist');
 
         //候位相關======
+        Route::get('waiting/list', 'ShopWaitingController@memberList')->middleware('auth.jwt');
         Route::get('{id}/waiting', 'ShopWaitingController@info');
         Route::post('{id}/waiting', 'ShopWaitingController@create');
         Route::get('{id}/waiting/{waitingId}', 'ShopWaitingController@get');
         Route::post('{id}/waiting/{waitingId}', 'ShopWaitingController@delete');
         Route::get('waiting/{code}', 'ShopWaitingController@decode');
+
+
 
         //訂位相關 ====
         Route::get('{id}/booking/people', 'ShopBookingController@maxpeople');
@@ -398,13 +401,12 @@ Route::middleware(['cors', 'auth.jwt'])->namespace('V1')->group(function () {
         Route::post('read', 'MemberController@readStatusChange');
     });
 
-    //店鋪相關
-    Route::prefix('shop')->group(function () {
-
-        //候位相關
-        Route::prefix('waiting')->group(function () {
-            //通知列表資訊
-            Route::get('/list', 'ShopWaitingController@memberList');
-        });
-    });
+//    店鋪相關
+//    Route::prefix('shop')->group(function () {
+//        //候位相關
+//        Route::prefix('waiting')->group(function () {
+//            //通知列表資訊
+//            Route::get('/list', 'ShopWaitingController@memberList');
+//        });
+//    });
 });
