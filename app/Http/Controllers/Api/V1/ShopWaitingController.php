@@ -35,7 +35,7 @@ class ShopWaitingController extends RestLaravelController
             return $this->success($data);
         } catch (\Exception $e) {
             Logger::error('ShopWaitingController::info', $e->getMessage());
-            return $this->failureCode('E0001');
+            return $this->failureCode('E0001', $e->getMessage());
         }
     }
 
@@ -121,9 +121,11 @@ class ShopWaitingController extends RestLaravelController
             $host = $request->getSchemeAndHttpHost();
             $shopName = $waiting->name;
             $userName = $record->name;
-            //傳送簡訊認證
-            $this->service->sendWaitingSMS($host, $shopName, $shopId, $userName, $cellphone, $record->id, $record->waiting_no);
 
+
+            $userWaitingNo = $this->getWaitNoString($record->waiting_no);
+            //傳送簡訊認證
+            $this->service->sendWaitingSMS($host, $shopName, $userName, $cellphone, $userWaitingNo,$record->code);
             //取得候位組數
             $count = $this->service->getWaitingNumber($shopId, $record->waiting_no);
 
@@ -215,5 +217,23 @@ class ShopWaitingController extends RestLaravelController
         }
     }
 
+    public function decode(Request $request, $code)
+    {
+        try {
+            if (!$code)
+                throw new \Exception('缺少$code');
 
+            $data = $this->service->decode($code);
+            if (!$data)
+                throw new \Exception("查無候位記錄");
+
+            $ret = new \stdClass();
+            $ret->shop_id = $data->dining_car_id;
+            $ret->waiting_id = $data->id;
+            return $this->success($ret);
+        } catch (\Exception $e) {
+            Logger::error('ShopWaitingController::decode', $e->getMessage());
+            return $this->failureCode('E0001', $e->getMessage());
+        }
+    }
 }

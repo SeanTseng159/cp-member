@@ -36,16 +36,15 @@ class ShopWaitingService extends BaseService
         return $this->repository->create($id, $name, $number, $cellphone, $memberID);
     }
 
-    public function sendWaitingSMS($host, $shopName, $shopId, $userName, $cellphone, $waitingId, $userWaitingNo)
+    public function sendWaitingSMS($host, $shopName, $userName, $cellphone, $userWaitingNo,$code)
     {
         try {
             //發送簡訊
             $easyGoService = new EasyGoService;
             $phoneNumber = '+886' . substr($cellphone, 1, 9);
-            $web = "{$host}/shop/{$shopId}/waiting/{$waitingId}";
+            $web = "{$host}/lineup/{$code}";
             $message = "{$userName}您好：您已成功候位{$shopName}，號碼{$userWaitingNo}，點擊連結查看 {$web}";
-//            return $easyGoService->send($phoneNumber, $message);
-
+            return $easyGoService->send($phoneNumber, $message);
         } catch (\Exception $e) {
             Logger::debug($e);
             return false;
@@ -70,5 +69,9 @@ class ShopWaitingService extends BaseService
     public function getMemberList($memberId)
     {
         return $this->repository->getMemberList($memberId);
+    }
+    public function decode($code)
+    {
+        return $this->repository->decode($code);
     }
 }
