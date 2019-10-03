@@ -118,7 +118,7 @@ class ShopWaitingController extends RestLaravelController
             $memberID = $this->getMemberId();
             $record = $this->service->create($shopId, $name, $number, $cellphone, $memberID);
 
-            $host = $request->getSchemeAndHttpHost();
+            $host = env("CITY_PASS_WEB");
             $shopName = $waiting->name;
             $userName = $record->name;
 
