@@ -16,4 +16,12 @@ class DiningCarBookingDetail extends BaseModel
 
     protected $fillable = ['shop_id','name', 'phone', 'booking_number','booking_dayofweek','booking_date','booking_time','booking_people','status','editor','code'];
 
+    /**
+     * 取得店鋪限制
+     */
+    public function shopLimit()
+    {
+    	return $this->belongsTo('App\Models\Ticket\DiningCarBookingLimit', 'shop_id');
+        //return $this->hasMany('App\Models\Ticket\DiningCar')->where('status', true);
+    }
 }
