@@ -125,7 +125,7 @@ class ShopWaitingController extends RestLaravelController
 
             $userWaitingNo = $this->getWaitNoString($record->waiting_no);
             //傳送簡訊認證
-            $this->service->sendWaitingSMS($host, $shopName, $userName, $cellphone, $userWaitingNo,$record->code);
+            $this->service->sendWaitingSMS($host, $shopName, $userName, $cellphone, $userWaitingNo, $record->code);
             //取得候位組數
             $count = $this->service->getWaitingNumber($shopId, $record->waiting_no);
 
@@ -136,6 +136,7 @@ class ShopWaitingController extends RestLaravelController
             $data->number = $record->number;
             $data->waitingNo = $this->getWaitNoString($record->waiting_no);
             $data->currentNo = $currentNo;
+            $data->code = $record->code;
             $data->WaitingNum = $count;
             $data->status = $record->status;
             return $this->success($data);
@@ -162,24 +163,50 @@ class ShopWaitingController extends RestLaravelController
             return $this->success($ret);
         } catch (\Exception $e) {
             Logger::error('ShopWaitingController::get', $e->getMessage());
-            return $this->failureCode('E0007',$e->getMessage());
+            return $this->failureCode('E0007', $e->getMessage());
         }
 
 
     }
 
-    public function delete(Request $request, $id, $waitingId)
+    public function getByCode(Request $request, $code)
     {
         try {
-            $result = $this->service->delete($id, $waitingId);
+
+            $record = $this->service->getByCode($code);
+            $ret = (new ShopWaitingResult())->get($record);
+
+            $isToday = $record->date == Carbon::now()->format('Y-m-d');
+            if ($isToday) {
+                $waiting = $this->service->find($record->shop->id);
+                $currentNo = $this->getCurrentWaitingNo($waiting);
+
+                $ret->WaitingNum = $this->service->getWaitingNumber($record->dining_car_id, $record->waiting_no);
+                $ret->currentNo = $currentNo;
+            }
+            return $this->success($ret);
+        } catch (\Exception $e) {
+
+            Logger::error('ShopWaitingController::get', $e->getMessage());
+            return $this->failureCode('E0007', $e->getMessage());
+        }
+
+
+    }
+
+    public function deleteByCode(Request $request, $code)
+    {
+        try {
+            $result = $this->service->deleteByCode($code);
             return $this->success();
         } catch (\Exception $e) {
-            Logger::error('ShopWaitingController::delete', $e->getMessage());
+            Logger::error('ShopWaitingController::deleteByCode', $e->getMessage());
             return $this->failureCode('E0004');
         }
 
 
     }
+
 
     /**取得目前叫號
      * @param $waiting
