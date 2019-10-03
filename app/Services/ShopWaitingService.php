@@ -31,12 +31,18 @@ class ShopWaitingService extends BaseService
         return $this->repository->find($id);
     }
 
+    public function getByCode($code)
+    {
+        return $this->repository->getByCode($code);
+    }
+
+
     public function create($id, $name, $number, $cellphone, $memberID = null)
     {
         return $this->repository->create($id, $name, $number, $cellphone, $memberID);
     }
 
-    public function sendWaitingSMS($host, $shopName, $userName, $cellphone, $userWaitingNo,$code)
+    public function sendWaitingSMS($host, $shopName, $userName, $cellphone, $userWaitingNo, $code)
     {
         try {
             //發送簡訊
@@ -51,25 +57,31 @@ class ShopWaitingService extends BaseService
         }
     }
 
-    public function get($shopId,$waitingId)
+    public function get($shopId, $waitingId)
     {
-        return $this->repository->get($shopId,$waitingId);
+        return $this->repository->get($shopId, $waitingId);
     }
 
-    public function delete($shopId,$waitingId)
+    public function delete($shopId, $waitingId, $memberId)
     {
-        return $this->repository->delete($shopId,$waitingId);
+        return $this->repository->delete($shopId, $waitingId, $memberId);
     }
 
-    public function getWaitingNumber($shopId,$waitingNo)
+    public function deleteByCode($code)
     {
-        return $this->repository->getWaitingNumber($shopId,$waitingNo);
+        return $this->repository->deleteByCode($code);
+    }
+
+    public function getWaitingNumber($shopId, $waitingNo)
+    {
+        return $this->repository->getWaitingNumber($shopId, $waitingNo);
     }
 
     public function getMemberList($memberId)
     {
         return $this->repository->getMemberList($memberId);
     }
+
     public function decode($code)
     {
         return $this->repository->decode($code);

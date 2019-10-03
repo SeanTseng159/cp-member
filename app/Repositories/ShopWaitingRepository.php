@@ -34,34 +34,51 @@ class ShopWaitingRepository extends BaseRepository
             ->first();
     }
 
+    public function getByCode($code)
+    {
+
+        return $this->waitingRecord->with('shop')
+            ->where('code', $code)
+            ->first();
+    }
+
     public function create($id, $name, $number, $cellphone, $memberId = null)
     {
-        $maxNo = $this->waitingRecord
-            ->where('dining_car_id', $id)
-            ->where('date', Carbon::now()->format('Y-m-d'))
-            ->max('waiting_no');
+        $record = null;
+        \DB::connection('backend')->transaction(function () use ($id, $name, $number, $cellphone, $memberId, &$record) {
+            try {
+                $maxNo = $this->waitingRecord
+                    ->where('dining_car_id', $id)
+                    ->where('date', Carbon::now()->format('Y-m-d'))
+                    ->max('waiting_no');
 
 
-        $record = $this->waitingRecord->create([
-            'dining_car_id' => $id,
-            'waiting_no' => ++$maxNo,
-            'member_id' => $memberId,
-            'date' => (Carbon::now())->format('Y-m-d'),
-            'time' => (Carbon::now())->format('H:i:s'),
-            'name' => $name,
-            'cellphone' => $cellphone,
-            'number' => $number,
-            'status' => WaitingStatus::Waiting
-        ]);
-        $waitingId = $record->id;
-        $code = $this->getWaitingCode($waitingId);
+                $record = $this->waitingRecord->create([
+                    'dining_car_id' => $id,
+                    'waiting_no' => ++$maxNo,
+                    'member_id' => $memberId,
+                    'date' => (Carbon::now())->format('Y-m-d'),
+                    'time' => (Carbon::now())->format('H:i:s'),
+                    'name' => $name,
+                    'cellphone' => $cellphone,
+                    'number' => $number,
+                    'status' => WaitingStatus::Waiting,
+                ]);
+                $waitingId = $record->id;
+                $code = $this->getWaitingCode($waitingId);
+                $record->code = $code;
 
-        $this->waitingRecord
-            ->where('id', $waitingId)
-            ->update([
-                'code' => $code
-            ]);
+                $this->waitingRecord
+                    ->where('id', $waitingId)
+                    ->update([
+                        'code' => $code
+                    ]);
 
+                \DB::commit();
+            } catch (\Exception $e) {
+                \DB::rollBack();
+            }
+        });
         return $record;
 
     }
@@ -74,11 +91,19 @@ class ShopWaitingRepository extends BaseRepository
             ->first();
     }
 
-    public function delete($shopId, $waitingId)
+    public function delete($shopId, $waitingId, $memberId)
     {
         return $this->waitingRecord
             ->where('dining_car_id', $shopId)
             ->where('id', $waitingId)
+            ->where('member_id', $memberId)
+            ->delete();
+    }
+
+    public function deleteByCode($code)
+    {
+        return $this->waitingRecord
+            ->where('code', $code)
             ->delete();
     }
 

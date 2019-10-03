@@ -73,6 +73,7 @@ class ShopWaitingResult
             $result->date = DateHelper::format($waitingRecord->date, 'Y/m/d');
             $result->time = Carbon::parse($waitingRecord->time)->format('H:i') ;
             $result->waitingNo = $this->getWaitNoString($waitingRecord->waiting_no);
+            $result->code = $waitingRecord->code;
             $ret[] = $result;
 
         }
@@ -81,7 +82,9 @@ class ShopWaitingResult
 
     public function get($waiting)
     {
+
         $shop = $waiting->shop;
+
         $data = new \stdClass();
         $data->shop = new \stdClass();
         $data->shop->id = $shop->id;
@@ -91,6 +94,7 @@ class ShopWaitingResult
         $data->cellphone = $waiting->cellphone;
         $data->number = $waiting->number;
         $data->waitingNo = $this->getWaitNoString($waiting->waiting_no);
+        $data->code = $waiting->code;
         $data->status = $waiting->status;
 
         return $data;
