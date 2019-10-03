@@ -166,8 +166,12 @@ Route::middleware('cors')->namespace('V1')->group(function () {
         Route::post('{id}/booking/finished', 'ShopBookingController@finishedBooking');
         //取得單一訂單資訊
         Route::get('{shopId}/booking/{id}', 'ShopBookingController@getOenDetailInfo');
-        
-        
+        //訂位短網址解碼
+        Route::get('booking/getfromcode/{code}', 'ShopBookingController@get');
+        //取消訂位
+        Route::post('{shopId}/booking/{code}', 'ShopBookingController@delete');
+        //已訂位列表
+        Route::get('booking/list', 'ShopBookingController@memberList')->middleware('auth.jwt');
         
 
 

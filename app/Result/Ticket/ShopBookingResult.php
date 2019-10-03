@@ -9,6 +9,7 @@ namespace App\Result\Ticket;
 use Carbon\Carbon;
 use App\Helpers\CommonHelper;
 use Hashids\Hashids;
+use App\Helpers\DateHelper;
 class ShopBookingResult
 {
 
@@ -195,4 +196,40 @@ class ShopBookingResult
     	return $result;
 	}//end public function getOenDetailInfo
 
+
+    public function memberList($data, $memberDiningCars)
+    {
+        $ret = [];
+        foreach ($data as $bookingRecord) {
+        	//result
+        	$result = new \stdClass();
+        	$result->id=$bookingRecord->id;
+        	//booking
+        	$result->booking= new \stdClass();
+        	$result->booking->number=$bookingRecord->booking_number;
+        	$result->booking->date=DateHelper::chinese($bookingRecord->booking_date, '%Y/%m/%d  %A');
+
+        	
+        	$result->booking->time=$bookingRecord->booking_time;
+        	$result->booking->people=$bookingRecord->booking_people;
+        	$result->booking->status=$bookingRecord->status;
+        	//member
+        	$result->member= new \stdClass();
+        	$result->member->name=$bookingRecord->name;
+        	$result->member->phone=$bookingRecord->phone;
+        	$result->member->demand=$bookingRecord->demand;
+        	//shop	
+        	$result->shop = new \stdClass();
+        	$favoriteList=collect($memberDiningCars)->filter(function ($value, $key)  use($bookingRecord){
+    			return ($value->dining_car_id== $bookingRecord->shop_id);
+			});
+			$result->shop->isFavorite = (count($favoriteList)) > 0 ? true : false;
+			$result->shop->shareUrl = CommonHelper::getWebHost('zh-TW/shop/detail/' . $bookingRecord->shop_id);
+			$result->shop->precautions =$bookingRecord->shopLimit->precautions;
+
+            $ret[] = $result;
+
+        }
+        return $ret;
+	}//end public	function memberList
 }//end class

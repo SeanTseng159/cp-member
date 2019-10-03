@@ -19,9 +19,9 @@ class ShopBookingService extends BaseService
      * @param  $id
      * @return mixed
      */
-    public function findBookingLimitDateTime($id)
+    public function findBookingLimit($id)
     {
-        return $this->repository->findBookingLimitDateTime($id);
+        return $this->repository->findBookingLimit($id);
     }
 
 
@@ -105,4 +105,34 @@ class ShopBookingService extends BaseService
         return $this->repository->getOenDetailInfo($id);
     }  
 
+    /**
+     * 取得訂單detail
+     * @param  $code
+     * @return data
+     */
+    public function getFromCode($code)
+    {
+        return $this->repository->getFromCode($code);
+    }  
+
+    /**
+     * 取消訂單
+     * @param  $code
+     * @return data
+     */
+    public function cancel($shopid,$code)
+    {
+        return $this->repository->cancel($shopid,$code);
+    }  
+
+
+    /**
+     * 取得訂位列表
+     * @param  $memberID
+     * @return data
+     */
+    public function getMemberList($memberId)
+    {
+        return $this->repository->getMemberList($memberId);
+    }  
 }

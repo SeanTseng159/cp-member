@@ -154,7 +154,7 @@ class ShopBookingRepository extends BaseRepository
 
 
     /**
-     * 將訂位資料寫入DB
+     * 查詢訂單detail
      */
     public function getOenDetailInfo($id= 0)
     {
@@ -162,4 +162,47 @@ class ShopBookingRepository extends BaseRepository
                     ->where('id',$id)
                     ->first();
     }//end public function createDetail
+
+
+    /**
+     * 取得訂單detail
+     */
+    public function getFromCode($code= 0)
+    {
+        return $this->diningCarBookingDetail
+                    ->where('code',$code)
+                    ->first();
+    }//end  function getOenDetailInfo
+
+    /**
+     * 取消訂單
+     */
+    public function cancel($shopid,$code)
+    {
+        return $this->diningCarBookingDetail
+                    ->where('shop_id',$shopid)
+                    ->where('code',$code)
+                    ->update(['status' => 0]);
+                    
+
+    }//end  function getOenDetailInfo
+
+
+    /**
+     * 取得訂位列表
+     */
+    public function getMemberList($memberId)
+    {
+        $findDays = Carbon::today()->modify('-30 days');
+        return $this->diningCarBookingDetail
+                    ->with(['shopLimit'])
+                    ->where('member_Id',$memberId)
+                    ->where('booking_date','>=',$findDays)
+                    ->get();
+                    
+
+    }//end  function getOenDetailInfo
+
+
+
 }//end class
