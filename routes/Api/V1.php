@@ -155,7 +155,7 @@ Route::middleware('cors')->namespace('V1')->group(function () {
 
         Route::post('waiting/{code}', 'ShopWaitingController@deleteByCode');//取消候位
         Route::get('waiting/{code}', 'ShopWaitingController@getByCode');//取得候位資訊
-        Route::get('waiting/list', 'ShopWaitingController@memberList')->middleware('auth.jwt');//我的候位資訊
+        Route::get('waiting/member/list', 'ShopWaitingController@memberList')->middleware('auth.jwt');//我的候位資訊
 
         //訂位相關 ====
         //店鋪訂位取得人數及注意事
