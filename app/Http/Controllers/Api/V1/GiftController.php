@@ -47,43 +47,50 @@ class GiftController extends RestLaravelController
      */
     public function list(Request $request)
     {
-        $memberId = $this->getMemberId();
+
+        try {
+            $memberId = $this->getMemberId();
 
 
-        $client = $request->modelType;
-        $clientId = $request->modelSpecId;
+            $client = $request->modelType;
+            $clientId = $request->modelSpecId;
 
-        if (!$client or !$clientId) {
-            return $this->failureCode('E0007');
-        }
-
-        //檢查餐車是否存在
-        $diningCar = $this->diningCarService->find($clientId);
-        if (!$diningCar) {
-            return $this->failureCode('E0007');
-        }
-
-        //餐車付費狀態
-        $isPaid = $this->diningCarService->isPaid($clientId);
-
-        if ($isPaid) {
-            //禮物清單
-            $gifts = $this->giftService->list($client, $clientId);
-
-            foreach ($gifts as $item) {
-                $item->photo = ImageHelper::getImageUrl(ClientType::gift, $item->id);
+            if (!$client or !$clientId) {
+                return $this->failureCode('E0007');
             }
 
-            //設定禮物狀態(可使用/額度已用完)
-            $this->setGiftStatus($gifts, $memberId);
+            //檢查餐車是否存在
+            $diningCar = $this->diningCarService->find($clientId);
+            if (!$diningCar) {
+                return $this->failureCode('E0007');
+            }
 
-            $result = (new GiftResult())->list($gifts, $isPaid);
+            //餐車付費狀態
+            $isPaid = $this->diningCarService->isPaid($clientId);
 
-            return $this->success($result);
+            if ($isPaid) {
+                //禮物清單
+                $gifts = $this->giftService->list($client, $clientId);
 
-        } else {
-            //沒有付費則不顯示，使用者只能從我的禮物進入
-            return $this->success([]);
+                foreach ($gifts as $item) {
+                    $item->photo = ImageHelper::getImageUrl(ClientType::gift, $item->id);
+                }
+
+                //設定禮物狀態(可使用/額度已用完)
+                $this->setGiftStatus($gifts, $memberId);
+
+                $result = (new GiftResult())->list($gifts, $isPaid);
+
+                return $this->success($result);
+
+            } else {
+                //沒有付費則不顯示，使用者只能從我的禮物進入
+                return $this->success([]);
+            }
+
+        } catch (\Exception $e) {
+            dd($e);
+            $this->failureCode('E0001');
         }
 
 
