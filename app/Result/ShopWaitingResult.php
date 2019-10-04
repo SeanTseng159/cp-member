@@ -10,6 +10,7 @@ namespace App\Result;
 use App\Enum\WaitingStatus;
 use App\Helpers\CommonHelper;
 use App\Helpers\DateHelper;
+use App\Helpers\ImageHelper;
 use App\Traits\ShopHelper;
 use Carbon\Carbon;
 
@@ -56,9 +57,14 @@ class ShopWaitingResult
             $shop = $waitingRecord->shop;
             $result->shop = new \stdClass();
 
+            //category
+            $category = [];
+            $category[] = $shop->category->name;
+            $category[] = $shop->subCategory->name;
+
             $shopId = $shop->id;
             $result->shop->id = $shopId;
-            $result->shop->category = $shop->category->name."/".$shop->subCategory->name;
+            $result->shop->category = $category;
             $result->shop->name = $shop->name;
 
 
@@ -67,13 +73,14 @@ class ShopWaitingResult
             });
             $result->shop->isFavorite = (count($favoriteList)) > 0 ? true : false;
             $result->shop->shareUrl = $this->getWebHost($shopId);
+            $result->shop->photo = ImageHelper::url($shop->mainImg);
 
             //waiting Record
             $result->waitingId = $waitingRecord->id;
             $result->number = $waitingRecord->number;
 //            $result->date = DateHelper::chinese($waitingRecord->date, '%Y/%m/%d (%A)');
             $result->date = DateHelper::format($waitingRecord->date, 'Y/m/d');
-            $result->time = Carbon::parse($waitingRecord->time)->format('H:i') ;
+            $result->time = Carbon::parse($waitingRecord->time)->format('H:i');
             $result->waitingNo = $this->getWaitNoString($waitingRecord->waiting_no);
             $result->code = $waitingRecord->code;
             $ret[] = $result;

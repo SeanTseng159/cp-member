@@ -119,7 +119,7 @@ class ShopWaitingRepository extends BaseRepository
 
     public function getMemberList($memberId)
     {
-        return $this->waitingRecord->with('shop','shop.category','shop.subCategory')
+        return $this->waitingRecord->with('shop','shop.category','shop.subCategory','shop.mainImg')
             ->where('member_id', $memberId)
             ->where('date', '>=', Carbon::now()->subDays(30))
             ->orderBy('date', 'desc')
