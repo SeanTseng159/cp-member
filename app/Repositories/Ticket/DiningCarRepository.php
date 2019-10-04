@@ -117,7 +117,7 @@ class DiningCarRepository extends BaseRepository
             ->withCount(['gifts', 'newsfeeds', 'coupons'])
             ->whereId($id)
             ->where('status', 1)
-            ->where('type',$this->type)
+//            ->where('type',$this->type)
             ->first();
     }
 
