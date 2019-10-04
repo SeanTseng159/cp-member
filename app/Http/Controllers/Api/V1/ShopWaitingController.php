@@ -154,6 +154,10 @@ class ShopWaitingController extends RestLaravelController
             $currentNo = $this->getCurrentWaitingNo($waiting);
 
             $record = $this->service->get($shopId, $waitingId);
+
+            if (is_null($record))
+                throw new \Exception('查無資料或已刪除');
+
             $ret = (new ShopWaitingResult())->get($record);
             $isToday = $record->date == Carbon::now()->format('Y-m-d');
             if ($isToday) {
@@ -174,6 +178,8 @@ class ShopWaitingController extends RestLaravelController
         try {
 
             $record = $this->service->getByCode($code);
+            if (is_null($record))
+                throw new \Exception('查無資料或已刪除');
             $ret = (new ShopWaitingResult())->get($record);
 
             $isToday = $record->date == Carbon::now()->format('Y-m-d');
@@ -197,11 +203,22 @@ class ShopWaitingController extends RestLaravelController
     public function deleteByCode(Request $request, $code)
     {
         try {
+            $waiting = $this->service->getByCode($code);
+            if(is_null($waiting))
+                throw new \Exception('此候位資料已刪除');
+
+            if($waiting->status == WaitingStatus::Called)
+                throw new \Exception('已叫號，無法刪除');
+
+            if($waiting->date != Carbon::now()->format('Y-m-d'))
+                throw new \Exception('候位已過期，無法刪除');
+
             $result = $this->service->deleteByCode($code);
             return $this->success();
         } catch (\Exception $e) {
             Logger::error('ShopWaitingController::deleteByCode', $e->getMessage());
-            return $this->failureCode('E0004');
+            return $this->responseFormat(null,'E0004',$e->getMessage());
+
         }
 
 

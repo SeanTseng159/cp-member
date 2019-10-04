@@ -58,7 +58,9 @@ class ShopWaitingResult
 
             $shopId = $shop->id;
             $result->shop->id = $shopId;
+            $result->shop->category = $shop->category->name."/".$shop->subCategory->name;
             $result->shop->name = $shop->name;
+
 
             $favoriteList = $memberDiningCars->filter(function ($item) use ($shopId) {
                 return $item->dining_car_id = $shopId;
