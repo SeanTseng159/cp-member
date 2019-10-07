@@ -5,7 +5,6 @@
  */
 
 namespace App\Result\Ticket;
-
 use App\Config\Ticket\DiningCarConfig;
 use Carbon\Carbon;
 use App\Helpers\CommonHelper;
@@ -15,7 +14,6 @@ class ShopResult extends DiningCarResult
     protected function getCar($car)
     {
         if (!$car) return null;
-
         $result = new \stdClass;
         $result->id = $car->id;
         $result->name = $car->name;
@@ -50,8 +48,11 @@ class ShopResult extends DiningCarResult
      */
     public function detail($car, $isFavorite = false, $lat, $lng)
     {
-
+        
         if (!$car) return null;
+
+        $address=$car->county.$car->district.$car->address;
+        
 
         $this->lat = $lat;
         $this->lng = $lng;
@@ -75,6 +76,7 @@ class ShopResult extends DiningCarResult
 
         $result->longitude = $car->longitude ?? '';
         $result->latitude = $car->latitude ?? '';
+        $result->address=$address;
         $result->distance = ($result->longitude && $result->latitude && $this->lat && $this->lng) ? $this->calcDistance($this->lat, $this->lng, $car->latitude, $car->longitude, 2, 2) . '公里' : '未知';
 
         $result->businessHoursDays = $this->getBusinessHoursDays($car->businessHoursDays);
@@ -88,7 +90,7 @@ class ShopResult extends DiningCarResult
         $result->acls = $this->getAcls($car, $result->level, $result->memberCard);
 
 
-
+        
 
         return $result;
     }
@@ -100,6 +102,7 @@ class ShopResult extends DiningCarResult
         $shop = new \stdClass;
         $shop->canBooking = (bool)$car->canBooking;
         $shop->canWaiting = (bool)$car->canWaiting;
+        $shop->canQuestionnaire=(bool)$car->canQuestionnaire;
         $shop->canPointing = ($car->level == 1 && (Carbon::parse($car->expired_at)->gt(Carbon::now())))
              ? true : false;
         return $shop;

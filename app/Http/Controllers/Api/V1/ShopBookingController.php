@@ -56,7 +56,6 @@ class ShopBookingController extends RestLaravelController
         try {
             $validator = \Validator::make(
                 $request->only([
-                    'memberID',
                     'name',
                     'phone',
                     'demand',
@@ -76,6 +75,7 @@ class ShopBookingController extends RestLaravelController
             if ($validator->fails()) {
                 throw new \Exception($validator->messages());
             }
+            
 
             //抓取星期幾幾點多少人之限制
             $bookingTimesDateTime = $this->service->findBookingTimesDateTime($id,$request->input('dayOfWeek'),$request->input('time'));
