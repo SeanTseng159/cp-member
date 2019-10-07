@@ -31,6 +31,7 @@ class ShopQuestionRepository extends BaseRepository
             ->where('id', $shopId)->with('currentQuestion', 'currentQuestion.topicList')
             ->first();
     }
+
     public function getQuestionDetail($shopId)
     {
         return $this->detail
@@ -38,5 +39,50 @@ class ShopQuestionRepository extends BaseRepository
             ->first();
     }
 
+    public function checkAnswer($versionId, $answerAry)
+    {
 
+        $answerOptions = $this->detail
+            ->where('question_id', $versionId)
+            ->get();
+
+        foreach ($answerAry as $pair) {
+            $id = $pair->id;
+            $answer = $pair->answer;
+            $filtered = $answerOptions->filter(function ($item) use ($id) {
+                return $item->id == $id;
+            });
+            $only = $filtered->first();
+            if ($only->type != 4) {
+                $ansAry = explode(',', $answer);
+                $optionAry = explode(",", $only->options);
+                $answerPostion = [];
+                foreach ($ansAry as $ans) {
+                    $idx = array_search($ans, $optionAry);
+                    if ($idx === false) {
+                        throw new \Exception("選項不包含{$ans}");
+                    }
+                    $answerPostion[] = $idx;
+                }
+                $pair->answerPostion = count($answerPostion) <= 1 ? (int)implode("", $answerPostion) : $answerPostion;
+            }
+        }
+        return $answerAry;
+    }
+
+    public function store($memberId, $date, $answerAry)
+    {
+        $insertArry = [];
+        foreach ($answerAry as $ans) {
+            $insert = [
+                'question_detail_id' => $ans->id,
+                'member_id' => $memberId,
+                'value' => $ans->answer,
+                'consumption' => $date
+            ];
+            $insertArry[] = $insert;
+        }
+        return $this->memberAnswer->insert($insertArry);
+
+    }
 }

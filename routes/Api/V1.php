@@ -174,8 +174,8 @@ Route::middleware('cors')->namespace('V1')->group(function () {
         Route::get('booking/list', 'ShopBookingController@memberList')->middleware('auth.jwt');
 
         //問卷相關
-        Route::post('{id}/questionnaire', 'ShopQuestionController@create');//->middleware('auth.jwt');
-        Route::get('{id}/questionnaire', 'ShopQuestionController@get');//->middleware('auth.jwt');
+        Route::post('{id}/questionnaire/{questionId}', 'ShopQuestionController@create')->middleware('auth.jwt');
+        Route::get('{id}/questionnaire', 'ShopQuestionController@get')->middleware('auth.jwt');
 
     });
 

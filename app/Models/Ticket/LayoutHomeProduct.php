@@ -7,8 +7,6 @@
 
 namespace App\Models\Ticket;
 
-use App\Models\Ticket\BaseModel;
-
 class LayoutHomeProduct extends BaseModel
 {
 	protected $table = 'layout_home_prods';

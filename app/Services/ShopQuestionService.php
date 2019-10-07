@@ -36,5 +36,14 @@ class ShopQuestionService extends BaseService
     {
         return $this->repository->getQuestionDetail($shopId);
     }
+    public function checkAnswer($versionId,$answerAry)
+    {
+        return $this->repository->checkAnswer($versionId,$answerAry);
+    }
+
+
+    public function store($memberId,$date,$answerAry){
+        return $this->repository->store($memberId,$date,$answerAry);
+    }
 
 }
