@@ -14,7 +14,6 @@ use App\Models\Ticket\DiningCar;
 
 class DiningCarRepository extends BaseRepository
 {
-    private $limit = 20;
     protected $type = 1;
 
     public function __construct(DiningCar $model)

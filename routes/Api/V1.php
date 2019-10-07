@@ -172,8 +172,10 @@ Route::middleware('cors')->namespace('V1')->group(function () {
         Route::post('{shopId}/booking/{code}', 'ShopBookingController@delete');
         //已訂位列表
         Route::get('booking/list', 'ShopBookingController@memberList')->middleware('auth.jwt');
-        
 
+        //問卷相關
+        Route::post('{id}/questionnaire', 'ShopQuestionController@create');//->middleware('auth.jwt');
+        Route::get('{id}/questionnaire', 'ShopQuestionController@get');//->middleware('auth.jwt');
 
     });
 
@@ -415,12 +417,4 @@ Route::middleware(['cors', 'auth.jwt'])->namespace('V1')->group(function () {
         Route::post('read', 'MemberController@readStatusChange');
     });
 
-//    店鋪相關
-//    Route::prefix('shop')->group(function () {
-//        //候位相關
-//        Route::prefix('waiting')->group(function () {
-//            //通知列表資訊
-//            Route::get('/list', 'ShopWaitingController@memberList');
-//        });
-//    });
 });
