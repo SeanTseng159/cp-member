@@ -11,6 +11,7 @@ namespace App\Models\Ticket;
 use App\Enum\ClientType;
 use App\Enum\WaitingStatus;
 use App\Models\Gift;
+use App\Models\ShopQuestion;
 use App\Models\ShopWaiting;
 use App\Models\ShopWaitingRecord;
 use Carbon\Carbon;
@@ -200,10 +201,21 @@ class DiningCar extends BaseModel
     public function waitingList()
     {
         return $this->hasMany(ShopWaitingRecord::class, 'dining_car_id', 'id')
-//            ->where('status', '!=', WaitingStatus::Called)
             ->where('date', Carbon::now()->format('Y-m-d'))
             ->whereNull('deleted_at')
             ->orderBy('waiting_no','desc');
+    }
+
+    /**
+     * 問卷
+     */
+    public function currentQuestion()
+    {
+        return $this->hasOne(ShopQuestion::class, 'dining_car_id', 'id')
+            ->where('status',1)
+            ->orderBy('id','desc')
+            ->latest();
+
     }
 
 }
