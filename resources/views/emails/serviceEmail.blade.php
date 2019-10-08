@@ -9,7 +9,7 @@
             <div id="con">
                 <table width="100%" border="0" cellspacing="0" cellpadding="8">
                     <tr>
-                        <td>親愛的{{ $name }}({{ $phone }})，您好:</td>
+                        <td>親愛的{{ $name }}，您好:</td>
                     </tr>
                     <tr>
                         <td>本系統已收到您的客服問題，客服人員將盡速為您處理，</td>

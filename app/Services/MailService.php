@@ -194,7 +194,7 @@ class MailService
             $data['name'] = $member->name;
             $data['questionType'] = $parameters->questionType;
             $data['questionContent'] = $parameters->questionContent;
-            $data['phone'] = $parameters->phone;
+            // $data['phone'] = $parameters->phone;
 
             $this->sendCityPass('【CityPass】客服追蹤通知信_' . date("YmdHi"), $recipient, 'emails/serviceEmail', $data);
 
@@ -208,7 +208,7 @@ class MailService
             $data['questionType'] = $parameters->questionType;
             $data['questionContent'] = $parameters->questionContent;
             $data['date'] = date("Y-m-d H:i:s");
-            $data['phone'] = $parameters->phone;
+            // $data['phone'] = $parameters->phone;
 
             $this->sendCityPass('【CityPass】客服追蹤通知信_' . date("YmdHi"), $recipient, 'emails/serviceEmail', $data);
 
