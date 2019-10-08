@@ -185,36 +185,18 @@ class MailService
      */
     public function sendServiceEmail($member,$parameters)
     {
-        if(!empty($member)) {
-            $recipient = [
-                'email' => $member->email,
-                'name' => $member->name
-            ];
+        $recipient = [
+            'email' => $parameters->email,
+            'name' => $parameters->name
+        ];
 
-            $data['name'] = $member->name;
-            $data['questionType'] = $parameters->questionType;
-            $data['questionContent'] = $parameters->questionContent;
-            $data['date'] = date("Y-m-d H:i:s");
-            // $data['phone'] = $parameters->phone;
+        $data['name'] = $parameters->name;
+        $data['questionType'] = $parameters->questionType;
+        $data['questionContent'] = $parameters->questionContent;
+        $data['date'] = date("Y-m-d H:i:s");
+        $data['phone'] = $parameters->phone;
 
-            $this->sendCityPass('【CityPass】客服追蹤通知信_' . date("YmdHi"), $recipient, 'emails/serviceEmail', $data);
-
-        }else{
-            $recipient = [
-                'email' => $parameters->email,
-                'name' => $parameters->name
-            ];
-
-            $data['name'] = $parameters->name;
-            $data['questionType'] = $parameters->questionType;
-            $data['questionContent'] = $parameters->questionContent;
-            $data['date'] = date("Y-m-d H:i:s");
-            // $data['phone'] = $parameters->phone;
-
-            $this->sendCityPass('【CityPass】客服追蹤通知信_' . date("YmdHi"), $recipient, 'emails/serviceEmail', $data);
-
-
-        }
+        $this->sendCityPass('【CityPass】客服追蹤通知信_' . date("YmdHi"), $recipient, 'emails/serviceEmail', $data);
     }
 
     /**
