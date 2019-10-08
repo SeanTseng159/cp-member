@@ -24,6 +24,11 @@
                     </tr>
                     <tr>
                         <td>
+                            手機號碼 : {{ $phone }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
                             問題類型 : {{ $questionType }}
                         </td>
                     </tr>
