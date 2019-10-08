@@ -7,6 +7,7 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Core\Logger;
 use Illuminate\Http\Request;
 use Ksd\Mediation\Core\Controller\RestLaravelController;
 
@@ -48,9 +49,9 @@ class LayoutController extends RestLaravelController
                 $data = $this->layoutService->home($this->lang);
                 return (new LayoutResult)->home($data);
             });
-
             return $this->success($result);
         } catch (Exception $e) {
+            Logger::error("LayoutController:home", $e->getMessage());
             $result = new \stdClass;
             $result->slide = [];
             $result->banner = [];
