@@ -4,9 +4,12 @@ namespace App\Services\Ticket;
 
 use App\Services\BaseService;
 use App\Repositories\Ticket\ShopBookingRepository;
-
+use Ksd\SMS\Services\EasyGoService;
+use Illuminate\Foundation\Bus\DispatchesJobs;
+use App\Jobs\SendBookingFinishMail;
 class ShopBookingService extends BaseService
 {
+    use DispatchesJobs;
     protected $repository;
 
     public function __construct(ShopBookingRepository $repository)
@@ -135,4 +138,41 @@ class ShopBookingService extends BaseService
     {
         return $this->repository->getMemberList($memberId);
     }  
+    /**
+     * 發送簡訊
+     * @param  $host, $shopName, $userName, $cellphone, $datetime, $code
+     * @return Trus or False
+     */
+    public function sendBookingSMS($host, $shopName, $userName, $cellphone, $datetime, $code)
+    {
+        try {
+            //發送簡訊
+            $easyGoService = new EasyGoService;
+            $phoneNumber = '+886' . substr($cellphone, 1, 9);
+            $web = "{$host}booking/{$code}";
+            $message = "{$userName}您好：您已訂位{$shopName}，時間{$datetime}，查看資訊 {$web}";
+
+            return $easyGoService->send($phoneNumber, $message);
+        } catch (\Exception $e) {
+            Logger::debug($e);
+            return false;
+        }
+    }//end sendSMS
+
+    /**
+     * 寄送Email
+     * @param $id
+     * @param $data
+     * @return bool
+     */
+    public function sendBookingEmail($member,$data)
+    {
+        if (!$member) return false;
+
+        $job = (new SendBookingFinishMail($member,$data))->delay(5);
+        $this->dispatch($job);
+
+        
+        return True;
+    }//end sendemail
 }

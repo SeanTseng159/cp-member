@@ -15,16 +15,20 @@ use App\Core\Logger;
 use App\Result\Ticket\ShopBookingResult;
 use App\Services\Ticket\MemberDiningCarService;
 use App\Traits\MemberHelper;
+use App\Services\MemberService;
 
 class ShopBookingController extends RestLaravelController
 {
     use MemberHelper;
     protected $shopBookingService;
-
-    public function __construct(ShopBookingService $service, MemberDiningCarService $memberDiningCarService)
+    protected $service;
+    protected $memberService;
+    protected $memberDiningCarService;
+    public function __construct(ShopBookingService $service, MemberDiningCarService $memberDiningCarService, MemberService $memberService)
     {
         $this->service = $service;
         $this->memberDiningCarService = $memberDiningCarService;
+        $this->memberService=$memberService;
     }
 
     public function maxpeople(Request $request, $id){
@@ -99,6 +103,18 @@ class ShopBookingController extends RestLaravelController
             }else{
                 throw new \Exception('已額滿，請重新定位');
             }//end if
+            $host = env("CITY_PASS_WEB");
+            $datetime=$data->booking->date.' '.$data->booking->time;
+            //傳送簡訊認證
+            $this->service->sendBookingSMS($host, $data->shop->name, $data->member->name, $data->member->phone, $datetime, $data->booking->code);
+            $memberID=1;
+            if (empty($memberID)){
+            }else{    
+                $member=$this->memberService->find($memberID);
+            // //傳送EMAIL
+                $this->service->sendBookingEmail($member,$data); 
+            }//endif
+            
 
             return $this->success($data);
 
