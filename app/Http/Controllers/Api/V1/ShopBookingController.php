@@ -14,9 +14,11 @@ use App\Services\Ticket\ShopBookingService;
 use App\Core\Logger;
 use App\Result\Ticket\ShopBookingResult;
 use App\Services\Ticket\MemberDiningCarService;
+use App\Traits\MemberHelper;
+
 class ShopBookingController extends RestLaravelController
 {
-
+    use MemberHelper;
     protected $shopBookingService;
 
     public function __construct(ShopBookingService $service, MemberDiningCarService $memberDiningCarService)
@@ -52,7 +54,8 @@ class ShopBookingController extends RestLaravelController
         }
     }
 
-    public function finishedBooking(Request $request, $id){
+    public function finishedBooking(Request $request, $id){      
+        $memberID=$this->getMemberId();
         try {
             $validator = \Validator::make(
                 $request->only([
@@ -87,7 +90,7 @@ class ShopBookingController extends RestLaravelController
             //抓取店家資料
             $shopInfo=$this->service->findShopInfo($id);
             //將資料給result處理吧
-            $data = (new ShopBookingResult())->finishedBooking($bookingTimesDateTime,$bookedDateTime,$bookedNumber,$shopInfo,$request, $id);
+            $data = (new ShopBookingResult())->finishedBooking($bookingTimesDateTime,$bookedDateTime,$bookedNumber,$shopInfo,$request, $id,$memberID);
             
             //將資料寫入DB吧,True 寫入DB
             if($data->status){
