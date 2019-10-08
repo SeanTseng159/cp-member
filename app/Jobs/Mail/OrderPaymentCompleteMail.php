@@ -101,5 +101,10 @@ class OrderPaymentCompleteMail implements ShouldQueue
         if ($order->shipment['description'] === '實體商品' && env('APP_ENV') === 'production') {
             LineNotify::sendMessage(env('CUSTOMER_SERVICE_LINE_CHANNEL'), "訂單成立, 請通知店家準備出貨 - 訂單編號：{$order->orderNo}");
         }
+
+        //測試用
+        if ($order->shipment['description'] === '實體商品' && env('APP_ENV') !== 'production') {
+            LineNotify::sendMessage(env('CUSTOMER_SERVICE_LINE_CHANNEL'), "測試版【{$order->items[0]['name']}】訂單成立, 請通知店家準備出貨 - 訂單編號：{$order->orderNo}");
+        }
     }
 }
