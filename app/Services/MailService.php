@@ -194,6 +194,7 @@ class MailService
             $data['name'] = $member->name;
             $data['questionType'] = $parameters->questionType;
             $data['questionContent'] = $parameters->questionContent;
+            $data['phone'] = $parameters->phone;
 
             $this->sendCityPass('【CityPass】客服追蹤通知信_' . date("YmdHi"), $recipient, 'emails/serviceEmail', $data);
 
@@ -207,6 +208,7 @@ class MailService
             $data['questionType'] = $parameters->questionType;
             $data['questionContent'] = $parameters->questionContent;
             $data['date'] = date("Y-m-d H:i:s");
+            $data['phone'] = $parameters->phone;
 
             $this->sendCityPass('【CityPass】客服追蹤通知信_' . date("YmdHi"), $recipient, 'emails/serviceEmail', $data);
 
@@ -245,6 +247,7 @@ class MailService
             return true;
         } catch(\Exception $e) {
             Log::error('smtp 有問題, 請檢查!');
+            Log::error($e);
             return false;
         }
     }
@@ -285,10 +288,11 @@ class MailService
             return true;
         } catch(\Exception $e) {
             Log::error('smtp 有問題, 請檢查!');
+            Log::error($e);
             return false;
         }
     }
-    
+
     /**
      * 購物車商品轉入追蹤清單
      * @param object $member
@@ -301,7 +305,7 @@ class MailService
             'email' => $member->email,
             'name' => $member->name,
         ];
-        
+
         $data = [
             'name' => $member->name,
             'link' => env('CITY_PASS_WEB') . $this->lang . '/member/wishlist',
@@ -311,7 +315,7 @@ class MailService
 
         return $this->send('CityPass都會通 - 商品移至收藏清單通知', $recipient, 'emails/expiredCart', $data);
     }
-    
+
     /**
      * 提醒購物車內商品尚未結帳
      * @param object $member
@@ -324,7 +328,7 @@ class MailService
             'email' => $member->email,
             'name' => $member->name,
         ];
-        
+
         $data = [
             'name' => $member->name,
             'link' => env('CITY_PASS_WEB') . $this->lang . '/cart',
