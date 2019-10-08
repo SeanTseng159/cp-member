@@ -99,12 +99,16 @@ class OrderPaymentCompleteMail implements ShouldQueue
 
         // 20181224 通知出貨人員
         if ($order->shipment['description'] === '實體商品' && env('APP_ENV') === 'production') {
-            LineNotify::sendMessage(env('CUSTOMER_SERVICE_LINE_CHANNEL'), "訂單成立, 請通知店家準備出貨 - 訂單編號：{$order->orderNo}");
+            $msg = sprintf("\n訂單成立, 請通知店家準備出貨\n訂單編號：{$order->orderNo}\n商品名稱：{$order->items[0]['name']}");
+
+            LineNotify::sendMessage(env('CUSTOMER_SERVICE_LINE_CHANNEL'), $msg);
         }
 
         //測試用
         if ($order->shipment['description'] === '實體商品' && env('APP_ENV') !== 'production') {
-            LineNotify::sendMessage(env('CUSTOMER_SERVICE_LINE_CHANNEL'), "測試版【{$order->items[0]['name']}】訂單成立, 請通知店家準備出貨 - 訂單編號：{$order->orderNo}");
+            $msg = sprintf("\n訂單成立, 請通知店家準備出貨\n訂單編號：{$order->orderNo}\n商品名稱：{$order->items[0]['name']}");
+
+            LineNotify::sendMessage(env('CUSTOMER_SERVICE_LINE_CHANNEL'), $msg);
         }
     }
 }
