@@ -174,7 +174,8 @@ class LayoutResult extends BaseResult
     {
         $alert = new \stdClass;
         $alert->status = env('LAYOUT_SHOW_ALERT', false);
-        $alert->message = '限量優惠，凡購買高捷票券商品，可享Uber乘車折扣優惠';
+        $alert->message = '';
+        // $alert->message = '限量優惠，凡購買高捷票券商品，可享Uber乘車折扣優惠';
 
         return $alert;
     }

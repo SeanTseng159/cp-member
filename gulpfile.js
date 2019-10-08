@@ -44,7 +44,7 @@ gulp.task('filter', function() {
         'storage/logs/.gitignore',
         'vendor/**/*',
         '!.gitignore'
-    ], { dot: true }).pipe(copy(debRoot + installPath));
+    ], { dot: true, allowEmpty:true}).pipe(copy(debRoot + installPath));
 });
 
 gulp.task('build', gulp.series('clean', 'filter', function() {
