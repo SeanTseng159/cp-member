@@ -16,18 +16,20 @@ use App\Repositories\MagentoProductRepository;
 class LayoutHomeRepository extends BaseRepository
 {
     protected $productRepository;
-    protected $MagentoProductRepository;
+    protected $magentoProductRepository;
+    protected $promotionRepository;
+    protected $model;
 
-    public function __construct(LayoutHome $model, 
-                                ProductRepository $productRepository, 
+    public function __construct(LayoutHome $model,
+                                ProductRepository $productRepository,
                                 MagentoProductRepository $MagentoProductRepository,
                                 PromotionRepository $promotionRepository
-                                )
+    )
     {
         $this->model = $model;
         $this->productRepository = $productRepository;
-        $this->MagentoProductRepository = $MagentoProductRepository;
-        $this->PromotionRepository = $promotionRepository;
+        $this->magentoProductRepository = $MagentoProductRepository;
+        $this->promotionRepository = $promotionRepository;
     }
 
     /**
@@ -36,15 +38,15 @@ class LayoutHomeRepository extends BaseRepository
      */
     public function all($lang)
     {
-        $data = $this->model->with(['products' => function($query) {
-                                return $query->notDeleted()
-                                            ->orderBy('layout_home_prod_sort', 'asc');
-                            }])
-                            ->notDeleted()
-                            ->where('layout_home_lang', $lang)
-                            ->where('layout_home_status', 1)
-                            ->orderBy('layout_home_sort', 'asc')
-                            ->get();
+        $data = $this->model->with(['products' => function ($query) {
+            return $query->notDeleted()
+                ->orderBy('layout_home_prod_sort', 'asc');
+        }])
+            ->notDeleted()
+            ->where('layout_home_lang', $lang)
+            ->where('layout_home_status', 1)
+            ->orderBy('layout_home_sort', 'asc')
+            ->get();
 
         if ($data) {
             $data->transform(function ($row, $key) {
@@ -53,12 +55,10 @@ class LayoutHomeRepository extends BaseRepository
                 foreach ($row->products as $product) {
                     if ($product->source === 1) {
                         $prod = $this->productRepository->easyFind($product->prod_id, true);
-                    }
-                    elseif ($product->source === 2) {
-                        $prod = $this->MagentoProductRepository->find($product->prod_id);
-                    }
-                    elseif ($product->source === 3){
-                        $prod = $this->PromotionRepository->find($product->prod_id);
+                    } elseif ($product->source === 2) {
+                        $prod = $this->magentoProductRepository->find($product->prod_id);
+                    } elseif ($product->source === 3) {
+                        $prod = $this->promotionRepository->find($product->prod_id);
                     }
 
                     if ($prod) $products[] = $prod;
