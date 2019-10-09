@@ -150,7 +150,7 @@ class ShopBookingService extends BaseService
             $easyGoService = new EasyGoService;
             $phoneNumber = '+886' . substr($cellphone, 1, 9);
             $web = "{$host}booking/{$code}";
-            $message = "{$userName}您好：您已訂位{$shopName}，時間{$datetime}，查看資訊 {$web}";
+            $message = "{$userName}已訂位{$shopName}資訊 {$web}";
 
             return $easyGoService->send($phoneNumber, $message);
         } catch (\Exception $e) {

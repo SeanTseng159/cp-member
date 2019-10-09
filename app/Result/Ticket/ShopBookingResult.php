@@ -139,7 +139,7 @@ class ShopBookingResult
 
 
     	//另用訂單資訊，產生取消訂單的亂數碼
-        $hashids = new Hashids('', 10, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'); // all lowercase
+        $hashids = new Hashids('', 7, 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'); // all lowercase
 		//利用id產生邀請碼
         $code =$hashids ->encode((string)$number);
     	$booking=new \stdClass;
