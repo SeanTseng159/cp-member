@@ -91,7 +91,8 @@ class DiningCarMemberRepository extends BaseRepository
                             'diningCar.mainImg',
                             'diningCar.category',
                             'diningCar.subCategory',
-                            'diningCar.memberLevels'
+                            'diningCar.memberLevels',
+                            'diningCar.currentQuestion'
                         ])
                         ->select('dining_car_id', 'member_id', 'amount')
                         ->where('member_id', $memberId)

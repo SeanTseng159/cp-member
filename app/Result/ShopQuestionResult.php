@@ -32,7 +32,7 @@ class ShopQuestionResult
             $question = new \stdClass;
             $question->id = $topic->id;
             $question->type = $topic->type;
-            $question->titel = $topic->title;
+            $question->title = $topic->title;
             $question->options = $topic->options;
             $result->list[] = $question;
         }

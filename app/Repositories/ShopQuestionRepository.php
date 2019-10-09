@@ -2,6 +2,7 @@
 
 namespace App\Repositories;
 
+use App\Enum\ShopQuestionType;
 use App\Models\MemberShopQuestion;
 use App\Models\ShopQuestion;
 use App\Models\ShopQuestionDetail;
@@ -53,7 +54,7 @@ class ShopQuestionRepository extends BaseRepository
                 return $item->id == $id;
             });
             $only = $filtered->first();
-            if ($only->type != 4) {
+            if ($only->type != ShopQuestionType::QA) {
                 $ansAry = explode(',', $answer);
                 $optionAry = explode(",", $only->options);
                 $answerPostion = [];
