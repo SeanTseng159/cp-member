@@ -44,6 +44,9 @@ class ShopBookingController extends RestLaravelController
 
 
     public function findBookingCanDate(Request $request, $id){
+	$memberID=$this->getMemberId();
+	print($memberID);
+	print('HEHEHEHE');
         try{
             $bookingNumOfPeo=$request['number'];
             $bookingLimit = $this->service->findBookingLimit($id);
