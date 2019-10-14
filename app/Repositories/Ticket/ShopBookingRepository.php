@@ -161,7 +161,7 @@ class ShopBookingRepository extends BaseRepository
         return $this->diningCarBookingDetail
                     ->where('id',$id)
                     ->first();
-    }//end public function createDetail
+    }//end public function getOenDetailInfo
 
 
     /**
@@ -172,7 +172,7 @@ class ShopBookingRepository extends BaseRepository
         return $this->diningCarBookingDetail
                     ->where('code',$code)
                     ->first();
-    }//end  function getOenDetailInfo
+    }//end  function getFromCode
 
     /**
      * 取消訂單
@@ -185,7 +185,7 @@ class ShopBookingRepository extends BaseRepository
                     ->update(['status' => 0]);
                     
 
-    }//end  function getOenDetailInfo
+    }//end  function cancel
 
 
     /**
@@ -201,7 +201,7 @@ class ShopBookingRepository extends BaseRepository
                     ->get();
                     
 
-    }//end  function getOenDetailInfo
+    }//end  function getMemberList
 
 
 
