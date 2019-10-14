@@ -85,10 +85,11 @@ class ShopQuestionController extends RestLaravelController
                 $ary[] = (object)$item;
             }
             //確認answer
-            $answerAry = $this->service->checkAnswer($versionId, $ary);
+            $answerAry = $this->service->checkAnswer($versionId, collect($ary));
             $data = $this->service->store($memberId, $date, $answerAry);
             return $this->success($data);
-        } catch (\Exception $e) {            
+        } catch (\Exception $e) {
+//            dd($e);
             Logger::error('ShopQuestionController::create', $e->getMessage());
             return $this->failure('E0001', $e->getMessage());
         }
