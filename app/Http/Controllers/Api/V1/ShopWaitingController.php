@@ -43,7 +43,6 @@ class ShopWaitingController extends RestLaravelController
     {
 
         try {
-
             $validator = \Validator::make(
                 $request->only([
                     'name',

@@ -111,7 +111,8 @@ class DiningCarRepository extends BaseRepository
             'memberCard' => function ($query) use ($memberId) {
                 $query->where('member_id', $memberId);
             },
-            'memberLevels'
+            'memberLevels',
+            'currentQuestion'
         ])
             ->withCount(['gifts', 'newsfeeds', 'coupons'])
             ->whereId($id)

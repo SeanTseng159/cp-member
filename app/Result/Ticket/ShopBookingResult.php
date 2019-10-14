@@ -10,12 +10,10 @@ use Carbon\Carbon;
 use App\Helpers\CommonHelper;
 use Hashids\Hashids;
 use App\Helpers\DateHelper;
-use App\Traits\MemberHelper;
 
 
 class ShopBookingResult
 {
-	use MemberHelper;
 
     public function maxpeople($bookingLimit)
     {
@@ -110,7 +108,7 @@ class ShopBookingResult
     }//end public findBookingCanDate
 
 
-    public function finishedBooking($bookingTimesDateTime,$bookedDateTime,$bookedNumber,$shopInfo,$request, $id)
+    public function finishedBooking($bookingTimesDateTime,$bookedDateTime,$bookedNumber,$shopInfo,$request, $id,$memberID)
     {	
 		
     	//訂單標號與今天日期相關
@@ -141,9 +139,9 @@ class ShopBookingResult
 
 
     	//另用訂單資訊，產生取消訂單的亂數碼
-        $hashids = new Hashids('', 10, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'); // all lowercase
+        $hashids = new Hashids('', 7, 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'); // all lowercase
 		//利用id產生邀請碼
-        $code =$hashids ->encode($number);
+        $code =$hashids ->encode((string)$number);
     	$booking=new \stdClass;
     	$booking->number=$number;
     	$booking->date=$request->input('date');
@@ -155,9 +153,7 @@ class ShopBookingResult
     	$member->name=$request->input('name');
     	$member->phone=$request->input('phone');
 		$member->demand=$request->input('demand');
-		print('GG');
-		$member->memberID=$this->getMemberId();
-		print('OK');
+		$member->memberID=$memberID;
     	$shop=new \stdClass;
     	$shop->id=$id;
     	$shop->name=$shopInfo->shopInfo->name;

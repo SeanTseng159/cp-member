@@ -14,15 +14,21 @@ use App\Services\Ticket\ShopBookingService;
 use App\Core\Logger;
 use App\Result\Ticket\ShopBookingResult;
 use App\Services\Ticket\MemberDiningCarService;
+use App\Traits\MemberHelper;
+use App\Services\MemberService;
+
 class ShopBookingController extends RestLaravelController
 {
-
+    use MemberHelper;
     protected $shopBookingService;
-
-    public function __construct(ShopBookingService $service, MemberDiningCarService $memberDiningCarService)
+    protected $service;
+    protected $memberService;
+    protected $memberDiningCarService;
+    public function __construct(ShopBookingService $service, MemberDiningCarService $memberDiningCarService, MemberService $memberService)
     {
         $this->service = $service;
         $this->memberDiningCarService = $memberDiningCarService;
+        $this->memberService=$memberService;
     }
 
     public function maxpeople(Request $request, $id){
@@ -38,6 +44,9 @@ class ShopBookingController extends RestLaravelController
 
 
     public function findBookingCanDate(Request $request, $id){
+	$memberID=$this->getMemberId();
+	print($memberID);
+	print('HEHEHEHE');
         try{
             $bookingNumOfPeo=$request['number'];
             $bookingLimit = $this->service->findBookingLimit($id);
@@ -52,7 +61,8 @@ class ShopBookingController extends RestLaravelController
         }
     }
 
-    public function finishedBooking(Request $request, $id){
+    public function finishedBooking(Request $request, $id){      
+        $memberID=$this->getMemberId();
         try {
             $validator = \Validator::make(
                 $request->only([
@@ -87,7 +97,7 @@ class ShopBookingController extends RestLaravelController
             //抓取店家資料
             $shopInfo=$this->service->findShopInfo($id);
             //將資料給result處理吧
-            $data = (new ShopBookingResult())->finishedBooking($bookingTimesDateTime,$bookedDateTime,$bookedNumber,$shopInfo,$request, $id);
+            $data = (new ShopBookingResult())->finishedBooking($bookingTimesDateTime,$bookedDateTime,$bookedNumber,$shopInfo,$request, $id,$memberID);
             
             //將資料寫入DB吧,True 寫入DB
             if($data->status){
@@ -96,6 +106,18 @@ class ShopBookingController extends RestLaravelController
             }else{
                 throw new \Exception('已額滿，請重新定位');
             }//end if
+            $host = env("CITY_PASS_WEB");
+            $datetime=$data->booking->date.' '.$data->booking->time;
+            //傳送簡訊認證
+            $this->service->sendBookingSMS($host, $data->shop->name, $data->member->name, $data->member->phone, $datetime, $data->booking->code);
+            $memberID=1;
+            if (empty($memberID)){
+            }else{    
+                $member=$this->memberService->find($memberID);
+            // //傳送EMAIL
+                $this->service->sendBookingEmail($member,$data); 
+            }//endif
+            
 
             return $this->success($data);
 
