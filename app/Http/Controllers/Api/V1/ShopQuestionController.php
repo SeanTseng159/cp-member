@@ -57,9 +57,9 @@ class ShopQuestionController extends RestLaravelController
             $validator = \Validator::make($request->all(),
                 [
                     'date' => 'required|date_format:Y-m-d',
-                    'list' => 'required|array|min:2',
-                    'list.*.id' => 'required|integer',
-                    'list.*.answer' => 'required|string',
+                    'list' => 'required|array|min:1',
+//                    'list.*.id' => 'required|integer',
+//                    'list.*.answer' => 'required|string',
                 ]
             );
             if ($validator->fails()) {
@@ -85,10 +85,11 @@ class ShopQuestionController extends RestLaravelController
                 $ary[] = (object)$item;
             }
             //確認answer
-            $answerAry = $this->service->checkAnswer($versionId, $ary);
+            $answerAry = $this->service->checkAnswer($versionId, collect($ary));
             $data = $this->service->store($memberId, $date, $answerAry);
             return $this->success($data);
         } catch (\Exception $e) {
+//            dd($e);
             Logger::error('ShopQuestionController::create', $e->getMessage());
             return $this->failure('E0001', $e->getMessage());
         }

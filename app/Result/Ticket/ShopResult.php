@@ -102,7 +102,7 @@ class ShopResult extends DiningCarResult
         $shop = new \stdClass;
         $shop->canBooking = (bool)$car->canBooking;
         $shop->canWaiting = (bool)$car->canWaiting;
-        $shop->canQuestionnaire=(bool)$car->canQuestionnaire;
+        $shop->canQuestionnaire=($car->canQuestionnaire && !is_null($car->currentQuestion->status)) ? true : false;
         $shop->canPointing = ($car->level == 1 && (Carbon::parse($car->expired_at)->gt(Carbon::now())))
              ? true : false;
         return $shop;

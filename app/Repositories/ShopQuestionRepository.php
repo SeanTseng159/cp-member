@@ -7,6 +7,7 @@ use App\Models\MemberShopQuestion;
 use App\Models\ShopQuestion;
 use App\Models\ShopQuestionDetail;
 use App\Models\Ticket\DiningCar;
+use Carbon\Carbon;
 
 class ShopQuestionRepository extends BaseRepository
 {
@@ -40,35 +41,47 @@ class ShopQuestionRepository extends BaseRepository
             ->first();
     }
 
-    public function checkAnswer($versionId, $answerAry)
+    public function checkAnswer($versionId, $postAry)
     {
 
         $answerOptions = $this->detail
             ->where('question_id', $versionId)
             ->get();
 
-        foreach ($answerAry as $pair) {
-            $id = $pair->id;
-            $answer = $pair->answer;
-            $filtered = $answerOptions->filter(function ($item) use ($id) {
+        foreach ($answerOptions as $option) {
+            $id = $option->id;
+            $required = $option->required;
+            $title = $option->title;
+            $type = $option->type;
+
+            $filtered = $postAry->filter(function ($item) use ($id) {
                 return $item->id == $id;
             });
-            $only = $filtered->first();
-            if ($only->type != ShopQuestionType::QA) {
-                $ansAry = explode(',', $answer);
-                $optionAry = explode(",", $only->options);
-                $answerPostion = [];
+
+            if ($required && $filtered->isEmpty()) {
+                throw new \Exception("【{$title}】必填");
+            }
+
+            if ($filtered->isEmpty())
+                continue;
+
+            if ($filtered->count() > 1)
+                throw new \Exception("【{$title}】重複輸入");
+
+            $answer = $filtered->first();
+            if ($type != ShopQuestionType::QA) {
+
+                $ansAry = explode(',', $answer->answer);
+                $optionAry = explode(",", $option->options);
                 foreach ($ansAry as $ans) {
                     $idx = array_search($ans, $optionAry);
                     if ($idx === false) {
                         throw new \Exception("選項不包含{$ans}");
                     }
-                    $answerPostion[] = $idx;
                 }
-                $pair->answerPostion = count($answerPostion) <= 1 ? (int)implode("", $answerPostion) : $answerPostion;
             }
         }
-        return $answerAry;
+        return $postAry;
     }
 
     public function store($memberId, $date, $answerAry)
@@ -78,8 +91,10 @@ class ShopQuestionRepository extends BaseRepository
             $insert = [
                 'question_detail_id' => $ans->id,
                 'member_id' => $memberId,
-                'value' => $ans->answer,
-                'consumption' => $date
+                'value' => is_null($ans->answer) ? "" : $ans->answer,
+                'consumption' => $date,
+                "created_at" => Carbon::now(),
+                "updated_at" => Carbon::now(),
             ];
             $insertArry[] = $insert;
         }
