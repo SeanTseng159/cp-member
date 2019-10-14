@@ -106,7 +106,6 @@ class ShopBookingController extends RestLaravelController
             $datetime=$data->booking->date.' '.$data->booking->time;
             //傳送簡訊認證
             $this->service->sendBookingSMS($host, $data->shop->name, $data->member->name, $data->member->phone, $datetime, $data->booking->code);
-            $memberID=1;
             if (empty($memberID)){
             }else{    
                 $member=$this->memberService->find($memberID);
