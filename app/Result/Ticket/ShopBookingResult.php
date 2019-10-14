@@ -59,7 +59,8 @@ class ShopBookingResult
     			foreach ($filterData as $key => $value) {
     				$array=new \stdClass;
     				$array->date=$day->toDateString(); 
-    				$array->time=$value->time;
+					$array->time= Carbon::parse($value->time)->format('H:i');
+					// $array->time= $value->time;
     				$array->accept_people=$value->accept_people;
     				$array->dayOfWeek=$dayWeek;
     				$result[]=$array;

@@ -98,7 +98,6 @@ class ShopBookingController extends RestLaravelController
             
             //將資料寫入DB吧,True 寫入DB
             if($data->status){
-                print($data->booking->people);
                 $record = $this->service->createDetail($data);
             }else{
                 throw new \Exception('已額滿，請重新定位');
