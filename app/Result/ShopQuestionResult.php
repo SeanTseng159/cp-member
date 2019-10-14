@@ -34,6 +34,7 @@ class ShopQuestionResult
             $question->type = $topic->type;
             $question->title = $topic->title;
             $question->options = $topic->options;
+            $question->required = (bool)$topic->required;
             $result->list[] = $question;
         }
         return $result;
