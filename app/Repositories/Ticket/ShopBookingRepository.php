@@ -103,7 +103,7 @@ class ShopBookingRepository extends BaseRepository
                         ->first();
     }
     /**
-     * 找出今天的訂單編號,要做排序用，不用管是否有被取消訂單，status不用管
+     * 找出今天某一個店家的的訂單編號,要做排序用，不用管是否有被取消訂單，status不用管
      */
     public function findBookedNumber($id)
     {
@@ -114,6 +114,20 @@ class ShopBookingRepository extends BaseRepository
                         ->where('created_at','>=', $findDays)
                         ->first();
     }
+
+    /**
+     * 找出今天所有訂單
+     */
+    public function findBookedAllNumber()
+    {
+        $findDays = Carbon::today();
+        return $this->diningCarBookingDetail
+                        ->select(\DB::raw('max(booking_number) as max_number'))
+                        ->where('created_at','>=', $findDays)
+                        ->first();
+    }
+
+
 
 
     /**

@@ -32,14 +32,14 @@ class ShopBookingController extends RestLaravelController
     }
 
     public function maxpeople(Request $request, $id){
-        try {
+        // try {
             $bookingLimit = $this->service->findBookingLimit($id);
             $data = (new ShopBookingResult())->maxpeople($bookingLimit);
             return $this->success($data);
-        } catch (\Exception $e) {
-            Logger::error('ShopBookingController::maxpeople', $e->getMessage());
-            return $this->failureCode('E0001');
-        }
+        // } catch (\Exception $e) {
+        //     Logger::error('ShopBookingController::maxpeople', $e->getMessage());
+        //     return $this->failureCode('E0001');
+        // }
     }
 
 
@@ -90,7 +90,7 @@ class ShopBookingController extends RestLaravelController
             //抓取那天訂位的人數
             $bookedDateTime = $this->service->findBookedDateTime($id,$request->input('date'),$request->input('time'));
             //抓取目前的訂位編號
-            $bookedNumber = $this->service->findBookedNumber($id);
+            $bookedNumber = $this->service->findBookedAllNumber();
             //抓取店家資料
             $shopInfo=$this->service->findShopInfo($id);
             //將資料給result處理吧
@@ -170,20 +170,20 @@ class ShopBookingController extends RestLaravelController
     public function memberList(Request $request)
     {
         
-        // try {
+        try {
             $memberId = $request->memberId;
             // 取收藏列表
             $memberDiningCars = $this->memberDiningCarService->getAllByMemberId($memberId);
-            //後位清單
+            //訂位清單
             $data = $this->service->getMemberList($memberId);
             
             
             $result = (new ShopBookingResult())->memberList($data, $memberDiningCars);
             return $this->success($result);
-        // } catch (\Exception $e) {
-        //     Logger::error('ShopWaitingController::memberList', $e->getMessage());
-        //     return $this->failureCode('E0001', $e->getMessage());
-        // }
+        } catch (\Exception $e) {
+            Logger::error('ShopWaitingController::memberList', $e->getMessage());
+            return $this->failureCode('E0001', $e->getMessage());
+        }
     }//end public function memberList
 
 }//end class
