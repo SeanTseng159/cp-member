@@ -21,7 +21,7 @@ class DiningCarBookingDetail extends BaseModel
      */
     public function shopLimit()
     {
-    	return $this->belongsTo('App\Models\Ticket\DiningCarBookingLimit', 'shop_id');
+    	return $this->belongsTo('App\Models\Ticket\DiningCarBookingLimit', 'shop_id','shop_id');
         //return $this->hasMany('App\Models\Ticket\DiningCar')->where('status', true);
     }
 }

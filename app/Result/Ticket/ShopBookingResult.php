@@ -173,7 +173,7 @@ class ShopBookingResult
 		$booking=new \stdClass;
     	$booking->number=$dataDetailInfo->booking_number;
     	$booking->date=$dataDetailInfo->booking_date;
-    	$booking->time=$dataDetailInfo->booking_time;
+    	$booking->time=Carbon::parse($dataDetailInfo->booking_time)->format('H:i');
     	$booking->dayOfWeek=$dataDetailInfo->booking_dayofweek;
     	$booking->people=$dataDetailInfo->booking_people;
 		$booking->code=$dataDetailInfo->code;
