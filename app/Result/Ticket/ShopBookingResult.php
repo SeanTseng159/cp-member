@@ -211,8 +211,8 @@ class ShopBookingResult
 		}
 		
 		//整理進入result裡面
-    	$result=new \stdClass;
-    	$result->status=$dataDetailInfo->status;
+		$result=new \stdClass;
+    	$result->status=($dataDetailInfo->status)>0?true : false;
     	$result->booking=$booking;
     	$result->member=$member;
     	$result->shop=$shop;
@@ -238,7 +238,7 @@ class ShopBookingResult
 
         	$result->booking->time=Carbon::parse($bookingRecord->booking_time)->format('H:i');
         	$result->booking->people=$bookingRecord->booking_people;
-        	$result->booking->status=$bookingRecord->status;
+        	$result->booking->status=($bookingRecord->status)>0?true : false;
         	//member
         	$result->member= new \stdClass();
         	$result->member->name=$bookingRecord->name;
