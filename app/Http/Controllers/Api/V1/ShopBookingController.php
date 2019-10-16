@@ -161,10 +161,21 @@ class ShopBookingController extends RestLaravelController
         $data=$this->service->getFromCode($code);
         try{
         //封裝到result送出去
-            $result=new \stdClass;
-            $result->booking_id  =$data->id;
-            $result->shop_id     =$data->shop_id;
-            return $this->success($result);
+            $id         =$data->id;
+            $shopId     =$data->shop_id;
+            //抓取店家資料
+            $shopInfo=$this->service->findShopInfo($shopId);
+        //抓取單一訂位資料 
+            $dataDetailInfo=$this->service->getOenDetailInfo($id);
+        // 取收藏列表
+            if(empty($memberID)){
+                $memberDiningCars=[];
+            }else{
+                $memberDiningCars = $this->memberDiningCarService->getAllByMemberId($memberID);
+            }
+        //將資料給result處理吧
+            $data = (new ShopBookingResult())->getOenDetailInfo($shopInfo,$dataDetailInfo,$memberDiningCars);
+            return $this->success($data);
         }catch (\Exception $e) {
             Logger::error('ShopBookingController::getOenDetailInfo', $e->getMessage());
             return $this->responseFormat($data = null, $code = 'E0001', $message = '無效的shop的code');
