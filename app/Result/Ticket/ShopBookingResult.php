@@ -10,11 +10,11 @@ use Carbon\Carbon;
 use App\Helpers\CommonHelper;
 use Hashids\Hashids;
 use App\Helpers\DateHelper;
-
+use App\Helpers\ImageHelper;
 
 class ShopBookingResult
 {
-
+	
     public function maxpeople($bookingLimit)
     {
         # code...
@@ -168,7 +168,8 @@ class ShopBookingResult
 		if(empty($shopInfo->mainImg->folder)){
 			$shop->img='';
 		}else{
-			$shop->img=CommonHelper::getWebHost('zh-TW/shop/detail/' .$shopInfo->mainImg->folder.$shopInfo->mainImg->filename);
+			
+			$shop->img= ImageHelper::url($shopInfo->mainImg);
 		}
 		
 		
@@ -205,7 +206,8 @@ class ShopBookingResult
 		if(empty($dataDetailInfo->mainImg->folder)){
 			$shop->img='';
 		}else{
-			$shop->img=CommonHelper::getWebHost('zh-TW/shop/detail/' .$dataDetailInfo->mainImg->folder.$dataDetailInfo->mainImg->filename);
+			
+			$shop->img= ImageHelper::url($dataDetailInfo->mainImg);
 		}
 		
 		//整理進入result裡面
@@ -255,7 +257,8 @@ class ShopBookingResult
 			if(empty($bookingRecord->mainImg->folder)){
 				$result->shop->img='';
 			}else{
-				$result->shop->img=CommonHelper::getWebHost('zh-TW/shop/detail/' .$bookingRecord->mainImg->folder.$bookingRecord->mainImg->filename);
+				
+				$result->shop->img= ImageHelper::url($bookingRecord->mainImg);
 			}
 			
             $ret[] = $result;
