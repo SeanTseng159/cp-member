@@ -165,7 +165,12 @@ class ShopBookingResult
     	$shop->shareUrl=CommonHelper::getWebHost('zh-TW/shop/detail/' . $id);
     	$shop->precautions=$shopInfo->precautions;
 		$shop->isFavorite = (count($favoriteList)) > 0 ? true : false;
-		$shop->img=CommonHelper::getWebHost('zh-TW/shop/detail/' .$shopInfo->mainImg->folder.$shopInfo->mainImg->filename);
+		if(empty($shopInfo->mainImg->folder)){
+			$shop->img='';
+		}else{
+			$shop->img=CommonHelper::getWebHost('zh-TW/shop/detail/' .$shopInfo->mainImg->folder.$shopInfo->mainImg->filename);
+		}
+		
 		
     	//整理進入result裡面
     	$result->booking=$booking;
@@ -197,7 +202,12 @@ class ShopBookingResult
     	$shop->shareUrl=CommonHelper::getWebHost('zh-TW/shop/detail/' . $shopInfo->shop_id);
 		$shop->precautions=$shopInfo->precautions;
 		$shop->isFavorite = (count($favoriteList)) > 0 ? true : false;
-		$shop->img=CommonHelper::getWebHost('zh-TW/shop/detail/' .$dataDetailInfo->mainImg->folder.$dataDetailInfo->mainImg->filename);
+		if(empty($dataDetailInfo->mainImg->folder)){
+			$shop->img='';
+		}else{
+			$shop->img=CommonHelper::getWebHost('zh-TW/shop/detail/' .$dataDetailInfo->mainImg->folder.$dataDetailInfo->mainImg->filename);
+		}
+		
 		//整理進入result裡面
     	$result=new \stdClass;
     	$result->status=$dataDetailInfo->status;
@@ -217,8 +227,6 @@ class ShopBookingResult
 			
         	//result
 			$result = new \stdClass();
-			$result->total=$dataCount->count_data;
-			$result->page= $page;
         	$result->id=$bookingRecord->id;
         	//booking
         	$result->booking= new \stdClass();
@@ -244,10 +252,19 @@ class ShopBookingResult
 			$result->shop->isFavorite = (count($favoriteList)) > 0 ? true : false;
 			$result->shop->shareUrl = CommonHelper::getWebHost('zh-TW/shop/detail/' . $bookingRecord->shop_id);
 			$result->shop->precautions =$bookingRecord->shopLimit->precautions;
-			$result->shop->img=CommonHelper::getWebHost('zh-TW/shop/detail/' .$bookingRecord->mainImg->folder.$bookingRecord->mainImg->filename);
+			if(empty($bookingRecord->mainImg->folder)){
+				$result->shop->img='';
+			}else{
+				$result->shop->img=CommonHelper::getWebHost('zh-TW/shop/detail/' .$bookingRecord->mainImg->folder.$bookingRecord->mainImg->filename);
+			}
+			
             $ret[] = $result;
 
-        }
-        return $ret;
+		}
+		$ans= new \stdClass();
+		$ans->total=$dataCount->count_data;
+		$ans->page= $page;
+		$ans->list=$ret;
+        return $ans;
 	}//end public	function memberList
 }//end class

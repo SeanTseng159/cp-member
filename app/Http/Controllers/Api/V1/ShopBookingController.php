@@ -197,7 +197,7 @@ class ShopBookingController extends RestLaravelController
             $memberId = $request->memberId;
             $page=$request['page'];
             if($page<=0){
-                throw new \Exception('頁數不能小於0');
+                $page=1;
             }
             // 取收藏列表
             $memberDiningCars = $this->memberDiningCarService->getAllByMemberId($memberId);
