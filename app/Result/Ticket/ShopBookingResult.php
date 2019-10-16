@@ -109,7 +109,7 @@ class ShopBookingResult
     }//end public findBookingCanDate
 
 
-    public function finishedBooking($bookingTimesDateTime,$bookedDateTime,$bookedNumber,$shopInfo,$request, $id,$memberID)
+    public function finishedBooking($bookingTimesDateTime,$bookedDateTime,$bookedNumber,$shopInfo,$request, $id,$memberID,$memberDiningCars)
     {	
 		
     	//訂單標號與今天日期相關
@@ -155,13 +155,18 @@ class ShopBookingResult
     	$member->phone=$request->input('phone');
 		$member->demand=$request->input('demand');
 		$member->memberID=$memberID;
+
+		$favoriteList=collect($memberDiningCars)->filter(function ($value, $key)  use($id){
+			return ($value->dining_car_id== $id);
+		});	
     	$shop=new \stdClass;
     	$shop->id=$id;
     	$shop->name=$shopInfo->shopInfo->name;
     	$shop->shareUrl=CommonHelper::getWebHost('zh-TW/shop/detail/' . $id);
     	$shop->precautions=$shopInfo->precautions;
-
-
+		$shop->isFavorite = (count($favoriteList)) > 0 ? true : false;
+		$shop->img=CommonHelper::getWebHost('zh-TW/shop/detail/' .$shopInfo->mainImg->folder.$shopInfo->mainImg->filename);
+		
     	//整理進入result裡面
     	$result->booking=$booking;
     	$result->member=$member;
@@ -169,7 +174,8 @@ class ShopBookingResult
     	return $result;
     }//end public finishedBooking
 
-	public function getOenDetailInfo($shopInfo,$dataDetailInfo){
+	public function getOenDetailInfo($shopInfo,$dataDetailInfo,$memberDiningCars){
+		
 		$booking=new \stdClass;
     	$booking->number=$dataDetailInfo->booking_number;
     	$booking->date=$dataDetailInfo->booking_date;
@@ -181,13 +187,17 @@ class ShopBookingResult
     	$member->name=$dataDetailInfo->name;
     	$member->phone=$dataDetailInfo->phone;
     	$member->demand=$dataDetailInfo->demand;
-    	$member->memberID=$dataDetailInfo->member_id;
+		$member->memberID=$dataDetailInfo->member_id;
+		$favoriteList=collect($memberDiningCars)->filter(function ($value, $key)  use($dataDetailInfo){
+			return ($value->dining_car_id== $dataDetailInfo->shop_id);
+		});	
     	$shop=new \stdClass;
     	$shop->id=$shopInfo->shop_id;
     	$shop->name=$shopInfo->shopInfo->name;
     	$shop->shareUrl=CommonHelper::getWebHost('zh-TW/shop/detail/' . $shopInfo->shop_id);
-    	$shop->precautions=$shopInfo->precautions;
-
+		$shop->precautions=$shopInfo->precautions;
+		$shop->isFavorite = (count($favoriteList)) > 0 ? true : false;
+		$shop->img=CommonHelper::getWebHost('zh-TW/shop/detail/' .$dataDetailInfo->mainImg->folder.$dataDetailInfo->mainImg->filename);
 		//整理進入result裡面
     	$result=new \stdClass;
     	$result->status=$dataDetailInfo->status;

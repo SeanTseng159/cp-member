@@ -96,8 +96,14 @@ class ShopBookingController extends RestLaravelController
             $bookedNumber = $this->service->findBookedAllNumber();
             //抓取店家資料
             $shopInfo=$this->service->findShopInfo($id);
+            // 取收藏列表
+            if(empty($memberID)){
+                    $memberDiningCars=[];
+            }else{
+                    $memberDiningCars = $this->memberDiningCarService->getAllByMemberId($memberID);
+            }
             //將資料給result處理吧
-            $data = (new ShopBookingResult())->finishedBooking($bookingTimesDateTime,$bookedDateTime,$bookedNumber,$shopInfo,$request, $id,$memberID);
+            $data = (new ShopBookingResult())->finishedBooking($bookingTimesDateTime,$bookedDateTime,$bookedNumber,$shopInfo,$request, $id,$memberID,$memberDiningCars);
             
             //將資料寫入DB吧,True 寫入DB
             if($data->status){
@@ -127,14 +133,21 @@ class ShopBookingController extends RestLaravelController
 
 
     public function getOenDetailInfo(Request $request, $shopId,$id){
-
+        $memberID=$this->getMemberId();
         try{
+            
         //抓取店家資料
             $shopInfo=$this->service->findShopInfo($shopId);
         //抓取單一訂位資料 
             $dataDetailInfo=$this->service->getOenDetailInfo($id);
+        // 取收藏列表
+            if(empty($memberID)){
+                $memberDiningCars=[];
+            }else{
+                $memberDiningCars = $this->memberDiningCarService->getAllByMemberId($memberID);
+            }
         //將資料給result處理吧
-            $data = (new ShopBookingResult())->getOenDetailInfo($shopInfo,$dataDetailInfo);
+            $data = (new ShopBookingResult())->getOenDetailInfo($shopInfo,$dataDetailInfo,$memberDiningCars);
             return $this->success($data);
         }catch (\Exception $e) {
             Logger::error('ShopBookingController::getOenDetailInfo', $e->getMessage());
