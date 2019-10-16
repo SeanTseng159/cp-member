@@ -32,19 +32,20 @@ class ShopBookingController extends RestLaravelController
     }
 
     public function maxpeople(Request $request, $id){
-        // try {
+        try {
             $bookingLimit = $this->service->findBookingLimit($id);
             $data = (new ShopBookingResult())->maxpeople($bookingLimit);
             return $this->success($data);
-        // } catch (\Exception $e) {
-        //     Logger::error('ShopBookingController::maxpeople', $e->getMessage());
-        //     return $this->failureCode('E0001');
-        // }
+        } catch (\Exception $e) {
+            Logger::error('ShopBookingController::maxpeople', $e->getMessage());
+            return $this->failureCode('E0001');
+        }
     }
 
 
     public function findBookingCanDate(Request $request, $id){
         try{
+           
             $bookingNumOfPeo=$request['number'];
             $bookingLimit = $this->service->findBookingLimit($id);
             $bookingDateBooked = $this->service->findBookingDateBooked($id);
@@ -54,7 +55,7 @@ class ShopBookingController extends RestLaravelController
             return $this->success($data);
         }catch (\Exception $e) {
             Logger::error('ShopBookingController::findBookingCanDate', $e->getMessage());
-            return $this->failureCode('E0001');
+            return $this->responseFormat($data = null, $code = 'E0001', $message = $e->getMessage());
         }
     }
 
@@ -160,11 +161,18 @@ class ShopBookingController extends RestLaravelController
     //取消訂位
     public function delete(Request $request, $shopid,$code){
         try{
-             $result=$this->service->cancel($shopid,$code);
+            $data=$this->service->getFromCode($code);
+            if(empty($data->code)){
+                throw new \Exception('錯誤的code');
+            }elseif($data->status==0){
+                throw new \Exception('已取消訂位過');
+            }else{
+                $this->service->cancel($shopid,$code);
+            }
             return $this->success();
         } catch (\Exception $e) {
             Logger::error('ShopBookingController::delete', $e->getMessage());
-            return $this->failureCode('E0004');
+            return $this->responseFormat($data = null, $code = 'E0001', $message = $e->getMessage());
         }//en try
         
     }//end public function delete
@@ -174,21 +182,27 @@ class ShopBookingController extends RestLaravelController
         
         try {
             $memberId = $request->memberId;
+            $page=$request['page'];
+            if($page<=0){
+                throw new \Exception('頁數不能小於0');
+            }
             // 取收藏列表
             $memberDiningCars = $this->memberDiningCarService->getAllByMemberId($memberId);
             //訂位清單
-            $data = $this->service->getMemberList($memberId);
+            $data = $this->service->getMemberList($memberId,$page);
+            //訂位清單
+            $dataCount = $this->service->getCountMemberList($memberId,$page);
 
             if(empty($data[0])){
                 $result=[];
             }else{
-                $result = (new ShopBookingResult())->memberList($data, $memberDiningCars);
+                $result = (new ShopBookingResult())->memberList($data, $memberDiningCars,$dataCount,$page);
             }
             
             return $this->success($result);
         } catch (\Exception $e) {
             Logger::error('ShopWaitingController::memberList', $e->getMessage());
-            return $this->failureCode('E0001', $e->getMessage());
+            return $this->responseFormat($data = null, $code = 'E0001', $message = $e->getMessage());
         }
     }//end public function memberList
 

@@ -141,9 +141,18 @@ class ShopBookingService extends BaseService
      * @param  $memberID
      * @return data
      */
-    public function getMemberList($memberId)
+    public function getMemberList($memberId,$page)
     {
-        return $this->repository->getMemberList($memberId);
+        return $this->repository->getMemberList($memberId,$page);
+    }  
+    /**
+     * 取得訂位列表的數量
+     * @param  $memberID
+     * @return data
+     */
+    public function getCountMemberList($memberId,$page)
+    {
+        return $this->repository->getCountMemberList($memberId,$page);
     }  
     /**
      * 發送簡訊

@@ -199,20 +199,24 @@ class ShopBookingResult
 	}//end public function getOenDetailInfo
 
 
-    public function memberList($data, $memberDiningCars)
+    public function memberList($data, $memberDiningCars,$dataCount,$page)
     {
-        $ret = [];
-        foreach ($data as $bookingRecord) {
+		$ret = [];
+		//$ret[]=['total'=>count($data)];
+        foreach ($data as $key => $bookingRecord) {
+			
         	//result
-        	$result = new \stdClass();
+			$result = new \stdClass();
+			$result->total=$dataCount->count_data;
+			$result->page= $page;
         	$result->id=$bookingRecord->id;
         	//booking
         	$result->booking= new \stdClass();
-        	$result->booking->number=$bookingRecord->booking_number;
-        	$result->booking->date=DateHelper::chinese($bookingRecord->booking_date, '%Y/%m/%d  %A');
+			$result->booking->number=$bookingRecord->booking_number;
+			$result->booking->code=$bookingRecord->code;
+        	$result->booking->date=DateHelper::chinese($bookingRecord->booking_date, '%Y/%m/%d');
 
-        	
-        	$result->booking->time=$bookingRecord->booking_time;
+        	$result->booking->time=Carbon::parse($bookingRecord->booking_time)->format('H:i');
         	$result->booking->people=$bookingRecord->booking_people;
         	$result->booking->status=$bookingRecord->status;
         	//member
@@ -225,10 +229,12 @@ class ShopBookingResult
         	$favoriteList=collect($memberDiningCars)->filter(function ($value, $key)  use($bookingRecord){
     			return ($value->dining_car_id== $bookingRecord->shop_id);
 			});
+			$result->shop->id=$bookingRecord->diningCar->id;
+			$result->shop->name= $bookingRecord->diningCar->name;	
 			$result->shop->isFavorite = (count($favoriteList)) > 0 ? true : false;
 			$result->shop->shareUrl = CommonHelper::getWebHost('zh-TW/shop/detail/' . $bookingRecord->shop_id);
 			$result->shop->precautions =$bookingRecord->shopLimit->precautions;
-
+			$result->shop->img=CommonHelper::getWebHost('zh-TW/shop/detail/' .$bookingRecord->mainImg->folder.$bookingRecord->mainImg->filename);
             $ret[] = $result;
 
         }
