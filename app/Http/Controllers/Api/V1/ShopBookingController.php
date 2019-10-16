@@ -86,7 +86,9 @@ class ShopBookingController extends RestLaravelController
 
             //抓取星期幾幾點多少人之限制
             $bookingTimesDateTime = $this->service->findBookingTimesDateTime($id,$request->input('dayOfWeek'),$request->input('time'));
-
+            if(empty($bookingTimesDateTime->accept_people)){
+                throw new \Exception('店家這時間根本沒有作業');
+            }
             //抓取那天訂位的人數
             $bookedDateTime = $this->service->findBookedDateTime($id,$request->input('date'),$request->input('time'));
             //抓取目前的訂位編號
@@ -176,9 +178,13 @@ class ShopBookingController extends RestLaravelController
             $memberDiningCars = $this->memberDiningCarService->getAllByMemberId($memberId);
             //訂位清單
             $data = $this->service->getMemberList($memberId);
+
+            if(empty($data[0])){
+                $result=[];
+            }else{
+                $result = (new ShopBookingResult())->memberList($data, $memberDiningCars);
+            }
             
-            
-            $result = (new ShopBookingResult())->memberList($data, $memberDiningCars);
             return $this->success($result);
         } catch (\Exception $e) {
             Logger::error('ShopWaitingController::memberList', $e->getMessage());
