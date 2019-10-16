@@ -217,6 +217,7 @@ class ShopBookingRepository extends BaseRepository
                     ->where('member_Id',$memberId)
                     ->where('booking_date','>=',$findDays)
                     ->forPage($page,$limit)
+                    ->orderBy('booking_date','desc')
                     ->get();
         return $data;
 
