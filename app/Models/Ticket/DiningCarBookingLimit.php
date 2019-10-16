@@ -23,4 +23,11 @@ class DiningCarBookingLimit extends BaseModel
     	return $this->belongsTo('App\Models\Ticket\DiningCar', 'shop_id');
         //return $this->hasMany('App\Models\Ticket\DiningCar')->where('status', true);
     }
+    /**
+     * 取得封面圖
+     */
+    public function mainImg()
+    {
+        return $this->belongsTo('App\Models\Ticket\DiningCarLogoImg','shop_id','dining_car_id');
+    }
 }

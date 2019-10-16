@@ -139,13 +139,12 @@ class ShopBookingRepository extends BaseRepository
      */
     public function findShopInfo($id)
     {
-        return $this->diningCarBookingLimit->with([
-            'shopInfo'
-        ])
-            ->where('shop_id', $id)
-            ->first();
+        return $this->diningCarBookingLimit
+                    ->with(['shopInfo','mainImg'])
+                    ->where('shop_id', $id)
+                    ->first();
     }  
-
+    
 
     /**
      * 將訂位資料寫入DB
@@ -175,6 +174,7 @@ class ShopBookingRepository extends BaseRepository
     public function getOenDetailInfo($id= 0)
     {
         return $this->diningCarBookingDetail
+                    ->with(['shopLimit','diningCar','mainImg'])
                     ->where('id',$id)
                     ->first();
     }//end public function getOenDetailInfo
