@@ -24,4 +24,23 @@ class DiningCarBookingDetail extends BaseModel
     	return $this->belongsTo('App\Models\Ticket\DiningCarBookingLimit', 'shop_id','shop_id');
         //return $this->hasMany('App\Models\Ticket\DiningCar')->where('status', true);
     }
+
+    
+    /**
+     * 取得店鋪相關所有資訊
+     */
+    public function diningCar()
+    {
+    	return $this->belongsTo('App\Models\Ticket\DiningCar', 'shop_id','id');
+        //return $this->hasMany('App\Models\Ticket\DiningCar')->where('status', true);
+    }
+
+
+    /**
+     * 取得封面圖
+     */
+    public function mainImg()
+    {
+        return $this->belongsTo('App\Models\Ticket\DiningCarLogoImg','shop_id','dining_car_id');
+    }
 }
