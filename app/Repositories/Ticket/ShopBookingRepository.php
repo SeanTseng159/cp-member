@@ -164,7 +164,7 @@ class ShopBookingRepository extends BaseRepository
             'demand' => $data->member->demand,
             'status' => 1,
             'editor' => 1,
-            'code'=>$data->booking->code]);
+            'code'=>$data->booking->code])->id;
     }//end public function createDetail
 
 

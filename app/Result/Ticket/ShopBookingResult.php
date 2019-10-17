@@ -138,7 +138,6 @@ class ShopBookingResult
     		}
     	}//end if
 
-
     	//另用訂單資訊，產生取消訂單的亂數碼
         $hashids = new Hashids('', 7, 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'); // all lowercase
 		//利用id產生邀請碼
