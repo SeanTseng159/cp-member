@@ -322,5 +322,31 @@ class MailService
         return $this->send('CityPass都會通 - 未結帳提醒通知，請您儘快完成結帳~', $recipient, 'emails/notEmptyCart', $data);
     }
 
+    /**
+     * 訂位提醒email
+     * @param object $member
+     * @param array $cartItems
+     * @return bool
+     */
+    public function sendBookingFinishMail($member, $data = null)
+    {
+        $recipient = [
+            'email' => $member->email,
+            'name' => $member->name,
+        ];
+        
+        $data = [
+            'shopname' =>$data->shop->name,
+            'number' => $data->booking->number,
+            'name'    => $data->member->name,
+            'date' => $data->booking->date,
+            'time' => $data->booking->time,
+            'people'=> $data->booking->people,
+            'link' => env('CITY_PASS_WEB') .'booking/'. $data->booking->code,
+        ];
+        Log::info($recipient, $data);
+
+        return $this->send('CityPass都會通 -感謝您使用CityPass預訂餐廳，您的訂位資訊如下~', $recipient, 'emails/sendBookingFinishMail', $data);
+    }
 
 }

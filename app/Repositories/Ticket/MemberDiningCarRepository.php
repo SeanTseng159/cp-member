@@ -44,8 +44,8 @@ class MemberDiningCarRepository extends BaseRepository
     public function delete($memberId = 0, $id = 0)
     {
         return $this->model->where('member_id', $memberId)
-                            ->where('dining_car_id', $id)
-                            ->delete();
+            ->where('dining_car_id', $id)
+            ->delete();
     }
 
     /**
@@ -57,8 +57,8 @@ class MemberDiningCarRepository extends BaseRepository
     public function find($memberId = 0, $id = 0)
     {
         return $this->model->where('member_id', $memberId)
-                            ->where('dining_car_id', $id)
-                            ->first();
+            ->where('dining_car_id', $id)
+            ->first();
     }
 
     /**
@@ -75,19 +75,19 @@ class MemberDiningCarRepository extends BaseRepository
         });
 
         return $this->model->with([
-                                'diningCar.subCategory',
-                                'diningCar.memberCard' => function($query) use ($memberId) {
-                                    $query->where('member_id', $memberId);
-                                },
-                                'diningCar.memberLevels'
-                            ])
-                            ->where('member_id', $memberId)
-                            ->whereHas('diningCar.category', function($query) use ($params) {
-                                $query->when($params['category'], function ($query) use ($params) {
-                                    $query->where('dining_car_category_id', $params['category']);
-                                });
-                            })
-                            ->paginate($params['limit']);
+            'diningCar.subCategory',
+            'diningCar.memberCard' => function ($query) use ($memberId) {
+                $query->where('member_id', $memberId);
+            },
+            'diningCar.memberLevels'
+        ])
+            ->where('member_id', $memberId)
+            ->whereHas('diningCar.category', function ($query) use ($params) {
+                $query->when($params['category'], function ($query) use ($params) {
+                    $query->where('dining_car_category_id', $params['category']);
+                });
+            })
+            ->paginate($params['limit']);
     }
 
     /**
@@ -98,8 +98,9 @@ class MemberDiningCarRepository extends BaseRepository
     public function getAllByMemberId($memberId = 0)
     {
         return $this->model->select('dining_car_id')
-                            ->where('member_id', $memberId)
-                            ->get();
+            ->where('member_id', $memberId)
+            ->orderBy('updated_at','desc')
+            ->get();
     }
 
     /**
@@ -110,7 +111,7 @@ class MemberDiningCarRepository extends BaseRepository
     public function getCategoriesByMemberId($memberId = 0)
     {
         return $this->model->with(['diningCar'])
-                            ->where('member_id', $memberId)
-                            ->get();
+            ->where('member_id', $memberId)
+            ->get();
     }
 }

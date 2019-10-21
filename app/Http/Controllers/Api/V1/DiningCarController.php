@@ -7,6 +7,7 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Enum\StoreType;
 use Illuminate\Http\Request;
 use Ksd\Mediation\Core\Controller\RestLaravelController;
 use Exception;
@@ -25,13 +26,20 @@ class DiningCarController extends RestLaravelController
     protected $lang = 'zh-TW';
     protected $service;
     protected $categoryService;
-
     protected $redis;
+    protected $type = StoreType::DiningCar;
+    protected $result ;
+    protected $attribute = 'cars';
 
-    public function __construct(DiningCarService $service, DiningCarCategoryService $categoryService)
+
+
+    public function __construct(DiningCarService $service, DiningCarCategoryService $categoryService,DiningCarResult $result)
     {
         $this->service = $service;
         $this->categoryService = $categoryService;
+
+        $this->service->setStoreType($this->type);
+        $this->result = $result;
     }
 
     /**
@@ -60,16 +68,23 @@ class DiningCarController extends RestLaravelController
     /**
      * 取餐車列表
      * @param Request $request
+     * @param MemberDiningCarService $memberDiningCarService
+     * @param KeywordService $keywordService
+     * @param MenuService $menuService
      * @return \Illuminate\Http\JsonResponse
      */
-    public function list(Request $request, MemberDiningCarService $memberDiningCarService, KeywordService $keywordService, MenuService $menuService)
+    public function list(Request $request, MemberDiningCarService $memberDiningCarService,
+                         KeywordService $keywordService, MenuService $menuService)
     {
         try {
+
             $params = (new DiningCarParameter($request))->list();
 
             // 依關鍵字 找標籤/菜單中的餐車
             if ($params['keyword']) {
-                $keywordDiningCarIds = $keywordService->getDiningCarsByKeyword($params['keyword'])->pluck('dining_car_id')->toArray();
+                $keywordDiningCarIds = $keywordService->getDiningCarsByKeyword($params['keyword'])
+                    ->pluck('dining_car_id')
+                    ->toArray();
 
                 $menuDiningCarIds = $menuService->getDiningCarsByKeyword($params['keyword'])->pluck('dining_car_id')->toArray();
 
@@ -77,15 +92,21 @@ class DiningCarController extends RestLaravelController
             }
 
             $data = $this->service->list($params);
+
+
             // 取收藏列表
-            $memberDiningCars = ($params['memberId']) ? $memberDiningCarService->getAllByMemberId($params['memberId']) : NULL;
+            $memberDiningCars = ($params['memberId']) ?
+                $memberDiningCarService->getAllByMemberId($params['memberId'])
+                :
+                NULL;
 
-            $result['page'] = (int) $params['page'];
+            $result['page'] = (int)$params['page'];
             $result['total'] = $data->total();
-            $result['cars'] = (new DiningCarResult)->list($data, $memberDiningCars, $params['latitude'], $params['longitude']);
-
+            $result[$this->attribute] = $this->result->list($data, $params['latitude'], $params['longitude'], $memberDiningCars);
             return $this->success($result);
+
         } catch (Exception $e) {
+
             return $this->failureCode('E0007');
         }
     }
@@ -93,6 +114,8 @@ class DiningCarController extends RestLaravelController
     /**
      * 取餐車地圖
      * @param Request $request
+     * @param KeywordService $keywordService
+     * @param MenuService $menuService
      * @return \Illuminate\Http\JsonResponse
      */
     public function map(Request $request, KeywordService $keywordService, MenuService $menuService)
@@ -110,7 +133,7 @@ class DiningCarController extends RestLaravelController
             }
 
             $data = $this->service->map($params);
-            $result = (new DiningCarResult)->list($data, NULL, $params['latitude'], $params['longitude']);
+            $result = $this->result->list($data, $params['latitude'], $params['longitude'], NULL);
 
             return $this->success($result);
         } catch (Exception $e) {
@@ -121,11 +144,12 @@ class DiningCarController extends RestLaravelController
     /**
      * 取餐車詳細
      * @param Request $request
+     * @param MemberDiningCarService $memberDiningCarService
      * @param $id
      * @return \Illuminate\Http\JsonResponse
      */
     public function detail(Request $request, MemberDiningCarService $memberDiningCarService, $id)
-    {
+    {   
         try {
             if (!$id) return $this->apiRespFailCode('E0006');
 
@@ -134,8 +158,8 @@ class DiningCarController extends RestLaravelController
             $isFavorite = ($params['memberId']) ? $memberDiningCarService->isFavorite($params['memberId'], $id) : false;
 
             $data = $this->service->find($id, $params['memberId']);
-            $result = (new DiningCarResult)->detail($data, $isFavorite, $params['latitude'], $params['longitude']);
-
+            //$result = (new DiningCarResult)->detail($data, $isFavorite, $params['latitude'], $params['longitude']);
+            $result = $this->result->detail($data, $isFavorite, $params['latitude'], $params['longitude']);
             return $this->success($result);
         } catch (Exception $e) {
             return $this->failureCode('E0007');

@@ -21,8 +21,8 @@ class DiningCarResult extends BaseResult
 {
     use MapHelper, CryptHelper, DiningCarHelper;
 
-    private $lat;
-    private $lng;
+    protected $lat;
+    protected $lng;
     private $dayOfWeek;
     private $memberDiningCars;
 
@@ -45,7 +45,7 @@ class DiningCarResult extends BaseResult
      *
      * @return array
      */
-    public function list($cars, $memberDiningCars = null, $lat, $lng)
+    public function list($cars, $lat, $lng, $memberDiningCars = null)
     {
         if (!$cars) return [];
 
@@ -69,7 +69,7 @@ class DiningCarResult extends BaseResult
      *
      * @return \stdClass|null
      */
-    private function getCar($car)
+    protected function getCar($car)
     {
         if (!$car) return null;
 
@@ -132,7 +132,7 @@ class DiningCarResult extends BaseResult
      * 取分類
      * @param $data
      */
-    private function getCategories($category, $subCategory)
+    protected function getCategories($category, $subCategory)
     {
         $categoryAry = [];
 
@@ -148,7 +148,9 @@ class DiningCarResult extends BaseResult
      */
     public function getFavorite($id)
     {
-        if (!$this->memberDiningCars) return false;
+
+        if (!$this->memberDiningCars)
+            return false;
         return ($this->memberDiningCars->where('dining_car_id', $id)->first()) ? true : false;
     }
 
@@ -156,7 +158,7 @@ class DiningCarResult extends BaseResult
      * 取封面照
      * @param $data
      */
-    private function getImg($img)
+    protected function getImg($img)
     {
         return ImageHelper::url($img, 's');
     }
@@ -165,7 +167,7 @@ class DiningCarResult extends BaseResult
      * 取照片
      * @param $data
      */
-    private function getImgs($imgs)
+    protected function getImgs($imgs)
     {
         return ImageHelper::urls($imgs, 'm');
     }
@@ -174,7 +176,7 @@ class DiningCarResult extends BaseResult
      * 取營業時間列表
      * @param $businessHoursDays
      */
-    private function getBusinessHoursDays($businessHoursDays)
+    protected function getBusinessHoursDays($businessHoursDays)
     {
         if ($businessHoursDays->isEmpty()) return [];
 
@@ -190,7 +192,7 @@ class DiningCarResult extends BaseResult
      * 取營業時間
      * @param $hoursDay
      */
-    private function getBusinessHoursDay($hoursDay)
+    protected function getBusinessHoursDay($hoursDay)
     {
         $result = new \stdClass;
         $result->day = DiningCarConfig::WEEK[$hoursDay->day];
@@ -204,7 +206,7 @@ class DiningCarResult extends BaseResult
      * 取營業時間
      * @param $times
      */
-    private function getBusinessHoursTimes($times)
+    protected function getBusinessHoursTimes($times)
     {
         if ($times->isEmpty()) return [];
 
@@ -220,7 +222,7 @@ class DiningCarResult extends BaseResult
      * 取營業時間
      * @param $time
      */
-    private function getBusinessHoursTime($time)
+    protected function getBusinessHoursTime($time)
     {
         $startTime = substr($time->start_time, 0, 5);
         $endTime = substr($time->end_time, 0, 5);
@@ -232,7 +234,7 @@ class DiningCarResult extends BaseResult
      * 取本月營業日
      * @param $businessHoursDays
      */
-    private function getBusinessHoursDates($businessHoursDates)
+    protected function getBusinessHoursDates($businessHoursDates)
     {
         if ($businessHoursDates->isEmpty()) return [];
 
@@ -248,14 +250,14 @@ class DiningCarResult extends BaseResult
      * 取社群連結
      * @param $socialUrls
      */
-    private function getSocialUrls($socialUrls, $carLevel)
+    protected function getSocialUrls($socialUrls, $carLevel)
     {
         if ($carLevel === 0 || $socialUrls->isEmpty()) return [];
 
         $newSocialUrls = [];
         foreach ($socialUrls as $social) {
             $socialUrl = $this->getSocialUrl($social);
-            if ( ! empty($socialUrl->url)) $newSocialUrls[] = $socialUrl;
+            if (!empty($socialUrl->url)) $newSocialUrls[] = $socialUrl;
         }
 
         return $newSocialUrls;
@@ -265,7 +267,7 @@ class DiningCarResult extends BaseResult
      * 取社群連結
      * @param $social
      */
-    private function getSocialUrl($social)
+    protected function getSocialUrl($social)
     {
         if ($social->source === 'mobile') return null;
 
@@ -299,7 +301,7 @@ class DiningCarResult extends BaseResult
      * 取影片
      * @param $media
      */
-    private function getVideos($media)
+    protected function getVideos($media)
     {
         $videos = [];
 
@@ -313,7 +315,7 @@ class DiningCarResult extends BaseResult
      * 取影片
      * @param $media
      */
-    private function getVideo($media)
+    protected function getVideo($media)
     {
         if (!$media) return null;
 

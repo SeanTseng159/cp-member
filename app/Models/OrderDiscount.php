@@ -3,9 +3,8 @@
 namespace App\Models;
 
 use App\Models\Ticket\BaseModel;
-
-
 use App\Traits\BackendSoftDeletes;
+
 
 class OrderDiscount extends BaseModel
 {

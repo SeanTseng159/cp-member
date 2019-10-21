@@ -132,6 +132,53 @@ Route::middleware('cors')->namespace('V1')->group(function () {
         Route::get('shorterUrl/{id}', 'DiningCarController@shorterUrl');
     });
 
+
+    // 店鋪相關
+    Route::prefix('shop')->group(function () {
+
+        // 列表
+        Route::get('list', 'ShopController@list');
+
+        // 地圖
+        Route::get('map', 'ShopController@map')->middleware('verify.diningCar.map');
+
+        // 詳細
+        Route::get('detail/{id}', 'ShopController@detail');
+
+        //服務列表
+        Route::get('service/list', 'ShopController@servicelist');
+
+        //候位相關======
+        Route::get('{id}/waiting', 'ShopWaitingController@info'); //店鋪資訊
+        Route::post('{id}/waiting', 'ShopWaitingController@create'); //新增候位
+        Route::get('{id}/waiting/{waitingId}', 'ShopWaitingController@get');//取得候位資訊
+
+        Route::post('waiting/{code}', 'ShopWaitingController@deleteByCode');//取消候位
+        Route::get('waiting/{code}', 'ShopWaitingController@getByCode');//取得候位資訊
+        Route::get('waiting/member/list', 'ShopWaitingController@memberList')->middleware('auth.jwt');//我的候位資訊
+
+        //訂位相關 ====
+        //店鋪訂位取得人數及注意事
+        Route::get('{id}/booking/people', 'ShopBookingController@maxpeople');
+        //取得店舖可訂位日期
+        Route::get('{id}/booking/date', 'ShopBookingController@findBookingCanDate');
+        //完成訂位
+        Route::post('{id}/booking/finished', 'ShopBookingController@finishedBooking');
+        //取得單一訂單資訊
+        Route::get('{shopId}/booking/{id}', 'ShopBookingController@getOenDetailInfo');
+        //訂位短網址解碼
+        Route::get('booking/getfromcode/{code}', 'ShopBookingController@get');
+        //取消訂位
+        Route::post('{shopId}/booking/{code}', 'ShopBookingController@delete');
+        //已訂位列表
+        Route::get('booking/list', 'ShopBookingController@memberList')->middleware('auth.jwt');
+
+        //問卷相關
+        Route::post('{id}/questionnaire/{questionId}', 'ShopQuestionController@create')->middleware('auth.jwt');
+        Route::get('{id}/questionnaire', 'ShopQuestionController@get')->middleware('auth.jwt');
+
+    });
+
     // linepay相關
     Route::prefix('linepay')->group(function () {
         Route::post('confirm/callback', 'LinePayController@confirmCallback');
@@ -175,9 +222,6 @@ Route::middleware('cors')->namespace('V1')->group(function () {
         Route::get('{modelType}/{modelSpecId}/list', 'GiftController@list');
     });
 
-    Route::prefix('avr')->namespace('AVR')->group(function () {
-
-    });
 
     //avr相關
     Route::prefix('avr')->group(function () {
@@ -210,10 +254,9 @@ Route::middleware('cors')->namespace('V1')->group(function () {
 
     //邀請碼相關
     Route::prefix('invitation')->group(function () {
-         //邀請碼對應名字
+        //邀請碼對應名字
         Route::post('memberName', 'MemberController@memberName');
     });
-
 
 
 });
@@ -373,4 +416,5 @@ Route::middleware(['cors', 'auth.jwt'])->namespace('V1')->group(function () {
         //修改已讀狀態
         Route::post('read', 'MemberController@readStatusChange');
     });
+
 });

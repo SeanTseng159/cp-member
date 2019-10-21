@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 /**
  * User: lee
  * Date: 2019/02/27
@@ -265,6 +265,7 @@ class MemberController extends RestLaravelController
             if(empty($member->nick)) {$nick= $member->name;} else{$nick = $member->nick;}
             //做成最後的型態
 
+
             if(empty($productInfo))
                 {
                     $friendInviteWeb = '嗨！您的好友'.$nick.'邀請您加入CityPass都會通會員，現在註冊立即享有吃喝玩樂優惠！'.'\n 會員代碼：'.$member->invited_code.'\n'. CommonHelper::getWebHost('zh-TW/invite/' . $member->invited_code);
@@ -273,6 +274,7 @@ class MemberController extends RestLaravelController
                     
                     $friendInviteWeb = '嗨！您的好友'.$nick.'邀請您加入CityPass都會通會員，現在註冊立即享有吃喝玩樂優惠！還有好康'.$productInfo.'等你拿！'.'\n 會員代碼：'.$member->invited_code.'\n'. CommonHelper::getWebHost('zh-TW/invite/' . $member->invited_code);
                 }
+
 
 
 
@@ -339,5 +341,4 @@ class MemberController extends RestLaravelController
             return $this->failureCode('E0061');
         }
     }
-
 }

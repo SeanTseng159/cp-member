@@ -14,11 +14,18 @@ use App\Models\Ticket\DiningCar;
 
 class DiningCarRepository extends BaseRepository
 {
-    private $limit = 20;
+    protected $type = 1;
 
     public function __construct(DiningCar $model)
     {
         $this->model = $model;
+    }
+
+    public function setStoreType($type)
+    {
+        $this->type = $type;
+        return $this;
+
     }
 
     /**
@@ -28,6 +35,8 @@ class DiningCarRepository extends BaseRepository
      */
     public function list($params = [])
     {
+
+
         $currentPage = $params['page'];
         Paginator::currentPageResolver(function () use ($currentPage) {
             return $currentPage;
@@ -35,24 +44,25 @@ class DiningCarRepository extends BaseRepository
 
 
         return $this->model->with(['category', 'subCategory', 'mainImg'])
-                            ->where('status', 1)
-                            ->when($params['keyword'], function($query) use ($params) {
-                                $query->where('name', 'like', '%' . $params['keyword'] . '%')
-                                    ->orWhereIn('id', $params['keywordDiningCarIds'])
-                                    ->where('status', 1);
-                            })
-                            ->when($params['county'], function($query) use ($params) {
-                                $query->where('county', $params['county']);
-                            })
-                            ->when($params['category'], function($query) use ($params) {
-                                $query->where('dining_car_category_id', $params['category']);
-                            })
-                            ->where(function($query) use ($params) {
-                                if (in_array($params['openStatus'], ['0', '1', '2'])) {
-                                    $query->where('open_status', $params['openStatus']);
-                                }
-                            })
-                            ->paginate($params['limit']);
+            ->where('status', 1)
+            ->where('type',$this->type)
+            ->when($params['keyword'], function ($query) use ($params) {
+                $query->where('name', 'like', '%' . $params['keyword'] . '%')
+                    ->orWhereIn('id', $params['keywordDiningCarIds'])
+                    ->where('status', 1);
+            })
+            ->when($params['county'], function ($query) use ($params) {
+                $query->where('county', $params['county']);
+            })
+            ->when($params['category'], function ($query) use ($params) {
+                $query->where('dining_car_category_id', $params['category']);
+            })
+            ->where(function ($query) use ($params) {
+                if (in_array($params['openStatus'], ['0', '1', '2'])) {
+                    $query->where('open_status', $params['openStatus']);
+                }
+            })
+            ->paginate($params['limit']);
     }
 
     /**
@@ -63,22 +73,23 @@ class DiningCarRepository extends BaseRepository
     public function map($params = [])
     {
         return $this->model->with(['category', 'subCategory', 'mainImg'])
-                            ->where('status', 1)
-                            ->when($params['keyword'], function($query) use ($params) {
-                                $query->where('name', 'like', '%' . $params['keyword'] . '%')
-                                    ->orWhereIn('id', $params['keywordDiningCarIds'])
-                                    ->where('status', 1);
-                            })
-                            ->when($params['category'], function($query) use ($params) {
-                                $query->where('dining_car_category_id', $params['category']);
-                            })
-                            ->where(function($query) use ($params) {
-                                if (in_array($params['openStatus'], ['0', '1', '2'])) {
-                                    $query->where('open_status', $params['openStatus']);
-                                }
-                            })
-                            ->withinLocation($params['range']['longitude'], $params['range']['latitude'])
-                            ->get();
+            ->where('status', 1)
+            ->when($params['keyword'], function ($query) use ($params) {
+                $query->where('name', 'like', '%' . $params['keyword'] . '%')
+                    ->orWhereIn('id', $params['keywordDiningCarIds'])
+                    ->where('status', 1);
+            })
+            ->when($params['category'], function ($query) use ($params) {
+                $query->where('dining_car_category_id', $params['category']);
+            })
+            ->where(function ($query) use ($params) {
+                if (in_array($params['openStatus'], ['0', '1', '2'])) {
+                    $query->where('open_status', $params['openStatus']);
+                }
+            })
+            ->where('type',$this->type)
+            ->withinLocation($params['range']['longitude'], $params['range']['latitude'])
+            ->get();
     }
 
     /**
@@ -89,35 +100,37 @@ class DiningCarRepository extends BaseRepository
     public function find($id = 0, $memberId = 0)
     {
         return $this->model->with([
-                                'category',
-                                'subCategory',
-                                'mainImg',
-                                'imgs',
-                                'socialUrls',
-                                'businessHoursDays.times',
-                                'businessHoursDates',
-                                'media',
-                                'memberCard' => function($query) use ($memberId) {
-                                    $query->where('member_id', $memberId);
-                                },
-                                'memberLevels'
-                            ])
-                            ->withCount(['gifts', 'newsfeeds', 'coupons'])
-                            ->whereId($id)
-                            ->where('status', 1)
-                            ->first();
+            'category',
+            'subCategory',
+            'mainImg',
+            'imgs',
+            'socialUrls',
+            'businessHoursDays.times',
+            'businessHoursDates',
+            'media',
+            'memberCard' => function ($query) use ($memberId) {
+                $query->where('member_id', $memberId);
+            },
+            'memberLevels',
+            'currentQuestion'
+        ])
+            ->withCount(['gifts', 'newsfeeds', 'coupons'])
+            ->whereId($id)
+            ->where('status', 1)
+//            ->where('type',$this->type)
+            ->first();
     }
 
     public function getDiningCarByShorterUrlId($shorterUrlId)
     {
         return $this->model->select('id')
-                           ->where('level', '>', 0)              // 短網址為付費功能
-                           ->where(function($q){
-                                $q->where('expired_at', '>=', Carbon::now())
-                                  ->orWhere('expired_at', null);
-                            })
-                           ->where('shorter_url_id', $shorterUrlId)
-                           ->whereNotNull('shorter_url_id')
-                           ->first();
+            ->where('level', '>', 0)// 短網址為付費功能
+            ->where(function ($q) {
+                $q->where('expired_at', '>=', Carbon::now())
+                    ->orWhere('expired_at', null);
+            })
+            ->where('shorter_url_id', $shorterUrlId)
+            ->whereNotNull('shorter_url_id')
+            ->first();
     }
 }
