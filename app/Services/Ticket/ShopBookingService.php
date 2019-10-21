@@ -70,7 +70,7 @@ class ShopBookingService extends BaseService
         return $this->repository->findBookingTimesDateTime($id,$dayOfWeek,$time);
     }
     /**
-     * 找出今天的訂單編號
+     * 找出今天某店家的訂單編號
      * @param  $id
      * @return mixed
      */
@@ -78,7 +78,14 @@ class ShopBookingService extends BaseService
     {
         return $this->repository->findBookedNumber($id);
     }    
-
+    /**
+     * 找出今天的全部訂單編號
+     * @return mixed
+     */
+    public function findBookedAllNumber()
+    {
+        return $this->repository->findBookedAllNumber();
+    }    
     /**
      * 找出店家資訊
      * @param  $id
@@ -134,9 +141,18 @@ class ShopBookingService extends BaseService
      * @param  $memberID
      * @return data
      */
-    public function getMemberList($memberId)
+    public function getMemberList($memberId,$page)
     {
-        return $this->repository->getMemberList($memberId);
+        return $this->repository->getMemberList($memberId,$page);
+    }  
+    /**
+     * 取得訂位列表的數量
+     * @param  $memberID
+     * @return data
+     */
+    public function getCountMemberList($memberId,$page)
+    {
+        return $this->repository->getCountMemberList($memberId,$page);
     }  
     /**
      * 發送簡訊

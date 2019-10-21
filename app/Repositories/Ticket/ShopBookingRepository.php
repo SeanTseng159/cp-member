@@ -19,6 +19,8 @@ class ShopBookingRepository extends BaseRepository
     protected $diningCarBookingDetail;
     protected $diningCarBookingLimit;
     protected $diningCarBookingTimes;
+    protected $limit;
+    
 
     public function __construct(DiningCarBookingDetail $diningCarBookingDetail,DiningCarBookingLimit $diningCarBookingLimit,DiningCarBookingTimes $diningCarBookingTimes)
     {
@@ -103,7 +105,7 @@ class ShopBookingRepository extends BaseRepository
                         ->first();
     }
     /**
-     * 找出今天的訂單編號,要做排序用，不用管是否有被取消訂單，status不用管
+     * 找出今天某一個店家的的訂單編號,要做排序用，不用管是否有被取消訂單，status不用管
      */
     public function findBookedNumber($id)
     {
@@ -115,6 +117,20 @@ class ShopBookingRepository extends BaseRepository
                         ->first();
     }
 
+    /**
+     * 找出今天所有訂單
+     */
+    public function findBookedAllNumber()
+    {
+        $findDays = Carbon::today();
+        return $this->diningCarBookingDetail
+                        ->select(\DB::raw('max(booking_number) as max_number'))
+                        ->where('created_at','>=', $findDays)
+                        ->first();
+    }
+
+
+
 
     /**
      * 找出店家資訊
@@ -123,13 +139,12 @@ class ShopBookingRepository extends BaseRepository
      */
     public function findShopInfo($id)
     {
-        return $this->diningCarBookingLimit->with([
-            'shopInfo'
-        ])
-            ->where('shop_id', $id)
-            ->first();
+        return $this->diningCarBookingLimit
+                    ->with(['shopInfo','mainImg'])
+                    ->where('shop_id', $id)
+                    ->first();
     }  
-
+    
 
     /**
      * 將訂位資料寫入DB
@@ -149,7 +164,7 @@ class ShopBookingRepository extends BaseRepository
             'demand' => $data->member->demand,
             'status' => 1,
             'editor' => 1,
-            'code'=>$data->booking->code]);
+            'code'=>$data->booking->code])->id;
     }//end public function createDetail
 
 
@@ -159,6 +174,7 @@ class ShopBookingRepository extends BaseRepository
     public function getOenDetailInfo($id= 0)
     {
         return $this->diningCarBookingDetail
+                    ->with(['shopLimit','diningCar','mainImg'])
                     ->where('id',$id)
                     ->first();
     }//end public function getOenDetailInfo
@@ -182,7 +198,7 @@ class ShopBookingRepository extends BaseRepository
         return $this->diningCarBookingDetail
                     ->where('shop_id',$shopid)
                     ->where('code',$code)
-                    ->update(['status' => 0]);
+                    ->update(['status' => 0,'editor'=>1]);
                     
 
     }//end  function cancel
@@ -191,18 +207,33 @@ class ShopBookingRepository extends BaseRepository
     /**
      * 取得訂位列表
      */
-    public function getMemberList($memberId)
+    public function getMemberList($memberId,$page)
     {
+    
+        $limit=5;
         $findDays = Carbon::today()->modify('-30 days');
-        return $this->diningCarBookingDetail
-                    ->with(['shopLimit'])
+        $data= $this->diningCarBookingDetail
+                    ->with(['shopLimit','diningCar','mainImg'])
                     ->where('member_Id',$memberId)
                     ->where('booking_date','>=',$findDays)
+                    ->forPage($page,$limit)
+                    ->orderBy('booking_date','desc')
                     ->get();
-                    
+        return $data;
 
     }//end  function getMemberList
 
+    public function getCountMemberList($memberId,$page)
+    {
+        $findDays = Carbon::today()->modify('-30 days');
+        $count= $this->diningCarBookingDetail
+                    ->select(\DB::raw('count(id) as count_data'))
+                    ->with(['shopLimit','diningCar','mainImg'])
+                    ->where('member_Id',$memberId)
+                    ->where('booking_date','>=',$findDays)
+                    ->first();
 
+        return $count;
+    }//end  function getMemberList
 
 }//end class

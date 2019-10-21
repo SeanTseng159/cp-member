@@ -45,6 +45,7 @@ class ShopBookingController extends RestLaravelController
 
     public function findBookingCanDate(Request $request, $id){
         try{
+           
             $bookingNumOfPeo=$request['number'];
             $bookingLimit = $this->service->findBookingLimit($id);
             $bookingDateBooked = $this->service->findBookingDateBooked($id);
@@ -54,7 +55,7 @@ class ShopBookingController extends RestLaravelController
             return $this->success($data);
         }catch (\Exception $e) {
             Logger::error('ShopBookingController::findBookingCanDate', $e->getMessage());
-            return $this->failureCode('E0001');
+            return $this->responseFormat($data = null, $code = 'E0001', $message = $e->getMessage());
         }
     }
 
@@ -86,19 +87,28 @@ class ShopBookingController extends RestLaravelController
 
             //抓取星期幾幾點多少人之限制
             $bookingTimesDateTime = $this->service->findBookingTimesDateTime($id,$request->input('dayOfWeek'),$request->input('time'));
-
+            if(empty($bookingTimesDateTime->accept_people)){
+                throw new \Exception('店家這時間根本沒有作業');
+            }
             //抓取那天訂位的人數
             $bookedDateTime = $this->service->findBookedDateTime($id,$request->input('date'),$request->input('time'));
             //抓取目前的訂位編號
-            $bookedNumber = $this->service->findBookedNumber($id);
+            $bookedNumber = $this->service->findBookedAllNumber();
             //抓取店家資料
             $shopInfo=$this->service->findShopInfo($id);
+            // 取收藏列表
+            if(empty($memberID)){
+                    $memberDiningCars=[];
+            }else{
+                    $memberDiningCars = $this->memberDiningCarService->getAllByMemberId($memberID);
+            }
             //將資料給result處理吧
-            $data = (new ShopBookingResult())->finishedBooking($bookingTimesDateTime,$bookedDateTime,$bookedNumber,$shopInfo,$request, $id,$memberID);
+            $data = (new ShopBookingResult())->finishedBooking($bookingTimesDateTime,$bookedDateTime,$bookedNumber,$shopInfo,$request, $id,$memberID,$memberDiningCars);
             
             //將資料寫入DB吧,True 寫入DB
             if($data->status){
-                $record = $this->service->createDetail($data);
+                $id = $this->service->createDetail($data);
+                $data->id=$id;
             }else{
                 throw new \Exception('已額滿，請重新定位');
             }//end if
@@ -106,7 +116,6 @@ class ShopBookingController extends RestLaravelController
             $datetime=$data->booking->date.' '.$data->booking->time;
             //傳送簡訊認證
             $this->service->sendBookingSMS($host, $data->shop->name, $data->member->name, $data->member->phone, $datetime, $data->booking->code);
-            $memberID=1;
             if (empty($memberID)){
             }else{    
                 $member=$this->memberService->find($memberID);
@@ -125,14 +134,21 @@ class ShopBookingController extends RestLaravelController
 
 
     public function getOenDetailInfo(Request $request, $shopId,$id){
-
+        $memberID=$this->getMemberId();
         try{
+            
         //抓取店家資料
             $shopInfo=$this->service->findShopInfo($shopId);
         //抓取單一訂位資料 
             $dataDetailInfo=$this->service->getOenDetailInfo($id);
+        // 取收藏列表
+            if(empty($memberID)){
+                $memberDiningCars=[];
+            }else{
+                $memberDiningCars = $this->memberDiningCarService->getAllByMemberId($memberID);
+            }
         //將資料給result處理吧
-            $data = (new ShopBookingResult())->getOenDetailInfo($shopInfo,$dataDetailInfo);
+            $data = (new ShopBookingResult())->getOenDetailInfo($shopInfo,$dataDetailInfo,$memberDiningCars);
             return $this->success($data);
         }catch (\Exception $e) {
             Logger::error('ShopBookingController::getOenDetailInfo', $e->getMessage());
@@ -146,10 +162,21 @@ class ShopBookingController extends RestLaravelController
         $data=$this->service->getFromCode($code);
         try{
         //封裝到result送出去
-            $result=new \stdClass;
-            $result->booking_id  =$data->id;
-            $result->shop_id     =$data->shop_id;
-            return $this->success($result);
+            $id         =$data->id;
+            $shopId     =$data->shop_id;
+            //抓取店家資料
+            $shopInfo=$this->service->findShopInfo($shopId);
+        //抓取單一訂位資料 
+            $dataDetailInfo=$this->service->getOenDetailInfo($id);
+        // 取收藏列表
+            if(empty($memberID)){
+                $memberDiningCars=[];
+            }else{
+                $memberDiningCars = $this->memberDiningCarService->getAllByMemberId($memberID);
+            }
+        //將資料給result處理吧
+            $data = (new ShopBookingResult())->getOenDetailInfo($shopInfo,$dataDetailInfo,$memberDiningCars);
+            return $this->success($data);
         }catch (\Exception $e) {
             Logger::error('ShopBookingController::getOenDetailInfo', $e->getMessage());
             return $this->responseFormat($data = null, $code = 'E0001', $message = '無效的shop的code');
@@ -159,11 +186,18 @@ class ShopBookingController extends RestLaravelController
     //取消訂位
     public function delete(Request $request, $shopid,$code){
         try{
-             $result=$this->service->cancel($shopid,$code);
+            $data=$this->service->getFromCode($code);
+            if(empty($data->code)){
+                throw new \Exception('錯誤的code');
+            }elseif($data->status==0){
+                throw new \Exception('已取消訂位過');
+            }else{
+                $this->service->cancel($shopid,$code);
+            }
             return $this->success();
         } catch (\Exception $e) {
             Logger::error('ShopBookingController::delete', $e->getMessage());
-            return $this->failureCode('E0004');
+            return $this->responseFormat($data = null, $code = 'E0001', $message = $e->getMessage());
         }//en try
         
     }//end public function delete
@@ -171,20 +205,30 @@ class ShopBookingController extends RestLaravelController
     public function memberList(Request $request)
     {
         
-        // try {
+        try {
             $memberId = $request->memberId;
+            $page=$request['page'];
+            if($page<=0){
+                $page=1;
+            }
             // 取收藏列表
             $memberDiningCars = $this->memberDiningCarService->getAllByMemberId($memberId);
-            //後位清單
-            $data = $this->service->getMemberList($memberId);
+            //訂位清單
+            $data = $this->service->getMemberList($memberId,$page);
+            //訂位清單
+            $dataCount = $this->service->getCountMemberList($memberId,$page);
+
+            if(empty($data[0])){
+                $result=[];
+            }else{
+                $result = (new ShopBookingResult())->memberList($data, $memberDiningCars,$dataCount,$page);
+            }
             
-            
-            $result = (new ShopBookingResult())->memberList($data, $memberDiningCars);
             return $this->success($result);
-        // } catch (\Exception $e) {
-        //     Logger::error('ShopWaitingController::memberList', $e->getMessage());
-        //     return $this->failureCode('E0001', $e->getMessage());
-        // }
+        } catch (\Exception $e) {
+            Logger::error('ShopWaitingController::memberList', $e->getMessage());
+            return $this->responseFormat($data = null, $code = 'E0001', $message = $e->getMessage());
+        }
     }//end public function memberList
 
 }//end class

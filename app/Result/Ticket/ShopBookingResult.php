@@ -10,11 +10,11 @@ use Carbon\Carbon;
 use App\Helpers\CommonHelper;
 use Hashids\Hashids;
 use App\Helpers\DateHelper;
-
+use App\Helpers\ImageHelper;
 
 class ShopBookingResult
 {
-
+	
     public function maxpeople($bookingLimit)
     {
         # code...
@@ -109,7 +109,7 @@ class ShopBookingResult
     }//end public findBookingCanDate
 
 
-    public function finishedBooking($bookingTimesDateTime,$bookedDateTime,$bookedNumber,$shopInfo,$request, $id,$memberID)
+    public function finishedBooking($bookingTimesDateTime,$bookedDateTime,$bookedNumber,$shopInfo,$request, $id,$memberID,$memberDiningCars)
     {	
 		
     	//訂單標號與今天日期相關
@@ -138,7 +138,6 @@ class ShopBookingResult
     		}
     	}//end if
 
-
     	//另用訂單資訊，產生取消訂單的亂數碼
         $hashids = new Hashids('', 7, 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'); // all lowercase
 		//利用id產生邀請碼
@@ -155,13 +154,24 @@ class ShopBookingResult
     	$member->phone=$request->input('phone');
 		$member->demand=$request->input('demand');
 		$member->memberID=$memberID;
+
+		$favoriteList=collect($memberDiningCars)->filter(function ($value, $key)  use($id){
+			return ($value->dining_car_id== $id);
+		});	
     	$shop=new \stdClass;
     	$shop->id=$id;
     	$shop->name=$shopInfo->shopInfo->name;
     	$shop->shareUrl=CommonHelper::getWebHost('zh-TW/shop/detail/' . $id);
     	$shop->precautions=$shopInfo->precautions;
-
-
+		$shop->isFavorite = (count($favoriteList)) > 0 ? true : false;
+		if(empty($shopInfo->mainImg->folder)){
+			$shop->img='';
+		}else{
+			
+			$shop->img= ImageHelper::url($shopInfo->mainImg);
+		}
+		
+		
     	//整理進入result裡面
     	$result->booking=$booking;
     	$result->member=$member;
@@ -169,11 +179,12 @@ class ShopBookingResult
     	return $result;
     }//end public finishedBooking
 
-	public function getOenDetailInfo($shopInfo,$dataDetailInfo){
+	public function getOenDetailInfo($shopInfo,$dataDetailInfo,$memberDiningCars){
+		
 		$booking=new \stdClass;
     	$booking->number=$dataDetailInfo->booking_number;
     	$booking->date=$dataDetailInfo->booking_date;
-    	$booking->time=$dataDetailInfo->booking_time;
+    	$booking->time=Carbon::parse($dataDetailInfo->booking_time)->format('H:i');
     	$booking->dayOfWeek=$dataDetailInfo->booking_dayofweek;
     	$booking->people=$dataDetailInfo->booking_people;
 		$booking->code=$dataDetailInfo->code;
@@ -181,16 +192,26 @@ class ShopBookingResult
     	$member->name=$dataDetailInfo->name;
     	$member->phone=$dataDetailInfo->phone;
     	$member->demand=$dataDetailInfo->demand;
-    	$member->memberID=$dataDetailInfo->member_id;
+		$member->memberID=$dataDetailInfo->member_id;
+		$favoriteList=collect($memberDiningCars)->filter(function ($value, $key)  use($dataDetailInfo){
+			return ($value->dining_car_id== $dataDetailInfo->shop_id);
+		});	
     	$shop=new \stdClass;
     	$shop->id=$shopInfo->shop_id;
     	$shop->name=$shopInfo->shopInfo->name;
     	$shop->shareUrl=CommonHelper::getWebHost('zh-TW/shop/detail/' . $shopInfo->shop_id);
-    	$shop->precautions=$shopInfo->precautions;
-
+		$shop->precautions=$shopInfo->precautions;
+		$shop->isFavorite = (count($favoriteList)) > 0 ? true : false;
+		if(empty($dataDetailInfo->mainImg->folder)){
+			$shop->img='';
+		}else{
+			
+			$shop->img= ImageHelper::url($dataDetailInfo->mainImg);
+		}
+		
 		//整理進入result裡面
-    	$result=new \stdClass;
-    	$result->status=$dataDetailInfo->status;
+		$result=new \stdClass;
+    	$result->status=($dataDetailInfo->status)>0?true : false;
     	$result->booking=$booking;
     	$result->member=$member;
     	$result->shop=$shop;
@@ -199,22 +220,24 @@ class ShopBookingResult
 	}//end public function getOenDetailInfo
 
 
-    public function memberList($data, $memberDiningCars)
+    public function memberList($data, $memberDiningCars,$dataCount,$page)
     {
-        $ret = [];
-        foreach ($data as $bookingRecord) {
+		$ret = [];
+		//$ret[]=['total'=>count($data)];
+        foreach ($data as $key => $bookingRecord) {
+			
         	//result
-        	$result = new \stdClass();
+			$result = new \stdClass();
         	$result->id=$bookingRecord->id;
         	//booking
         	$result->booking= new \stdClass();
-        	$result->booking->number=$bookingRecord->booking_number;
-        	$result->booking->date=DateHelper::chinese($bookingRecord->booking_date, '%Y/%m/%d  %A');
+			$result->booking->number=$bookingRecord->booking_number;
+			$result->booking->code=$bookingRecord->code;
+        	$result->booking->date=DateHelper::chinese($bookingRecord->booking_date, '%Y/%m/%d');
 
-        	
-        	$result->booking->time=$bookingRecord->booking_time;
+        	$result->booking->time=Carbon::parse($bookingRecord->booking_time)->format('H:i');
         	$result->booking->people=$bookingRecord->booking_people;
-        	$result->booking->status=$bookingRecord->status;
+        	$result->booking->status=($bookingRecord->status)>0?true : false;
         	//member
         	$result->member= new \stdClass();
         	$result->member->name=$bookingRecord->name;
@@ -225,13 +248,25 @@ class ShopBookingResult
         	$favoriteList=collect($memberDiningCars)->filter(function ($value, $key)  use($bookingRecord){
     			return ($value->dining_car_id== $bookingRecord->shop_id);
 			});
+			$result->shop->id=$bookingRecord->diningCar->id;
+			$result->shop->name= $bookingRecord->diningCar->name;	
 			$result->shop->isFavorite = (count($favoriteList)) > 0 ? true : false;
 			$result->shop->shareUrl = CommonHelper::getWebHost('zh-TW/shop/detail/' . $bookingRecord->shop_id);
 			$result->shop->precautions =$bookingRecord->shopLimit->precautions;
-
+			if(empty($bookingRecord->mainImg->folder)){
+				$result->shop->img='';
+			}else{
+				
+				$result->shop->img= ImageHelper::url($bookingRecord->mainImg);
+			}
+			
             $ret[] = $result;
 
-        }
-        return $ret;
+		}
+		$ans= new \stdClass();
+		$ans->total=$dataCount->count_data;
+		$ans->page= $page;
+		$ans->list=$ret;
+        return $ans;
 	}//end public	function memberList
 }//end class
