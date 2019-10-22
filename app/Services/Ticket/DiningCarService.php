@@ -61,6 +61,11 @@ class DiningCarService extends BaseService
         return $this->repository->find($id, $memberId);
     }
 
+    public function easyFind($id)
+    {
+        return $this->repository->easyFind($id);
+    }
+
     /**
      * 是否為付費餐車
      * @param $id

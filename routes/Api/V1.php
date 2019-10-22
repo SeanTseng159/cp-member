@@ -178,6 +178,14 @@ Route::middleware('cors')->namespace('V1')->group(function () {
         Route::post('{id}/questionnaire/{questionId}', 'ShopQuestionController@create')->middleware('auth.jwt');
         Route::get('{id}/questionnaire', 'ShopQuestionController@get')->middleware('auth.jwt');
 
+        //點餐相關
+        //送出預定
+        Route::post('/{shopId}/menuOrder', 'MenuOrderController@create');
+        //點餐詳細
+        Route::get('/{code}', 'MenuOrderController@detail');
+        //取消
+        Route::POST('/{code}', 'MenuOrderController@cancel');
+
     });
 
     // linepay相關
@@ -418,4 +426,13 @@ Route::middleware(['cors', 'auth.jwt'])->namespace('V1')->group(function () {
         Route::post('read', 'MemberController@readStatusChange');
     });
 
+    //點餐系列
+    Route::prefix('shop')->group(function () {
+        //點餐Qrcode
+        Route::get('menuOrder/qrcode/{menuOrderId}', 'MenuOrderController@qrcode');
+
+        //我的點餐紀錄
+        Route::get('menuOrder/member/list', 'MenuOrderController@memberList');
+
+    });
 });
