@@ -123,7 +123,6 @@ class ShopWaitingRepository extends BaseRepository
             ->where('member_id', $memberId)
             ->where('date', '>=', Carbon::now()->subDays(30))
             ->orderBy('date', 'desc')
-            ->orderBy('time', 'desc')
             ->get();
 
     }
