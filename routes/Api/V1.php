@@ -182,9 +182,9 @@ Route::middleware('cors')->namespace('V1')->group(function () {
         //送出預定
         Route::post('/{shopId}/menuOrder', 'MenuOrderController@create');
         //點餐詳細
-        Route::get('/{code}', 'MenuOrderController@detail');
+        Route::get('/menuOrder/{code}', 'MenuOrderController@detail');
         //取消
-        Route::POST('/{code}', 'MenuOrderController@cancel');
+        Route::POST('/menuOrder/{code}', 'MenuOrderController@cancel');
 
     });
 
@@ -429,10 +429,10 @@ Route::middleware(['cors', 'auth.jwt'])->namespace('V1')->group(function () {
     //點餐系列
     Route::prefix('shop')->group(function () {
         //點餐Qrcode
-        Route::get('menuOrder/qrcode/{menuOrderId}', 'MenuOrderController@qrcode');
+//        Route::get('menuOrder/qrcode/{menuOrderId}', 'MenuOrderController@qrcode');
 
         //我的點餐紀錄
-        Route::get('menuOrder/member/list', 'MenuOrderController@memberList');
+//        Route::get('menuOrder/member/list', 'MenuOrderController@memberList');
 
     });
 });

@@ -21,6 +21,16 @@ class MenuOrderService extends BaseService
 
     public function create($shopId, $menu, $payment, $cellphone, $time, $remark, $memberId = null)
     {
-        $this->repository->create($shopId, $menu, $payment, $cellphone, $time, $remark, $memberId);
+        return $this->repository->create($shopId, $menu, $payment, $cellphone, $time, $remark, $memberId);
     }
+    public function get($menuOrderId)
+    {
+        return $this->repository->get($menuOrderId);
+    }
+    public function getByCode($code)
+    {
+        return $this->repository->getByCode($code);
+    }
+
+
 }

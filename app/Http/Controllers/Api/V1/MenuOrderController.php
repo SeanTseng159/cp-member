@@ -4,6 +4,9 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Core\Logger;
 use App\Enum\WaitingStatus;
+use App\Helpers\DateHelper;
+use App\Models\Ticket\Product;
+use App\Result\MenuOrderResult;
 use App\Result\ShopWaitingResult;
 use App\Services\MenuOrderService;
 use App\Services\ShopWaitingService;
@@ -65,7 +68,7 @@ class MenuOrderController extends RestLaravelController
 
             $data = (object)$data;
 
-            $this->service->create($shopId,
+            $menuOrderId = $this->service->create($shopId,
                 $data->menu,
                 $data->payment,
                 $data->cellphone,
@@ -73,14 +76,35 @@ class MenuOrderController extends RestLaravelController
                 $data->remarks,
                 $request->memberId);
 
+            $menuOrder = $this->service->get($menuOrderId);
 
-            return $this->success(true);
+            $ret = (new MenuOrderResult)->get($menuOrder);
+            return $this->success($ret);
         } catch (\Exception $e) {
             Logger::error('MenuOrderController::create', $e->getMessage());
-            return $this->failure('E0007', $e->getMessage());
+            return $this->failure('E0001', $e->getMessage());
         }
-
-
     }
 
+    public function detail(Request $request, $code)
+    {
+        try {
+            $menuOrder = $this->service->getByCode($code);
+            if (!$menuOrder)
+                throw new \Exception('查無訂餐資料');
+
+            $ret = (new MenuOrderResult)->get($menuOrder);
+
+            return $this->success($ret);
+
+        } catch (\Exception $e) {
+            Logger::error('MenuOrderController::create', $e->getMessage());
+            return $this->failure('E0001', $e->getMessage());
+        }
+    }
+
+    public function cancel(Request $request, $code)
+    {
+
+    }
 }

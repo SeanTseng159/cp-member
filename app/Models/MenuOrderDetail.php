@@ -4,6 +4,7 @@ namespace App\Models;
 
 
 use App\Models\Ticket\BaseModel;
+use App\Models\Ticket\Menu;
 
 class MenuOrderDetail extends BaseModel
 {
@@ -13,5 +14,10 @@ class MenuOrderDetail extends BaseModel
     public function __construct()
     {
 
+    }
+
+    public function menu()
+    {
+        return $this->hasOne(Menu::class, 'id', 'menu_id');
     }
 }

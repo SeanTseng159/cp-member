@@ -76,6 +76,7 @@ class MenuOrderRepository extends BaseRepository
             }
             $this->menuOrderDetail->insert($details);
             \DB::connection('backend')->commit();
+            return $id;
 
         } catch (Exception $e) {
 
@@ -85,6 +86,19 @@ class MenuOrderRepository extends BaseRepository
         }
 
 
+    }
+
+    public function get($menuOrderID)
+    {
+        return $this->menuOrder->with('shop','details', 'details.menu','order')
+            ->where('id', $menuOrderID)
+            ->first();
+    }
+    public function getByCode($code)
+    {
+        return $this->menuOrder->with('shop','details', 'details.menu','order')
+            ->where('code', $code)
+            ->first();
     }
 
     private function getCode($menu_odre_id)
