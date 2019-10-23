@@ -98,11 +98,6 @@ class ShopResult extends DiningCarResult
         $result->memberCard = $this->getMemberCard($car->memberCard, $car->memberLevels);
         $result->acls = $this->getAcls($car, $result->level, $result->memberCard);
 
-        //添加是否線上點菜
-        $result->canOnlineOrder=($car->canOrdering)? true : false;
-        //添加是否線上付款
-        $result->canEC=(App::make(DiningCarService::class)->easyFind($car->id)->employee->supplier->canEC)?true : false;
-
         return $result;
     }
 
@@ -116,6 +111,12 @@ class ShopResult extends DiningCarResult
         $shop->canQuestionnaire=($car->canQuestionnaire && !is_null($car->currentQuestion->status)) ? true : false;
         $shop->canPointing = ($car->level == 1 && (Carbon::parse($car->expired_at)->gt(Carbon::now())))
              ? true : false;
+
+        //添加是否線上點菜
+        $shop->canOnlineOrder=($car->canOrdering)? true : false;
+        //添加是否線上付款
+        $shop->canEC=(App::make(DiningCarService::class)->easyFind($car->id)->employee->supplier->canEC)?true : false;
+
         return $shop;
     }
 

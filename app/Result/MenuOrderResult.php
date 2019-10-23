@@ -46,9 +46,9 @@ class MenuOrderResult
 
 
         $order = new \stdClass();
-        $order->id = $menuOrder->id;
+        $order->id = $menuOrder->menu_order_no;
         $order->orderDate = (new DateHelper)::format($menuOrder->created_at, 'Y-m-d');
-        $order->diningDate = (new DateHelper)::format($menuOrder->date_time, 'Y-m-d');
+        $order->diningDate = (new DateHelper)::format($menuOrder->date_time, 'Y-m-d H:i');
         $order->status = $menuOrder->status;
         $order->code = $menuOrder->code;
 //        $order->qrcode = $menuOrder->qrcode;
