@@ -8,11 +8,14 @@ namespace App\Result\Ticket;
 use App\Config\Ticket\DiningCarConfig;
 use Carbon\Carbon;
 use App\Helpers\CommonHelper;
+use App\Services\Ticket\DiningCarService;
+use App;
 class ShopResult extends DiningCarResult
 {
 
     protected function getCar($car)
     {
+
         if (!$car) return null;
         $result = new \stdClass;
         $result->id = $car->id;
@@ -39,6 +42,12 @@ class ShopResult extends DiningCarResult
             :
             '未知';
 
+        //添加是否線上點菜
+        $result->canOnlineOrder=($car->canOrdering)? true : false;
+        //添加是否線上付款
+        $result->canEC=(App::make(DiningCarService::class)->easyFind($car->id)->employee->supplier->canEC)?true : false;
+
+
         return $result;
     }
 
@@ -48,11 +57,11 @@ class ShopResult extends DiningCarResult
      */
     public function detail($car, $isFavorite = false, $lat, $lng)
     {
-        
+
         if (!$car) return null;
 
         $address=$car->county.$car->district.$car->address;
-        
+
 
         $this->lat = $lat;
         $this->lng = $lng;
@@ -89,8 +98,10 @@ class ShopResult extends DiningCarResult
         $result->memberCard = $this->getMemberCard($car->memberCard, $car->memberLevels);
         $result->acls = $this->getAcls($car, $result->level, $result->memberCard);
 
-
-        
+        //添加是否線上點菜
+        $result->canOnlineOrder=($car->canOrdering)? true : false;
+        //添加是否線上付款
+        $result->canEC=(App::make(DiningCarService::class)->easyFind($car->id)->employee->supplier->canEC)?true : false;
 
         return $result;
     }
@@ -112,7 +123,7 @@ class ShopResult extends DiningCarResult
     public function servicelist()
     {
         $result = [];
-        $dataname=['會員集點','線上訂位','現場候位'];
+        $dataname=['會員集點','線上訂位','現場候位','線上點餐'];
 
         foreach ($dataname as $id => $value)
         {
@@ -124,4 +135,21 @@ class ShopResult extends DiningCarResult
 
         return $result;
     }
+
+    public function list($cars, $lat, $lng, $memberDiningCars = null)
+    {
+        if (!$cars) return [];
+
+        $this->lat = $lat;
+        $this->lng = $lng;
+        $this->memberDiningCars = $memberDiningCars;
+
+        $newCars = [];
+        foreach ($cars as $car) {
+            $newCar = $this->getCar($car);
+            if ($newCar) $newCars[] = $newCar;
+        }
+
+        return $newCars;
+    }//end list
 }

@@ -10,6 +10,7 @@ namespace App\Models\Ticket;
 
 use App\Enum\ClientType;
 use App\Enum\WaitingStatus;
+use App\Models\Employee;
 use App\Models\Gift;
 use App\Models\ShopQuestion;
 use App\Models\ShopWaiting;
@@ -203,7 +204,7 @@ class DiningCar extends BaseModel
         return $this->hasMany(ShopWaitingRecord::class, 'dining_car_id', 'id')
             ->where('date', Carbon::now()->format('Y-m-d'))
             ->whereNull('deleted_at')
-            ->orderBy('waiting_no','desc');
+            ->orderBy('waiting_no', 'desc');
     }
 
     /**
@@ -212,10 +213,15 @@ class DiningCar extends BaseModel
     public function currentQuestion()
     {
         return $this->hasOne(ShopQuestion::class, 'dining_car_id', 'id')
-            ->where('status',1)
-            ->orderBy('id','desc')
+            ->where('status', 1)
+            ->orderBy('id', 'desc')
             ->latest();
-
     }
+
+    public function employee()
+    {
+        return $this->belongsTo(Employee::class, 'id', 'dining_car_id');
+    }
+
 
 }

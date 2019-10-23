@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 /**
  * User: lee
  * Date: 2018/03/07
