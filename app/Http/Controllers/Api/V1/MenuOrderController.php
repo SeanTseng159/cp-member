@@ -3,23 +3,16 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Core\Logger;
-use App\Enum\WaitingStatus;
-use App\Helpers\DateHelper;
-use App\Models\Ticket\Product;
 use App\Result\MenuOrderResult;
-use App\Result\ShopWaitingResult;
 use App\Services\MenuOrderService;
-use App\Services\ShopWaitingService;
 use App\Services\Ticket\DiningCarService;
-use App\Services\Ticket\MemberDiningCarService;
 use App\Traits\MemberHelper;
-use App\Traits\ShopHelper;
-use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Ksd\Mediation\Core\Controller\RestLaravelController;
 
 class MenuOrderController extends RestLaravelController
 {
+    use MemberHelper;
 
     protected $service;
     protected $diningCarService;
@@ -67,6 +60,7 @@ class MenuOrderController extends RestLaravelController
                 throw  new \Exception("[{$shop->name}]尚未提供線上購買");
 
             $data = (object)$data;
+            $memberID = $this->getMemberId();
 
             $menuOrderId = $this->service->create($shopId,
                 $data->menu,
@@ -74,7 +68,7 @@ class MenuOrderController extends RestLaravelController
                 $data->cellphone,
                 $data->time,
                 $data->remarks,
-                $request->memberId);
+                $memberID);
 
             $menuOrder = $this->service->get($menuOrderId);
 
@@ -98,13 +92,58 @@ class MenuOrderController extends RestLaravelController
             return $this->success($ret);
 
         } catch (\Exception $e) {
-            Logger::error('MenuOrderController::create', $e->getMessage());
+            Logger::error('MenuOrderController::detail', $e->getMessage());
             return $this->failure('E0001', $e->getMessage());
         }
     }
 
     public function cancel(Request $request, $code)
     {
+        try {
+            $menuOrder = $this->service->getByCode($code);
+            if (!$menuOrder)
+                throw new \Exception("查無訂餐資料");
+            $this->service->updateStatus($code, false);
+            return $this->success();
+        } catch (\Exception $e) {
+            Logger::error('MenuOrderController::cancel', $e->getMessage());
+            return $this->failure('E0001', $e->getMessage());
+        }
 
+    }
+
+    public function memberList(Request $request)
+    {
+
+        try {
+            $memberId = $request->memberId;
+
+            $menuOrderList = $this->service->memberList($memberId);
+
+            $ret = $menuOrderList->map(function ($item) {
+                return (new MenuOrderResult)->get($item, false);
+            });
+            return $this->success($ret);
+        } catch (\Exception $e) {
+            Logger::error('MenuOrderController::memberList', $e->getMessage());
+            return $this->failure('E0001', $e->getMessage());
+        }
+    }
+
+    public function getQrCode(Request $request, $orderId)
+    {
+        try {
+
+            $menuOrder = $this->service->get($orderId);
+            if (!$menuOrder || !$menuOrder->order_id)
+                throw new \Exception('查無訂餐資料');
+
+            $qrcode = $menuOrder->qrcode;
+
+            return $this->success(['code' => $qrcode]);
+        } catch (\Exception $e) {
+            Logger::error('MenuOrderController::memberList', $e->getMessage());
+            return $this->failure('E0001', $e->getMessage());
+        }
     }
 }

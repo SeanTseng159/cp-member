@@ -4,7 +4,6 @@ namespace App\Repositories;
 
 
 use App\Core\Logger;
-use App\Exceptions\CustomException;
 use App\Models\MenuOrder;
 use App\Models\MenuOrderDetail;
 use App\Models\Ticket\Menu;
@@ -12,7 +11,6 @@ use App\Repositories\Ticket\SeqMenuOrderRepository;
 use Carbon\Carbon;
 use Exception;
 use Hashids\Hashids;
-use Illuminate\Database\QueryException;
 
 class MenuOrderRepository extends BaseRepository
 {
@@ -90,15 +88,34 @@ class MenuOrderRepository extends BaseRepository
 
     public function get($menuOrderID)
     {
-        return $this->menuOrder->with('shop','details', 'details.menu','order')
+        return $this->menuOrder->with('shop', 'details', 'details.menu', 'order')
             ->where('id', $menuOrderID)
             ->first();
     }
+
     public function getByCode($code)
     {
-        return $this->menuOrder->with('shop','details', 'details.menu','order')
+        return $this->menuOrder->with('shop', 'details', 'details.menu', 'order')
             ->where('code', $code)
             ->first();
+    }
+
+    public function updateStatus($code, $status = false)
+    {
+        return $this->menuOrder
+            ->where('code', $code)
+            ->update(['status' => $status]);
+
+    }
+
+    public function memberList($memberId)
+    {
+        return $this->menuOrder->with('shop', 'details', 'details.menu', 'order')
+            ->where('member_id', $memberId)
+            ->whereBetween('created_at', [Carbon::now()->subDays(30), Carbon::now()])
+            ->orderBy('created_at', 'desc')
+            ->get();
+
     }
 
     private function getCode($menu_odre_id)
