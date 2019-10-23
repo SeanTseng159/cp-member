@@ -7,6 +7,7 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Services\MenuOrderService;
 use Illuminate\Http\Request;
 use Ksd\Mediation\Core\Controller\RestLaravelController;
 
@@ -30,15 +31,18 @@ class CheckoutController extends RestLaravelController
 
     protected $cartService;
     protected $orderService;
+    protected $menuOrderService;
     protected $paymentService;
 
     public function __construct(CartService $cartService,
+                                MenuOrderService $menuOrderService,
                                 OrderService $orderService,
                                 PaymentService $paymentService)
     {
         $this->cartService = $cartService;
         $this->orderService = $orderService;
         $this->paymentService = $paymentService;
+        $this->menuOrderService = $menuOrderService;
     }
 
     /**
@@ -74,7 +78,8 @@ class CheckoutController extends RestLaravelController
             $cart = $this->cartService->find($params->action, $params->memberId);
             $cart = unserialize($cart);
 
-            // 檢查購物車內所有狀態是否可購買
+
+            //檢查購物車內所有狀態是否可購買
             $statusCode = $this->checkCartStatus($cart, $params->memberId);
             if ($statusCode !== '00000') return $this->failureCode($statusCode);
 
@@ -136,13 +141,65 @@ class CheckoutController extends RestLaravelController
             // 處理金流
             $payParams = [
                 'memberId' => $params->memberId,
-                'orderNo' => (string) $order->order_no,
+                'orderNo' => (string)$order->order_no,
                 'payAmount' => $order->order_amount,
                 'itemsCount' => $order->order_items,
                 'device' => $params->deviceName,
                 'hasLinePayApp' => $params->hasLinePayApp
             ];
             $result = $this->paymentService->payment($params->payment, $payParams);
+
+            return $this->success($result);
+        } catch (CustomException $e) {
+            Logger::error('payment Error', $e->getMessage());
+            return $this->failureCode($e->getMessage());
+        } catch (Exception $e) {
+            Logger::error('payment Error', $e->getMessage());
+            return $this->failureCode('E9006');
+        }
+    }
+
+    /**
+     * 結帳
+     * @param $request
+     * @return mixed
+     */
+    public function menuPayment(Request $request, $menuOrderId)
+    {
+        try {
+
+            $params = (new CheckoutParameter($request))->payment();
+
+            //todo Cart from menu order no
+            $cart = $this->cartService->find($params->action, $params->memberId);
+            $cart = unserialize($cart);
+            var_dump($cart);
+
+            // 檢查購物車內所有狀態是否可購買
+            $statusCode = $this->checkCartStatus($cart, $params->memberId);
+            if ($statusCode !== '00000') return $this->failureCode($statusCode);
+
+            // 成立訂單
+            $order = $this->orderService->create($params, $cart);
+            if (!$order)
+                throw new CustomException('E9001');
+
+            // 寄送訂單成立通知信
+            dispatch(new OrderCreatedMail($params->memberId, 'ct_pass', $order->order_no))->delay(5);
+
+            // 處理金流
+            $payParams = [
+                'memberId' => $params->memberId,
+                'orderNo' => $order->order_no,
+                'payAmount' => $order->order_amount,
+                'itemsCount' => $order->order_items,
+                'device' => $params->deviceName,
+                'hasLinePayApp' => $params->hasLinePayApp
+            ];
+            $result = $this->paymentService->payment($params->payment, $payParams);
+
+            // 刪除購物車
+            $this->cartService->delete($params->action, $params->memberId);
 
             return $this->success($result);
         } catch (CustomException $e) {

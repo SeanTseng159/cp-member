@@ -2,6 +2,7 @@
 
 namespace App\Http;
 
+use App\Http\Middleware\Verify\Checkout\MenuPayment;
 use Illuminate\Foundation\Http\Kernel as HttpKernel;
 
 class Kernel extends HttpKernel
@@ -101,6 +102,7 @@ class Kernel extends HttpKernel
 
         'verify.checkout.shipment' => \App\Http\Middleware\Verify\Checkout\Shipment::class,
         'verify.checkout.payment' => \App\Http\Middleware\Verify\Checkout\Payment::class,
+        'verify.checkout.payment.menu' => MenuPayment::class,
 
         'verify.partner.join' => \App\Http\Middleware\Verify\PartnerJoin::class,
     ];

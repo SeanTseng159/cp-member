@@ -318,6 +318,10 @@ Route::middleware(['cors', 'auth.jwt'])->namespace('V1')->group(function () {
 
         // 結帳
         Route::post('payment', 'CheckoutController@payment')->middleware('verify.checkout.payment');
+
+        // 點餐單結帳
+        Route::post('payment/menu_order/{menuOrderNo}', 'CheckoutController@menuPayment')->middleware('verify.checkout.payment.menu');
+
         // 重新結帳
         Route::post('payment/repay/{orderNo}', 'CheckoutController@repay');
     });
