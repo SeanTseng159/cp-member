@@ -11,6 +11,7 @@ use App\Enum\WaitingStatus;
 use App\Helpers\CommonHelper;
 use App\Helpers\DateHelper;
 use App\Helpers\ImageHelper;
+use App\Helpers\OrderHelper;
 use App\Traits\ShopHelper;
 use Carbon\Carbon;
 
@@ -35,13 +36,13 @@ class MenuOrderResult
 
             if (array_key_exists($menu->id, $menus)) {
                 $menus[$menu->id]->quantity++;
-                $menus[$menu->id]->price += $item->menu->price;
+                $menus[$menu->id]->price += $item->price;
             } else {
                 $menu->quantity = 1;
-                $menu->price = $item->menu->price;
+                $menu->price = $item->price;
                 $menus[$menu->id] = $menu;
             }
-            $totalAmount += $item->menu->price;
+
         }
 
 
@@ -51,11 +52,10 @@ class MenuOrderResult
         $order->diningDate = (new DateHelper)::format($menuOrder->date_time, 'Y-m-d H:i');
         $order->status = $menuOrder->status;
         $order->code = $menuOrder->code;
-//        $order->qrcode = $menuOrder->qrcode;
-        $order->totalAmount = $totalAmount;
+        $order->totalAmount = $menuOrder->amount;
         $order->payment = new \stdClass();
         $order->payment->type = $menuOrder->pay_method;
-        $order->payment->status = $menuOrder->order ? $menuOrder->order->order_status : '00';
+        $order->payment->status = $menuOrder->order ? (new OrderHelper)->getMergeStatusCode($menuOrder->order->order_status) : (new OrderHelper)->getMergeStatusCode('00');
         $ret = new \stdClass();
         $ret->shop = $shop;
         $ret->order = $order;

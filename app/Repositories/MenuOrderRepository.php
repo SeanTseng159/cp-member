@@ -44,6 +44,7 @@ class MenuOrderRepository extends BaseRepository
                 throw new \Exception('請選擇同一店鋪的商品');
 
             \DB::connection('backend')->beginTransaction();
+
             $oderNo = $this->seqMenuOrderRepository->getOrderNo();
             $id = $this->menuOrder->insertGetId([
                 'member_id' => $memberId,
@@ -56,6 +57,7 @@ class MenuOrderRepository extends BaseRepository
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now(),
             ]);
+
             $this->menuOrder->where('id', $id)
                 ->update([
                     'code' => $this->getCode($id)
@@ -73,6 +75,18 @@ class MenuOrderRepository extends BaseRepository
                 }
             }
             $this->menuOrderDetail->insert($details);
+
+            //取得price 資料
+            $menuOrder = $this->get($id);
+            $total = 0;
+            foreach ($menuOrder->details as $detail) {
+                $detail->price = $detail->menu->price;
+                $detail->save();
+
+                $total += $detail->menu->price;
+            }
+            $menuOrder->amount =$total ;
+            $menuOrder->save();
             \DB::connection('backend')->commit();
             return $id;
 
@@ -90,6 +104,12 @@ class MenuOrderRepository extends BaseRepository
     {
         return $this->menuOrder->with('shop', 'details', 'details.menu', 'order')
             ->where('id', $menuOrderID)
+            ->first();
+    }
+    public function getByOrderNo($menuOrderNo)
+    {
+        return $this->menuOrder->with('shop', 'details', 'details.menu', 'order')
+            ->where('menu_order_no', $menuOrderNo)
             ->first();
     }
 
