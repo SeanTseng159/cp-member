@@ -72,6 +72,7 @@ class MenuOrderController extends RestLaravelController
 
             $menuOrder = $this->service->get($menuOrderId);
 
+
             $ret = (new MenuOrderResult)->get($menuOrder);
             return $this->success($ret);
         } catch (\Exception $e) {
@@ -121,7 +122,7 @@ class MenuOrderController extends RestLaravelController
             $menuOrderList = $this->service->memberList($memberId);
 
             $ret = $menuOrderList->map(function ($item) {
-                return (new MenuOrderResult)->get($item, false);
+                return (new MenuOrderResult)->get($item);
             });
             return $this->success($ret);
         } catch (\Exception $e) {
@@ -130,11 +131,11 @@ class MenuOrderController extends RestLaravelController
         }
     }
 
-    public function getQrCode(Request $request, $orderId)
+    public function getQrCode(Request $request, $orderNo)
     {
         try {
 
-            $menuOrder = $this->service->get($orderId);
+            $menuOrder = $this->service->getByOrderNo($orderNo);
             if (!$menuOrder || !$menuOrder->order_id)
                 throw new \Exception('查無訂餐資料');
 

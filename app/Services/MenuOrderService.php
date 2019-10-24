@@ -28,6 +28,10 @@ class MenuOrderService extends BaseService
     {
         return $this->repository->get($menuOrderId);
     }
+    public function getByOrderNo($menuOrderNo)
+    {
+        return $this->repository->getByOrderNo($menuOrderNo);
+    }
 
     public function getByCode($code)
     {

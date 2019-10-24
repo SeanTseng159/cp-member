@@ -182,7 +182,7 @@ Route::middleware('cors')->namespace('V1')->group(function () {
         Route::post('{shopId}/menuOrder', 'MenuOrderController@create');
         Route::get('menuOrder/{code}', 'MenuOrderController@detail');
         Route::POST('menuOrder/{code}', 'MenuOrderController@cancel');
-        Route::get('menuOrder/qrcode/{orderId}', 'MenuOrderController@getQrCode')->middleware('auth.jwt');
+        Route::get('menuOrder/qrcode/{orderNo}', 'MenuOrderController@getQrCode')->middleware('auth.jwt');
         Route::get('menuOrder/member/list', 'MenuOrderController@memberList')->middleware('auth.jwt');
 
 
