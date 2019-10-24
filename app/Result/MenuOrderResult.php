@@ -11,6 +11,7 @@ use App\Enum\WaitingStatus;
 use App\Helpers\CommonHelper;
 use App\Helpers\DateHelper;
 use App\Helpers\ImageHelper;
+use App\Helpers\OrderHelper;
 use App\Traits\ShopHelper;
 use Carbon\Carbon;
 
@@ -54,7 +55,7 @@ class MenuOrderResult
         $order->totalAmount = $menuOrder->amount;
         $order->payment = new \stdClass();
         $order->payment->type = $menuOrder->pay_method;
-        $order->payment->status = $menuOrder->order ? $menuOrder->order->order_status : '00';
+        $order->payment->status = $menuOrder->order ? (new OrderHelper)->getMergeStatusCode($menuOrder->order->order_status) : (new OrderHelper)->getMergeStatusCode('00');
         $ret = new \stdClass();
         $ret->shop = $shop;
         $ret->order = $order;
