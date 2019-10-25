@@ -247,7 +247,7 @@ class OrderRepository extends BaseRepository
             $detail->order_detail_id = $map[$detail->id];
             $detail->save();
         }
-        return $orderNo;
+        return [$orderNo,$order->order_id];
 
 
     }

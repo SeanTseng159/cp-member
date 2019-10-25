@@ -184,7 +184,7 @@ class CheckoutController extends RestLaravelController
                 throw new Exception("已產生訂單，請至我的訂單查閱");
 
             // 成立訂單
-            $orderNo = $this->menuOrderService->createOrder($params, $menuOrder);
+            list($orderNo, $orderId) = $this->menuOrderService->createOrder($params, $menuOrder);
 
             //寄送訂單成立通知信
             dispatch(new OrderCreatedMail($memberId, 'ct_pass', $orderNo))->delay(5);
@@ -199,9 +199,9 @@ class CheckoutController extends RestLaravelController
                 'hasLinePayApp' => $params->hasLinePayApp
             ];
             $result = $this->paymentService->payment($params->payment, $payParams);
-            return $this->success($result);
+            return $this->success(['orderNo' => $orderNo, 'orderId' => $orderId]);
         } catch (Exception $e) {
-            Logger::error('payment Error', $e->getMessage());
+            Logger::error('CheckoutController::menuPayment', $e->getMessage());
             return $this->failure('E9006', $e->getMessage());
         }
     }
