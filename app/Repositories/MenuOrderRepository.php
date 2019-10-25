@@ -8,6 +8,7 @@ use App\Models\MenuOrder;
 use App\Models\MenuOrderDetail;
 use App\Models\Ticket\Menu;
 use App\Repositories\Ticket\OrderRepository;
+use App\Repositories\Ticket\SeqMenuOrderRepository;
 use Carbon\Carbon;
 use Exception;
 use Hashids\Hashids;
@@ -24,16 +25,18 @@ class MenuOrderRepository extends BaseRepository
     protected $menuOrderDetail;
     protected $menu;
     protected $orderRepository;
+    protected $seqMenuOrderRepository;
 
 
     public function __construct(MenuOrder $model, MenuOrderDetail $menuOrderDetail, Menu $menu,
-                                OrderRepository $repository)
+                                OrderRepository $repository, SeqMenuOrderRepository $seqMenuOrderRepository)
 
 
     {
         $this->menuOrder = $model;
         $this->menuOrderDetail = $menuOrderDetail;
         $this->menu = $menu;
+        $this->seqMenuOrderRepository = $seqMenuOrderRepository;
         $this->orderRepository = $repository;
     }
 
@@ -168,8 +171,6 @@ class MenuOrderRepository extends BaseRepository
             $this->orderRepository->createByMenuOrder($params, $menuOrder);
             //儲存order_id & order_detail_id
         });
-
-
 
 
     }
