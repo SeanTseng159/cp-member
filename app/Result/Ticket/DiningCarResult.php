@@ -23,8 +23,8 @@ class DiningCarResult extends BaseResult
 
     protected $lat;
     protected $lng;
-    private $dayOfWeek;
-    private $memberDiningCars;
+    protected $dayOfWeek;
+    protected $memberDiningCars;
 
     public function __construct()
     {

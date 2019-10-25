@@ -68,7 +68,7 @@ class PaymentService
                         'orderNo' => $params['orderNo'],
                         'amount' => $params['payAmount']
                     ]);
-
+                Logger::info('atm :', $result);
                 if ($result['code'] === '00000') {
                     // 更新虛擬帳號
                     $updateResult = $this->orderRepository->updateByOrderNo($params['orderNo'], [
