@@ -201,7 +201,11 @@ class CheckoutController extends RestLaravelController
             $result = $this->paymentService->payment($params->payment, $payParams);
             return $this->success($result);
         } catch (Exception $e) {
-            Logger::error('payment Error', $e->getMessage());
+            Logger::error('CheckoutController::menuPayment', $e->getMessage());
+            $msg = $e->getMessage();
+            if ($msg[0] == 'E') {
+                return $this->failureCode($msg);
+            }
             return $this->failure('E9006', $e->getMessage());
         }
     }

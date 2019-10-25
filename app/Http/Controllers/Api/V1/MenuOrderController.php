@@ -42,6 +42,7 @@ class MenuOrderController extends RestLaravelController
                 'payment' => 'required|max:1',
                 'cellphone' => 'required',
                 'time' => 'required|date_format:Y-m-d H:i',
+                'remarks' => 'max:255'
             ]);
 
             if ($validator->fails())
@@ -71,7 +72,7 @@ class MenuOrderController extends RestLaravelController
                 $memberID);
 
             $menuOrder = $this->service->get($menuOrderId);
-
+            $this->service->sendSMS($shop->name, $menuOrder->menu_order_no, $menuOrder->code, $data->cellphone);
 
             $ret = (new MenuOrderResult)->get($menuOrder);
             return $this->success($ret);
@@ -136,8 +137,12 @@ class MenuOrderController extends RestLaravelController
         try {
 
             $menuOrder = $this->service->getByOrderNo($orderNo);
-            if (!$menuOrder || !$menuOrder->order_id)
-                throw new \Exception('查無訂餐資料');
+
+            if (!$menuOrder || !$menuOrder->order_id )
+                throw new \Exception('查無點餐資料');
+
+            if (optional($menuOrder->order)->order_status != '10' )
+                throw new \Exception('點餐單尚未完成結帳');
 
             $qrcode = $menuOrder->qrcode;
 
