@@ -4,6 +4,7 @@ namespace App\Services;
 
 
 use App\Repositories\MenuOrderRepository;
+use Ksd\SMS\Services\EasyGoService;
 
 class MenuOrderService extends BaseService
 {
@@ -56,6 +57,22 @@ class MenuOrderService extends BaseService
     public function createOrder($params, $menuOrder)
     {
         return $this->repository->createOrder($params, $menuOrder);
+    }
+
+    public function sendSMS($shopName,$menuOrderNo,$code,$cellphone){
+        try {
+            $host = env("CITY_PASS_WEB");
+            //發送簡訊
+            $easyGoService = new EasyGoService;
+            $phoneNumber = '+886' . substr($cellphone, 1, 9);
+            $web = "{$host}order/{$code}";
+            $message = "您好：您於{$shopName}點餐完成，編號{$menuOrderNo} {$web}";
+
+            return $easyGoService->send($phoneNumber, $message);
+        } catch (\Exception $e) {
+            Logger::debug($e);
+            return false;
+        }
     }
 
 }

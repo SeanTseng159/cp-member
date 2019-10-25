@@ -71,7 +71,7 @@ class MenuOrderController extends RestLaravelController
                 $memberID);
 
             $menuOrder = $this->service->get($menuOrderId);
-
+            $this->service->sendSMS($shop->name,$menuOrder->menu_order_no,$menuOrder->code,$data->cellphone);
 
             $ret = (new MenuOrderResult)->get($menuOrder);
             return $this->success($ret);
