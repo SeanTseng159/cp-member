@@ -17,6 +17,7 @@ Class OrderHelper
 
     public function getMergeStatusCode($code)
     {
+        $mergeCode = '';
         if ($code === '10') $mergeCode = '01';
         else if ($code === '00' || $code === '01') $mergeCode = '00';
         else if ($code === '23') $mergeCode = '02';

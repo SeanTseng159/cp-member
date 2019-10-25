@@ -48,4 +48,14 @@ class MenuOrderService extends BaseService
         return $this->repository->memberList($memberId);
     }
 
+    public function checkOrderProdStatus($memberId,$menuOrderNo){
+
+        return $this->repository->checkOrderProdStatus($memberId,$menuOrderNo);
+    }
+
+    public function createOrder($params, $menuOrder)
+    {
+        return $this->repository->createOrder($params, $menuOrder);
+    }
+
 }
