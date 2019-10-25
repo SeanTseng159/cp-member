@@ -151,7 +151,7 @@ class MenuOrderRepository extends BaseRepository
     {
 
         $menuOrder = $this->menuOrder
-            ->with('details.menu.prodSpecPrice.prodSpec.product')
+            ->with('shop','details.menu.prodSpecPrice.prodSpec.product')
             ->where('menu_order_no', $menuOrderNo)
             ->where('member_id', $memberId)
             ->first();
@@ -168,8 +168,7 @@ class MenuOrderRepository extends BaseRepository
     public function createOrder($params, $menuOrder)
     {
         \DB::connection('backend')->transaction(function () use ($params, $menuOrder) {
-            $this->orderRepository->createByMenuOrder($params, $menuOrder);
-            //儲存order_id & order_detail_id
+            return $this->orderRepository->createByMenuOrder($params, $menuOrder);
         });
 
 

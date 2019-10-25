@@ -26,12 +26,24 @@ class OrderService extends BaseService
 
     /**
      * 成立訂單
+     * @param $params
      * @param $cart
      * @return mixed
+     * @throws \App\Exceptions\CustomException
      */
     public function create($params, $cart)
     {
         return $this->repository->create($params, $cart);
+    }
+
+    /** 根據點餐單成立訂單
+     * @param $params
+     * @param $menuOrder
+     * @return
+     */
+    public function createByMenuOrder($params,$menuOrder)
+    {
+        return $this->repository->createByMenuOrder($params, $menuOrder);
     }
 
     /**
