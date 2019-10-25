@@ -42,6 +42,7 @@ class MenuOrderController extends RestLaravelController
                 'payment' => 'required|max:1',
                 'cellphone' => 'required',
                 'time' => 'required|date_format:Y-m-d H:i',
+                'remarks' => 'max:255'
             ]);
 
             if ($validator->fails())
@@ -71,7 +72,7 @@ class MenuOrderController extends RestLaravelController
                 $memberID);
 
             $menuOrder = $this->service->get($menuOrderId);
-            $this->service->sendSMS($shop->name,$menuOrder->menu_order_no,$menuOrder->code,$data->cellphone);
+            $this->service->sendSMS($shop->name, $menuOrder->menu_order_no, $menuOrder->code, $data->cellphone);
 
             $ret = (new MenuOrderResult)->get($menuOrder);
             return $this->success($ret);
