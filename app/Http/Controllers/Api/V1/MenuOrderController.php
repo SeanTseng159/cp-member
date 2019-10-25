@@ -137,8 +137,12 @@ class MenuOrderController extends RestLaravelController
         try {
 
             $menuOrder = $this->service->getByOrderNo($orderNo);
-            if (!$menuOrder || !$menuOrder->order_id)
-                throw new \Exception('查無訂餐資料');
+
+            if (!$menuOrder || !$menuOrder->order_id )
+                throw new \Exception('查無點餐資料');
+
+            if (optional($menuOrder->order)->order_status != '10' )
+                throw new \Exception('點餐單尚未完成結帳');
 
             $qrcode = $menuOrder->qrcode;
 

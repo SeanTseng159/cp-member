@@ -21,12 +21,6 @@ use App\Models\Ticket\Order;
 use App\Models\Ticket\OrderDiscount;
 use App\Models\Ticket\ProductSpecPrice;
 use App\Models\Ticket\PromotionProdSpecPrice;
-use App\Repositories\Ticket\OrderDetailRepository;
-use App\Repositories\Ticket\SeqOrderRepository;
-use App\Repositories\Ticket\OrderShipmentRepository;
-
-use App\Cache\Key\CheckoutKey;
-use App\Cache\Config as CacheConfig;
 
 class OrderRepository extends BaseRepository
 {
@@ -247,7 +241,7 @@ class OrderRepository extends BaseRepository
             $detail->order_detail_id = $map[$detail->id];
             $detail->save();
         }
-        return [$orderNo,$order->order_id];
+        return $orderNo;
 
 
     }

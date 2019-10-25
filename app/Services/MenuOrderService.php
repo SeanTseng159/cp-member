@@ -29,6 +29,7 @@ class MenuOrderService extends BaseService
     {
         return $this->repository->get($menuOrderId);
     }
+
     public function getByOrderNo($menuOrderNo)
     {
         return $this->repository->getByOrderNo($menuOrderNo);
@@ -49,9 +50,10 @@ class MenuOrderService extends BaseService
         return $this->repository->memberList($memberId);
     }
 
-    public function checkOrderProdStatus($memberId,$menuOrderNo){
+    public function checkOrderProdStatus($memberId, $menuOrderNo)
+    {
 
-        return $this->repository->checkOrderProdStatus($memberId,$menuOrderNo);
+        return $this->repository->checkOrderProdStatus($memberId, $menuOrderNo);
     }
 
     public function createOrder($params, $menuOrder)
@@ -59,7 +61,8 @@ class MenuOrderService extends BaseService
         return $this->repository->createOrder($params, $menuOrder);
     }
 
-    public function sendSMS($shopName,$menuOrderNo,$code,$cellphone){
+    public function sendSMS($shopName, $menuOrderNo, $code, $cellphone)
+    {
         try {
             $host = env("CITY_PASS_WEB");
             //發送簡訊
