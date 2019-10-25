@@ -69,7 +69,7 @@ class MenuOrderService extends BaseService
             $easyGoService = new EasyGoService;
             $phoneNumber = '+886' . substr($cellphone, 1, 9);
             $web = "{$host}menuOrder/{$code}";
-            $message = "您好：您於{$shopName}點餐完成，編號{$menuOrderNo} {$web}";
+            $message = "您好：您於{$shopName}點餐完成，前往 {$web} 察看";
 
             return $easyGoService->send($phoneNumber, $message);
         } catch (\Exception $e) {
