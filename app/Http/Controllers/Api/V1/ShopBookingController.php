@@ -83,8 +83,14 @@ class ShopBookingController extends RestLaravelController
             if ($validator->fails()) {
                 throw new \Exception($validator->messages());
             }
-            if ( !is_numeric($request->input('phone'))){
+            if ( !is_numeric((string)$request->input('phone'))){
                 throw new \Exception('手機要號碼純數字');
+            }
+            if ( strlen((string)$request->input('phone'))>10){
+                throw new \Exception('手機號碼超過，非手機碼');
+            }
+            if ( strlen((string)$request->input('demand'))>80){
+                throw new \Exception('要求字太多，請減少');
             }
             if ($request->input('people') <=0){
                 throw new \Exception('訂位人數要大於0');
