@@ -42,6 +42,7 @@ class MenuOrderController extends RestLaravelController
                 'payment' => 'required|max:1',
                 'cellphone' => 'required',
                 'time' => 'required|date_format:Y-m-d H:i',
+                'remarks' => 'max:255'
             ]);
 
             if ($validator->fails())
