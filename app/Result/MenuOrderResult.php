@@ -62,6 +62,7 @@ class MenuOrderResult
         $ret = new \stdClass();
         $ret->shop = $shop;
         $ret->order = $order;
+        $ret->menu = array_values($menus);
 
         return $ret;
     }
