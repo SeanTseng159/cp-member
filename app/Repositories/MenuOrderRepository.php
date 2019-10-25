@@ -149,15 +149,15 @@ class MenuOrderRepository extends BaseRepository
 
     public function checkOrderProdStatus($memberId, $menuOrderNo)
     {
-        $menuOrder = $this->menuOrder->where('menu_order_no', $menuOrderNo)->first();
-        $menuOrderDetails = $this->menuOrderDetail->select(
-            'menu_order_id',
-            'menu_id',
-            'price',
-            \DB::raw('count(menu_id) as qty'))
-            ->groupBy('menu_order_id', 'menu_id', 'price')
-            ->where('menu_order_id', $menuOrder->id)
-            ->get();
+//        $menuOrder = $this->menuOrder->where('menu_order_no', $menuOrderNo)->first();
+//        $menuOrderDetails = $this->menuOrderDetail->select(
+//            'menu_order_id',
+//            'menu_id',
+//            'price',
+//            \DB::raw('count(menu_id) as qty'))
+//            ->groupBy('menu_order_id', 'menu_id', 'price')
+//            ->where('menu_order_id', $menuOrder->id)
+//            ->get();
 
 
 //        foreach ($menuOrder->details as $detail) {
