@@ -7,6 +7,7 @@
 
 namespace App\Repositories\Ticket;
 
+use App\Services\UUID;
 use DB;
 use Illuminate\Database\QueryException;
 use Exception;
@@ -48,9 +49,10 @@ class OrderRepository extends BaseRepository
 
     /**
      * 成立訂單
+     * @param $params
      * @param $cart
-     * @param $memberId
      * @return mixed
+     * @throws CustomException
      */
     public function create($params, $cart)
     {
@@ -109,8 +111,7 @@ class OrderRepository extends BaseRepository
             if (!$result) throw new Exception('Create Order Details Error');
 
             //建立訂單折扣紀錄
-            if(!empty($cart->DiscountCode))
-            {
+            if (!empty($cart->DiscountCode)) {
                 $orderDiscount = new OrderDiscount;
                 $orderDiscount->order_no = $orderNo;
                 $orderDiscount->discount_id = $cart->DiscountCode->id;
@@ -130,8 +131,7 @@ class OrderRepository extends BaseRepository
                 if ($stock > 0) {
                     $psp->prod_spec_price_stock = $stock;
                     $psp->save();
-                }
-                else {
+                } else {
                     throw new CustomException('E9011');
                     break;
                 }
@@ -145,8 +145,7 @@ class OrderRepository extends BaseRepository
                 if ($stock > 0) {
                     $ppsp->stock = $stock;
                     $ppsp->save();
-                }
-                else {
+                } else {
                     throw new CustomException('E9011');
                     break;
                 }
@@ -188,10 +187,69 @@ class OrderRepository extends BaseRepository
 
         try {
             return $this->model->where('order_no', $orderNo)
-                                ->update($data);
+                ->update($data);
         } catch (QueryException $e) {
             return false;
         }
+    }
+
+    public function createByMenuOrder($params, &$menuOrder)
+    {
+        $orderNo = $this->seqOrderRepository->getOrderNo();
+
+        $order = new Order;
+        $order->member_id = $menuOrder->member_id;
+        $order->order_no = $orderNo;
+        $order->order_source = $params->device;
+        $order->order_payment_gateway = $params->payment['gateway'];
+        $order->order_payment_method = $params->payment['method'];
+        $order->order_shipment_method = 1;
+
+        $order->order_receipt_method = 1;
+        $order->order_items = $menuOrder->details()->count();
+        $order->order_shipment_fee = 0;
+        $order->order_off = 0;
+        $order->order_amount = $menuOrder->amount;
+
+        $order->order_status = 0;
+        $order->order_receipt_title = $params->billing['invoiceTitle'] ?? '';
+        $order->order_receipt_ubn = $params->billing['unifiedBusinessNo'] ?? '';
+
+        if ($params->payment['method'] === '111') {
+            // 初始化加密 (加密信用卡)
+            $encryption = new CI_Encryption(['driver' => 'openssl']);
+
+            $order->order_credit_card_number = $encryption->encrypt($params->payment['creditCardNumber']);
+            $order->order_credit_card_expire = $encryption->encrypt($params->payment['creditCardYear'] . $params->payment['creditCardMonth']);
+            $order->order_credit_card_verify = $encryption->encrypt($params->payment['creditCardCode']);
+        }
+
+        $order->created_at = date('Y-m-d H:i:s');
+        $order->modified_at = date('Y-m-d H:i:s');
+        $order->save();
+
+        $menuOrder->order_id = $order->order_id;
+        $menuOrder->qrcode = (new UUID())->setCreate()->getToString();
+        $menuOrder->save();
+
+        $prods = [];
+        foreach ($menuOrder->details as $detail) {
+            $prod = $detail->menu->prodSpecPrice->prodSpec->product;
+            $prod->spec = $detail->menu->prodSpecPrice->prodSpec;
+            $prod->specPrice = $detail->menu->prodSpecPrice;
+            $prod->shop = $menuOrder->shop;
+            $prods[$detail->id] = $prod;
+        }
+
+        $map = $this->orderDetailRepository->createDetailsByMenuOrder($menuOrder->member_id, $orderNo, $params->payment['gateway'], $prods);
+
+        foreach ($menuOrder->details as $detail) {
+            $detail->order_detail_id = $map[$detail->id];
+            $detail->save();
+        }
+        return $orderNo;
+
+
     }
 
     /**
@@ -272,9 +330,9 @@ class OrderRepository extends BaseRepository
 
         try {
             return $this->model->where('order_id', $id)
-                                ->update([
-                                    'order_recipient_status' => $status
-                                ]);
+                ->update([
+                    'order_recipient_status' => $status
+                ]);
         } catch (QueryException $e) {
             return false;
         }
@@ -290,9 +348,9 @@ class OrderRepository extends BaseRepository
         if (!$orderNo) return null;
 
         return $this->model->with(['details.combo', 'shipment'])
-                            ->notDeleted()
-                            ->where('order_no', $orderNo)
-                            ->first();
+            ->notDeleted()
+            ->where('order_no', $orderNo)
+            ->first();
     }
 
     /**
@@ -305,12 +363,12 @@ class OrderRepository extends BaseRepository
     {
         if (!$orderNo) return null;
 
-        $order = $this->model->with(['details.combo', 'shipment','discountCode'])
-                            ->notDeleted()
-                            ->where('member_id', $memberId)
-                            ->where('order_no', $orderNo)
-                            ->where('order_status', '!=', 2)
-                            ->first();
+        $order = $this->model->with(['details.combo', 'shipment', 'discountCode'])
+            ->notDeleted()
+            ->where('member_id', $memberId)
+            ->where('order_no', $orderNo)
+            ->where('order_status', '!=', 2)
+            ->first();
 
         return $order;
     }
@@ -325,8 +383,8 @@ class OrderRepository extends BaseRepository
         if (!$orderNo) return null;
 
         return $this->model->where('order_no', $orderNo)
-                            ->where('order_status', 0)
-                            ->first();
+            ->where('order_status', 0)
+            ->first();
     }
 
     /**
@@ -337,52 +395,45 @@ class OrderRepository extends BaseRepository
     public function getMemberOrdersByDate($params = [])
     {
         $orders = $this->model->with(['details', 'shipment'])
-                            ->notDeleted()
-                            ->where('member_id', $params['memberId'])
-                            ->where(function($query) use ($params) {
-                                if ($params['status'] === '99') {
-                                    // 全部
-                                    $query->where('order_status', '!=', 2);
-                                }
-                                elseif ($params['status'] === '00') {
-                                    // 待付款, 重新付款
-                                    $query->where('order_status', 0);
-                                }
-                                elseif ($params['status'] === '01') {
-                                    // 已完成
-                                    $query->where('order_status', 10);
-                                }
-                                elseif ($params['status'] === '02') {
-                                    // 部分退款
-                                    $query->where('order_status', 23);
-                                }
-                                elseif ($params['status'] === '03') {
-                                    // 已退貨
-                                    $query->where('order_status', 24);
-                                }
-                                elseif ($params['status'] === '04') {
-                                    // 處理中 [退貨申請,退貨處理中,處理完成]
-                                    $query->whereIn('order_status', [20, 21, 22]);
-                                }
-                                elseif ($params['status'] === '08') {
-                                    // 已取消
-                                    $query->where('order_status', 2);
-                                }
-                                else {
-                                    $query->where('order_status', null);
-                                }
-                            })
-                            ->when($params['startDate'], function($query) use ($params) {
-                                $query->where('created_at', '>=', $params['startDate']);
-                            })
-                            ->when($params['endDate'], function($query) use ($params) {
-                                $query->where('created_at', '<=', $params['endDate']);
-                            })
-                            ->when($params['orderNo'], function($query) use ($params) {
-                                $query->where('order_no', $params['orderNo']);
-                            })
-                            ->orderBy('created_at', 'desc')
-                            ->get();
+            ->notDeleted()
+            ->where('member_id', $params['memberId'])
+            ->where(function ($query) use ($params) {
+                if ($params['status'] === '99') {
+                    // 全部
+                    $query->where('order_status', '!=', 2);
+                } elseif ($params['status'] === '00') {
+                    // 待付款, 重新付款
+                    $query->where('order_status', 0);
+                } elseif ($params['status'] === '01') {
+                    // 已完成
+                    $query->where('order_status', 10);
+                } elseif ($params['status'] === '02') {
+                    // 部分退款
+                    $query->where('order_status', 23);
+                } elseif ($params['status'] === '03') {
+                    // 已退貨
+                    $query->where('order_status', 24);
+                } elseif ($params['status'] === '04') {
+                    // 處理中 [退貨申請,退貨處理中,處理完成]
+                    $query->whereIn('order_status', [20, 21, 22]);
+                } elseif ($params['status'] === '08') {
+                    // 已取消
+                    $query->where('order_status', 2);
+                } else {
+                    $query->where('order_status', null);
+                }
+            })
+            ->when($params['startDate'], function ($query) use ($params) {
+                $query->where('created_at', '>=', $params['startDate']);
+            })
+            ->when($params['endDate'], function ($query) use ($params) {
+                $query->where('created_at', '<=', $params['endDate']);
+            })
+            ->when($params['orderNo'], function ($query) use ($params) {
+                $query->where('order_no', $params['orderNo']);
+            })
+            ->orderBy('created_at', 'desc')
+            ->get();
 
         return $orders;
     }
@@ -395,28 +446,28 @@ class OrderRepository extends BaseRepository
      * @param $shipmentStatus [運送狀態]
      * @return mixed
      */
-    public function getOrdersByRecipientStatus($status = 99, $recipientStatus = 99, $shipmentMethod, $shipmentStatus = 99)
+    public function getOrdersByRecipientStatus($status = 99, $recipientStatus = 99, $shipmentMethod,
+                                               $shipmentStatus = 99)
     {
         if ($shipmentMethod === 2) {
             // 實體商品
             $orders = $this->model->with(['detail', 'detail.productSpecPrice'])
-                                    ->notDeleted()
-                                    ->whereHas('shipment', function($query) use ($shipmentStatus) {
-                                        $query->where('status', $shipmentStatus);
-                                    })
-                                    ->where('order_shipment_method', $shipmentMethod)
-                                    ->where('order_status', $status)
-                                    ->where('order_recipient_status', $recipientStatus)
-                                    ->get();
-        }
-        else {
+                ->notDeleted()
+                ->whereHas('shipment', function ($query) use ($shipmentStatus) {
+                    $query->where('status', $shipmentStatus);
+                })
+                ->where('order_shipment_method', $shipmentMethod)
+                ->where('order_status', $status)
+                ->where('order_recipient_status', $recipientStatus)
+                ->get();
+        } else {
             // 票券商品
             $orders = $this->model->with(['detail', 'detail.productSpecPrice'])
-                                    ->notDeleted()
-                                    ->where('order_shipment_method', $shipmentMethod)
-                                    ->where('order_status', $status)
-                                    ->where('order_recipient_status', $recipientStatus)
-                                    ->get();
+                ->notDeleted()
+                ->where('order_shipment_method', $shipmentMethod)
+                ->where('order_status', $status)
+                ->where('order_recipient_status', $recipientStatus)
+                ->get();
         }
 
         return $orders;
@@ -433,21 +484,21 @@ class OrderRepository extends BaseRepository
         $endTime = date('Y-m-d H:45:00');
 
         return $this->model->select([
-                            'orders.order_id',
-                            'orders.member_id',
-                            'menus.dining_car_id',
-                            DB::raw('SUM(order_details.price_off) as total_amount')
-                        ])
-                        ->rightJoin('order_details', 'orders.order_no', '=', 'order_details.order_no')
-                        ->rightJoin('menus', 'order_details.prod_spec_price_id', '=', 'menus.prod_spec_price_id')
-                        ->rightJoin('dining_cars', 'menus.dining_car_id', '=', 'dining_cars.id')
-                        ->where('orders.order_status', 10)
-                        ->where('orders.order_paid_at', '>=', $startTime)
-                        ->where('orders.order_paid_at', '<', $endTime)
-                        ->whereIn('order_details.prod_type', [1, 2])
-                        ->where('dining_cars.level', '>', 0)
-                        ->where('dining_cars.expired_at', '>=', $now)
-                        ->groupBy('orders.order_id', 'dining_cars.id')
-                        ->get();
+            'orders.order_id',
+            'orders.member_id',
+            'menus.dining_car_id',
+            DB::raw('SUM(order_details.price_off) as total_amount')
+        ])
+            ->rightJoin('order_details', 'orders.order_no', '=', 'order_details.order_no')
+            ->rightJoin('menus', 'order_details.prod_spec_price_id', '=', 'menus.prod_spec_price_id')
+            ->rightJoin('dining_cars', 'menus.dining_car_id', '=', 'dining_cars.id')
+            ->where('orders.order_status', 10)
+            ->where('orders.order_paid_at', '>=', $startTime)
+            ->where('orders.order_paid_at', '<', $endTime)
+            ->whereIn('order_details.prod_type', [1, 2])
+            ->where('dining_cars.level', '>', 0)
+            ->where('dining_cars.expired_at', '>=', $now)
+            ->groupBy('orders.order_id', 'dining_cars.id')
+            ->get();
     }
 }
