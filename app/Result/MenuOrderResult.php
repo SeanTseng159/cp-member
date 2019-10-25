@@ -28,11 +28,11 @@ class MenuOrderResult
 
         $details = $menuOrder->details;
         $menus = [];
-        $totalAmount = 0;
         foreach ($details as $item) {
             $menu = new \stdClass();
             $menu->id = $item->menu_id;
             $menu->name = $item->menu->name;
+            $menu->img = ImageHelper::url($item->menu->imgs->first());
 
             if (array_key_exists($menu->id, $menus)) {
                 $menus[$menu->id]->quantity++;
@@ -53,6 +53,7 @@ class MenuOrderResult
         $order->status = $menuOrder->status;
         $order->code = $menuOrder->code;
         $order->totalAmount = $menuOrder->amount;
+        $order->totalQuantity = count($details);
         $order->payment = new \stdClass();
         $order->payment->type = $menuOrder->pay_method;
         $order->payment->status = $menuOrder->order ? (new OrderHelper)->getMergeStatusCode($menuOrder->order->order_status) : (new OrderHelper)->getMergeStatusCode('00');

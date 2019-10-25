@@ -7,10 +7,11 @@ use App\Core\Logger;
 use App\Models\MenuOrder;
 use App\Models\MenuOrderDetail;
 use App\Models\Ticket\Menu;
-use App\Repositories\Ticket\SeqMenuOrderRepository;
+use App\Repositories\Ticket\OrderRepository;
 use Carbon\Carbon;
 use Exception;
 use Hashids\Hashids;
+
 
 class MenuOrderRepository extends BaseRepository
 {
@@ -22,17 +23,20 @@ class MenuOrderRepository extends BaseRepository
     protected $menuOrder;
     protected $menuOrderDetail;
     protected $menu;
-    protected $seqMenuOrderRepository;
+    protected $orderRepository;
 
-    public function __construct(MenuOrder $model, MenuOrderDetail $menuOrderDetail,
-                                Menu $menu,
-                                SeqMenuOrderRepository $seqMenuOrderRepository)
+
+    public function __construct(MenuOrder $model, MenuOrderDetail $menuOrderDetail, Menu $menu,
+                                OrderRepository $repository)
+
+
     {
         $this->menuOrder = $model;
         $this->menuOrderDetail = $menuOrderDetail;
         $this->menu = $menu;
-        $this->seqMenuOrderRepository = $seqMenuOrderRepository;
+        $this->orderRepository = $repository;
     }
+
 
     public function create($shopId, $menu, $payment, $cellphone, $time, $remark, $memberId = null)
     {
@@ -40,6 +44,7 @@ class MenuOrderRepository extends BaseRepository
 
             $menuIds = array_column($menu, 'id');
             $count = $this->menu->where('dining_car_id', $shopId)->whereIn('id', $menuIds)->count();
+
             if ($count != count($menuIds))
                 throw new \Exception('請選擇同一店鋪的商品');
 
@@ -85,7 +90,7 @@ class MenuOrderRepository extends BaseRepository
 
                 $total += $detail->menu->price;
             }
-            $menuOrder->amount =$total ;
+            $menuOrder->amount = $total;
             $menuOrder->save();
             \DB::connection('backend')->commit();
             return $id;
@@ -106,6 +111,7 @@ class MenuOrderRepository extends BaseRepository
             ->where('id', $menuOrderID)
             ->first();
     }
+
     public function getByOrderNo($menuOrderNo)
     {
         return $this->menuOrder->with('shop', 'details', 'details.menu', 'order')
@@ -115,7 +121,7 @@ class MenuOrderRepository extends BaseRepository
 
     public function getByCode($code)
     {
-        return $this->menuOrder->with('shop', 'details', 'details.menu', 'order')
+        return $this->menuOrder->with('shop', 'details.menu.imgs', 'order')
             ->where('code', $code)
             ->first();
     }
@@ -138,9 +144,41 @@ class MenuOrderRepository extends BaseRepository
 
     }
 
+    public function checkOrderProdStatus($memberId, $menuOrderNo)
+    {
+
+        $menuOrder = $this->menuOrder
+            ->with('details.menu.prodSpecPrice.prodSpec.product')
+            ->where('menu_order_no', $menuOrderNo)
+            ->where('member_id', $memberId)
+            ->first();
+
+
+        if (!$menuOrder)
+            throw new Exception("點餐單號錯誤");
+
+        //todo check
+
+        return $menuOrder;
+    }
+
+    public function createOrder($params, $menuOrder)
+    {
+        \DB::connection('backend')->transaction(function () use ($params, $menuOrder) {
+            $this->orderRepository->createByMenuOrder($params, $menuOrder);
+            //儲存order_id & order_detail_id
+        });
+
+
+
+
+    }
+
     private function getCode($menu_odre_id)
     {
         $hashids = new Hashids('citypass_menu_order', 7);
         return $hashids->encode($menu_odre_id);
     }
+
+
 }
