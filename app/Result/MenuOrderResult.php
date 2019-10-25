@@ -20,7 +20,7 @@ class MenuOrderResult
 {
 
 
-    public function get($menuOrder, $isShowMenu = true)
+    public function get($menuOrder)
     {
         $shop = new \stdClass();
         $shop->id = $menuOrder->shop->id;
@@ -52,6 +52,8 @@ class MenuOrderResult
         $order->diningDate = (new DateHelper)::format($menuOrder->date_time, 'Y-m-d H:i');
         $order->status = $menuOrder->status;
         $order->code = $menuOrder->code;
+        if(optional($menuOrder->order)->order_status=='10')
+            $order->qrcode = $menuOrder->qrcode;
         $order->totalAmount = $menuOrder->amount;
         $order->totalQuantity = count($details);
         $order->payment = new \stdClass();
@@ -60,10 +62,6 @@ class MenuOrderResult
         $ret = new \stdClass();
         $ret->shop = $shop;
         $ret->order = $order;
-        if ($isShowMenu) {
-            $ret->menu = array_values($menus);
-        }
-
 
         return $ret;
     }
