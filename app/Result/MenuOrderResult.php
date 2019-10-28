@@ -76,7 +76,10 @@ class MenuOrderResult
             $ret = '09';
         } else {
             if ($menuOrder->order) {
-                $ret = $orderHelper->getMergeStatusCode($menuOrder->order->order_status);
+                $status = str_pad($menuOrder->order->order_status, 2, '0', STR_PAD_LEFT);
+                $ret = $orderHelper->getMergeStatusCode($status);
+                if ($ret == '00')
+                    $ret = '07';
             }
         }
         return $ret;

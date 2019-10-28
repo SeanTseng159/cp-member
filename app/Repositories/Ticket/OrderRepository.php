@@ -7,6 +7,8 @@
 
 namespace App\Repositories\Ticket;
 
+use App\Models\MenuOrderDetail;
+use App\Repositories\MenuOrderRepository;
 use App\Services\UUID;
 use DB;
 use Illuminate\Database\QueryException;
@@ -187,8 +189,73 @@ class OrderRepository extends BaseRepository
         }
     }
 
+    /**
+     * @param $memberId
+     * @param $menuOrder
+     * @param bool $isUpdateStock
+     * @throws Exception
+     */
+    private function checkProdAndUpdate($memberId, $menuOrder, $isUpdateStock = false)
+    {
+        $menuOrderDetails = (new MenuOrderDetail())->select(
+            'menu_order_id',
+            'menu_id',
+            'price',
+            \DB::raw('count(menu_id) as qty'))
+            ->groupBy('menu_order_id', 'menu_id', 'price')
+            ->where('menu_order_id', $menuOrder->id)
+            ->get();
+
+        foreach ($menuOrder->details as $detail) {
+            $menu = $detail->menu;
+            $name = $menu->name;
+            $prodSpecPrice = optional($menu->prodSpecPrice);
+            $prodSpec = optional($prodSpecPrice->prodSpec);
+            $product = optional($prodSpec->product);
+            if (is_null($prodSpecPrice) || is_null($prodSpec) || is_null($product))
+                throw new Exception("[$name]無法線上付款");
+
+            //檢查限購數量
+            $menuId = $menu->id;
+            $limit = $product->prod_limit_num;
+            $details = collect($menuOrderDetails)->filter(function ($item) use ($menuId, $limit) {
+                return $item->menu_id == $menuId && $item->qty <= $limit;
+            });
+
+            $buyQuantity = $details->count();
+
+            // 檢查是否有庫存
+            if ($prodSpecPrice->prod_spec_price_stock <= 0 || $prodSpecPrice->prod_spec_price_stock < $buyQuantity) {
+                throw new Exception('E9011');
+            }
+            //檢查可購買數量
+            if ($product->prod_type === 1 || $product->prod_type === 2) {
+                if ($product->prod_limit_type == 0) {
+                    if ($buyQuantity > $product->prod_limit_num)
+                        throw new Exception("[$name]商品超過可購買數量，無法線上付款");
+                } else {
+                    $memberBuyQuantity = $this->orderDetailRepository->getCountByProdAndMember($product->product_id, $memberId);
+                    if (($buyQuantity + $memberBuyQuantity) > $product->prod_limit_num)
+                        throw new Exception("[$name]商品超過可購買數量，無法線上付款");
+                }
+            } elseif ($product->prod_type === 3) {
+                if ($buyQuantity > $product->prod_plus_limit)
+                    throw new Exception('E9012');
+            }
+
+            if ($isUpdateStock) {
+                $prodSpecPrice->prod_spec_price_stock -= $buyQuantity;
+                $prodSpecPrice->save();
+            }
+
+
+        }
+    }
+
     public function createByMenuOrder($params, &$menuOrder)
     {
+        $this->checkProdAndUpdate($menuOrder->member_id, $menuOrder, true);
+
         $orderNo = $this->seqOrderRepository->getOrderNo();
 
         $order = new Order;

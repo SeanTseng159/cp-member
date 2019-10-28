@@ -116,6 +116,8 @@ class ShopWaitingController extends RestLaravelController
 
             $memberID = $this->getMemberId();
             $record = $this->service->create($shopId, $name, $number, $cellphone, $memberID);
+            if(!$record)
+                throw new \Exception('候位失敗，請重新輸入');
 
             $host = env("CITY_PASS_WEB");
             $shopName = $waiting->name;
@@ -141,7 +143,7 @@ class ShopWaitingController extends RestLaravelController
             return $this->success($data);
         } catch (\Exception $e) {
             Logger::error('ShopWaitingController::create', $e->getMessage());
-            return $this->responseFormat($data = null, $code = 'E0001', $message = $e->getMessage());
+            return $this->failure('E0001',$e->getMessage());
         }
 
     }
