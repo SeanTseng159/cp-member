@@ -20,7 +20,7 @@ class ShopBookingRepository extends BaseRepository
     protected $diningCarBookingLimit;
     protected $diningCarBookingTimes;
     protected $limit;
-    
+
 
     public function __construct(DiningCarBookingDetail $diningCarBookingDetail,DiningCarBookingLimit $diningCarBookingLimit,DiningCarBookingTimes $diningCarBookingTimes)
     {
@@ -58,7 +58,7 @@ class ShopBookingRepository extends BaseRepository
                         ->where('status', 1)
                         ->get();
     }
-        
+
 
     /**
      * 找出可訂位的詳細表
@@ -75,14 +75,14 @@ class ShopBookingRepository extends BaseRepository
                     ->orderBy('time','asc')
                     ->get();
     }
-                        
+
     /**
     *找出某日期時間有訂位，status檢查是否有被取消，還可以再訂位
     *
     */
     public function findBookedDateTime($id=0,$date,$time)
     {
-        
+
         return $this->diningCarBookingDetail
                         ->select(\DB::raw('sum(booking_people) as sum_people'),'booking_date','booking_time')
                         ->where('shop_id', $id)
@@ -91,7 +91,7 @@ class ShopBookingRepository extends BaseRepository
                         ->groupBy('booking_date','booking_time')
                         ->where('status', 1)
                         ->first();
-    }                    
+    }
     /**
      * 找出某日期時間相關限制
      */
@@ -143,8 +143,8 @@ class ShopBookingRepository extends BaseRepository
                     ->with(['shopInfo','mainImg'])
                     ->where('shop_id', $id)
                     ->first();
-    }  
-    
+    }
+
 
     /**
      * 將訂位資料寫入DB
@@ -199,7 +199,7 @@ class ShopBookingRepository extends BaseRepository
                     ->where('shop_id',$shopid)
                     ->where('code',$code)
                     ->update(['status' => 0,'editor'=>1]);
-                    
+
 
     }//end  function cancel
 
@@ -209,8 +209,8 @@ class ShopBookingRepository extends BaseRepository
      */
     public function getMemberList($memberId,$page)
     {
-    
-        $limit=5;
+
+        $limit=20;
         $findDays = Carbon::today()->modify('-30 days');
         $data= $this->diningCarBookingDetail
                     ->with(['shopLimit','diningCar','mainImg'])
