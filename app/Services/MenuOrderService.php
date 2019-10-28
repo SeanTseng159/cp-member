@@ -45,9 +45,13 @@ class MenuOrderService extends BaseService
         return $this->repository->updateStatus($code, $status);
     }
 
-    public function memberList($memberId)
+    public function memberList($memberId,$page)
     {
-        return $this->repository->memberList($memberId);
+        return $this->repository->memberList($memberId,$page);
+    }
+    public function getPageInfo($memberId)
+    {
+        return $this->repository->getPageInfo($memberId);
     }
 
     public function checkOrderProdStatus($memberId, $menuOrderNo)
@@ -69,7 +73,7 @@ class MenuOrderService extends BaseService
             $easyGoService = new EasyGoService;
             $phoneNumber = '+886' . substr($cellphone, 1, 9);
             $web = "{$host}menuOrder/{$code}";
-            $message = "您好：您於{$shopName}點餐完成，前往 {$web} 察看";
+            $message = "您好：您於{$shopName}點餐完成，前往 {$web} 查看";
 
             return $easyGoService->send($phoneNumber, $message);
         } catch (\Exception $e) {

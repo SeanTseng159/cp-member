@@ -26,6 +26,7 @@ class MenuOrderRepository extends BaseRepository
     protected $menu;
     protected $orderRepository;
     protected $seqMenuOrderRepository;
+    protected $limit = 20;
 
 
     public function __construct(MenuOrder $model, MenuOrderDetail $menuOrderDetail, Menu $menu,
@@ -137,15 +138,26 @@ class MenuOrderRepository extends BaseRepository
 
     }
 
-    public function memberList($memberId)
+    public function memberList($memberId, $page)
     {
         return $this->menuOrder->with('shop', 'details', 'details.menu', 'order')
             ->where('member_id', $memberId)
             ->whereBetween('created_at', [Carbon::now()->subDays(30), Carbon::now()])
             ->orderBy('created_at', 'desc')
+            ->forPage($page, $this->limit)
             ->get();
-
     }
+
+    public function getPageInfo($memberId)
+    {
+        $count = $this->menuOrder
+            ->where('member_id', $memberId)
+            ->whereBetween('created_at', [Carbon::now()->subDays(30), Carbon::now()])
+            ->count();
+        $totalPage = ceil($count / $this->limit);
+        return[$count,$totalPage];
+    }
+
 
     public function checkOrderProdStatus($memberId, $menuOrderNo)
     {

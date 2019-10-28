@@ -105,6 +105,9 @@ class MenuOrderController extends RestLaravelController
             $menuOrder = $this->service->getByCode($code);
             if (!$menuOrder)
                 throw new \Exception("查無訂餐資料");
+            if (optional($menuOrder->order)->order_status == '10')
+                throw new \Exception("已完成線上付款，無法取消");
+
             $this->service->updateStatus($code, false);
             return $this->success();
         } catch (\Exception $e) {
@@ -119,13 +122,21 @@ class MenuOrderController extends RestLaravelController
 
         try {
             $memberId = $request->memberId;
+            $page = $request['page'] ?? 1;
 
-            $menuOrderList = $this->service->memberList($memberId);
+            $menuOrderList = $this->service->memberList($memberId, $page);
+            list($count, $totalPage) = $this->service->getPageInfo($memberId);
 
-            $ret = $menuOrderList->map(function ($item) {
+            $data = $menuOrderList->map(function ($item) {
                 return (new MenuOrderResult)->get($item);
             });
+
+            $ret = new \stdClass();
+            $ret->total = $count;
+            $ret->page = $totalPage;
+            $ret->data = $data;
             return $this->success($ret);
+            
         } catch (\Exception $e) {
             Logger::error('MenuOrderController::memberList', $e->getMessage());
             return $this->failure('E0001', $e->getMessage());
@@ -138,11 +149,11 @@ class MenuOrderController extends RestLaravelController
 
             $menuOrder = $this->service->getByOrderNo($orderNo);
 
-            if (!$menuOrder || !$menuOrder->order_id )
+            if (!$menuOrder || !$menuOrder->order_id)
                 throw new \Exception('查無點餐資料');
 
-            if (optional($menuOrder->order)->order_status != '10' )
-                throw new \Exception('點餐單尚未完成結帳');
+            if (optional($menuOrder->order)->order_status != '10')
+                throw new \Exception('點餐單尚未完成線上付款流程');
 
             $qrcode = $menuOrder->qrcode;
 
