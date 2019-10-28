@@ -7,7 +7,7 @@
 
 namespace App\Models\Ticket;
 
-use App\Models\Ticket\BaseModel;
+
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Menu extends BaseModel
@@ -45,7 +45,7 @@ class Menu extends BaseModel
      */
     public function prodSpecPrice()
     {
-        return $this->hasOne('App\Models\Ticket\ProductSpecPrice', 'prod_spec_price_id', 'prod_spec_price_id')->notDeleted();
+        return $this->hasOne(ProductSpecPrice::class, 'prod_spec_price_id', 'prod_spec_price_id')->notDeleted();
     }
 
     /**
@@ -55,4 +55,7 @@ class Menu extends BaseModel
     {
         return $this->belongsTo('App\Models\Ticket\DiningCar');
     }
+
+
+
 }

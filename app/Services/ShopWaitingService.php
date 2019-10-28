@@ -8,6 +8,7 @@ namespace App\Services;
 
 use App\Core\Logger;
 use App\Repositories\ShopWaitingRepository;
+use Carbon\Carbon;
 use Ksd\SMS\Services\EasyGoService;
 
 
@@ -77,9 +78,14 @@ class ShopWaitingService extends BaseService
         return $this->repository->getWaitingNumber($shopId, $waitingNo);
     }
 
-    public function getMemberList($memberId)
+    public function getMemberList($memberId, $page)
     {
-        return $this->repository->getMemberList($memberId);
+        return $this->repository->getMemberList($memberId, $page);
+    }
+
+    public function getMemberListPageCount($memberId)
+    {
+        return $this->repository->getMemberListPageCount($memberId);
     }
 
     public function decode($code)

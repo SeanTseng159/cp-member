@@ -58,7 +58,7 @@ class ShopWaitingRepository extends BaseRepository
                     'waiting_no' => ++$maxNo,
                     'member_id' => $memberId,
                     'date' => (Carbon::now())->format('Y-m-d'),
-                    'time' => (Carbon::now())->format('H:i:s'),
+//                    'time' => (Carbon::now())->format('H:i:s'),
                     'name' => $name,
                     'cellphone' => $cellphone,
                     'number' => $number,
@@ -117,14 +117,22 @@ class ShopWaitingRepository extends BaseRepository
             ->count();
     }
 
-    public function getMemberList($memberId)
+    public function getMemberList($memberId, $page = 1)
     {
-        return $this->waitingRecord->with('shop','shop.category','shop.subCategory','shop.mainImg')
+        return $this->waitingRecord->with('shop', 'shop.category', 'shop.subCategory', 'shop.mainImg')
             ->where('member_id', $memberId)
             ->where('date', '>=', Carbon::now()->subDays(30))
             ->orderBy('date', 'desc')
+            ->forPage($page, $this->limit)
             ->get();
-
+    }
+    public function getMemberListPageCount($memberId){
+        $total = $this->waitingRecord
+            ->where('member_id', $memberId)
+            ->where('date', '>=', Carbon::now()->subDays(30))
+            ->count();
+        $totalPage = ceil($total/$this->limit);
+        return [$total,$totalPage];
     }
 
     public function decode($code)

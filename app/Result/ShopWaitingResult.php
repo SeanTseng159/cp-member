@@ -47,10 +47,13 @@ class ShopWaitingResult
         return $result;
     }
 
-    public function memberList($data, $memberDiningCars)
+    public function memberList($data, $memberDiningCars, $totlaPage, $total)
     {
+        $ret = new \stdClass();
+        $ret->total = $total;
+        $ret->page = $totlaPage;
 
-        $ret = [];
+        $list = [];
         foreach ($data as $waitingRecord) {
             $result = new \stdClass;
             //shop
@@ -83,9 +86,11 @@ class ShopWaitingResult
             $result->time = Carbon::parse($waitingRecord->time)->format('H:i');
             $result->waitingNo = $this->getWaitNoString($waitingRecord->waiting_no);
             $result->code = $waitingRecord->code;
-            $ret[] = $result;
+            $list[] = $result;
 
         }
+
+        $ret->data = $list;
         return $ret;
     }
 

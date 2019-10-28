@@ -53,6 +53,7 @@ class DiningCarMemberResult extends BaseResult
         $result->categories = $this->getCategories($memberCar->diningCar->category, $memberCar->diningCar->subCategory);
         $result->memberCard = $this->getMemberCard($memberCar);
         $result->questionnaire = ($memberCar->diningCar->canQuestionnaire && !is_null($memberCar->diningCar->currentQuestion)) ? true : false;
+        $result->type=$memberCar->diningCar->type;
         return $result;
     }
 

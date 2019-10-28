@@ -133,4 +133,12 @@ class DiningCarRepository extends BaseRepository
             ->whereNotNull('shorter_url_id')
             ->first();
     }
+
+    public function easyFind($id)
+    {
+        return $this->model->with('employee.supplier')
+            ->where('id',$id)
+            ->where('status', 1)
+            ->first();
+    }
 }

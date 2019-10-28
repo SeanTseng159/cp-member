@@ -116,6 +116,8 @@ class ShopWaitingController extends RestLaravelController
 
             $memberID = $this->getMemberId();
             $record = $this->service->create($shopId, $name, $number, $cellphone, $memberID);
+            if(!$record)
+                throw new \Exception('候位失敗，請重新輸入');
 
             $host = env("CITY_PASS_WEB");
             $shopName = $waiting->name;
@@ -141,7 +143,7 @@ class ShopWaitingController extends RestLaravelController
             return $this->success($data);
         } catch (\Exception $e) {
             Logger::error('ShopWaitingController::create', $e->getMessage());
-            return $this->responseFormat($data = null, $code = 'E0001', $message = $e->getMessage());
+            return $this->failure('E0001',$e->getMessage());
         }
 
     }
@@ -203,20 +205,20 @@ class ShopWaitingController extends RestLaravelController
     {
         try {
             $waiting = $this->service->getByCode($code);
-            if(is_null($waiting))
+            if (is_null($waiting))
                 throw new \Exception('此候位資料已刪除');
 
-            if($waiting->status == WaitingStatus::Called)
+            if ($waiting->status == WaitingStatus::Called)
                 throw new \Exception('已叫號，無法刪除');
 
-            if($waiting->date != Carbon::now()->format('Y-m-d'))
+            if ($waiting->date != Carbon::now()->format('Y-m-d'))
                 throw new \Exception('候位已過期，無法刪除');
 
             $result = $this->service->deleteByCode($code);
             return $this->success();
         } catch (\Exception $e) {
             Logger::error('ShopWaitingController::deleteByCode', $e->getMessage());
-            return $this->responseFormat(null,'E0004',$e->getMessage());
+            return $this->responseFormat(null, 'E0004', $e->getMessage());
 
         }
 
@@ -274,8 +276,10 @@ class ShopWaitingController extends RestLaravelController
             $memberDiningCars = $this->memberDiningCarService->getAllByMemberId($memberId);
 
             //後位清單
-            $data = $this->service->getMemberList($memberId);
-            $result = (new ShopWaitingResult())->memberList($data, $memberDiningCars);
+            $page = $request['page'] ?? 1;
+            $data = $this->service->getMemberList($memberId, $page);
+            list($total, $totalPage) = $this->service->getMemberListPageCount($memberId);
+            $result = (new ShopWaitingResult())->memberList($data, $memberDiningCars, $totalPage, $total);
             return $this->success($result);
         } catch (\Exception $e) {
             Logger::error('ShopWaitingController::memberList', $e->getMessage());

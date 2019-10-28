@@ -178,6 +178,15 @@ Route::middleware('cors')->namespace('V1')->group(function () {
         Route::post('{id}/questionnaire/{questionId}', 'ShopQuestionController@create')->middleware('auth.jwt');
         Route::get('{id}/questionnaire', 'ShopQuestionController@get')->middleware('auth.jwt');
 
+        //點餐相關
+        Route::post('{shopId}/menuOrder', 'MenuOrderController@create');
+        Route::get('menuOrder/{code}', 'MenuOrderController@detail');
+        Route::POST('menuOrder/{code}', 'MenuOrderController@cancel');
+        Route::get('menuOrder/qrcode/{orderNo}', 'MenuOrderController@getQrCode')->middleware('auth.jwt');
+        Route::get('menuOrder/member/list', 'MenuOrderController@memberList')->middleware('auth.jwt');
+
+
+
     });
 
     // linepay相關
@@ -309,6 +318,10 @@ Route::middleware(['cors', 'auth.jwt'])->namespace('V1')->group(function () {
 
         // 結帳
         Route::post('payment', 'CheckoutController@payment')->middleware('verify.checkout.payment');
+
+        // 點餐單結帳
+        Route::post('payment/menu_order/{menuOrderNo}', 'CheckoutController@menuPayment')->middleware('verify.checkout.payment.menu');
+
         // 重新結帳
         Route::post('payment/repay/{orderNo}', 'CheckoutController@repay');
     });

@@ -83,7 +83,18 @@ class ShopBookingController extends RestLaravelController
             if ($validator->fails()) {
                 throw new \Exception($validator->messages());
             }
-
+            if ( !is_numeric((string)$request->input('phone'))){
+                throw new \Exception('手機要號碼純數字');
+            }
+            if ( strlen((string)$request->input('phone'))>10){
+                throw new \Exception('手機號碼超過，非手機碼');
+            }
+            if ( strlen((string)$request->input('demand'))>80){
+                throw new \Exception('要求字太多，請減少');
+            }
+            if ($request->input('people') <=0){
+                throw new \Exception('訂位人數要大於0');
+            }
 
             //抓取星期幾幾點多少人之限制
             $bookingTimesDateTime = $this->service->findBookingTimesDateTime($id,$request->input('dayOfWeek'),$request->input('time'));
@@ -110,7 +121,7 @@ class ShopBookingController extends RestLaravelController
                 $id = $this->service->createDetail($data);
                 $data->id=$id;
             }else{
-                throw new \Exception('已額滿，請重新定位');
+                throw new \Exception('已額滿，請重新訂位');
             }//end if
             $host = env("CITY_PASS_WEB");
             $datetime=$data->booking->date.' '.$data->booking->time;

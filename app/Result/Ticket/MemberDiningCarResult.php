@@ -72,6 +72,7 @@ class MemberDiningCarResult extends BaseResult
         $result->img = ImageHelper::url($car->mainImg, 's');
         $result->categories = $this->getCategories($car->category, $car->subCategory);
         $result->memberCard = $this->getMemberCard($car->memberCard, $car->memberLevels);
+        $result->type=$car->type;
 
         return $result;
     }
