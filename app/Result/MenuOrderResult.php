@@ -52,13 +52,14 @@ class MenuOrderResult
         $order->diningDate = (new DateHelper)::format($menuOrder->date_time, 'Y-m-d H:i');
         $order->status = $menuOrder->status;
         $order->code = $menuOrder->code;
-        if(optional($menuOrder->order)->order_status=='10')
+        if (optional($menuOrder->order)->order_status == '10')
             $order->qrcode = $menuOrder->qrcode;
         $order->totalAmount = $menuOrder->amount;
         $order->totalQuantity = count($details);
         $order->payment = new \stdClass();
         $order->payment->type = $menuOrder->pay_method;
-        $order->payment->status = $menuOrder->order ? (new OrderHelper)->getMergeStatusCode($menuOrder->order->order_status) : (new OrderHelper)->getMergeStatusCode('00');
+        $order->payment->status = $this->getOrderStatus($menuOrder);
+
         $ret = new \stdClass();
         $ret->shop = $shop;
         $ret->order = $order;
@@ -67,5 +68,17 @@ class MenuOrderResult
         return $ret;
     }
 
-
+    private function getOrderStatus($menuOrder)
+    {
+        $orderHelper = new OrderHelper;
+        $ret = '00';
+        if (!$menuOrder->status) {
+            $ret = '09';
+        } else {
+            if ($menuOrder->order) {
+                $ret = $orderHelper->getMergeStatusCode($menuOrder->order->order_status);
+            }
+        }
+        return $ret;
+    }
 }
