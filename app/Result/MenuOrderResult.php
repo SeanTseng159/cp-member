@@ -48,6 +48,7 @@ class MenuOrderResult
 
         $order = new \stdClass();
         $order->id = $menuOrder->menu_order_no;
+        $order->orderNo = ($menuOrder->order)->order_no ?? '';
         $order->orderDate = (new DateHelper)::format($menuOrder->created_at, 'Y-m-d');
         $order->diningDate = (new DateHelper)::format($menuOrder->date_time, 'Y-m-d H:i');
         $order->status = $menuOrder->status;
