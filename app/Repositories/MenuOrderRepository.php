@@ -7,6 +7,7 @@ use App\Core\Logger;
 use App\Models\MenuOrder;
 use App\Models\MenuOrderDetail;
 use App\Models\Ticket\Menu;
+use App\Repositories\Ticket\OrderDetailRepository;
 use App\Repositories\Ticket\OrderRepository;
 use App\Repositories\Ticket\SeqMenuOrderRepository;
 use Carbon\Carbon;
@@ -26,11 +27,14 @@ class MenuOrderRepository extends BaseRepository
     protected $menu;
     protected $orderRepository;
     protected $seqMenuOrderRepository;
+    protected $orderDetailRepository;
     protected $limit = 20;
 
 
     public function __construct(MenuOrder $model, MenuOrderDetail $menuOrderDetail, Menu $menu,
-                                OrderRepository $repository, SeqMenuOrderRepository $seqMenuOrderRepository)
+                                OrderRepository $repository,
+                                OrderDetailRepository $orderDetailRepository,
+                                SeqMenuOrderRepository $seqMenuOrderRepository)
 
 
     {
@@ -39,6 +43,7 @@ class MenuOrderRepository extends BaseRepository
         $this->menu = $menu;
         $this->seqMenuOrderRepository = $seqMenuOrderRepository;
         $this->orderRepository = $repository;
+        $this->orderDetailRepository = $orderDetailRepository;
     }
 
 
@@ -155,69 +160,13 @@ class MenuOrderRepository extends BaseRepository
             ->whereBetween('created_at', [Carbon::now()->subDays(30), Carbon::now()])
             ->count();
         $totalPage = ceil($count / $this->limit);
-        return[$count,$totalPage];
+        return [$count, $totalPage];
     }
 
 
     public function checkOrderProdStatus($memberId, $menuOrderNo)
     {
-//        $menuOrder = $this->menuOrder->where('menu_order_no', $menuOrderNo)->first();
-//        $menuOrderDetails = $this->menuOrderDetail->select(
-//            'menu_order_id',
-//            'menu_id',
-//            'price',
-//            \DB::raw('count(menu_id) as qty'))
-//            ->groupBy('menu_order_id', 'menu_id', 'price')
-//            ->where('menu_order_id', $menuOrder->id)
-//            ->get();
 
-
-//        foreach ($menuOrder->details as $detail) {
-//            $menu = $detail->menu;
-//            $name = $menu->name;
-//            $prodSpecPrice = optional($menu->prodSpecPrice);
-//            $prodSpec = optional($prodSpecPrice->prodSpec);
-//            $product = optional($prodSpec->product);
-//            if (is_null($prodSpecPrice) || is_null($prodSpec) || is_null($product))
-//                throw new Exception("[$name]無法線上付款");
-//
-//            //檢查限購數量
-//            $menuId = $menu->id;
-//            $limit = $product->prod_limit_num;
-//            $details = collect($menuOrderDetails)->filter(function ($item) use ($menuId, $limit) {
-//                return $item->menu_id == $menuId && $item->qty <= $limit;
-//            });
-//            $buyQuantity = $details->count();
-//
-//            if ($product->prod_type === 1 || $product->prod_type === 2) {
-//                if ($product->prod_limit_type == 0 ) {
-//
-//
-//                    if ($buyQuantity > $product->prod_limit_num)
-//                        throw new Exception("[$name]商品超過可購買數量，無法線上付款");
-//
-//                }
-//                else {
-//                    $memberBuyQuantity = $this->orderService->getCountByProdAndMember($product->product_id, $memberId);
-//                    $buyQuantity += $memberBuyQuantity;
-//                }
-//            }
-//            elseif ($product->prod_type === 3) {
-//                if ($buyQuantity > $product->prod_plus_limit) return 'E9012';
-//            }
-//                if ($buyQuantity > $product->prod_limit_num) return 'E9012';
-
-
-//            if ($product->prod_type === 1 || $product->prod_type === 2) {
-//                if ($product->prod_limit_type === 1) {
-//                    $memberBuyQuantity = $this->orderService->getCountByProdAndMember($product->product_id, $memberId);
-//                    $buyQuantity += $memberBuyQuantity;
-//                }
-//                if ($buyQuantity > $product->prod_limit_num) return 'E9012';
-//            } elseif ($product->prod_type === 3) {
-//                if ($buyQuantity > $product->prod_plus_limit) return 'E9012';
-//            }
-//        }
 
         $menuOrder = $this->menuOrder
             ->with('shop', 'details.menu.prodSpecPrice.prodSpec.product')
@@ -228,8 +177,6 @@ class MenuOrderRepository extends BaseRepository
 
         if (!$menuOrder)
             throw new Exception("點餐單號錯誤");
-
-        //todo check
 
         return $menuOrder;
     }
@@ -248,6 +195,8 @@ class MenuOrderRepository extends BaseRepository
         $hashids = new Hashids('citypass_menu_order', 7);
         return $hashids->encode($menu_odre_id);
     }
+
+
 
 
 }

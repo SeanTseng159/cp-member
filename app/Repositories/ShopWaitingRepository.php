@@ -58,7 +58,7 @@ class ShopWaitingRepository extends BaseRepository
                     'waiting_no' => ++$maxNo,
                     'member_id' => $memberId,
                     'date' => (Carbon::now())->format('Y-m-d'),
-                    'time' => (Carbon::now())->format('H:i:s'),
+//                    'time' => (Carbon::now())->format('H:i:s'),
                     'name' => $name,
                     'cellphone' => $cellphone,
                     'number' => $number,
