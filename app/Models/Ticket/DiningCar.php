@@ -84,7 +84,7 @@ class DiningCar extends BaseModel
      */
     public function imgs()
     {
-        return $this->hasMany('App\Models\Ticket\DiningCarImg');
+        return $this->hasMany('App\Models\Ticket\DiningCarImg')->orderBy('sort', 'asc');
     }
 
     /**
