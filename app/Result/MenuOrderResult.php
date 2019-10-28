@@ -7,6 +7,7 @@
 
 namespace App\Result;
 
+use App\Config\Ticket\OrderConfig;
 use App\Enum\WaitingStatus;
 use App\Helpers\CommonHelper;
 use App\Helpers\DateHelper;
@@ -77,11 +78,14 @@ class MenuOrderResult
             $ret = '09';
         } else {
             if ($menuOrder->order) {
-                $status = str_pad($menuOrder->order->order_status, 2, '0', STR_PAD_LEFT);
+                $orderStatus = $menuOrder->order->order_status;
+                $status = str_pad($orderStatus, 2, '0', STR_PAD_LEFT);
+//                if (OrderConfig::PAYMENT_METHOD[$orderPayMethod] === 'atm' && $atmVirtualAccount && $orderStatus === 0) {
+//                    $status = '03';
+//                }
                 $ret = $orderHelper->getMergeStatusCode($status);
-                if ($ret == '00')
-                    $ret = '07';
             }
+
         }
         return $ret;
     }
