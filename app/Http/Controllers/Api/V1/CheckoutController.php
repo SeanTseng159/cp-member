@@ -85,7 +85,8 @@ class CheckoutController extends RestLaravelController
 
             // 成立訂單
             $order = $this->orderService->create($params, $cart);
-            if (!$order) throw new CustomException('E9001');
+            if (!$order)
+                throw new CustomException('E9001');
 
             // 寄送訂單成立通知信
             dispatch(new OrderCreatedMail($params->memberId, 'ct_pass', $order->order_no))->delay(5);
@@ -186,6 +187,9 @@ class CheckoutController extends RestLaravelController
             // 成立訂單
             $orderNo = $this->menuOrderService->createOrder($params, $menuOrder);
 
+            if (!$orderNo)
+                throw new Exception('E9001');
+
             //寄送訂單成立通知信
             dispatch(new OrderCreatedMail($memberId, 'ct_pass', $orderNo))->delay(5);
 
@@ -198,15 +202,22 @@ class CheckoutController extends RestLaravelController
                 'device' => $params->deviceName,
                 'hasLinePayApp' => $params->hasLinePayApp
             ];
-            $result = $this->paymentService->payment($params->payment, $payParams);
+
+            //如果是信用卡付款 給前端處理
+            if ($params->payment['gateway'] == '3') {
+                $result = ['orderNo' => $orderNo];
+            } else {
+                $result = $this->paymentService->payment($params->payment, $payParams);
+            }
             return $this->success($result);
+
         } catch (Exception $e) {
             Logger::error('CheckoutController::menuPayment', $e->getMessage());
             $msg = $e->getMessage();
             if ($msg[0] == 'E') {
                 return $this->failureCode($msg);
             }
-            return $this->failure('E9006', $e->getMessage());
+            return $this->failure('E9001', $e->getMessage());
         }
     }
 }
