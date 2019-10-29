@@ -38,6 +38,7 @@ class DiningCarRepository extends BaseRepository
 
 
         $currentPage = $params['page'];
+
         Paginator::currentPageResolver(function () use ($currentPage) {
             return $currentPage;
         });
@@ -60,6 +61,20 @@ class DiningCarRepository extends BaseRepository
             ->where(function ($query) use ($params) {
                 if (in_array($params['openStatus'], ['0', '1', '2'])) {
                     $query->where('open_status', $params['openStatus']);
+                }
+            })
+            ->when($params['service'], function ($query) use ($params) {
+                //前端  0代表:會員集點   1代表:線上訂位  2代表現場後位 3代表線上點餐
+                //後端  1代表:會員集點   2代表:線上訂位  3代表現場後位 4代表線上點餐
+                //因為0的出現會導致一些問題所以這樣設定
+                if($params['service']==1){
+                    $query->where('level', 1)->where('expired_at','>=', Carbon::today());
+                }elseif($params['service']==2){
+                    $query->where('canBooking', 1);
+                }elseif($params['service']==3){
+                    $query->where('canWaiting', 1);
+                }elseif($params['service']==4){
+                    $query->where('canOrdering', 1);
                 }
             })
             ->paginate($params['limit']);
