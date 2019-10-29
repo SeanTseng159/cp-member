@@ -32,6 +32,8 @@ class DiningCarParameter extends BaseParameter
         $params['limit'] = $this->limit;
         $params['memberId'] = $this->memberId;
         $params['keywordDiningCarIds'] = [];
+        $service=$this->request->input('service');
+        $params['service']=(is_null($service))? $service:$service+1;
 
 		return $params;
     }
