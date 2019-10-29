@@ -204,11 +204,12 @@ class CheckoutController extends RestLaravelController
             ];
 
             //如果是信用卡付款 給前端處理
-            if ($params->payment['gateway'] == '3') {
+            if ($params->payment['gateway'] == '3' && $params->payment['method'] == '111') {
                 $result = ['orderNo' => $orderNo];
             } else {
                 $result = $this->paymentService->payment($params->payment, $payParams);
             }
+
             return $this->success($result);
 
         } catch (Exception $e) {
