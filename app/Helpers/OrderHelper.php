@@ -15,9 +15,28 @@ Class OrderHelper
 {
 
 
-    public function getMergeStatusCode($code)
+    public function getStatusCode($orderStatus, $orderPayMethod, $atmVirtualAccount, $payAmount)
     {
+
+
+        $isRepay = false;
+
+        $orderPayMethod = $orderPayMethod ?: 0;
+
+        if (OrderConfig::PAYMENT_METHOD[$orderPayMethod] === 'atm') {
+            if ($payAmount != 0) {
+                $isRepay = empty($atmVirtualAccount);
+            } else {
+                $isRepay = false;
+            }
+        } else {
+            $isRepay = ($orderStatus === 0) ? true : false;
+        }
+        $code = $this->changeStatusCode($orderStatus,$isRepay);
+
+
         $mergeCode = '';
+
         if ($code === '10') $mergeCode = '01';
         else if ($code === '00' || $code === '01') $mergeCode = '00';
         else if ($code === '23') $mergeCode = '02';
@@ -39,10 +58,34 @@ Class OrderHelper
         return trans('ticket/order.status.' . OrderConfig::STATUS[$mergeCode]);
     }
 
-    public function getStatusString($code)
+    private function changeStatusCode($code, $isRePay = false)
     {
-        return $this->getOrderStatus($this->getMergeStatusCode($code));
-    }
+        if ($code === 0 && $isRePay) $code = 3;
 
+        switch ($code) {
+            case 0:
+                return '00';
+            case 1:
+                return '01';
+            case 2:
+                return '02';
+            case 3:
+                return '03';
+            case 10:
+                return '10';
+            case 20:
+                return '20';
+            case 21:
+                return '21';
+            case 22:
+                return '22';
+            case 23:
+                return '23';
+            case 24:
+                return '24';
+        }
+
+        return '02';
+    }
 
 }
