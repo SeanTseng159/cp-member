@@ -7,8 +7,10 @@
 
 namespace App\Repositories\Ticket;
 
+use App\Helpers\DateHelper;
 use App\Traits\InvoiceHelper;
 
+use Carbon\Carbon;
 use DB;
 use Illuminate\Database\QueryException;
 use Exception;
@@ -342,8 +344,8 @@ class OrderDetailRepository extends BaseRepository
         $orderDetail->price_off = $product->prod_price_retail;
         $orderDetail->price_company_qty = 1;
         $orderDetail->prod_expire_type = $product->prod_expire_type;
-        $orderDetail->order_detail_expire_start = $product->prod_expire_start;
-        $orderDetail->order_detail_expire_due = $product->prod_expire_due;
+        $orderDetail->order_detail_expire_start = strtotime($product->prod_expire_start) > 0 ? $product->prod_expire_start : null;
+        $orderDetail->order_detail_expire_due = strtotime($product->prod_expire_due) > 0 ? $product->prod_expire_due : null;
         $orderDetail->sync_expire_due = ($product->group_expire_type == 1) ? 'h.' . $product->group_expire_type : NULL;
         $orderDetail->use_type = ($product->group_expire_type) ? 4 : $this->getUseType($product->prod_spec_price_use_note);
         $orderDetail->use_init_value = ($product->group_expire_type) ? NULL : $this->getUseValue($product->prod_spec_price_use_note);
