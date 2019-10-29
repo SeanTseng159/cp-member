@@ -78,12 +78,12 @@ class MenuOrderResult
             $ret = '09';
         } else {
             if ($menuOrder->order) {
-                $orderStatus = $menuOrder->order->order_status;
-                $status = str_pad($orderStatus, 2, '0', STR_PAD_LEFT);
-//                if (OrderConfig::PAYMENT_METHOD[$orderPayMethod] === 'atm' && $atmVirtualAccount && $orderStatus === 0) {
-//                    $status = '03';
-//                }
-                $ret = $orderHelper->getMergeStatusCode($status);
+                $order = $menuOrder->order;
+                $orderStatus = $order->order_status;
+                $orderPayMethod = $order->order_payment_method;
+                $atmVirtualAccount =  $order->order_atm_virtual_account;
+                $payAmount =  $order->order_amount;
+                $ret = $orderHelper->getStatusCode($orderStatus, $orderPayMethod, $atmVirtualAccount, $payAmount);
             }
 
         }
