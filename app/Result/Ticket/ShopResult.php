@@ -12,6 +12,10 @@ use App\Services\Ticket\DiningCarService;
 use App;
 class ShopResult extends DiningCarResult
 {
+    protected $lat;
+    protected $lng;
+    protected $dayOfWeek;
+    protected $memberDiningCars;
 
     protected function getCar($car)
     {
@@ -157,12 +161,12 @@ class ShopResult extends DiningCarResult
         $this->lat = $lat;
         $this->lng = $lng;
         $this->memberDiningCars = $memberDiningCars;
-
         $newCars = [];
-        foreach ($cars as $car) {
+        foreach ($cars as $key =>$car) {
             $newCar = $this->getCar($car);
             if ($newCar) $newCars[] = $newCar;
         }
+
 
         return $newCars;
     }//end list

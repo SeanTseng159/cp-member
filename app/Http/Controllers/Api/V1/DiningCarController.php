@@ -149,7 +149,7 @@ class DiningCarController extends RestLaravelController
      * @return \Illuminate\Http\JsonResponse
      */
     public function detail(Request $request, MemberDiningCarService $memberDiningCarService, $id)
-    {   
+    {
         try {
             if (!$id) return $this->apiRespFailCode('E0006');
 
