@@ -66,7 +66,6 @@ class ShopResult extends DiningCarResult
 
         $address=$car->county.$car->district.$car->address;
 
-
         $this->lat = $lat;
         $this->lng = $lng;
 
@@ -81,7 +80,7 @@ class ShopResult extends DiningCarResult
 
         $result->isFoodCategory=$car->category->isfood;
 
-        $result->isFavorite = $this->getFavorite($car->id);
+        $result->isFavorite = $isFavorite;
         $result->openStatusCode = $car->open_status;
         $result->openStatus = DiningCarConfig::OPEN_STATUS[$car->open_status];
 
