@@ -19,7 +19,7 @@
                     </tr>
                     <tr>
                         <td>訂位編號 {{ $number }}</td>
-                    </tr>                    
+                    </tr>
                     <tr>
                         <td>
                            日期 :{{ $date }}

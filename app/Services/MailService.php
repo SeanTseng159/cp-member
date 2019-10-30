@@ -330,11 +330,17 @@ class MailService
      */
     public function sendBookingFinishMail($member, $data = null)
     {
+
+        if(is_null($member->email)){
+            $email=$member->openId;
+        }else{
+            $email=$member->email;
+        }
         $recipient = [
-            'email' => $member->email,
+            'email' => $email,
             'name' => $member->name,
         ];
-        
+
         $data = [
             'shopname' =>$data->shop->name,
             'number' => $data->booking->number,
