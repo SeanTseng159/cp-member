@@ -288,7 +288,7 @@ class MailService
             return false;
         }
     }
-    
+
     /**
      * 購物車商品轉入追蹤清單
      * @param object $member
@@ -301,7 +301,7 @@ class MailService
             'email' => $member->email,
             'name' => $member->name,
         ];
-        
+
         $data = [
             'name' => $member->name,
             'link' => env('CITY_PASS_WEB') . $this->lang . '/member/wishlist',
@@ -311,7 +311,7 @@ class MailService
 
         return $this->send('CityPass都會通 - 商品移至收藏清單通知', $recipient, 'emails/expiredCart', $data);
     }
-    
+
     /**
      * 提醒購物車內商品尚未結帳
      * @param object $member
@@ -324,7 +324,7 @@ class MailService
             'email' => $member->email,
             'name' => $member->name,
         ];
-        
+
         $data = [
             'name' => $member->name,
             'link' => env('CITY_PASS_WEB') . $this->lang . '/cart',
@@ -343,11 +343,17 @@ class MailService
      */
     public function sendBookingFinishMail($member, $data = null)
     {
+
+        if(is_null($member->email)){
+            $email=$member->openId;
+        }else{
+            $email=$member->email;
+        }
         $recipient = [
-            'email' => $member->email,
+            'email' => $email,
             'name' => $member->name,
         ];
-        
+
         $data = [
             'shopname' =>$data->shop->name,
             'number' => $data->booking->number,
