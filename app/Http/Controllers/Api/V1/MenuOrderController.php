@@ -50,6 +50,7 @@ class MenuOrderController extends RestLaravelController
 
 
             $shop = $this->diningCarService->easyFind($shopId);
+            $data = (object)$data;
 
             if (!$shop)
                 throw  new \Exception('店舖不存在');
@@ -57,10 +58,12 @@ class MenuOrderController extends RestLaravelController
             if (!$shop->canOrdering)
                 throw  new \Exception("[{$shop->name}]尚未提供線上點餐");
 
-            if (!$shop->employee->supplier->canEC)
+
+            //線上付款檢查
+            if ($data->payment == 1 && !$shop->employee->supplier->canEC)
                 throw  new \Exception("[{$shop->name}]尚未提供線上購買");
 
-            $data = (object)$data;
+
             $memberID = $this->getMemberId();
 
             $menuOrderId = $this->service->create($shopId,
@@ -136,7 +139,7 @@ class MenuOrderController extends RestLaravelController
             $ret->page = $totalPage;
             $ret->data = $data;
             return $this->success($ret);
-            
+
         } catch (\Exception $e) {
             Logger::error('MenuOrderController::memberList', $e->getMessage());
             return $this->failure('E0001', $e->getMessage());
