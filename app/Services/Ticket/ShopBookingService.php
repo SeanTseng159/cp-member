@@ -77,7 +77,7 @@ class ShopBookingService extends BaseService
     public function findBookedNumber($id)
     {
         return $this->repository->findBookedNumber($id);
-    }    
+    }
     /**
      * 找出今天的全部訂單編號
      * @return mixed
@@ -85,7 +85,7 @@ class ShopBookingService extends BaseService
     public function findBookedAllNumber()
     {
         return $this->repository->findBookedAllNumber();
-    }    
+    }
     /**
      * 找出店家資訊
      * @param  $id
@@ -94,7 +94,7 @@ class ShopBookingService extends BaseService
     public function findShopInfo($id)
     {
         return $this->repository->findShopInfo($id);
-    }  
+    }
 
     /**
      * 將訂位資料寫入DB
@@ -103,7 +103,7 @@ class ShopBookingService extends BaseService
     public function createDetail($data)
     {
         return $this->repository->createDetail($data);
-    }  
+    }
 
     /**
      * 查詢訂單detail
@@ -113,7 +113,7 @@ class ShopBookingService extends BaseService
     public function getOenDetailInfo($id)
     {
         return $this->repository->getOenDetailInfo($id);
-    }  
+    }
 
     /**
      * 取得訂單detail
@@ -123,7 +123,7 @@ class ShopBookingService extends BaseService
     public function getFromCode($code)
     {
         return $this->repository->getFromCode($code);
-    }  
+    }
 
     /**
      * 取消訂單
@@ -133,7 +133,7 @@ class ShopBookingService extends BaseService
     public function cancel($shopid,$code)
     {
         return $this->repository->cancel($shopid,$code);
-    }  
+    }
 
 
     /**
@@ -144,7 +144,7 @@ class ShopBookingService extends BaseService
     public function getMemberList($memberId,$page)
     {
         return $this->repository->getMemberList($memberId,$page);
-    }  
+    }
     /**
      * 取得訂位列表的數量
      * @param  $memberID
@@ -153,7 +153,7 @@ class ShopBookingService extends BaseService
     public function getCountMemberList($memberId,$page)
     {
         return $this->repository->getCountMemberList($memberId,$page);
-    }  
+    }
     /**
      * 發送簡訊
      * @param  $host, $shopName, $userName, $cellphone, $datetime, $code
@@ -166,7 +166,7 @@ class ShopBookingService extends BaseService
             $easyGoService = new EasyGoService;
             $phoneNumber = '+886' . substr($cellphone, 1, 9);
             $web = "{$host}booking/{$code}";
-            $message = "{$userName}已訂位{$shopName}資訊 {$web}";
+            $message = "您好，您於{$shopName}已訂位完成，前往{$web} 查看";
 
             return $easyGoService->send($phoneNumber, $message);
         } catch (\Exception $e) {
@@ -188,7 +188,7 @@ class ShopBookingService extends BaseService
         $job = (new SendBookingFinishMail($member,$data))->delay(5);
         $this->dispatch($job);
 
-        
+
         return True;
     }//end sendemail
 }
