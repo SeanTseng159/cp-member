@@ -52,7 +52,7 @@ class SeqMenuOrderRepository extends BaseRepository
             $seqOrder->save();
             // DB::connection('backend')->commit();
 
-            return date("Ymd") . str_pad($seqOrder->order_number, 5, '0', STR_PAD_LEFT);
+            return 'M' . date("Ymd") . str_pad($seqOrder->order_number, 4, '0', STR_PAD_LEFT);
         } catch (QueryException $e) {
             Logger::error('SeqMenuOrderRepository getOrderNo Error', $e->getMessage());
             // DB::connection('backend')->rollBack();
