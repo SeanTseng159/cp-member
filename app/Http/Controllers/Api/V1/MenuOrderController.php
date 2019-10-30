@@ -3,10 +3,12 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Core\Logger;
+use App\Helpers\DateHelper;
 use App\Result\MenuOrderResult;
 use App\Services\MenuOrderService;
 use App\Services\Ticket\DiningCarService;
 use App\Traits\MemberHelper;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Ksd\Mediation\Core\Controller\RestLaravelController;
 
@@ -62,6 +64,12 @@ class MenuOrderController extends RestLaravelController
             //線上付款檢查
             if ($data->payment == 1 && !$shop->employee->supplier->canEC)
                 throw  new \Exception("[{$shop->name}]尚未提供線上購買");
+
+            //檢查時間
+            $orderDate = DateHelper::format($data->time, 'Y-m-d H:i');
+            if (Carbon::now()->gte($orderDate)) {
+                throw  new \Exception("請選擇未來的時間");
+            }
 
 
             $memberID = $this->getMemberId();
