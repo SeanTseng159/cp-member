@@ -49,7 +49,7 @@ class ShopBookingRepository extends BaseRepository
     */
     public function findBookingDateBooked($id = 0)
     {
-        $findDays = Carbon::now()->addDays(1);
+        $findDays = Carbon::today()->addDays(1);
         return $this->diningCarBookingDetail
                         ->select(\DB::raw('sum(booking_people) as sum_people'),'booking_date','booking_time')
                         ->where('shop_id', $id)
