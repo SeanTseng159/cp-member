@@ -50,7 +50,7 @@ class ShopWaitingService extends BaseService
             $easyGoService = new EasyGoService;
             $phoneNumber = '+886' . substr($cellphone, 1, 9);
             $web = "{$host}lineup/{$code}";
-            $message = "{$userName}您好：您已成功候位{$shopName}，號碼{$userWaitingNo}，點擊連結查看 {$web}";
+            $message = "{$userName}您好：您已成功候位{$shopName}，號碼{$userWaitingNo} {$web}";
             return $easyGoService->send($phoneNumber, $message);
         } catch (\Exception $e) {
             Logger::debug($e);

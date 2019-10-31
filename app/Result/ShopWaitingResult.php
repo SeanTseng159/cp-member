@@ -32,14 +32,22 @@ class ShopWaitingResult
             $result->capacity = optional($waiting->waitingSetting)->capacity;
             return $result;
         }
-        $calledRecords = $waiting->waitingList->filter(function ($item) {
+
+        $calledRecords = $waiting->waitingList->sortBy(function ($item) {
+            return $item->updated_at;
+        })->filter(function ($item) {
             return $item->status == WaitingStatus::Called;
         });
 
         $WaitingRecords = $waiting->waitingList->filter(function ($item) {
             return $item->status == WaitingStatus::Waiting;
         });
-        $currentNo = count($calledRecords) > 0 ? ($calledRecords->first())->waiting_no : 0;
+
+        $currentNo = 0 ;
+        if (count($calledRecords) > 0) {
+            $first = $calledRecords->last();
+            $currentNo = $first->waiting_no;
+        }
         $WaitingNum = count($WaitingRecords);
         $result->currentNo = $this->getWaitNoString($currentNo);
         $result->WaitingNum = $WaitingNum;
