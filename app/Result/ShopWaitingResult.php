@@ -32,10 +32,11 @@ class ShopWaitingResult
             $result->capacity = optional($waiting->waitingSetting)->capacity;
             return $result;
         }
-        $calledRecords = $waiting->waitingList->filter(function ($item) {
+        $calledRecords = $waiting->waitingList->sortBy(function ($item) {
+            return $item->updated_at;
+        })->filter(function ($item) {
             return $item->status == WaitingStatus::Called;
         });
-
         $WaitingRecords = $waiting->waitingList->filter(function ($item) {
             return $item->status == WaitingStatus::Waiting;
         });
