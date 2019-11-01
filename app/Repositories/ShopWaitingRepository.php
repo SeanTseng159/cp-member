@@ -77,11 +77,11 @@ class ShopWaitingRepository extends BaseRepository
 
     }
 
-    public function get($shopId, $waitingId)
+    public function get($shopId, $waitingNo)
     {
         return $this->waitingRecord->with('shop')
             ->where('dining_car_id', $shopId)
-            ->where('id', $waitingId)
+            ->where('waiting_no', $waitingNo)
             ->first();
     }
 
