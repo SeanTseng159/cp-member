@@ -250,7 +250,7 @@ class ShopWaitingController extends RestLaravelController
 
         $currentNo = 0;
         if (count($onCallList) > 0) {
-            $first = $onCallList->first();
+            $first = $onCallList->last();
             $currentNo = $first->waiting_no;
         }
         return $currentNo;
