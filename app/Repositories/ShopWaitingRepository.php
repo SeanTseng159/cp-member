@@ -117,6 +117,7 @@ class ShopWaitingRepository extends BaseRepository
             ->where('member_id', $memberId)
             ->where('date', '>=', Carbon::now()->subDays(30))
             ->orderBy('date', 'desc')
+            ->orderBy('waiting_no', 'desc')
             ->forPage($page, $this->limit)
             ->get();
     }
