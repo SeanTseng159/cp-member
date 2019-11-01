@@ -163,12 +163,14 @@ class ShopWaitingController extends RestLaravelController
             $memberID = $this->getMemberId();
             // 取收藏列表
             $memberDiningCars = $this->memberDiningCarService->getAllByMemberId($memberID);
+
             $ret = (new ShopWaitingResult())->get($record,$memberDiningCars);
             $isToday = $record->date == Carbon::now()->format('Y-m-d');
             if ($isToday) {
                 $ret->WaitingNum = $this->service->getWaitingNumber($shopId, $record->waiting_no);
                 $ret->currentNo = $currentNo;
             }
+
             return $this->success($ret);
         } catch (\Exception $e) {
             Logger::error('ShopWaitingController::get', $e->getMessage());
@@ -242,7 +244,9 @@ class ShopWaitingController extends RestLaravelController
     private function getCurrentWaitingNo($waiting): int
     {
 
-        $onCallList = $waiting->waitingList->filter(function ($item) {
+        $onCallList = $waiting->waitingList->sortBy(function ($item) {
+            return $item->updated_at;
+        })->filter(function ($item) {
             return $item->status == WaitingStatus::Called;
         });
 
