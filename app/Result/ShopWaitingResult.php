@@ -108,6 +108,7 @@ class ShopWaitingResult
         $data->shop->id = $shop->id;
         $data->shop->name = $shop->name;
         $data->shop->shareUrl = $this->getWebHost($shop->id);
+
         $data->shop->isFavorite = $this->isFavorite($memberDiningCars, $shop->id);
         $data->shop->img = ImageHelper::url($shop->mainImg);
         $data->name = $waiting->name;
@@ -138,8 +139,9 @@ class ShopWaitingResult
             return false;
 
         $favoriteList = $memberDiningCars->filter(function ($item) use ($shopId) {
-            return $item->dining_car_id = $shopId;
+            return $item->dining_car_id == $shopId;
         });
+
         
 
         if ($favoriteList->count() > 0)
