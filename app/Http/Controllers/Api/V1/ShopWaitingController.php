@@ -111,6 +111,7 @@ class ShopWaitingController extends RestLaravelController
                 throw new \Exception("僅提供人數{$maxCapacity}位內的候位");
             }
 
+            $memberID = $this->getMemberId();
             $currentNo = $this->getCurrentWaitingNo($waiting);
 
 
