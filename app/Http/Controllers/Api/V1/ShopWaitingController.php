@@ -148,14 +148,14 @@ class ShopWaitingController extends RestLaravelController
 
     }
 
-    public function get(Request $request, $shopId, $waitingId)
+    public function get(Request $request, $shopId, $waitingNo)
     {
         try {
             $waiting = $this->service->find($shopId);
             $currentNo = $this->getCurrentWaitingNo($waiting);
 
 
-            $record = $this->service->get($shopId, $waitingId);
+            $record = $this->service->get($shopId, $waitingNo);
 
             if (is_null($record))
                 throw new \Exception('查無資料或已刪除');
@@ -163,7 +163,7 @@ class ShopWaitingController extends RestLaravelController
             $memberID = $this->getMemberId();
             // 取收藏列表
             $memberDiningCars = $this->memberDiningCarService->getAllByMemberId($memberID);
-            $ret = (new ShopWaitingResult())->get($record,$memberID,$memberDiningCars);
+            $ret = (new ShopWaitingResult())->get($record,$memberDiningCars);
             $isToday = $record->date == Carbon::now()->format('Y-m-d');
             if ($isToday) {
                 $ret->WaitingNum = $this->service->getWaitingNumber($shopId, $record->waiting_no);
@@ -185,7 +185,12 @@ class ShopWaitingController extends RestLaravelController
             $record = $this->service->getByCode($code);
             if (is_null($record))
                 throw new \Exception('查無資料或已刪除');
-            $ret = (new ShopWaitingResult())->get($record);
+
+            // 取收藏列表
+            $memberID = $this->getMemberId();
+            $memberDiningCars = $this->memberDiningCarService->getAllByMemberId($memberID);
+
+            $ret = (new ShopWaitingResult())->get($record,$memberDiningCars);
 
             $isToday = $record->date == Carbon::now()->format('Y-m-d');
             if ($isToday) {
