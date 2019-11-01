@@ -49,6 +49,7 @@ class MemberNoticResult extends BaseResult
         $result->message = $info->notification_message;
         $result->prodType = $info->prod_type;
         $result->prodId = $info->prod_id;
+        $result->url = $info->url;
         $result->sendTime =date("Y-m-d",strtotime($info->created_at->toDateTimeString()));
         $result->readStatus = $info->read_status;
 
