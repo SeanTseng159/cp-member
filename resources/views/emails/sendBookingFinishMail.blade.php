@@ -5,7 +5,7 @@
     </head>
     <body>
         <div style="width: 750px;font-size: 15px;color: #666;border: 1px solid #eaeaea;padding: 10px;">
-            <h2 style="font-size: 15px;font-weight: bold;color: #666;padding-bottom: 10px;border-bottom-width: 1px;border-bottom-style: dashed;border-bottom-color: #E6E6E6;margin-bottom: 15px;">客服追蹤通知信</h2>
+            <h2 style="font-size: 15px;font-weight: bold;color: #666;padding-bottom: 10px;border-bottom-width: 1px;border-bottom-style: dashed;border-bottom-color: #E6E6E6;margin-bottom: 15px;">訂位通知信</h2>
             <div id="con">
                 <table width="100%" border="0" cellspacing="0" cellpadding="8">
                     <tr>
