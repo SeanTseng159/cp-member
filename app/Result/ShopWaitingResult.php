@@ -43,7 +43,7 @@ class ShopWaitingResult
             return $item->status == WaitingStatus::Waiting;
         });
 
-        $currentNo = 0 ;
+        $currentNo = 0;
         if (count($calledRecords) > 0) {
             $first = $calledRecords->last();
             $currentNo = $first->waiting_no;
@@ -78,11 +78,7 @@ class ShopWaitingResult
             $result->shop->category = $category;
             $result->shop->name = $shop->name;
 
-
-            $favoriteList = $memberDiningCars->filter(function ($item) use ($shopId) {
-                return $item->dining_car_id = $shopId;
-            });
-            $result->shop->isFavorite = (count($favoriteList)) > 0 ? true : false;
+            $result->shop->isFavorite = $this->isFavorite($memberDiningCars, $shopId);
             $result->shop->shareUrl = $this->getWebHost($shopId);
             $result->shop->photo = ImageHelper::url($shop->mainImg);
 
@@ -102,7 +98,7 @@ class ShopWaitingResult
         return $ret;
     }
 
-    public function get($waiting)
+    public function get($waiting, $memberDiningCars = null)
     {
 
         $shop = $waiting->shop;
@@ -112,12 +108,15 @@ class ShopWaitingResult
         $data->shop->id = $shop->id;
         $data->shop->name = $shop->name;
         $data->shop->shareUrl = $this->getWebHost($shop->id);
+        $data->shop->isFavorite = $this->isFavorite($memberDiningCars, $shop->id);
+        $data->shop->img = ImageHelper::url($shop->mainImg);
         $data->name = $waiting->name;
         $data->cellphone = $waiting->cellphone;
         $data->number = $waiting->number;
         $data->waitingNo = $this->getWaitNoString($waiting->waiting_no);
         $data->code = $waiting->code;
         $data->status = $waiting->status;
+
 
         return $data;
 
@@ -131,6 +130,21 @@ class ShopWaitingResult
     private function getWebHost($shopId): string
     {
         return CommonHelper::getWebHost('zh-TW/shop/detail/' . $shopId);
+    }
+
+    private function isFavorite($memberDiningCars, $shopId)
+    {
+        if (!$memberDiningCars)
+            return false;
+
+        $favoriteList = $memberDiningCars->filter(function ($item) use ($shopId) {
+            return $item->dining_car_id = $shopId;
+        });
+        
+
+        if ($favoriteList->count() > 0)
+            return true;
+        return false;
     }
 
 

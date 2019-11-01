@@ -19,7 +19,7 @@ class ShopWaitingController extends RestLaravelController
     use ShopHelper;
 
     private $service;
-    private $memberDiningCarService;
+    protected $memberDiningCarService;
 
     public function __construct(ShopWaitingService $service, MemberDiningCarService $memberDiningCarService)
     {
@@ -114,9 +114,8 @@ class ShopWaitingController extends RestLaravelController
             $currentNo = $this->getCurrentWaitingNo($waiting);
 
 
-            $memberID = $this->getMemberId();
             $record = $this->service->create($shopId, $name, $number, $cellphone, $memberID);
-            if(!$record)
+            if (!$record)
                 throw new \Exception('候位失敗，請重新輸入');
 
             $host = env("CITY_PASS_WEB");
@@ -143,7 +142,7 @@ class ShopWaitingController extends RestLaravelController
             return $this->success($data);
         } catch (\Exception $e) {
             Logger::error('ShopWaitingController::create', $e->getMessage());
-            return $this->failure('E0001',$e->getMessage());
+            return $this->failure('E0001', $e->getMessage());
         }
 
     }
@@ -154,12 +153,16 @@ class ShopWaitingController extends RestLaravelController
             $waiting = $this->service->find($shopId);
             $currentNo = $this->getCurrentWaitingNo($waiting);
 
+
             $record = $this->service->get($shopId, $waitingId);
 
             if (is_null($record))
                 throw new \Exception('查無資料或已刪除');
 
-            $ret = (new ShopWaitingResult())->get($record);
+            $memberID = $this->getMemberId();
+            // 取收藏列表
+            $memberDiningCars = $this->memberDiningCarService->getAllByMemberId($memberID);
+            $ret = (new ShopWaitingResult())->get($record,$memberID,$memberDiningCars);
             $isToday = $record->date == Carbon::now()->format('Y-m-d');
             if ($isToday) {
                 $ret->WaitingNum = $this->service->getWaitingNumber($shopId, $record->waiting_no);
