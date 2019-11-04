@@ -56,7 +56,7 @@ class MenuOrderResult
         $order->status = $menuOrder->status;
         $order->code = $menuOrder->code;
         if (optional($menuOrder->order)->order_status == '10')
-            $order->qrcode = $this->prefix.$menuOrder->qrcode;
+            $order->qrcode = $this->prefix . $menuOrder->qrcode;
         $order->totalAmount = $menuOrder->amount;
         $order->totalQuantity = count($details);
         $order->payment = new \stdClass();
@@ -82,12 +82,18 @@ class MenuOrderResult
                 $order = $menuOrder->order;
                 $orderStatus = $order->order_status;
                 $orderPayMethod = $order->order_payment_method;
-                $atmVirtualAccount =  $order->order_atm_virtual_account;
-                $payAmount =  $order->order_amount;
+                $atmVirtualAccount = $order->order_atm_virtual_account;
+                $payAmount = $order->order_amount;
                 $ret = $orderHelper->getStatusCode($orderStatus, $orderPayMethod, $atmVirtualAccount, $payAmount);
             }
 
         }
         return $ret;
     }
+
+    public function getQrCode($qrcode)
+    {
+        return $this->prefix . $qrcode;
+    }
+
 }

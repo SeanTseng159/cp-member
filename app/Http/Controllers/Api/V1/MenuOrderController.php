@@ -25,6 +25,10 @@ class MenuOrderController extends RestLaravelController
         $this->diningCarService = $diningCarService;
     }
 
+    public function list(Request $request)
+    {
+
+    }
 
     public function create(Request $request, $shopId)
     {
@@ -167,6 +171,7 @@ class MenuOrderController extends RestLaravelController
                 throw new \Exception('點餐單尚未完成線上付款流程');
 
             $qrcode = $menuOrder->qrcode;
+            $qrcode = (new MenuOrderResult)->getQrCode($qrcode);
 
             return $this->success(['code' => $qrcode]);
         } catch (\Exception $e) {
