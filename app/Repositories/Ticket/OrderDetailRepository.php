@@ -7,7 +7,9 @@
 
 namespace App\Repositories\Ticket;
 
-use App\Config\Ticket\TicketConfig;
+use App\Helpers\DateHelper;
+use App\Traits\InvoiceHelper;
+
 use Carbon\Carbon;
 use DB;
 use Illuminate\Database\QueryException;
@@ -19,7 +21,7 @@ use App\Models\Ticket\OrderDetail;
 
 class OrderDetailRepository extends BaseRepository
 {
-
+    use invoiceHelper;
     protected $model;
 
     public function __construct(OrderDetail $model)
@@ -296,5 +298,63 @@ class OrderDetailRepository extends BaseRepository
     public function find($orderDetailID)
     {
         return $this->model->find($orderDetailID);
+    }
+
+    public function createDetailsByMenuOrder($memberId, $orderNo, $paymentMethod, $products = [])
+    {
+        $seq = 0;
+        $map = [];
+
+        foreach ($products as $k => $product) {
+            $seq += 1;
+            $oderDetail = $this->createByMenuOrder($memberId, $orderNo, $paymentMethod, $seq, $seq, $product);
+            $map[$k] = $oderDetail->order_detail_id;
+        }
+        return $map;
+
+    }
+
+    public function createByMenuOrder($memberId, $orderNo, $paymentGateway, $seq, $addnlSeq, $product)
+    {
+        $orderDetail = new OrderDetail;
+        $orderDetail->order_no = $orderNo;
+        $orderDetail->order_detail_seq = str_pad($seq, 3, '0', STR_PAD_LEFT);
+        $orderDetail->order_detail_addnl_seq = str_pad($addnlSeq, 3, '0', STR_PAD_LEFT);
+        $orderDetail->order_detail_sn = sprintf('%s%s%s%s', substr($orderNo, 2), $product->type, $orderDetail->order_detail_seq, $orderDetail->order_detail_addnl_seq);
+        $orderDetail->order_detail_member_id = $memberId;
+        $orderDetail->member_id = $memberId;
+
+        $orderDetail->supplier_id = $product->supplier_id;
+        $orderDetail->catalog_id = $product->catalogId ?? 0;
+        $orderDetail->category_id = $product->categoryId ?? 0;
+        $orderDetail->prod_id = $product->prod_id;
+        $orderDetail->prod_api = $product->prod_api ?? null;
+        $orderDetail->prod_cust_id = $product->prod_cust_id;
+        $orderDetail->prod_spec_id = $product->spec->prod_spec_id;
+        $orderDetail->prod_spec_price_id = $product->specPrice->prod_spec_price_id;
+
+        $orderDetail->prod_type = $product->prod_type;
+        $orderDetail->is_physical = $product->is_physical;
+        $orderDetail->prod_name = $product->prod_name;
+        $orderDetail->prod_spec_name = $product->spec->prod_spec_name;
+        $orderDetail->prod_spec_price_name = $product->specPrice->prod_spec_price_name;
+        $orderDetail->prod_locate = $product->shop->name;
+        $orderDetail->prod_address = $product->shop->county . $product->shop->district . $product->shop->address;
+        $orderDetail->price_retail = $product->prod_price_sticker;
+        $orderDetail->price_off = $product->prod_price_retail;
+        $orderDetail->price_company_qty = 1;
+        $orderDetail->prod_expire_type = $product->prod_expire_type;
+        $orderDetail->order_detail_expire_start = strtotime($product->prod_expire_start) > 0 ? $product->prod_expire_start : null;
+        $orderDetail->order_detail_expire_due = strtotime($product->prod_expire_due) > 0 ? $product->prod_expire_due : null;
+        $orderDetail->sync_expire_due = ($product->group_expire_type == 1) ? 'h.' . $product->group_expire_type : NULL;
+        $orderDetail->use_type = ($product->group_expire_type) ? 4 : $this->getUseType($product->prod_spec_price_use_note);
+        $orderDetail->use_init_value = ($product->group_expire_type) ? NULL : $this->getUseValue($product->prod_spec_price_use_note);
+        $orderDetail->use_value = $orderDetail->use_init_value;
+        $orderDetail->order_payment_method = $paymentGateway;
+        $orderDetail->created_at = date('Y-m-d H:i:s');
+        $orderDetail->modified_at = date('Y-m-d H:i:s');
+        $orderDetail->save();
+
+        return $orderDetail;
     }
 }

@@ -21,6 +21,7 @@ class KeywordService extends BaseService
 
     /**
      * 依 關鍵字 找商品
+     * @param string $keyword
      * @return mixed
      */
     public function getProductsByKeyword($keyword = '')
@@ -30,6 +31,7 @@ class KeywordService extends BaseService
 
     /**
      * 依 關鍵字 找餐車
+     * @param string $keyword
      * @return mixed
      */
     public function getDiningCarsByKeyword($keyword = '')

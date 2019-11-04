@@ -50,3 +50,7 @@ Route::get('about', function () {
 Route::get('e-ticket-use', function () {
     return view('web.e-ticket-use');
 });
+
+Route::get('line_login', function () {
+    return view('web.line_login');
+});

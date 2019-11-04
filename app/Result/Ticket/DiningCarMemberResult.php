@@ -52,7 +52,8 @@ class DiningCarMemberResult extends BaseResult
         $result->img = ImageHelper::url($memberCar->diningCar->mainImg, 's');
         $result->categories = $this->getCategories($memberCar->diningCar->category, $memberCar->diningCar->subCategory);
         $result->memberCard = $this->getMemberCard($memberCar);
-
+        $result->questionnaire = ($memberCar->diningCar->canQuestionnaire && !is_null($memberCar->diningCar->currentQuestion)) ? true : false;
+        $result->type=$memberCar->diningCar->type;
         return $result;
     }
 
@@ -75,7 +76,7 @@ class DiningCarMemberResult extends BaseResult
      * @param $memberCar
      * @return object
      */
-    public function getMemberCard($memberCard) : object
+    public function getMemberCard($memberCard): object
     {
         $result = new \stdClass;
         $result->level = $this->getMemberLevel($memberCard->diningCar->memberLevels, $memberCard->amount);

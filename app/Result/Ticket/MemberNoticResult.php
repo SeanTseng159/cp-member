@@ -44,11 +44,14 @@ class MemberNoticResult extends BaseResult
         $diningCarUrl = CommonHelper::getBackendHost($url);
         $result = new \stdClass;
         $result->id = $info->id;
+        $result->diningCarId = empty($info->diningCar) ? 0 : $info->diningCar->id;
+        $result->diningCarType = empty($info->diningCar) ? 0 : $info->diningCar->type;
         $result->diningCarName = empty($info->diningCar) ? 'CityPass都會通' : $info->diningCar->name;
         $result->imgUrl = $diningCarUrl == CommonHelper::getBackendHost().'.' ? 'https://scontent.fkhh1-1.fna.fbcdn.net/v/t1.0-9/60443313_2371437916474915_6204651090290409472_n.jpg?_nc_cat=102&_nc_oc=AQn8HkrJaV57l3fCG1y3rpFKiWu_Lq8Jg8df2bmx_iJV4itYAWOhPDOiQkgAmi-o3QE&_nc_ht=scontent.fkhh1-1.fna&oh=fbac926b0cba076eee39010173c3784f&oe=5DC24FDB' : $diningCarUrl;
         $result->message = $info->notification_message;
         $result->prodType = $info->prod_type;
         $result->prodId = $info->prod_id;
+        $result->url = $info->url;
         $result->sendTime =date("Y-m-d",strtotime($info->created_at->toDateTimeString()));
         $result->readStatus = $info->read_status;
 

@@ -9,7 +9,13 @@ namespace App\Models\Ticket;
 
 
 use App\Enum\ClientType;
+use App\Enum\WaitingStatus;
+use App\Models\Employee;
 use App\Models\Gift;
+use App\Models\ShopQuestion;
+use App\Models\ShopWaiting;
+use App\Models\ShopWaitingRecord;
+use Carbon\Carbon;
 
 
 class DiningCar extends BaseModel
@@ -78,7 +84,7 @@ class DiningCar extends BaseModel
      */
     public function imgs()
     {
-        return $this->hasMany('App\Models\Ticket\DiningCarImg');
+        return $this->hasMany('App\Models\Ticket\DiningCarImg')->orderBy('sort', 'asc');
     }
 
     /**
@@ -94,7 +100,7 @@ class DiningCar extends BaseModel
      */
     public function businessHoursDays()
     {
-        return $this->hasMany('App\Models\Ticket\DiningCarBusinessHoursDay')->where('status', 1)->orderBy('day');
+        return $this->hasMany(DiningCarBusinessHoursDay::class)->where('status', 1)->orderBy('day');
     }
 
     /**
@@ -127,7 +133,7 @@ class DiningCar extends BaseModel
      */
     public function memberLevels()
     {
-        return $this->hasMany('App\Models\Ticket\DiningCarMemberLevel')->where('status',true);
+        return $this->hasMany('App\Models\Ticket\DiningCarMemberLevel')->where('status', true);
     }
 
     /**
@@ -141,11 +147,12 @@ class DiningCar extends BaseModel
             ->isActive();
     }
 
-    public function birthdayGift(){
+    public function birthdayGift()
+    {
         return $this
             ->hasOne(Gift::class, 'model_spec_id', 'id')
             ->where('model_type', ClientType::dining_car)
-            ->where('type','birthday');
+            ->where('type', 'birthday');
     }
 
     /**
@@ -154,7 +161,7 @@ class DiningCar extends BaseModel
     public function newsfeeds()
     {
         return $this->hasMany('App\Models\Ticket\Newsfeed')
-                    ->isActive();
+            ->isActive();
     }
 
     /**
@@ -163,8 +170,8 @@ class DiningCar extends BaseModel
     public function coupons()
     {
         return $this->hasMany('App\Models\Coupon', 'model_spec_id', 'id')
-                    ->where('model_type', ClientType::dining_car)
-                    ->isActive();
+            ->where('model_type', ClientType::dining_car)
+            ->isActive();
     }
 
     public function pointRules()
@@ -186,4 +193,35 @@ class DiningCar extends BaseModel
 
         return $level;
     }
+
+    public function waitingSetting()
+    {
+        return $this->hasOne(ShopWaiting::class, 'dining_car_id', 'id');
+    }
+
+    public function waitingList()
+    {
+        return $this->hasMany(ShopWaitingRecord::class, 'dining_car_id', 'id')
+            ->where('date', Carbon::now()->format('Y-m-d'))
+            ->whereNull('deleted_at')
+            ->orderBy('waiting_no', 'desc');
+    }
+
+    /**
+     * 問卷
+     */
+    public function currentQuestion()
+    {
+        return $this->hasOne(ShopQuestion::class, 'dining_car_id', 'id')
+            ->where('status', 1)
+            ->orderBy('id', 'desc')
+            ->latest();
+    }
+
+    public function employee()
+    {
+        return $this->belongsTo(Employee::class, 'id', 'dining_car_id');
+    }
+
+
 }
