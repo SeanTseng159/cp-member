@@ -20,6 +20,7 @@ use Carbon\Carbon;
 class MenuOrderResult
 {
 
+    private $prefix = 'orderDish_';
 
     public function get($menuOrder)
     {
@@ -55,7 +56,7 @@ class MenuOrderResult
         $order->status = $menuOrder->status;
         $order->code = $menuOrder->code;
         if (optional($menuOrder->order)->order_status == '10')
-            $order->qrcode = $menuOrder->qrcode;
+            $order->qrcode = $this->prefix.$menuOrder->qrcode;
         $order->totalAmount = $menuOrder->amount;
         $order->totalQuantity = count($details);
         $order->payment = new \stdClass();
