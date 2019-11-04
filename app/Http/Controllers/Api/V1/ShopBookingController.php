@@ -89,7 +89,7 @@ class ShopBookingController extends RestLaravelController
             if ( strlen((string)$request->input('phone'))>10){
                 throw new \Exception('手機號碼超過，非手機碼');
             }
-            if ( strlen((string)$request->input('demand'))>80){
+            if ( strlen((string)$request->input('demand'))>150){
                 throw new \Exception('要求字太多，請減少');
             }
             if ($request->input('people') <=0){
