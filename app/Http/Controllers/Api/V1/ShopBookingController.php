@@ -81,7 +81,7 @@ class ShopBookingController extends RestLaravelController
                     'people'=> 'required'
                 ]);
             if ($validator->fails()) {
-                throw new \Exception($validator->messages());
+                throw new \Exception('輸入格式錯誤');
             }
             if ( !is_numeric((string)$request->input('phone'))){
                 throw new \Exception('手機要號碼純數字');
