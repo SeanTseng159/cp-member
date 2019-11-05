@@ -49,14 +49,73 @@ class MenuOrderRepository extends BaseRepository
 
     public function create($shopId, $menu, $payment, $cellphone, $time, $remark, $memberId = null)
     {
+        $menuIds = array_column($menu, 'id');
+        $count = $this->menu->where('dining_car_id', $shopId)->whereIn('id', $menuIds)->count();
+
+        if ($count != count($menuIds))
+            throw new \Exception('請選擇同一店鋪的商品');
+
+        if ($payment == 1) {
+
+            $illegalItem = [];
+            //檢查是否為可顯上購買
+            $menuModels = $this->menu
+                ->with('prodSpecPrice.prodSpec.product')
+                ->whereIn('id', $menuIds)
+                ->get();
+
+            foreach ($menuModels as $item) {
+                $name = $item->name;
+                $prodSpecPrice = optional($item->prodSpecPrice);
+                $prodSpec = optional($prodSpecPrice->prodSpec);
+                $product = optional($prodSpec->product);
+                if (is_null($prodSpecPrice) || is_null($prodSpec) || is_null($product))
+                    $illegalItem [] = "[$name]無法線上付款";
+
+                //檢查限購數量
+                $ids = array_column($menu, 'id');
+                $id = array_search($item->id, $ids);
+                $buyQuantity = $menu[$id]['quantity'];
+
+                // 檢查是否有庫存
+                if ($prodSpecPrice->prod_spec_price_stock <= 0) {
+                    $illegalItem [] = "[$name]無庫存";
+                }
+
+                if ($prodSpecPrice->prod_spec_price_stock < $buyQuantity) {
+                    $i = $prodSpecPrice->prod_spec_price_stock;
+                    $illegalItem [] = "[$name]限購 $i 個";
+                }
+
+                //檢查可購買數量
+                if ($product->prod_type === 1 || $product->prod_type === 2) {
+                    if ($product->prod_limit_type == 0) {
+                        if ($buyQuantity > $product->prod_limit_num) {
+                            $i = $product->prod_limit_num;
+                            $illegalItem [] = "[$name]最多可購買 $i 個";
+                        }
+                    } else {
+                        $memberBuyQuantity = $this->orderDetailRepository->getCountByProdAndMember($product->product_id, $memberId);
+                        if (($buyQuantity + $memberBuyQuantity) > $product->prod_limit_num) {
+                            $i = $product->prod_limit_num - $memberBuyQuantity;
+                            $illegalItem [] = "[$name]最多可購買 $i 個";
+                        }
+
+                    }
+                } elseif ($product->prod_type === 3) {
+                    if ($buyQuantity > $product->prod_plus_limit) {
+                        $i = $product->prod_plus_limit;
+                        $illegalItem [] = "[$name]最多可購買 $i 個";
+                    }
+                }
+            }
+            if (count($illegalItem) > 0) {
+                $str = implode("\n", $illegalItem);
+                throw new Exception($str);
+            }
+        } //檢查線受購買完畢
+
         try {
-
-            $menuIds = array_column($menu, 'id');
-            $count = $this->menu->where('dining_car_id', $shopId)->whereIn('id', $menuIds)->count();
-
-            if ($count != count($menuIds))
-                throw new \Exception('請選擇同一店鋪的商品');
-
             \DB::connection('backend')->beginTransaction();
 
             $oderNo = $this->seqMenuOrderRepository->getOrderNo();
@@ -103,14 +162,11 @@ class MenuOrderRepository extends BaseRepository
             $menuOrder->save();
             \DB::connection('backend')->commit();
             return $id;
-
         } catch (Exception $e) {
-
-            Logger::error('Exception Create Order Error', $e->getMessage());
             \DB::connection('backend')->rollBack();
+            Logger::error('Exception Create Order Error', $e->getMessage());
             throw new Exception($e->getMessage());
         }
-
 
     }
 
@@ -190,13 +246,12 @@ class MenuOrderRepository extends BaseRepository
 
     }
 
+
     private function getCode($menu_odre_id)
     {
         $hashids = new Hashids('citypass_menu_order', 7);
         return $hashids->encode($menu_odre_id);
     }
-
-
 
 
 }
