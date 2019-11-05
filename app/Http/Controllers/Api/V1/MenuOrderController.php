@@ -93,7 +93,7 @@ class MenuOrderController extends RestLaravelController
             return $this->success($ret);
         } catch (\Exception $e) {
             Logger::error('MenuOrderController::create', $e->getMessage());
-            return $this->failure('E0001', $e->getMessage());
+            return $this->failure('E9010', $e->getMessage());
         }
     }
 
