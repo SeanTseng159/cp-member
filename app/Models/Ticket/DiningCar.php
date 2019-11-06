@@ -223,5 +223,12 @@ class DiningCar extends BaseModel
         return $this->belongsTo(Employee::class, 'id', 'dining_car_id');
     }
 
+    /*
+     * 線上訂位
+     */
+    public function bookingLimit()
+    {
+        return $this->HasOne(DiningCarBookingLimit::class, 'shop_id', 'id');
+    }
 
 }
