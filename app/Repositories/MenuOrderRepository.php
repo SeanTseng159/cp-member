@@ -172,21 +172,21 @@ class MenuOrderRepository extends BaseRepository
 
     public function get($menuOrderID)
     {
-        return $this->menuOrder->with('shop', 'details', 'details.menu', 'order')
+        return $this->menuOrder->with('shop.bookingLimit', 'details', 'details.menu', 'order')
             ->where('id', $menuOrderID)
             ->first();
     }
 
     public function getByOrderNo($menuOrderNo)
     {
-        return $this->menuOrder->with('shop', 'details', 'details.menu', 'order')
+        return $this->menuOrder->with('shop.bookingLimit', 'details', 'details.menu', 'order')
             ->where('menu_order_no', $menuOrderNo)
             ->first();
     }
 
     public function getByCode($code)
     {
-        return $this->menuOrder->with('shop', 'details.menu.imgs', 'order')
+        return $this->menuOrder->with('shop.bookingLimit', 'details.menu.imgs', 'order')
             ->where('code', $code)
             ->first();
     }
