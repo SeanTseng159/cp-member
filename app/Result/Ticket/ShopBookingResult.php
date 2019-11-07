@@ -164,7 +164,8 @@ class ShopBookingResult
         $shop->shareUrl = CommonHelper::getWebHost('zh-TW/shop/detail/' . $id);
         $shop->precautions = $shopInfo->precautions;
         $shop->isFavorite = (count($favoriteList)) > 0 ? true : false;
-        $shop->canOnlineOrder = $shopInfo->canOrdering;
+
+        $shop->canOnlineOrder = $shopInfo->shopInfo->canOrdering;
         if (empty($shopInfo->mainImg->folder)) {
             $shop->img = '';
         } else {

@@ -145,13 +145,14 @@ class ShopBookingController extends RestLaravelController
 
         } catch (\Exception $e) {
             Logger::error('ShopBookingController::finishedBooking', $e->getMessage());
-            return $this->responseFormat($data = null, $code = 'E0001', $message = $e->getMessage());
+            return $this->failure('E0001', $e->getMessage());
         }//end try
     }//end public function finishedBooking
 
 
     public function getOenDetailInfo(Request $request, $shopId, $id)
     {
+
         $memberID = $this->getMemberId();
         try {
 
