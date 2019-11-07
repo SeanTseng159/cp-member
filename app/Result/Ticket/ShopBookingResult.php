@@ -164,7 +164,8 @@ class ShopBookingResult
         $shop->shareUrl = CommonHelper::getWebHost('zh-TW/shop/detail/' . $id);
         $shop->precautions = $shopInfo->precautions;
         $shop->isFavorite = (count($favoriteList)) > 0 ? true : false;
-        $shop->canOnlineOrder = $shopInfo->canOrdering;
+
+        $shop->canOnlineOrder = $shopInfo->shopInfo->canOrdering;
         if (empty($shopInfo->mainImg->folder)) {
             $shop->img = '';
         } else {
@@ -210,6 +211,7 @@ class ShopBookingResult
 
             $shop->img = ImageHelper::url($dataDetailInfo->mainImg);
         }
+        $shop->canOnlineOrder = $shopInfo->shopInfo->canOrdering;
 
         //整理進入result裡面
         $result = new \stdClass;
@@ -255,12 +257,14 @@ class ShopBookingResult
             $result->shop->isFavorite = (count($favoriteList)) > 0 ? true : false;
             $result->shop->shareUrl = CommonHelper::getWebHost('zh-TW/shop/detail/' . $bookingRecord->shop_id);
             $result->shop->precautions = $bookingRecord->shopLimit->precautions;
+
             if (empty($bookingRecord->mainImg->folder)) {
                 $result->shop->img = '';
             } else {
 
                 $result->shop->img = ImageHelper::url($bookingRecord->mainImg);
             }
+            $result->shop->canOnlineOrder = (boolean)$bookingRecord->diningCar->canOrdering;
 
             $ret[] = $result;
 
