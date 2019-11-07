@@ -211,7 +211,7 @@ class ShopBookingResult
 
             $shop->img = ImageHelper::url($dataDetailInfo->mainImg);
         }
-        $shop->canOnlineOrder = $shopInfo->shopInfo->canOrdering;
+        $shop->canOnlineOrder = (boolean)$shopInfo->shopInfo->canOrdering;
 
         //整理進入result裡面
         $result = new \stdClass;
