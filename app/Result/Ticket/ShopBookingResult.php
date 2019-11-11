@@ -29,57 +29,60 @@ class ShopBookingResult
     ///取得店舖可訂位日期
     public function findBookingCanDate($bookingLimit, $bookingDateBooked, $bookingDateTimes, $bookingNumOfPeo)
     {
-        //重開始到結束時間整理一下
-        $startday = $bookingLimit->start_days;
-        $endday = $bookingLimit->end_days;
-        //
-        $result = [];
-        for ($i = $startday; $i <= $endday; $i++) {
-            //訂位只能明天開始，所以今天加上店家的設定
-            $day = Carbon::today()->addDays($i);
-            //將日期轉換成星期幾? 0:星期日  1:星期一 .....等等
-            $dayWeek = $day->dayOfWeek;
 
-            //寫個function用filter 處理時間相關問題
-            $filtered = $bookingDateTimes->filter(function ($value, $key) use ($dayWeek) {
-                return $value->day === $dayWeek;
-            });
-            //將資料取出來
-            $filterData = $filtered->all();
+    	//重開始到結束時間整理一下
+    	$startday=$bookingLimit->start_days;
+    	$endday  =$bookingLimit->end_days;
+    	//
+    	$result=[];
+    	for ($i=$startday;$i<=$endday;$i++)
+    	{
+    		//訂位只能明天開始，所以今天加上店家的設定
+    		$day=Carbon::today()->addDays($i);
+    		//將日期轉換成星期幾? 0:星期日  1:星期一 .....等等
+    		$dayWeek=$day->dayOfWeek;
 
-            if (empty($filterData)) {
-                //pass 不用處理
-                // print("pass is ".$dayWeek.'<br>');
-            } else {
-                //目標整理成 array
-                //date   time  accept_people
-                //2019/10/1  12:00  10
-                //2019/10/1  13:00  10
-                foreach ($filterData as $key => $value) {
-                    $array = new \stdClass;
-                    $array->date = $day->toDateString();
-                    $array->time = Carbon::parse($value->time)->format('H:i');
-                    // $array->time= $value->time;
-                    $array->accept_people = $value->accept_people;
-                    $array->dayOfWeek = $dayWeek;
-                    $result[] = $array;
-                }//end foreach
-            }//end if(empty($filterData)
+    		//寫個function用filter 處理時間相關問題
+    		$filtered = $bookingDateTimes->filter(function ($value,$key) use($dayWeek) {
+    			return $value->day === $dayWeek;
+			});
+    		//將資料取出來
+    		$filterData=$filtered->all();
 
-        }//end for ($i=$startday;$i<=$endday;$i++)
+    		if(empty($filterData)){
+    			//pass 不用處理
+    			// print("pass is ".$dayWeek.'<br>');
+    		}
+    		else{
+    			//目標整理成 array
+    			//date   time  accept_people
+    			//2019/10/1  12:00  10
+    			//2019/10/1  13:00  10
+    			foreach ($filterData as $key => $value) {
+    				$array=new \stdClass;
+    				$array->date=$day->toDateString();
+					$array->time= Carbon::parse($value->time)->format('H:i');
+					// $array->time= $value->time;
+    				$array->accept_people=$value->accept_people;
+    				$array->dayOfWeek=$dayWeek;
+    				$result[]=$array;
+    			}//end foreach
+    		}//end if(empty($filterData)
 
+    	}//end for ($i=$startday;$i<=$endday;$i++)
 
-        foreach ($bookingDateBooked as $key => $value) {
-            # code...
-            $booking_date = $value->booking_date;
-            $booking_time = $value->booking_time;
-            $booking_people = $value->sum_people;
-            $st = collect($result)->search(function ($value, $key) use ($booking_date, $booking_time) {
-                return (Carbon::parse($value->date)->format('Y-m-d') == Carbon::parse($booking_date)->format('Y-m-d')
-                    && Carbon::parse($value->time)->format('H:i') == Carbon::parse($booking_time)->format('H:i'));
-            });
-            //取出已經訂位人數然後減去資料
-            $result[$st]->accept_people = ($result[$st]->accept_people - $booking_people);
+        if(empty($result)){return [];}
+    	foreach ($bookingDateBooked as $key => $value) {
+    		# code...
+    		$booking_date=$value->booking_date;
+    		$booking_time=$value->booking_time;
+    		$booking_people=$value->sum_people;
+    		$st=collect($result)->search(function ($value, $key)  use($booking_date,$booking_time){
+                return (Carbon::parse($value->date)->format('Y-m-d')== Carbon::parse($booking_date)->format('Y-m-d')
+                        && Carbon::parse($value->time)->format('H:i')== Carbon::parse($booking_time)->format('H:i') );
+			});
+			//取出已經訂位人數然後減去資料
+    		$result[$st]->accept_people=($result[$st]->accept_people-$booking_people);
         }
 
         //判斷訂位人數是否這次要求是否可以訂位!!!
