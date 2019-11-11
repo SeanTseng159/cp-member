@@ -69,7 +69,7 @@ class ShopBookingResult
 
     	}//end for ($i=$startday;$i<=$endday;$i++)
 
-
+        if(empty($result)){return [];}
     	foreach ($bookingDateBooked as $key => $value) {
     		# code...
     		$booking_date=$value->booking_date;
