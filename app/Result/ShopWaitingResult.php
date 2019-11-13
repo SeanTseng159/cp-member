@@ -81,6 +81,7 @@ class ShopWaitingResult
             $result->shop->isFavorite = $this->isFavorite($memberDiningCars, $shopId);
             $result->shop->shareUrl = $this->getWebHost($shopId);
             $result->shop->photo = ImageHelper::url($shop->mainImg);
+            $result->shop->canOnlineOrder = (boolean)$shop->canOrdering;
 
             //waiting Record
             $result->waitingId = $waitingRecord->id;
@@ -104,13 +105,15 @@ class ShopWaitingResult
         $shop = $waiting->shop;
 
         $data = new \stdClass();
+
         $data->shop = new \stdClass();
         $data->shop->id = $shop->id;
         $data->shop->name = $shop->name;
         $data->shop->shareUrl = $this->getWebHost($shop->id);
-
         $data->shop->isFavorite = $this->isFavorite($memberDiningCars, $shop->id);
         $data->shop->img = ImageHelper::url($shop->mainImg);
+        $data->shop->canOnlineOrder = (boolean)$shop->canOrdering;
+
         $data->name = $waiting->name;
         $data->cellphone = $waiting->cellphone;
         $data->number = $waiting->number;
@@ -142,7 +145,6 @@ class ShopWaitingResult
             return $item->dining_car_id == $shopId;
         });
 
-        
 
         if ($favoriteList->count() > 0)
             return true;

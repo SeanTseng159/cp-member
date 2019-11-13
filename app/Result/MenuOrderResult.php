@@ -27,6 +27,7 @@ class MenuOrderResult
         $shop = new \stdClass();
         $shop->id = $menuOrder->shop->id;
         $shop->name = $menuOrder->shop->name;
+        $shop->canBooking = ($menuOrder->shop->canBooking && $menuOrder->shop->bookingLimit);
 
         $details = $menuOrder->details;
         $menus = [];

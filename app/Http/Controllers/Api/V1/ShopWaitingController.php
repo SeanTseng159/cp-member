@@ -12,6 +12,7 @@ use App\Traits\ShopHelper;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Ksd\Mediation\Core\Controller\RestLaravelController;
+use phpDocumentor\Reflection\Types\Boolean;
 
 class ShopWaitingController extends RestLaravelController
 {
@@ -130,7 +131,13 @@ class ShopWaitingController extends RestLaravelController
             //取得候位組數
             $count = $this->service->getWaitingNumber($shopId, $record->waiting_no);
 
+
             $data = new \stdClass();
+
+            $shop = new \stdClass();
+            $shop->canOnlineOrder = (boolean) $waiting->canOrdering;
+            $data->shop = $shop;
+
             $data->id = $record->id;
             $data->name = $userName;
             $data->cellphone = $record->cellphone;
@@ -140,6 +147,10 @@ class ShopWaitingController extends RestLaravelController
             $data->code = $record->code;
             $data->WaitingNum = $count;
             $data->status = $record->status;
+
+
+
+
             return $this->success($data);
         } catch (\Exception $e) {
             Logger::error('ShopWaitingController::create', $e->getMessage());
