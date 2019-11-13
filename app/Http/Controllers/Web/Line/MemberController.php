@@ -38,9 +38,9 @@ class MemberController extends Controller
      */
     public function callback(Request $request, $platform = 'web')
     {
-      // try {
+      try {
         $this->platform = $platform;
-        // Log::info('=== line callback check ===');
+        Log::info('=== line callback check ===');
 
         if(isset($request->query()['error'])) return $this->failureRedirect('E0001','無法取得使用者資訊');
         $code = $request->query()['code'];
@@ -55,15 +55,14 @@ class MemberController extends Controller
         $payload = $this->service->getPayload($tokenInfo);
         if(!isset($payload->email)) return $this->failureRedirect('E0002','無法取得Email');
 
-        // $result = (new MemberParameter)->member($tokenInfo, $user_profile, $payload);
+        $result = (new MemberParameter)->member($user_profile, $payload);
 
-        // return $this->successRedirect($request->query());
-        dd($tokenInfo);
-      // }
-      // catch (\Exception $e) {
-      //     // Log::info('=== ipass 會員登入錯誤 ===');
-      //     return $this->failureRedirect();
-      // }
+        return $this->successRedirect($request->query());
+      }
+      catch (\Exception $e) {
+          Log::info('=== line 會員登入錯誤 ===');
+          return $this->failureRedirect();
+      }
     }
 
     private function failureRedirect($errorCode, $message)

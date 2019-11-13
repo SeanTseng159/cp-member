@@ -22,11 +22,11 @@ class MemberService
      */
     public function loginUrl($platform)
     {
-      $client_id = config('social.line.channel_id');
-      $redirect_url = route('line.memberCallback') .'/'. $platform;
-      $url = 'https://access.line.me/oauth2/v2.1/authorize?response_type=code&client_id=' . $client_id . '&redirect_uri=' . $redirect_url . '&state=citypass&scope=openid%20profile%20email&nonce=citypassksd';
+        $client_id = env('LINE_CHANNEL_ID');
+        $redirect_url = route('line.memberCallback') .'/'. $platform;
+        $url = 'https://access.line.me/oauth2/v2.1/authorize?response_type=code&client_id=' . $client_id . '&redirect_uri=' . $redirect_url . '&state=citypass&scope=openid%20profile%20email&nonce=citypassksd';
 
-      return $url;
+        return $url;
     }
 
     /**
@@ -42,8 +42,8 @@ class MemberService
               'grant_type' => 'authorization_code',
               'code' => $code,
               'redirect_uri' => route('line.memberCallback') .'/'. $platform,
-              'client_id' => config('social.line.channel_id'),
-              'client_secret' => config('social.line.channel_secret')
+              'client_id' => env('LINE_CHANNEL_ID'),
+              'client_secret' => env('LINE_SECRET')
           ]
       ]);
 
@@ -76,7 +76,7 @@ class MemberService
      */
     public function getPayload($tokenInfo)
     {
-      return JWT::decode($tokenInfo->id_token, config('social.line.channel_secret'), ['HS256']);
+      return JWT::decode($tokenInfo->id_token, env('LINE_SECRET'), ['HS256']);
     }
 
     /**
