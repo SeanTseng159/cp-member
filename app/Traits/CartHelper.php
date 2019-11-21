@@ -20,17 +20,17 @@ trait CartHelper
 
     /**
      * 檢查購物車內商品狀態、金額、數量
-     * @param $isPhysical
+     * @param $isPhysical, $source
      * @return array
      */
-    private function getCheckoutInfo($isPhysical = false)
+    private function getCheckoutInfo($isPhysical = false, $source = 'ct_pass')
     {
         $paymentMethodService = app()->build(PaymentMethodService::class);
         $all = $paymentMethodService->all();
 
-        $result['payments'] = (new PaymentInfoResult)->getPayments($all);
+        $result['payments'] = (new PaymentInfoResult)->getPayments($all, $source);
         // 取付款方式
-        $result['shipments'] = (new PaymentInfoResult)->getShipments($isPhysical);
+        $result['shipments'] = (new PaymentInfoResult)->getShipments($isPhysical, $source);
             // 取發票方式
         $result['billings'] = (new PaymentInfoResult)->getBillings();
 
