@@ -13,18 +13,23 @@ use Ksd\Payment\Services\LinePayService;
 use Ksd\Payment\Services\TspgService;
 use App\Services\Ticket\CreditCardService;
 use App\Core\Logger;
+use App;
+use App\Services\MemberService;
+use Ksd\Payment\Services\BlueNewPayService;
 
 class PaymentService
 {
     protected $orderRepository;
     protected $linePayService;
     protected $tspgService;
+    protected $blueNewPayService;
 
-    public function __construct(OrderRepository $orderRepository, LinePayService $linePayService, TspgService $tspgService)
+    public function __construct(OrderRepository $orderRepository, LinePayService $linePayService, TspgService $tspgService,BlueNewPayService $blueNewPayService)
     {
         $this->orderRepository = $orderRepository;
         $this->linePayService = $linePayService;
         $this->tspgService = $tspgService;
+        $this->blueNewPayService=$blueNewPayService;
     }
 
     /**
@@ -36,6 +41,30 @@ class PaymentService
     public function payment($payment, $params = [])
     {
         switch ($payment['gateway']) {
+            // 藍新金流
+            case '1':
+            $member=App::make(MemberService::class)->find($params['memberId']);
+            $mobleParams=new \stdClass;
+            $mobleParams->MerchantOrderNo=$params['orderNo'];
+            $mobleParams->Amt=$params['payAmount'];
+            $mobleParams->ProdDesc="CityPass 商品 - 共 {$params['itemsCount']} 項";
+            $mobleParams->PayerEmail=(!empty($member->email))?$member->email:$member->openId;
+
+
+            // google pay
+            if ($payment['method'] === '711') {
+                $mobleParams->mobileToken=$payment['mobileToken'];
+                $mobleParams->type='google';
+                $result=$this->blueNewPayService->newReserve($mobleParams);
+            }
+            // apple pay
+            elseif ($payment['method'] === '811') {
+                $mobleParams->mobileToken=$payment['mobileToken'];
+                $mobleParams->type='apple';
+                $result=$this->blueNewPayService->newReserve($mobleParams);
+
+            }
+            break;
             // 台新金流
             case '3':
 
