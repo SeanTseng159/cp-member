@@ -34,6 +34,12 @@ Route::middleware(['cors', 'auth.jwt'])->namespace('V2')->group(function () {
     });
 
     Route::prefix('cart')->group(function () {
+        // 立即購買
+        Route::post('buyNow', 'CartController@buyNow')->middleware('verify.cart.buyNow');
+
+        // 獨立賣場立即購買
+        Route::post('buyNow/market', 'CartController@market')->middleware('verify.cart.buyNow.market');
+        
         // 取立即購買 (購物車跟付款資訊)
         Route::get('buyNow/info', 'CartController@info')->middleware('verify.cart.buyNow.info');
     });
