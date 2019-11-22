@@ -23,14 +23,14 @@ trait CartHelper
      * @param $isPhysical, $source
      * @return array
      */
-    private function getCheckoutInfo($isPhysical = false, $source = 'ct_pass')
+    private function getCheckoutInfo($isPhysical = false, $source = null, $shipments_type = 'object')
     {
         $paymentMethodService = app()->build(PaymentMethodService::class);
         $all = $paymentMethodService->all();
 
         $result['payments'] = (new PaymentInfoResult)->getPayments($all, $source);
         // 取付款方式
-        $result['shipments'] = (new PaymentInfoResult)->getShipments($isPhysical, $source);
+        $result['shipments'] = (new PaymentInfoResult)->getShipments($isPhysical, $source, $shipments_type);
             // 取發票方式
         $result['billings'] = (new PaymentInfoResult)->getBillings();
 
