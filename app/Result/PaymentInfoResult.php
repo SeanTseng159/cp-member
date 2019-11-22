@@ -16,7 +16,7 @@ class PaymentInfoResult extends BaseResult
      * @param $payments
      * @return array
      */
-    public function getPayments($payments, $source = '')
+    public function getPayments($payments, $source = null)
     {
         if ($payments->isEmpty()) return [];
 
@@ -33,12 +33,13 @@ class PaymentInfoResult extends BaseResult
      * @param $payment
      * @return object
      */
-    private function getPayment($payment, $source = '')
+    private function getPayment($payment, $source = null)
     {
         if (!$payment) return null;
 
         $pay = new \stdClass;
-        $pay->source = $source;
+
+        if(!is_null($source)) $pay->source = $source;
         $pay->id = $payment->sid;
         $pay->name = $payment->sname;
         $pay->type = $payment->name;
@@ -51,26 +52,32 @@ class PaymentInfoResult extends BaseResult
      * @param $isPhysical
      * @return array
      */
-    public function getShipments($isPhysical, $source = '')
+    public function getShipments($isPhysical, $source = null, $shipments_type = 'object')
     {
         $shipment = new \stdClass;
+        if(!is_null($source)) $shipment->source = $source;
 
         if ($isPhysical) {
-            $shipment->source = $source;
             $shipment->id = 2;
             $shipment->name = '宅配到府';
             $shipment->description = '宅配到府';
             $shipment->type = 'delivery';
         }
         else {
-            $shipment->source = $source;
             $shipment->id = 1;
             $shipment->name = '電子票券';
             $shipment->description = 'APP_我的票券';
             $shipment->type = 'virtual_ticket';
         }
 
-        return $shipment;
+        if($shipments_type == 'array') {
+            $shipmentResult = [];
+            $shipmentResult[] = $shipment;
+            return $shipmentResult;
+        }
+        else {
+            return $shipment;
+        }
     }
 
     /**
