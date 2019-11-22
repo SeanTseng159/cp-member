@@ -16,13 +16,13 @@ class PaymentInfoResult extends BaseResult
      * @param $payments
      * @return array
      */
-    public function getPayments($payments)
+    public function getPayments($payments, $source = '')
     {
         if ($payments->isEmpty()) return [];
 
         $result = [];
         foreach ($payments as $payment) {
-            $result[] = $this->getPayment($payment);
+            $result[] = $this->getPayment($payment, $source);
         }
 
         return $result;
@@ -33,11 +33,12 @@ class PaymentInfoResult extends BaseResult
      * @param $payment
      * @return object
      */
-    private function getPayment($payment)
+    private function getPayment($payment, $source = '')
     {
         if (!$payment) return null;
 
         $pay = new \stdClass;
+        $pay->source = $source;
         $pay->id = $payment->sid;
         $pay->name = $payment->sname;
         $pay->type = $payment->name;
@@ -50,17 +51,19 @@ class PaymentInfoResult extends BaseResult
      * @param $isPhysical
      * @return array
      */
-    public function getShipments($isPhysical)
+    public function getShipments($isPhysical, $source = '')
     {
         $shipment = new \stdClass;
 
         if ($isPhysical) {
+            $shipment->source = $source;
             $shipment->id = 2;
             $shipment->name = '宅配到府';
             $shipment->description = '宅配到府';
             $shipment->type = 'delivery';
         }
         else {
+            $shipment->source = $source;
             $shipment->id = 1;
             $shipment->name = '電子票券';
             $shipment->description = 'APP_我的票券';

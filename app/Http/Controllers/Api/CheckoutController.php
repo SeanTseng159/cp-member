@@ -25,10 +25,12 @@ use App\Result\Ticket\OrderResult;
 use App\Services\MemberService;
 use Ksd\Payment\Services\LinePayService;
 use App\Traits\StringHelper;
+use App\Traits\CartHelper;
 
 class CheckoutController extends RestLaravelController
 {
     use StringHelper;
+    use CartHelper;
 
     protected $lang;
     protected $service;
@@ -49,7 +51,13 @@ class CheckoutController extends RestLaravelController
      */
     public function info($source)
     {
-        return $this->success($this->service->info($source));
+        if($source == 'ct_pass') {
+            return $this->success($this->getCheckoutInfo());
+        }
+        else if($source == 'magento') {
+            return $this->success($this->getCheckoutInfo(true, $source));
+        }
+        // return $this->success($this->service->info($source));
     }
 
     /**
