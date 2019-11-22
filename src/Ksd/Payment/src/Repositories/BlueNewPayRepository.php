@@ -7,7 +7,6 @@
 
 namespace Ksd\Payment\Repositories;
 
-use Ksd\Mediation\CityPass\Checkout as CityPassCheckout;
 use Ksd\Payment\Models\Client;
 use Exception;
 use Log;
@@ -34,6 +33,8 @@ class BlueNewPayRepository extends Client
             $result = json_decode($response->getBody(), true);
 
             return $result;
+
+
         } catch (ClientException $e) {
             Log::debug('=== linepay reserve error ===');
             Log::debug(print_r($e->getMessage(), true));
@@ -43,30 +44,30 @@ class BlueNewPayRepository extends Client
             Log::debug(print_r($e->getMessage(), true));
             return false;
         }
+
+
     }
 
     /**
-     * confirm
+     * merchantValidation
      * @param $parameters
      * @return mixed
      */
-    public function confirm($parameters)
+    public function merchantValidation($parameters)
     {
         try {
             $response = $this->putParameters($parameters)
-                ->request('POST', 'v1/linepay/confirmToApi');
-
+                ->request('POST', 'v1/bluenewpay/merchant');
             $result = json_decode($response->getBody(), true);
 
             return $result;
-        } catch (ClientException $e) {
-            Log::debug('=== linepay confirm error ===');
-            Log::debug(print_r($e->getMessage(), true));
-            return false;
         } catch (Exception $e) {
-            Log::debug('=== linepay confirm unknown error ===');
+            Log::debug('=== 藍新金流 error ===');
             Log::debug(print_r($e->getMessage(), true));
             return false;
         }
+
+
     }
 }
+
