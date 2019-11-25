@@ -23,27 +23,6 @@ class BlueNewPayService
         $this->order_repository = $order_repository;
     }
 
-        /**
-     * reserve
-     * @param $mobleParams
-     * @return mixed
-     */
-    public function newReserve($mobleParams)
-    {
-        if ($mobleParams['orderNo']) {
-            // 導向路徑
-            if ($mobleParams['type'] === 'google') {
-                return $this->repository->reserve($mobleParams);
-            } else if ($mobleParams['type'] === 'apple') {
-                return $this->repository->reserve($mobleParams);
-            }
-        }
-
-        return [
-            'code' => 'E0101',
-            'message' => '訂單不存在'
-        ];
-    }
 
     public function merchant($url)
     {
