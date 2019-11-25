@@ -19,28 +19,30 @@ class BlueNewPayRepository extends Client
         parent::__construct();
     }
 
+
     /**
-     * reserve
+     * confirm
      * @param $parameters
      * @return mixed
      */
-    public function reserve($parameters)
+    public function confirm($parameters)
     {
         try {
+            dd($parameters);
             $response = $this->putParameters($parameters)
-                ->request('POST', 'v1/bluenewpay/reserve');
+                ->request('POST', 'v1/bluenewpay/confirm');
 
-            $result = json_decode($response->getBody(), true);
+            $result = $response;
 
             return $result;
 
 
         } catch (ClientException $e) {
-            Log::debug('=== linepay reserve error ===');
+            Log::debug('=== bluenewpay confirm error ===');
             Log::debug(print_r($e->getMessage(), true));
             return false;
         } catch (Exception $e) {
-            Log::debug('=== linepay reserve unknown error ===');
+            Log::debug('=== bluenewpay confirm unknown error ===');
             Log::debug(print_r($e->getMessage(), true));
             return false;
         }
