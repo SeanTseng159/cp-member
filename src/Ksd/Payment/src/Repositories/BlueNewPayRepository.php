@@ -29,10 +29,10 @@ class BlueNewPayRepository extends Client
     public function confirm($parameters)
     {
         try {
-            Log::debug('======= start sent bluenewpay =======');
+            Log::alert('======= start sent bluenewpay =======');
             $response = $this->putParameters($parameters)
                 ->request('POST', 'v1/bluenewpay/confirm');
-            Log::debug('======= end sent bluenewpay =======');
+            Log::alert('======= end sent bluenewpay =======');
 
             $result = $response;
 
