@@ -35,7 +35,7 @@ class BlueNewPayService
      */
     public function confirm($parameters)
     {
-        Log::debug('======= start sent bluenewpay  service=======');
+        Log::alert('======= start sent bluenewpay  service=======');
         return $this->repository->confirm($parameters);
     }
 }

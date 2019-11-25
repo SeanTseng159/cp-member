@@ -56,13 +56,11 @@ class BlueNewPayController extends RestLaravelController
             // count how many
             $itemsCount=collect($order->detail)->count();
             $member=App::make(MemberService::class)->find($order->member_id);
-            $mobleParams->PayerEmail=(!empty($member->email))?$member->email:$member->openId;
-
-
+            $email=(!empty($member->email))?$member->email:$member->openId;
             $mobleParams=["MerchantOrderNo" => $orderNumber,
                           "Amt" => $order->order_amount,
                           "ProdDesc" => "CityPass 商品 - 共 {$itemsCount} 項",
-                          "PayerEmail" => (!empty($member->email))?$member->email:$member->openId,
+                          "PayerEmail" => $email ,
                           "device" => $request->input('device'),
                           "payMethod" => $request->input('payMethod'),
                           "token" => $request->input('token')
@@ -84,6 +82,8 @@ class BlueNewPayController extends RestLaravelController
             }
 
         }catch(Exception $e){
+            Logger::alert('=== bluenewpayController deBug===');
+            Logger::alert($e);
             return $this->failureCode('E9000');
         }
 
