@@ -415,6 +415,21 @@ class OrderRepository extends BaseRepository
     }
 
     /**
+     * 根據 No 找單一訂單的詳細資料
+     * @param $orderNo
+     * @return mixed
+     */
+    public function findByOrderNoWithDetail($orderNo = 0)
+    {
+        if (!$orderNo) return null;
+
+        return $this->model->with(['detail'])
+            ->notDeleted()
+            ->where('order_no', $orderNo)
+            ->first();
+    }
+
+    /**
      * 根據 No 找單一訂單 [未失效]
      * @param $memberId
      * @param $orderNo

@@ -53,18 +53,19 @@ class BlueNewPayRepository extends Client
     public function confirm($parameters)
     {
         try {
+            dd($parameters);
             $response = $this->putParameters($parameters)
-                ->request('POST', 'v1/linepay/confirmToApi');
+                ->request('POST', 'v1/bluenewpay/confirm');
 
-            $result = json_decode($response->getBody(), true);
+            $result = $response;
 
             return $result;
         } catch (ClientException $e) {
-            Log::debug('=== linepay confirm error ===');
+            Log::debug('=== bluenewpay confirm error ===');
             Log::debug(print_r($e->getMessage(), true));
             return false;
         } catch (Exception $e) {
-            Log::debug('=== linepay confirm unknown error ===');
+            Log::debug('=== bluenewpay confirm unknown error ===');
             Log::debug(print_r($e->getMessage(), true));
             return false;
         }
