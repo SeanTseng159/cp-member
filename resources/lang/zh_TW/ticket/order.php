@@ -28,14 +28,17 @@ return [
     		'unknown' => '未知',
     		'ipasspay' => 'iPassPay',
     		'tspg' => '台新',
-            'linepay' => 'LINE Pay'
+            'linepay' => 'LINE Pay',
+            'neweb' => '藍新'
     	],
     	'method' => [
     		'unknown' => '未知',
     		'credit_card' => '信用卡一次付清',
     		'atm' => 'ATM虛擬帳號',
     		'ipasspay' => 'iPassPay',
-            'linepay' => 'LINE Pay'
+            'linepay' => 'LINE Pay',
+            'googlepay' => 'Google Pay',
+            'applepay' => 'Apple Pay'
     	],
     	'ipasspay' => [
     		'ACCLINK' => '約定連結帳戶付款',
