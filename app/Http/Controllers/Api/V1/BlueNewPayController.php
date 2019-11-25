@@ -67,9 +67,9 @@ class BlueNewPayController extends RestLaravelController
             $mobleParams->payMethod=$request->input('payMethod');
             $mobleParams->token=$request->input('token');
             Logger::alert('===for payment data ====');
-            Logger::alert($mobleParams);
+            Logger::alert($mobleParams->MerchantOrderNo);
             $result=$this->blueNewPayService->confirm($mobleParams);
-
+            Logger::alert('===end payment data ====');
             if ($result['code'] === '00000') {
 
                 $this->orderService->updateByOrderNo($orderNumber,['order_status'=>10]);

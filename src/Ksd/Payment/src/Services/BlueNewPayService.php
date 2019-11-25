@@ -10,7 +10,7 @@ namespace Ksd\Payment\Services;
 use Ksd\Payment\Repositories\BlueNewPayRepository;
 use Ksd\Mediation\Repositories\OrderRepository;
 use Ksd\Mediation\Config\ProjectConfig;
-
+use Log;
 class BlueNewPayService
 {
 	protected $repository;
@@ -29,6 +29,7 @@ class BlueNewPayService
      */
     public function confirm($parameters)
     {
+        Log::debug('======= start sent bluenewpay  service=======');
         return $this->repository->confirm($parameters);
     }
 }

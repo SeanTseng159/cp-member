@@ -7,11 +7,11 @@
 
 namespace Ksd\Payment\Repositories;
 
-use Ksd\Mediation\CityPass\Checkout as CityPassCheckout;
+
 use Ksd\Payment\Models\Client;
 use Exception;
 use Log;
-use App\Core\Logger;
+
 
 class BlueNewPayRepository extends Client
 {
@@ -29,10 +29,10 @@ class BlueNewPayRepository extends Client
     public function confirm($parameters)
     {
         try {
-            Logger::alert('======= start sent bluenewpay =======');
+            Log::debug('======= start sent bluenewpay =======');
             $response = $this->putParameters($parameters)
                 ->request('POST', 'v1/bluenewpay/confirm');
-            Logger::alert('======= end sent bluenewpay =======');
+            Log::debug('======= end sent bluenewpay =======');
 
             $result = $response;
 
