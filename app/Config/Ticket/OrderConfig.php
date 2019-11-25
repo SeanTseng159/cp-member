@@ -104,7 +104,9 @@ class OrderConfig extends BaseConfig
         111 => 'credit_card',
         211 => 'atm',
         411 => 'ipasspay',
-        611 => 'linepay'
+        611 => 'linepay',
+        711 => 'googlepay',
+        811 => 'applepay',
     ];
 
     # 銀行名稱
