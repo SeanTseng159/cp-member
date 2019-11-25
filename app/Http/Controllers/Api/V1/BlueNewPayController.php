@@ -49,7 +49,7 @@ class BlueNewPayController extends RestLaravelController
     {
         try{
 
-            $mobleParams=new \stdClass;
+
             $orderNumber=$request->input('orderNumber');
             //get order data
             $order = $this->orderService->findByOrderNoWithDetail($orderNumber);
@@ -59,15 +59,16 @@ class BlueNewPayController extends RestLaravelController
             $mobleParams->PayerEmail=(!empty($member->email))?$member->email:$member->openId;
 
 
-            $mobleParams->MerchantOrderNo=$orderNumber;
-            $mobleParams->Amt=$order->order_amount;
-            $mobleParams->ProdDesc="CityPass 商品 - 共 {$itemsCount} 項";
-            $mobleParams->PayerEmail=(!empty($member->email))?$member->email:$member->openId;
-            $mobleParams->device=$request->input('device');
-            $mobleParams->payMethod=$request->input('payMethod');
-            $mobleParams->token=$request->input('token');
+            $mobleParams=["MerchantOrderNo" => $orderNumber,
+                          "Amt" => $order->order_amount,
+                          "ProdDesc" => "CityPass 商品 - 共 {$itemsCount} 項",
+                          "PayerEmail" => (!empty($member->email))?$member->email:$member->openId,
+                          "device" => $request->input('device'),
+                          "payMethod" => $request->input('payMethod'),
+                          "token" => $request->input('token')
+                       ];
             Logger::alert('===for payment data ====');
-            Logger::alert($mobleParams->MerchantOrderNo);
+            Logger::alert($mobleParams['MerchantOrderNo']);
             $result=$this->blueNewPayService->confirm($mobleParams);
             Logger::alert('===end payment data ====');
             if ($result['code'] === '00000') {
