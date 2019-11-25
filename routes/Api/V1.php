@@ -198,6 +198,11 @@ Route::middleware('cors')->namespace('V1')->group(function () {
         Route::get('map/stores', 'LinePayMapController@stores');
     });
 
+    // 藍新金流相關
+    Route::prefix('blueNewPay')->group(function () {
+        Route::post('confirm', 'BlueNewPayController@confirm');
+    });
+
     // 其他
     Route::prefix('service')->group(function () {
         // 常見問題

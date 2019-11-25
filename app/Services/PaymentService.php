@@ -43,26 +43,17 @@ class PaymentService
         switch ($payment['gateway']) {
             // 藍新金流
             case '1':
-            $member=App::make(MemberService::class)->find($params['memberId']);
-            $mobleParams=new \stdClass;
-            $mobleParams->MerchantOrderNo=$params['orderNo'];
-            $mobleParams->Amt=$params['payAmount'];
-            $mobleParams->ProdDesc="CityPass 商品 - 共 {$params['itemsCount']} 項";
-            $mobleParams->PayerEmail=(!empty($member->email))?$member->email:$member->openId;
 
 
             // google pay
             if ($payment['method'] === '711') {
-                $mobleParams->mobileToken=$payment['mobileToken'];
-                $mobleParams->type='google';
-                $result=$this->blueNewPayService->newReserve($mobleParams);
+
+                return ['orderNo' => $params['orderNo']];
             }
             // apple pay
             elseif ($payment['method'] === '811') {
-                $mobleParams->mobileToken=$payment['mobileToken'];
-                $mobleParams->type='apple';
-                $result=$this->blueNewPayService->newReserve($mobleParams);
 
+                return ['orderNo' => $params['orderNo']];
             }
             break;
             // 台新金流
