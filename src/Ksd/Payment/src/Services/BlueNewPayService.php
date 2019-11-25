@@ -48,4 +48,14 @@ class BlueNewPayService
         return $this->repository->merchantValidation(['url' => $url]);
     }
 
+
+     /* confirm
+     * @param $parameters
+     * @return mixed
+     */
+    public function confirm($parameters)
+    {
+        return $this->repository->confirm($parameters);
+    }
+
 }
