@@ -45,7 +45,6 @@ class BlueNewPayController extends RestLaravelController
         $this->blueNewPayService=$blueNewPayService;
     }
 
-
     public function confirm(Request $request)
     {
         try{
