@@ -34,7 +34,7 @@ class BlueNewPayRepository extends Client
                 ->request('POST', 'v1/bluenewpay/confirm');
             Log::alert('======= end sent bluenewpay =======');
 
-            $result = json_decode($response);
+            $result = json_decode($response->getBody(), true);
 
             return $result;
 
