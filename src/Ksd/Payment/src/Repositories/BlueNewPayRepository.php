@@ -7,10 +7,11 @@
 
 namespace Ksd\Payment\Repositories;
 
+
 use Ksd\Payment\Models\Client;
 use Exception;
 use Log;
-use App\Core\Logger;
+
 
 class BlueNewPayRepository extends Client
 {
@@ -25,25 +26,25 @@ class BlueNewPayRepository extends Client
      * @param $parameters
      * @return mixed
      */
-    public function confirm($parameters)
+    public function reserve($parameters)
     {
         try {
-            Logger::alert('======= start sent bluenewpay =======');
+            Log::alert('======= start sent bluenewpay =======');
             $response = $this->putParameters($parameters)
-                ->request('POST', 'v1/bluenewpay/confirm');
-            Logger::alert('======= end sent bluenewpay =======');
+                ->request('POST', 'v1/bluenewpay/reserve');
+            Log::alert('======= end sent bluenewpay =======');
 
-            $result = $response;
+            $result = json_decode($response->getBody(), true);
 
             return $result;
 
 
         } catch (ClientException $e) {
-            Log::debug('=== bluenewpay confirm error ===');
+            Log::debug('=== bluenewpay reserve error ===');
             Log::debug(print_r($e->getMessage(), true));
             return false;
         } catch (Exception $e) {
-            Log::debug('=== bluenewpay confirm unknown error ===');
+            Log::debug('=== bluenewpay reserve unknown error ===');
             Log::debug(print_r($e->getMessage(), true));
             return false;
         }

@@ -45,31 +45,34 @@ class BlueNewPayController extends RestLaravelController
         $this->blueNewPayService=$blueNewPayService;
     }
 
-    public function confirm(Request $request)
+    //購物車一次買完
+
+
+
+
+    //分兩步驟購物
+    public function reserve(Request $request)
     {
         try{
-
-            $mobleParams=new \stdClass;
             $orderNumber=$request->input('orderNumber');
             //get order data
             $order = $this->orderService->findByOrderNoWithDetail($orderNumber);
             // count how many
             $itemsCount=collect($order->detail)->count();
             $member=App::make(MemberService::class)->find($order->member_id);
-            $mobleParams->PayerEmail=(!empty($member->email))?$member->email:$member->openId;
-
-
-            $mobleParams->MerchantOrderNo=$orderNumber;
-            $mobleParams->Amt=$order->order_amount;
-            $mobleParams->ProdDesc="CityPass 商品 - 共 {$itemsCount} 項";
-            $mobleParams->PayerEmail=(!empty($member->email))?$member->email:$member->openId;
-            $mobleParams->device=$request->input('device');
-            $mobleParams->payMethod=$request->input('payMethod');
-            $mobleParams->token=$request->input('token');
+            $email=(!empty($member->email))?$member->email:$member->openId;
+            $mobleParams=["MerchantOrderNo" => $orderNumber,
+                          "Amt" => $order->order_amount,
+                          "ProdDesc" => "CityPass 商品 - 共 {$itemsCount} 項",
+                          "PayerEmail" => $email ,
+                          "device" => $request->input('device'),
+                          "payMethod" => $request->input('payMethod'),
+                          "token" => $request->input('token')
+                       ];
             Logger::alert('===for payment data ====');
-            Logger::alert($mobleParams);
-            $result=$this->blueNewPayService->confirm($mobleParams);
-
+            Logger::alert($mobleParams['MerchantOrderNo']);
+            $result=$this->blueNewPayService->reserve($mobleParams);
+            Logger::alert('===end payment data ====');
             if ($result['code'] === '00000') {
 
                 $this->orderService->updateByOrderNo($orderNumber,['order_status'=>10]);
@@ -83,6 +86,8 @@ class BlueNewPayController extends RestLaravelController
             }
 
         }catch(Exception $e){
+            Logger::alert('=== bluenewpayController deBug===');
+            Logger::alert($e);
             return $this->failureCode('E9000');
         }
 
