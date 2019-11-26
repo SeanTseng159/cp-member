@@ -26,23 +26,23 @@ class BlueNewPayRepository extends Client
      * @param $parameters
      * @return mixed
      */
-    public function confirm($parameters)
+    public function reserve($parameters)
     {
         try {
             Log::alert('======= start sent bluenewpay =======');
             $response = $this->putParameters($parameters)
-                ->request('POST', 'v1/bluenewpay/confirm');
+                ->request('POST', 'v1/bluenewpay/reserve');
             Log::alert('======= end sent bluenewpay =======');
 
             $result = json_decode($response->getBody(), true);
 
             return $result;
         } catch (ClientException $e) {
-            Log::debug('=== bluenewpay confirm error ===');
+            Log::debug('=== bluenewpay reserve error ===');
             Log::debug(print_r($e->getMessage(), true));
             return false;
         } catch (Exception $e) {
-            Log::debug('=== bluenewpay confirm unknown error ===');
+            Log::debug('=== bluenewpay reserve unknown error ===');
             Log::debug(print_r($e->getMessage(), true));
             return false;
         }

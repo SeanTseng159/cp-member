@@ -200,7 +200,7 @@ Route::middleware('cors')->namespace('V1')->group(function () {
 
     // 藍新金流相關
     Route::prefix('blueNewPay')->group(function () {
-        Route::post('confirm', 'BlueNewPayController@confirm');
+        Route::post('reserve', 'BlueNewPayController@reserve');
     });
 
     // 其他

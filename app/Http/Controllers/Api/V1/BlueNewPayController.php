@@ -45,11 +45,15 @@ class BlueNewPayController extends RestLaravelController
         $this->blueNewPayService=$blueNewPayService;
     }
 
-    public function confirm(Request $request)
+    //購物車一次買完
+
+
+
+
+    //分兩步驟購物
+    public function reserve(Request $request)
     {
         try{
-
-
             $orderNumber=$request->input('orderNumber');
             //get order data
             $order = $this->orderService->findByOrderNoWithDetail($orderNumber);
@@ -67,7 +71,7 @@ class BlueNewPayController extends RestLaravelController
                        ];
             Logger::alert('===for payment data ====');
             Logger::alert($mobleParams['MerchantOrderNo']);
-            $result=$this->blueNewPayService->confirm($mobleParams);
+            $result=$this->blueNewPayService->reserve($mobleParams);
             Logger::alert('===end payment data ====');
             if ($result['code'] === '00000') {
 

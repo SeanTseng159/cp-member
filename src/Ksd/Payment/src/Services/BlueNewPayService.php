@@ -33,9 +33,9 @@ class BlueNewPayService
      * @param $parameters
      * @return mixed
      */
-    public function confirm($parameters)
+    public function reserve($parameters)
     {
         Log::alert('======= start sent bluenewpay  service=======');
-        return $this->repository->confirm($parameters);
+        return $this->repository->reserve($parameters);
     }
 }
