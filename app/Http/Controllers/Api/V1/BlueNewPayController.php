@@ -17,7 +17,7 @@ use App\Services\CartService;
 use App\Services\Ticket\OrderService;
 use App\Services\PaymentService;
 
-
+use Ksd\Payment\Services\upDateOrderStatusService
 
 use App\Traits\CartHelper;
 
@@ -74,14 +74,18 @@ class BlueNewPayController extends RestLaravelController
             $result=$this->blueNewPayService->reserve($mobleParams);
             Logger::alert('===end payment data ====');
             if ($result['code'] === '00000') {
+                //修改訂單
+                (new upDateOrderStatusService)->upDateOderByOrderNo($orderNumber,['order_status'=>'10','order_paid_at'=> Carbon::now()]);
+                (new upDateOrderStatusService)->upDateOderDetailByOrderNo($orderNumber,['verified_status'=>'10']);
 
-                $this->orderService->updateByOrderNo($orderNumber,['order_status'=>10]);
                 // 寄送linepay付款完成通知信
                 $order = $this->orderService->findByOrderNo($orderNumber);
                 dispatch(new OrderPaymentCompleteMail($order->member_id, 'ct_pass', $order->order_no))->delay(5);
 
                 return $this->success();
             }else{
+                //修改訂單1
+                (new upDateOrderStatusService)->updateByOrderNo($orderNumber,['order_status'=>'01','order_paid_at'=> Carbon::now()]);
                 return $this->failureCode('E9006');
             }
 
