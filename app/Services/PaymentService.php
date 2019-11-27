@@ -36,8 +36,6 @@ class PaymentService
     public function payment($payment, $params = [])
     {
         switch ($payment['gateway']) {
-<<<<<<< Updated upstream
-=======
             // 藍新金流
             case '1':
             // google pay
@@ -51,7 +49,6 @@ class PaymentService
                 return ['orderNo' => $params['orderNo']];
             }
             break;
->>>>>>> Stashed changes
             // 台新金流
             case '3':
 

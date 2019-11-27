@@ -51,6 +51,18 @@ class TaiwanPayService
 
             $productName = "CityPass 商品 - 共 {$itemsCount} 項";
 
+            // Taiwan Pay 要求參數
+            $AcqBank=
+            $AuthResURL=
+            $lidm="20131024T009";
+            $MerchantID="950876543219001";
+            $purchAmt=
+            $TerminalID=
+            $math="1qaz2wsx3edc4rfv";
+
+            $word="{$AcqBank}&{$AuthResURL}&{$lidm}&{$MerchantID}&{$purchAmt}&{$TerminalID}&{$math}";
+            $reqToken=hash('sha256',$word);
+
             $taiwanpay_reserve_params = [
                 "lidm" => $orderNo,
                 "productName" => $productName,
