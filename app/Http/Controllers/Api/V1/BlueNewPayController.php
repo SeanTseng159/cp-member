@@ -17,7 +17,7 @@ use App\Services\CartService;
 use App\Services\Ticket\OrderService;
 use App\Services\PaymentService;
 
-use Ksd\Payment\Services\upDateOrderStatusService
+use Ksd\Payment\Services\upDateOrderStatusService;
 
 use App\Traits\CartHelper;
 
