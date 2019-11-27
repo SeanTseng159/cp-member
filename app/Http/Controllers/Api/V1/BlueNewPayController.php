@@ -88,7 +88,7 @@ class BlueNewPayController extends RestLaravelController
                 return $this->success();
             }else{
                 //修改訂單1
-                $this->upDateOrderStatusService->updateByOrderNo($orderNumber,['order_status'=>'01','order_paid_at'=> Carbon::now()]);
+                $this->upDateOrderStatusService->upDateOderByOrderNo($orderNumber,['order_status'=>'01','order_paid_at'=> Carbon::now()]);
                 return $this->failureCode('E9006');
             }
 
