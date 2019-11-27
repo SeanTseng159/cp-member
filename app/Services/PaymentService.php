@@ -36,6 +36,22 @@ class PaymentService
     public function payment($payment, $params = [])
     {
         switch ($payment['gateway']) {
+<<<<<<< Updated upstream
+=======
+            // 藍新金流
+            case '1':
+            // google pay
+            if ($payment['method'] === '711') {
+
+                return ['orderNo' => $params['orderNo']];
+            }
+            // apple pay
+            elseif ($payment['method'] === '811') {
+
+                return ['orderNo' => $params['orderNo']];
+            }
+            break;
+>>>>>>> Stashed changes
             // 台新金流
             case '3':
 
@@ -105,6 +121,9 @@ class PaymentService
                     'paymentUrl' => $result['data']['paymentUrl']
                 ];
             break;
+            case '5':
+                $result = $this->linePayService->newReserve($params['orderNo'], $params['payAmount'], $params['itemsCount'], $params['device'], $hasLinePayApp);
+                break;
             // 無值
             default:
                 throw new CustomException('E9006');

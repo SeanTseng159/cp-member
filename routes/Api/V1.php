@@ -268,6 +268,11 @@ Route::middleware('cors')->namespace('V1')->group(function () {
         Route::post('memberName', 'MemberController@memberName');
     });
 
+    // Test
+    Route::prefix('taiwanpay')->group(function () {
+        // test
+        Route::post('comfirm', 'TaiwanPayController@comfirm');
+    });
 
 });
 
@@ -324,6 +329,9 @@ Route::middleware(['cors', 'auth.jwt'])->namespace('V1')->group(function () {
 
         // 重新結帳
         Route::post('payment/repay/{orderNo}', 'CheckoutController@repay');
+
+        // apple 商家驗證
+        Route::post('payment/bluenewpay/applepay/merchant', 'CheckoutController@merchantValidation');
     });
 
     // 票券相關
