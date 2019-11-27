@@ -20,7 +20,7 @@ use App\Jobs\Mail\OrderCreatedMail;
 use App\Jobs\Mail\OrderPaymentCompleteMail;
 use Ksd\Mediation\Cache\Key\OrderKey;
 use Ksd\Mediation\Magento\Invoice as MagentoInvoice;
-
+use log;
 class CheckoutRepository extends BaseRepository
 {
     use JWTTokenHelper;
@@ -93,8 +93,10 @@ class CheckoutRepository extends BaseRepository
                 'data' => $result
             ];
         } else if ($parameters->checkSource(ProjectConfig::CITY_PASS)) {
+            Log::info('=== 傳送到CI建立訂單 ===');
             $result = $this->cityPass->authorization($this->memberTokenService->cityPassUserToken())->confirm($parameters);
-
+            Log::info('=== CI回傳建立訂單 ===');
+            Log::info($result);
             if ($result) {
                 if ($parameters->repay !== 'true' && $result['statusCode'] === 201) dispatch(new OrderCreatedMail($this->memberId, $parameters->source, $result['data']['orderNo']))->delay(5);
 
