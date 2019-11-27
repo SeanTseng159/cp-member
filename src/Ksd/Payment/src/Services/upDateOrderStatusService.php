@@ -8,9 +8,8 @@
 namespace Ksd\Payment\Services;
 
 
-use Ksd\Mediation\Repositories\UpDateOrderStatusRepository;
-use Ksd\Mediation\Config\ProjectConfig;
-use Log;
+use Ksd\Payment\Repositories\UpDateOrderStatusRepository;
+
 
 class UpDateOrderStatusService
 {
