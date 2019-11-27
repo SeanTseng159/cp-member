@@ -8,16 +8,16 @@
 namespace Ksd\Payment\Services;
 
 
-use Ksd\Mediation\Repositories\upDateOrderStatusRepository;
+use Ksd\Mediation\Repositories\UpDateOrderStatusRepository;
 use Ksd\Mediation\Config\ProjectConfig;
 use Log;
 
-class upDateOrderStatusService
+class UpDateOrderStatusService
 {
     protected $repository;
 
 
-    public function __construct( upDateOrderStatusRepository $repository)
+    public function __construct(UpDateOrderStatusRepository $repository)
     {
         $this->repository = $repository;
 
