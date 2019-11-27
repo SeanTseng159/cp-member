@@ -35,14 +35,16 @@ class BlueNewPayController extends RestLaravelController
     protected $orderService;
     protected $menuOrderService;
     protected $blueNewPayService;
-
+    protected $upDateOrderStatusService;
     public function __construct(MenuOrderService $menuOrderService,
                                 OrderService $orderService,
-                               BlueNewPayService $blueNewPayService)
+                               BlueNewPayService $blueNewPayService,
+                               UpDateOrderStatusService $upDateOrderStatusService)
     {
         $this->orderService = $orderService;
         $this->menuOrderService = $menuOrderService;
         $this->blueNewPayService=$blueNewPayService;
+        $this->upDateOrderStatusService=$upDateOrderStatusService;
     }
 
     //購物車一次買完
@@ -75,8 +77,8 @@ class BlueNewPayController extends RestLaravelController
             Logger::alert('===end payment data ====');
             if ($result['code'] === '00000') {
                 //修改訂單
-                (new UpDateOrderStatusService)->upDateOderByOrderNo($orderNumber,['order_status'=>'10','order_paid_at'=> Carbon::now()]);
-                (new UpDateOrderStatusService)->upDateOderDetailByOrderNo($orderNumber,['verified_status'=>'10']);
+                $this->upDateOrderStatusService->upDateOderByOrderNo($orderNumber,['order_status'=>'10','order_paid_at'=> Carbon::now()]);
+                $this->upDateOrderStatusService->upDateOderDetailByOrderNo($orderNumber,['verified_status'=>'10']);
 
                 // 寄送linepay付款完成通知信
                 $order = $this->orderService->findByOrderNo($orderNumber);
@@ -85,7 +87,7 @@ class BlueNewPayController extends RestLaravelController
                 return $this->success();
             }else{
                 //修改訂單1
-                (new UpDateOrderStatusService)->updateByOrderNo($orderNumber,['order_status'=>'01','order_paid_at'=> Carbon::now()]);
+                $this->upDateOrderStatusService->updateByOrderNo($orderNumber,['order_status'=>'01','order_paid_at'=> Carbon::now()]);
                 return $this->failureCode('E9006');
             }
 
