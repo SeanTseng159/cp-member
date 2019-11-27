@@ -63,7 +63,9 @@ class BlueNewPayController extends RestLaravelController
             // count how many
             $itemsCount=collect($order->detail)->count();
             $member=App::make(MemberService::class)->find($order->member_id);
+            // email有些放在email 有些放在openID
             $email=(!empty($member->email))?$member->email:$member->openId;
+            // 請參考藍新文件要送出的資料
             $mobleParams=["MerchantOrderNo" => $orderNumber,
                           "Amt" => $order->order_amount,
                           "ProdDesc" => "CityPass 商品 - 共 {$itemsCount} 項",
@@ -74,6 +76,7 @@ class BlueNewPayController extends RestLaravelController
                        ];
             Logger::alert('===for payment data ====');
             Logger::alert($mobleParams['MerchantOrderNo']);
+            //要送資料去paymentgetway 付款
             $result=$this->blueNewPayService->reserve($mobleParams);
             Logger::alert('===end payment data ====');
             if ($result['code'] === '00000') {
@@ -84,12 +87,11 @@ class BlueNewPayController extends RestLaravelController
                 // 寄送linepay付款完成通知信
                 $order = $this->orderService->findByOrderNo($orderNumber);
                 dispatch(new OrderPaymentCompleteMail($order->member_id, 'ct_pass', $order->order_no))->delay(5);
-
+                //成功回傳空
                 return $this->success();
             }else{
-                //修改訂單1
+                //如果付款失敗要修改訂單
                 $this->upDateOrderStatusService->upDateOderByOrderNo($orderNumber,['order_status'=>'01','order_paid_at'=> Carbon::now()]);
-                // return $this->failureCode('E9006');
                 return $this->responseFormat(null, 'E9006',$result['message'], 200);
             }
 
