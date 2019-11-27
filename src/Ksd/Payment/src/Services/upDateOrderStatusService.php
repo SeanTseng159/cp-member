@@ -23,11 +23,11 @@ class UpDateOrderStatusService
 
     }
 
-    public function upDateOderByOrderNo($orderNo, $data)
+    public function upDateOderByOrderNo($orderNo, $data=[])
     {
         $this->repository->upDateOderByOrderNo($orderNo, $data);
     }
-    public function upDateOderDetailByOrderNo($orderNo, $data)
+    public function upDateOderDetailByOrderNo($orderNo, $data=[])
     {
         $this->repository->upDateOderDetailByOrderNo($orderNo, $data);
     }
