@@ -17,7 +17,7 @@ use App\Services\CartService;
 use App\Services\Ticket\OrderService;
 use App\Services\PaymentService;
 
-use Ksd\Payment\Services\upDateOrderStatusService;
+use Ksd\Payment\Services\UpDateOrderStatusService;
 
 use App\Traits\CartHelper;
 
@@ -75,8 +75,8 @@ class BlueNewPayController extends RestLaravelController
             Logger::alert('===end payment data ====');
             if ($result['code'] === '00000') {
                 //修改訂單
-                (new upDateOrderStatusService)->upDateOderByOrderNo($orderNumber,['order_status'=>'10','order_paid_at'=> Carbon::now()]);
-                (new upDateOrderStatusService)->upDateOderDetailByOrderNo($orderNumber,['verified_status'=>'10']);
+                (new UpDateOrderStatusService)->upDateOderByOrderNo($orderNumber,['order_status'=>'10','order_paid_at'=> Carbon::now()]);
+                (new UpDateOrderStatusService)->upDateOderDetailByOrderNo($orderNumber,['verified_status'=>'10']);
 
                 // 寄送linepay付款完成通知信
                 $order = $this->orderService->findByOrderNo($orderNumber);
@@ -85,7 +85,7 @@ class BlueNewPayController extends RestLaravelController
                 return $this->success();
             }else{
                 //修改訂單1
-                (new upDateOrderStatusService)->updateByOrderNo($orderNumber,['order_status'=>'01','order_paid_at'=> Carbon::now()]);
+                (new UpDateOrderStatusService)->updateByOrderNo($orderNumber,['order_status'=>'01','order_paid_at'=> Carbon::now()]);
                 return $this->failureCode('E9006');
             }
 

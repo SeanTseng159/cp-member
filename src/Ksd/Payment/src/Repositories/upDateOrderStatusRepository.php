@@ -15,13 +15,13 @@ use App\Repositories\BaseRepository;
 use App\Models\Ticket\Order;
 use App\Models\Ticket\OrderDetail;
 use Carbon\Carbon;
-class upDateOrderStatusRepository  extends BaseRepository
+class UpDateOrderStatusRepository  extends BaseRepository
 {
 
     protected $order;
     protected $orderDetail;
-    public function __construct(Order $order,
-                                OrderDetail $orderDetail)
+
+    public function __construct(Order $order,OrderDetail $orderDetail)
     {
         $this->order = $order;
         $this->orderDetail = $orderDetail;
@@ -49,7 +49,7 @@ class upDateOrderStatusRepository  extends BaseRepository
      * @param $data
      * @return mixed
      */
-    public function upDateOderDeailByOrderNo($orderNo, $data)
+    public function upDateOderDetailByOrderNo($orderNo, $data)
     {
         if (!$data) return false;
 
