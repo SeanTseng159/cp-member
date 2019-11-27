@@ -38,7 +38,8 @@ return [
     		'ipasspay' => 'iPassPay',
             'linepay' => 'LINE Pay',
             'googlepay' => 'Google Pay',
-            'applepay' => 'Apple Pay'
+            'applepay' => 'Apple Pay',
+            'taiwanpay' => '台灣Pay'
     	],
     	'ipasspay' => [
     		'ACCLINK' => '約定連結帳戶付款',
