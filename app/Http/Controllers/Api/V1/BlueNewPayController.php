@@ -60,6 +60,14 @@ class BlueNewPayController extends RestLaravelController
             $orderNumber=$request->input('orderNumber');
             //get order data
             $order = $this->orderService->findByOrderNoWithDetail($orderNumber);
+            //檢查是否有沒有單號
+            if(empty($order)){
+                return $this->failureCode('E9000');
+            }
+            //檢查是否已經結完帳
+            if($order->order_status == 10){
+                return $this->failureCode('E9004');
+            }
             // count how many
             $itemsCount=collect($order->detail)->count();
             $member=App::make(MemberService::class)->find($order->member_id);
