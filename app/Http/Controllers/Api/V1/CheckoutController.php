@@ -231,7 +231,7 @@ class CheckoutController extends RestLaravelController
         try {
             $url = $request->input('url');
             $result = $this->blueNewPayService->merchant($url);
-            return $this->success($result);
+            return $this->success($result['data']);
         } catch (Exception $e) {
             return $this->failure('E9001', $e->getMessage());
 
