@@ -229,8 +229,8 @@ class CheckoutController extends RestLaravelController
     public function merchantValidation(Request $request)
     {
         try {
+            $url = $request->input('url');
             $dns = $request->input('dns');
-            $url = $request->input('domain');
 
             if (is_null($dns) || is_null($url)) {
                 return $this->failureCode('E0001');
