@@ -68,6 +68,7 @@ class BlueNewPayController extends RestLaravelController
             if($order->order_status == 10){
                 return $this->failureCode('E9004');
             }
+
             // count how many
             $itemsCount=collect($order->detail)->count();
             $member=App::make(MemberService::class)->find($order->member_id);
@@ -96,7 +97,7 @@ class BlueNewPayController extends RestLaravelController
                 return $this->success();
             }else{
                 //修改訂單1
-                $this->upDateOrderStatusService->upDateOderByOrderNo($orderNumber,['order_status'=>'01','order_paid_at'=> Carbon::now()]);
+                $this->upDateOrderStatusService->upDateOderByOrderNo($orderNumber,['order_status'=>'00','order_paid_at'=> Carbon::now()]);
                 // return $this->failureCode('E9006');
                 return $this->responseFormat(null, 'E9006',$result['message'], 200);
             }
