@@ -60,7 +60,6 @@ class BlueNewPayRepository extends Client
     public function merchantValidation($parameters)
     {
         try {
-            dd($parameters);
             $response = $this->putParameters($parameters)
                 ->request('POST', 'v1/bluenewpay/merchant');
             $result = json_decode($response->getBody(), true);
