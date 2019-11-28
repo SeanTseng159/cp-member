@@ -24,16 +24,19 @@ class BlueNewPayService
     }
 
 
-    public function merchant($url)
+    public function merchant($url, $dns)
     {
-        return $this->repository->merchantValidation(['url' => $url]);
+        return $this->repository->merchantValidation(
+            [
+                'url' => $url,
+                'dns' => $dns
+            ]);
     }
 
-
-     /* confirm
-     * @param $parameters
-     * @return mixed
-     */
+    /* confirm
+    * @param $parameters
+    * @return mixed
+    */
     public function reserve($parameters)
     {
         Log::alert('======= start sent bluenewpay  service=======');
