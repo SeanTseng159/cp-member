@@ -229,8 +229,14 @@ class CheckoutController extends RestLaravelController
     public function merchantValidation(Request $request)
     {
         try {
-            $url = $request->input('url');
-            $result = $this->blueNewPayService->merchant($url);
+            $dns = $request->input('dns');
+            $url = $request->input('domain');
+
+            if (is_null($dns) || is_null($url)) {
+                return $this->failureCode('E0001');
+            }
+
+            $result = $this->blueNewPayService->merchant($url, $dns);
             return $this->success($result['data']);
         } catch (Exception $e) {
             return $this->failure('E9001', $e->getMessage());

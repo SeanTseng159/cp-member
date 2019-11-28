@@ -19,9 +19,13 @@ class BlueNewPayService
         $this->repository = $repository;
     }
 
-    public function merchant($url)
+    public function merchant($url, $dns)
     {
-        return $this->repository->merchantValidation(['url' => $url]);
+        return $this->repository->merchantValidation(
+            [
+                'url' => $url,
+                'dns' => $dns
+            ]);
 
     }
 
