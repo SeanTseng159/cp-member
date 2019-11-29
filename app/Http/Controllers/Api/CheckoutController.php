@@ -26,10 +26,12 @@ use App\Services\MemberService;
 use Ksd\Payment\Services\LinePayService;
 use Ksd\Payment\Services\BlueNewPayService;
 use App\Traits\StringHelper;
+use App\Traits\CartHelper;
 
 class CheckoutController extends RestLaravelController
 {
     use StringHelper;
+    use CartHelper;
 
     protected $lang;
     protected $service;
@@ -50,7 +52,11 @@ class CheckoutController extends RestLaravelController
      */
     public function info($source)
     {
-        return $this->success($this->service->info($source));
+        $isMagento = false;
+        if($source == 'magento') $isMagento = true;
+
+        return $this->success($this->getCheckoutInfo($isMagento, $source, 'array'));
+        // return $this->success($this->service->info($source));
     }
 
     /**
