@@ -24,6 +24,7 @@ use App\Traits\CartHelper;
 use App\Core\Logger;
 use Exception;
 use App\Exceptions\CustomException;
+use Ksd\Payment\Services\BlueNewPayService;
 
 class CheckoutController extends RestLaravelController
 {
@@ -33,16 +34,19 @@ class CheckoutController extends RestLaravelController
     protected $orderService;
     protected $menuOrderService;
     protected $paymentService;
+    protected $blueNewPayService;
 
     public function __construct(CartService $cartService,
                                 MenuOrderService $menuOrderService,
                                 OrderService $orderService,
-                                PaymentService $paymentService)
+                                PaymentService $paymentService,
+                                BlueNewPayService $blueNewPayService)
     {
         $this->cartService = $cartService;
         $this->orderService = $orderService;
         $this->paymentService = $paymentService;
         $this->menuOrderService = $menuOrderService;
+        $this->blueNewPayService = $blueNewPayService;
     }
 
     /**
@@ -220,5 +224,24 @@ class CheckoutController extends RestLaravelController
             }
             return $this->failure('E9001', $e->getMessage());
         }
+    }
+
+    public function merchantValidation(Request $request)
+    {
+        try {
+            $url = $request->input('url');
+            $dns = $request->input('dns');
+
+            if (is_null($dns) || is_null($url)) {
+                return $this->failureCode('E0001');
+            }
+
+            $result = $this->blueNewPayService->merchant($url, $dns);
+            return $this->success($result['data']);
+        } catch (Exception $e) {
+            return $this->failure('E9001', $e->getMessage());
+
+        }
+
     }
 }

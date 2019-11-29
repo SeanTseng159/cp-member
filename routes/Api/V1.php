@@ -329,6 +329,9 @@ Route::middleware(['cors', 'auth.jwt'])->namespace('V1')->group(function () {
 
         // 重新結帳
         Route::post('payment/repay/{orderNo}', 'CheckoutController@repay');
+
+        // apple 商家驗證
+        Route::post('payment/bluenewpay/applepay/merchant', 'CheckoutController@merchantValidation');
     });
 
     // 票券相關
