@@ -24,6 +24,7 @@ use App\Result\Ticket\OrderResult;
 
 use App\Services\MemberService;
 use Ksd\Payment\Services\LinePayService;
+use Ksd\Payment\Services\BlueNewPayService;
 use App\Traits\StringHelper;
 
 class CheckoutController extends RestLaravelController
@@ -88,6 +89,8 @@ class CheckoutController extends RestLaravelController
                 return $this->failure($reserveResult['code'], $reserveResult['message']);
             }
         }
+
+
 
         if ($result['code'] === '00000' || $result['code'] === 201) {
             return $this->success($result['data']);
