@@ -10,7 +10,7 @@ namespace App\Http\Controllers\Api\V1;
 // use App\Services\MenuOrderService;
 use Illuminate\Http\Request;
 use Ksd\Mediation\Core\Controller\RestLaravelController;
-
+use App\Services\Ticket\OrderService;
 use Ksd\Payment\Services\TaiwanPayService;
 
 use App\Traits\CartHelper;
@@ -18,14 +18,15 @@ use App\Traits\CartHelper;
 
 class TaiwanPayController extends RestLaravelController
 {
-    protected $tiwanPayService;
-
-    public function __construct(TaiwanPayService $tiwanPayService)
+    protected $taiwanPayService;
+    protected $orderService;
+    public function __construct(TaiwanPayService $taiwanPayService,OrderService $orderService)
     {
-        $this->tiwanPayService = $tiwanPayService;
+        $this->taiwanPayService = $taiwanPayService;
+        $this->orderService=$orderService;
     }
 
-    public function reserve(Request $request)
+    public function comfirm(Request $request)
     {
         try{
             $orderNumber=$request->input('orderNumber');
@@ -33,9 +34,9 @@ class TaiwanPayController extends RestLaravelController
             $order = $this->orderService->findByOrderNoWithDetail($orderNumber);
 
             $AcqBank=env('ACQ_BANK');
-            $AuthResURL="";
+            $AuthResURL=env('CITY_PASS_API_PATH').'v1/taiwanpay/callback';
             $lidm=$orderNumber;
-            $purchAmt=$request->input('amt');
+            $purchAmt=$order->order_amount;
             $MerchantID=env('MERCHANT_ID');
             $TerminalID=env('TERMINAL_ID');
             $VerificationParameters=env('VERIFICATION_PARAMETERS');
@@ -51,19 +52,30 @@ class TaiwanPayController extends RestLaravelController
                        ];
             Logger::alert('===for TaiwanPayController data ====');
             //要送資料送去paymentgetway 紀錄log
-            $result=$this->tiwanPayService->reserve($mobleParams);
+            $result=$this->taiwanPayService->reserve($mobleParams);
             Logger::alert('===end TaiwanPayController data ====');
             //要送資料去前台轉址
             return $this->success($mobleParams);
-
-
-
         }catch(Exception $e){
-            Logger::alert('=== bluenewpayController deBug===');
+            Logger::alert('=== bluenewpayController  comfirm deBug===');
             Logger::alert($e);
             return $this->failureCode('E9000');
         }
 
-    }//end payment
+    }//end comfirm
+
+
+
+    public function callback(Request $request)
+    {
+        try{
+            Logger::alert('=== bluenewpayController  callback get data back===');
+            Logger::alert($request);
+        } catch(Exception $e){
+            Logger::alert('=== bluenewpayController  callback deBug===');
+            Logger::alert($e);
+            return $this->failureCode('E9000');
+        }
+    }//end callback
 
 }

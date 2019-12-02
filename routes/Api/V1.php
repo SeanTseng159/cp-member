@@ -268,10 +268,11 @@ Route::middleware('cors')->namespace('V1')->group(function () {
         Route::post('memberName', 'MemberController@memberName');
     });
 
-    // Test
+    // taiwanpay
     Route::prefix('taiwanpay')->group(function () {
-        // test
+        // taiwanpay reserve
         Route::post('comfirm', 'TaiwanPayController@comfirm');
+        Route::post('callback', 'TaiwanPayController@callback');
     });
 
 });

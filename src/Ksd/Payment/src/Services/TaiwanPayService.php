@@ -9,7 +9,7 @@ namespace Ksd\Payment\Services;
 
 use Ksd\Payment\Repositories\TaiwanPayRepository;
 use Ksd\Mediation\Repositories\OrderRepository;
-use Ksd\Mediation\Config\ProjectConfig;
+
 
 class TaiwanPayService
 {
@@ -31,9 +31,9 @@ class TaiwanPayService
      * @param $hasLinePayApp
      * @return mixed
      */
-    public function reserve($parameters)
+    public function comfirm($parameters)
     {
-        return $this->repository->reserve($parameters);
+        return $this->repository->comfirm($parameters);
     }
 
 

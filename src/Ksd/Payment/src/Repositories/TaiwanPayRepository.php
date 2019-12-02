@@ -25,7 +25,7 @@ class TaiwanPayRepository extends Client
      * @param $parameters
      * @return mixed
      */
-    public function reserve($parameters)
+    public function comfirm($parameters)
     {
         try {
             $response = $this->putParameters($parameters)
