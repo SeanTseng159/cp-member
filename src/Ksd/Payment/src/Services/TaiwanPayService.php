@@ -31,64 +31,10 @@ class TaiwanPayService
      * @param $hasLinePayApp
      * @return mixed
      */
-    public function newReserve($orderNo, $payAmount, $itemsCount = 0, $device = 'web', $hasLinePayApp = false)
+    public function reserve($parameters)
     {
-        if ($orderNo) {
-            // 導向路徑
-            $successUrl = url('api/v1/taiwanpay/confirm/callback?device=' . $device);
-            $cancelUrl = url('api/v1/taiwanpay/confirm/failure?device=' . $device . '&orderNo=' . $orderNo);
-
-            // if ($hasLinePayApp) {
-            //     if ($device === 'ios') {
-            //         $successUrl = env('LINEPAY_ISO_REDIRECT') . 'success/' . $orderNo;
-            //         $cancelUrl = env('LINEPAY_ISO_REDIRECT') . 'failure/' . $orderNo;
-            //     }
-            //     else if ($device === 'android') {
-            //         $successUrl = env('LINEPAY_ANDROID_REDIRECT') . 'success/' . $orderNo;
-            //         $cancelUrl = env('LINEPAY_ANDROID_REDIRECT') . 'failure/' . $orderNo;
-            //     }
-            // }
-
-            $productName = "CityPass 商品 - 共 {$itemsCount} 項";
-
-            // Taiwan Pay 要求參數
-            $AcqBank=
-            $AuthResURL=
-            $lidm="20131024T009";
-            $MerchantID="950876543219001";
-            $purchAmt=
-            $TerminalID=
-            $math="1qaz2wsx3edc4rfv";
-
-            $word="{$AcqBank}&{$AuthResURL}&{$lidm}&{$MerchantID}&{$purchAmt}&{$TerminalID}&{$math}";
-            $reqToken=hash('sha256',$word);
-
-            $taiwanpay_reserve_params = [
-                "lidm" => $orderNo,
-                "productName" => $productName,
-                "productImageUrl" => asset('img/icon-app.png'),
-                "purchAmt" => $payAmount,
-                "successUrl" =>  $successUrl,
-                "cancelUrl" =>  $cancelUrl,
-                "hasApp" => $hasLinePayApp
-            ];
-
-            return $this->repository->reserve($taiwanpay_reserve_params);
-        }
-
-        return [
-                'code' => 'E0101',
-                'message' => '訂單不存在'
-            ];
+        return $this->repository->reserve($parameters);
     }
 
-    /**
-     * confirm
-     * @param $parameters
-     * @return mixed
-     */
-    public function confirm($parameters)
-    {
-        return $this->repository->confirm($parameters);
-    }
+
 }

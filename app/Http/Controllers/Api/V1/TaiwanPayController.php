@@ -11,51 +11,59 @@ namespace App\Http\Controllers\Api\V1;
 use Illuminate\Http\Request;
 use Ksd\Mediation\Core\Controller\RestLaravelController;
 
-
-// use App\Jobs\Mail\OrderPaymentCompleteMail;
-// use App\Services\CartService;
-// use App\Services\Ticket\OrderService;
-// use App\Services\PaymentService;
-
-// use Ksd\Payment\Services\UpDateOrderStatusService;
+use Ksd\Payment\Services\TaiwanPayService;
 
 use App\Traits\CartHelper;
 
 
 class TaiwanPayController extends RestLaravelController
 {
-    // use CartHelper;
+    protected $tiwanPayService;
 
-
-    // protected $orderService;
-    // protected $menuOrderService;
-    // protected $blueNewPayService;
-    // protected $upDateOrderStatusService;
-    // public function __construct(MenuOrderService $menuOrderService,
-    //                             OrderService $orderService,
-    //                            BlueNewPayService $blueNewPayService,
-    //                            UpDateOrderStatusService $upDateOrderStatusService)
-    // {
-    //     $this->orderService = $orderService;
-    //     $this->menuOrderService = $menuOrderService;
-    //     $this->blueNewPayService=$blueNewPayService;
-    //     $this->upDateOrderStatusService=$upDateOrderStatusService;
-    // }
-
-    public function comfirm(Request $request)
+    public function __construct(TaiwanPayService $tiwanPayService)
     {
-        $lidm="20131024T009";
-        $authAmt="200";
-        $MerchantID="950876543219001";
-        $TerminalID="90010001";
-        $datetime="20131024141500";
-        $math="1qaz2wsx3edc4rfv";
-
-        $word="{$lidm}&{$authAmt}&{$math}&{$MerchantID}&{$TerminalID}&{$datetime}";
-
-        $token=hash('sha256',$word);
-        dd($token);
-
+        $this->tiwanPayService = $tiwanPayService;
     }
+
+    public function reserve(Request $request)
+    {
+        try{
+            $orderNumber=$request->input('orderNumber');
+            //get order data
+            $order = $this->orderService->findByOrderNoWithDetail($orderNumber);
+
+            $AcqBank=env('ACQ_BANK');
+            $AuthResURL="";
+            $lidm=$orderNumber;
+            $purchAmt=$request->input('amt');
+            $MerchantID=env('MERCHANT_ID');
+            $TerminalID=env('TERMINAL_ID');
+            $VerificationParameters=env('VERIFICATION_PARAMETERS');
+            $reqToken=hash('sha256',"{$AcqBank}&{$AuthResURL}&{$lidm}&{$MerchantID}&{$purchAmt}&{$TerminalID}&{$VerificationParameters}");
+            // 請參考taiwanpay文件要送出的資料
+            $mobleParams=["AcqBank" => $AcqBank,
+                          "AuthResURL" => $AuthResURL,
+                          "lidm" => $lidm,
+                          "MerchantID" => $MerchantID ,
+                          "purchAmt" => $purchAmt,
+                          "reqToken" => $reqToken,
+                          "TerminalID" => $TerminalID
+                       ];
+            Logger::alert('===for TaiwanPayController data ====');
+            //要送資料送去paymentgetway 紀錄log
+            $result=$this->tiwanPayService->reserve($mobleParams);
+            Logger::alert('===end TaiwanPayController data ====');
+            //要送資料去前台轉址
+            return $this->success($mobleParams);
+
+
+
+        }catch(Exception $e){
+            Logger::alert('=== bluenewpayController deBug===');
+            Logger::alert($e);
+            return $this->failureCode('E9000');
+        }
+
+    }//end payment
 
 }

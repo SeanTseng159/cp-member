@@ -29,7 +29,7 @@ class TaiwanPayRepository extends Client
     {
         try {
             $response = $this->putParameters($parameters)
-                ->request('POST', 'v1/linepay/reserve');
+                ->request('POST', 'v1/taiwanpay/reserve');
 
             $result = json_decode($response->getBody(), true);
 
@@ -45,28 +45,4 @@ class TaiwanPayRepository extends Client
         }
     }
 
-    /**
-     * confirm
-     * @param $parameters
-     * @return mixed
-     */
-    public function confirm($parameters)
-    {
-        try {
-            $response = $this->putParameters($parameters)
-                ->request('POST', 'v1/linepay/confirmToApi');
-
-            $result = json_decode($response->getBody(), true);
-
-            return $result;
-        } catch (ClientException $e) {
-            Log::debug('=== linepay confirm error ===');
-            Log::debug(print_r($e->getMessage(), true));
-            return false;
-        } catch (Exception $e) {
-            Log::debug('=== linepay confirm unknown error ===');
-            Log::debug(print_r($e->getMessage(), true));
-            return false;
-        }
-    }
 }
