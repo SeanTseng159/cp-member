@@ -125,6 +125,9 @@ class PaymentService
                     'paymentUrl' => $result['data']['paymentUrl']
                 ];
             break;
+            case '5':
+                $result = $this->linePayService->newReserve($params['orderNo'], $params['payAmount'], $params['itemsCount'], $params['device'], $hasLinePayApp);
+                break;
             // 無值
             default:
                 throw new CustomException('E9006');
