@@ -35,11 +35,11 @@ class TaiwanPayRepository extends Client
 
             return $result;
         } catch (ClientException $e) {
-            Log::debug('=== linepay reserve error ===');
+            Log::debug('=== TaiwanPay reserve error ===');
             Log::debug(print_r($e->getMessage(), true));
             return false;
         } catch (Exception $e) {
-            Log::debug('=== linepay reserve unknown error ===');
+            Log::debug('=== TaiwanPay reserve unknown error ===');
             Log::debug(print_r($e->getMessage(), true));
             return false;
         }
