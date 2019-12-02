@@ -95,7 +95,8 @@ class OrderConfig extends BaseConfig
         1 => 'neweb',
         2 => 'ipasspay',
         3 => 'tspg',
-        4 => 'linepay'
+        4 => 'linepay',
+        5 => 'taiwanpay'
     ];
 
     # 訂單金流方式
@@ -104,7 +105,10 @@ class OrderConfig extends BaseConfig
         111 => 'credit_card',
         211 => 'atm',
         411 => 'ipasspay',
-        611 => 'linepay'
+        611 => 'linepay',
+        711 => 'googlepay',
+        811 => 'applepay',
+        911 => 'taiwanpay'
     ];
 
     # 銀行名稱
