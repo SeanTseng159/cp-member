@@ -31,9 +31,9 @@ class TaiwanPayService
      * @param $hasLinePayApp
      * @return mixed
      */
-    public function comfirm($parameters)
+    public function saveTransacctions($parameters)
     {
-        return $this->repository->comfirm($parameters);
+        return $this->repository->saveTransacctions($parameters);
     }
 
 

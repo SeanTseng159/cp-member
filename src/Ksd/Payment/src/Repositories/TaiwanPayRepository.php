@@ -25,11 +25,11 @@ class TaiwanPayRepository extends Client
      * @param $parameters
      * @return mixed
      */
-    public function comfirm($parameters)
+    public function saveTransacctions($parameters)
     {
         try {
             $response = $this->putParameters($parameters)
-                ->request('POST', 'v1/taiwanpay/reserve');
+                ->request('POST', 'v1/taiwanpay/saveTransacctions');
 
             $result = json_decode($response->getBody(), true);
 

@@ -12,7 +12,7 @@ use Illuminate\Http\Request;
 use Ksd\Mediation\Core\Controller\RestLaravelController;
 use App\Services\Ticket\OrderService;
 use Ksd\Payment\Services\TaiwanPayService;
-
+use App\Core\Logger;
 use App\Traits\CartHelper;
 
 
@@ -52,7 +52,7 @@ class TaiwanPayController extends RestLaravelController
                        ];
             Logger::alert('===for TaiwanPayController data ====');
             //要送資料送去paymentgetway 紀錄log
-            $result=$this->taiwanPayService->reserve($mobleParams);
+            $result=$this->taiwanPayService->saveTransacctions($mobleParams);
             Logger::alert('===end TaiwanPayController data ====');
             //要送資料去前台轉址
             return $this->success($mobleParams);
