@@ -16,6 +16,7 @@ use App\Core\Logger;
 use App;
 use App\Services\MemberService;
 use Ksd\Payment\Services\BlueNewPayService;
+use Ksd\Payment\Services\TaiwanPayService;
 
 class PaymentService
 {
@@ -23,13 +24,14 @@ class PaymentService
     protected $linePayService;
     protected $tspgService;
     protected $blueNewPayService;
-
-    public function __construct(OrderRepository $orderRepository, LinePayService $linePayService, TspgService $tspgService,BlueNewPayService $blueNewPayService)
+    protected $taiwanPayService;
+    public function __construct(OrderRepository $orderRepository, LinePayService $linePayService, TspgService $tspgService,BlueNewPayService $blueNewPayService ,TaiwanPayService $taiwanPayService)
     {
         $this->orderRepository = $orderRepository;
         $this->linePayService = $linePayService;
         $this->tspgService = $tspgService;
         $this->blueNewPayService=$blueNewPayService;
+        $this->taiwanPayService=$taiwanPayService;
     }
 
     /**
@@ -126,7 +128,7 @@ class PaymentService
                 ];
             break;
             case '5':
-                $result = $this->linePayService->newReserve($params['orderNo'], $params['payAmount'], $params['itemsCount'], $params['device'], $hasLinePayApp);
+                return ['orderNo' => $params['orderNo']];
                 break;
             // 無值
             default:
