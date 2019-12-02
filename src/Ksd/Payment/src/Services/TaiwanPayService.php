@@ -23,18 +23,21 @@ class TaiwanPayService
     }
 
     /**
-     * reserve
-     * @param $orderNo
-     * @param $payAmount
-     * @param $itemsCount
-     * @param $device
-     * @param $hasLinePayApp
-     * @return mixed
+     * saveTransacctions
      */
     public function saveTransacctions($parameters)
     {
         return $this->repository->saveTransacctions($parameters);
     }
+    /**
+     * saveTransacctionsReturn
+     */
+    public function saveTransacctionsReturn($parameters)
+    {
+        return $this->repository->saveTransacctionsReturn($parameters);
+    }
+
+
 
 
 }

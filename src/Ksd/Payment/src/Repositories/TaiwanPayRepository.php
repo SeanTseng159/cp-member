@@ -21,7 +21,7 @@ class TaiwanPayRepository extends Client
     }
 
     /**
-     * reserve
+     *public function saveTransacctions($parameters)
      * @param $parameters
      * @return mixed
      */
@@ -44,5 +44,31 @@ class TaiwanPayRepository extends Client
             return false;
         }
     }
+
+    /**
+     * reserve
+     * @param $parameters
+     * @return mixed
+     */
+    public function saveTransacctionsReturn($parameters)
+    {
+        try {
+            $response = $this->putParameters($parameters)
+                ->request('POST', 'v1/taiwanpay/saveTransacctionsReturn');
+
+            $result = json_decode($response->getBody(), true);
+
+            return $result;
+        } catch (ClientException $e) {
+            Log::debug('=== TaiwanPay reserve error ===');
+            Log::debug(print_r($e->getMessage(), true));
+            return false;
+        } catch (Exception $e) {
+            Log::debug('=== TaiwanPay reserve unknown error ===');
+            Log::debug(print_r($e->getMessage(), true));
+            return false;
+        }
+    }
+
 
 }
