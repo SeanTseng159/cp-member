@@ -17,7 +17,7 @@ use App\Services\CartService;
 use App\Services\Ticket\OrderService;
 use App\Services\PaymentService;
 
-use Ksd\Payment\Services\UpDateOrderStatusService;
+
 
 use App\Traits\CartHelper;
 
@@ -28,6 +28,7 @@ use App;
 use App\Services\MemberService;
 use Ksd\Payment\Services\BlueNewPayService;
 use Carbon\Carbon;
+use Ksd\Mediation\Services\CheckoutService;
 class BlueNewPayController extends RestLaravelController
 {
     use CartHelper;
@@ -36,16 +37,16 @@ class BlueNewPayController extends RestLaravelController
     protected $orderService;
     protected $menuOrderService;
     protected $blueNewPayService;
-    protected $upDateOrderStatusService;
+    protected $checkoutService;
     public function __construct(MenuOrderService $menuOrderService,
                                 OrderService $orderService,
                                BlueNewPayService $blueNewPayService,
-                               UpDateOrderStatusService $upDateOrderStatusService)
+                               CheckoutService $checkoutService)
     {
         $this->orderService = $orderService;
         $this->menuOrderService = $menuOrderService;
         $this->blueNewPayService=$blueNewPayService;
-        $this->upDateOrderStatusService=$upDateOrderStatusService;
+        $this->checkoutService=$checkoutService;
     }
 
     //購物車一次買完
@@ -86,18 +87,26 @@ class BlueNewPayController extends RestLaravelController
             $result=$this->blueNewPayService->reserve($mobleParams);
             Logger::alert('===end payment data ====');
             if ($result['code'] === '00000') {
+                $parameters= [
+                    'orderNo' => $orderNumber,
+                    'amount'   => $order->order_amount,
+                    'status'   => 1
+                ];
                 //修改訂單
-                $this->upDateOrderStatusService->upDateOderByOrderNo($orderNumber,['order_status'=>'10','order_paid_at'=> Carbon::now()]);
-                $this->upDateOrderStatusService->upDateOderDetailByOrderNo($orderNumber,['verified_status'=>'10']);
-
-                // 寄送linepay付款完成通知信
+                $result = $this->checkoutService->feedbackPay($parameters);
+                // 寄送pay付款完成通知信
                 $order = $this->orderService->findByOrderNo($orderNumber);
                 dispatch(new OrderPaymentCompleteMail($order->member_id, 'ct_pass', $order->order_no))->delay(5);
 
                 return $this->success();
             }else{
+                $parameters= [
+                    'orderNo' => $orderNumber,
+                    'amount'   => $order->order_amount,
+                    'status'   => 0
+                ];
                 //修改訂單1
-                $this->upDateOrderStatusService->upDateOderByOrderNo($orderNumber,['order_status'=>'00','order_paid_at'=> Carbon::now()]);
+                $result = $this->checkoutService->feedbackPay($parameters);
                 // return $this->failureCode('E9006');
                 return $this->responseFormat(null, 'E9006',$result['message'], 200);
             }
