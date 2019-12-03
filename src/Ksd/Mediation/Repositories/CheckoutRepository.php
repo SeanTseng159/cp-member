@@ -234,6 +234,17 @@ class CheckoutRepository extends BaseRepository
     }
 
     /**
+     * 接收藍新bluenewpay 及taiwanpay 去更新order
+     * @param $parameters
+     * @return array|mixed
+     */
+    public function feedbackPay($parameters)
+    {
+        // 更新訂單狀態
+        return $this->cityPass->authorization($this->generateToken())->payFeedback($parameters);
+    }
+
+    /**
      * 接收台新信用卡後台通知程式 result_url
      * @param $parameters
      * @return array|mixed
