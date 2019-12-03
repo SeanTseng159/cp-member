@@ -162,5 +162,20 @@ class Checkout extends Client
 
         return json_decode($response->getBody(), true);
     }
+    /**
+     * 接收藍新bluenewpay 及taiwanpay 去更新order
+     * @param $parameters
+     * @return array|mixed
+     */
+    public function payFeedback($parameters)
+    {
+        $this->putParameters($parameters);
+        $response = $this->request('POST', 'payForUpdateOrder/feedback');
+
+        Log::debug('===Citypass bluenewpay&taiwanpay結果回傳更新訂單===');
+        Log::debug(print_r(json_decode($response->getBody(), true), true));
+
+        return json_decode($response->getBody(), true);
+    }
 
 }
