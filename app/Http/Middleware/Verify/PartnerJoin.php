@@ -35,7 +35,7 @@ class PartnerJoin
                 'contactWindow' => 'required',
                 'phone' => 'required',
                 'email' => 'required|email',
-                'message' => 'required|max:255'
+                'message' => 'max:255'
             ];
 
         if ($request->has('recaptchaToken')) {
