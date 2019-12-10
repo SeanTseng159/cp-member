@@ -111,7 +111,7 @@ class BlueNewPayController extends RestLaravelController
                 $this->checkoutService->feedbackPay($parameters);
                 // return $this->failureCode('E9006');
                 if(empty($result['message'])){
-                    $message='有錯誤';
+                    $message='交易失敗，請重新付款';
                 }else{
                     $message=$result['message'];
                 }
