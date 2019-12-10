@@ -78,6 +78,16 @@ class OrderService extends BaseService
     }
 
     /**
+     * 根據 No 找單一訂單的詳細資料
+     * @param $orderNo
+     * @return mixed
+     */
+    public function findByOrderNoWithDetail($orderNo = 0)
+    {
+        return $this->repository->findByOrderNoWithDetail($orderNo);
+    }
+
+    /**
      * 根據 會員 id 取得訂單列表
      * @param $params [memberId, startDate, endDate, status, orderNo]
      * @return mixed
@@ -127,6 +137,17 @@ class OrderService extends BaseService
     public function getOneHourAgoPaidDiningCarOrders()
     {
         return $this->repository->getOneHourAgoPaidDiningCarOrders();
+    }
+
+    /**
+     * 依據訂單編號 更新
+     * @param $id
+     * @param $data
+     * @return mixed
+     */
+    public function updateByOrderNo($orderNo, $data = [])
+    {
+        return $this->repository->updateByOrderNo($orderNo, $data);
     }
 
 }

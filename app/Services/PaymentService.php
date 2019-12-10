@@ -13,18 +13,23 @@ use Ksd\Payment\Services\LinePayService;
 use Ksd\Payment\Services\TspgService;
 use App\Services\Ticket\CreditCardService;
 use App\Core\Logger;
+use App;
+use App\Services\MemberService;
+use Ksd\Payment\Services\BlueNewPayService;
 
 class PaymentService
 {
     protected $orderRepository;
     protected $linePayService;
     protected $tspgService;
+    protected $blueNewPayService;
 
-    public function __construct(OrderRepository $orderRepository, LinePayService $linePayService, TspgService $tspgService)
+    public function __construct(OrderRepository $orderRepository, LinePayService $linePayService, TspgService $tspgService,BlueNewPayService $blueNewPayService)
     {
         $this->orderRepository = $orderRepository;
         $this->linePayService = $linePayService;
         $this->tspgService = $tspgService;
+        $this->blueNewPayService=$blueNewPayService;
     }
 
     /**
@@ -36,6 +41,21 @@ class PaymentService
     public function payment($payment, $params = [])
     {
         switch ($payment['gateway']) {
+            // 藍新金流
+            case '1':
+
+
+            // google pay
+            if ($payment['method'] === '711') {
+
+                return ['orderNo' => $params['orderNo']];
+            }
+            // apple pay
+            elseif ($payment['method'] === '811') {
+
+                return ['orderNo' => $params['orderNo']];
+            }
+            break;
             // 台新金流
             case '3':
 

@@ -16,13 +16,13 @@ class PaymentInfoResult extends BaseResult
      * @param $payments
      * @return array
      */
-    public function getPayments($payments)
+    public function getPayments($payments, $source = null)
     {
         if ($payments->isEmpty()) return [];
 
         $result = [];
         foreach ($payments as $payment) {
-            $result[] = $this->getPayment($payment);
+            $result[] = $this->getPayment($payment, $source);
         }
 
         return $result;
@@ -33,11 +33,13 @@ class PaymentInfoResult extends BaseResult
      * @param $payment
      * @return object
      */
-    private function getPayment($payment)
+    private function getPayment($payment, $source = null)
     {
         if (!$payment) return null;
 
         $pay = new \stdClass;
+
+        if(!is_null($source)) $pay->source = $source;
         $pay->id = $payment->sid;
         $pay->name = $payment->sname;
         $pay->type = $payment->name;
@@ -50,9 +52,10 @@ class PaymentInfoResult extends BaseResult
      * @param $isPhysical
      * @return array
      */
-    public function getShipments($isPhysical)
+    public function getShipments($isPhysical, $source = null, $shipments_type = 'object')
     {
         $shipment = new \stdClass;
+        if(!is_null($source)) $shipment->source = $source;
 
         if ($isPhysical) {
             $shipment->id = 2;
@@ -67,7 +70,14 @@ class PaymentInfoResult extends BaseResult
             $shipment->type = 'virtual_ticket';
         }
 
-        return $shipment;
+        if($shipments_type == 'array') {
+            $shipmentResult = [];
+            $shipmentResult[] = $shipment;
+            return $shipmentResult;
+        }
+        else {
+            return $shipment;
+        }
     }
 
     /**
