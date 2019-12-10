@@ -69,11 +69,12 @@ class BlueNewPayController extends RestLaravelController
             if($order->order_status == 10){
                 return $this->failureCode('E9004');
             }
-
             // count how many
             $itemsCount=collect($order->detail)->count();
             $member=App::make(MemberService::class)->find($order->member_id);
+            // email有些放在email 有些放在openID
             $email=(!empty($member->email))?$member->email:$member->openId;
+            // 請參考藍新文件要送出的資料
             $mobleParams=["MerchantOrderNo" => $orderNumber,
                           "Amt" => $order->order_amount,
                           "ProdDesc" => "CityPass 商品 - 共 {$itemsCount} 項",
@@ -84,6 +85,7 @@ class BlueNewPayController extends RestLaravelController
                        ];
             Logger::alert('===for payment data ====');
             Logger::alert($mobleParams['MerchantOrderNo']);
+            //要送資料去paymentgetway 付款
             $result=$this->blueNewPayService->reserve($mobleParams);
             Logger::alert('===end payment data ====');
             if ($result['code'] === '00000') {
@@ -97,7 +99,7 @@ class BlueNewPayController extends RestLaravelController
                 // 寄送pay付款完成通知信
                 $order = $this->orderService->findByOrderNo($orderNumber);
                 dispatch(new OrderPaymentCompleteMail($order->member_id, 'ct_pass', $order->order_no))->delay(5);
-
+                //成功回傳空
                 return $this->success();
             }else{
                 $parameters= [
@@ -109,11 +111,12 @@ class BlueNewPayController extends RestLaravelController
                 $this->checkoutService->feedbackPay($parameters);
                 // return $this->failureCode('E9006');
                 if(empty($result['message'])){
-                    $result['message']='有錯誤';
+                    $message='有錯誤';
+                }else{
+                    $message=$result['message'];
                 }
-                return $this->responseFormat(null, 'E9006',$result['message'], 200);
+                return $this->responseFormat(null, 'E9006',$message, 200);
             }
-
         }catch(Exception $e){
             Logger::alert('=== bluenewpayController deBug===');
             Logger::alert($e);
