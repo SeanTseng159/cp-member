@@ -23,8 +23,8 @@ class MemberService
     public function loginUrl($platform)
     {
         $client_id = env('LINE_CHANNEL_ID');
-        $redirect_url = route('line.memberCallback') .'/'. $platform;
-        $url = 'https://access.line.me/oauth2/v2.1/authorize?response_type=code&client_id=' . $client_id . '&redirect_uri=' . $redirect_url . '&state=citypass&scope=openid%20profile%20email&nonce=citypassksd';
+        $redirect_url = route('line.memberCallback');
+        $url = 'https://access.line.me/oauth2/v2.1/authorize?response_type=code&client_id=' . $client_id . '&redirect_uri=' . $redirect_url . '&state=citypass&scope=openid%20profile%20email&nonce=' . $platform;
 
         return $url;
     }
@@ -34,14 +34,14 @@ class MemberService
      * @param $code,$platform
      * @return mixed
      */
-    public function accessToken($code, $platform)
+    public function accessToken($code)
     {
       $client = new Client();
       $response = $client->request('POST', 'https://api.line.me/oauth2/v2.1/token', [
           'form_params' => [
               'grant_type' => 'authorization_code',
               'code' => $code,
-              'redirect_uri' => route('line.memberCallback') .'/'. $platform,
+              'redirect_uri' => route('line.memberCallback'),
               'client_id' => env('LINE_CHANNEL_ID'),
               'client_secret' => env('LINE_SECRET')
           ]
