@@ -43,10 +43,9 @@ class MemberController extends Controller
      * 登入資訊
      * @param Illuminate\Http\Request $request
      */
-    public function callback(Request $request, $platform = 'web')
+    public function callback(Request $request)
     {
       try {
-        $this->platform = $platform;
         Log::info('=== line callback check ===');
 
         if(isset($request->query()['error'])) return $this->failureRedirect('無法取得使用者資訊');
@@ -54,14 +53,19 @@ class MemberController extends Controller
         $state = $request->query()['state'];
 
         //取access_token
-        $tokenInfo = $this->service->accessToken($code, $this->platform);
-
+        $tokenInfo = $this->service->accessToken($code);
         if(!$tokenInfo->access_token) return $this->failureRedirect('無法取得使用者資訊');
-        $user_profile = $this->service->getUserProfile($tokenInfo->access_token);
 
+        //取user_profile
+        $user_profile = $this->service->getUserProfile($tokenInfo->access_token);
         if(!$tokenInfo->id_token) return $this->failureRedirect('無法取得使用者資訊');
+
+        //取payload
         $payload = $this->service->getPayload($tokenInfo);
         if(!isset($payload->email)) return $this->failureRedirect('無法取得Email');
+        if(!isset($payload->nonce)) return $this->failureRedirect('無法取得裝置');
+        
+        $this->platform = $payload->nonce;
 
         // 檢查openId是否存在 (已註冊)
         $member = $this->memberService->findByOpenId($payload->email, self::OPEN_PLATEFORM);
