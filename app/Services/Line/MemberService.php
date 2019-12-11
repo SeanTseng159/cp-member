@@ -23,7 +23,7 @@ class MemberService
     public function loginUrl($platform)
     {
         $client_id = env('LINE_CHANNEL_ID');
-        $redirect_url = route('line.memberCallback');
+        $redirect_url = secure_url('line/memberCallback');
         $url = 'https://access.line.me/oauth2/v2.1/authorize?response_type=code&client_id=' . $client_id . '&redirect_uri=' . $redirect_url . '&state=citypass&scope=openid%20profile%20email&nonce=' . $platform;
 
         return $url;
