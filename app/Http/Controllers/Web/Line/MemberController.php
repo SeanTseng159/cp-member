@@ -49,7 +49,7 @@ class MemberController extends Controller
         Log::info('=== line callback check ===');
 
         if(isset($request->query()['error'])) {
-          Log::error('=== line 無法取得使用者資訊 ===');
+          Log::debug('=== line 無法取得使用者資訊 ===');
           return $this->failureRedirect();
         }
         $code = $request->query()['code'];
@@ -58,7 +58,7 @@ class MemberController extends Controller
         //取tokenInfo
         $tokenInfo = $this->service->accessToken($code);
         if(!$tokenInfo->access_token || !$tokenInfo->id_token) {
-          Log::error('=== line 無法取得使用者資訊 ===');
+          Log::debug('=== line 無法取得使用者資訊 ===');
           return $this->failureRedirect();
         }
 
@@ -68,12 +68,12 @@ class MemberController extends Controller
         //取payload
         $payload = $this->service->getPayload($tokenInfo);
         if(!isset($payload->email)) {
-          Log::error('=== line 無法取得Email ===');
+          Log::debug('=== line 無法取得Email ===');
           return $this->failureRedirect();
         }
 
         if(!isset($payload->nonce)) {
-          Log::error('=== line 無法取得裝置 ===');
+          Log::debug('=== line 無法取得裝置 ===');
           return $this->failureRedirect();
         }
         
@@ -96,7 +96,7 @@ class MemberController extends Controller
 
           $member = $this->memberService->create($result);
           if (!$member) {
-            Log::error('=== line 會員註冊失敗 ===');
+            Log::debug('=== line 會員註冊失敗 ===');
             return $this->failureRedirect();
           }
 
@@ -112,7 +112,7 @@ class MemberController extends Controller
       }
       catch (\Exception $e) {
           Log::info('=== line 會員登入錯誤 ===');
-          Log::error(print_r($e, true));
+          Log::debug(print_r($e->getMessage(), true));
           return $this->failureRedirect();
       }
     }
