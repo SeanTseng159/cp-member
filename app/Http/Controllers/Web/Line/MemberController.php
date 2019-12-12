@@ -48,22 +48,34 @@ class MemberController extends Controller
       try {
         Log::info('=== line callback check ===');
 
-        if(isset($request->query()['error'])) return $this->failureRedirect('無法取得使用者資訊');
+        if(isset($request->query()['error'])) {
+          Log::error('=== line 無法取得使用者資訊 ===');
+          return $this->failureRedirect();
+        }
         $code = $request->query()['code'];
         $state = $request->query()['state'];
 
-        //取access_token
+        //取tokenInfo
         $tokenInfo = $this->service->accessToken($code);
-        if(!$tokenInfo->access_token) return $this->failureRedirect('無法取得使用者資訊');
+        if(!$tokenInfo->access_token || !$tokenInfo->id_token) {
+          Log::error('=== line 無法取得使用者資訊 ===');
+          return $this->failureRedirect();
+        }
 
         //取user_profile
         $user_profile = $this->service->getUserProfile($tokenInfo->access_token);
-        if(!$tokenInfo->id_token) return $this->failureRedirect('無法取得使用者資訊');
 
         //取payload
         $payload = $this->service->getPayload($tokenInfo);
-        if(!isset($payload->email)) return $this->failureRedirect('無法取得Email');
-        if(!isset($payload->nonce)) return $this->failureRedirect('無法取得裝置');
+        if(!isset($payload->email)) {
+          Log::error('=== line 無法取得Email ===');
+          return $this->failureRedirect();
+        }
+
+        if(!isset($payload->nonce)) {
+          Log::error('=== line 無法取得裝置 ===');
+          return $this->failureRedirect();
+        }
         
         $this->platform = $payload->nonce;
 
@@ -83,7 +95,10 @@ class MemberController extends Controller
           Log::debug(print_r($result, true));
 
           $member = $this->memberService->create($result);
-          if (!$member) return $this->failureRedirect('會員註冊失敗');
+          if (!$member) {
+            Log::error('=== line 會員註冊失敗 ===');
+            return $this->failureRedirect();
+          }
 
           //增加邀請碼並且寫入DB
           $inviteCode = $this->memberService->createInviteCode($member->id);
@@ -97,19 +112,19 @@ class MemberController extends Controller
       }
       catch (\Exception $e) {
           Log::info('=== line 會員登入錯誤 ===');
-          return $this->failureRedirect($e);
+          return $this->failureRedirect();
       }
     }
 
-    private function failureRedirect($msg = '')
+    private function failureRedirect()
     {
         if ($this->platform === 'app') {
-            $url = 'app://lineLogin?result=false&msg=' . $msg;
+            $url = 'app://lineLogin?result=false';
             return '<script>location.href="' . $url . '";</script>';
         }
         else {
             $url = $this->citypassUrl . $this->lang;
-            $url .= '/oauth/failure?msg=' . $msg;
+            $url .= '/oauth/failure';
 
             return redirect($url);
         }
