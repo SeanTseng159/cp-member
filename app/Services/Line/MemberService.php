@@ -41,7 +41,7 @@ class MemberService
           'form_params' => [
               'grant_type' => 'authorization_code',
               'code' => $code,
-              'redirect_uri' => secure_url('line.memberCallback'),
+              'redirect_uri' => secure_url('line/memberCallback'),
               'client_id' => env('LINE_CHANNEL_ID'),
               'client_secret' => env('LINE_SECRET')
           ]
