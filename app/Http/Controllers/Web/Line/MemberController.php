@@ -112,6 +112,7 @@ class MemberController extends Controller
       }
       catch (\Exception $e) {
           Log::info('=== line 會員登入錯誤 ===');
+          Log::error(print_r($e, true));
           return $this->failureRedirect();
       }
     }
