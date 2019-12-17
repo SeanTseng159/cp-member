@@ -45,7 +45,7 @@ class RouteServiceProvider extends ServiceProvider
 
         $this->mapApiV2Routes();
 
-        //
+        $this->mapLineRoutes();
     }
 
     /**
@@ -122,6 +122,24 @@ class RouteServiceProvider extends ServiceProvider
             'namespace' => $this->namespace,
         ], function ($router) {
             require base_path('routes/ipass.php');
+        });
+    }
+
+    /**
+     * Define the "line" routes for the application.
+     *
+     * These routes all receive session state, etc.
+     *
+     * @return void
+     */
+    protected function mapLineRoutes()
+    {
+        Route::group([
+            'middleware' => 'line',
+            'prefix' => 'line',
+            'namespace' => $this->namespace,
+        ], function ($router) {
+            require base_path('routes/line.php');
         });
     }
 }
