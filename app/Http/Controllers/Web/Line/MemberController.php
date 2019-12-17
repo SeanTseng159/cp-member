@@ -67,17 +67,17 @@ class MemberController extends Controller
 
         //取payload
         $payload = $this->service->getPayload($tokenInfo);
-        if(!isset($payload->email)) {
-          Log::debug('=== line 無法取得Email ===');
-          return $this->failureRedirect();
-        }
-
+        
         if(!isset($payload->nonce)) {
           Log::debug('=== line 無法取得裝置 ===');
           return $this->failureRedirect();
         }
-        
         $this->platform = $payload->nonce;
+
+        if(!isset($payload->email)) {
+          Log::debug('=== line 無法取得Email ===');
+          return $this->failureRedirect();
+        }
 
         // 檢查openId是否存在 (已註冊)
         $member = $this->memberService->findByOpenId($payload->email, self::OPEN_PLATEFORM);
