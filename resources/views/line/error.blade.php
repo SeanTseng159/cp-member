@@ -16,6 +16,7 @@
 
 @section('script')
 <script>
+var backend_data = {!! $data !!};
 var app = new Vue({
     el: '#app',
     data() {
@@ -24,7 +25,7 @@ var app = new Vue({
         }
     },
     mounted() {
-
+      console.log(backend_data);
     },
     methods: {
       callAndroid(){
