@@ -93,7 +93,6 @@ class LayoutService extends BaseService
     {
         $data['category'] = $this->tagRepository->oneWithUpperId($lang, $id);
         $data['customizes'] = ($data['category']) ? $this->categoryRepository->allById($lang, $id) : [];
-        $data['news'] = $this->tagEventRepository->getByTagId($id);
 
         return $data;
     }
