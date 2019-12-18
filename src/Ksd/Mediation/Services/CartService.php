@@ -13,9 +13,13 @@ use Ksd\Mediation\Repositories\CartRepository;
 use Ksd\Mediation\Config\ProjectConfig;
 
 
+
+
+
 class CartService
 {
     private $repository;
+    private $test;
 
     public function __construct(MemberTokenService $memberTokenService)
     {
