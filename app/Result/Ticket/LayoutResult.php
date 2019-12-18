@@ -257,6 +257,7 @@ class LayoutResult extends BaseResult
         $result->place = null;
         $result->keyword = null;
         $result->customizes = $this->transformCustomizes($data['customizes'], 'layout_category');
+        $result->news = ($data['news']) ? $this->getNews($data['news']) : null;
 
         return $result;
     }
@@ -278,6 +279,9 @@ class LayoutResult extends BaseResult
 
         $tag_img_app = $this->arrayDefault($menu, 'tag_img_app');
         $result->imageUrlApp = ($tag_img_app) ? $this->backendHost . $tag_img_app : null;
+
+        $tag_web_icon = $this->arrayDefault($menu, 'tag_web_icon');
+        $result->profileImage = ($tag_web_icon) ? $this->backendHost . $tag_web_icon : null;
 
         $result->items = $this->menu($menu['sub_menus'], true);
 
@@ -349,6 +353,19 @@ class LayoutResult extends BaseResult
         else {
             $result->url = (string) $this->arrayDefault($app, 'link_app_scheme');
         }
+
+        return $result;
+    }
+
+    private function getNews($news)
+    {
+        $news = $news->toArray();
+
+        $result = new \stdClass;
+        $icon = $this->arrayDefault($item, 'event_icon');
+        $result->image = ($icon) ? $this->backendHost . $icon : null;
+        $result->date = $this->arrayDefault($item, 'date');
+        $result->content = $this->arrayDefault($item, 'content');
 
         return $result;
     }

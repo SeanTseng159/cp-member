@@ -114,10 +114,10 @@ class LayoutRepository extends BaseRepository
     public function category($parameter)
     {
         $itemId = $parameter->id;
-        return $this->redis->remember("category:id:$itemId", CacheConfig::LAYOUT_TIME, function () use ($parameter) {
+        // return $this->redis->remember("category:id:$itemId", CacheConfig::LAYOUT_TIME, function () use ($parameter) {
             $cityPass = $this->cityPass->category($parameter);
             return  $cityPass;
-        });
+        // });
     }
 
     /**
