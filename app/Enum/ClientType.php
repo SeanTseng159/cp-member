@@ -19,6 +19,8 @@ final class ClientType extends Enum
     const dining_car = 1;
     const coupon = 2;
     const gift = 3;
+    const promotion_gift = 4;
+    const discount = 5;
 
     private static $type = 0;
 
@@ -48,19 +50,6 @@ final class ClientType extends Enum
 
     }
 
-    public static function getClass($enumType)
-    {
-        $className = '';
-        switch ($enumType) {
-            case self::dining_car:
-                $className = DiningCar::class;
-                break;
-            case self::gift:
-                $className = Gift::class;
-                break;
-        }
-        return $className;
 
-    }
 
 }

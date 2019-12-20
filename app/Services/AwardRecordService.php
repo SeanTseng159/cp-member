@@ -6,7 +6,6 @@ namespace App\Services;
 use App\Repositories\AwardRecordRepository;
 
 
-
 class AwardRecordService extends BaseService
 {
     protected $repository;
@@ -17,7 +16,7 @@ class AwardRecordService extends BaseService
         $this->repository = $repository;
     }
 
-    public function list($type, $memberId, $client, $clientId)
+    public function list($type, $memberId, $client = null, $clientId = null)
     {
         return $this->repository->list($type, $memberId, $client, $clientId);
     }
