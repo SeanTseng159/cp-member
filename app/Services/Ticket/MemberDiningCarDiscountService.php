@@ -7,7 +7,7 @@
 
 namespace App\Services\Ticket;
 
-
+                            
 use App\Repositories\Ticket\MemberDiningCarDiscountRepository;
 use App\Repositories\Ticket\MemberGiftItemRepository;
 use App\Services\BaseService;
@@ -35,57 +35,6 @@ class MemberDiningCarDiscountService extends BaseService
     public function list($type, $memberId)
     {
         return $this->repository->list($type, $memberId);
-    }
-
-
-    public function findByID($id, $memberID)
-    {
-        return $this->repository->findByID($id, $memberID);
-    }
-
-    public function update($memberId, $memberGiftId)
-    {
-        return $this->repository->update($memberId, $memberGiftId);
-    }
-
-
-    /**
-     * 取得特定禮物的使用數
-     * @param array $giftIds
-     * @return mixed
-     */
-    public function getUsedCount(array $giftIds)
-    {
-        return $this->repository->getUsedCount($giftIds);
-    }
-
-    /*
-     * 取得使用者對某Clinet(餐車)的未使用禮物數
-     */
-    public function getUserAvailableGiftCount($memberId, $modelType, $modelSepcID)
-    {
-        return $this->repository->getUserAvailableGiftCount($memberId, $modelType, $modelSepcID);
-    }
-
-    public function getMaxNumber($memberId, $gift_id)
-    {
-        return $this->repository->getMaxNumber($memberId, $gift_id);
-    }
-
-    public function canGetBirthday($memberId, $gift_id)
-    {
-        return $this->repository->canGetBirthday($memberId, $gift_id);
-    }
-
-    public function availableGifts($memberId)
-    {
-        return $this->repository->availableGifts($memberId);
-    }
-
-    //使用giftID來尋找mermberId
-    public function findByGiftId($giftId)
-    {
-        return $this->repository->findByGiftId($giftId);
     }
 
 

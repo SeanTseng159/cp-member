@@ -143,7 +143,7 @@ class MemberGiftController extends RestLaravelController
      * @param $memberGiftId
      * @return string
      */
-    public function getQrcode(Request $request, $memberGiftId)
+    public function getQrcode(Request $request, $memberGiftId,$type)
     {
 
         try {

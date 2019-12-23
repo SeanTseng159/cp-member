@@ -8,10 +8,15 @@ use App\Models\PromoteGift;
 use App\Result\AwardRecordResult;
 use App\Result\MemberGiftItemResult;
 use App\Result\PromoteGiftRecordResult;
+use App\Result\MemberCouponRecordResult;
+use App\Result\MemberDiscountResult;
+
 use App\Services\AwardRecordService;
 use App\Services\ImageService;
 use App\Services\Ticket\InvitationService;
 use App\Services\Ticket\MemberGiftItemService;
+use App\Services\Ticket\MemberCouponService;
+use App\Services\Ticket\MemberDiningCarDiscountService;
 
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse as JsonResponseAlias;
@@ -29,7 +34,8 @@ class MemberDiscountController extends RestLaravelController
     protected $imageService;
     protected $awardRecordService;
     protected $invitationService;
-    protected $diningCarDiscountService;
+    protected $memberDiningCarDiscountService;
+    protected $memberCouponService;
     protected $qrCodePrefix = 'gift_';
 
 
@@ -37,8 +43,9 @@ class MemberDiscountController extends RestLaravelController
         MemberGiftItemService $memberGiftItemService,
         ImageService $imageService,
         AwardRecordService $awardRecordService,
-        InvitationService $invitationService
-
+        InvitationService $invitationService,
+        MemberCouponService $memberCouponService,
+        MemberDiningCarDiscountService $memberDiningCarDiscountService
     )
     {
 
@@ -46,6 +53,8 @@ class MemberDiscountController extends RestLaravelController
         $this->imageService = $imageService;
         $this->awardRecordService = $awardRecordService;
         $this->invitationService = $invitationService;
+        $this->memberCouponService=$memberCouponService;
+        $this->memberDiningCarDiscountService=$memberDiningCarDiscountService;
     }
 
     /**
@@ -58,25 +67,42 @@ class MemberDiscountController extends RestLaravelController
     public function list(Request $request)
     {
         try {
+            //get member id from token
             $memberId = $request->memberId;
+            
+            //取得要得狀態
             $type = Input::get('type', 0);
-
+            //有效 或者無效 得優惠卷
+            $allowStatus = ['current' => 1, 'used' => 2, 'expired' => 3];
+            if (!array_key_exists($type, $allowStatus)) {
+                throw  new \Exception('E0001');
+            }
+            $status = $allowStatus[$type];
+            
             //取得使用者的禮物清單
-            $diningCarGift = $this->memberGiftItemService->list($type, $memberId);
-
+            $diningCarGift = $this->memberGiftItemService->list($status, $memberId);
+            
             //獎品
-            $award = $this->awardRecordService->list($type, $memberId);
-
+            $award = $this->awardRecordService->list($status, $memberId);
+            
             //邀請碼的獎品
-            $promoteGifts = $this->invitationService->list($type, $memberId);
-
+            $promoteGifts = $this->invitationService->list($status, $memberId);
+            
             //折價券
-
-            $resultGift = (new MemberGiftItemResult())->list($diningCarGift, $type);
+            $memberCoupons = $this->memberCouponService->favoriteCouponList($memberId, $status);
+            
+            //優惠卷
+            $discount = $this->memberDiningCarDiscountService->list($status,$memberId);
+            
+            
+            //各自整理格式
+            $resultGift = (new MemberGiftItemResult())->list($diningCarGift, $status);
             $resultAward = (new AwardRecordResult())->list($award);
             $resultPromote = (new PromoteGiftRecordResult())->list($promoteGifts);
-
-            $result = array_merge($resultGift, $resultAward, $resultPromote);
+            $resultCoupons =(new MemberCouponRecordResult())->list($memberCoupons);
+            $resultDiscount=(new MemberDiscountResult())->list($discount);
+        
+            $result = array_merge($resultGift, $resultAward, $resultPromote,$resultCoupons,$resultDiscount);
             $result = array_values(collect($result)->sortBy('duration')->toArray());
 
             return $this->success($result);
@@ -93,78 +119,7 @@ class MemberDiscountController extends RestLaravelController
     }
 
 
-    /**
-     * 我的禮物明細
-     *
-     * @param Request $request
-     *
-     * @param $id
-     * @param $type
-     * @return JsonResponseAlias
-     * @throws \Exception
-     */
-    public function show(Request $request, $id)
-    {
-        try {
-            $memberId = $request->memberId;
-            $result = $this->memberGiftItemService->findByID($id, $memberId);
-            if ($result) {
-                $result = (new MemberGiftItemResult())->show($result);
-            } else {
-                throw  new \Exception('E0076');
-            }
-            return $this->success($result);
-        } catch (\Exception $e) {
-            if ($e->getMessage()) {
-                return $this->failureCode($e->getMessage());
-            }
 
-            return $this->failureCode('E0007');
-        }
-
-    }
-
-
-    /**
-     * 格式: 編碼前 memberID.memberGiftItemID.$截止時間(timestamp)
-     * ex.151.1.1551927111
-     *
-     * @param Request $request
-     * @param $memberGiftId
-     * @return string
-     */
-    public function getQrcode(Request $request, $memberGiftId)
-    {
-
-        try {
-            $memberId = $request->memberId;
-
-            //檢查禮物是否屬於該會員
-            $memberGiftItem = $this->memberGiftItemService->findByID($memberGiftId, $memberId);
-            if (!$memberGiftItem) {
-                throw new \Exception('E0076');
-            }
-
-            //檢查qr code是否已經使用過
-            if ($memberGiftItem->used_time) {
-                throw new \Exception('E0078');
-            }
-
-            //90秒
-            $duration = Carbon::now()->addSeconds($this::DelayVerifySecond)->timestamp;
-            $code = $this->qrCodePrefix . base64_encode("$memberId.$memberGiftId.$duration");
-            $result = new stdClass();
-            $result->code = $code;
-
-            return $this->success($result);
-
-        } catch (\Exception $e) {
-            if ($e->getMessage())
-                return $this->failureCode($e->getMessage());
-            return $this->failureCode('E0007');
-
-        }
-    }
 
 
 }
