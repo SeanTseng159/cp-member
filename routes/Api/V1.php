@@ -439,4 +439,13 @@ Route::middleware(['cors', 'auth.jwt'])->namespace('V1')->group(function () {
         Route::post('read', 'MemberController@readStatusChange');
     });
 
+    //優惠
+    Route::prefix('discount')->group(function () {
+        //通知列表資訊
+        Route::get('/list', 'MemberDiscountController@list');
+
+    });
+
+
+
 });

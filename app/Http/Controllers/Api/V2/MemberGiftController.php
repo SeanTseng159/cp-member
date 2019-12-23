@@ -163,6 +163,25 @@ class MemberGiftController extends RestLaravelController
                     $result->type = 'QrCode';
                     $result->code = $awardRecord->qrcode;
                 }
+            }  else if ($type == MyGiftType::discount) {
+                //檢查禮物是否屬於該會員
+                $awardRecord = $this->awardRecordService->find($memberGiftId, $memberId);
+                if (!$awardRecord) {
+                    throw new \Exception('E0076');
+                }
+
+                //檢查qr code是否已經使用過
+                if ($awardRecord->verified_at) {
+                    throw new \Exception('E0078');
+                }
+
+                if ($awardRecord->barcode) {
+                    $result->type = $awardRecord->barcode_type;
+                    $result->code = $awardRecord->barcode;
+                } else {
+                    $result->type = 'QrCode';
+                    $result->code = $awardRecord->qrcode;
+                }
             }
             return $this->success($result);
         } catch (\Exception $e) {

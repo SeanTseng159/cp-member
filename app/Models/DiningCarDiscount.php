@@ -1,24 +1,28 @@
 <?php
 /**
- * Created by Fish.
- * 2019/12/19 5:53 下午
+ * User: Annie
+ * Date: 2019/02/22
+ * Time: 上午 10:03
  */
 
 namespace App\Models;
 
-use App\Enum\MyGiftType;
-use Illuminate\Database\Eloquent\Model;
+use App\Models\Ticket\BaseModel;
 
 
-class DiningCarDiscount extends Model
+class DiningCarDiscount extends BaseModel
 {
     protected $table = 'dining_car_discount';
     protected $connection = 'backend';
+    
+    
 
-    public function image()
+    public function __construct()
     {
-        return $this->hasOne(Image::class, 'model_spec_id','id')
-                    ->where('model_type',MyGiftType::DISCOUNT);
 
     }
+
+    
+
+
 }
