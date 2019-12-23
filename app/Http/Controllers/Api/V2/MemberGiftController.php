@@ -5,10 +5,12 @@ namespace App\Http\Controllers\Api\V2;
 
 use App\Enum\MyGiftType;
 use App\Result\AwardRecordResult;
+use App\Result\DiningCarDiscountResult;
 use App\Result\MemberGiftItemResult;
 use App\Result\PromoteGiftRecordResult;
 use App\Services\AwardRecordService;
 use App\Services\ImageService;
+use App\Services\Ticket\DiningCarDiscountService;
 use App\Services\Ticket\InvitationService;
 use App\Services\Ticket\MemberGiftItemService;
 
@@ -28,13 +30,15 @@ class MemberGiftController extends RestLaravelController
     protected $awardRecordService;
     protected $qrCodePrefix = 'gift_';
     protected $invitationService;
+    protected $diningCarDiscountService;
 
 
     public function __construct(
         MemberGiftItemService $memberGiftItemService,
         ImageService $imageService,
         AwardRecordService $awardRecordService,
-        InvitationService $invitationService
+        InvitationService $invitationService,
+        DiningCarDiscountService $diningCarDiscountService
     )
     {
 
@@ -42,6 +46,7 @@ class MemberGiftController extends RestLaravelController
         $this->imageService = $imageService;
         $this->awardRecordService = $awardRecordService;
         $this->invitationService = $invitationService;
+        $this->diningCarDiscountService = $diningCarDiscountService;
     }
 
     /**
@@ -70,6 +75,8 @@ class MemberGiftController extends RestLaravelController
                 $result = $this->awardRecordService->find($id, $memberId);
             } else if ($type == MyGiftType::PROMOTE_GIFT) {
                 $result = $this->invitationService->findPromoteGiftRecord($id, $memberId);
+            } else if ($type == MyGiftType::DISCOUNT) {
+                $result = $this->diningCarDiscountService->find($id, $memberId);
             }
 
             if ($result) {
@@ -79,6 +86,8 @@ class MemberGiftController extends RestLaravelController
                     $result = (new AwardRecordResult())->show($result);
                 } else if ($type == MyGiftType::PROMOTE_GIFT) {
                     $result = (new PromoteGiftRecordResult())->show($result);
+                } else if ($type == MyGiftType::DISCOUNT) {
+                    $result = (new DiningCarDiscountResult())->show($result);
                 }
             } else {
                 throw New \Exception('E0076');
