@@ -8,10 +8,12 @@ use App\Result\AwardRecordResult;
 use App\Result\DiningCarDiscountResult;
 use App\Result\MemberGiftItemResult;
 use App\Result\PromoteGiftRecordResult;
+use App\Result\Ticket\MemberDiningCarDiscountResult;
 use App\Services\AwardRecordService;
 use App\Services\ImageService;
 use App\Services\Ticket\DiningCarDiscountService;
 use App\Services\Ticket\InvitationService;
+use App\Services\Ticket\MemberDiningCarDiscountService;
 use App\Services\Ticket\MemberGiftItemService;
 
 use Carbon\Carbon;
@@ -31,6 +33,7 @@ class MemberGiftController extends RestLaravelController
     protected $qrCodePrefix = 'gift_';
     protected $invitationService;
     protected $diningCarDiscountService;
+    protected $memberDiningCarDiscountService;
 
 
     public function __construct(
@@ -38,7 +41,8 @@ class MemberGiftController extends RestLaravelController
         ImageService $imageService,
         AwardRecordService $awardRecordService,
         InvitationService $invitationService,
-        DiningCarDiscountService $diningCarDiscountService
+        DiningCarDiscountService $diningCarDiscountService,
+        MemberDiningCarDiscountService $memberDiningCarDiscountService
     )
     {
 
@@ -47,6 +51,7 @@ class MemberGiftController extends RestLaravelController
         $this->awardRecordService = $awardRecordService;
         $this->invitationService = $invitationService;
         $this->diningCarDiscountService = $diningCarDiscountService;
+        $this->memberDiningCarDiscountService = $memberDiningCarDiscountService;
     }
 
     /**
@@ -76,7 +81,7 @@ class MemberGiftController extends RestLaravelController
             } else if ($type == MyGiftType::PROMOTE_GIFT) {
                 $result = $this->invitationService->findPromoteGiftRecord($id, $memberId);
             } else if ($type == MyGiftType::DISCOUNT) {
-                $result = $this->diningCarDiscountService->find($id, $memberId);
+                $result = $this->memberDiningCarDiscountService->find($id, $memberId);
             }
 
             if ($result) {
@@ -87,7 +92,7 @@ class MemberGiftController extends RestLaravelController
                 } else if ($type == MyGiftType::PROMOTE_GIFT) {
                     $result = (new PromoteGiftRecordResult())->show($result);
                 } else if ($type == MyGiftType::DISCOUNT) {
-                    $result = (new DiningCarDiscountResult())->show($result);
+                    $result = (new MemberDiningCarDiscountResult())->show($result);
                 }
             } else {
                 throw New \Exception('E0076');

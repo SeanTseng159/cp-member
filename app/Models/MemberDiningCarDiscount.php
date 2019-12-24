@@ -24,7 +24,7 @@ class MemberDiningCarDiscount extends BaseModel
 
     public function discount()
     {
-        return $this->belongsTo(DiningCarDiscount::class,'discount_id','id');
+        return $this->hasOne(DiningCarDiscount::class, 'id', 'discount_id');
     }
 
 

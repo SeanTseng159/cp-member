@@ -23,6 +23,7 @@ use function foo\func;
 class MemberDiningCarDiscountRepository extends BaseRepository
 {
     private $model;
+
     public function __construct(MemberDiningCarDiscount $model)
     {
         $this->model=$model;
@@ -75,5 +76,30 @@ class MemberDiningCarDiscountRepository extends BaseRepository
         return $result;
     }
 
+
+    public function find($id, $memberId)
+    {
+//        $now = Carbon::now();
+
+        return $this->model
+            ->with('discount')
+            ->where('member_id', $memberId)
+            ->where('id', $id)
+            ->first();
+
+
+
+
+
+
+
+
+//        return $this->model
+//            ->with('image')
+//            ->where('id', $id)
+//            ->where('start_at','<=', $now)
+//            ->where('end_at', '>',$now)
+//            ->first();
+    }
   
 }

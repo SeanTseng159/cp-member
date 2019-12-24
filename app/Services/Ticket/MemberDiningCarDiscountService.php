@@ -37,5 +37,9 @@ class MemberDiningCarDiscountService extends BaseService
         return $this->repository->list($type, $memberId);
     }
 
+    public function find($id, $memberId)
+    {
+        return $this->repository->find($id, $memberId);
+    }
 
 }
