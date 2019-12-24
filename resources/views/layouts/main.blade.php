@@ -4,11 +4,21 @@
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+        <meta name="csrf-token" content="{{ csrf_token() }}">
 
         <title>CityPass都會通</title>
 
         <!-- Latest compiled and minified CSS -->
         <link rel="stylesheet" href="{{ asset('css/bootstrap.min.css') }}">
+        <link href="{{ mix('css/app.css') }}" media="all" rel="stylesheet" type="text/css" />
+
+        @yield('css')
+
+        <script>
+            var siteUrl = "{{ url('/') }}";
+            var csrfToken = "{{ csrf_token() }}";
+            var CKEDITOR_BASEPATH = '/js/ckeditor/';
+        </script>
 
         <style>
             html {
@@ -221,9 +231,12 @@
         </style>
     </head>
     <body>
+      <div id="app">
         <div class="container">
             @yield('content')
         </div>
-        @yield('script')
+      </div>
+      <script src="{{ mix('js/app.js') }}"></script>
+      @yield('script')
     </body>
 </html>

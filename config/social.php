@@ -8,4 +8,8 @@ return [
     'google' => [
         'web_client_id' =>  env('GOOGLE_CLIENT_ID', ''),
     ],
+    'line' => [
+        'channel_id' => env('LINE_CHANNEL_ID', ''),
+        'channel_secret' => env('LINE_CHANNEL_SECRET', ''),
+    ],
 ];
