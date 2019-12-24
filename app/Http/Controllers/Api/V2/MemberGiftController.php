@@ -16,6 +16,7 @@ use App\Services\Ticket\InvitationService;
 use App\Services\Ticket\MemberDiningCarDiscountService;
 use App\Services\Ticket\MemberGiftItemService;
 
+
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse as JsonResponseAlias;
 use Illuminate\Http\Request;
@@ -34,7 +35,7 @@ class MemberGiftController extends RestLaravelController
     protected $invitationService;
     protected $diningCarDiscountService;
     protected $memberDiningCarDiscountService;
-
+    
 
     public function __construct(
         MemberGiftItemService $memberGiftItemService,
@@ -168,25 +169,22 @@ class MemberGiftController extends RestLaravelController
                     $result->type = 'QrCode';
                     $result->code = $awardRecord->qrcode;
                 }
-            }  else if ($type == MyGiftType::discount) {
+            }  else if ($type == MyGiftType::DISCOUNT) {
                 //檢查禮物是否屬於該會員
-                $awardRecord = $this->awardRecordService->find($memberGiftId, $memberId);
-                if (!$awardRecord) {
+                $memberDiscount = $this->memberDiningCarDiscountService->find($memberGiftId, $memberId);
+                if (!$memberDiscount) {
                     throw new \Exception('E0076');
                 }
 
                 //檢查qr code是否已經使用過
-                if ($awardRecord->verified_at) {
+                if ($memberDiscount->used_time) {
                     throw new \Exception('E0078');
                 }
 
-                if ($awardRecord->barcode) {
-                    $result->type = $awardRecord->barcode_type;
-                    $result->code = $awardRecord->barcode;
-                } else {
-                    $result->type = 'QrCode';
-                    $result->code = $awardRecord->qrcode;
-                }
+                
+                $result->type = 'QrCode';
+                $result->code = $memberDiscount->qrcode;
+                
             }
             return $this->success($result);
         } catch (\Exception $e) {

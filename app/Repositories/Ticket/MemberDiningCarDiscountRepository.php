@@ -79,7 +79,6 @@ class MemberDiningCarDiscountRepository extends BaseRepository
 
     public function find($id, $memberId)
     {
-//        $now = Carbon::now();
 
         return $this->model
             ->with('discount')
@@ -87,19 +86,6 @@ class MemberDiningCarDiscountRepository extends BaseRepository
             ->where('id', $id)
             ->first();
 
-
-
-
-
-
-
-
-//        return $this->model
-//            ->with('image')
-//            ->where('id', $id)
-//            ->where('start_at','<=', $now)
-//            ->where('end_at', '>',$now)
-//            ->first();
     }
   
 }

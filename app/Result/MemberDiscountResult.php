@@ -16,7 +16,7 @@ class MemberDiscountResult
             $data->name = $item->discount->name;
             $data->title = $item->discount->desc;
             $data->duration = $item->discount->end_at;
-            $data->photo ='';
+            $data->photo =CommonHelper::getBackendHost($item->discount->image_path);
 
 
             //$status 0:可使用  1:已使用 2:已過期
