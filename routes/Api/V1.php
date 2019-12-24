@@ -443,7 +443,8 @@ Route::middleware(['cors', 'auth.jwt'])->namespace('V1')->group(function () {
     Route::prefix('discount')->group(function () {
         //通知列表資訊
         Route::get('/list', 'MemberDiscountController@list');
-
+        //取得折價卷
+        Route::post('/getDiscount', 'MemberDiscountController@getDiscount');
     });
 
 

@@ -36,7 +36,7 @@ class MemberDiscountController extends RestLaravelController
     protected $invitationService;
     protected $memberDiningCarDiscountService;
     protected $memberCouponService;
-    protected $qrCodePrefix = 'gift_';
+    protected $qrCodePrefix = 'discount_';
 
 
     public function __construct(
@@ -119,7 +119,30 @@ class MemberDiscountController extends RestLaravelController
     }
 
 
+    public function getDiscount(Request $request)
+    {
+        // try{
+                $discountID=$request->input('discountID');
+                 //get member id from token
+                $memberId = $request->memberId;
 
+                //Qrcode make
+                $duration = Carbon::now()->addSeconds($this::DelayVerifySecond)->timestamp;
+                $qrcode=base64_encode("$memberId.$discountID.$duration");
+                $code = $this->qrCodePrefix . $qrcode;
+                $result = new stdClass();
+                $result->code = $code;
+
+
+        // }catch (\Exception $e) {
+        //     if ($e->getMessage()) {
+        //         return $this->failureCode($e->getMessage());
+        //     }
+
+        //     return $this->failureCode('E0007');
+        // }
+
+    }
 
 
 }
