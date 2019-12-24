@@ -43,4 +43,10 @@ Route::middleware(['cors', 'auth.jwt'])->namespace('V2')->group(function () {
         // 取立即購買 (購物車跟付款資訊)
         Route::get('buyNow/info', 'CartController@info')->middleware('verify.cart.buyNow.info');
     });
+    // 餐車相關
+    Route::prefix('diningCar')->group(function () {
+        // 可使用禮物數、優惠卷 與 總和
+        Route::get('tickets', 'DiningCarMemberController@tickets');
+
+    });
 });

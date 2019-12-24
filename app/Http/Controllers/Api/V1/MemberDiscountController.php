@@ -104,7 +104,7 @@ class MemberDiscountController extends RestLaravelController
         
             $result = array_merge($resultGift, $resultAward, $resultPromote,$resultCoupons,$resultDiscount);
             $result = array_values(collect($result)->sortBy('duration')->toArray());
-
+            
             return $this->success($result);
 
         } catch (\Exception $e) {

@@ -87,5 +87,11 @@ class MemberDiningCarDiscountRepository extends BaseRepository
             ->first();
 
     }
+
+    public function availableDiscount($memberId)
+    {
+        $favoriteList = $this->list($memberId,1);
+        return $favoriteList->count();
+    }
   
 }
