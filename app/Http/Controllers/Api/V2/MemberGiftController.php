@@ -5,12 +5,17 @@ namespace App\Http\Controllers\Api\V2;
 
 use App\Enum\MyGiftType;
 use App\Result\AwardRecordResult;
+use App\Result\DiningCarDiscountResult;
 use App\Result\MemberGiftItemResult;
 use App\Result\PromoteGiftRecordResult;
+use App\Result\Ticket\MemberDiningCarDiscountResult;
 use App\Services\AwardRecordService;
 use App\Services\ImageService;
+use App\Services\Ticket\DiningCarDiscountService;
 use App\Services\Ticket\InvitationService;
+use App\Services\Ticket\MemberDiningCarDiscountService;
 use App\Services\Ticket\MemberGiftItemService;
+
 
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse as JsonResponseAlias;
@@ -28,13 +33,17 @@ class MemberGiftController extends RestLaravelController
     protected $awardRecordService;
     protected $qrCodePrefix = 'gift_';
     protected $invitationService;
-
+    protected $diningCarDiscountService;
+    protected $memberDiningCarDiscountService;
+    
 
     public function __construct(
         MemberGiftItemService $memberGiftItemService,
         ImageService $imageService,
         AwardRecordService $awardRecordService,
-        InvitationService $invitationService
+        InvitationService $invitationService,
+        DiningCarDiscountService $diningCarDiscountService,
+        MemberDiningCarDiscountService $memberDiningCarDiscountService
     )
     {
 
@@ -42,6 +51,8 @@ class MemberGiftController extends RestLaravelController
         $this->imageService = $imageService;
         $this->awardRecordService = $awardRecordService;
         $this->invitationService = $invitationService;
+        $this->diningCarDiscountService = $diningCarDiscountService;
+        $this->memberDiningCarDiscountService = $memberDiningCarDiscountService;
     }
 
     /**
@@ -70,6 +81,8 @@ class MemberGiftController extends RestLaravelController
                 $result = $this->awardRecordService->find($id, $memberId);
             } else if ($type == MyGiftType::PROMOTE_GIFT) {
                 $result = $this->invitationService->findPromoteGiftRecord($id, $memberId);
+            } else if ($type == MyGiftType::DISCOUNT) {
+                $result = $this->memberDiningCarDiscountService->find($id, $memberId);
             }
 
             if ($result) {
@@ -79,6 +92,8 @@ class MemberGiftController extends RestLaravelController
                     $result = (new AwardRecordResult())->show($result);
                 } else if ($type == MyGiftType::PROMOTE_GIFT) {
                     $result = (new PromoteGiftRecordResult())->show($result);
+                } else if ($type == MyGiftType::DISCOUNT) {
+                    $result = (new MemberDiningCarDiscountResult())->show($result);
                 }
             } else {
                 throw New \Exception('E0076');
@@ -154,6 +169,22 @@ class MemberGiftController extends RestLaravelController
                     $result->type = 'QrCode';
                     $result->code = $awardRecord->qrcode;
                 }
+            }  else if ($type == MyGiftType::DISCOUNT) {
+                //檢查禮物是否屬於該會員
+                $memberDiscount = $this->memberDiningCarDiscountService->find($memberGiftId, $memberId);
+                if (!$memberDiscount) {
+                    throw new \Exception('E0076');
+                }
+
+                //檢查qr code是否已經使用過
+                if ($memberDiscount->used_time) {
+                    throw new \Exception('E0078');
+                }
+
+                
+                $result->type = 'QrCode';
+                $result->code = $memberDiscount->qrcode;
+                
             }
             return $this->success($result);
         } catch (\Exception $e) {
