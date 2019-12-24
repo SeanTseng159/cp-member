@@ -66,9 +66,11 @@ class ServiceController extends RestLaravelController
             $params['contactWindow'] = $request->input('contactWindow');
             $params['phone'] = $request->input('phone');
             $params['email'] = $request->input('email');
-            $params['message'] = $request->input('message');
+            $params['message'] = $request->input('message', '');
             $params['taxID'] = $request->input('taxID', '');
             $params['lineID'] = $request->input('lineID', '');
+            $params['project'] = $request->input('project', '');
+            $params['country'] = $request->input('country', '');
 
             dispatch(new PartnerJoin($params))->delay(5);
 
