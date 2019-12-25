@@ -15,10 +15,10 @@ class MemberDiningCarDiscountResult
     {
         // dd($memberDiningCarDiscount);
         $result = new \stdClass();
-        
-        $result->name = $memberDiningCarDiscount->discount->name;
+
+        $result->name = '多店可用';
         $result->photo = CommonHelper::getBackendHost($memberDiningCarDiscount->discount->image_path);
-        $result->title = $memberDiningCarDiscount->discount->desc;
+        $result->title = $memberDiningCarDiscount->discount->name;
         $result->duration = $this->getExpirationDateBy($memberDiningCarDiscount->discount,'start_at', 'end_at');
         $result->content = $memberDiningCarDiscount->discount->desc;
         $result->desc = $memberDiningCarDiscount->discount->desc;

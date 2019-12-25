@@ -93,5 +93,15 @@ class MemberDiningCarDiscountRepository extends BaseRepository
         $favoriteList = $this->list($memberId,1);
         return $favoriteList->count();
     }
+
+    public function createQrcode($memberId,$discountID,$code)
+    {
+        return $this->model
+                    ->insert(['discount_id' => $discountID,
+                            'member_id' => $memberId,
+                            'qrcode' => $code]);
+                    
+
+    }
   
 }
