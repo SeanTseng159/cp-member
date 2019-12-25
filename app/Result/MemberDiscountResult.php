@@ -15,7 +15,7 @@ class MemberDiscountResult
             $data->id = $item->id;
             $data->name = $item->discount->name;
             $data->title = $item->discount->desc;
-            $data->duration = $item->discount->end_at;
+            $data->duration = Carbon::parse($item->discount->end_at)->format('Y-m-d');
             $data->photo =CommonHelper::getBackendHost($item->discount->image_path);
 
 
