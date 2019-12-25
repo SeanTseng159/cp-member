@@ -90,7 +90,7 @@ class MemberDiningCarDiscountRepository extends BaseRepository
 
     public function availableDiscount($memberId)
     {
-        $favoriteList = $this->list($memberId,1);
+        $favoriteList = $this->list(1,$memberId);
         return $favoriteList->count();
     }
 
