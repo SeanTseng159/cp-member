@@ -7,7 +7,7 @@
  */
 
 namespace App\Http\Controllers\Api\V1;
-
+use App\Enum\ClientType;
 use App\Services\AwardRecordService;
 use App\Services\Ticket\InvitationService;
 use App\Services\Ticket\MemberCouponService;
@@ -30,6 +30,7 @@ use App\Services\FCMService;
 use App\Parameter\Ticket\DiningCarMemberParameter;
 use App\Result\Ticket\DiningCarMemberResult;
 use App\Result\Ticket\GiftResult;
+use App\Services\Ticket\DiningCarPointRecordService;
 
 use App\Jobs\DiningCar\ConsumeAmountExchangePoint;
 use App\Jobs\FCMSendPush;
@@ -49,7 +50,7 @@ class DiningCarMemberController extends RestLaravelController
     protected $awardRecordService;
     protected $memberNoticService;
     protected $invitationService;
-
+    protected $diningCarPointRecordService;
     public function __construct(DiningCarMemberService $service,
                                 DiningCarService $diningCarService, 
                                 DiningCarPointService $diningCarPointService,
@@ -59,7 +60,8 @@ class DiningCarMemberController extends RestLaravelController
                                 MemberGiftItemService $memberGiftItemService,
                                 AwardRecordService $awardRecordService,
                                 MemberNoticService $memberNoticService,
-                                InvitationService $invitationService
+                                InvitationService $invitationService,
+                                DiningCarPointRecordService $diningCarPointRecordService
 
     )
     {
@@ -72,6 +74,7 @@ class DiningCarMemberController extends RestLaravelController
         $this->awardRecordService = $awardRecordService;
         $this->memberNoticService = $memberNoticService;
         $this->invitationService = $invitationService;
+        $this->diningCarPointRecordService=$diningCarPointRecordService;
     }
 
     /**
@@ -138,12 +141,21 @@ class DiningCarMemberController extends RestLaravelController
     {
         try {
             $params = (new DiningCarMemberParameter($request))->list();
+            $memberId=$request->memberId;
+            $data = $this->service->list($memberId, $params);
 
-            $data = $this->service->list($request->memberId, $params);
-
+            
             $result['page'] = (int)$params['page'];
             $result['total'] = $data->total();
             $result['cars'] = (new DiningCarMemberResult)->list($data);
+
+            //塞入點數
+            foreach ($result['cars'] as $key=>$item){
+                $point = $this->diningCarPointRecordService->total($item->id, $memberId);
+                $gift = $this->memberGiftItemService->getUserAvailableGiftCount($memberId, ClientType::dining_car, $item->id);
+                $result['cars'][$key]->point=$point;
+                $result['cars'][$key]->gift=$gift;
+            }
 
             return $this->success($result);
         } catch (Exception $e) {
