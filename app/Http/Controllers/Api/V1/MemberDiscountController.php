@@ -121,26 +121,31 @@ class MemberDiscountController extends RestLaravelController
 
     public function getDiscount(Request $request)
     {
-        // try{
+        try{
+                
                 $discountID=$request->input('discountID');
                  //get member id from token
                 $memberId = $request->memberId;
-
+                
                 //Qrcode make
                 $duration = Carbon::now()->addSeconds($this::DelayVerifySecond)->timestamp;
                 $qrcode=base64_encode("$memberId.$discountID.$duration");
                 $code = $this->qrCodePrefix . $qrcode;
-                $result = new stdClass();
-                $result->code = $code;
+                
+                $this->memberDiningCarDiscountService->createQrcode($memberId,$discountID,$qrcode);
+
+                
+                return $this->success();
 
 
-        // }catch (\Exception $e) {
-        //     if ($e->getMessage()) {
-        //         return $this->failureCode($e->getMessage());
-        //     }
 
-        //     return $this->failureCode('E0007');
-        // }
+        }catch (\Exception $e) {
+            if ($e->getMessage()) {
+                return $this->failureCode($e->getMessage());
+            }
+
+            return $this->failureCode('E0007');
+        }
 
     }
 

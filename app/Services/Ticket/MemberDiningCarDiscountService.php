@@ -47,4 +47,10 @@ class MemberDiningCarDiscountService extends BaseService
         return $this->repository->availableDiscount($memberId);
         
     }
+
+    public function createQrcode($memberId,$discountID,$code)
+    {
+        return $this->repository->createQrcode($memberId,$discountID,$code);
+
+    }
 }

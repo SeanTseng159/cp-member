@@ -181,9 +181,8 @@ class MemberGiftController extends RestLaravelController
                     throw new \Exception('E0078');
                 }
 
-                
                 $result->type = 'QrCode';
-                $result->code = $memberDiscount->qrcode;
+                $result->code = 'discount_'.$memberDiscount->qrcode;
                 
             }
             return $this->success($result);
