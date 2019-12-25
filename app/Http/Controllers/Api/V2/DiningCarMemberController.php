@@ -102,6 +102,11 @@ class DiningCarMemberController extends RestLaravelController
             $total = $couponNum + $giftNum + $awardNum + $noticNum+$discount+$promoteGiftNum;
 
             return $this->success([
+                'gift_test' =>$giftNum,
+                'coupon_test' =>$couponNum,
+                'discount_test' =>$discount,
+                'award_test' =>$awardNum,
+                'promte_test' =>$promoteGiftNum,
                 'gift_num' => $total-$noticNum,
                 'notic_num' => $noticNum,
                 'total' => $total
