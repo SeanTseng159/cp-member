@@ -45,34 +45,38 @@ class MemberDiningCarDiscountRepository extends BaseRepository
     {
 
         //會員的折價卷
-        $result = $this->model
+        if($type==1){
+            $result = $this->model
             ->where('member_id',$memberId)
-            ->when($type,
-                function ($query) use ($type) {
-                    //禮物未使用
-                    if ($type === 1) {
-                        $query->whereNull('used_time');
-                    }elseif($type === 2){
-                        $query->whereNotNull('used_time');
-                    }
-                    return $query;
-                })
+            ->whereNull('used_time')
             ->whereHas('discount',
-                function ($q) use ($type) {
+                function ($q) {
                     //取得折價卷的相關資料
-                    if ($type ===1) {
-                        $q->where('start_at','<=',Carbon::today())
+                    $q->where('start_at','<=',Carbon::today())
                         ->where('end_at','>=',Carbon::today())
                         ->where('status',1);
-                    }elseif($type ===2) {
-                        $q->where('end_at','<=',Carbon::today())
-                        ->where('status',0);
-                    }
-
                     return $q;
                 })
             ->with('discount')
-            ->get();
+            ->get();    
+        }elseif($type==2){
+            $used = $this->model
+                ->where('member_id',$memberId)
+                ->whereNotNull('used_time')
+                ->get();
+            $expired=$this->model
+                ->where('member_id',$memberId)
+                ->whereHas('discount',
+                    function ($q) {
+                        //取得折價卷的相關資料
+                        $q->where('end_at','<',Carbon::today());
+                        return $q;
+                    })
+                ->with('discount')
+                ->get();
+            
+            $result = $used->merge($expired);
+        }
         return $result;
     }
 
