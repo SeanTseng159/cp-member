@@ -19,10 +19,17 @@ class MemberDiningCarDiscountResult
         $result->name = '多店可用';
         $result->photo = CommonHelper::getBackendHost($memberDiningCarDiscount->discount->image_path);
         $result->title = $memberDiningCarDiscount->discount->name;
-        $result->duration = $this->getExpirationDateBy($memberDiningCarDiscount->discount,'start_at', 'end_at');
+        $result->duration = $this->getExpirationDateBy(
+            $memberDiningCarDiscount->discount,
+            'start_at',
+            'end_at'
+        );
         $result->content = $memberDiningCarDiscount->discount->desc;
         $result->desc = $memberDiningCarDiscount->discount->desc;
-        $result->status = $this->checkUsageStatusBy($memberDiningCarDiscount->discount, 'start_at', 'end_at', 'used_time');
+        $result->status = $this->checkUsageStatusBy(
+            $memberDiningCarDiscount->discount->end_at,
+            $memberDiningCarDiscount->used_time
+        );
 
         return $result;
     }
@@ -35,26 +42,27 @@ class MemberDiningCarDiscountResult
         return $startAt->format('Y/m/d H:i')." ~ ".$endAt->format('Y/m/d H:i');
     }
 
-    private function checkUsageStatusBy($model, $startAtColumnName, $endAtColumnName, $usedTimeColumnName)
+    private function checkUsageStatusBy($endAt, $usedTime)
     {
-        $usedTime = $model->$usedTimeColumnName;
-
         //$status 0:可使用  1:已使用 2:已過期 3:免核銷
 
-        if ($usedTime) {
-
-            return 1;
-
-        } else {
-
+        if (!$usedTime)
+        {
             $now = Carbon::now();
-            $endAt = Carbon::parse($model->$endAtColumnName);
+            $endAt = Carbon::parse($endAt);
 
-            if ($now->lessThanOrEqualTo($endAt)) {
+            if ($now->lessThanOrEqualTo($endAt))
+            {
                 return 0;
-            } else {
+            }
+            else
+            {
                 return 2;
             }
+        }
+        else
+        {
+            return 1;
         }
     }
 }
