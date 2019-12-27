@@ -87,13 +87,6 @@ class MemberDiningCarDiscountRepository extends BaseRepository
             ->where('id', $id)
             ->first();
 
-
-
-
-
-
-
-
 //        return $this->model
 //            ->with('image')
 //            ->where('id', $id)
