@@ -44,4 +44,17 @@ class DiningCarDiscountRepositories extends BaseRepository
             ->first();
         return ['count'=>$count,'number'=>$number];
     }   
+
+
+        
+    public function listAll()
+    {
+        $now = Carbon::now();
+
+        return $this->model
+            ->where('start_at','<=', $now)
+            ->where('end_at', '>',$now)
+            ->where('status',1)
+            ->get();
+    }  
 }

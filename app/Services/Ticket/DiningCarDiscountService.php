@@ -29,4 +29,10 @@ class DiningCarDiscountService extends BaseService
     {
         return $this->repository->checkCount($id);    
     }
+
+    public function listAll()
+    {
+        return $this->repository->listAll();    
+    }
+
 }
