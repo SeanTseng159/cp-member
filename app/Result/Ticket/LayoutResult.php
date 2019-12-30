@@ -69,6 +69,7 @@ class LayoutResult extends BaseResult
         $result['adLinkWeb'] = $this->arrayDefault($ad, 'layout_ad_link_web');
         $result['adLinkAppType'] = (string) $this->arrayDefault($ad, 'layout_ad_link_app_type');
         $result['adLinkApp'] = $this->arrayDefault($ad, 'layout_ad_link_app');
+        $result['adLinkAppLogin'] = $this->arrayDefault($ad, 'is_app_login');
         $result['adLinkAppTagId'] = (string) $this->arrayDefault($ad, 'layout_ad_link_app_tag_id');
         $result['adLinkAppProdId'] = $this->arrayDefault($ad, 'layout_ad_link_app_prod_id');
         $result['adStartTime'] = $this->arrayDefault($ad, 'layout_ad_starttime');
