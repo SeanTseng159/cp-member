@@ -17,4 +17,5 @@ final class MyGiftType extends Enum
     const gift = 'gift';
     const award = 'award';
     const PROMOTE_GIFT = 'promoteGift';
+    const DISCOUNT = 'discount';
 }

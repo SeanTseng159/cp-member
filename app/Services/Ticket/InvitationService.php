@@ -12,7 +12,7 @@ use App\Repositories\Ticket\PromoteRepository;
 
 class InvitationService extends BaseService
 {
-    protected $repository;
+    protected $promoteRepository;
 
     public function __construct(PromoteRepository $promoteRepository)
     {
@@ -24,9 +24,9 @@ class InvitationService extends BaseService
         return $this->promoteRepository->allPromoteGift();
     }
 
-    public function addRecord($gifts = null, $MemberId = null,$passiveMemberId = null)
+    public function addRecord($gifts = null, $MemberId = null, $passiveMemberId = null)
     {
-        return $this->promoteRepository->addRecord($gifts, $MemberId,$passiveMemberId);
+        return $this->promoteRepository->addRecord($gifts, $MemberId, $passiveMemberId);
     }
 
     public function friendValue($memberId)
@@ -44,7 +44,7 @@ class InvitationService extends BaseService
         return $this->promoteRepository->findPromoteGift();
     }
 
-    public function list($type, $memberId, $client, $clientId)
+    public function list($type, $memberId, $client = null, $clientId = null)
     {
         return $this->promoteRepository->list($type, $memberId, $client, $clientId);
     }
