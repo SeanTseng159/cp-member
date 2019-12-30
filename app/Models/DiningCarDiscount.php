@@ -22,7 +22,11 @@ class DiningCarDiscount extends BaseModel
 
     }
 
-    
+    public function memberdiscout()
+    {
+        return $this->hasMany(MemberDiningCarDiscount::class,  'discount_id','id');
+    }
+
 
 
 }
