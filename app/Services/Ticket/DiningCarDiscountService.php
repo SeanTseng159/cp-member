@@ -20,8 +20,13 @@ class DiningCarDiscountService extends BaseService
         $this->repository = $repository;
     }
 
-    public function find($id, $memberId)
+    public function find($id)
     {
-        return $this->repository->find($id, $memberId);
+        return $this->repository->find($id);
+    }
+
+    public function checkCount($id)
+    {
+        return $this->repository->checkCount($id);    
     }
 }

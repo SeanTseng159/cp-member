@@ -17,6 +17,7 @@ use App\Services\Ticket\InvitationService;
 use App\Services\Ticket\MemberGiftItemService;
 use App\Services\Ticket\MemberCouponService;
 use App\Services\Ticket\MemberDiningCarDiscountService;
+use App\Services\Ticket\DiningCarDiscountService;
 
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse as JsonResponseAlias;
@@ -37,6 +38,7 @@ class MemberDiscountController extends RestLaravelController
     protected $memberDiningCarDiscountService;
     protected $memberCouponService;
     protected $qrCodePrefix = 'discount_';
+    protected $diningCarDiscountService;
 
 
     public function __construct(
@@ -45,7 +47,8 @@ class MemberDiscountController extends RestLaravelController
         AwardRecordService $awardRecordService,
         InvitationService $invitationService,
         MemberCouponService $memberCouponService,
-        MemberDiningCarDiscountService $memberDiningCarDiscountService
+        MemberDiningCarDiscountService $memberDiningCarDiscountService,
+        DiningCarDiscountService $diningCarDiscountService
     )
     {
 
@@ -55,6 +58,7 @@ class MemberDiscountController extends RestLaravelController
         $this->invitationService = $invitationService;
         $this->memberCouponService=$memberCouponService;
         $this->memberDiningCarDiscountService=$memberDiningCarDiscountService;
+        $this->diningCarDiscountService=$diningCarDiscountService;
     }
 
     /**
@@ -126,6 +130,31 @@ class MemberDiscountController extends RestLaravelController
                 $discountID=$request->input('discountID');
                  //get member id from token
                 $memberId = $request->memberId;
+
+                    
+                //check 是否有這張discount，且可以使用
+                $checkDiscount=$this->diningCarDiscountService->find($discountID);
+               
+                if(empty($checkDiscount)){
+                    throw  new \Exception('E0503');
+                }
+                
+                //find if exit ，每人僅能拿到一張
+                $checkOnlyOne=$this->memberDiningCarDiscountService->checkOnlyOne($discountID,$memberId);
+                if(!empty($checkOnlyOne)){
+                    throw  new \Exception('E0504');
+                }
+
+
+                //count 數量是否有超過發送，怕萬一有些問題多寫了一些判斷
+                $countCheck=$this->diningCarDiscountService->checkCount($discountID);
+                if(is_null($countCheck['number'])){
+                    throw  new \Exception('E0503');
+                }elseif($countCheck['count']->COUNT>$countCheck['number']->number+1){
+                    throw  new \Exception('E0072');
+                }
+
+                
                 
                 //Qrcode make
                 $duration = Carbon::now()->addSeconds($this::DelayVerifySecond)->timestamp;
