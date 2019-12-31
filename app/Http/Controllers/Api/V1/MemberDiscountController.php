@@ -150,7 +150,7 @@ class MemberDiscountController extends RestLaravelController
             $countCheck=$this->diningCarDiscountService->checkCount($discountID);
             if(is_null($countCheck['number'])){
                 throw  new \Exception('E0503');
-            }elseif($countCheck['count']->COUNT>$countCheck['number']->number+1){
+            }elseif($countCheck['count']->COUNT+1>$countCheck['number']->number){
                 throw  new \Exception('E0072');
             }
 
@@ -213,7 +213,7 @@ class MemberDiscountController extends RestLaravelController
                     //count 數量是否有超過發送，怕萬一有些問題多寫了一些判斷
                     $countCheck=$this->diningCarDiscountService->checkCount($value->id);
                     //裡取過 //是否領取過度
-                    if(!empty($checkOnlyOne) or $countCheck['count']->COUNT > $countCheck['number']->number+1){
+                    if(!empty($checkOnlyOne) or $countCheck['count']->COUNT+1 > $countCheck['number']->number){
                         $data->status=false;
                     }//沒有領取過 //或可領取
                     else{
