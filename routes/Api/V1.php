@@ -445,6 +445,8 @@ Route::middleware(['cors', 'auth.jwt'])->namespace('V1')->group(function () {
         Route::get('/list', 'MemberDiscountController@list');
         //取得折價卷
         Route::post('/getDiscount', 'MemberDiscountController@getDiscount');
+        //取得可用的折價卷
+        Route::get('/discountList', 'MemberDiscountController@discountList');
     });
 
 

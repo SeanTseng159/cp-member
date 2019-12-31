@@ -91,6 +91,15 @@ class MemberDiningCarDiscountRepository extends BaseRepository
             ->first();
 
     }
+    public function checkOnlyOne($discountId, $memberId)
+    {
+
+        return $this->model
+            ->where('member_id', $memberId)
+            ->where('discount_id', $discountId)
+            ->first();
+
+    }
 
     public function availableDiscount($memberId)
     {
@@ -103,7 +112,8 @@ class MemberDiningCarDiscountRepository extends BaseRepository
         return $this->model
                     ->insert(['discount_id' => $discountID,
                             'member_id' => $memberId,
-                            'qrcode' => $code]);
+                            'qrcode' => $code,
+                            'created_at'=>Carbon::now()]);
                     
 
     }
