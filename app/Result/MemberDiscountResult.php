@@ -13,8 +13,8 @@ class MemberDiscountResult
         foreach ($memberCoupons as $item) {
             $data = new \stdClass();
             $data->id = $item->id;
-            $data->name = $item->discount->name;
-            $data->title = $item->discount->desc;
+            $data->name = '多店可用';
+            $data->title = $item->discount->name;
             $data->duration = Carbon::parse($item->discount->end_at)->format('Y-m-d');
             $data->photo =CommonHelper::getBackendHost($item->discount->image_path);
 
