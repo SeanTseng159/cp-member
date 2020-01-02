@@ -5,11 +5,13 @@
  */
 
 namespace App\Result\Ticket;
+
 use App\Config\Ticket\DiningCarConfig;
 use Carbon\Carbon;
 use App\Helpers\CommonHelper;
 use App\Services\Ticket\DiningCarService;
 use App;
+
 class ShopResult extends DiningCarResult
 {
     protected $lat;
@@ -47,9 +49,10 @@ class ShopResult extends DiningCarResult
             '未知';
 
         //添加是否線上點菜
-        $result->canOnlineOrder=($car->canOrdering)? true : false;
+        $result->canOnlineOrder = ($car->canOrdering) ? true : false;
+
         //添加是否線上付款
-        $result->canEC=(App::make(DiningCarService::class)->easyFind($car->id)->employee->supplier->canEC)?true : false;
+        $result->canEC = $car->employee ? $car->employee->first()->supplier->canEC : false;
 
 
         return $result;
@@ -64,7 +67,7 @@ class ShopResult extends DiningCarResult
 
         if (!$car) return null;
 
-        $address=$car->county.$car->district.$car->address;
+        $address = $car->county . $car->district . $car->address;
 
         $this->lat = $lat;
         $this->lng = $lng;
@@ -78,17 +81,17 @@ class ShopResult extends DiningCarResult
         $result->imgs = $this->getImgs($car->imgs);
         $result->categories = $this->getCategories($car->category, $car->subCategory);
 
-        $result->isFoodCategory=$car->category->isfood;
+        $result->isFoodCategory = $car->category->isfood;
 
         $result->isFavorite = $isFavorite;
         $result->openStatusCode = $car->open_status;
         $result->openStatus = DiningCarConfig::OPEN_STATUS[$car->open_status];
 
-        $result->shop=$this->getShopInfo($car);
+        $result->shop = $this->getShopInfo($car);
 
         $result->longitude = $car->longitude ?? '';
         $result->latitude = $car->latitude ?? '';
-        $result->address=$address;
+        $result->address = $address;
         $result->distance = ($result->longitude && $result->latitude && $this->lat && $this->lng) ? $this->calcDistance($this->lat, $this->lng, $car->latitude, $car->longitude, 2, 2) . '公里' : '未知';
 
         $result->businessHoursDays = $this->getBusinessHoursDays($car->businessHoursDays);
@@ -113,25 +116,25 @@ class ShopResult extends DiningCarResult
         $shop->canWaiting = (bool)$car->canWaiting;
 
 
-        if($car->canQuestionnaire){
-            if(empty($car->currentQuestion)){
-                $shop->canQuestionnaire=false;
-            }elseif($car->currentQuestion->status){
-                $shop->canQuestionnaire=true;
-            }else{
-                $shop->canQuestionnaire=false;
+        if ($car->canQuestionnaire) {
+            if (empty($car->currentQuestion)) {
+                $shop->canQuestionnaire = false;
+            } elseif ($car->currentQuestion->status) {
+                $shop->canQuestionnaire = true;
+            } else {
+                $shop->canQuestionnaire = false;
             }
-        }else{
-            $shop->canQuestionnaire=false;
+        } else {
+            $shop->canQuestionnaire = false;
         }
 
         $shop->canPointing = ($car->level == 1 && (Carbon::parse($car->expired_at)->gt(Carbon::now())))
-             ? true : false;
+            ? true : false;
 
         //添加是否線上點菜
-        $shop->canOnlineOrder=($car->canOrdering)? true : false;
+        $shop->canOnlineOrder = ($car->canOrdering) ? true : false;
         //添加是否線上付款
-        $shop->canEC=(App::make(DiningCarService::class)->easyFind($car->id)->employee->supplier->canEC)?true : false;
+        $shop->canEC = (App::make(DiningCarService::class)->easyFind($car->id)->employee->supplier->canEC) ? true : false;
 
         return $shop;
     }
@@ -140,14 +143,13 @@ class ShopResult extends DiningCarResult
     public function servicelist()
     {
         $result = [];
-        $dataname=['會員集點','線上訂位','現場候位','線上點餐'];
+        $dataname = ['會員集點', '線上訂位', '現場候位', '線上點餐'];
 
-        foreach ($dataname as $id => $value)
-        {
-          $data = new \stdClass();
-          $data->id = $id;
-          $data->name = $value;
-          $result[] = $data;
+        foreach ($dataname as $id => $value) {
+            $data = new \stdClass();
+            $data->id = $id;
+            $data->name = $value;
+            $result[] = $data;
         }
 
         return $result;
@@ -161,7 +163,7 @@ class ShopResult extends DiningCarResult
         $this->lng = $lng;
         $this->memberDiningCars = $memberDiningCars;
         $newCars = [];
-        foreach ($cars as $key =>$car) {
+        foreach ($cars as $key => $car) {
             $newCar = $this->getCar($car);
             if ($newCar) $newCars[] = $newCar;
         }
