@@ -35,7 +35,7 @@ class MemberDiningCarDiscountRepository extends BaseRepository
 
     /** 取得
      *
-     * @param        $type :1:可使用/2:已使用or過期
+     * @param        $type :1:current 2:used 3:expire
      * @param        $memberId
      *
      *
