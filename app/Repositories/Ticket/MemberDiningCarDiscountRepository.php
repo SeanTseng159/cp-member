@@ -35,7 +35,7 @@ class MemberDiningCarDiscountRepository extends BaseRepository
 
     /** 取得
      *
-     * @param        $type :1:可使用/2:已使用or過期
+     * @param        $type :1:current 2:used 3:expire
      * @param        $memberId
      *
      *
@@ -52,8 +52,8 @@ class MemberDiningCarDiscountRepository extends BaseRepository
             ->whereHas('discount',
                 function ($q) {
                     //取得折價卷的相關資料
-                    $q->where('start_at','<=',Carbon::today())
-                        ->where('end_at','>=',Carbon::today())
+                    $q->where('on_start_at','<=',Carbon::today())
+                        ->where('on_end_at','>=',Carbon::today())
                         ->where('status',1);
                     return $q;
                 })
