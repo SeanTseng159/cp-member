@@ -57,7 +57,8 @@ class AwardRecordRepository extends BaseRepository
                     if ($type == 2) {
                         $query->where('award_validity_end_at', '>', $now);
                     }
-                    $query->where('award_status', "1");
+                    $query->where('award_status', "1")
+                        ->where('award_skunk_status', 0);//銘謝惠顧
                 })
             ->with('award')
             ->get();
