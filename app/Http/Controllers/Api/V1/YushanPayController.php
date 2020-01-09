@@ -57,9 +57,9 @@ class YushanPayController extends RestLaravelController
                 $murl='https://citypass.tw/';
             }
             //$pno=$orderNumber;
-            $pno=(new Hashids('', 7, 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'))->encode((string)Carbon::now()->format('YmdHis')); 
+            $pno=$request->input('orderNumber'); 
             $ntd=$order->order_amount;
-            $return_url='https://citypass.tw/';
+            $return_url=env('CITY_PASS_WEB').'processing';
             $ttime=Carbon::now()->format('YmdHis');
             $pname=$orderNumber;
             $data=collect($order->detail)->groupBy('prod_spec_price_id');            
