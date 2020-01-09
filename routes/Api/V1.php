@@ -14,6 +14,7 @@ use Illuminate\Http\Request;
 */
 
 Route::middleware('cors')->namespace('V1')->group(function () {
+
     // 會員相關
     Route::prefix('member')->group(function () {
         // 餐車邀請註冊會員
@@ -203,6 +204,13 @@ Route::middleware('cors')->namespace('V1')->group(function () {
         Route::post('reserve', 'BlueNewPayController@reserve');
     });
 
+     // 玉山支付寶 付費資料整理
+    Route::prefix('yushanPay')->group(function () {
+        //要傳給玉山的資料付款用
+        Route::post('comfirm', 'YushanPayController@comfirm');
+        //玉山回傳的資料
+        Route::post('callback', 'YushanPayController@callback');
+    });
     // 其他
     Route::prefix('service')->group(function () {
         // 常見問題
