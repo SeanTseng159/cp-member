@@ -132,10 +132,10 @@ class YushanPayController extends RestLaravelController
                     'status'   => 1
                 ];
                 //修改訂單,送去TPSS專案裡面修改訂單資訊
-                $result = $this->checkoutService->feedbackPay($parameters);
+                // $result = $this->checkoutService->feedbackPay($parameters);
                 // 寄送pay付款完成通知信
-                $order = $this->orderService->findByOrderNo((string)$res->pno);
-                dispatch(new OrderPaymentCompleteMail($order->member_id, 'ct_pass', $order->order_no))->delay(5);
+                // $order = $this->orderService->findByOrderNo((string)$res->pno);
+                // dispatch(new OrderPaymentCompleteMail($order->member_id, 'ct_pass', $order->order_no))->delay(5);
                 //成功回傳空值
                 return $this->success();
             }else{
@@ -147,7 +147,7 @@ class YushanPayController extends RestLaravelController
                     'status'   => 0
                 ];
                 //修改訂單1
-                $this->checkoutService->feedbackPay($parameters);
+                // $this->checkoutService->feedbackPay($parameters);
                 return $this->responseFormat(null, 'E9006',(string)$res->Message, 200);
             }//end if status ==OK
 
