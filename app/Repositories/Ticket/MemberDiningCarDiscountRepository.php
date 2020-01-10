@@ -51,10 +51,9 @@ class MemberDiningCarDiscountRepository extends BaseRepository
             ->whereNull('used_time')
             ->whereHas('discount',
                 function ($q) {
-                    
                     //取得折價卷的相關資料
-                    $q->where('on_start_at','<=',Carbon::today())
-                        ->where('on_end_at','>=',Carbon::today())
+                    $q->where('start_at','<=',Carbon::today())
+                        ->where('end_at','>=',Carbon::today())
                         ->where('status',1);
                     return $q;
                 })
