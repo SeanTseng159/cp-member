@@ -74,7 +74,7 @@ class YushanPayRepository extends Client
     public function checkYushanOrder($parameters)
     {
         try {
-            this->baseUrl='';
+            $this->baseUrl='';
             $this->headers='';
             //用formpost方式
             $this->json=false;
@@ -83,7 +83,6 @@ class YushanPayRepository extends Client
                             ->request('post',env('YushanQuery_url'));
             //轉換資料 ，且取出的資料式XML檔
             $result = simplexml_load_string($response->getBody()->getContents());
-
             return $result;
         } catch (ClientException $e) {
             Log::debug('=== YushanPay queryOrder ===');
