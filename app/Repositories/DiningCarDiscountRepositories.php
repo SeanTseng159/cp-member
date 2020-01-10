@@ -52,8 +52,8 @@ class DiningCarDiscountRepositories extends BaseRepository
         $now = Carbon::now();
 
         return $this->model
-            ->where('start_at','<=', $now)
-            ->where('end_at', '>',$now)
+            ->where('on_start_at','<=', $now)
+            ->where('on_end_at', '>',$now)
             ->where('status',1)
             ->get();
     }  

@@ -51,6 +51,7 @@ class MemberDiningCarDiscountRepository extends BaseRepository
             ->whereNull('used_time')
             ->whereHas('discount',
                 function ($q) {
+                    
                     //取得折價卷的相關資料
                     $q->where('start_at','<=',Carbon::today())
                         ->where('end_at','>=',Carbon::today())
@@ -58,7 +59,8 @@ class MemberDiningCarDiscountRepository extends BaseRepository
                     return $q;
                 })
             ->with('discount')
-            ->get();    
+            ->get();  
+
         }elseif($type==2){
             $used = $this->model
                 ->where('member_id',$memberId)
