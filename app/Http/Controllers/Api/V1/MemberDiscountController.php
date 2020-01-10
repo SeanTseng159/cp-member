@@ -186,7 +186,7 @@ class MemberDiscountController extends RestLaravelController
              //get member id from token
             $memberId = $request->memberId;
 
-            //check 是否有這張discount，且可以使用
+            //check 是否有這張discount，且可以使用 取出資料上架時間為主
             $allList=$this->diningCarDiscountService->listAll();
 
             //活動結束了
@@ -212,13 +212,15 @@ class MemberDiscountController extends RestLaravelController
                     $checkOnlyOne=$this->memberDiningCarDiscountService->checkOnlyOne($value->id,$memberId);
                     //count 數量是否有超過發送，怕萬一有些問題多寫了一些判斷
                     $countCheck=$this->diningCarDiscountService->checkCount($value->id);
-                    //裡取過 //是否領取過度
-                    if(!empty($checkOnlyOne) or $countCheck['count']->COUNT+1 > $countCheck['number']->number){
+                    //裡取過 //是否領取過度//判斷可以裡取的時間
+                    if( !empty($checkOnlyOne) or $countCheck['count']->COUNT+1 > $countCheck['number']->number or ($value->start_at >= Carbon::today() )or ($value->end_at <=Carbon::today()) ){
                         $data->status=false;
                     }//沒有領取過 //或可領取
                     else{
                         $data->status=true;
                     }//end if
+                    
+
                     $result[]=$data;
                 }//end foreach
             }//end if empty
