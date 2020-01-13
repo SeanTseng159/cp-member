@@ -19,6 +19,7 @@ use App\Jobs\Mail\OrderPaymentCompleteMail;
 use Ksd\Mediation\Services\CheckoutService;
 use Agent;
 use Carbon\Carbon;
+use Exception;
 use Hashids\Hashids;
 class YushanPayController extends RestLaravelController
 {
@@ -94,11 +95,7 @@ class YushanPayController extends RestLaravelController
             $pcode=SHA1($wordPcode.$HASHKey);
             $result['pcode']=$pcode;
             $url=env('YushanPay_url');
-            
-            Logger::alert('===for YushanPay data ====');
-            //要送資料送去paymentgetway 紀錄log
-            // $result=$this->taiwanPayService->saveTransacctions($mobleParams);
-            // Logger::alert('===end TaiwanPayController data ====');
+            Logger::alert('===end YushanPay data ====');
             //要送資料去前台轉址
             return $this->success($url.http_build_query($result));
         }catch(Exception $e){
@@ -115,27 +112,34 @@ class YushanPayController extends RestLaravelController
         try{
             Logger::alert('=== YushanPay  callback get data back===');
             Logger::alert($request->input('pno'));
-            // dd($request->query('pno'));
             // 去玉山確認訂單是否付款
             // 整理參數
             $parameters=['action'=>'ByOrder',
                         'seller_id'=>env('SELLER_ID'),
                         'pno'=>$request->input('pno')];
-            $url=env('YushanQuery_url').http_build_query($parameters);
-            $res=$this->yushanPayService->checkYushanOrder($url);
-            
-
+            $res=$this->yushanPayService->checkYushanOrder($parameters);
+            dd($res);
             if((string)$res->ResultCode=='OK'){
                 $parameters= [
-                    'orderNo' => (string)$res->pno,
-                    'amount'   => (string)$res->ntd,
+                    'orderNo' => (string)$res->Orders->Order->pno,
+                    'amount'   => (string)$res->Orders->Order->ntd,
+                    'order_no'   => (string)$res->Orders->Order->order_no,
+                    'channel_order_no'   => (string)$res->Orders->Order->channel_order_no,
+                    'alipayno' => (string)$res->Orders->Order->alipayno,
+                    'ttime' => (string)$res->Orders->Order->ttime,
                     'status'   => 1
                 ];
                 //修改訂單,送去TPSS專案裡面修改訂單資訊
-                // $result = $this->checkoutService->feedbackPay($parameters);
+                $result = $this->checkoutService->feedbackPay($parameters);
+                
+                $order = $this->orderService->findByOrderNo((string)$res->Orders->Order->pno);
+                if(empty($order)){
+                    throw new Exception('沒有訂單');
+                }
+                //要送資料送去paymentgetway 紀錄log
+                $result=$this->yushanPayService->saveTransacctions($parameters);
                 // 寄送pay付款完成通知信
-                // $order = $this->orderService->findByOrderNo((string)$res->pno);
-                // dispatch(new OrderPaymentCompleteMail($order->member_id, 'ct_pass', $order->order_no))->delay(5);
+                dispatch(new OrderPaymentCompleteMail($order->member_id, 'ct_pass', $order->order_no))->delay(5);
                 //成功回傳空值
                 return $this->success();
             }else{
@@ -146,8 +150,10 @@ class YushanPayController extends RestLaravelController
                     'amount'   => $request->input('ntd'),
                     'status'   => 0
                 ];
+                //要送資料送去paymentgetway 紀錄log
+                $result=$this->yushanPayService->saveTransacctions($parameters);
                 //修改訂單1
-                // $this->checkoutService->feedbackPay($parameters);
+                $this->checkoutService->feedbackPay($parameters);
                 return $this->responseFormat(null, 'E9006',(string)$res->Message, 200);
             }//end if status ==OK
 

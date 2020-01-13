@@ -8,11 +8,10 @@
 namespace Ksd\Payment\Repositories;
 
 
-use Ksd\Payment\Models\Client;
 use Exception;
 use Log;
-
-
+// use  Ksd\Payment\Core\BaseClient;
+use  Ksd\Payment\Models\Client;
 class YushanPayRepository extends Client
 {
     public function __construct()
@@ -20,30 +19,31 @@ class YushanPayRepository extends Client
         parent::__construct();
     }
 
-    // /**
-    //  *public function saveTransacctions($parameters)
-    //  * @param $parameters
-    //  * @return mixed
-    //  */
-    // public function saveTransacctions($parameters)
-    // {
-    //     try {
-    //         $response = $this->putParameters($parameters)
-    //             ->request('POST', 'v1/taiwanpay/saveTransacctions');
+    /**
+     *public function saveTransacctions($parameters)
+     * @param $parameters
+     * @return mixed
+     */
+    public function saveTransacctions($parameters)
+    {
+        try {
+            dd($parameters);
+            $response = $this->putParameters($parameters)
+                ->request('POST', 'v1/yushanPay/saveTransacctions');
 
-    //         $result = json_decode($response->getBody(), true);
+            $result = json_decode($response->getBody(), true);
 
-    //         return $result;
-    //     } catch (ClientException $e) {
-    //         Log::debug('=== TaiwanPay reserve error ===');
-    //         Log::debug(print_r($e->getMessage(), true));
-    //         return false;
-    //     } catch (Exception $e) {
-    //         Log::debug('=== TaiwanPay reserve unknown error ===');
-    //         Log::debug(print_r($e->getMessage(), true));
-    //         return false;
-    //     }
-    // }
+            return $result;
+        } catch (ClientException $e) {
+            Log::debug('=== yushanPay saveTransacctions error ===');
+            Log::debug(print_r($e->getMessage(), true));
+            return false;
+        } catch (Exception $e) {
+            Log::debug('=== yushanPay saveTransacctions unknown error ===');
+            Log::debug(print_r($e->getMessage(), true));
+            return false;
+        }
+    }
 
     // /**
     //  * reserve
@@ -71,15 +71,18 @@ class YushanPayRepository extends Client
     // }
 
 
-    public function checkYushanOrder($url)
+    public function checkYushanOrder($parameters)
     {
         try {
-            $this->baseUrl=$url;
+            $this->baseUrl='';
             $this->headers='';
-            $response = $this->request('get',$url);
+            //用formpost方式
+            $this->json=false;
+            //送出資料
+            $response = $this->putParameters($parameters)
+                            ->request('post',env('YushanQuery_url'));
             //轉換資料 ，且取出的資料式XML檔
             $result = simplexml_load_string($response->getBody()->getContents());
-
             return $result;
         } catch (ClientException $e) {
             Log::debug('=== YushanPay queryOrder ===');

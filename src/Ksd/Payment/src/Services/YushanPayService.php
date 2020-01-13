@@ -40,9 +40,9 @@ class YushanPayService
     /**
      * query yushan order  for check
      */
-    public function checkYushanOrder($url)
+    public function checkYushanOrder($parameters)
     {
-        return $this->repository->checkYushanOrder($url);
+        return $this->repository->checkYushanOrder($parameters);
     }
 
 
