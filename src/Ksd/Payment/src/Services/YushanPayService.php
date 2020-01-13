@@ -29,13 +29,6 @@ class YushanPayService
     {
         return $this->repository->saveTransacctions($parameters);
     }
-    /**
-     * saveTransacctionsReturn
-     */
-    public function saveTransacctionsReturn($parameters)
-    {
-        return $this->repository->saveTransacctionsReturn($parameters);
-    }
 
     /**
      * query yushan order  for check

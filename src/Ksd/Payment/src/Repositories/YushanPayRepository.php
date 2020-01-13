@@ -27,9 +27,10 @@ class YushanPayRepository extends Client
     public function saveTransacctions($parameters)
     {
         try {
+            Log::info('=== yushanPay saveTransacctions sent ===');
             $response = $this->putParameters($parameters)
                 ->request('POST', 'v1/yushanPay/reserve');
-
+            Log::info('=== yushanPay saveTransacctions '.$response->getBody()->code);
             $result = json_decode($response->getBody(), true);
 
             return $result;
