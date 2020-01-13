@@ -27,7 +27,6 @@ class YushanPayRepository extends Client
     public function saveTransacctions($parameters)
     {
         try {
-            dd($parameters);
             $response = $this->putParameters($parameters)
                 ->request('POST', 'v1/yushanPay/reserve');
 
