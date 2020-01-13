@@ -95,11 +95,7 @@ class YushanPayController extends RestLaravelController
             $pcode=SHA1($wordPcode.$HASHKey);
             $result['pcode']=$pcode;
             $url=env('YushanPay_url');
-            
-            Logger::alert('===for YushanPay data ====');
-            //要送資料送去paymentgetway 紀錄log
-            $result=$this->yushanPayService->saveTransacctions($result);
-            Logger::alert('===end TaiwanPayController data ====');
+            Logger::alert('===end YushanPay data ====');
             //要送資料去前台轉址
             return $this->success($url.http_build_query($result));
         }catch(Exception $e){
@@ -122,11 +118,15 @@ class YushanPayController extends RestLaravelController
                         'seller_id'=>env('SELLER_ID'),
                         'pno'=>$request->input('pno')];
             $res=$this->yushanPayService->checkYushanOrder($parameters);
-
+            dd($res);
             if((string)$res->ResultCode=='OK'){
                 $parameters= [
                     'orderNo' => (string)$res->Orders->Order->pno,
                     'amount'   => (string)$res->Orders->Order->ntd,
+                    'order_no'   => (string)$res->Orders->Order->order_no,
+                    'channel_order_no'   => (string)$res->Orders->Order->channel_order_no,
+                    'alipayno' => (string)$res->Orders->Order->alipayno,
+                    'ttime' => (string)$res->Orders->Order->ttime,
                     'status'   => 1
                 ];
                 //修改訂單,送去TPSS專案裡面修改訂單資訊
@@ -136,6 +136,8 @@ class YushanPayController extends RestLaravelController
                 if(empty($order)){
                     throw new Exception('沒有訂單');
                 }
+                //要送資料送去paymentgetway 紀錄log
+                $result=$this->yushanPayService->saveTransacctions($parameters);
                 // 寄送pay付款完成通知信
                 dispatch(new OrderPaymentCompleteMail($order->member_id, 'ct_pass', $order->order_no))->delay(5);
                 //成功回傳空值
@@ -148,6 +150,8 @@ class YushanPayController extends RestLaravelController
                     'amount'   => $request->input('ntd'),
                     'status'   => 0
                 ];
+                //要送資料送去paymentgetway 紀錄log
+                $result=$this->yushanPayService->saveTransacctions($parameters);
                 //修改訂單1
                 $this->checkoutService->feedbackPay($parameters);
                 return $this->responseFormat(null, 'E9006',(string)$res->Message, 200);
