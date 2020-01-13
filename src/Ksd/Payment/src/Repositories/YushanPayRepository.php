@@ -29,7 +29,7 @@ class YushanPayRepository extends Client
         try {
             dd($parameters);
             $response = $this->putParameters($parameters)
-                ->request('POST', 'v1/yushanPay/saveTransacctions');
+                ->request('POST', 'v1/yushanPay/reserve');
 
             $result = json_decode($response->getBody(), true);
 

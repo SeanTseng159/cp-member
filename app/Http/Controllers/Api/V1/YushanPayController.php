@@ -49,13 +49,13 @@ class YushanPayController extends RestLaravelController
             //使用手機要給一個網址 $murl;
             if (Agent::isMobile() || \Request::header('platform') == 'app') {
                 $device='mobile';
-                $murl='https://citypass.tw/';
+                $murl=env('CITY_PASS_WEB');
             }elseif (Agent::isTablet()) {
                 $device='mobile';
-                $murl='https://citypass.tw/';
+                $murl=env('CITY_PASS_WEB');
             }else {
                 $device='pc';
-                $murl='https://citypass.tw/';
+                $murl=env('CITY_PASS_WEB');
             }
             //$pno=$orderNumber;
             $pno=$request->input('orderNumber'); 
@@ -64,7 +64,6 @@ class YushanPayController extends RestLaravelController
             $ttime=Carbon::now()->format('YmdHis');
             $pname=$orderNumber;
             $data=collect($order->detail)->groupBy('prod_spec_price_id');            
-            $count=$data->count();
             //將資料整理一下
             $result=['seller_id'=>$seller_id,
                     'device'=>$device,
@@ -73,18 +72,20 @@ class YushanPayController extends RestLaravelController
                     'ntd'=>$ntd,
                     'return_url'=>$return_url,
                     'ttime'=>$ttime,
-                    'count'=>$count,
+                    'count'=>'1',
                     'pname'=>$pname,
-                    'validate_method'=>$validate_method
+                    'validate_method'=>$validate_method,
+                    'pid0' =>'1',
+                    'qty0' =>'1'
                     // 'version'=>$version
                 ];
             //計數器
-            $countForeach=0;
-            foreach ($data as $key=> $value){
-                $result['pid'.$countForeach]=$key;
-                $result['qty'.$countForeach]=$value->count();
-                $countForeach++;
-            }
+            // $countForeach=0;
+            // foreach ($data as $key=> $value){
+            //     $result['pid'.$countForeach]=$key;
+            //     $result['qty'.$countForeach]=$value->count();
+            //     $countForeach++;
+            // }
             //排序後要處理pcode
             ksort($result);
             
@@ -118,7 +119,6 @@ class YushanPayController extends RestLaravelController
                         'seller_id'=>env('SELLER_ID'),
                         'pno'=>$request->input('pno')];
             $res=$this->yushanPayService->checkYushanOrder($parameters);
-            dd($res);
             if((string)$res->ResultCode=='OK'){
                 $parameters= [
                     'orderNo' => (string)$res->Orders->Order->pno,
