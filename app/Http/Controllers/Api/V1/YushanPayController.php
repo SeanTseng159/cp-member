@@ -75,8 +75,8 @@ class YushanPayController extends RestLaravelController
                     'count'=>'1',
                     'pname'=>$pname,
                     'validate_method'=>$validate_method,
-                    'pid' =>'1',
-                    'qty' =>'1'
+                    'pid0' =>'1',
+                    'qty0' =>'1'
                     // 'version'=>$version
                 ];
             //計數器
