@@ -125,6 +125,10 @@ class PaymentService
                     'paymentUrl' => $result['data']['paymentUrl']
                 ];
             break;
+            // yushanpay
+            case '6':
+                return ['orderNo' => $params['orderNo']];
+            break;
             // 無值
             default:
                 throw new CustomException('E9006');
