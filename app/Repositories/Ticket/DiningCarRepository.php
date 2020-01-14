@@ -44,7 +44,7 @@ class DiningCarRepository extends BaseRepository
         });
 
 
-        return $this->model->with(['category', 'subCategory', 'mainImg'])
+        return $this->model->with(['category', 'subCategory', 'mainImg','employee.supplier'])
             ->where('status', 1)
             ->where('type', $this->type)
             ->when($params['keyword'], function ($query) use ($params) {
@@ -88,7 +88,7 @@ class DiningCarRepository extends BaseRepository
      */
     public function map($params = [])
     {
-        return $this->model->with(['category', 'subCategory', 'mainImg'])
+        return $this->model->with(['category', 'subCategory', 'mainImg','employee.supplier'])
             ->where('status', 1)
             ->when($params['keyword'], function ($query) use ($params) {
                 $query->where('name', 'like', '%' . $params['keyword'] . '%')
@@ -128,7 +128,8 @@ class DiningCarRepository extends BaseRepository
                 $query->where('member_id', $memberId);
             },
             'memberLevels',
-            'currentQuestion'
+            'currentQuestion',
+            'employee.supplier'
         ])
             ->withCount(['gifts', 'newsfeeds', 'coupons'])
             ->whereId($id)
