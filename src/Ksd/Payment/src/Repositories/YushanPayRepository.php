@@ -30,7 +30,6 @@ class YushanPayRepository extends Client
             Log::info('=== yushanPay saveTransacctions sent ===');
             $response = $this->putParameters($parameters)
                 ->request('POST', 'v1/yushanPay/reserve');
-            Log::info('=== yushanPay saveTransacctions '.$response->getBody()->code);
             $result = json_decode($response->getBody(), true);
 
             return $result;
@@ -74,8 +73,6 @@ class YushanPayRepository extends Client
     public function checkYushanOrder($parameters)
     {
         try {
-            $this->baseUrl='';
-            $this->headers='';
             //用formpost方式
             $this->json=false;
             //送出資料
