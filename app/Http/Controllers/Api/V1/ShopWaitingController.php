@@ -84,7 +84,7 @@ class ShopWaitingController extends RestLaravelController
                 });
 
             //檢查現在是否在今天的營業時間內
-            if ($todayBusiness) {
+            if (count($todayBusiness) > 0) {
                 $times = $todayBusiness->first()->times;
                 $todayBusinessTimes = $times->filter(function ($time) {
                     $start = explode(":", $time->start_time);
