@@ -78,6 +78,7 @@ class DiningCarRepository extends BaseRepository
                 }
             })
             ->where('type', $this->type)
+            ->orderBy('updated_at','desc')
             ->paginate($params['limit']);
     }
 
