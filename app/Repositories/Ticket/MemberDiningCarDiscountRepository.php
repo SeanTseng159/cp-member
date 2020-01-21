@@ -52,13 +52,14 @@ class MemberDiningCarDiscountRepository extends BaseRepository
             ->whereHas('discount',
                 function ($q) {
                     //取得折價卷的相關資料
-                    $q->where('on_start_at','<=',Carbon::today())
-                        ->where('on_end_at','>=',Carbon::today())
+                    $q->where('start_at','<=',Carbon::today())
+                        ->where('end_at','>=',Carbon::today())
                         ->where('status',1);
                     return $q;
                 })
             ->with('discount')
-            ->get();    
+            ->get();  
+
         }elseif($type==2){
             $used = $this->model
                 ->where('member_id',$memberId)
