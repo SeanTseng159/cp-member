@@ -127,9 +127,14 @@ class PaymentService
                     'paymentUrl' => $result['data']['paymentUrl']
                 ];
             break;
+            //taiwnapay
             case '5':
                 return ['orderNo' => $params['orderNo']];
                 break;
+            // yushanpay
+            case '6':
+                return ['orderNo' => $params['orderNo']];
+            break;
             // 無值
             default:
                 throw new CustomException('E9006');

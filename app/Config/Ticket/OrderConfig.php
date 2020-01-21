@@ -96,7 +96,8 @@ class OrderConfig extends BaseConfig
         2 => 'ipasspay',
         3 => 'tspg',
         4 => 'linepay',
-        5 => 'taiwanpay'
+        5 => 'taiwanpay',
+        6 => 'yushanpay'
     ];
 
     # 訂單金流方式
@@ -108,7 +109,8 @@ class OrderConfig extends BaseConfig
         611 => 'linepay',
         711 => 'googlepay',
         811 => 'applepay',
-        911 => 'taiwanpay'
+        911 => 'taiwanpay',
+        666 => 'yushanpay'
     ];
 
     # 銀行名稱
