@@ -278,5 +278,5 @@ Route::middleware('cors')->namespace('Api')->group(function () {
     });
     
     Route::post('thirdPartyLogin', 'MemberController@thirdPartyLogin');
-
+    Route::post('LineLiffLoginMember', 'MemberController@LineLiffLoginMember');
 });
