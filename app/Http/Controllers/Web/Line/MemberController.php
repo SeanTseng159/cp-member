@@ -66,7 +66,7 @@ class MemberController extends Controller
         $user_profile = $this->service->getUserProfile($tokenInfo->access_token);
 
         //取payload
-        $payload = $this->service->getPayload($tokenInfo);
+        $payload = $this->service->getPayload($tokenInfo->id_token);
         
         if(!isset($payload->nonce)) {
           Log::debug('=== line 無法取得裝置 ===');
@@ -143,5 +143,77 @@ class MemberController extends Controller
 
             return redirect($url);
         }
+    }
+
+     /**
+     * 透過Line OpenId登入/註冊會員
+     * @param Illuminate\Http\Request $request
+     */
+    public function openIdLoginMember(Request $request)
+    {
+      if (!$request->has(['idToken', 'name', 'accessToken'])) return $this->failureCode('E0001');
+
+      $idToken = $request->input('idToken');
+      $name = $request->input('name');
+      $accessToken = $request->input('accessToken');
+
+      //取payload
+      $payload = $this->service->getPayload($idToken);
+
+      if(!isset($payload->email)) {
+        Log::debug('=== line 無法取得Email ===');
+        return $this->failureCode('E0007');
+      }
+
+      // 檢查openId是否存在 (已註冊)
+      $member = $this->memberService->findByOpenId($payload->email, self::OPEN_PLATEFORM);
+
+      // 會員已註冊，登入會員
+      if ($member && $member->status && $member->isRegistered) {
+        $member = $this->memberService->generateToken($member, 'web');
+        Log::info('=== line 會員已註冊 ===');
+      }
+      else {
+        $profile->email = $payload->email;
+        $profile->name = $name;
+
+        $result = (new MemberParameter)->member([], $profile);
+
+        Log::info('=== line 會員註冊 ===');
+        Log::debug(print_r($result, true));
+
+        $member = $this->memberService->create($result);
+        if (!$member) {
+          Log::debug('=== line 會員註冊失敗 ===');
+          return $this->failureCode('E0011');
+        }
+
+        Log::info('=== line 會員註冊成功 ===');
+
+        //增加邀請碼並且寫入DB
+        $inviteCode = $this->memberService->createInviteCode($member->id);
+
+        $member = $this->memberService->generateToken($member, 'web');
+      }
+
+      if (!$member) {
+          return $this->failureCode('E0025');
+      }
+
+      return $this->success([
+          'id' => $member->id,
+          'token' => $member->token,
+          'email' => $member->openId,
+          'name' => $member->name,
+          'avatar' => $member->avatar,
+          'countryCode' => $member->countryCode,
+          'cellphone' => $member->cellphone,
+          'country' => $member->country,
+          'gender' => $member->gender,
+          'zipcode' => $member->zipcode,
+          'address' => $member->address,
+          'openPlateform' => $member->openPlateform,
+          'inviteCode' => $member->inviteCode
+      ]);
     }
 }
