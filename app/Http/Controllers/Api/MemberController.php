@@ -22,7 +22,7 @@ use Log;
 use App\Traits\CryptHelper;
 use Illuminate\Contracts\Encryption\DecryptException;
 use App\Services\Line\MemberService as LineMemberService;
-
+use App\Parameter\Line\MemberParameter as LineMemberParameter;
 class MemberController extends RestLaravelController
 {
     use CryptHelper;
@@ -541,22 +541,26 @@ class MemberController extends RestLaravelController
      */
     public function LineLiffLoginMember(Request $request)
     {
-      if (!$request->has(['idToken', 'accessToken', 'name'])) return $this->failureCode('E0001');
+      if (!$request->has(['userId', 'email', 'name', 'accessToken'])) return $this->failureCode('E0001');
 
-      $idToken = $request->input('idToken');
+      $userId = $request->input('userId');
+      $email = $request->input('email');
       $name = $request->input('name');
       $accessToken = $request->input('accessToken');
 
-      //取payload
-      $payload = $this->lineMemberService->getPayload($idToken);
+      //取user_profile
+      $user_profile = $this->lineMemberService->getUserProfile($accessToken);
 
-      if(!isset($payload->email)) {
+      //驗證userId
+      if($user_profile->userId !== $userId) return $this->failureCode('E0021');
+
+      if(!isset($email)) {
         Log::debug('=== line 無法取得Email ===');
         return $this->failure('E0021','請至第三方設定允許提供email或改用其他方式登入本站');
       }
 
       // 檢查openId是否存在 (已註冊)
-      $member = $this->memberService->findByOpenId($payload->email, self::OPEN_PLATEFORM);
+      $member = $this->memberService->findByOpenId($email, self::OPEN_PLATEFORM);
 
       // 會員已註冊，登入會員
       if ($member && $member->status && $member->isRegistered) {
@@ -564,10 +568,10 @@ class MemberController extends RestLaravelController
         Log::info('=== line 會員已註冊 ===');
       }
       else {
-        $profile->email = $payload->email;
+        $profile->email = $email;
         $profile->name = $name;
 
-        $result = (new MemberParameter)->member([], $profile);
+        $result = (new LineMemberParameter)->member([], $profile);
 
         Log::info('=== line 會員註冊 ===');
         Log::debug(print_r($result, true));
