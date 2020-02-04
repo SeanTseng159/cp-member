@@ -560,7 +560,7 @@ class MemberController extends RestLaravelController
       }
 
       // 檢查openId是否存在 (已註冊)
-      $member = $this->memberService->findByOpenId($email, self::OPEN_PLATEFORM);
+      $member = $this->memberService->findByOpenId($email, 'line');
 
       // 會員已註冊，登入會員
       if ($member && $member->status && $member->isRegistered) {
