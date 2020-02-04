@@ -21,6 +21,7 @@ use Crypt;
 use Log;
 use App\Traits\CryptHelper;
 use Illuminate\Contracts\Encryption\DecryptException;
+use App\Services\Line\MemberService as LineMemberService;
 
 class MemberController extends RestLaravelController
 {
@@ -28,13 +29,15 @@ class MemberController extends RestLaravelController
 
     protected $memberService;
     protected $newsletterService;
+    protected $lineMemberService;
 
-    public function __construct(MemberService $memberService, NewsletterService $newsletterService, DiscountCodeService $discountCodeService)
+    public function __construct(MemberService $memberService, NewsletterService $newsletterService, DiscountCodeService $discountCodeService, LineMemberService $lineMemberService)
     {
         $this->memberService = $memberService;
         $this->newsletterService = $newsletterService;
         $this->discountCodeService = $discountCodeService;
-    }
+        $this->lineMemberService = $lineMemberService;
+    } 
 
     /**
      * 建立會員
@@ -530,5 +533,77 @@ class MemberController extends RestLaravelController
             'address' => $member->address,
             'inviteCode' => $inviteCode
         ]);
+    }
+
+     /**
+     * 透過Line LIFF登入/註冊會員
+     * @param Illuminate\Http\Request $request
+     */
+    public function LineLiffLoginMember(Request $request)
+    {
+      if (!$request->has(['idToken', 'accessToken', 'name'])) return $this->failureCode('E0001');
+
+      $idToken = $request->input('idToken');
+      $name = $request->input('name');
+      $accessToken = $request->input('accessToken');
+
+      //取payload
+      $payload = $this->lineMemberService->getPayload($idToken);
+
+      if(!isset($payload->email)) {
+        Log::debug('=== line 無法取得Email ===');
+        return $this->failure('E0021','請至第三方設定允許提供email或改用其他方式登入本站');
+      }
+
+      // 檢查openId是否存在 (已註冊)
+      $member = $this->memberService->findByOpenId($payload->email, self::OPEN_PLATEFORM);
+
+      // 會員已註冊，登入會員
+      if ($member && $member->status && $member->isRegistered) {
+        $member = $this->memberService->generateToken($member, 'web');
+        Log::info('=== line 會員已註冊 ===');
+      }
+      else {
+        $profile->email = $payload->email;
+        $profile->name = $name;
+
+        $result = (new MemberParameter)->member([], $profile);
+
+        Log::info('=== line 會員註冊 ===');
+        Log::debug(print_r($result, true));
+
+        $member = $this->memberService->create($result);
+        if (!$member) {
+          Log::debug('=== line 會員註冊失敗 ===');
+          return $this->failureCode('E0011');
+        }
+
+        Log::info('=== line 會員註冊成功 ===');
+
+        //增加邀請碼並且寫入DB
+        $inviteCode = $this->memberService->createInviteCode($member->id);
+
+        $member = $this->memberService->generateToken($member, 'web');
+      }
+
+      if (!$member) {
+          return $this->failureCode('E0025');
+      }
+
+      return $this->success([
+          'id' => $member->id,
+          'token' => $member->token,
+          'email' => $member->openId,
+          'name' => $member->name,
+          'avatar' => $member->avatar,
+          'countryCode' => $member->countryCode,
+          'cellphone' => $member->cellphone,
+          'country' => $member->country,
+          'gender' => $member->gender,
+          'zipcode' => $member->zipcode,
+          'address' => $member->address,
+          'openPlateform' => $member->openPlateform,
+          'inviteCode' => $member->inviteCode
+      ]);
     }
 }
