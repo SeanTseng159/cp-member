@@ -551,66 +551,63 @@ class MemberController extends RestLaravelController
       //取user_profile
       $user_profile = $this->lineMemberService->getUserProfile($accessToken);
       
-      Log::debug(print_r($user_profile, true));
+      //驗證userId
+      if(!$user_profile || $user_profile['userId'] !== $userId) return $this->failureCode('E0021');
 
-      return $this->success(['userId'=>$user_profile->userId]);
-    //   //驗證userId
-    //   if(!$user_profile || $user_profile->userId !== $userId) return $this->failureCode('E0021');
+      if(!isset($email)) {
+        Log::debug('=== line 無法取得Email ===');
+        return $this->failure('E0021','請至第三方設定允許提供email或改用其他方式登入本站');
+      }
 
-    //   if(!isset($email)) {
-    //     Log::debug('=== line 無法取得Email ===');
-    //     return $this->failure('E0021','請至第三方設定允許提供email或改用其他方式登入本站');
-    //   }
+      // 檢查openId是否存在 (已註冊)
+      $member = $this->memberService->findByOpenId($email, 'line');
 
-    //   // 檢查openId是否存在 (已註冊)
-    //   $member = $this->memberService->findByOpenId($email, 'line');
+      // 會員已註冊，登入會員
+      if ($member && $member->status && $member->isRegistered) {
+        $member = $this->memberService->generateToken($member, 'web');
+        Log::info('=== line 會員已註冊 ===');
+      }
+      else {
+        $profile->email = $email;
+        $profile->name = $name;
 
-    //   // 會員已註冊，登入會員
-    //   if ($member && $member->status && $member->isRegistered) {
-    //     $member = $this->memberService->generateToken($member, 'web');
-    //     Log::info('=== line 會員已註冊 ===');
-    //   }
-    //   else {
-    //     $profile->email = $email;
-    //     $profile->name = $name;
+        $result = (new LineMemberParameter)->member([], $profile);
 
-    //     $result = (new LineMemberParameter)->member([], $profile);
+        Log::info('=== line 會員註冊 ===');
+        Log::debug(print_r($result, true));
 
-    //     Log::info('=== line 會員註冊 ===');
-    //     Log::debug(print_r($result, true));
+        $member = $this->memberService->create($result);
+        if (!$member) {
+          Log::debug('=== line 會員註冊失敗 ===');
+          return $this->failureCode('E0011');
+        }
 
-    //     $member = $this->memberService->create($result);
-    //     if (!$member) {
-    //       Log::debug('=== line 會員註冊失敗 ===');
-    //       return $this->failureCode('E0011');
-    //     }
+        Log::info('=== line 會員註冊成功 ===');
 
-    //     Log::info('=== line 會員註冊成功 ===');
+        //增加邀請碼並且寫入DB
+        $inviteCode = $this->memberService->createInviteCode($member->id);
 
-    //     //增加邀請碼並且寫入DB
-    //     $inviteCode = $this->memberService->createInviteCode($member->id);
+        $member = $this->memberService->generateToken($member, 'web');
+      }
 
-    //     $member = $this->memberService->generateToken($member, 'web');
-    //   }
+      if (!$member) {
+          return $this->failureCode('E0025');
+      }
 
-    //   if (!$member) {
-    //       return $this->failureCode('E0025');
-    //   }
-
-    //   return $this->success([
-    //       'id' => $member->id,
-    //       'token' => $member->token,
-    //       'email' => $member->openId,
-    //       'name' => $member->name,
-    //       'avatar' => $member->avatar,
-    //       'countryCode' => $member->countryCode,
-    //       'cellphone' => $member->cellphone,
-    //       'country' => $member->country,
-    //       'gender' => $member->gender,
-    //       'zipcode' => $member->zipcode,
-    //       'address' => $member->address,
-    //       'openPlateform' => $member->openPlateform,
-    //       'inviteCode' => $member->inviteCode
-    //   ]);
+      return $this->success([
+          'id' => $member->id,
+          'token' => $member->token,
+          'email' => $member->openId,
+          'name' => $member->name,
+          'avatar' => $member->avatar,
+          'countryCode' => $member->countryCode,
+          'cellphone' => $member->cellphone,
+          'country' => $member->country,
+          'gender' => $member->gender,
+          'zipcode' => $member->zipcode,
+          'address' => $member->address,
+          'openPlateform' => $member->openPlateform,
+          'inviteCode' => $member->inviteCode
+      ]);
     }
 }
