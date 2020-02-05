@@ -607,7 +607,7 @@ class MemberController extends RestLaravelController
           'zipcode' => $member->zipcode,
           'address' => $member->address,
           'openPlateform' => $member->openPlateform,
-          'inviteCode' => $member->inviteCode
+          'inviteCode' => $member->invited_code
       ]);
     }
 }
