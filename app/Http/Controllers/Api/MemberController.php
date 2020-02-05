@@ -552,7 +552,7 @@ class MemberController extends RestLaravelController
       $user_profile = $this->lineMemberService->getUserProfile($accessToken);
 
       //驗證userId
-      if(!$user_profile && $user_profile->userId !== $userId) return $this->failureCode('E0021');
+      if(!$user_profile || $user_profile->userId !== $userId) return $this->failureCode('E0021');
 
       if(!isset($email)) {
         Log::debug('=== line 無法取得Email ===');
