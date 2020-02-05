@@ -77,7 +77,7 @@ class YushanPayRepository extends Client
             $this->json=false;
             //送出資料
             $response = $this->putParameters($parameters)
-                            ->request('post',env('YushanQuery_url'));
+                            ->request('post',env('YUSHANQUERY_URL'));
             //轉換資料 ，且取出的資料式XML檔
             $result = simplexml_load_string($response->getBody()->getContents());
             return $result;

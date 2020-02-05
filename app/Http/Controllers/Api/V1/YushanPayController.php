@@ -95,7 +95,7 @@ class YushanPayController extends RestLaravelController
             }
             $pcode=SHA1($wordPcode.$HASHKey);
             $result['pcode']=$pcode;
-            $url=env('YushanPay_url');
+            $url=env('YUSHANPAY_URL');
             Logger::alert('===end YushanPay data ====');
             //要送資料去前台轉址
             return $this->success($url.http_build_query($result));
