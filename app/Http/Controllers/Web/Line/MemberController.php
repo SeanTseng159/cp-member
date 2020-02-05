@@ -66,7 +66,7 @@ class MemberController extends Controller
         $user_profile = $this->service->getUserProfile($tokenInfo->access_token);
 
         //取payload
-        $payload = $this->service->getPayload($tokenInfo);
+        $payload = $this->service->getPayload($tokenInfo->id_token);
         
         if(!isset($payload->nonce)) {
           Log::debug('=== line 無法取得裝置 ===');

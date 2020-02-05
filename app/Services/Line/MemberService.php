@@ -74,9 +74,9 @@ class MemberService
      * @param $data
      * @return mixed
      */
-    public function getPayload($tokenInfo)
+    public function getPayload($id_token)
     {
-      return JWT::decode($tokenInfo->id_token, env('LINE_SECRET'), ['HS256']);
+      return JWT::decode($id_token, env('LINE_SECRET'), ['HS256']);
     }
 
     /**
