@@ -551,7 +551,9 @@ class MemberController extends RestLaravelController
       //取user_profile
       $user_profile = $this->lineMemberService->getUserProfile($accessToken);
       
-      return $this->success($user_profile);
+      Log::debug(print_r($user_profile, true));
+
+      return $this->success(['userId'=>$user_profile->userId]);
     //   //驗證userId
     //   if(!$user_profile || $user_profile->userId !== $userId) return $this->failureCode('E0021');
 
