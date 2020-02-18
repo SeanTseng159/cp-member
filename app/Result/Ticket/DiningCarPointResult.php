@@ -28,7 +28,7 @@ class DiningCarPointResult extends BaseResult
         foreach ($result as $item) {
 
             $data = new \stdClass();
-            $data->time = Carbon::parse($item->created_at)->format('Y-m-d h:m');
+            $data->time = Carbon::parse($item->created_at)->format('Y-m-d H:i');
             $data->content = new \stdClass();
             if ($item->model_type == DiningCarPointRecordType::getKey(DiningCarPointRecordType::gift)) {
 
