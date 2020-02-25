@@ -13,6 +13,7 @@ class MemberParameter
         $parameter['openPlateform'] = 'line';
         $parameter['openId'] = $payload->email;
         $parameter['name'] = $payload->name;
+        $parameter['lineUuid'] = $payload->sub;
         $parameter['isValidEmail'] = 1;
         $parameter['status'] = 1;
         $parameter['isRegistered'] = 1;

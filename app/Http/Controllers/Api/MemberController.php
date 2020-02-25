@@ -564,12 +564,16 @@ class MemberController extends RestLaravelController
 
       // 會員已註冊，登入會員
       if ($member && $member->status && $member->isRegistered) {
-        $member = $this->memberService->generateToken($member, 'web');
         Log::info('=== line 會員已註冊 ===');
+        Log::debug(print_r($member, true));
+        
+        if(!$member->lineUuid) $this->memberService->update($member->id, ['lineUuid' => $userId]);
+        $member = $this->memberService->generateToken($member, 'web');
       }
       else {
         $profile->email = $email;
         $profile->name = $name;
+        $profile->sub = $userId;
 
         $result = (new LineMemberParameter)->member([], $profile);
 
