@@ -212,9 +212,12 @@ class ProductResult extends BaseResult
     public function getCategoryProduct($product)
     {
         if (!$product) return null;
-
+        
         $product = $product->toArray();
-
+        //目前當作可以加入購物車
+        $this->canCarts=$this->arrayDefault($product, 'is_physical') ? ($this->arrayDefault($product,'supplier_id')==env('CT_PASS_SHOP_ID') ? true:false):true;
+        //進入到哪台購物車，先判斷式不是虛擬商品 虛擬商品進入1號餐車，高盛大供應商也是進入1號餐車，其餘的走路各自的供應商餐車
+        $this->cartsNumber=$this->arrayDefault($product, 'is_physical') ? ($this->arrayDefault($product,'supplier_id')==env('CT_PASS_SHOP_ID') ? 1:$this->arrayDefault($product,'supplier_id')):1;
         $this->source = $this->arrayDefault($product, 'is_physical') ? ProcuctConfig::SOURCE_TPASS_PHYSICAL : ProcuctConfig::SOURCE_TICKET;
         $this->id = (string) $this->arrayDefault($product, 'prod_id');
         $this->name = $this->arrayDefault($product, 'prod_name');
@@ -834,7 +837,9 @@ class ProductResult extends BaseResult
     private function apiFormatForCategory()
     {
         $columns = [
-            'source', 'id', 'name',  'price', 'salePrice', 'characteristic', 'category', 'tags', 'storeName', 'storeAddress', 'place', 'imageUrl', 'isWishlist', 'discount'
+            'source', 'id', 'name',  'price', 'salePrice', 'characteristic', 
+            'category', 'tags', 'storeName', 'storeAddress', 'place', 'imageUrl', 
+            'isWishlist', 'discount','canCarts','cartsNumber'
         ];
 
         return $this->outputColumns($columns);
