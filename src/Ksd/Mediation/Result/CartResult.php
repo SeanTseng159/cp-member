@@ -118,7 +118,7 @@ class CartResult
         $this->shipmentFree = $this->arrayDefault($result, 'shipmentFree');
         $this->canCheckout = $this->arrayDefault($result, 'canCheckout');
         //增加購物車裏面是否有實體商品
-        $this->isPhysical=$isPhysical;
+        $this->cartSource=($isPhysical)?ProjectConfig::CITY_PASS_PHYSICAL:ProjectConfig::CITY_PASS;
     }
 
     /**
