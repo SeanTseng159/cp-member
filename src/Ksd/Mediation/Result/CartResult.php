@@ -75,7 +75,7 @@ class CartResult
         $this->items = [];
         foreach ($this->arrayDefault($result, 'items', []) as $item) {
             $row = new ProductResult();
-            $row->source = ProjectConfig::CITY_PASS;
+            $row->source = ($this->arrayDefault($item, 'source'))? $this->arrayDefault($item, 'source'):ProjectConfig::CITY_PASS;
             $row->id = $this->arrayDefault($item, 'id');
             $row->redirectId = $this->arrayDefault($item, 'id');
             $row->name = $this->arrayDefault($item, 'name');
