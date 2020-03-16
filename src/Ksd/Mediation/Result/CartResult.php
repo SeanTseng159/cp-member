@@ -73,6 +73,7 @@ class CartResult
     {
         $this->id = $this->arrayDefault($result, 'id');
         $this->items = [];
+        $isPhysical=false;
         foreach ($this->arrayDefault($result, 'items', []) as $item) {
             $row = new ProductResult();
             $row->source = ($this->arrayDefault($item, 'source'))? $this->arrayDefault($item, 'source'):ProjectConfig::CITY_PASS;
@@ -92,6 +93,10 @@ class CartResult
                 $row->statusDesc = $this->arrayDefault($item['status'], 'desc');
             }
             $row->isOneSpec = $this->arrayDefault($item, 'isOneSpec');
+            //判斷是否是physical產品
+            if(!$isPhysical and $this->arrayDefault($item, 'source')=='ct_pass_physical'){
+                $isPhysical=true;
+            }
             $this->items[] = $row;
         }
         $this->itemTotal = $this->arrayDefault($result, 'itemTotal');
@@ -112,6 +117,8 @@ class CartResult
         $this->shipmentAmount = $this->arrayDefault($result, 'shipmentAmount');
         $this->shipmentFree = $this->arrayDefault($result, 'shipmentFree');
         $this->canCheckout = $this->arrayDefault($result, 'canCheckout');
+        //增加購物車裏面是否有實體商品
+        $this->isPhysical=$isPhysical;
     }
 
     /**
