@@ -15,7 +15,7 @@
         "firebase/php-jwt": "^5.0",
         "giggsey/libphonenumber-for-php": "^8.8",
         "guzzlehttp/guzzle": "^6.3",
-        "hashids/hashids": "^3.0",
+        "hashids/hashids": "^4.0",
         "hoyvoy/laravel-cross-database-subqueries": "5.5",
         "jenssegers/agent": "^2.6",
         "laravel-validation-rules/credit-card": "^1.0",

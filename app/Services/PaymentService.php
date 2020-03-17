@@ -1,4 +1,5 @@
 <?php
+
 /**
  * User: Lee
  * Date: 2018/11/20
@@ -18,6 +19,8 @@ use App\Services\MemberService;
 use Ksd\Payment\Services\BlueNewPayService;
 use Ksd\Payment\Services\TaiwanPayService;
 
+use Hashids\Hashids;
+
 class PaymentService
 {
     protected $orderRepository;
@@ -25,13 +28,13 @@ class PaymentService
     protected $tspgService;
     protected $blueNewPayService;
     protected $taiwanPayService;
-    public function __construct(OrderRepository $orderRepository, LinePayService $linePayService, TspgService $tspgService,BlueNewPayService $blueNewPayService ,TaiwanPayService $taiwanPayService)
+    public function __construct(OrderRepository $orderRepository, LinePayService $linePayService, TspgService $tspgService, BlueNewPayService $blueNewPayService, TaiwanPayService $taiwanPayService)
     {
         $this->orderRepository = $orderRepository;
         $this->linePayService = $linePayService;
         $this->tspgService = $tspgService;
-        $this->blueNewPayService=$blueNewPayService;
-        $this->taiwanPayService=$taiwanPayService;
+        $this->blueNewPayService = $blueNewPayService;
+        $this->taiwanPayService = $taiwanPayService;
     }
 
     /**
@@ -43,81 +46,80 @@ class PaymentService
     public function payment($payment, $params = [])
     {
         switch ($payment['gateway']) {
-            // 藍新金流
+                // 藍新金流
             case '1':
 
 
-            // google pay
-            if ($payment['method'] === '711') {
-
-                return ['orderNo' => $params['orderNo']];
-            }
-            // apple pay
-            elseif ($payment['method'] === '811') {
-
-                return ['orderNo' => $params['orderNo']];
-            }
-            break;
-            // 台新金流
-            case '3':
-
-            // 信用卡
-            if ($payment['method'] === '111') {
-                // 先接backend, 之後等payment gateway做好再換
-                $ccParams = new \stdClass;
-                $ccParams->orderNo = $params['orderNo'];
-                $ccParams->device = ($params['device'] === 'ios' || $params['device'] === 'android') ? 2 : 1;
-                $ccParams->source = 'ct_pass';
-
-                $result = (new CreditCardService)->transmit($params['memberId'], $ccParams);
-
-                if (!$result['url']) {
-                    Logger::error('Credit Card back error', $result);
-                    throw new CustomException('E9015');
-                }
-
-                return [
-                    'orderNo' => $params['orderNo'],
-                    'paymentUrl' => (object) [
-                        'web' => $result['url'],
-                        'app' => $result['url']
-                    ]
-                ];
-            }
-            // ATM
-            elseif ($payment['method'] === '211') {
-                $result = $this->tspgService->generateVirtualAccount([
-                        'orderNo' => $params['orderNo'],
-                        'amount' => $params['payAmount']
-                    ]);
-                Logger::info('atm :', $result);
-                if ($result['code'] === '00000') {
-                    // 更新虛擬帳號
-                    $updateResult = $this->orderRepository->updateByOrderNo($params['orderNo'], [
-                                'order_atm_bank_id' => $result['data']['bankId'],
-                                'order_atm_virtual_account' => $result['data']['virtualAccount'],
-                                'order_atm_due_time' => $result['data']['dueDate']
-                        ]);
-
-                    if (!$updateResult) {
-                        Logger::error('Atm back error', $updateResult);
-                        throw new CustomException('E9008');
-                    }
+                // google pay
+                if ($payment['method'] === '711') {
 
                     return ['orderNo' => $params['orderNo']];
                 }
-                else {
-                    throw new CustomException('E9008');
-                }
-            }
+                // apple pay
+                elseif ($payment['method'] === '811') {
 
-            break;
-            // Linepay
+                    return ['orderNo' => $params['orderNo']];
+                }
+                break;
+                // 台新金流
+            case '3':
+
+                // 信用卡
+                if ($payment['method'] === '111') {
+                    // 先接backend, 之後等payment gateway做好再換
+                    $ccParams = new \stdClass;
+                    $ccParams->orderNo = $params['orderNo'];
+                    $ccParams->device = ($params['device'] === 'ios' || $params['device'] === 'android') ? 2 : 1;
+                    $ccParams->source = 'ct_pass';
+
+                    $result = (new CreditCardService)->transmit($params['memberId'], $ccParams);
+
+                    if (!$result['url']) {
+                        Logger::error('Credit Card back error', $result);
+                        throw new CustomException('E9015');
+                    }
+
+                    return [
+                        'orderNo' => $params['orderNo'],
+                        'paymentUrl' => (object) [
+                            'web' => $result['url'],
+                            'app' => $result['url']
+                        ]
+                    ];
+                }
+                // ATM
+                elseif ($payment['method'] === '211') {
+                    $result = $this->tspgService->generateVirtualAccount([
+                        'orderNo' => $params['orderNo'],
+                        'amount' => $params['payAmount']
+                    ]);
+                    Logger::info('atm :', $result);
+                    if ($result['code'] === '00000') {
+                        // 更新虛擬帳號
+                        $updateResult = $this->orderRepository->updateByOrderNo($params['orderNo'], [
+                            'order_atm_bank_id' => $result['data']['bankId'],
+                            'order_atm_virtual_account' => $result['data']['virtualAccount'],
+                            'order_atm_due_time' => $result['data']['dueDate']
+                        ]);
+
+                        if (!$updateResult) {
+                            Logger::error('Atm back error', $updateResult);
+                            throw new CustomException('E9008');
+                        }
+
+                        return ['orderNo' => $params['orderNo']];
+                    } else {
+                        throw new CustomException('E9008');
+                    }
+                }
+
+                break;
+                // Linepay
             case '4':
                 $hasLinePayApp = $params['hasLinePayApp'] ?? false;
                 $result = $this->linePayService->newReserve($params['orderNo'], $params['payAmount'], $params['itemsCount'], $params['device'], $hasLinePayApp);
 
-                if (!$result || $result['code']!== '00000') {
+                if (!$result || $result['code'] !== '00000') {
                     Logger::error('Linepay back error', $result);
                     throw new CustomException('E9014');
                 }
@@ -126,19 +128,27 @@ class PaymentService
                     'orderNo' => $params['orderNo'],
                     'paymentUrl' => $result['data']['paymentUrl']
                 ];
-            break;
-            //taiwnapay
+                break;
+                //taiwnapay
             case '5':
                 return ['orderNo' => $params['orderNo']];
                 break;
-            // yushanpay
+                // yushanpay
             case '6':
+                //組合參數| hash(orderNo amount )  source
+                $orderNo =(new Hashids('yushanpay', 6))->decode($params['orderNo']); 
+                $payAmount = (new Hashids('yushanpay', 6))->decode($params['payAmount']);
+                $source = 'citypass';
+                //整理url
+                $confirmUrl='?data='.$orderNo .'_'.$payAmount.'&source='.$source 
+
+                //發送API->paymentGateway
                 return ['orderNo' => $params['orderNo']];
-            break;
-            // 無值
+                break;
+                // 無值
             default:
                 throw new CustomException('E9006');
-            break;
+                break;
         }
     }
 }
