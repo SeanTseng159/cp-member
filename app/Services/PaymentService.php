@@ -139,8 +139,9 @@ class PaymentService
             case '6':
                 //生成
                 $confirmQueryString = (new YushanPayResult)->genConfirmQueryString($params['orderNo'], $params['payAmount']);
+                $confirmUrl = env('PAYMENT_API_PATH') . $confirmQueryString;
                 //發送API->paymentGateway
-                return $confirmQueryString;
+                return  ['confirmUrl' => $confirmUrl, 'orderNo' => $params['orderNo']];
                 break;
                 // 無值
             default:
