@@ -16,8 +16,10 @@ use App\Services\Ticket\CreditCardService;
 use App\Core\Logger;
 use App;
 use App\Services\MemberService;
+use App\Result\YushanPayResult;
 use Ksd\Payment\Services\BlueNewPayService;
 use Ksd\Payment\Services\TaiwanPayService;
+
 
 use Hashids\Hashids;
 
@@ -135,15 +137,10 @@ class PaymentService
                 break;
                 // yushanpay
             case '6':
-                //組合參數| hash(orderNo amount )  source
-                $orderNo =(new Hashids('yushanpay', 6))->decode($params['orderNo']); 
-                $payAmount = (new Hashids('yushanpay', 6))->decode($params['payAmount']);
-                $source = 'citypass';
-                //整理url
-                $confirmUrl='?data='.$orderNo .'_'.$payAmount.'&source='.$source 
-
+                //生成
+                $confirmQueryString = (new YushanPayResult)->genConfirmQueryString($params['orderNo'], $params['payAmount']);
                 //發送API->paymentGateway
-                return ['orderNo' => $params['orderNo']];
+                return $confirmQueryString;
                 break;
                 // 無值
             default:
