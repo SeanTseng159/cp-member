@@ -40,7 +40,7 @@ Route::middleware('cors')->namespace('V1')->group(function () {
         // 取子熱門探索分類下所有商品
         Route::get('subCategory/{id}/products', 'LayoutController@subCategoryProducts');
         // 取得產品分類路徑＆navBar
-        Route::get('productPath', 'LayoutController@productPath');
+        Route::get('productPath/{id}', 'LayoutController@productPath');
 
         // 取供應商相關商品
         Route::get('supplier/{supplierId}/products', 'LayoutController@supplier')->name('v1.layout.supplier');
