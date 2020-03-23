@@ -20,6 +20,6 @@ class TagProduct extends BaseModel
      */
     public function category()
     {
-        return $this->belongsTo('App\Models\Ticket\Tag', 'tag_id', 'tag_id');
+        return $this->belongsTo('App\Models\Ticket\Tag',  'tag_id', 'tag_id');
     }
 }
