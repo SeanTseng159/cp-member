@@ -84,6 +84,30 @@ class LayoutController extends RestLaravelController
     }
 
     /**
+     * 取產品分類路徑
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function productPath(Request $request)
+    {
+        $navBarPatch = [];
+        $productPath = [];
+        //navbar 部份
+        $navBars = $this->redis->remember(LayoutKey::MENU_KEY, CacheConfig::ONE_DAY, function () {
+            $data = $this->layoutService->menu($this->lang);
+            return (new LayoutResult)->menu($data);
+        });
+        foreach ($navBars as $navBarItem) {
+            $categoryId = $navBarItem->id;
+            $categoryName = $navBarItem->name;
+            $navBarPatch[$categoryName] = env('CITY_PASS_WEB') . '/category/' . $categoryId;
+        }
+        //productPatch
+
+        dd($navBarPatch);
+    }
+
+    /**
      * 取選單資料
      * @param Request $request
      * @return \Illuminate\Http\JsonResponse
