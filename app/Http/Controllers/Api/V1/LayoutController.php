@@ -103,7 +103,7 @@ class LayoutController extends RestLaravelController
         foreach ($navBars as $navBarItem) {
             $categoryId = $navBarItem->id;
             $categoryName = $navBarItem->name;
-            array_push($navBarPatch, ['name' => $categoryName, 'url' => env('CITY_PASS_WEB') . '/category/' . $categoryId]);
+            array_push($navBarPatch, ['name' => $categoryName, 'url' => 'category/' . $categoryId]);
         }
 
         //productPatch
@@ -112,7 +112,7 @@ class LayoutController extends RestLaravelController
             return $this->success();
         }
         $mainCategory = $productTags[0]->category;
-        array_push($productPath, ['name' =>  $mainCategory->tag_name, 'url' => env('CITY_PASS_WEB') . '/category/' .  $mainCategory->tag_id]);
+        array_push($productPath, ['name' =>  $mainCategory->tag_name, 'url' => 'category/' .  $mainCategory->tag_id]);
 
 
         $output['navbar'] = $navBarPatch;
