@@ -1,4 +1,5 @@
 <?php
+
 /**
  * User: lee
  * Date: 2018/05/29
@@ -12,6 +13,7 @@ use App\Repositories\Ticket\LayoutAdRepository as AdRepository;
 use App\Repositories\Ticket\LayoutExplorationRepository as ExplorationRepository;
 use App\Repositories\Ticket\LayoutHomeRepository as HomeRepository;
 use App\Repositories\Ticket\TagRepository;
+use App\Repositories\Ticket\TagProdRepository;
 use App\Repositories\Ticket\LayoutCategoryRepository as CategoryRepository;
 use App\Repositories\Ticket\MenuProductRepository;
 
@@ -27,12 +29,13 @@ class LayoutService extends BaseService
     protected $explorationRepository;
     protected $homeRepository;
     protected $tagRepository;
+    protected $tagProductRepository;
     protected $categoryRepository;
     protected $menuProductRepository;
     protected $productRepository;
     protected $appRepository;
 
-    public function __construct(AdRepository $adRepository, ExplorationRepository $explorationRepository, HomeRepository $homeRepository, TagRepository $tagRepository, CategoryRepository $categoryRepository, MenuProductRepository $menuProductRepository, ProductRepository $productRepository, AppRepository $appRepository)
+    public function __construct(AdRepository $adRepository, ExplorationRepository $explorationRepository, HomeRepository $homeRepository, TagRepository $tagRepository, TagProdRepository $tagProductRepository, CategoryRepository $categoryRepository, MenuProductRepository $menuProductRepository, ProductRepository $productRepository, AppRepository $appRepository)
     {
         $this->adRepository = $adRepository;
         $this->explorationRepository = $explorationRepository;
@@ -40,7 +43,7 @@ class LayoutService extends BaseService
         $this->tagRepository = $tagRepository;
         $this->categoryRepository = $categoryRepository;
         $this->menuProductRepository = $menuProductRepository;
-
+        $this->tagProductRepository = $tagProductRepository;
         $this->productRepository = $productRepository;
 
         $this->appRepository = $appRepository;
@@ -70,6 +73,16 @@ class LayoutService extends BaseService
     public function menu($lang = 'zh-TW')
     {
         return $this->tagRepository->all($lang);
+    }
+
+    /**
+     * 取單一產品分類
+     * @param $lang
+     * @return mixed
+     */
+    public function productCategory($productId)
+    {
+        return   $this->tagProductRepository->getTagsByProdId($productId);
     }
 
     /**

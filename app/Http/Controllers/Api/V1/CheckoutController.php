@@ -1,4 +1,5 @@
 <?php
+
 /**
  * User: lee
  * Date: 2018/11/29
@@ -36,12 +37,13 @@ class CheckoutController extends RestLaravelController
     protected $paymentService;
     protected $blueNewPayService;
 
-    public function __construct(CartService $cartService,
-                                MenuOrderService $menuOrderService,
-                                OrderService $orderService,
-                                PaymentService $paymentService,
-                                BlueNewPayService $blueNewPayService)
-    {
+    public function __construct(
+        CartService $cartService,
+        MenuOrderService $menuOrderService,
+        OrderService $orderService,
+        PaymentService $paymentService,
+        BlueNewPayService $blueNewPayService
+    ) {
         $this->cartService = $cartService;
         $this->orderService = $orderService;
         $this->paymentService = $paymentService;
@@ -146,7 +148,7 @@ class CheckoutController extends RestLaravelController
             // 處理金流
             $payParams = [
                 'memberId' => $params->memberId,
-                'orderNo' => (string)$order->order_no,
+                'orderNo' => (string) $order->order_no,
                 'payAmount' => $order->order_amount,
                 'itemsCount' => $order->order_items,
                 'device' => $params->deviceName,
@@ -215,7 +217,6 @@ class CheckoutController extends RestLaravelController
             }
 
             return $this->success($result);
-
         } catch (Exception $e) {
             Logger::error('CheckoutController::menuPayment', $e->getMessage());
             $msg = $e->getMessage();
@@ -240,8 +241,6 @@ class CheckoutController extends RestLaravelController
             return $this->success($result['data']);
         } catch (Exception $e) {
             return $this->failure('E9001', $e->getMessage());
-
         }
-
     }
 }

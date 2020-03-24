@@ -1,4 +1,5 @@
 <?php
+
 /**
  * User: lee
  * Date: 2018/05/29
@@ -31,11 +32,12 @@ class OrderRepository extends BaseRepository
     protected $seqOrderRepository;
     protected $orderShipmentRepository;
 
-    public function __construct(Order $model,
-                                OrderDetailRepository $orderDetailRepository,
-                                SeqOrderRepository $seqOrderRepository,
-                                OrderShipmentRepository $orderShipmentRepository)
-    {
+    public function __construct(
+        Order $model,
+        OrderDetailRepository $orderDetailRepository,
+        SeqOrderRepository $seqOrderRepository,
+        OrderShipmentRepository $orderShipmentRepository
+    ) {
         $this->redis = new Redis;
         $this->model = $model;
         $this->orderDetailRepository = $orderDetailRepository;
@@ -57,7 +59,7 @@ class OrderRepository extends BaseRepository
             DB::connection('backend')->beginTransaction();
 
             $orderNo = $this->seqOrderRepository->getOrderNo();
-            if (!$orderNo) throw new CustomException('E9001');
+            if (!$orderNo) throw new CustomException('E9001S');
 
             $order = new Order;
             $order->member_id = $params->memberId;
@@ -201,7 +203,8 @@ class OrderRepository extends BaseRepository
             'menu_order_id',
             'menu_id',
             'price',
-            \DB::raw('count(menu_id) as qty'))
+            \DB::raw('count(menu_id) as qty')
+        )
             ->groupBy('menu_order_id', 'menu_id', 'price')
             ->where('menu_order_id', $menuOrder->id)
             ->get();
@@ -247,8 +250,6 @@ class OrderRepository extends BaseRepository
                 $prodSpecPrice->prod_spec_price_stock -= $buyQuantity;
                 $prodSpecPrice->save();
             }
-
-
         }
     }
 
@@ -309,8 +310,6 @@ class OrderRepository extends BaseRepository
             $detail->save();
         }
         return $orderNo;
-
-
     }
 
     /**
@@ -522,9 +521,12 @@ class OrderRepository extends BaseRepository
      * @param $shipmentStatus [運送狀態]
      * @return mixed
      */
-    public function getOrdersByRecipientStatus($status = 99, $recipientStatus = 99, $shipmentMethod,
-                                               $shipmentStatus = 99)
-    {
+    public function getOrdersByRecipientStatus(
+        $status = 99,
+        $recipientStatus = 99,
+        $shipmentMethod,
+        $shipmentStatus = 99
+    ) {
         if ($shipmentMethod === 2) {
             // 實體商品
             $orders = $this->model->with(['detail', 'detail.productSpecPrice'])
