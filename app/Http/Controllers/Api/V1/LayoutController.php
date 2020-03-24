@@ -93,7 +93,7 @@ class LayoutController extends RestLaravelController
         $productId = $id;
         $output = [];
         $navBarPatch = [];
-        $productPath = [['name' => 'Home', 'url' => env('CITY_PASS_WEB')]];
+        $productPath = [];
 
         //navbar 部份
         $navBars = $this->redis->remember(LayoutKey::MENU_KEY, CacheConfig::ONE_DAY, function () {
