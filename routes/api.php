@@ -105,7 +105,7 @@ Route::middleware(['cors', 'auth.jwt'])->namespace('Api')->group(function () {
         Route::post('shipment', 'CheckoutController@shipment')
             ->middleware('verify.checkout.shipment');
         // 確定結帳 (回傳訂單號，非信用卡)
-        Route::post('confirm', 'CheckoutController@confirm');
+        Route::post('confirm', 'CheckoutController@confirm')->middleware('verify.checkout.shipmentForConfim');;
     });
 
     Route::prefix('order')->group(function () {
