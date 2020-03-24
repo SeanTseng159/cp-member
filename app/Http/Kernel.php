@@ -111,6 +111,7 @@ class Kernel extends HttpKernel
         'verify.diningCar.map' => \App\Http\Middleware\Verify\DiningCar\Map::class,
 
         'verify.checkout.shipment' => \App\Http\Middleware\Verify\Checkout\Shipment::class,
+        'verify.checkout.shipmentForConfim' => \App\Http\Middleware\Verify\Checkout\shipmentForConfim::class,
         'verify.checkout.payment' => \App\Http\Middleware\Verify\Checkout\Payment::class,
         'verify.checkout.payment.menu' => MenuPayment::class,
 
