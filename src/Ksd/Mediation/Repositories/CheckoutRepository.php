@@ -66,6 +66,8 @@ class CheckoutRepository extends BaseRepository
             return $this->magento->userAuthorization($this->memberTokenService->magentoUserToken())->shipment($parameters);
         } else if ($parameters->checkSource(ProjectConfig::CITY_PASS)) {
 
+        }else if ($parameters->checkSource(ProjectConfig::CITY_PASS_PHYSICAL)) {
+
         }else{
             return false;
         }
