@@ -1,4 +1,5 @@
 <?php
+
 /**
  * User: lee
  * Date: 2018/05/29
@@ -95,6 +96,16 @@ class LayoutService extends BaseService
         $data['customizes'] = ($data['category']) ? $this->categoryRepository->allById($lang, $id) : [];
 
         return $data;
+    }
+
+    /**
+     * 取單一產品分類
+     * @param $lang
+     * @return mixed
+     */
+    public function productCategory($productId)
+    {
+        return   $this->tagProductRepository->getTagsByProdId($productId);
     }
 
     /**
