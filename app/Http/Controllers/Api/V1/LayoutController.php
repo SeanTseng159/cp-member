@@ -1,4 +1,5 @@
 <?php
+
 /**
  * User: lee
  * Date: 2018/05/29
@@ -102,6 +103,46 @@ class LayoutController extends RestLaravelController
             return $this->success();
         }
     }
+
+    /**
+     * 取產品分類路徑
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function productPath(Request $request, $id)
+    {
+        $productId = $id;
+        $output = [];
+        $navBarPatch = [];
+        $productPath = [];
+
+        //navbar 部份
+        $navBars = $this->redis->remember(LayoutKey::MENU_KEY, CacheConfig::ONE_DAY, function () {
+            $data = $this->layoutService->menu($this->lang);
+            return (new LayoutResult)->menu($data);
+        });
+        foreach ($navBars as $navBarItem) {
+            $categoryId = $navBarItem->id;
+            $categoryName = $navBarItem->name;
+            array_push($navBarPatch, ['name' => $categoryName, 'url' => 'category/' . $categoryId]);
+        }
+
+        //productPatch
+        $productTags = $this->layoutService->productCategory($productId);
+        if ($productTags->isEmpty()) {
+            return $this->success();
+        }
+        $mainCategory = $productTags[0]->category;
+        array_push($productPath, ['name' =>  $mainCategory->tag_name, 'url' => 'category/' .  $mainCategory->tag_id]);
+
+
+        $output['navbar'] = $navBarPatch;
+        $output['productPath'] = $productPath;
+        return $this->success($output);
+    }
+
+
+
 
     /**
      * 取熱門探索分類

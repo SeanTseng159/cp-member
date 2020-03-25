@@ -1,4 +1,5 @@
 <?php
+
 /**
  * User: lee
  * Date: 2018/05/29
@@ -25,6 +26,6 @@ class TagProdRepository extends BaseRepository
     public function getTagsByProdId($productId)
     {
         return $this->model->where('prod_id', $productId)
-                            ->get();
+            ->get();
     }
 }
