@@ -40,7 +40,7 @@ class SalesRuleRepository extends BaseRepository
             if($this->magento->userAuthorization($this->memberTokenService->magentoUserToken())->addCoupon($parameters->code)) {
                 return $this->magento->authorization($this->env('MAGENTO_ADMIN_TOKEN'))->couponDetail($parameters->code);
             }
-        } else if ($parameters->source === ProjectConfig::CITY_PASS) {
+        } else if ($parameters->source === ProjectConfig::CITY_PASS or $parameters->source === ProjectConfig::CITY_PASS_PHYSICAL) {
             return $this->cityPass->authorization($this->memberTokenService->cityPassUserToken())->addCoupon($parameters);
 
         }
@@ -55,7 +55,7 @@ class SalesRuleRepository extends BaseRepository
     {
         if($parameters->source === ProjectConfig::MAGENTO) {
             return $this->magento->userAuthorization($this->memberTokenService->magentoUserToken())->deleteCoupon();
-        } else if ($parameters->source === ProjectConfig::CITY_PASS) {
+        } else if ($parameters->source === ProjectConfig::CITY_PASS or $parameters->source === ProjectConfig::CITY_PASS_PHYSICAL) {
             return $this->cityPass->authorization($this->memberTokenService->cityPassUserToken())->deleteCoupon($parameters);
         }
     }

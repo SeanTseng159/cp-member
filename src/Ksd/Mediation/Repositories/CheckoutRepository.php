@@ -66,6 +66,8 @@ class CheckoutRepository extends BaseRepository
             return $this->magento->userAuthorization($this->memberTokenService->magentoUserToken())->shipment($parameters);
         } else if ($parameters->checkSource(ProjectConfig::CITY_PASS)) {
 
+        }else if ($parameters->checkSource(ProjectConfig::CITY_PASS_PHYSICAL)) {
+
         }else{
             return false;
         }
@@ -92,7 +94,7 @@ class CheckoutRepository extends BaseRepository
                 'code' => ($result) ? '00000' : 'E9001',
                 'data' => $result
             ];
-        } else if ($parameters->checkSource(ProjectConfig::CITY_PASS)) {
+        } else if ($parameters->checkSource(ProjectConfig::CITY_PASS) or $parameters->checkSource(ProjectConfig::CITY_PASS_PHYSICAL) ) {
             Log::info('=== 傳送到CI建立訂單 ===');
             $result = $this->cityPass->authorization($this->memberTokenService->cityPassUserToken())->confirm($parameters);
             Log::info('=== CI回傳建立訂單 ===');

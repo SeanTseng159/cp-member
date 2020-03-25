@@ -53,7 +53,8 @@ class CheckoutController extends RestLaravelController
     public function info($source)
     {
         $isMagento = false;
-        if($source == 'magento') $isMagento = true;
+        if($source == 'magento' or $source == 'ct_pass_physical') $isMagento = true;
+        $source ='ct_pass';
 
         return $this->success($this->getCheckoutInfo($isMagento, $source, 'array'));
         // return $this->success($this->service->info($source));

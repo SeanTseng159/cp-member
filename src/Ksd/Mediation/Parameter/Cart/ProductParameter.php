@@ -44,7 +44,7 @@ class ProductParameter extends BaseParameter
         if (!empty($parameters)) {
                 if ($parameters['source'] === ProjectConfig::MAGENTO) {
                     array_push($this->magento, $parameters);
-                } else if ($parameters['source'] === ProjectConfig::CITY_PASS) {
+                } else if ($parameters['source'] === ProjectConfig::CITY_PASS || $parameters['source'] === ProjectConfig::CITY_PASS_PHYSICAL) {
                     array_push($this->cityPass, $parameters);
                 }
 
