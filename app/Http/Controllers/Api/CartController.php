@@ -55,14 +55,13 @@ class CartController extends RestLaravelController
     public function add(Request $request)
     {
         $source = $request->input('source');
-
         $parameters = new ProductParameter();
         $parameters->laravelRequest($request);
         $result = $this->cartService->add($parameters);
-
+        
         if ($source === ProjectConfig::MAGENTO) {
             return ($result) ? $this->success() : $this->failure('E0002', '新增失敗');
-        } else if ($source === ProjectConfig::CITY_PASS) {
+        } else if ($source === ProjectConfig::CITY_PASS ||$source === ProjectConfig::CITY_PASS_PHYSICAL) {
             if ($result['statusCode'] === 201) {
                 return $this->success();
             }
@@ -87,7 +86,7 @@ class CartController extends RestLaravelController
 
         if ($source === ProjectConfig::MAGENTO) {
             return ($result) ? $this->success() : $this->failure('E0003', '更新失敗');
-        } else if ($source === ProjectConfig::CITY_PASS) {
+        } else if ($source === ProjectConfig::CITY_PASS||$source === ProjectConfig::CITY_PASS_PHYSICAL) {
             if ($result['statusCode'] === 202) {
                 return $this->success();
             }

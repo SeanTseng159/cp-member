@@ -67,7 +67,7 @@ class OrderResult extends BaseResult
         if (!$order) return null;
 
         $order = $order->toArray();
-
+        
         $this->isCommodity = ($order['order_shipment_method'] === 2) ? true : false;
         $this->source = ($this->isCommodity) ? OrderConfig::SOURCE_CT_COMMODITY : OrderConfig::SOURCE_TICKET;
 
@@ -312,8 +312,9 @@ class OrderResult extends BaseResult
     private function getItem($item, $isDetail = false, $isCombo = false, $comboIsSyncExpire = false,
                              $comboSyncExpireDate = '')
     {
+        
         $newDetail = new \stdClass;
-        $newDetail->source = $this->source;
+        $newDetail->source = ($item['is_physical']==1)?OrderConfig::SOURCE_TPASS_PHYSICAL:OrderConfig::SOURCE_TICKET;
         $newDetail->productId = $item['prod_id'];
         $newDetail->orderNoSeq = $item['order_no'] . '-' . str_pad($item['order_detail_seq'], 3, '0', STR_PAD_LEFT);
         $newDetail->sn = (string)$item['order_detail_sn'];
@@ -321,7 +322,7 @@ class OrderResult extends BaseResult
         $newDetail->spec = $this->getSpecName($item['prod_spec_name'], $item['prod_spec_price_name']);
         $newDetail->quantity = $item['price_company_qty'];
         $newDetail->price = $item['price_off'];
-        $newDetail->description = ($this->isCommodity) ? trans('common.commodity') : trans('common.ticket');
+        $newDetail->description = ($item['is_physical']==1) ? trans('common.commodity') : trans('common.ticket');
         $newDetail->statusCode = $statusCode = $this->itemUsedStatusCode($item, $comboIsSyncExpire);
         $newDetail->status = $this->itemUsedStatus($statusCode);
         // $newDetail->discount = null;

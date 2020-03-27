@@ -14,6 +14,7 @@ use Illuminate\Http\Request;
 */
 
 Route::middleware('cors')->namespace('V1')->group(function () {
+
     // 會員相關
     Route::prefix('member')->group(function () {
         // 餐車邀請註冊會員
@@ -38,7 +39,8 @@ Route::middleware('cors')->namespace('V1')->group(function () {
         Route::get('category/{id}/products', 'LayoutController@categoryProducts');
         // 取子熱門探索分類下所有商品
         Route::get('subCategory/{id}/products', 'LayoutController@subCategoryProducts');
-
+        // 取得產品分類路徑＆navBar
+        Route::get('productPath/{id}', 'LayoutController@productPath');
         // 取供應商相關商品
         Route::get('supplier/{supplierId}/products', 'LayoutController@supplier')->name('v1.layout.supplier');
 
@@ -151,11 +153,11 @@ Route::middleware('cors')->namespace('V1')->group(function () {
         //候位相關======
         Route::get('{id}/waiting', 'ShopWaitingController@info'); //店鋪資訊
         Route::post('{id}/waiting', 'ShopWaitingController@create'); //新增候位
-        Route::get('{id}/waiting/{waitingId}', 'ShopWaitingController@get');//取得候位資訊
+        Route::get('{id}/waiting/{waitingId}', 'ShopWaitingController@get'); //取得候位資訊
 
-        Route::post('waiting/{code}', 'ShopWaitingController@deleteByCode');//取消候位
-        Route::get('waiting/{code}', 'ShopWaitingController@getByCode');//取得候位資訊
-        Route::get('waiting/member/list', 'ShopWaitingController@memberList')->middleware('auth.jwt');//我的候位資訊
+        Route::post('waiting/{code}', 'ShopWaitingController@deleteByCode'); //取消候位
+        Route::get('waiting/{code}', 'ShopWaitingController@getByCode'); //取得候位資訊
+        Route::get('waiting/member/list', 'ShopWaitingController@memberList')->middleware('auth.jwt'); //我的候位資訊
 
         //訂位相關 ====
         //店鋪訂位取得人數及注意事
@@ -184,9 +186,6 @@ Route::middleware('cors')->namespace('V1')->group(function () {
         Route::POST('menuOrder/{code}', 'MenuOrderController@cancel');
         Route::get('menuOrder/qrcode/{orderNo}', 'MenuOrderController@getQrCode')->middleware('auth.jwt');
         Route::get('menuOrder/member/list', 'MenuOrderController@memberList')->middleware('auth.jwt');
-
-
-
     });
 
     // linepay相關
@@ -203,6 +202,13 @@ Route::middleware('cors')->namespace('V1')->group(function () {
         Route::post('reserve', 'BlueNewPayController@reserve');
     });
 
+    // 玉山支付寶 付費資料整理
+    Route::prefix('yushanPay')->group(function () {
+        //要傳給玉山的資料付款用
+        Route::post('comfirm', 'YushanPayController@comfirm');
+        //玉山回傳的資料
+        Route::post('callback', 'YushanPayController@callback');
+    });
     // 其他
     Route::prefix('service')->group(function () {
         // 常見問題
@@ -228,7 +234,6 @@ Route::middleware('cors')->namespace('V1')->group(function () {
 
         // 禮物清單
         Route::get('{modelType}/{modelSpecId}/gifts/', 'CouponController@gift_list');
-
     });
 
     //禮物、點數相關
@@ -263,7 +268,6 @@ Route::middleware('cors')->namespace('V1')->group(function () {
 
             //地點icon
             Route::get('/icons/list', 'PlaceController@icons');
-
         });
     });
 
@@ -272,8 +276,6 @@ Route::middleware('cors')->namespace('V1')->group(function () {
         //邀請碼對應名字
         Route::post('memberName', 'MemberController@memberName');
     });
-
-
 });
 
 // 需 token 認證的 route
@@ -359,7 +361,6 @@ Route::middleware(['cors', 'auth.jwt'])->namespace('V1')->group(function () {
 
         // 可使用禮物數、優惠卷 與 總和
         Route::get('tickets', 'DiningCarMemberController@tickets');
-
     });
 
     // 會員相關
@@ -382,7 +383,6 @@ Route::middleware(['cors', 'auth.jwt'])->namespace('V1')->group(function () {
 
         // 優惠卷核銷
         Route::post('/', 'MemberCouponController@use');
-
     });
 
     //禮物相關
@@ -396,8 +396,6 @@ Route::middleware(['cors', 'auth.jwt'])->namespace('V1')->group(function () {
 
         // 產生禮物Qrcode
         Route::get('/qrcode/{giftId}', 'MemberGiftController@getQrcode');
-
-
     });
 
     //點數相關
@@ -448,7 +446,4 @@ Route::middleware(['cors', 'auth.jwt'])->namespace('V1')->group(function () {
         //取得可用的折價卷
         Route::get('/discountList', 'MemberDiscountController@discountList');
     });
-
-
-
 });

@@ -49,7 +49,7 @@ class CheckoutRepository extends BaseRepository
     {
         if($source === ProjectConfig::MAGENTO) {
             return $this->magento->userAuthorization($this->memberTokenService->magentoUserToken())->info($this->memberTokenService->getId());
-        } else if ($source === ProjectConfig::CITY_PASS) {
+        } else if ($source === ProjectConfig::CITY_PASS or $source === ProjectConfig::CITY_PASS_PHYSICAL) {
             return $this->cityPass->authorization($this->memberTokenService->cityPassUserToken())->info();
         }
         return [];
@@ -65,6 +65,8 @@ class CheckoutRepository extends BaseRepository
         if($parameters->checkSource(ProjectConfig::MAGENTO)) {
             return $this->magento->userAuthorization($this->memberTokenService->magentoUserToken())->shipment($parameters);
         } else if ($parameters->checkSource(ProjectConfig::CITY_PASS)) {
+
+        }else if ($parameters->checkSource(ProjectConfig::CITY_PASS_PHYSICAL)) {
 
         }else{
             return false;
@@ -92,7 +94,7 @@ class CheckoutRepository extends BaseRepository
                 'code' => ($result) ? '00000' : 'E9001',
                 'data' => $result
             ];
-        } else if ($parameters->checkSource(ProjectConfig::CITY_PASS)) {
+        } else if ($parameters->checkSource(ProjectConfig::CITY_PASS) or $parameters->checkSource(ProjectConfig::CITY_PASS_PHYSICAL) ) {
             Log::info('=== 傳送到CI建立訂單 ===');
             $result = $this->cityPass->authorization($this->memberTokenService->cityPassUserToken())->confirm($parameters);
             Log::info('=== CI回傳建立訂單 ===');
@@ -122,7 +124,7 @@ class CheckoutRepository extends BaseRepository
 
         if($parameters->checkSource(ProjectConfig::MAGENTO)) {
             return $this->magento->userAuthorization($this->memberTokenService->magentoUserToken())->creditCard($parameters);
-        } else if ($parameters->checkSource(ProjectConfig::CITY_PASS)) {
+        } else if ($parameters->checkSource(ProjectConfig::CITY_PASS) or $parameters->checkSource(ProjectConfig::CITY_PASS_PHYSICAL) ) {
             return $this->cityPass->authorization($this->generateToken())->creditCard($parameters);
         }
     }
@@ -143,7 +145,7 @@ class CheckoutRepository extends BaseRepository
             }
 
             return $result;
-        } else if ($parameters->checkSource(ProjectConfig::CITY_PASS)) {
+        } else if ($parameters->checkSource(ProjectConfig::CITY_PASS) or $parameters->checkSource(ProjectConfig::CITY_PASS_PHYSICAL) ) {
             return $this->cityPass->authorization($this->generateToken())->transmit($this->memberId, $parameters);
         }
     }
@@ -178,7 +180,7 @@ class CheckoutRepository extends BaseRepository
         if ($data->order_source === ProjectConfig::MAGENTO){
             $this->magento->updateOrder($data,$parameters);
         }
-        else if ($data->order_source === ProjectConfig::CITY_PASS){
+        else if ($data->order_source === ProjectConfig::CITY_PASS or $data->order_source === ProjectConfig::CITY_PASS_PHYSICAL ){
             $this->cityPass->authorization($this->generateToken())->updateOrder($parameters);
         }else{
             $updateData=[
@@ -201,7 +203,7 @@ class CheckoutRepository extends BaseRepository
             $url .= ($parameters->ret_code === "00") ? '&result=true&msg=success' : '&result=false&msg=' . $requestData['ErrorMessage'];
         }
         else {
-            $s = ($data->order_source === 'ct_pass') ? 'c' : 'm';
+            $s = ($data->order_source === 'ct_pass' or $data->order_source === 'ct_pass_physical') ? 'c' : 'm';
             if($s === 'm') {
                 $url .= ($parameters->ret_code === "00") ? '/checkout/complete/' . $s . '/M0000' . $data->order_id : '/checkout/failure/000';
             }else{
