@@ -41,7 +41,6 @@ Route::middleware('cors')->namespace('V1')->group(function () {
         Route::get('subCategory/{id}/products', 'LayoutController@subCategoryProducts');
         // 取得產品分類路徑＆navBar
         Route::get('productPath/{id}', 'LayoutController@productPath');
-
         // 取供應商相關商品
         Route::get('supplier/{supplierId}/products', 'LayoutController@supplier')->name('v1.layout.supplier');
 
@@ -203,6 +202,12 @@ Route::middleware('cors')->namespace('V1')->group(function () {
         Route::post('reserve', 'BlueNewPayController@reserve');
     });
 
+
+    // 綠界金流相關
+    Route::prefix('greenECPay')->group(function () {
+        Route::post('reserve', 'GreenECPayController@reserve');
+    });
+
     // 玉山支付寶 付費資料整理
     Route::prefix('yushanPay')->group(function () {
         //要傳給玉山的資料付款用
@@ -276,13 +281,6 @@ Route::middleware('cors')->namespace('V1')->group(function () {
     Route::prefix('invitation')->group(function () {
         //邀請碼對應名字
         Route::post('memberName', 'MemberController@memberName');
-    });
-
-    // taiwanpay
-    Route::prefix('taiwanpay')->group(function () {
-        // taiwanpay reserve
-        Route::post('comfirm', 'TaiwanPayController@comfirm');
-        Route::post('callback', 'TaiwanPayController@callback');
     });
 });
 

@@ -34,8 +34,9 @@ class LayoutService extends BaseService
     protected $menuProductRepository;
     protected $productRepository;
     protected $appRepository;
+    
 
-    public function __construct(AdRepository $adRepository, ExplorationRepository $explorationRepository, HomeRepository $homeRepository, TagRepository $tagRepository, TagProdRepository $tagProductRepository, CategoryRepository $categoryRepository, MenuProductRepository $menuProductRepository, ProductRepository $productRepository, AppRepository $appRepository)
+    public function __construct(AdRepository $adRepository, TagProdRepository $tagProductRepository, ExplorationRepository $explorationRepository, HomeRepository $homeRepository, TagRepository $tagRepository, CategoryRepository $categoryRepository, MenuProductRepository $menuProductRepository, ProductRepository $productRepository, AppRepository $appRepository)
     {
         $this->adRepository = $adRepository;
         $this->explorationRepository = $explorationRepository;
@@ -108,6 +109,16 @@ class LayoutService extends BaseService
         $data['customizes'] = ($data['category']) ? $this->categoryRepository->allById($lang, $id) : [];
 
         return $data;
+    }
+
+    /**
+     * 取單一產品分類
+     * @param $lang
+     * @return mixed
+     */
+    public function productCategory($productId)
+    {
+        return   $this->tagProductRepository->getTagsByProdId($productId);
     }
 
     /**
