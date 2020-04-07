@@ -97,7 +97,8 @@ class OrderConfig extends BaseConfig
         3 => 'tspg',
         4 => 'linepay',
         5 => 'taiwanpay',
-        6 => 'yushanpay'
+        6 => 'yushanpay',
+        7 => 'greenEC'
     ];
 
     # 訂單金流方式
@@ -109,6 +110,7 @@ class OrderConfig extends BaseConfig
         611 => 'linepay',
         711 => 'googlepay',
         811 => 'applepay',
+        911 => 'taiwanpay',
         666 => 'yushanpay'
     ];
 

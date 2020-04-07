@@ -202,6 +202,12 @@ Route::middleware('cors')->namespace('V1')->group(function () {
         Route::post('reserve', 'BlueNewPayController@reserve');
     });
 
+
+    // 綠界金流相關
+    Route::prefix('greenECPay')->group(function () {
+        Route::post('reserve', 'GreenECPayController@reserve');
+    });
+
     // 玉山支付寶 付費資料整理
     Route::prefix('yushanPay')->group(function () {
         //要傳給玉山的資料付款用

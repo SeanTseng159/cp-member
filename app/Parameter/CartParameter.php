@@ -37,4 +37,10 @@ class CartParameter extends BaseParameter
 
         return $this;
     }
+
+    public function moreCars()
+    {
+        $this->cartNumber=$this->request->input('cartNumber');
+        return $this;
+    }
 }

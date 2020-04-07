@@ -129,6 +129,13 @@ class PaymentService
             case '6':
                 return ['orderNo' => $params['orderNo']];
             break;
+            // greenEC 綠介
+            case '7':
+                // 信用卡
+                if ($payment['method'] === '111') {
+                    return ['orderNo' => $params['orderNo']];
+                }
+            break;
             // 無值
             default:
                 throw new CustomException('E9006');
