@@ -76,15 +76,6 @@ class LayoutService extends BaseService
         return $this->tagRepository->all($lang);
     }
 
-    /**
-     * 取單一產品分類
-     * @param $lang
-     * @return mixed
-     */
-    public function productCategory($productId)
-    {
-        return   $this->tagProductRepository->getTagsByProdId($productId);
-    }
 
     /**
      * 取單一選單資料
