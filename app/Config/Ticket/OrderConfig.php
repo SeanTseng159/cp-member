@@ -110,6 +110,7 @@ class OrderConfig extends BaseConfig
         611 => 'linepay',
         711 => 'googlepay',
         811 => 'applepay',
+        911 => 'taiwanpay',
         666 => 'yushanpay'
     ];
 
