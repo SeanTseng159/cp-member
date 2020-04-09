@@ -40,12 +40,12 @@ class MenuPayment
 
         //綠界後不用信用卡參數
         // 信用卡參數
-        // if ($data['payment']['type'] === 'credit_card') {
-        //     $validatorParams['payment.creditCardNumber'] = ['required', new \LVR\CreditCard\CardNumber];
-        //     $validatorParams['payment.creditCardYear'] = 'required|date_format:"Y"';
-        //     $validatorParams['payment.creditCardMonth'] = 'required|date_format:"m"';
-        //     $validatorParams['payment.creditCardCode'] = ['required', new \LVR\CreditCard\CardCvc($data['payment']['creditCardNumber'])];
-        // }
+        if ($data['payment']['type'] === 'credit_card' && $data['payment']['id']==='3_111') {
+            $validatorParams['payment.creditCardNumber'] = ['required', new \LVR\CreditCard\CardNumber];
+            $validatorParams['payment.creditCardYear'] = 'required|date_format:"Y"';
+            $validatorParams['payment.creditCardMonth'] = 'required|date_format:"m"';
+            $validatorParams['payment.creditCardCode'] = ['required', new \LVR\CreditCard\CardCvc($data['payment']['creditCardNumber'])];
+        }
 
         // 發票參數
         if ($data['billing']['id'] == 2) {
