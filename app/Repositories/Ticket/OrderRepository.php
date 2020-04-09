@@ -80,14 +80,14 @@ class OrderRepository extends BaseRepository
             $order->order_receipt_ubn = $params->billing['unifiedBusinessNo'] ?? '';
 
             //綠界取消了
-            // if ($params->payment['method'] === '111') {
-            //     // 初始化加密 (加密信用卡)
-            //     $encryption = new CI_Encryption(['driver' => 'openssl']);
+            if ($params->payment['method'] === '111' && $params->payment['gateway'] === '3') {
+                // 初始化加密 (加密信用卡)
+                $encryption = new CI_Encryption(['driver' => 'openssl']);
 
-            //     $order->order_credit_card_number = $encryption->encrypt($params->payment['creditCardNumber']);
-            //     $order->order_credit_card_expire = $encryption->encrypt($params->payment['creditCardYear'] . $params->payment['creditCardMonth']);
-            //     $order->order_credit_card_verify = $encryption->encrypt($params->payment['creditCardCode']);
-            // }
+                $order->order_credit_card_number = $encryption->encrypt($params->payment['creditCardNumber']);
+                $order->order_credit_card_expire = $encryption->encrypt($params->payment['creditCardYear'] . $params->payment['creditCardMonth']);
+                $order->order_credit_card_verify = $encryption->encrypt($params->payment['creditCardCode']);
+            }
 
             $order->created_at = date('Y-m-d H:i:s');
             $order->modified_at = date('Y-m-d H:i:s');
@@ -278,14 +278,14 @@ class OrderRepository extends BaseRepository
         $order->order_receipt_title = $params->billing['invoiceTitle'] ?? '';
         $order->order_receipt_ubn = $params->billing['unifiedBusinessNo'] ?? '';
 
-        // if ($params->payment['method'] === '111') {
-        //     // 初始化加密 (加密信用卡)
-        //     $encryption = new CI_Encryption(['driver' => 'openssl']);
+        if ($params->payment['gateway'] === '3' && $params->payment['method'] === '111') {
+            // 初始化加密 (加密信用卡)
+            $encryption = new CI_Encryption(['driver' => 'openssl']);
 
-        //     $order->order_credit_card_number = $encryption->encrypt($params->payment['creditCardNumber']);
-        //     $order->order_credit_card_expire = $encryption->encrypt($params->payment['creditCardYear'] . $params->payment['creditCardMonth']);
-        //     $order->order_credit_card_verify = $encryption->encrypt($params->payment['creditCardCode']);
-        // }
+            $order->order_credit_card_number = $encryption->encrypt($params->payment['creditCardNumber']);
+            $order->order_credit_card_expire = $encryption->encrypt($params->payment['creditCardYear'] . $params->payment['creditCardMonth']);
+            $order->order_credit_card_verify = $encryption->encrypt($params->payment['creditCardCode']);
+        }
 
         $order->created_at = date('Y-m-d H:i:s');
         $order->modified_at = date('Y-m-d H:i:s');
