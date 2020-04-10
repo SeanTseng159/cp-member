@@ -52,7 +52,7 @@ class ShopResult extends DiningCarResult
         $result->canOnlineOrder = ($car->canOrdering) ? true : false;
 
         //添加是否線上付款
-        $result->canEC = $car->employee ? $car->employee->first()->supplier->canEC : false;
+        $result->canEC = $car->employee ? (($car->employee->first()->supplier->canEC==1)?true:false) : false;
 
 
         return $result;
