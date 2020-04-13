@@ -36,6 +36,7 @@ class LayoutController extends RestLaravelController
         $this->redis = new Redis;
     }
 
+    //tewst
     /**
      * 取首頁資料
      * @param Request $request

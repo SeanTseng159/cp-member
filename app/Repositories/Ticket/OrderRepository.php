@@ -77,7 +77,8 @@ class OrderRepository extends BaseRepository
             $order->order_receipt_title = $params->billing['invoiceTitle'] ?? '';
             $order->order_receipt_ubn = $params->billing['unifiedBusinessNo'] ?? '';
 
-            if ($params->payment['method'] === '111') {
+            //綠界取消了
+            if ($params->payment['method'] === '111' && $params->payment['gateway'] === '3') {
                 // 初始化加密 (加密信用卡)
                 $encryption = new CI_Encryption(['driver' => 'openssl']);
 
@@ -276,7 +277,7 @@ class OrderRepository extends BaseRepository
         $order->order_receipt_title = $params->billing['invoiceTitle'] ?? '';
         $order->order_receipt_ubn = $params->billing['unifiedBusinessNo'] ?? '';
 
-        if ($params->payment['method'] === '111') {
+        if ($params->payment['gateway'] === '3' && $params->payment['method'] === '111') {
             // 初始化加密 (加密信用卡)
             $encryption = new CI_Encryption(['driver' => 'openssl']);
 
