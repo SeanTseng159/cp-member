@@ -15,7 +15,7 @@ use Illuminate\Http\Request;
 
 // 需 token 認證的 route
 Route::middleware(['cors', 'auth.jwt'])->namespace('V3')->group(function () {
-    //賣場增加多台購物車，怕影響到之前的使用改板為V3
+    //購物車修正版
     Route::prefix('cart')->group(function () {
         // 購物車簡易資訊
         Route::get('info', 'CartController@info');
@@ -30,5 +30,4 @@ Route::middleware(['cors', 'auth.jwt'])->namespace('V3')->group(function () {
         // 刪除購物車內商品
         Route::post('delete', 'CartController@delete');
     });
-
 });
