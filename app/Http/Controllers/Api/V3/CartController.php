@@ -62,7 +62,17 @@ class CartController extends RestLaravelController{
      */
     public function mine(Request $request)
     {
+        $cartNumber=$request->query('cartNumber');
+        $memberID = $this->getMemberId();
         
+        //將資料送去給CI專案吧
+        $data=$this->cartService->mine(['cartNumber'=>$cartNumber]);
+        
+        return $this->success($data);
+         
+    }//end mine
+
+    public function detail(Request $request){
         $memberID = $this->getMemberId();
         
         $cartItems=$this->cartService->getCartByMemberId($memberID);
@@ -80,11 +90,8 @@ class CartController extends RestLaravelController{
         $cartNumber=substr($number,1,strlen($number));
         //將資料送去給CI專案吧
         $data=$this->cartService->mine(['cartNumber'=>$cartNumber]);
-        
         return $this->success($data);
-         
-    }//end mine
-
+    }
 
 
 
