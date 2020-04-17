@@ -41,13 +41,22 @@ class CartMoreService
     }
 
     /**
+     * 取得購物車詳細資料
+     * @return mixed
+     */
+    public function mine($cartNumber)
+    {
+        return $this->repository->mine($cartNumber);
+    }
+
+    /**
      * 取得購物車資訊
      * @param $parameter
      * @return mixed
      */
-    public function mine($memberId)
+    public function getCartByMemberId($memberId)
     {
-        return $this->repository->mine($memberId);
+        return $this->repository->getCartByMemberId($memberId);
     }
 
     /**

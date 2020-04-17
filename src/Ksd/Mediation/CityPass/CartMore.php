@@ -9,13 +9,14 @@
 namespace Ksd\Mediation\CityPass;
 use GuzzleHttp\Exception\ClientException;
 use Ksd\Mediation\Helper\EnvHelper;
-use Ksd\Mediation\Result\CartResult;
+
+use Ksd\Mediation\Result\CartMoreResult as CartResult;
 use Log;
 
 class CartMore extends Client
 {
     use EnvHelper;
-
+    
     /**
      * 取得購物車簡易資訊
      * @return array
@@ -38,20 +39,27 @@ class CartMore extends Client
      * 取得購物車資訊
      * @return CartResult
      */
-    public function detail()
+    public function detail($parameters)
     {
         $result = [];
         try {
-            $response = $this->request('GET', 'cartsAddMoreCarts/detail');
+            
+            $response = $this->setJson(false)->putParameters($parameters)
+                ->request('POST', 'cartsAddMoreCarts/detail');
             $result = json_decode($response->getBody(), true);
+            
         } catch (ClientException $e) {
             // TODO:處理抓取不到購物車資料
         }
+        
+        foreach($result['data'] as $item){
+            $cart = new CartResult();
+            $cart->cityPass($item);
+            $data[]=$cart;
+        }
+        
 
-        $cart = new CartResult();
-        $cart->cityPass($result['data']);
-
-        return $cart;
+        return $data;
     }
 
     /**
@@ -61,10 +69,11 @@ class CartMore extends Client
      */
     public function add($parameters)
     {
+        
         $response = $this->setJson(false)->putParameters($parameters)
             ->request('POST', 'cartsAddMoreCarts/add');
         $result = json_decode($response->getBody(), true);
-
+        
         //Log::debug('===購物車===');
         //Log::debug(print_r(json_decode($response->getBody(), true), true));
 

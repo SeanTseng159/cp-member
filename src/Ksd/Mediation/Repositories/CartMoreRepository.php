@@ -66,30 +66,31 @@ class CartMoreRepository extends BaseRepository
     }
 
     /**
-     * 取得購物車資訊
-     * @return mixed
-     */
-    public function detail()
-    {
-        $this->magentoDetail  = $this->magento->userAuthorization($this->memberTokenService->magentoUserToken())->detail();
-        $this->cityPassDetail = $this->cityPass->authorization($this->memberTokenService->cityPassUserToken())->detail();
-
-        return [
-            ProjectConfig::MAGENTO => $this->magentoDetail,
-            ProjectConfig::CITY_PASS => $this->cityPassDetail
-        ];
-    }
-
-
-    /**
      * 取得購物車資訊(依來源)
      * @param $parameter
      * @return mixed
      */
-    public function mine($memberId)
+    public function mine($cartNumber)
+    {
+        
+        
+        return $this->cityPass->authorization($this->memberTokenService->cityPassUserToken())->detail($cartNumber);
+        
+    }
+
+
+
+
+
+    /**
+     * 取得個人有多少台購物車
+     * @param $parameter
+     * @return mixed
+     */
+    public function getCartByMemberId($memberId)
     {
 
-        return $this->cartItemsModel->where('member_id', $memberId)->get();
+        return $this->cartItemsModel->where('member_id', $memberId)->orderBy('cart_item_type')->get();
     }
 
     /**
@@ -116,9 +117,10 @@ class CartMoreRepository extends BaseRepository
      */
     public function add($parameters)
     {
-
+        foreach ($parameters->cityPass() as $item) {
+            $this->result = $this->cityPass->authorization($this->memberTokenService->cityPassUserToken())->add($item);
+        }
         
-        $this->result = $this->cityPass->authorization($this->memberTokenService->cityPassUserToken())->add($parameters);
         
         return $this->result;
     }
@@ -151,9 +153,8 @@ class CartMoreRepository extends BaseRepository
             'last_notified_at' => Carbon::now(),
             'began_at' => Carbon::now(),
         ];
-        if ( ! empty($parameters->magento()) ) {
-            $filter_params['type'] = ProjectConfig::MAGENTO;
-        } else if(!empty($parameters->cityPass())) {
+
+        if(!empty($parameters->cityPass())) {
             $filter_params['type'] = ProjectConfig::CITY_PASS;
         }
         try {

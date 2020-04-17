@@ -3,9 +3,9 @@ namespace App\Http\Controllers\Api\V3;
 
 use Illuminate\Http\Request;
 use Ksd\Mediation\Core\Controller\RestLaravelController;
-
+use Ksd\Mediation\Parameter\Cart\ProductParameterv3;
 use Ksd\Mediation\Parameter\Cart\CartParameter as OldCartParameter;
-use Ksd\Mediation\Services\CartMoreService as OldCartService;
+use Ksd\Mediation\Services\CartMoreService;
 
 // new
 use App\Parameter\CartParameter;
@@ -23,12 +23,12 @@ use App\Traits\MemberHelper;
 class CartController extends RestLaravelController{
     use CartHelper;
     use MemberHelper;
-    protected $oldCartService;
+    protected $cartService;
 
 
-    public function __construct(OldCartService $oldCartService)
+    public function __construct(CartMoreService $cartService)
     {
-        $this->oldCartService = $oldCartService;
+        $this->cartService = $cartService;
     }
 
 
@@ -39,10 +39,20 @@ class CartController extends RestLaravelController{
      */
     public function add(Request $request)
     {
-        $parameters = (new CartParameter($request))->moreCars();
-        dd($parameters);
-        $result = $this->oldCartService->add($parameters);
-        
+        //導入source
+        $source = $request->input('source');
+        //整理參數
+        $parameters = new ProductParameterv3();
+        $parameters->laravelRequest($request);
+        //送去CI專案 進行寫入DB 
+        $result = $this->cartService->add($parameters);
+        //成功寫入
+        if ($result['statusCode'] === 201) {
+            return $this->success();
+        }
+        else {
+            return (isset($result['message'])) ? $this->failure('E9999', $result['message']) : $this->failure('E0003', '更新失敗');
+        }
     }//end add
 
     /**
@@ -55,9 +65,23 @@ class CartController extends RestLaravelController{
         
         $memberID = $this->getMemberId();
         
-        $result=$this->oldCartService->mine($memberID);
+        $cartItems=$this->cartService->getCartByMemberId($memberID);
         
-        $data=(new CartMoreResult())->mine($result);
+        //如果是空的化回傳data=null
+        if(empty( $cartItems)){
+            return $this->success();
+        }else{
+            $number='';
+            foreach($cartItems as $item){
+                $number=$number.','.$item->cart_item_type;
+            }
+        }   
+        //$cartNumber= 1,10,100 放入dining_car_id
+        $cartNumber=substr($number,1,strlen($number));
+        //將資料送去給CI專案吧
+        $data=$this->cartService->mine(['cartNumber'=>$cartNumber]);
+        
+        return $this->success($data);
          
     }//end mine
 
