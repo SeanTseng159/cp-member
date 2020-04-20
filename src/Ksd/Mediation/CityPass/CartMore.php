@@ -21,13 +21,19 @@ class CartMore extends Client
      * 取得購物車簡易資訊
      * @return array
      */
-    public function info()
+    public function info($parameters)
     {
         $path = 'cartsAddMoreCarts/info';
-
-        $response = $this->request('GET', $path);
-        $body = $response->getBody();
-        $result = json_decode($body, true);
+        $result = [];
+        try {
+            
+            $response = $this->setJson(false)->putParameters($parameters)
+                ->request('POST', 'cartsAddMoreCarts/detail');
+            $result = json_decode($response->getBody(), true);
+            
+        } catch (ClientException $e) {
+            // TODO:處理抓取不到購物車資料
+        }
 
         return [
             'itemTotal' => $result['data']['itemTotal'],
@@ -113,6 +119,6 @@ class CartMore extends Client
         Log::debug('===購物車===');
         Log::debug(print_r(json_decode($response->getBody(), true), true));
 
-        return ($result['statusCode'] === 203);
+        return $result;
     }
 }

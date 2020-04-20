@@ -53,16 +53,9 @@ class CartMoreRepository extends BaseRepository
      * 取得購物車簡易資訊
      * @return mixed
      */
-    public function info()
-    {
-        $this->magentoInfo = $this->magento->userAuthorization($this->memberTokenService->magentoUserToken())->info();
-        $this->cityPassInfo = $this->cityPass->authorization($this->memberTokenService->cityPassUserToken())->info();
-
-            return [
-                ProjectConfig::MAGENTO => $this->magentoInfo,
-                ProjectConfig::CITY_PASS => $this->cityPassInfo
-            ];
-
+    public function info($cartNumber)
+    {        
+        return $this->cityPassInfo = $this->cityPass->authorization($this->memberTokenService->cityPassUserToken())->info($cartNumber);
     }
 
     /**
@@ -93,22 +86,6 @@ class CartMoreRepository extends BaseRepository
         return $this->cartItemsModel->where('member_id', $memberId)->orderBy('cart_item_type')->get();
     }
 
-    /**
-     * 取得一次性購物車資訊並加入購物車(依來源)
-     * @param $parameter
-     * @return mixed
-     */
-    public function oneOff($parameter)
-    {
-        $source = $parameter->source;
-        if($source === ProjectConfig::MAGENTO) {
-            return $this->magento->userAuthorization($this->memberTokenService->magentoUserToken())->getOneOffCart($this->memberId);
-        } else if ($source === ProjectConfig::CITY_PASS) {
-            return $this->cityPass->authorization($this->memberTokenService->cityPassUserToken())->detail();
-        } else {
-            return "nodata";
-        }
-    }
 
     /**
      * 商品加入購物車
@@ -140,6 +117,25 @@ class CartMoreRepository extends BaseRepository
         return $this->result;
     }
 
+
+
+    /**
+     * 刪除購物車內商品
+     * @param $parameters
+     * @return bool
+     */
+    public function delete($parameters)
+    {
+       
+        foreach ($parameters->cityPass() as $item) {
+            $this->result = $this->cityPass->authorization($this->memberTokenService->cityPassUserToken())->delete($item);
+        }
+
+
+        return $this->result;
+    }
+
+
     /**
      * 更新購物車過期時間
      * @param $parameters
@@ -165,122 +161,6 @@ class CartMoreRepository extends BaseRepository
         }
     }
 
-    /**
-     * 刪除購物車內商品
-     * @param $parameters
-     * @return bool
-     */
-    public function delete($parameters)
-    {
-       
-        foreach ($parameters->cityPass() as $item) {
-            $this->result = $this->cityPass->authorization($this->memberTokenService->cityPassUserToken())->delete($item);
-        }
 
 
-        return $this->result;
-    }
-
-    /**
-     * 刪除購物車內指定商品
-     * @param string $source
-     * @param array $itemIdsj
-     * @param string $token
-     * @return mixed
-     */
-    public function deleteByItemIds($source, $memberId, $itemIds)
-    {
-        $token = $this->memberTokenService->getUserTokenByMemberId($source, $memberId);
-        if($source === ProjectConfig::MAGENTO) {
-            foreach ($itemIds as $id) {
-                $items[] = ['id' => $id];
-            }
-            $this->result = $this->magento->userAuthorization($token)->delete($items);
-        }else if($source === ProjectConfig::CITY_PASS) {
-            foreach ($itemIds as $id) {
-                $item = ['id' => $id];
-                $this->result = $this->cityPass->authorization($token)->delete($item);
-            }
-        }
-        $this->cleanCache();
-
-        return $this->result;
-    }
-
-    /**
-     * 刪除過期購物車紀錄
-     * @param string $source
-     * @param int $memberId
-     * @return bool
-     */
-    public function deleteExpiredRecord($source, $memberId)
-    {
-        return $this->carts->where('type', $source)
-                ->where('member_id', $memberId)
-                ->delete();
-    }
-
-    /**
-     * 清除快取
-     */
-    public function cleanCache()
-    {
-        $this->cacheKey(self::INFO_KEY);
-        $this->cacheKey(self::DETAIL_KEY);
-    }
-
-    /**
-     * 清除快取_magento
-     */
-    public function cleanCacheMagento()
-    {
-        $this->cacheKey(self::INFO_KEY_M);
-        $this->cacheKey(self::DETAIL_KEY_M);
-    }
-
-
-    /**
-     * 清除快取_citypass
-     */
-    public function cleanCacheCityPass()
-    {
-        $this->cacheKey(self::INFO_KEY_C);
-        $this->cacheKey(self::DETAIL_KEY_C);
-    }
-
-    /**
-     * 取得過期購物車會員 id
-     * @param string $source
-     * @param int $expire_days 過期天數
-     * @return array
-     */
-    public function expiredCartMemberIds($source, $expire_days)
-    {
-        return $this->carts->whereRaw('began_at <= DATE_ADD(NOW(), INTERVAL -' . $expire_days . ' DAY)')
-                ->where('type', $source)
-                ->pluck('member_id')
-                ->toArray();
-    }
-
-
-    /**
-     * 根據 key 清除快取
-     * @param $key
-     */
-    private function cacheKey($key)
-    {
-        $this->redis->delete($this->genCacheKey($key));
-    }
-
-    /**
-     * 建立快取 key
-     * @param $key
-     * @return string
-     */
-    private function genCacheKey($key)
-    {
-        $date = new \DateTime();
-        $this->token = $this->memberTokenService->cityPassUserToken();
-        return sprintf($key, $this->token,$date->format('Ymd'));
-    }
 }
