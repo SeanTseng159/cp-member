@@ -14,8 +14,6 @@ use App\Parameter\CartParameter;
 use App\Result\CartMoreResult;
 
 use App\Traits\CartHelper;
-
-use App\Core\Logger;
 use Exception;
 use App\Exceptions\CustomException;
 use App\Traits\MemberHelper;
