@@ -50,6 +50,20 @@ class Product extends BaseModel
                     ->where('prod_offsale_time', '>=', $date);
     }
 
+    /**
+     * 再架上
+    */
+    public function scopeOnShelf($query)
+    {
+        $date = date('Y-m-d H:i:s');
+
+        return $query->notDeleted()
+                    ->where('prod_onshelf', 1)
+                    ->whereIn('prod_type', [1, 2])
+                    ->where('prod_onshelf_time', '<=', $date)
+                    ->where('prod_offshelf_time', '>=', $date);
+    }
+
 	/**
      * 取得商品所有圖片
      */

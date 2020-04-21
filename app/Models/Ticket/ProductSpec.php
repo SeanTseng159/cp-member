@@ -29,4 +29,12 @@ class ProductSpec extends BaseModel
     {
         return $this->hasOne('App\Models\Ticket\Product', 'prod_id', 'prod_id')->onSale();
     }
+
+    /**
+     * 取得產品,尚未下架
+     */
+    public function productOnShelf()
+    {
+        return $this->hasOne('App\Models\Ticket\Product', 'prod_id', 'prod_id')->onShelf();
+    }
 }
