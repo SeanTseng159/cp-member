@@ -72,8 +72,8 @@ class CartController extends RestLaravelController{
         try{
             $cartNumber=$request->query('cartNumber');
             //將資料送去給CI專案吧
-            $data=$this->cartService->mine(['cartNumber'=>$cartNumber]);
-            
+            $data=$this->cartService->mine(['cartNumber'=>$cartNumber]);     
+            $data[0]->cartName=( $data[0]->cartNumber==1)?'CityPass商品': $data[0]->cartName;
             return $this->success($data);
         } catch (\Exception $e) {
             Logger::error('v3/CartController/mine',$e->getMessage());
@@ -95,8 +95,10 @@ class CartController extends RestLaravelController{
             $result=[];
             foreach($data as $item){   
                 if(!empty($item->items)){
+                    $item->cartName=($item->cartNumber==1)?'CityPass商品':$item->cartName;
                     $result[]=$item;
                 }
+                
             }
             return $this->success($data);
         } catch (\Exception $e) {
