@@ -35,6 +35,9 @@ class ProductParameterv3 extends BaseParameter
     private function request($parameters)
     {
         $this->cityPass = [];
+        if(empty($parameters['cartNumber'])){
+            $parameters['cartNumber']=1;
+        }
         if (!empty($parameters)) {
             array_push($this->cityPass, $parameters); 
         }
