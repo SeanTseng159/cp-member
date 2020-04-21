@@ -22,7 +22,7 @@ class Checkout extends Client
      */
     public function info()
     {
-        $response = $this->request('GET', 'checkout/info');
+        $response = $this->request('GET', 'CheckoutAddMoreCarts/info');
         $result = json_decode($response->getBody(),true);
 
  //       $checkout = new CheckoutResult();
@@ -39,7 +39,7 @@ class Checkout extends Client
     public function confirm($parameters)
     {
         try {
-            $response = $this->putParameters($parameters)->request('POST', 'checkout/confirm');
+            $response = $this->putParameters($parameters)->request('POST', 'CheckoutAddMoreCarts/confirm');
             $result = json_decode($response->getBody(), true);
 
             Log::debug('===結帳===');
