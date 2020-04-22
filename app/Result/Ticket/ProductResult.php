@@ -21,7 +21,7 @@ class ProductResult extends BaseResult
     public function __construct()
     {
         parent::__construct();
-        $this->warningWord='本平台為第三方交易平台服務提供者，本頁所展示的商品服務系由店家發佈，其真實性、準確性與品質保證均由店家承擔。商品出貨之發票或收據由各店家開立提供，若有問題請與商家聯繫。';
+        $this->warningWord='<p><span style="color:#e74c3c">本平台為第三方交易平台服務提供者，本頁所展示的商品服務系由店家發佈，其真實性、準確性與品質保證均由店家承擔。商品出貨之發票或收據由各店家開立提供，若有問題請與商家聯繫。</span></p>';
     }
 
     /**
@@ -357,8 +357,17 @@ class ProductResult extends BaseResult
             $content = new \stdClass;
             $content->title = $this->arrayDefault($product, 'prod_tabs' . $i, '');
             $content->description = $this->arrayDefault($product, 'prod_desc' . $i, '');
+            //代表沒有資料了 結束回圈
+            if($content->description ==''){
+                break;
+            }
             $contents[] = $content;
-        }
+            $st=$i;
+        }//end for
+        //
+        $lastWord=$contents[$st-1];
+        $contents[$st-1]->description=$lastWord->description.$this->warningWord;
+
 
         return $contents;
     }
