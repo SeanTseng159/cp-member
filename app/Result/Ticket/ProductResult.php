@@ -57,7 +57,8 @@ class ProductResult extends BaseResult
         $this->canCarts=($this->arrayDefault($this->arrayDefault($product, 'supplier'),'canEC'))?true:false;
         //進入到哪台購物車，先判斷式不是虛擬商品 虛擬商品進入1號餐車，高盛大供應商也是進入1號餐車，其餘的走路各自的供應商餐車
         $this->cartsNumber=($this->arrayDefault($product,'supplier_id')==env('CT_PASS_SHOP_ID') or $this->arrayDefault($product,'supplier_id')==env('KAO_MRT_SHOP_ID') ) ? 1:$this->arrayDefault($product,'supplier_id');
-
+        //如果是高盛大商品不用警告
+        $this->warningWord=($this->arrayDefault($product,'supplier_id')==env('CT_PASS_SHOP_ID') or $this->arrayDefault($product,'supplier_id')==env('KAO_MRT_SHOP_ID') ) ? null:$this->warningWord;
         $this->source = $this->arrayDefault($product, 'is_physical') ? ProcuctConfig::SOURCE_TPASS_PHYSICAL : ProcuctConfig::SOURCE_TICKET;
         $this->id = (string) $this->arrayDefault($product, 'prod_id');
         $this->name = $this->arrayDefault($product, 'prod_name');
@@ -221,7 +222,8 @@ class ProductResult extends BaseResult
         $this->canCarts=($this->arrayDefault($this->arrayDefault($product, 'supplier'),'canEC'))?true:false;
         //進入到哪台購物車，先判斷式不是虛擬商品 虛擬商品進入1號餐車，高盛大供應商也是進入1號餐車，其餘的走路各自的供應商餐車
         $this->cartsNumber=($this->arrayDefault($product,'supplier_id')==env('CT_PASS_SHOP_ID') or $this->arrayDefault($product,'supplier_id')==env('KAO_MRT_SHOP_ID') ) ? 1:$this->arrayDefault($product,'supplier_id');
-
+        //如果是高盛大商品不用警告
+        $this->warningWord=($this->arrayDefault($product,'supplier_id')==env('CT_PASS_SHOP_ID') or $this->arrayDefault($product,'supplier_id')==env('KAO_MRT_SHOP_ID') ) ? null:$this->warningWord;
         $this->source = $this->arrayDefault($product, 'is_physical') ? ProcuctConfig::SOURCE_TPASS_PHYSICAL : ProcuctConfig::SOURCE_TICKET;
         $this->id = (string) $this->arrayDefault($product, 'prod_id');
         $this->name = $this->arrayDefault($product, 'prod_name');
