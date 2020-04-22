@@ -90,7 +90,7 @@ class CartController extends RestLaravelController{
             $cartNumber=$this->getCartsNumber($memberID);
             $data=$this->cartService->mine(['cartNumber'=>$cartNumber]);
 
-
+            
             //清空購物車後僅有items被清空　太多資料留下來　清掉不必要的資料
             $result=[];
             foreach($data as $item){   
@@ -98,9 +98,8 @@ class CartController extends RestLaravelController{
                     $item->cartName=($item->cartNumber==1)?'CityPass商品':$item->cartName;
                     $result[]=$item;
                 }
-                
             }
-            return $this->success($data);
+            return $this->success($result);
         } catch (\Exception $e) {
             Logger::error('v3/CartController/mine',$e->getMessage());
             return $this->failure('E0001', $e->getMessage());
