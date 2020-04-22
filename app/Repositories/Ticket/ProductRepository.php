@@ -52,7 +52,7 @@ class ProductRepository extends BaseRepository
     {
         $prod = $this->model->with(['imgs' => function($query) {
                                 return $query->orderBy('img_sort')->get();
-                            }, 'specs.specPrices'])
+                            }, 'specs.specPrices','supplier'])
                             ->notDeleted()
                             ->when($onShelf, function($query){
                                 $query->where('prod_onshelf', 1);

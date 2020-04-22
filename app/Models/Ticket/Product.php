@@ -116,4 +116,12 @@ class Product extends BaseModel
     {
         return $this->hasMany('App\Models\Ticket\ProductGroup', 'prod_id')->notDeleted()->orderBy('prod_group_sort', 'asc');
     }
+
+    /**
+     * 取得供應商
+     */
+    public function supplier()
+    {
+        return $this->hasOne('App\Models\Ticket\Supplier', 'supplier_id','supplier_id');
+    }
 }
