@@ -28,7 +28,7 @@ class CartMore extends Client
         try {
             
             $response = $this->setJson(false)->putParameters($parameters)
-                ->request('POST', 'cartsAddMoreCarts/detail');
+                ->request('POST', 'cartsAddMoreCarts/info');
             $result = json_decode($response->getBody(), true);
             
         } catch (ClientException $e) {

@@ -31,14 +31,6 @@ class CartMoreService
         return $this->repository->info($cartNumber);
     }
 
-    /**
-     * 取得購物車資訊
-     * @return mixed
-     */
-    public function detail()
-    {
-        return $this->repository->detail();
-    }
 
     /**
      * 取得購物車詳細資料
