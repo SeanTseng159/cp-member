@@ -17,6 +17,7 @@ use App\Parameter\CheckoutParameter;
 use App\Services\CartService;
 use App\Services\Ticket\OrderService;
 use App\Services\PaymentService;
+use App\Services\Ticket\SalesRuleService;
 
 use App\Jobs\Mail\OrderCreatedMail;
 
@@ -36,19 +37,21 @@ class CheckoutController extends RestLaravelController
     protected $menuOrderService;
     protected $paymentService;
     protected $blueNewPayService;
+    protected $salesRuleservice;
 
-    public function __construct(
-        CartService $cartService,
-        MenuOrderService $menuOrderService,
-        OrderService $orderService,
-        PaymentService $paymentService,
-        BlueNewPayService $blueNewPayService
-    ) {
+    public function __construct(CartService $cartService,
+                                MenuOrderService $menuOrderService,
+                                OrderService $orderService,
+                                PaymentService $paymentService,
+                                BlueNewPayService $blueNewPayService,
+                                SalesRuleService $salesRuleservice)
+    {
         $this->cartService = $cartService;
         $this->orderService = $orderService;
         $this->paymentService = $paymentService;
         $this->menuOrderService = $menuOrderService;
         $this->blueNewPayService = $blueNewPayService;
+        $this->salesRuleservice=$salesRuleservice;
     }
 
     /**
@@ -81,7 +84,14 @@ class CheckoutController extends RestLaravelController
         try {
             $params = (new CheckoutParameter($request))->payment();
 
+            
             $cart = $this->cartService->find($params->action, $params->memberId);
+            if(!empty($this->input('code'))){
+                // 以code取得對應優惠碼
+                $discount = $this->salesRuleservice->getEnableDiscountByCode($request->code);
+                $cart=$this->cartService->countDiscount($cart, $discount, $this->getMemberId());
+            }
+
             $cart = unserialize($cart);
 
 
