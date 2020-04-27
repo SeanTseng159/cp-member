@@ -37,7 +37,7 @@ class ConfirmParameter extends BaseParameter
         $this->repay = $request->input('repay');
         $this->hasLinePayApp = $request->input('hasLinePayApp', false);
         $this->cartNumber= $request->input('cartNumber',1);
-        $this->cartNumber= $request->input('code',null);
+        $this->code= $request->input('code',null);
 
         $this->processParameters($request, 'payment');
         $this->processParameters($request, 'billing');
