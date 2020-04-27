@@ -97,17 +97,20 @@ class CartService
     //整理判斷 優惠倦計算
     public function countDiscount($cart, $discount, $memberId)
     {
+        ;
         # code...
         if (empty($cart)) return false;
         //購物內容是否有達到最低金額
+        
         if($cart->totalAmount < $discount->discount_code_limit_price) return false;
         //是否為首購
+        
         if($discount->discount_first_type == 1)
         {
             $firstCheck =  $this->orderDiscountRepository->firstBuyCheck($memberId);
             if(!$firstCheck) return false;
         }
-
+        
         foreach ($cart->items as $cartItem) {
             // 判斷商品在可用清單中tag_prods
             $tagCheck = $this->orderDiscountRepository->tagCheck($discount->discount_code_id, $cartItem->id);
@@ -141,6 +144,10 @@ class CartService
         $DiscountCode->price = $discount->discount_code_price;
         $DiscountCode->amount = $amount;
         $cart->DiscountCode = $DiscountCode;
+        $cart->discountAmount =  $DiscountCode->amount;
+        $cart->discountTotalAmount = $cart->totalAmount - $DiscountCode->amount;
+        $cart->payAmount = $cart->discountTotalAmount +  $cart->shippingFee;
+
         return $cart;
     }
 }
