@@ -21,16 +21,18 @@ use App\Services\Ticket\SalesRuleService;
 use App\Jobs\Mail\OrderCreatedMail;
 
 use App\Traits\CartHelper;
+use App\Traits\MemberHelper;
 
 use App\Core\Logger;
 use Exception;
 use App\Exceptions\CustomException;
 use Ksd\Payment\Services\BlueNewPayService;
 
+
 class CheckoutController extends RestLaravelController
 {
     use CartHelper;
-
+    use MemberHelper;
     protected $cartService;
     protected $orderService;
     protected $menuOrderService;
@@ -85,14 +87,15 @@ class CheckoutController extends RestLaravelController
 
             
             $cart = $this->cartService->find($params->action, $params->memberId);
-            if(!empty($this->input('code'))){
-                // 以code取得對應優惠碼
-                $discount = $this->salesRuleservice->getEnableDiscountByCode($request->code);
-                $cart=$this->cartService->countDiscount($cart, $discount, $this->getMemberId());
-            }
-
             $cart = unserialize($cart);
-
+            if(!empty($request->input('code'))){
+                // 以code取得對應優惠碼
+                $discount = $this->salesRuleservice->getEnableDiscountByCode($request->input('code'));
+                
+                $cart=$this->cartService->countDiscount($cart, $discount, $this->getMemberId());
+                
+            }
+            
 
             //檢查購物車內所有狀態是否可購買
             $statusCode = $this->checkCartStatus($cart, $params->memberId);
