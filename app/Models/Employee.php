@@ -17,4 +17,10 @@ class Employee extends Model
     {
         return $this->belongsTo(Supplier::class, 'supplier_id', 'supplier_id');
     }
+
+    public function diningCar()
+    {
+        return $this->hasOne('App\Models\Ticket\DiningCar', 'id','dining_car_id');
+        
+    }
 }

@@ -50,6 +50,20 @@ class Product extends BaseModel
                     ->where('prod_offsale_time', '>=', $date);
     }
 
+    /**
+     * 再架上
+    */
+    public function scopeOnShelf($query)
+    {
+        $date = date('Y-m-d H:i:s');
+
+        return $query->notDeleted()
+                    ->where('prod_onshelf', 1)
+                    ->whereIn('prod_type', [1, 2])
+                    ->where('prod_onshelf_time', '<=', $date)
+                    ->where('prod_offshelf_time', '>=', $date);
+    }
+
 	/**
      * 取得商品所有圖片
      */
@@ -101,5 +115,13 @@ class Product extends BaseModel
     public function groups()
     {
         return $this->hasMany('App\Models\Ticket\ProductGroup', 'prod_id')->notDeleted()->orderBy('prod_group_sort', 'asc');
+    }
+
+    /**
+     * 取得供應商
+     */
+    public function supplier()
+    {
+        return $this->hasOne('App\Models\Ticket\Supplier', 'supplier_id','supplier_id');
     }
 }
