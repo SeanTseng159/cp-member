@@ -99,7 +99,7 @@ class SalesRuleController extends RestLaravelController
             $cart->discountAmount = 0;
             $cart->discountTotalAmount = $cart->totalAmount;
             $cart->payAmount = $cart->totalAmount + $cart->shippingFee;
-            $this->cartService->add('buyNow', $this->getMemberId(), serialize($cart));
+            //$this->cartService->add('buyNow', $this->getMemberId(), serialize($cart));
 
             $data = new \stdClass();
             $data->totalAmount = $cart->totalAmount;
