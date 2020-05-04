@@ -48,6 +48,8 @@ class RouteServiceProvider extends ServiceProvider
         $this->mapApiV3Routes();
 
         $this->mapLineRoutes();
+
+        $this->mapGreenPayRoutes();
     }
 
     /**
@@ -158,6 +160,24 @@ class RouteServiceProvider extends ServiceProvider
             'namespace' => $this->namespace,
         ], function ($router) {
             require base_path('routes/line.php');
+        });
+    }
+
+
+    /**
+     * Define the "GreenPay" routes for the application.
+     *
+     * These routes all receive session state, etc.
+     *
+     * @return void
+     */
+    protected function mapGreenPayRoutes()
+    {
+        Route::group([
+            'prefix' => 'greenpay',
+            'namespace' => $this->namespace,
+        ], function ($router) {
+            require base_path('routes/greenpay.php');
         });
     }
 }
