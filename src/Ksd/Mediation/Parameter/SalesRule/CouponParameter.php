@@ -19,5 +19,6 @@ class CouponParameter extends BaseParameter
         parent::laravelRequest($request);
         $this->source = $request->input('source');
         $this->code = $request->input('code');
+        $this->cartNumber = $request->input('cartNumber','1');
     }
 }

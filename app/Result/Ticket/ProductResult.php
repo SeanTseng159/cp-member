@@ -16,10 +16,12 @@ use App\Result\MagentoProductResult;
 class ProductResult extends BaseResult
 {
     private $quantity = 0;
+    protected $warningWord=null;
 
     public function __construct()
     {
         parent::__construct();
+        $this->warningWord='<p><span style="color:#e74c3c">本平台為第三方交易平台服務提供者，本頁所展示的商品服務系由店家發佈，其真實性、準確性與品質保證均由店家承擔。商品出貨之發票或收據由各店家開立提供，若有問題請與商家聯繫。</span></p>';
     }
 
     /**
@@ -52,9 +54,11 @@ class ProductResult extends BaseResult
         $product = $product->toArray();
         
         //目前當作可以加入購物車
-        $this->canCarts=$this->arrayDefault($product, 'is_physical') ? ($this->arrayDefault($product,'supplier_id')==env('CT_PASS_SHOP_ID') ? true:false):true;
+        $this->canCarts=($this->arrayDefault($this->arrayDefault($product, 'supplier'),'canEC'))?true:false;
         //進入到哪台購物車，先判斷式不是虛擬商品 虛擬商品進入1號餐車，高盛大供應商也是進入1號餐車，其餘的走路各自的供應商餐車
-        $this->cartsNumber=$this->arrayDefault($product, 'is_physical') ? ($this->arrayDefault($product,'supplier_id')==env('CT_PASS_SHOP_ID') ? 1:$this->arrayDefault($product,'supplier_id')):1;
+        $this->cartsNumber=($this->arrayDefault($product,'supplier_id')==env('CT_PASS_SHOP_ID') or $this->arrayDefault($product,'supplier_id')==env('KAO_MRT_SHOP_ID') ) ? 1:$this->arrayDefault($product,'supplier_id');
+        //如果是高盛大商品不用警告
+        $this->warningWord=($this->arrayDefault($product,'supplier_id')==env('CT_PASS_SHOP_ID') or $this->arrayDefault($product,'supplier_id')==env('KAO_MRT_SHOP_ID') ) ? null:$this->warningWord;
         $this->source = $this->arrayDefault($product, 'is_physical') ? ProcuctConfig::SOURCE_TPASS_PHYSICAL : ProcuctConfig::SOURCE_TICKET;
         $this->id = (string) $this->arrayDefault($product, 'prod_id');
         $this->name = $this->arrayDefault($product, 'prod_name');
@@ -215,9 +219,11 @@ class ProductResult extends BaseResult
         
         $product = $product->toArray();
         //目前當作可以加入購物車
-        $this->canCarts=$this->arrayDefault($product, 'is_physical') ? ($this->arrayDefault($product,'supplier_id')==env('CT_PASS_SHOP_ID') ? true:false):true;
+        $this->canCarts=($this->arrayDefault($this->arrayDefault($product, 'supplier'),'canEC'))?true:false;
         //進入到哪台購物車，先判斷式不是虛擬商品 虛擬商品進入1號餐車，高盛大供應商也是進入1號餐車，其餘的走路各自的供應商餐車
-        $this->cartsNumber=$this->arrayDefault($product, 'is_physical') ? ($this->arrayDefault($product,'supplier_id')==env('CT_PASS_SHOP_ID') ? 1:$this->arrayDefault($product,'supplier_id')):1;
+        $this->cartsNumber=($this->arrayDefault($product,'supplier_id')==env('CT_PASS_SHOP_ID') or $this->arrayDefault($product,'supplier_id')==env('KAO_MRT_SHOP_ID') ) ? 1:$this->arrayDefault($product,'supplier_id');
+        //如果是高盛大商品不用警告
+        $this->warningWord=($this->arrayDefault($product,'supplier_id')==env('CT_PASS_SHOP_ID') or $this->arrayDefault($product,'supplier_id')==env('KAO_MRT_SHOP_ID') ) ? null:$this->warningWord;
         $this->source = $this->arrayDefault($product, 'is_physical') ? ProcuctConfig::SOURCE_TPASS_PHYSICAL : ProcuctConfig::SOURCE_TICKET;
         $this->id = (string) $this->arrayDefault($product, 'prod_id');
         $this->name = $this->arrayDefault($product, 'prod_name');
@@ -351,8 +357,17 @@ class ProductResult extends BaseResult
             $content = new \stdClass;
             $content->title = $this->arrayDefault($product, 'prod_tabs' . $i, '');
             $content->description = $this->arrayDefault($product, 'prod_desc' . $i, '');
+            //代表沒有資料了 結束回圈
+            if($content->description ==''){
+                break;
+            }
             $contents[] = $content;
-        }
+            $st=$i;
+        }//end for
+        //
+        $lastWord=$contents[$st-1];
+        $contents[$st-1]->description=$lastWord->description.$this->warningWord;
+
 
         return $contents;
     }
@@ -805,7 +820,8 @@ class ProductResult extends BaseResult
     {
         $columns = [
             'source', 'id', 'name',  'price', 'salePrice', 'characteristic', 'storeName',
-             'storeAddress', 'place', 'imageUrl', 'isWishlist', 'discount' ,'canCarts','cartsNumber'
+             'storeAddress', 'place', 'imageUrl', 'isWishlist', 'discount' ,'canCarts','cartsNumber',
+             'warningWord'
         ];
 
         if ($isDetail) {
@@ -839,7 +855,7 @@ class ProductResult extends BaseResult
         $columns = [
             'source', 'id', 'name',  'price', 'salePrice', 'characteristic', 
             'category', 'tags', 'storeName', 'storeAddress', 'place', 'imageUrl', 
-            'isWishlist', 'discount','canCarts','cartsNumber'
+            'isWishlist', 'discount','canCarts','cartsNumber','warningWord'
         ];
 
         return $this->outputColumns($columns);

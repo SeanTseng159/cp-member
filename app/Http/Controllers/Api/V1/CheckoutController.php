@@ -16,37 +16,43 @@ use App\Parameter\CheckoutParameter;
 use App\Services\CartService;
 use App\Services\Ticket\OrderService;
 use App\Services\PaymentService;
+use App\Services\Ticket\SalesRuleService;
 
 use App\Jobs\Mail\OrderCreatedMail;
 
 use App\Traits\CartHelper;
+use App\Traits\MemberHelper;
 
 use App\Core\Logger;
 use Exception;
 use App\Exceptions\CustomException;
 use Ksd\Payment\Services\BlueNewPayService;
 
+
 class CheckoutController extends RestLaravelController
 {
     use CartHelper;
-
+    use MemberHelper;
     protected $cartService;
     protected $orderService;
     protected $menuOrderService;
     protected $paymentService;
     protected $blueNewPayService;
+    protected $salesRuleservice;
 
     public function __construct(CartService $cartService,
                                 MenuOrderService $menuOrderService,
                                 OrderService $orderService,
                                 PaymentService $paymentService,
-                                BlueNewPayService $blueNewPayService)
+                                BlueNewPayService $blueNewPayService,
+                                SalesRuleService $salesRuleservice)
     {
         $this->cartService = $cartService;
         $this->orderService = $orderService;
         $this->paymentService = $paymentService;
         $this->menuOrderService = $menuOrderService;
         $this->blueNewPayService = $blueNewPayService;
+        $this->salesRuleservice=$salesRuleservice;
     }
 
     /**
@@ -79,9 +85,17 @@ class CheckoutController extends RestLaravelController
         try {
             $params = (new CheckoutParameter($request))->payment();
 
+            
             $cart = $this->cartService->find($params->action, $params->memberId);
             $cart = unserialize($cart);
-
+            if(!empty($request->input('code'))){
+                // 以code取得對應優惠碼
+                $discount = $this->salesRuleservice->getEnableDiscountByCode($request->input('code'));
+                
+                $cart=$this->cartService->countDiscount($cart, $discount, $this->getMemberId());
+                
+            }
+            
 
             //檢查購物車內所有狀態是否可購買
             $statusCode = $this->checkCartStatus($cart, $params->memberId);

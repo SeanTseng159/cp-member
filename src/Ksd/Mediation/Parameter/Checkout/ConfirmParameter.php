@@ -23,7 +23,7 @@ class ConfirmParameter extends BaseParameter
     private $isCheck;
     public $payment;
     public $billing;
-
+    public $cartType;
 
     /**
      * 處理 laravel request
@@ -36,6 +36,8 @@ class ConfirmParameter extends BaseParameter
         $this->orderNo = $request->input('orderNo');
         $this->repay = $request->input('repay');
         $this->hasLinePayApp = $request->input('hasLinePayApp', false);
+        $this->cartNumber= $request->input('cartNumber',1);
+        $this->code= $request->input('code',null);
 
         $this->processParameters($request, 'payment');
         $this->processParameters($request, 'billing');

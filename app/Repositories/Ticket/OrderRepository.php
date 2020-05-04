@@ -71,7 +71,7 @@ class OrderRepository extends BaseRepository
             $order->order_items = $cart->totalQuantity;
             $order->order_shipment_fee = $cart->shippingFee;
             $order->order_off = isset($cart->DiscountCode) ? $cart->DiscountCode->amount : 0;
-            $order->order_amount = $cart->payAmount - $order->order_off;
+            $order->order_amount = $cart->payAmount;
 
             $order->order_status = 0;
             $order->order_receipt_title = $params->billing['invoiceTitle'] ?? '';

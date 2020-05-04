@@ -99,6 +99,10 @@ class DiningCarMenuResult extends BaseResult
             $result->content = $this->outputStringLength($menu->content, 30);
         }
 
+        if(empty($result->product)){
+            $result=[];
+        }
+
         return $result;
     }
 
