@@ -327,4 +327,21 @@ class CheckoutController extends RestLaravelController
 
         return $this->success($newOrder);
     }
+
+    /**
+     * 更新訂單資訊
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function feedbackPay(Request $request){
+        
+        $parameters= [
+            'orderNo' => $request->input('orderNo'),
+            'amount'   => $request->input('amount'),
+            'status'   => $request->input('status')
+        ];
+        $data=$this->service->feedbackPay($parameters);
+        return $this->success($data);
+    }
+
 }
