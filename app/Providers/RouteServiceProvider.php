@@ -48,6 +48,8 @@ class RouteServiceProvider extends ServiceProvider
         $this->mapApiV3Routes();
 
         $this->mapLineRoutes();
+
+        $this->mapGreenPayRoutes();
     }
 
     /**
@@ -110,20 +112,7 @@ class RouteServiceProvider extends ServiceProvider
     }
 
 
-    /**
-     * Define the "api" routes for the application.
-     *
-     * These routes are typically stateless.
-     *
-     * @return void
-     */
-    protected function mapApiV3Routes()
-    {
-        Route::prefix('api/v3')
-             ->middleware('api')
-             ->namespace('App\Http\Controllers\Api')
-             ->group(base_path('routes/Api/V3.php'));
-    }
+
 
     /**
      * Define the "ipass" routes for the application.
@@ -158,6 +147,24 @@ class RouteServiceProvider extends ServiceProvider
             'namespace' => $this->namespace,
         ], function ($router) {
             require base_path('routes/line.php');
+        });
+    }
+
+
+    /**
+     * Define the "GreenPay" routes for the application.
+     *
+     * These routes all receive session state, etc.
+     *
+     * @return void
+     */
+    protected function mapGreenPayRoutes()
+    {
+        Route::group([
+            'prefix' => 'greenpay',
+            'namespace' => $this->namespace,
+        ], function ($router) {
+            require base_path('routes/greenpay.php');
         });
     }
 }

@@ -47,8 +47,8 @@ class GreenECPayController extends RestLaravelController
             $data=$this->orderService->findCanShowByOrderNo($memberID,$orderNo);
             $hash=(new Hashids('Citypass', 12))->encode([$orderNo,$data->order_amount]);
             $platform=$request->header('platform');
-            $url=env('PAYMENT_URL_PATH');
-            $url.='greenecpay/confirm?data='.$hash.'&source=Citypass&platform='.$platform;
+            $url=env('MIDDLEWARE_URL');
+            $url.='greenecpay/payment?data='.$hash.'&source=Citypass&platform='.$platform;
             
             return $this->success(['url'=> $url ]);
         }catch (Exception $e) {

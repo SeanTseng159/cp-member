@@ -50,3 +50,5 @@ Route::get('about', function () {
 Route::get('e-ticket-use', function () {
     return view('web.e-ticket-use');
 });
+
+
