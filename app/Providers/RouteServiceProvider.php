@@ -111,7 +111,20 @@ class RouteServiceProvider extends ServiceProvider
              ->group(base_path('routes/Api/V2.php'));
     }
 
-
+    /**
+     * Define the "api" routes for the application.
+     *
+     * These routes are typically stateless.
+     *
+     * @return void
+     */
+    protected function mapApiV3Routes()
+    {
+        Route::prefix('api/v3')
+             ->middleware('api')
+             ->namespace('App\Http\Controllers\Api')
+             ->group(base_path('routes/Api/V3.php'));
+    }
 
 
     /**
