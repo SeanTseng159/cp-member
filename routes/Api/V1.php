@@ -284,11 +284,6 @@ Route::middleware('cors')->namespace('V1')->group(function () {
     });
 
 
-    // 結帳相關去TPASS
-    Route::prefix('checkoutPay')->group(function () {
-        // 付款資訊
-        Route::post('feedback', 'CheckoutController@feedbackPay');
-    });
 });
 
 // 需 token 認證的 route

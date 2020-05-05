@@ -56,7 +56,7 @@ class GreenpayController extends Controller
             $faileUrl='app://order?id=' . $orderNo . '&source=ct_pass'.'&result=false&msg=' . '失敗';
         }
 
-        $callbackUrl=env('MIDDLEWARE_URL').'api/v1/checkoutPay/feedback';
+        $callbackUrl=env('MIDDLEWARE_URL').'api/checkoutPay/feedback';
       
         $paymentUrl=env('PAYMENT_URL_PATH').'greenecpay/confirm';
         //相關參數
