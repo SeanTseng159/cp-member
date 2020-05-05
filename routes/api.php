@@ -279,4 +279,9 @@ Route::middleware('cors')->namespace('Api')->group(function () {
     
     Route::post('thirdPartyLogin', 'MemberController@thirdPartyLogin');
     Route::post('LineLiffLoginMember', 'MemberController@LineLiffLoginMember');
+    // 結帳相關去TPASS
+    Route::prefix('checkoutPay')->group(function () {
+        // 付款資訊
+        Route::post('feedback', 'CheckoutController@feedbackPay');
+    });
 });
