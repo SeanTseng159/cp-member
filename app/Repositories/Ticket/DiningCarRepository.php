@@ -154,9 +154,25 @@ class DiningCarRepository extends BaseRepository
 
     public function easyFind($id)
     {
-        return $this->model->with('employee.supplier')
+        return $this->model->with('employee.supplier','category')
             ->where('id', $id)
             ->where('status', 1)
             ->first();
+    }
+
+
+    public function findByCounty($county)
+    {
+        return $this->model->with('employee.supplier','category')
+            ->when($county, function ($query) use ($county) {
+                if(empty($county)){
+
+                }else{
+                    $query->where('county','like', '%'.$county.'%');
+                }
+
+            })
+            ->where('status', 1)
+            ->get();
     }
 }
