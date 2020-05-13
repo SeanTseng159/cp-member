@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Http\Request;
+use PhpOffice\PhpSpreadsheet\Worksheet\Row;
 
 /*
 |--------------------------------------------------------------------------
@@ -283,6 +284,11 @@ Route::middleware('cors')->namespace('V1')->group(function () {
         Route::post('memberName', 'MemberController@memberName');
     });
 
+    //小店家Open APi
+    Route::prefix('store')->group(function () {
+        //邀請碼對應名字
+        Route::get('/', 'OpenApiController@storeId');
+    });
 
 });
 

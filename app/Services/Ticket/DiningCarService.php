@@ -66,6 +66,11 @@ class DiningCarService extends BaseService
         return $this->repository->easyFind($id);
     }
 
+    public function findByCounty($county)
+    {
+        return $this->repository->findByCounty($county);
+    }
+
     /**
      * 是否為付費餐車
      * @param $id
