@@ -439,7 +439,7 @@ class OrderRepository extends BaseRepository
     public function findCanShowByOrderNo($memberId = 0, $orderNo = 0)
     {
         if (!$orderNo) return null;
-
+        
         $order = $this->model->with(['details.combo', 'shipment', 'discountCode'])
             ->notDeleted()
             ->where('member_id', $memberId)
