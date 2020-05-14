@@ -50,7 +50,7 @@ class OpenApiController extends RestLaravelController
 
 
             
-            $postResult=[];
+            $array=[];
             foreach($datas as $data){
                 if($data->name=='您的店車名稱'){
 
@@ -66,17 +66,19 @@ class OpenApiController extends RestLaravelController
                     $result->Date='2020-12-30';
                     $result->City=$data->county;
                     $result->Address=$data->district.$data->address;
-                    $postResult[]=$result;
+                    $array[]=$result;
                 }
             }
             $status='200';
+            $postResult=new \stdClass;
+            $postResult->data=$array;
         }catch (Exception $e) {
             Log::error($e->getMessage());        
-            if(empty($postResult)){
-                $status='500';
-                $message=$e->getMessage();
-                $postResult=$this->error($message);    
-            }
+            
+            $status='500';
+            $message=$e->getMessage();
+            $postResult=$this->error($message);    
+            
         }
         
         
