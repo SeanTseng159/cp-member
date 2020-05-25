@@ -21,10 +21,10 @@ trait CartMoreHelper
      * @param $dining_car_id
      * @return array
      */
-    public function getCartInfo($dining_car_id)
+    public function getCartInfo($supplier_id)
     {
-        $diningCarService = app()->build(SupplierService::class);
-        $result = $diningCarService->easyFind($dining_car_id);
+        $supplierService = app()->build(SupplierService::class);
+        $result = $supplierService->easyFind($supplier_id);
 
         if(empty($result->employee->diningCar->name)){
             $name='';
