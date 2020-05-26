@@ -30,4 +30,14 @@ class ProductSpecPriceRepository extends BaseRepository
         return $this->model->where('prod_spec_price_id', $id)
                             ->update($data);
     }
+
+    /**
+     * 搜尋全部的商品
+     * @param None
+     * @return mixed
+     */
+    public function all()
+    {
+        return $this->model->with(['prodSpec.productAll.supplier'])->get();
+    }
 }

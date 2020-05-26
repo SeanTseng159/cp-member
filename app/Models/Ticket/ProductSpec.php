@@ -37,4 +37,13 @@ class ProductSpec extends BaseModel
     {
         return $this->hasOne('App\Models\Ticket\Product', 'prod_id', 'prod_id')->onShelf();
     }
+
+
+    /**
+     * 取得所有產品
+     */
+    public function productAll()
+    {
+        return $this->hasOne('App\Models\Ticket\Product', 'prod_id', 'prod_id');
+    }
 }
