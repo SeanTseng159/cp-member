@@ -286,6 +286,11 @@ class TicketResult extends BaseResult
                 $result['status'] = '0';
                 $result['description']->text = '本套票組合商品，其任一張開通使用，整組需於 %s 使用完畢，逾期未使用，視同失效';
                 $result['description']->date = $expireAry[1] . '小時內';
+            } elseif($expireAry[0] === 'd') {
+                // 未啟用
+                $result['status'] = '0';
+                $result['description']->text = '本套票組合商品，其任一張開通使用，整組需於 %s 使用完畢，逾期未使用，視同失效';
+                $result['description']->date = $expireAry[1] . '日內';
             }
         }
         elseif ($ticketStatus === '1' || $ticketStatus === '2' || $ticketStatus === '3') {
