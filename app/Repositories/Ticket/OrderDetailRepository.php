@@ -357,4 +357,12 @@ class OrderDetailRepository extends BaseRepository
 
         return $orderDetail;
     }
+
+
+    //拿取訂單詳細資料 以付款
+    public function all(){
+        return $this->model->with('order')->whereHas('order', function ($query)  {
+            $query->where('order_status', 10);
+        })->get();
+    }
 }
