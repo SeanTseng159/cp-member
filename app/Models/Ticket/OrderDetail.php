@@ -38,4 +38,14 @@ class OrderDetail extends BaseModel
         return $this->hasOne('App\Models\Ticket\ProductSpecPrice', 'prod_spec_price_id', 'prod_spec_price_id');
 	}
 
+
+
+	/**
+     * 依據規格票種ID取得資料
+     */
+	public function order()
+    {
+        return $this->hasOne('App\Models\Ticket\Order', 'order_no', 'order_no');
+	}
+
 }
