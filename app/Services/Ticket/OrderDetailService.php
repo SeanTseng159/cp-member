@@ -28,4 +28,10 @@ class OrderDetailService extends BaseService
     }
 
 
+    public function all()
+    {
+        return $this->orderDetailRepository->all();
+
+    }
+
 }
