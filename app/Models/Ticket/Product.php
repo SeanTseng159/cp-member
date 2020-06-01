@@ -58,7 +58,6 @@ class Product extends BaseModel
         $date = date('Y-m-d H:i:s');
 
         return $query->notDeleted()
-                    ->where('prod_onshelf', 1)
                     ->whereIn('prod_type', [1, 2])
                     ->where('prod_onshelf_time', '<=', $date)
                     ->where('prod_offshelf_time', '>=', $date);
