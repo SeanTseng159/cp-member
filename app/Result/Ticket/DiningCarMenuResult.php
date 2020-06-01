@@ -29,7 +29,7 @@ class DiningCarMenuResult extends BaseResult
     public function list($menuCategories)
     {
         if ($menuCategories->isEmpty()) return [];
-
+        
         $newItems = [];
         foreach ($menuCategories as $category) {
             $newCategory = $this->getMenuCategories($category);
@@ -81,14 +81,14 @@ class DiningCarMenuResult extends BaseResult
     public function getMenu($menu, $isDetail = false)
     {
         if (!$menu) return null;
-
+        
         $result = new \stdClass;
         $result->id = $menu->id;
         $result->diningCarId = $menu->dining_car_id;
         $result->name = $menu->name;
         $result->product = $this->getProduct($menu->prodSpecPrice);
         $result->price = ($result->product) ? $result->product->price : $menu->price;
-
+        
         if ($isDetail) {
             $result->categoryName = $menu->category->name;
             $result->imgs = ImageHelper::urls($menu->imgs);
@@ -112,16 +112,17 @@ class DiningCarMenuResult extends BaseResult
      */
     private function getProduct($prodSpecPrice)
     {
-        if (!$prodSpecPrice || !$prodSpecPrice->prodSpec || !$prodSpecPrice->prodSpec->product) return null;
-
+        
+        if (!$prodSpecPrice || !$prodSpecPrice->prodSpec || !$prodSpecPrice->prodSpec->productOnShelf) return null;
+        
         $product = new \stdClass;
-        $product->source = ($prodSpecPrice->prodSpec->product->is_physical) ? ProcuctConfig::SOURCE_TPASS_PHYSICAL : ProcuctConfig::SOURCE_TICKET;
-        $product->id = $prodSpecPrice->prodSpec->product->prod_id;
+        $product->source = ($prodSpecPrice->prodSpec->productOnShelf->is_physical) ? ProcuctConfig::SOURCE_TPASS_PHYSICAL : ProcuctConfig::SOURCE_TICKET;
+        $product->id = $prodSpecPrice->prodSpec->productOnShelf->prod_id;
         $product->specId = $prodSpecPrice->prodSpec->prod_spec_id;
         $product->priceId = $prodSpecPrice->prod_spec_price_id;
         $product->price = $prodSpecPrice->prod_spec_price_value;
         $product->stock = $this->getStock($prodSpecPrice);
-        $product->maxLimit = $prodSpecPrice->prodSpec->product->prod_limit_num;
+        $product->maxLimit = $prodSpecPrice->prodSpec->productOnShelf->prod_limit_num;
 
         return $product;
     }
