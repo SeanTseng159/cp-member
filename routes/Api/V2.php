@@ -49,4 +49,11 @@ Route::middleware(['cors', 'auth.jwt'])->namespace('V2')->group(function () {
         Route::get('tickets', 'DiningCarMemberController@tickets');
 
     });
+
+    // 優惠折價倦
+    Route::prefix('discount')->group(function () {
+        // 可使用禮物數、優惠卷 與 總和
+        Route::get('listCanUsed', 'MemberDiscountController@listCanUsed');
+
+    });
 });
