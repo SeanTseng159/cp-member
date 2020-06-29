@@ -18,6 +18,10 @@ class DiscountCodeTag extends BaseModel
         return $this->hasMany('App\Models\Ticket\TagProd', 'tag_id', 'tag_id');
     }
 
+    public function tag()
+    {
+        return $this->hasOne('App\Models\Ticket\Tag', 'tag_id', 'tag_id');
+    }
     
 
 }

@@ -12,5 +12,9 @@ class DiscountCodeMember extends BaseModel
     
     protected $primaryKey = 'discount_code_member_id';
     protected $connection = 'backend';
-    // use BackendSoftDeletes;
+    
+    public function discountCode()
+    {
+        return $this->hasOne('App\Models\Ticket\DiscountCode', 'discount_code_id', 'discount_code_id');
+    }
 }

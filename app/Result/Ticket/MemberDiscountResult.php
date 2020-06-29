@@ -71,7 +71,8 @@ class MemberDiscountResult
             //取出 discount_code_block_prods  
             //discount_code_tags with tag_prods 檢查是否可以使用範圍的商品
             if($addBo){
-                //將優惠倦拒絕的prodId列出來 存在   $blockProdIdArray             
+                //將優惠倦拒絕的prodId列出來 存在   $blockProdIdArray    
+                $blockProdIdArray=[];       
                 foreach($item->discountCodeBlock as $tmp){
                     $blockProdIdArray[]=$tmp->prod_id;
                 }
@@ -140,15 +141,74 @@ class MemberDiscountResult
             }//end dicount_codes 
 
             // dd($item->discountCode);
-            $result=new \stdClass;
+            $result=$this->getListResult($item,'null');
             $result->status=$addBo;
             $result->message=$message;
-            $result->discount_code_id=$item->discountCode->discount_code_id;
-            $result->discount_code_name=$item->discountCode->discount_code_name;
-            $result->discount_code_value=$item->discountCode->discount_code_value;
+            // $result->id=$item->discountCode->discount_code_id;
+            // $result->name=$item->discountCode->discount_code_name;
+            // $result->value=$item->discountCode->discount_code_value;
+            // $result->endTime=Carbon::parse($item->discountCode->discount_code_endtime)->format('Y-m-d');
             $resultArray[]=$result;
         }//end foreach
 
         return $resultArray;
     }//end 
+
+
+    public function list($datas,$func){
+
+        $resultAraray=[];
+        
+        // dd($datas);
+        // dd(collect($datas[1]->discountCode->discountCodeMember)->count());
+        foreach($datas as $key=>$item){
+            
+            switch ($func){
+                case 'current':
+                    $count=collect($item->discountCode->discountCodeMember)->count();
+                    if($item->discountCode->discount_code_member_use_count!=0 && $item->discountCode->discount_code_member_use_count <= $count ){
+                        //超過使用上線
+                    }elseif($count>0 && $item->discountCode->discount_first_type==1){
+                        //只有給首次購買
+                    }else{
+                        $resultAraray[]=$this->getListResult($item,$func);
+                    }
+                    break;
+                case 'disabled':
+                    $resultAraray[]=$this->getListResult($item,$func);
+                    
+                    break;
+                case 'used':
+                    foreach($item->discountCodeMemberByMember as $tmp){
+                        
+                        $resultAraray[]=$this->getListResult($tmp,$func);
+                    }
+                    break;
+            }
+
+            
+            
+            
+        }
+        return $resultAraray;
+    }
+
+    public function getListResult($data,$func){
+        $result=new \stdClass;
+        $result->id=$data->discountCode->discount_code_id;
+        $result->name=$data->discountCode->discount_code_name;
+        $result->value=$data->discountCode->discount_code_value;
+        $result->status=$func;
+        $result->orderNo=$data->order_no;
+        $result->endTime=Carbon::parse($data->discountCode->discount_code_endtime)->format('Y-m-d');
+        $result->btwTime=Carbon::parse($data->discountCode->discount_code_starttime)->format('Y-m-d').'~'.Carbon::parse($data->discountCode->discount_code_endtime)->format('Y-m-d');
+        $tag='';
+        foreach($data->discountCode->discountCodeTag as $item){
+            $tag=$tag.$item->tag->tag_name.',';
+        }
+        $result->range=substr($tag,0,-1);
+        return $result;
+    }
+
+
 }

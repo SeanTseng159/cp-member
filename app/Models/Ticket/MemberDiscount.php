@@ -14,15 +14,21 @@ class MemberDiscount extends BaseModel
 
     
     protected $table = 'member_discount';
-
+    protected $fillable = ['discount_code_id','member_id','used','status'];
 
 	/**
      * 取得優惠倦
      */
-    public function discountCode()
+    public function discountCodeAllow()
     {
         return $this->hasOne('App\Models\Ticket\DiscountCode', 'discount_code_id', 'discount_code_id')->allow();
     }
+
+    public function discountCode()
+    {
+        return $this->hasOne('App\Models\Ticket\DiscountCode', 'discount_code_id', 'discount_code_id');
+    }
+
 
 
     /**
@@ -52,6 +58,13 @@ class MemberDiscount extends BaseModel
         return $this->hasMany('App\Models\Ticket\DiscountCodeMember', 'discount_code_id', 'discount_code_id');
     }
 
+    /**
+     * 取得優惠倦會員使用情況
+     */
+    public function discountCodeMemberByMember()
+    {
+        return $this->hasMany('App\Models\Ticket\DiscountCodeMember', ['member_id','discount_code_id'], ['member_id','discount_code_id']);
+    }
     
     
 }
