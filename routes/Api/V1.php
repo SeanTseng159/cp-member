@@ -16,6 +16,9 @@ use PhpOffice\PhpSpreadsheet\Worksheet\Row;
 
 Route::middleware('cors')->namespace('V1')->group(function () {
 
+    // 訪客登入
+    Route::post('guest/login', 'GuestController@login')->middleware('verify.guest.login');
+
     // 會員相關
     Route::prefix('member')->group(function () {
         // 餐車邀請註冊會員
