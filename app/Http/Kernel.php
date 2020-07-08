@@ -93,6 +93,7 @@ class Kernel extends HttpKernel
         'auth.jwt' => \App\Http\Middleware\Api\AuthJWT::class,
         'cors' => \Barryvdh\Cors\HandleCors::class,
 
+        'verify.guest.login' => \App\Http\Middleware\Verify\GuestLogin::class,
         'verify.member.login' => \App\Http\Middleware\Verify\MemberLogin::class,
         'verify.member.create' => \App\Http\Middleware\Verify\MemberCreate::class,
         'verify.member.update.data' => \App\Http\Middleware\Verify\MemberUpdateData::class,
