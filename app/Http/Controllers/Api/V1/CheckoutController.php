@@ -179,8 +179,8 @@ class CheckoutController extends RestLaravelController
             $order = $this->orderService->findCanPay($orderNo);
             if (!$order) return $this->failureCode('E9016');
 
-            // 檢查付款人
-            if ($order->member_id !== $request->memberId) return $this->failureCode('E9017');
+            // 檢查付款人，訪客不檢查
+            if ($order->member_id && $order->member_id !== $request->memberId) return $this->failureCode('E9017');
 
             $params = (new CheckoutParameter($request))->repay();
 
