@@ -335,24 +335,6 @@ Route::middleware(['cors', 'auth.jwt'])->namespace('V1')->group(function () {
         Route::post('remove', 'SalesRuleController@deleteCoupon');
     });
 
-    // 結帳相關
-    Route::prefix('checkout')->group(function () {
-        // 付款資訊
-        Route::get('info/{orderNo}', 'CheckoutController@info');
-
-        // 結帳
-        Route::post('payment', 'CheckoutController@payment')->middleware('verify.checkout.payment');
-
-        // 點餐單結帳
-        Route::post('payment/menu_order/{menuOrderNo}', 'CheckoutController@menuPayment')->middleware('verify.checkout.payment.menu');
-
-        // 重新結帳
-        Route::post('payment/repay/{orderNo}', 'CheckoutController@repay');
-
-        // apple 商家驗證
-        Route::post('payment/bluenewpay/applepay/merchant', 'CheckoutController@merchantValidation');
-    });
-
     // 票券相關
     Route::prefix('ticket')->group(function () {
         // 票券列表
@@ -462,5 +444,36 @@ Route::middleware(['cors', 'auth.jwt'])->namespace('V1')->group(function () {
         Route::post('/getDiscount', 'MemberDiscountController@getDiscount');
         //取得可用的折價卷
         Route::get('/discountList', 'MemberDiscountController@discountList');
+    });
+});
+
+
+// 需 token 認證的 route (Guest 用)
+Route::middleware(['cors', 'guest.jwt'])->namespace('V1\Guest')->prefix('guest')->group(function () {
+    // 檢查購物車內容跟取付款資訊
+    Route::prefix('checkout')->group(function () {
+        Route::get('info', 'CheckoutController@info');
+    });
+});
+
+
+// 需 token 認證的 route (Guest and Member 都可用)
+Route::middleware(['cors', 'member.guest.jwt'])->namespace('V1')->group(function () {
+    // 結帳相關
+    Route::prefix('checkout')->group(function () {
+        // 付款資訊
+        Route::get('info/{orderNo}', 'CheckoutController@info');
+
+        // 結帳
+        Route::post('payment', 'CheckoutController@payment')->middleware('verify.checkout.payment');
+
+        // 點餐單結帳
+        Route::post('payment/menu_order/{menuOrderNo}', 'CheckoutController@menuPayment')->middleware('verify.checkout.payment.menu');
+
+        // 重新結帳
+        Route::post('payment/repay/{orderNo}', 'CheckoutController@repay');
+
+        // apple 商家驗證
+        Route::post('payment/bluenewpay/applepay/merchant', 'CheckoutController@merchantValidation');
     });
 });

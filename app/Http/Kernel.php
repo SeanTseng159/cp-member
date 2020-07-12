@@ -91,6 +91,8 @@ class Kernel extends HttpKernel
         'throttle' => \App\Http\Middleware\ThrottleRequests::class,
         'admin.jwt' => \App\Http\Middleware\Api\AdminJWT::class,
         'auth.jwt' => \App\Http\Middleware\Api\AuthJWT::class,
+        'guest.jwt' => \App\Http\Middleware\Api\GuestJWT::class,
+        'member.guest.jwt' => \App\Http\Middleware\Api\MemberOrGuestJWT::class,
         'cors' => \Barryvdh\Cors\HandleCors::class,
 
         'verify.guest.login' => \App\Http\Middleware\Verify\GuestLogin::class,

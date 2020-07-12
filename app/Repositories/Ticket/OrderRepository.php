@@ -24,6 +24,7 @@ use App\Models\Ticket\Order;
 use App\Models\Ticket\OrderDiscount;
 use App\Models\Ticket\ProductSpecPrice;
 use App\Models\Ticket\PromotionProdSpecPrice;
+use App\Repositories\Ticket\GuestOrderRepository;
 
 class OrderRepository extends BaseRepository
 {
@@ -31,18 +32,21 @@ class OrderRepository extends BaseRepository
     protected $orderDetailRepository;
     protected $seqOrderRepository;
     protected $orderShipmentRepository;
+    protected $guestOrderRepository;
 
     public function __construct(
         Order $model,
         OrderDetailRepository $orderDetailRepository,
         SeqOrderRepository $seqOrderRepository,
-        OrderShipmentRepository $orderShipmentRepository
+        OrderShipmentRepository $orderShipmentRepository,
+        GuestOrderRepository $guestOrderRepository
     ) {
         $this->redis = new Redis;
         $this->model = $model;
         $this->orderDetailRepository = $orderDetailRepository;
         $this->seqOrderRepository = $seqOrderRepository;
         $this->orderShipmentRepository = $orderShipmentRepository;
+        $this->guestOrderRepository = $guestOrderRepository;
     }
 
     /**
@@ -98,6 +102,12 @@ class OrderRepository extends BaseRepository
                 $key = sprintf(CheckoutKey::CREDIT_CARD_KEY, $params->memberId);
                 $this->redis->set($key, $params->payment, CacheConfig::TEN_MIN);
             }*/
+
+            // 訪客訂單須記錄姓名跟電話
+            if ($params->action === 'guest') {
+                $result = $this->guestOrderRepository->create($order->order_id, $params->orderer);
+                if (!$result) throw new Exception('Create Guest Order Error');
+            }
 
             // 有實體商品才存物流資訊
             if ($params->shipment['id'] == 2) {
@@ -438,7 +448,7 @@ class OrderRepository extends BaseRepository
     public function findCanShowByOrderNo($memberId = 0, $orderNo = 0)
     {
         if (!$orderNo) return null;
-        
+
         $order = $this->model->with(['details.combo', 'shipment', 'discountCode'])
             ->notDeleted()
             ->where('member_id', $memberId)

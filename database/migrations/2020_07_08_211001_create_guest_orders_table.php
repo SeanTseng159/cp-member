@@ -17,7 +17,9 @@ class CreateGuestOrdersTable extends Migration
             $table->increments('id');
             $table->unsignedInteger('order_id')->comment('訂單ID');
             $table->string('name', 20)->comment('名稱');
-            $table->string('phone', 12)->comment('行動電話號碼');
+            $table->string('country', 6)->nullable()->comment('國籍代碼');
+            $table->string('countryCode', 6)->nullable()->comment('電話國碼');
+            $table->string('cellphone', 12)->nullable()->comment('行動電話號碼');
             $table->timestamps();
             $table->softDeletes();
         });

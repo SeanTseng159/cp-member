@@ -28,10 +28,11 @@ trait CartHelper
         $paymentMethodService = app()->build(PaymentMethodService::class);
         $all = $paymentMethodService->all();
 
-        $result['payments'] = (new PaymentInfoResult)->getPayments($all, $source);
         // 取付款方式
+        $result['payments'] = (new PaymentInfoResult)->getPayments($all, $source);
+        // 取運送方式
         $result['shipments'] = (new PaymentInfoResult)->getShipments($isPhysical, $source, $shipments_type);
-            // 取發票方式
+        // 取發票方式
         $result['billings'] = (new PaymentInfoResult)->getBillings();
 
         return $result;
@@ -66,7 +67,7 @@ trait CartHelper
      * @param $products
      * @param $promotion
      * @param $memberId
-     * @param $isPurchase
+     * @param $isPurchase 是否加購商品
      * @return mixed
      */
     private function checkCartProductStatus($cartType, $products, $promotion, $memberId, $isPurchase = false)
@@ -85,6 +86,9 @@ trait CartHelper
             // 賣場需取特定價格跟庫存
             if ($cartType === 'market') {
                 $prod = $promotionService->product($promotion['marketId'], $product->id, $product->additional->spec->id, $product->additional->type->id);
+            }
+            elseif ($cartType === 'guest') {
+                $prod = $productService->findByCheckout2($product->id, $product->additional->spec->id, $product->additional->type->id);
             }
             else {
                 $prod = $productService->findByCheckout($product->id, $product->additional->spec->id, $product->additional->type->id);
@@ -111,7 +115,7 @@ trait CartHelper
      * @param $memberId
      * @return mixed
      */
-    private function checkProductStatus($cartType, $product, $quantity, $memberId)
+    private function checkProductStatus($cartType, $product, $quantity, $memberId = 0)
     {
         if ($cartType === 'market') {
             // 檢查賣場可銷庫量是否足夠
@@ -121,13 +125,17 @@ trait CartHelper
             // 檢查限購數量
             $buyQuantity = $quantity;
             if ($product->prod_type === 1 || $product->prod_type === 2) {
-                if ($product->prod_limit_type === 1) {
+                // 一般商品 || 組合商品
+
+                // 會員限購
+                if ($memberId && $product->prod_limit_type === 1) {
                     $memberBuyQuantity = $this->orderService->getCountByProdAndMember($product->product_id, $memberId);
                     $buyQuantity += $memberBuyQuantity;
                 }
                 if ($buyQuantity > $product->prod_limit_num) return 'E9012';
             }
             elseif ($product->prod_type === 3) {
+                // 加購商品
                 if ($buyQuantity > $product->prod_plus_limit) return 'E9012';
             }
         }
