@@ -33,19 +33,21 @@ class OrderController extends RestLaravelController
      * @param $request
      * @return mixed
      */
-    public function search(Request $request)
+    public function detail(Request $request)
     {
         try {
-            $params = (new OrderParameter($request))->search();
+            $params = (new OrderParameter($request))->detail();
 
             $guestOrder = $this->service->findByPhone($params);
+
+            if (!$guestOrder) return $this->failureCode('E0101');
 
             $result = (new OrderResult)->get($guestOrder->order, true, $guestOrder->name);
 
             return $this->success($result);
         } catch (Exception $e) {
             Logger::error('Guest order search Error', $e->getMessage());
-            return $this->failureCode('E9021');
+            return $this->failureCode('E0101');
         }
     }
 }

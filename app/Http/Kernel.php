@@ -117,7 +117,7 @@ class Kernel extends HttpKernel
         'verify.checkout.shipmentForConfim' => \App\Http\Middleware\Verify\Checkout\shipmentForConfim::class,
         'verify.checkout.payment' => \App\Http\Middleware\Verify\Checkout\Payment::class,
         'verify.checkout.payment.menu' => MenuPayment::class,
-        'verify.guest.order.search' => \App\Http\Middleware\Verify\Order\Guest\Search::class,
+        'verify.guest.order.detail' => \App\Http\Middleware\Verify\Order\Guest\Detail::class,
 
         'verify.partner.join' => \App\Http\Middleware\Verify\PartnerJoin::class,
     ];

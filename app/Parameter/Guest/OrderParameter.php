@@ -11,7 +11,7 @@ class OrderParameter extends BaseParameter
         parent::__construct($request);
     }
 
-    public function search()
+    public function detail()
     {
         $this->orderNo = $this->request->input('orderNo');
         $this->phoneNumber = $this->request->phoneNumber;

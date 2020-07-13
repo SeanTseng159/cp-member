@@ -10,7 +10,7 @@ use App\Traits\ApiResponseHelper;
 use App\Traits\ValidatorHelper;
 
 
-class Search
+class Detail
 {
     use ApiResponseHelper;
     use ValidatorHelper;
