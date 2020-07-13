@@ -14,8 +14,11 @@ class GuestOrder extends BaseModel
 {
     protected $connection = 'backend';
 
-    public function __construct()
+    /**
+     * 取得訂單
+     */
+  	public function order()
     {
-
-    }
+        return $this->hasOne('App\Models\Ticket\Order', 'order_id', 'order_id');
+	}
 }

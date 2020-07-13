@@ -450,9 +450,15 @@ Route::middleware(['cors', 'auth.jwt'])->namespace('V1')->group(function () {
 
 // 需 token 認證的 route (Guest 用)
 Route::middleware(['cors', 'guest.jwt'])->namespace('V1\Guest')->prefix('guest')->group(function () {
-    // 檢查購物車內容跟取付款資訊
+    // 結帳相關
     Route::prefix('checkout')->group(function () {
+        // 檢查購物車內容跟取付款資訊
         Route::get('info', 'CheckoutController@info');
+    });
+
+    // 訂單相關
+    Route::prefix('order')->group(function () {
+        Route::get('search', 'OrderController@search')->middleware('verify.guest.order.search');
     });
 });
 
