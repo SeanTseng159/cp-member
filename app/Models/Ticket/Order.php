@@ -42,6 +42,14 @@ class Order extends BaseModel
         return $this->hasOne('App\Models\Ticket\OrderShipment', 'order_id', 'order_id');
     }
 
+    /**
+     * 取得訪客訂單相關資訊
+     */
+    public function guestOrder()
+    {
+        return $this->hasOne('App\Models\Ticket\GuestOrder', 'order_id', 'order_id');
+    }
+
     /*
      * 優惠代碼資訊
      */

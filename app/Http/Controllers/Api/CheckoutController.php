@@ -18,6 +18,7 @@ use Ksd\Mediation\CityPass\Order;
 use App\Services\Card3dLogService as LogService;
 use App\Services\Ticket\OrderService as TicketOrderService;
 use App\Jobs\Mail\OrderPaymentCompleteMail;
+use App\Jobs\SMS\OrderPaymentComplete as OrderPaymentCompleteSMS;
 use Log;
 
 use App\Result\Ticket\OrderResult;
@@ -303,27 +304,30 @@ class CheckoutController extends RestLaravelController
             $result = $this->service->feedback($record);
 
             // 寄送linepay付款完成通知信
-            // $ticketOrderService = app()->build(TicketOrderService::class);
-            // $order = $ticketOrderService->findByOrderNo($record['orderNo']);
-            dispatch(new OrderPaymentCompleteMail($request->memberId, 'ct_pass', $orderId))->delay(5);
+            if ($request->memberId == 0) {
+                // 訪客
+                dispatch(new OrderPaymentCompleteSMS($orderId))->delay(10);
+            }
+            else {
+                // 一般會員
+                dispatch(new OrderPaymentCompleteMail($request->memberId, 'ct_pass', $orderId))->delay(10);
+            }
         }
 
-        // 撈取訂單
-        /*$orderModel = app()->build(Order::class);
-        $order = $orderModel->authorization($request->token)->find($orderId);
-
-        // 取訂單擁有者
-        if (isset($order[0]) && $order[0]) {
-            $memberService = app()->build(MemberService::class);
-            $member = $memberService->find($request->memberId);
-            $memberName = ($member) ? $member->name : '';
-            $order[0]->orderer = $this->hideName($memberName);
-        }*/
 
         // 撈取訂單 (new)
         $ticketOrderService = app()->build(TicketOrderService::class);
-        $order = $ticketOrderService->findByOrderNo($orderId);
-        $newOrder[] = (new OrderResult)->get($order, true);
+
+        if ($request->memberId == 0) {
+            // 訪客
+            $order = $ticketOrderService->findByOrderNoWithGuestOrder($orderId);
+            $newOrder[] = (new OrderResult)->get($order, true, $order->guestOrder->name);
+        }
+        else {
+            // 一般會員
+            $order = $ticketOrderService->findByOrderNo($orderId);
+            $newOrder[] = (new OrderResult)->get($order, true);
+        }
 
         return $this->success($newOrder);
     }
@@ -334,7 +338,7 @@ class CheckoutController extends RestLaravelController
      * @return \Illuminate\Http\JsonResponse
      */
     public function feedbackPay(Request $request){
-        
+
         $parameters= [
             'orderNo' => $request->input('orderNo'),
             'amount'   => $request->input('amount'),

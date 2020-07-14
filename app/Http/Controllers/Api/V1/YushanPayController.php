@@ -16,6 +16,7 @@ use Ksd\Payment\Services\YushanPayService;
 
 use App\Core\Logger;
 use App\Jobs\Mail\OrderPaymentCompleteMail;
+use App\Jobs\SMS\OrderPaymentComplete as OrderPaymentCompleteSMS;
 use Ksd\Mediation\Services\CheckoutService;
 use Agent;
 use Carbon\Carbon;
@@ -58,12 +59,12 @@ class YushanPayController extends RestLaravelController
                 $murl=env('CITY_PASS_WEB');
             }
             //$pno=$orderNumber;
-            $pno=$request->input('orderNumber'); 
+            $pno=$request->input('orderNumber');
             $ntd=$order->order_amount;
             $return_url=env('CITY_PASS_WEB').'processing';
             $ttime=Carbon::now()->format('YmdHis');
             $pname=$orderNumber;
-            $data=collect($order->detail)->groupBy('prod_spec_price_id');            
+            $data=collect($order->detail)->groupBy('prod_spec_price_id');
             //將資料整理一下
             $result=['seller_id'=>$seller_id,
                     'device'=>$device,
@@ -88,7 +89,7 @@ class YushanPayController extends RestLaravelController
             // }
             //排序後要處理pcode
             ksort($result);
-            
+
             $wordPcode='';
             foreach ($result as $value){
                 $wordPcode=$wordPcode.$value;
@@ -131,7 +132,7 @@ class YushanPayController extends RestLaravelController
                 ];
                 //修改訂單,送去TPSS專案裡面修改訂單資訊
                 $result = $this->checkoutService->feedbackPay($parameters);
-                
+
                 $order = $this->orderService->findByOrderNo((string)$res->Orders->Order->pno);
                 if(empty($order)){
                     throw new Exception('沒有訂單');
@@ -139,7 +140,16 @@ class YushanPayController extends RestLaravelController
                 //要送資料送去paymentgetway 紀錄log
                 $result=$this->yushanPayService->saveTransacctions($parameters);
                 // 寄送pay付款完成通知信
-                dispatch(new OrderPaymentCompleteMail($order->member_id, 'ct_pass', $order->order_no))->delay(5);
+
+                if ($order->member_id == 0) {
+                    // 訪客
+                    dispatch(new OrderPaymentCompleteSMS($order->order_no))->delay(10);
+                }
+                else {
+                    // 一般會員
+                    dispatch(new OrderPaymentCompleteMail($order->member_id, 'ct_pass', $order->order_no))->delay(10);
+                }
+
                 //成功回傳空值
                 return $this->success();
             }else{

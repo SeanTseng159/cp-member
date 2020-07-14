@@ -13,6 +13,7 @@ use Ksd\Mediation\Core\Controller\RestLaravelController;
 
 
 use App\Jobs\Mail\OrderPaymentCompleteMail;
+use App\Jobs\SMS\OrderPaymentComplete as OrderPaymentCompleteSMS;
 use App\Services\CartService;
 use App\Services\Ticket\OrderService;
 use App\Services\PaymentService;
@@ -29,6 +30,7 @@ use App\Services\MemberService;
 use Ksd\Payment\Services\BlueNewPayService;
 use Carbon\Carbon;
 use Ksd\Mediation\Services\CheckoutService;
+
 class BlueNewPayController extends RestLaravelController
 {
     use CartHelper;
@@ -98,7 +100,16 @@ class BlueNewPayController extends RestLaravelController
                 $result = $this->checkoutService->feedbackPay($parameters);
                 // 寄送pay付款完成通知信
                 $order = $this->orderService->findByOrderNo($orderNumber);
-                dispatch(new OrderPaymentCompleteMail($order->member_id, 'ct_pass', $order->order_no))->delay(5);
+
+                if ($order->member_id == 0) {
+                    // 訪客
+                    dispatch(new OrderPaymentCompleteSMS($order->order_no))->delay(10);
+                }
+                else {
+                    // 一般會員
+                    dispatch(new OrderPaymentCompleteMail($order->member_id, 'ct_pass', $order->order_no))->delay(10);
+                }
+
                 //成功回傳空
                 return $this->success();
             }else{

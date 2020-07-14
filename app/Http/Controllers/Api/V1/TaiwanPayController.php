@@ -16,6 +16,8 @@ use App\Core\Logger;
 use App\Traits\CartHelper;
 use Ksd\Payment\Services\UpDateOrderStatusService;
 use App\Jobs\Mail\OrderPaymentCompleteMail;
+use App\Jobs\SMS\OrderPaymentComplete as OrderPaymentCompleteSMS;
+
 class TaiwanPayController extends RestLaravelController
 {
     protected $taiwanPayService;
@@ -89,7 +91,16 @@ class TaiwanPayController extends RestLaravelController
                 $this->upDateOrderStatusService->upDateOderDetailByOrderNo($request->input('lidm'),['verified_status'=>'10']);
                 // 寄送linepay付款完成通知信
                 $order = $this->orderService->findByOrderNo($request->input('lidm'));
-                dispatch(new OrderPaymentCompleteMail($order->member_id, 'ct_pass', $order->order_no))->delay(5);
+
+                if ($order->member_id == 0) {
+                  // 訪客
+                  dispatch(new OrderPaymentCompleteSMS($order->order_no))->delay(10);
+                }
+                else {
+                  // 一般會員
+                  dispatch(new OrderPaymentCompleteMail($order->member_id, 'ct_pass', $order->order_no))->delay(10);
+                }
+
                 return $this->success();
             }else{
 

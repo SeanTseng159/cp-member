@@ -425,6 +425,29 @@ class OrderRepository extends BaseRepository
     }
 
     /**
+     * 根據 No 找單一訪客訂單
+     * @param $orderNo
+     * @return mixed
+     */
+    public function findByOrderNoWithGuestOrder($orderNo = 0, $withDetail = true)
+    {
+        if (!$orderNo) return null;
+
+        if ($withDetail) {
+            return $this->model->with(['details.combo', 'shipment', 'guestOrder'])
+            ->notDeleted()
+            ->where('order_no', $orderNo)
+            ->first();
+        }
+        else {
+            return $this->model->with(['guestOrder'])
+            ->notDeleted()
+            ->where('order_no', $orderNo)
+            ->first();
+        }
+    }
+
+    /**
      * 根據 No 找單一訂單的詳細資料
      * @param $orderNo
      * @return mixed

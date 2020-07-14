@@ -17,7 +17,7 @@ use Ksd\SMS\Services\EasyGoService;
 use App\Services\Ticket\OrderService;
 use Log;
 
-class OrderCreated implements ShouldQueue
+class OrderPaymentComplete implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
@@ -53,7 +53,7 @@ class OrderCreated implements ShouldQueue
             $phoneNumber = $order->guestOrder->countryCode . $order->guestOrder->cellphone;
             if ($order->guestOrder->countryCode != '886') $phoneNumber = '+' . $phoneNumber;
 
-            $message = sprintf("親愛的顧客，您好:\n已收到您於CityPass都會通 的訂購資訊，感謝您的訂購。\n\n訂單編號: %s\n訂購時間: %s\n訂單金額: %s\n\n本通知函只是通知您本系統已經收到您的訂購訊息、並供您再次自行核對之用，不代表交易已經確認/完成。\n\n若付款方式選擇【ATM虛擬帳號】，繳款帳號與期限，請於CityPass都會通 訪客購物訂單查詢中查看。", $order->order_no, $order->created_at, $order->order_amount);
+            $message = sprintf("親愛的顧客，您好:\n您於CityPass都會通的訂單 %s 已經繳費成功。 請您放心謝謝！\n\n若為ATM虛擬帳號付款，請等待一個小時，待系統和銀行端核對金額後，訂單狀態會自動更新。\n\n基於資料安全，在此不再顯示訂單明細，請於CityPass都會通 訪客購物訂單查詢中查看。", $order->order_no);
 
             $easyGoService = new EasyGoService;
             return $easyGoService->setLongFlag(true)->send($phoneNumber, $message);

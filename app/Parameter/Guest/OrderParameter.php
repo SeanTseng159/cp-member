@@ -14,6 +14,13 @@ class OrderParameter extends BaseParameter
     public function detail()
     {
         $this->orderNo = $this->request->input('orderNo');
+
+        return $this;
+    }
+
+    public function search()
+    {
+        $this->orderNo = $this->request->input('orderNo');
         $this->phoneNumber = $this->request->phoneNumber;
 
         return $this;

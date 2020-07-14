@@ -114,7 +114,7 @@ class CheckoutController extends RestLaravelController
 
             // 寄送訂單成立通知信 (訪客寄送簡訊)
             if ($params->action === 'guest') {
-                dispatch(new OrderCreated($params->orderer, $order->order_no))->delay(10);
+                dispatch(new OrderCreated($order->order_no))->delay(10);
             }
             else {
                 dispatch(new OrderCreatedMail($params->memberId, 'ct_pass', $order->order_no))->delay(10);

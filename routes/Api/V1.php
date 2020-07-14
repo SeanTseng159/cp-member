@@ -459,6 +459,8 @@ Route::middleware(['cors', 'guest.jwt'])->namespace('V1\Guest')->prefix('guest')
     // 訂單相關
     Route::prefix('order')->group(function () {
         Route::get('detail', 'OrderController@detail')->middleware('verify.guest.order.detail');
+
+        Route::get('search', 'OrderController@search')->middleware('verify.guest.order.search');
     });
 });
 
