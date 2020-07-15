@@ -43,7 +43,7 @@ class OrderController extends RestLaravelController
 
             $order = $this->orderService->findByOrderNoWithGuestOrder($params->orderNo);
 
-            if (!$order) return $this->failureCode('E0101');
+            if (!$order || !$order->guestOrder) return $this->failureCode('E0101');
 
             $result = (new OrderResult)->get($order, true, $order->guestOrder->name);
 

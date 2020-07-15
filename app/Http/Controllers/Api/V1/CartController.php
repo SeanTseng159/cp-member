@@ -122,6 +122,7 @@ class CartController extends RestLaravelController
                     }
                 }
 
+                // 如果商品有問題
                 if ($checkStatusCode !== '00000') return $this->failureCode($checkStatusCode, $notEnoughStocks);
 
                 $products[0]->purchase = $prods;
@@ -129,8 +130,10 @@ class CartController extends RestLaravelController
 
             // 處理購物車格式
             $cart = (new CartResult)->get('buyNow', $products, true);
+
             // 加入快取購物車
-            $this->cartService->add('buyNow', $param->memberId, serialize($cart));
+            $cartKey = ($param->memberId === 0) ? md5($param->token) : $param->memberId;
+            $this->cartService->add('buyNow', $cartKey, serialize($cart));
 
             // 輸出簡化購物車
             $result['cart'] = (new CartResult)->simplify($cart);
@@ -193,6 +196,8 @@ class CartController extends RestLaravelController
                 $totalAmount += $prods[$k]->prod_spec_price_value * $prods[$k]->quantity;
                 $totalQuantity += $prods[$k]->quantity;
             }
+
+            // 如果商品有問題
             if ($checkStatusCode !== '00000') return $this->failureCode($checkStatusCode, $notEnoughStocks);
 
 
@@ -229,7 +234,8 @@ class CartController extends RestLaravelController
             $param = (new CartParameter($request))->info();
 
             // 取購物車內容
-            $cart = $this->cartService->find($param->action, $param->memberId);
+            $cartKey = ($param->memberId === 0) ? md5($param->token) : $param->memberId;
+            $cart = $this->cartService->find($param->action, $cartKey);
             if (!$cart) return $this->failureCode('E9021');
             $cart = unserialize($cart);
 

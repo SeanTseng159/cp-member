@@ -52,7 +52,7 @@ class Payment
         }
 
         // 訪客訂單，需檢查訂購人
-        if ($data['action'] === 'guest') {
+        if ($request->memberId === 0) {
             $validatorParams['orderer.name'] = 'required';
             $validatorParams['orderer.country'] = 'required';
             $validatorParams['orderer.countryCode'] = 'required';
@@ -83,7 +83,7 @@ class Payment
 
 
         // 訪客訂單，確認訂購人手機格式
-        if ($data['action'] === 'guest') {
+        if ($request->memberId === 0) {
             $phoneNumber = $this->VerifyPhoneNumber($data['orderer']['country'], $data['orderer']['countryCode'], $data['orderer']['cellphone']);
             if (!$phoneNumber) return $this->apiRespFailCode('E9022');
         }

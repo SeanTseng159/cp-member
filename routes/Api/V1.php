@@ -319,15 +319,6 @@ Route::middleware(['cors', 'auth.jwt'])->namespace('V1')->group(function () {
     Route::prefix('cart')->group(function () {
         // 取得一次性購物車資訊並加入購物車(依來源) (magento)
         Route::get('one-off', 'CartController@oneOff');
-
-        // 立即購買
-        Route::post('buyNow', 'CartController@buyNow')->middleware('verify.cart.buyNow');
-
-        // 獨立賣場立即購買
-        Route::post('buyNow/market', 'CartController@market')->middleware('verify.cart.buyNow.market');
-
-        // 取立即購買 (購物車跟付款資訊)
-        Route::get('buyNow/info', 'CartController@info')->middleware('verify.cart.buyNow.info');
     });
 
     Route::prefix('DiscountCode')->group(function () {
@@ -483,5 +474,17 @@ Route::middleware(['cors', 'member.guest.jwt'])->namespace('V1')->group(function
 
         // apple 商家驗證
         Route::post('payment/bluenewpay/applepay/merchant', 'CheckoutController@merchantValidation');
+    });
+
+    // 購物車相關
+    Route::prefix('cart')->group(function () {
+        // 立即購買
+        Route::post('buyNow', 'CartController@buyNow')->middleware('verify.cart.buyNow');
+
+        // 獨立賣場立即購買
+        Route::post('buyNow/market', 'CartController@market')->middleware('verify.cart.buyNow.market');
+
+        // 取立即購買 (購物車跟付款資訊)
+        Route::get('buyNow/info', 'CartController@info')->middleware('verify.cart.buyNow.info');
     });
 });

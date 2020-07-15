@@ -88,7 +88,7 @@ class CheckoutController extends RestLaravelController
             $params = (new CheckoutParameter($request))->payment();
 
             // 取快取購物車
-            $cartKey = ($params->action === 'guest') ? md5($request->token) : $params->memberId;
+            $cartKey = ($params->memberId === 0) ? md5($request->token) : $params->memberId;
             $cart = $this->cartService->find($params->action, $cartKey);
             $cart = unserialize($cart);
 
@@ -113,7 +113,7 @@ class CheckoutController extends RestLaravelController
                 throw new CustomException('E9001');
 
             // 寄送訂單成立通知信 (訪客寄送簡訊)
-            if ($params->action === 'guest') {
+            if ($params->memberId === 0) {
                 dispatch(new OrderCreated($order->order_no))->delay(10);
             }
             else {

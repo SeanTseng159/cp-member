@@ -104,7 +104,7 @@ class OrderRepository extends BaseRepository
             }*/
 
             // 訪客訂單須記錄姓名跟電話
-            if ($params->action === 'guest') {
+            if ($params->memberId === 0) {
                 $result = $this->guestOrderRepository->create($order->order_id, $params->orderer);
                 if (!$result) throw new Exception('Create Guest Order Error');
             }

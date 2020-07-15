@@ -77,6 +77,9 @@ class CheckoutController extends RestLaravelController
                 $totalQuantity += $prods[$k]->quantity;
             }
 
+            // 如果商品有問題
+            if ($checkStatusCode !== '00000') return $this->failureCode($checkStatusCode, $notEnoughStocks);
+
             // 取運費
             $shippingFeeDetail = ($hasPhysical) ? $shippingFeeDetailService->findBySupplierId($params->supplierId) : null;
 
