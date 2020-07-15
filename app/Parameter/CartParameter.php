@@ -39,6 +39,8 @@ class CartParameter extends BaseParameter
         $this->marketId = $this->request->input('marketId', 0);
         $this->products = $this->request->input('products');
 
+        $this->token = $this->request->token;
+
         return $this;
     }
 

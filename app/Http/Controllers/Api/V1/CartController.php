@@ -82,7 +82,7 @@ class CartController extends RestLaravelController
             $isPhysical = false;
 
             // 檢查商品
-            $products[0] = $this->productService->findByCheckout($param->productId, $param->specId, $param->specPriceId, true);
+            $products[0] = $this->productService->findByCheckout($param->productId, $param->specId, $param->specPriceId, false);
 
             // 檢查商品是否存在
             if (!$products[0]) return $this->failureCode('E9010');
@@ -168,6 +168,7 @@ class CartController extends RestLaravelController
             $isOnSale = $this->checkOnSale($promotion->onsale_time, $promotion->offsale_time);
             if (!$isOnSale) return $this->failureCode('E9204');
 
+
             // 檢查所有商品狀態
             $checkStatusCode = '00000';
             $totalAmount = 0;
@@ -175,7 +176,8 @@ class CartController extends RestLaravelController
             $isPhysical = false;
             foreach ($params->products as $k => $product) {
                 // 取商品
-                $prods[$k] = $this->promotionService->product($params->marketId, $product['id'], $product['specId'], $product['specPriceId'], true);
+                $prods[$k] = $this->promotionService->product($params->marketId, $product['id'], $product['specId'], $product['specPriceId'], false);
+
                 // 檢查商品是否存在
                 if (!$prods[$k]) return $this->failureCode('E9010');
 
@@ -208,7 +210,8 @@ class CartController extends RestLaravelController
             // 處理購物車格式
             $cart = (new CartResult)->get('market', $prods, true, $promotion);
             // 加入快取購物車
-            $this->cartService->add('market', $params->memberId, serialize($cart));
+            $cartKey = ($params->memberId === 0) ? md5($params->token) : $params->memberId;
+            $this->cartService->add('market', $cartKey, serialize($cart));
 
             // 輸出簡化購物車
             $result['cart'] = (new CartResult)->simplify($cart);
@@ -218,8 +221,9 @@ class CartController extends RestLaravelController
 
             return $this->success($result);
         } catch (Exception $e) {
-            Logger::error('Market buyNow Error', $e->getMessage());
-            return $this->failureCode('E9013');
+            var_dump($e->getMessage());
+            // Logger::error('Market buyNow Error', $e->getMessage());
+            // return $this->failureCode('E9013');
         }
     }
 

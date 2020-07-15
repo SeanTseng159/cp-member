@@ -96,7 +96,7 @@ class PromotionRepository extends BaseRepository
             $prod->marketStock = $promotionProd->stock;
         }
 
-        if ($hasTag) {
+        if ($prod && $hasTag) {
             $prod->tags = $this->tagProdRepository->getTagsByProdId($prodId);
         }
 
