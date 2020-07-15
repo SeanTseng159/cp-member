@@ -35,4 +35,13 @@ class DiscountCodeService
     {
         return $this->repository->getEnableDiscountCode($code);
     }
+
+    /**
+     * 取得商品可以用折扣
+     * @return array
+     */
+    public function allEnableDiscountByProd($prodId)
+    {
+        return $this->repository->allEnableDiscountByProd($prodId);
+    }
 }
