@@ -29,4 +29,9 @@ class TicketService extends BaseService
     {
         return $this->orderDetailRepository->tickets($lang, $parameter);
     }
+
+
+    public function forKRTTest(){
+        return $this->orderDetailRepository->forKRTTest();
+    }
 }
