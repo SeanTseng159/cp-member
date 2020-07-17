@@ -78,7 +78,7 @@ class TicketResult extends BaseResult
         $result['place'] = $this->arrayDefault($order, 'prod_locate');
         $result['address'] = $this->arrayDefault($order, 'prod_address');
         $result['price'] = $this->arrayDefault($order, 'price_off');
-        $result['qrcode'] = ($prodType === 2) ? null : (($status===3) ? null:$this->arrayDefault($order, 'order_detail_qrcode'));
+        $result['qrcode'] = ($prodType === 2) ? null : (($status==3) ? null:$this->arrayDefault($order, 'order_detail_qrcode'));
         $result['status'] = $status;
         $result['catalogId'] = $this->arrayDefault($order, 'catalog_id');
         $result['giftAt'] = $this->arrayDefault($order, 'ticket_gift_at');
