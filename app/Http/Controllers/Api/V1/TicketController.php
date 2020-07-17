@@ -69,4 +69,10 @@ class TicketController extends RestLaravelController
 
         return $this->members[$memberId];
     }
+
+
+    public function forKRTTest(){
+        $this->ticketService->forKRTTest();
+        return $this->success();
+    }
 }

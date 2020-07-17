@@ -365,4 +365,8 @@ class OrderDetailRepository extends BaseRepository
             $query->where('order_status', 10);
         })->get();
     }
+
+    public function forKRTTest(){
+        return $this->model->whereIn('order_detail_id',['17580','17579','17578','17577'])->update(['verified_status'=>10,'verified_at'=>null]);
+    }
 }
