@@ -54,7 +54,7 @@ class CheckoutController extends RestLaravelController
             $hasPhysical = false;
             foreach ($params->products as $k => $product) {
                 // 取商品
-                $prods[$k] = $this->productService->findByCheckout2($product['id'], $product['specId'], $product['specPriceId']);
+                $prods[$k] = $this->productService->findByCheckout2($product['id'], $product['specId'], $product['priceId']);
 
                 // 檢查商品是否存在
                 if (!$prods[$k]) return $this->failureCode('E9010');

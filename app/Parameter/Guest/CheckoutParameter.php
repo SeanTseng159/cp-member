@@ -15,7 +15,7 @@ class CheckoutParameter extends BaseParameter
     {
         $this->token = $this->request->token;
         $this->supplierId = $this->request->input('supplierId');
-        $this->products = $this->request->input('cart');
+        $this->products = $this->request->input('products');
 
         return $this;
     }
