@@ -72,9 +72,35 @@ class CheckoutController extends RestLaravelController
                     $notEnoughStocks[] = $prods[$k]->prod_spec_price_id;
                 }
 
-                // 累積總價跟數量
-                $totalAmount += $prods[$k]->prod_spec_price_value * $prods[$k]->quantity;
-                $totalQuantity += $prods[$k]->quantity;
+                // 檢查加購商品
+                if (isset($product['purchase']) && is_array($product['purchase'])) {
+                    $purchase = [];
+                    foreach ($product['purchase'] as $k => $prod) {
+                        // 檢查商品
+                        $purchase[$k] = $this->productService->findAdditionalByCheckout2($prod['id'], $prod['specId'], $prod['priceId']);
+
+                        // 檢查商品是否存在
+                        if (!$purchase[$k]) return $this->failureCode('E9010');
+
+                        // 帶入購買數量
+                        $purchase[$k]->quantity = $prod['quantity'];
+
+                        // 是否有實體商品
+                        if ($purchase[$k]->is_physical) $isPhysical = true;
+
+                        // 檢查商品狀態, 是否可購買
+                        $statusCode = $this->checkProductStatus('guest', $purchase[$k], $purchase[$k]->quantity);
+                        if ($statusCode !== '00000') {
+                            $checkStatusCode = $statusCode;
+                            $notEnoughStocks[] = $purchase[$k]->prod_spec_price_id;
+                        }
+                    }
+
+                    // 如果商品有問題
+                    if ($checkStatusCode !== '00000') return $this->failureCode($checkStatusCode, $notEnoughStocks);
+
+                    $prods[$k]->purchase = $purchase;
+                }
             }
 
             // 如果商品有問題
@@ -97,8 +123,9 @@ class CheckoutController extends RestLaravelController
 
             return $this->success($result);
         } catch (Exception $e) {
-            Logger::error('Guest cart info Error', $e->getMessage());
-            return $this->failureCode('E9021');
+            var_dump($e->getMessage());
+            //Logger::error('Guest cart info Error', $e->getMessage());
+            // return $this->failureCode('E9021');
         }
     }
 }

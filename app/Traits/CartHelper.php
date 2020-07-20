@@ -44,7 +44,7 @@ trait CartHelper
      * @param $memberId
      * @return mixed
      */
-    private function checkCartStatus($cart, $memberId)
+    private function checkCartStatus($cart, $memberId = 0)
     {
         if (!$cart) return 'E9030';
 
@@ -88,10 +88,20 @@ trait CartHelper
                 $prod = $promotionService->product($promotion['marketId'], $product->id, $product->additional->spec->id, $product->additional->type->id);
             }
             elseif ($cartType === 'guest') {
-                $prod = $productService->findByCheckout2($product->id, $product->additional->spec->id, $product->additional->type->id);
+                if ($isPurchase) {
+                    $prod = $productService->findAdditionalByCheckout2($product->id, $product->additional->spec->id, $product->additional->type->id);
+                }
+                else {
+                    $prod = $productService->findByCheckout2($product->id, $product->additional->spec->id, $product->additional->type->id);
+                }
             }
             else {
-                $prod = $productService->findByCheckout($product->id, $product->additional->spec->id, $product->additional->type->id);
+                if ($isPurchase) {
+                    $prod = $productService->findAdditionalByCheckout($product->id, $product->additional->spec->id, $product->additional->type->id);
+                }
+                else {
+                    $prod = $productService->findByCheckout($product->id, $product->additional->spec->id, $product->additional->type->id);
+                }
             }
 
             // 檢查商品狀態, 是否可購買

@@ -35,6 +35,7 @@ class CheckoutController extends RestLaravelController
 {
     use CartHelper;
     use MemberHelper;
+
     protected $cartService;
     protected $orderService;
     protected $menuOrderService;
@@ -87,6 +88,7 @@ class CheckoutController extends RestLaravelController
         try {
             $params = (new CheckoutParameter($request))->payment();
 
+
             // 取快取購物車
             $cartKey = ($params->memberId === 0) ? md5($request->token) : $params->memberId;
             $cart = $this->cartService->find($params->action, $cartKey);
@@ -102,10 +104,10 @@ class CheckoutController extends RestLaravelController
                 $cart=$this->cartService->countDiscount($cart, $discount, $this->getMemberId());
             }
 
-
             //檢查購物車內所有狀態是否可購買
             $statusCode = $this->checkCartStatus($cart, $params->memberId);
             if ($statusCode !== '00000') return $this->failureCode($statusCode);
+
 
             // 成立訂單
             $order = $this->orderService->create($params, $cart);
@@ -136,8 +138,9 @@ class CheckoutController extends RestLaravelController
             Logger::error('payment Error', $e->getMessage());
             return $this->failureCode($e->getMessage());
         } catch (Exception $e) {
-            Logger::error('payment Error', $e->getMessage());
-            return $this->failureCode('E9006');
+            var_dump($e->getMessage());
+            //Logger::error('payment Error', $e->getMessage());
+            //return $this->failureCode('E9006');
         }
     }
 

@@ -444,7 +444,7 @@ Route::middleware(['cors', 'guest.jwt'])->namespace('V1\Guest')->prefix('guest')
     // 結帳相關
     Route::prefix('checkout')->group(function () {
         // 檢查購物車內容跟取付款資訊
-        Route::get('info', 'CheckoutController@info');
+        Route::post('info', 'CheckoutController@info');
     });
 
     // 訂單相關

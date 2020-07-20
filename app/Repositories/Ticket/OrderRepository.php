@@ -145,6 +145,22 @@ class OrderRepository extends BaseRepository
                     break;
                 }
 
+                // 加購商品
+                if ($item->purchase) {
+                    foreach ($item->purchase as $prod) {
+                        $psp = ProductSpecPrice::find($prod->additional->type->id);
+                        $stock = $psp->prod_spec_price_stock - $prod->quantity;
+
+                        if ($stock > 0) {
+                            $psp->prod_spec_price_stock = $stock;
+                            $psp->save();
+                        } else {
+                            throw new CustomException('E9011');
+                            break;
+                        }
+                    }
+                }
+
                 // 扣除獨立賣場 商品庫存
                 if ($cart->type !== 'market') continue;
 

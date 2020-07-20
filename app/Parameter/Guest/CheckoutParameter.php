@@ -14,7 +14,7 @@ class CheckoutParameter extends BaseParameter
     public function info()
     {
         $this->token = $this->request->token;
-        $this->supplierId = $this->request->input('supplierId');
+        $this->supplierId = $this->request->input('cartNumber');
         $this->products = $this->request->input('products');
 
         return $this;
