@@ -216,7 +216,7 @@ class CheckoutRepository extends BaseRepository
         if ($orderFlag) {
             if ($data->member_id == 0) {
                 // 訪客
-            dispatch(new OrderPaymentCompleteSMS($data->order_id))->delay(10);
+                dispatch(new OrderPaymentCompleteSMS($data->order_id))->delay(10);
             }
             else {
                 // 一般會員

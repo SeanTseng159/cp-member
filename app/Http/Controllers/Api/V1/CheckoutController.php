@@ -103,6 +103,10 @@ class CheckoutController extends RestLaravelController
 
                 $cart=$this->cartService->countDiscount($cart, $discount, $this->getMemberId());
             }
+<<<<<<< HEAD
+=======
+
+>>>>>>> feature/guestShopping
 
             //檢查購物車內所有狀態是否可購買
             $statusCode = $this->checkCartStatus($cart, $params->memberId);
@@ -141,6 +145,29 @@ class CheckoutController extends RestLaravelController
             var_dump($e->getMessage());
             //Logger::error('payment Error', $e->getMessage());
             //return $this->failureCode('E9006');
+        }
+    }
+
+    // 訂單成立後，處理付款
+    private function paymentHandle($params, $payParams, $cartKey)
+    {
+        try {
+            $result = $this->paymentService->payment($params->payment, $payParams);
+
+            // 訂單已成立，刪除購物車
+            $this->cartService->delete($params->action, $cartKey);
+
+            return $result;
+        } catch (CustomException $e) {
+            // 訂單已成立，刪除購物車
+            $this->cartService->delete($params->action, $cartKey);
+
+            throw new CustomException($e->getMessage());
+        } catch (Exception $e) {
+            // 訂單已成立，刪除購物車
+            $this->cartService->delete($params->action, $cartKey);
+
+            throw new CustomException('E9006');
         }
     }
 

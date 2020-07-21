@@ -123,9 +123,8 @@ class CheckoutController extends RestLaravelController
 
             return $this->success($result);
         } catch (Exception $e) {
-            var_dump($e->getMessage());
-            //Logger::error('Guest cart info Error', $e->getMessage());
-            // return $this->failureCode('E9021');
+            Logger::error('Guest cart info Error', $e->getMessage());
+            return $this->failureCode('E9021');
         }
     }
 }

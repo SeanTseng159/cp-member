@@ -20,5 +20,5 @@ class GuestOrder extends BaseModel
   	public function order()
     {
         return $this->hasOne('App\Models\Ticket\Order', 'order_id', 'order_id');
-	}
+    }
 }

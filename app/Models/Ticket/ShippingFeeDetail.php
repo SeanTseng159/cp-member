@@ -11,5 +11,5 @@ use App\Models\Ticket\BaseModel;
 
 class ShippingFeeDetail extends BaseModel
 {
-	protected $table = 'shipping_fee_detail';
+    protected $table = 'shipping_fee_detail';
 }
