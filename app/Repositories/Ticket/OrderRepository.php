@@ -1,4 +1,5 @@
 <?php
+
 /**
  * User: lee
  * Date: 2018/05/29
@@ -23,6 +24,7 @@ use App\Models\Ticket\Order;
 use App\Models\Ticket\OrderDiscount;
 use App\Models\Ticket\ProductSpecPrice;
 use App\Models\Ticket\PromotionProdSpecPrice;
+use App\Repositories\Ticket\GuestOrderRepository;
 
 class OrderRepository extends BaseRepository
 {
@@ -30,17 +32,21 @@ class OrderRepository extends BaseRepository
     protected $orderDetailRepository;
     protected $seqOrderRepository;
     protected $orderShipmentRepository;
+    protected $guestOrderRepository;
 
-    public function __construct(Order $model,
-                                OrderDetailRepository $orderDetailRepository,
-                                SeqOrderRepository $seqOrderRepository,
-                                OrderShipmentRepository $orderShipmentRepository)
-    {
+    public function __construct(
+        Order $model,
+        OrderDetailRepository $orderDetailRepository,
+        SeqOrderRepository $seqOrderRepository,
+        OrderShipmentRepository $orderShipmentRepository,
+        GuestOrderRepository $guestOrderRepository
+    ) {
         $this->redis = new Redis;
         $this->model = $model;
         $this->orderDetailRepository = $orderDetailRepository;
         $this->seqOrderRepository = $seqOrderRepository;
         $this->orderShipmentRepository = $orderShipmentRepository;
+        $this->guestOrderRepository = $guestOrderRepository;
     }
 
     /**
@@ -57,7 +63,7 @@ class OrderRepository extends BaseRepository
             DB::connection('backend')->beginTransaction();
 
             $orderNo = $this->seqOrderRepository->getOrderNo();
-            if (!$orderNo) throw new CustomException('E9001');
+            if (!$orderNo) throw new CustomException('E9001S');
 
             $order = new Order;
             $order->member_id = $params->memberId;
@@ -70,7 +76,7 @@ class OrderRepository extends BaseRepository
             $order->order_receipt_method = 1;
             $order->order_items = $cart->totalQuantity;
             $order->order_shipment_fee = $cart->shippingFee;
-            $order->order_off = isset($cart->DiscountCode) ? $cart->DiscountCode->amount : 0;
+            $order->order_off = isset($cart->DiscountCode) ? $cart->DiscountCode->amount : $cart->discountAmount;
             $order->order_amount = $cart->payAmount;
 
             $order->order_status = 0;
@@ -96,6 +102,12 @@ class OrderRepository extends BaseRepository
                 $key = sprintf(CheckoutKey::CREDIT_CARD_KEY, $params->memberId);
                 $this->redis->set($key, $params->payment, CacheConfig::TEN_MIN);
             }*/
+
+            // 訪客訂單須記錄姓名跟電話
+            if ($params->memberId === 0) {
+                $result = $this->guestOrderRepository->create($order->order_id, $params->orderer);
+                if (!$result) throw new Exception('Create Guest Order Error');
+            }
 
             // 有實體商品才存物流資訊
             if ($params->shipment['id'] == 2) {
@@ -131,6 +143,22 @@ class OrderRepository extends BaseRepository
                 } else {
                     throw new CustomException('E9011');
                     break;
+                }
+
+                // 加購商品
+                if ($item->purchase) {
+                    foreach ($item->purchase as $prod) {
+                        $psp = ProductSpecPrice::find($prod->additional->type->id);
+                        $stock = $psp->prod_spec_price_stock - $prod->quantity;
+
+                        if ($stock > 0) {
+                            $psp->prod_spec_price_stock = $stock;
+                            $psp->save();
+                        } else {
+                            throw new CustomException('E9011');
+                            break;
+                        }
+                    }
                 }
 
                 // 扣除獨立賣場 商品庫存
@@ -202,7 +230,8 @@ class OrderRepository extends BaseRepository
             'menu_order_id',
             'menu_id',
             'price',
-            \DB::raw('count(menu_id) as qty'))
+            \DB::raw('count(menu_id) as qty')
+        )
             ->groupBy('menu_order_id', 'menu_id', 'price')
             ->where('menu_order_id', $menuOrder->id)
             ->get();
@@ -248,8 +277,6 @@ class OrderRepository extends BaseRepository
                 $prodSpecPrice->prod_spec_price_stock -= $buyQuantity;
                 $prodSpecPrice->save();
             }
-
-
         }
     }
 
@@ -310,8 +337,6 @@ class OrderRepository extends BaseRepository
             $detail->save();
         }
         return $orderNo;
-
-
     }
 
     /**
@@ -416,6 +441,29 @@ class OrderRepository extends BaseRepository
     }
 
     /**
+     * 根據 No 找單一訪客訂單
+     * @param $orderNo
+     * @return mixed
+     */
+    public function findByOrderNoWithGuestOrder($orderNo = 0, $withDetail = true)
+    {
+        if (!$orderNo) return null;
+
+        if ($withDetail) {
+            return $this->model->with(['details.combo', 'shipment', 'guestOrder'])
+            ->notDeleted()
+            ->where('order_no', $orderNo)
+            ->first();
+        }
+        else {
+            return $this->model->with(['guestOrder'])
+            ->notDeleted()
+            ->where('order_no', $orderNo)
+            ->first();
+        }
+    }
+
+    /**
      * 根據 No 找單一訂單的詳細資料
      * @param $orderNo
      * @return mixed
@@ -439,7 +487,7 @@ class OrderRepository extends BaseRepository
     public function findCanShowByOrderNo($memberId = 0, $orderNo = 0)
     {
         if (!$orderNo) return null;
-        
+
         $order = $this->model->with(['details.combo', 'shipment', 'discountCode'])
             ->notDeleted()
             ->where('member_id', $memberId)
@@ -523,9 +571,12 @@ class OrderRepository extends BaseRepository
      * @param $shipmentStatus [運送狀態]
      * @return mixed
      */
-    public function getOrdersByRecipientStatus($status = 99, $recipientStatus = 99, $shipmentMethod,
-                                               $shipmentStatus = 99)
-    {
+    public function getOrdersByRecipientStatus(
+        $status = 99,
+        $recipientStatus = 99,
+        $shipmentMethod,
+        $shipmentStatus = 99
+    ) {
         if ($shipmentMethod === 2) {
             // 實體商品
             $orders = $this->model->with(['detail', 'detail.productSpecPrice'])

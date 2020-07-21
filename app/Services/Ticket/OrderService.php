@@ -57,6 +57,16 @@ class OrderService extends BaseService
     }
 
     /**
+     * 根據 No 找單一訪客訂單
+     * @param $orderNo
+     * @return mixed
+     */
+    public function findByOrderNoWithGuestOrder($orderNo, $isDetail = true)
+    {
+        return $this->repository->findByOrderNoWithGuestOrder($orderNo, $isDetail);
+    }
+
+    /**
      * 根據 No 找單一訂單 [未失效]
      * @param $memberId
      * @param $orderNo

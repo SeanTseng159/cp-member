@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use Ksd\Mediation\Core\Controller\RestLaravelController;
 
 use App\Jobs\Mail\OrderPaymentCompleteMail;
+use App\Jobs\SMS\OrderPaymentComplete as OrderPaymentCompleteSMS;
 
 use App\Jobs\Mail\MagentoOrderATMCompleteMail;
 
@@ -30,8 +31,13 @@ class MailController extends RestLaravelController
             'orderId'
         ]);
 
-        if ($data['memberId'] && $data['source'] && $data['orderId']) {
-            dispatch(new OrderPaymentCompleteMail($data['memberId'], $data['source'], $data['orderId']))->delay(5);
+        if ($data['memberId'] == 0) {
+            // 訪客
+            dispatch(new OrderPaymentCompleteSMS($data['orderId']))->delay(10);
+        }
+        elseif ($data['memberId'] && $data['source'] && $data['orderId']) {
+            // 一般會員
+            dispatch(new OrderPaymentCompleteMail($data['memberId'], $data['source'], $data['orderId']))->delay(10);
         }
 
         return $this->success();

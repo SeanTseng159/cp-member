@@ -16,6 +16,9 @@ use PhpOffice\PhpSpreadsheet\Worksheet\Row;
 
 Route::middleware('cors')->namespace('V1')->group(function () {
 
+    // 訪客登入
+    Route::post('guest/login', 'GuestController@login')->middleware('verify.guest.login');
+
     // 會員相關
     Route::prefix('member')->group(function () {
         // 餐車邀請註冊會員
@@ -323,38 +326,11 @@ Route::middleware(['cors', 'auth.jwt'])->namespace('V1')->group(function () {
     Route::prefix('cart')->group(function () {
         // 取得一次性購物車資訊並加入購物車(依來源) (magento)
         Route::get('one-off', 'CartController@oneOff');
-
-        // 立即購買
-        Route::post('buyNow', 'CartController@buyNow')->middleware('verify.cart.buyNow');
-
-        // 獨立賣場立即購買
-        Route::post('buyNow/market', 'CartController@market')->middleware('verify.cart.buyNow.market');
-
-        // 取立即購買 (購物車跟付款資訊)
-        Route::get('buyNow/info', 'CartController@info')->middleware('verify.cart.buyNow.info');
     });
 
     Route::prefix('DiscountCode')->group(function () {
         Route::post('add', 'SalesRuleController@addCoupon');
         Route::post('remove', 'SalesRuleController@deleteCoupon');
-    });
-
-    // 結帳相關
-    Route::prefix('checkout')->group(function () {
-        // 付款資訊
-        Route::get('info/{orderNo}', 'CheckoutController@info');
-
-        // 結帳
-        Route::post('payment', 'CheckoutController@payment')->middleware('verify.checkout.payment');
-
-        // 點餐單結帳
-        Route::post('payment/menu_order/{menuOrderNo}', 'CheckoutController@menuPayment')->middleware('verify.checkout.payment.menu');
-
-        // 重新結帳
-        Route::post('payment/repay/{orderNo}', 'CheckoutController@repay');
-
-        // apple 商家驗證
-        Route::post('payment/bluenewpay/applepay/merchant', 'CheckoutController@merchantValidation');
     });
 
     // 票券相關
@@ -466,5 +442,56 @@ Route::middleware(['cors', 'auth.jwt'])->namespace('V1')->group(function () {
         Route::post('/getDiscount', 'MemberDiscountController@getDiscount');
         //取得可用的折價卷
         Route::get('/discountList', 'MemberDiscountController@discountList');
+    });
+});
+
+
+// 需 token 認證的 route (Guest 用)
+Route::middleware(['cors', 'guest.jwt'])->namespace('V1\Guest')->prefix('guest')->group(function () {
+    // 結帳相關
+    Route::prefix('checkout')->group(function () {
+        // 檢查購物車內容跟取付款資訊
+        Route::post('info', 'CheckoutController@info');
+    });
+
+    // 訂單相關
+    Route::prefix('order')->group(function () {
+        Route::get('detail', 'OrderController@detail')->middleware('verify.guest.order.detail');
+
+        Route::get('search', 'OrderController@search')->middleware('verify.guest.order.search');
+    });
+});
+
+
+// 需 token 認證的 route (Guest and Member 都可用)
+Route::middleware(['cors', 'member.guest.jwt'])->namespace('V1')->group(function () {
+    // 結帳相關
+    Route::prefix('checkout')->group(function () {
+        // 付款資訊
+        Route::get('info/{orderNo}', 'CheckoutController@info');
+
+        // 結帳
+        Route::post('payment', 'CheckoutController@payment')->middleware('verify.checkout.payment');
+
+        // 點餐單結帳
+        Route::post('payment/menu_order/{menuOrderNo}', 'CheckoutController@menuPayment')->middleware('verify.checkout.payment.menu');
+
+        // 重新結帳
+        Route::post('payment/repay/{orderNo}', 'CheckoutController@repay');
+
+        // apple 商家驗證
+        Route::post('payment/bluenewpay/applepay/merchant', 'CheckoutController@merchantValidation');
+    });
+
+    // 購物車相關
+    Route::prefix('cart')->group(function () {
+        // 立即購買
+        Route::post('buyNow', 'CartController@buyNow')->middleware('verify.cart.buyNow');
+
+        // 獨立賣場立即購買
+        Route::post('buyNow/market', 'CartController@market')->middleware('verify.cart.buyNow.market');
+
+        // 取立即購買 (購物車跟付款資訊)
+        Route::get('buyNow/info', 'CartController@info')->middleware('verify.cart.buyNow.info');
     });
 });

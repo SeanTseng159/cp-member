@@ -91,8 +91,11 @@ class Kernel extends HttpKernel
         'throttle' => \App\Http\Middleware\ThrottleRequests::class,
         'admin.jwt' => \App\Http\Middleware\Api\AdminJWT::class,
         'auth.jwt' => \App\Http\Middleware\Api\AuthJWT::class,
+        'guest.jwt' => \App\Http\Middleware\Api\GuestJWT::class,
+        'member.guest.jwt' => \App\Http\Middleware\Api\MemberOrGuestJWT::class,
         'cors' => \Barryvdh\Cors\HandleCors::class,
 
+        'verify.guest.login' => \App\Http\Middleware\Verify\GuestLogin::class,
         'verify.member.login' => \App\Http\Middleware\Verify\MemberLogin::class,
         'verify.member.create' => \App\Http\Middleware\Verify\MemberCreate::class,
         'verify.member.update.data' => \App\Http\Middleware\Verify\MemberUpdateData::class,
@@ -116,5 +119,8 @@ class Kernel extends HttpKernel
         'verify.checkout.payment.menu' => MenuPayment::class,
 
         'verify.partner.join' => \App\Http\Middleware\Verify\PartnerJoin::class,
+
+        'verify.guest.order.detail' => \App\Http\Middleware\Verify\Order\Guest\Detail::class,
+        'verify.guest.order.search' => \App\Http\Middleware\Verify\Order\Guest\Search::class,
     ];
 }

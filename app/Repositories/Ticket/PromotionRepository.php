@@ -9,9 +9,7 @@ namespace App\Repositories\Ticket;
 
 use App\Repositories\BaseRepository;
 use App\Models\Ticket\Promotion;
-use App\Repositories\Ticket\ProductRepository;
 use App\Repositories\Ticket\PromotionProdSpecPriceRepository as PPSPRepository;
-use App\Repositories\Ticket\TagProdRepository;
 use Carbon\Carbon;
 
 class PromotionRepository extends BaseRepository
@@ -21,6 +19,7 @@ class PromotionRepository extends BaseRepository
     protected $productRepository;
     protected $ppspRepository;
     protected $tagProdRepository;
+    protected $model;
 
     public function __construct(Promotion $model,
                                 ProductRepository $productRepository,
@@ -52,6 +51,10 @@ class PromotionRepository extends BaseRepository
             return null;
 
         $products = [];
+
+        if (!$promo)
+            return null;
+
         if ($promo->prodSpecPrices) {
             foreach ($promo->prodSpecPrices as $row) {
                 // 庫存不存，排除
@@ -93,7 +96,7 @@ class PromotionRepository extends BaseRepository
             $prod->marketStock = $promotionProd->stock;
         }
 
-        if ($hasTag) {
+        if ($prod && $hasTag) {
             $prod->tags = $this->tagProdRepository->getTagsByProdId($prodId);
         }
 

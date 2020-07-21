@@ -17,6 +17,7 @@ class CheckoutParameter extends BaseParameter
         $this->deviceName = $this->request->input('device', 'web');
         $this->action = $this->request->input('action');
         $this->device = OrderConfig::PAYMENT_DEVICE[$this->deviceName];
+        $this->orderer = $this->request->input('orderer');
         $this->payment = $this->request->input('payment');
         $this->shipment = $this->request->input('shipment');
         $this->billing = $this->request->input('billing');
@@ -25,6 +26,8 @@ class CheckoutParameter extends BaseParameter
         $paymentType = explode('_', $this->payment['id']);
         $this->payment['gateway'] = $paymentType[0];
         $this->payment['method'] = $paymentType[1];
+
+        $this->code = $this->request->input('code');
 
         return $this;
     }
