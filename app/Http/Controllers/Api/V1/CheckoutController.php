@@ -103,10 +103,6 @@ class CheckoutController extends RestLaravelController
 
                 $cart=$this->cartService->countDiscount($cart, $discount, $this->getMemberId());
             }
-<<<<<<< HEAD
-=======
-
->>>>>>> feature/guestShopping
 
             //檢查購物車內所有狀態是否可購買
             $statusCode = $this->checkCartStatus($cart, $params->memberId);
