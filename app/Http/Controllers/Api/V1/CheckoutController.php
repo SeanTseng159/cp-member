@@ -1,4 +1,5 @@
 <?php
+
 /**
  * User: lee
  * Date: 2018/11/29
@@ -19,6 +20,7 @@ use App\Services\PaymentService;
 use App\Services\Ticket\SalesRuleService;
 
 use App\Jobs\Mail\OrderCreatedMail;
+use App\Jobs\SMS\OrderCreated;
 
 use App\Traits\CartHelper;
 use App\Traits\MemberHelper;
@@ -52,7 +54,7 @@ class CheckoutController extends RestLaravelController
         $this->paymentService = $paymentService;
         $this->menuOrderService = $menuOrderService;
         $this->blueNewPayService = $blueNewPayService;
-        $this->salesRuleservice=$salesRuleservice;
+        $this->salesRuleservice = $salesRuleservice;
     }
 
     /**
@@ -85,17 +87,21 @@ class CheckoutController extends RestLaravelController
         try {
             $params = (new CheckoutParameter($request))->payment();
 
-            
-            $cart = $this->cartService->find($params->action, $params->memberId);
+            // 取快取購物車
+            $cartKey = ($params->memberId === 0) ? md5($request->token) : $params->memberId;
+            $cart = $this->cartService->find($params->action, $cartKey);
             $cart = unserialize($cart);
-            if(!empty($request->input('code'))){
+
+            if (!$cart) throw new CustomException('E9030');
+
+
+            if (!empty($params->code)) {
                 // 以code取得對應優惠碼
                 $discount = $this->salesRuleservice->getEnableDiscountByCode($request->input('code'));
-                
+
                 $cart=$this->cartService->countDiscount($cart, $discount, $this->getMemberId());
-                
             }
-            
+
 
             //檢查購物車內所有狀態是否可購買
             $statusCode = $this->checkCartStatus($cart, $params->memberId);
@@ -106,8 +112,13 @@ class CheckoutController extends RestLaravelController
             if (!$order)
                 throw new CustomException('E9001');
 
-            // 寄送訂單成立通知信
-            dispatch(new OrderCreatedMail($params->memberId, 'ct_pass', $order->order_no))->delay(5);
+            // 寄送訂單成立通知信 (訪客寄送簡訊)
+            if ($params->memberId === 0) {
+                dispatch(new OrderCreated($order->order_no))->delay(10);
+            }
+            else {
+                dispatch(new OrderCreatedMail($params->memberId, 'ct_pass', $order->order_no))->delay(10);
+            }
 
             // 處理金流
             $payParams = [
@@ -118,10 +129,7 @@ class CheckoutController extends RestLaravelController
                 'device' => $params->deviceName,
                 'hasLinePayApp' => $params->hasLinePayApp
             ];
-            $result = $this->paymentService->payment($params->payment, $payParams);
-
-            // 刪除購物車
-            $this->cartService->delete($params->action, $params->memberId);
+            $result = $this->paymentHandle($params, $payParams, $cartKey);
 
             return $this->success($result);
         } catch (CustomException $e) {
@@ -130,6 +138,29 @@ class CheckoutController extends RestLaravelController
         } catch (Exception $e) {
             Logger::error('payment Error', $e->getMessage());
             return $this->failureCode('E9006');
+        }
+    }
+
+    // 訂單成立後，處理付款
+    private function paymentHandle($params, $payParams, $cartKey)
+    {
+        try {
+            $result = $this->paymentService->payment($params->payment, $payParams);
+
+            // 訂單已成立，刪除購物車
+            $this->cartService->delete($params->action, $cartKey);
+
+            return $result;
+        } catch (CustomException $e) {
+            // 訂單已成立，刪除購物車
+            $this->cartService->delete($params->action, $cartKey);
+
+            throw new CustomException($e->getMessage());
+        } catch (Exception $e) {
+            // 訂單已成立，刪除購物車
+            $this->cartService->delete($params->action, $cartKey);
+
+            throw new CustomException('E9006');
         }
     }
 
@@ -148,8 +179,8 @@ class CheckoutController extends RestLaravelController
             $order = $this->orderService->findCanPay($orderNo);
             if (!$order) return $this->failureCode('E9016');
 
-            // 檢查付款人
-            if ($order->member_id !== $request->memberId) return $this->failureCode('E9017');
+            // 檢查付款人，訪客不檢查
+            if ($order->member_id && $order->member_id !== $request->memberId) return $this->failureCode('E9017');
 
             $params = (new CheckoutParameter($request))->repay();
 
@@ -160,7 +191,7 @@ class CheckoutController extends RestLaravelController
             // 處理金流
             $payParams = [
                 'memberId' => $params->memberId,
-                'orderNo' => (string)$order->order_no,
+                'orderNo' => (string) $order->order_no,
                 'payAmount' => $order->order_amount,
                 'itemsCount' => $order->order_items,
                 'device' => $params->deviceName,
@@ -229,7 +260,6 @@ class CheckoutController extends RestLaravelController
             }
 
             return $this->success($result);
-
         } catch (Exception $e) {
             Logger::error('CheckoutController::menuPayment', $e->getMessage());
             $msg = $e->getMessage();
@@ -254,8 +284,6 @@ class CheckoutController extends RestLaravelController
             return $this->success($result['data']);
         } catch (Exception $e) {
             return $this->failure('E9001', $e->getMessage());
-
         }
-
     }
 }

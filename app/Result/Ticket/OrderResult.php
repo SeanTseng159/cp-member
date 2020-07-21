@@ -59,15 +59,15 @@ class OrderResult extends BaseResult
 
     /**
      * 取得資料
-     * @param $product
+     * @param $order
      * @param bool $isDetail
      */
-    public function get($order, $isDetail = false)
+    public function get($order, $isDetail = false, $guestName = '')
     {
         if (!$order) return null;
 
         $order = $order->toArray();
-        
+
         $this->isCommodity = ($order['order_shipment_method'] === 2) ? true : false;
         $this->source = ($this->isCommodity) ? OrderConfig::SOURCE_CT_COMMODITY : OrderConfig::SOURCE_TICKET;
 
@@ -94,10 +94,18 @@ class OrderResult extends BaseResult
         $result['payment'] = $this->getPayment($order);
         $result['shipment'] = $this->getShipment($order['order_shipment_method'], $order['shipment'], $order['order_shipment_fee']);
         $result['items'] = $this->processItems($order['details'], $isDetail);
-        $result['orderer'] = $this->getOrderer($order['member_id']);
-        $result['discountName'] = !(empty($this->arrayDefault($order, 'discount_code'))) ?
+
+        // 訪客訂單處理
+        if ($guestName) {
+            $result['orderer'] = $this->hideName($guestName);
+            $result['discountName'] = '';
+        }
+        else {
+            $result['orderer'] = $this->getOrderer($order['member_id']);
+            $result['discountName'] = !(empty($this->arrayDefault($order, 'discount_code'))) ?
             $this->arrayDefault($this->arrayDefault($order, 'discount_code'), 'discount_name') :
             "";
+        }
 
         return $result;
     }
@@ -312,7 +320,7 @@ class OrderResult extends BaseResult
     private function getItem($item, $isDetail = false, $isCombo = false, $comboIsSyncExpire = false,
                              $comboSyncExpireDate = '')
     {
-        
+
         $newDetail = new \stdClass;
         $newDetail->source = ($item['is_physical']==1)?OrderConfig::SOURCE_TPASS_PHYSICAL:OrderConfig::SOURCE_TICKET;
         $newDetail->productId = $item['prod_id'];

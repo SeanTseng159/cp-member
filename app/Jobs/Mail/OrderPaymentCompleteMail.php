@@ -87,13 +87,6 @@ class OrderPaymentCompleteMail implements ShouldQueue
 
         // 20180601 通知出貨人員
         if ($this->source === 'magento' && env('APP_ENV') === 'production') {
-            /*$customerService = [
-                'email' => env('CUSTOMER_SERVICE_MAIL', 'candy.tsai@touchcity.tw'),
-                'name' => '出貨人員'
-            ];
-
-            $mailService->send("CityPass都會通 - 準備出貨通知 - (訂單編號：{$order->orderNo}))", $customerService, 'emails/orderPaymentComplete', $data);*/
-
             LineNotify::sendMessage(env('CUSTOMER_SERVICE_LINE_CHANNEL'), "訂單成立, 請通知店家準備出貨 - 訂單編號：{$order->orderNo}");
         }
 

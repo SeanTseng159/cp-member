@@ -55,6 +55,16 @@ class OrderDetailRepository extends BaseRepository
                             $this->create($memberId, $orderNo, $paymentMethod, $seq, $mainSeq, $group);
                         }
                     }
+
+                    // 加購商品
+                    if ($product->purchase) {
+                        foreach ($product->purchase as $prod) {
+                            for ($j = 0; $j < $prod->quantity; $j++) {
+                                $seq += 1;
+                                $this->create($memberId, $orderNo, $paymentMethod, $seq, $seq, $prod);
+                            }
+                        }
+                    }
                 }
             }
 

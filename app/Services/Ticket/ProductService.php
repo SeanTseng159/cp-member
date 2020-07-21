@@ -75,6 +75,23 @@ class ProductService extends BaseService
     }
 
     /**
+     * [New] 根據 商品 id 取得商品明細 (結帳用) [只取 規格]
+     * @param $id
+     * @param $specId
+     * @param $specPriceId
+     * @return mixed
+     */
+    public function findByCheckout2($id, $specId, $specPriceId)
+    {
+        $product = $this->repository->findByCheckout2($id, $specId, $specPriceId);
+
+        // 檢查是否在合理的使用期限內
+        if ($product && !$this->checkExpire($product)) return NULL;
+
+        return $product;
+    }
+
+    /**
      * 根據 商品 id 取得加購商品明細 (結帳用) [只取 規格]
      * @param $id
      * @param $specId
@@ -85,6 +102,23 @@ class ProductService extends BaseService
     public function findAdditionalByCheckout($id, $specId, $specPriceId, $hasTag = false)
     {
         $product = $this->repository->findAdditionalByCheckout($id, $specId, $specPriceId, $hasTag);
+
+        // 檢查是否在合理的使用期限內
+        if ($product && !$this->checkExpire($product)) return NULL;
+
+        return $product;
+    }
+
+    /**
+     * 根據 商品 id 取得加購商品明細 (結帳用) [只取 規格]
+     * @param $id
+     * @param $specId
+     * @param $specPriceId
+     * @return mixed
+     */
+    public function findAdditionalByCheckout2($id, $specId, $specPriceId)
+    {
+        $product = $this->repository->findAdditionalByCheckout2($id, $specId, $specPriceId);
 
         // 檢查是否在合理的使用期限內
         if ($product && !$this->checkExpire($product)) return NULL;

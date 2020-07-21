@@ -20,12 +20,16 @@ class CartParameter extends BaseParameter
         $this->quantity = $this->request->input('quantity', 0);
         $this->additionalProducts = $this->request->input('additionalProducts', []);
 
+        $this->token = $this->request->token;
+
         return $this;
     }
 
     public function info()
     {
         $this->action = $this->request->input('action');
+
+        $this->token = $this->request->token;
 
         return $this;
     }
@@ -34,6 +38,8 @@ class CartParameter extends BaseParameter
     {
         $this->marketId = $this->request->input('marketId', 0);
         $this->products = $this->request->input('products');
+
+        $this->token = $this->request->token;
 
         return $this;
     }

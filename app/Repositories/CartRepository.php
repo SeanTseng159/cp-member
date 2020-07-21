@@ -29,8 +29,7 @@ class CartRepository extends BaseRepository
      */
     public function add($type, $memberId, $data)
     {
-        if ($type === 'buyNow') $key = sprintf(CartKey::ONE_OFF_KEY, $memberId);
-        elseif ($type === 'market') $key = sprintf(CartKey::MARKET_KEY, $memberId);
+        $key = $this->getKey($type, $memberId);
 
         return $this->redis->set($key, $data, CacheConfig::ONE_HOUR);
     }
@@ -44,8 +43,7 @@ class CartRepository extends BaseRepository
      */
     public function update($type, $memberId, $data)
     {
-        if ($type === 'buyNow') $key = sprintf(CartKey::ONE_OFF_KEY, $memberId);
-        elseif ($type === 'market') $key = sprintf(CartKey::MARKET_KEY, $memberId);
+        $key = $this->getKey($type, $memberId);
 
         return $this->redis->refesh($key, CacheConfig::ONE_HOUR, function () use ($data) {
             return $data;
@@ -60,8 +58,7 @@ class CartRepository extends BaseRepository
      */
     public function delete($type, $memberId)
     {
-        if ($type === 'buyNow') $key = sprintf(CartKey::ONE_OFF_KEY, $memberId);
-        elseif ($type === 'market') $key = sprintf(CartKey::MARKET_KEY, $memberId);
+        $key = $this->getKey($type, $memberId);
 
         return $this->redis->delete($key);
     }
@@ -74,9 +71,19 @@ class CartRepository extends BaseRepository
      */
     public function find($type, $memberId)
     {
-        if ($type === 'buyNow') $key = sprintf(CartKey::ONE_OFF_KEY, $memberId);
-        elseif ($type === 'market') $key = sprintf(CartKey::MARKET_KEY, $memberId);
+        $key = $this->getKey($type, $memberId);
 
         return $this->redis->get($key);
+    }
+
+    private function getKey($type, $memberId)
+    {
+        $key = '';
+
+        if ($type === 'buyNow') $key = sprintf(CartKey::ONE_OFF_KEY, $memberId);
+        elseif ($type === 'market') $key = sprintf(CartKey::MARKET_KEY, $memberId);
+        elseif ($type === 'guest') $key = sprintf(CartKey::GUEST_KEY, $memberId);
+
+        return $key;
     }
 }

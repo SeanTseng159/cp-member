@@ -14,6 +14,9 @@ class CartResult extends BaseResult
 {
     use CartHelper;
 
+
+    // 購物車類型
+    private $cartType = 'member';
     // 總數量
     private $totalQuantity = 0;
     // 總金額
@@ -24,6 +27,8 @@ class CartResult extends BaseResult
     private $discountTotalAmount = 0;
     // 運費
     private $shippingFee = 0;
+    // 免費金額
+    private $shipmentFree = 0;
     // 實際付款金額
     private $payAmount = 0;
     // 是否有實體商品
@@ -103,13 +108,15 @@ class CartResult extends BaseResult
 
     /**
      * 處理購物車資料
-     * @param $cartType
+     * @param $cartType ['member', 'market', 'buyNow', 'guest']
      * @param $product
      * @param $isDetail
      * @param $promotion [App\Repositories\Ticket\Promotion]
      */
-    public function get($cartType = 'cart', $products, $isDetail = false, $promotion = null)
+    public function get($cartType = 'member', $products, $isDetail = false, $promotion = null)
     {
+        // $this->cartType = $cartType;
+
         if ($promotion) {
             // 有優惠條件購物車
             $result = new \stdClass;
@@ -120,6 +127,7 @@ class CartResult extends BaseResult
             $result->discountAmount = $this->calcDiscountAmount($promotion, $result->totalAmount, $result->totalQuantity);
             $result->discountTotalAmount = $result->totalAmount - $result->discountAmount;
             $result->shippingFee = $this->calcMarketShippingFee($promotion->shipping_type, $promotion->shipping, $result->totalQuantity, $result->discountTotalAmount);
+            $result->shipmentFree = $this->shipmentFree;
             $result->payAmount = $result->discountTotalAmount + $result->shippingFee;
             $result->canCheckout = ($products) ? true : false;
             $result->hasPhysical = $this->hasPhysical;
@@ -135,6 +143,7 @@ class CartResult extends BaseResult
             $result->discountAmount = $this->discountAmount;
             $result->discountTotalAmount = $this->totalAmount;
             $result->shippingFee = $this->shippingFee;
+            $result->shipmentFree = $this->shipmentFree;
             $result->payAmount = $this->totalAmount + $this->shippingFee;
             $result->canCheckout = ($products) ? true : false;
             $result->hasPhysical = $this->hasPhysical;
@@ -143,6 +152,44 @@ class CartResult extends BaseResult
 
         return $result;
     }
+
+    /**
+     * 處理購物車資料
+     * @param $cartType ['member', 'market', 'buyNow', 'guest']
+     * @param $product
+     * @param $isDetail
+     * @param $promotion [App\Repositories\Ticket\Promotion]
+     */
+    public function getCartDetail($cartType = 'member', $products, $shippingFeeDetail)
+    {
+        $this->cartType = $cartType;
+
+        if ($this->cartType === 'guest') {
+            // 訪客購物車
+
+            // 處理商品
+            $items = ($products) ? $this->getItems($products, true, true) : [];
+            // 計算運費
+            $this->calcShippingFee($shippingFeeDetail);
+
+            $result = new \stdClass;
+            $result->type = $this->cartType;
+            $result->items = $items;
+            $result->totalQuantity = $this->totalQuantity;
+            $result->totalAmount = $this->totalAmount;
+            $result->discountAmount = $this->discountAmount;
+            $result->discountTotalAmount = $this->totalAmount - $this->discountAmount;
+            $result->shippingFee = $this->shippingFee;
+            $result->shipmentFree = $this->shipmentFree;
+            $result->payAmount = $result->discountTotalAmount + $this->shippingFee;
+            $result->canCheckout = ($products) ? true : false;
+            $result->hasPhysical = $this->hasPhysical;
+            $result->promotion = null;
+        }
+
+        return $result;
+    }
+
 
     public function getItems($products, $isDetail = false, $isMainProd = false)
     {
@@ -210,7 +257,9 @@ class CartResult extends BaseResult
         // 主商品才計算
         if ($isMainProd) {
             // 計算運費
-            $this->shippingFee += $this->calcShippingFee($product->shippingFees, $product->quantity);
+            if ($this->cartType !== 'guest') {
+                $this->shippingFee += $this->calcShippingFee($product->shippingFees, $product->quantity);
+            }
 
             // 計算全部金額
             $this->totalQuantity += $product->quantity;
@@ -270,5 +319,37 @@ class CartResult extends BaseResult
         }
 
         return $newPurchase;
+    }
+
+    /**
+     * 計算運費
+     * @param $products
+     * @return array
+     */
+    private function calcShippingFee($shippingFeeDetail)
+    {
+
+        if ($this->hasPhysical) {
+            // 有實體商品
+
+            if ($shippingFeeDetail) {
+                $this->shippingFee = $shippingFeeDetail->shipment_amount;
+                $this->shipmentFree = $shippingFeeDetail->shipment_free;
+
+                // 滿額免運
+                if ($shippingFeeDetail->option === 2) {
+                    $discountTotalAmount = $this->totalAmount - $this->discountAmount;
+                    if ($discountTotalAmount >= $this->shipmentFree) {
+                        $this->shippingFee = 0;
+                    }
+
+                }
+            }
+            else {
+                // 沒有設定運費，給預設值
+                $this->shippingFee = 65;
+                $this->shipmentFree = 999999;
+            }
+        }
     }
 }

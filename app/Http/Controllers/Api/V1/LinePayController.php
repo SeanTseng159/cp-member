@@ -14,6 +14,7 @@ use Ksd\Payment\Parameter\LinePayParameter;
 use App\Services\Ticket\OrderService;
 use Ksd\Mediation\Services\CheckoutService;
 use App\Jobs\Mail\OrderPaymentCompleteMail;
+use App\Jobs\SMS\OrderPaymentComplete as OrderPaymentCompleteSMS;
 use Exception;
 
 class LinePayController extends RestLaravelController
@@ -47,7 +48,14 @@ class LinePayController extends RestLaravelController
 
                 // 寄送linepay付款完成通知信
                 $order = $this->orderService->findByOrderNo($parameters['record']['orderNo']);
-                dispatch(new OrderPaymentCompleteMail($order->member_id, 'ct_pass', $order->order_no))->delay(5);
+                if ($order->member_id == 0) {
+                    // 訪客
+                    dispatch(new OrderPaymentCompleteSMS($order->order_no))->delay(10);
+                }
+                else {
+                    // 一般會員
+                    dispatch(new OrderPaymentCompleteMail($order->member_id, 'ct_pass', $order->order_no))->delay(10);
+                }
 
                 return ($result['statusCode'] === 201) ? $this->successRedirect($parameters) : $this->failureRedirect($parameters);
             }
