@@ -167,28 +167,6 @@ class CheckoutController extends RestLaravelController
         }
     }
 
-    // 訂單成立後，處理付款
-    private function paymentHandle($params, $payParams, $cartKey)
-    {
-        try {
-            $result = $this->paymentService->payment($params->payment, $payParams);
-
-            // 訂單已成立，刪除購物車
-            $this->cartService->delete($params->action, $cartKey);
-
-            return $result;
-        } catch (CustomException $e) {
-            // 訂單已成立，刪除購物車
-            $this->cartService->delete($params->action, $cartKey);
-
-            throw new CustomException($e->getMessage());
-        } catch (Exception $e) {
-            // 訂單已成立，刪除購物車
-            $this->cartService->delete($params->action, $cartKey);
-
-            throw new CustomException('E9006');
-        }
-    }
 
     /**
      * 重新結帳
