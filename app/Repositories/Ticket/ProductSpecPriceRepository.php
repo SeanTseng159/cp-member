@@ -40,4 +40,16 @@ class ProductSpecPriceRepository extends BaseRepository
     {
         return $this->model->with(['prodSpec.productAll.supplier'])->get();
     }
+
+    /**
+     * 搜尋單一商品
+     * @param None
+     * @return mixed
+     */
+    public function find($id)
+    {
+        return $this->model->with(['prodSpec.productAll.supplier'])->where('prod_spec_price_id',$id)->first();
+    }
+
+
 }
