@@ -11,7 +11,7 @@ use Exception;
 use Illuminate\Database\QueryException;
 use App\Repositories\BaseRepository;
 use App\Models\Ticket\GuestOrder;
-
+use App\Core\Logger;
 class GuestOrderRepository extends BaseRepository
 {
     public function __construct(GuestOrder $model)
