@@ -66,17 +66,19 @@ class TicketResult extends BaseResult
 
         // 取組合同步失效狀態
         $comboStatusAndDesc = $this->getComboStatusAndDescription($prodType, $order['sync_expire_due'], $order['use_value'], $status);
-
+        
         $result['id'] = $this->arrayDefault($order, 'order_detail_id');
+        
         $result['orderNo'] = (string) $this->arrayDefault($order, 'order_no');
         // $result['detailSeq'] = (string) $this->getDetailSeq($this->arrayDefault($order, 'order_detail_seq'));
         $result['serialNumber'] = (string) $this->arrayDefault($order, 'order_detail_sn');
+
         $result['name'] = $this->arrayDefault($order, 'prod_name');
         $result['spec'] = $this->arrayDefault($order, 'prod_spec_name') . $this->arrayDefault($order, 'prod_spec_price_name');
         $result['place'] = $this->arrayDefault($order, 'prod_locate');
         $result['address'] = $this->arrayDefault($order, 'prod_address');
         $result['price'] = $this->arrayDefault($order, 'price_off');
-        $result['qrcode'] = ($prodType === 2) ? null : $this->arrayDefault($order, 'order_detail_qrcode');
+        $result['qrcode'] = ($prodType === 2) ? null : (($status==3) ? null:$this->arrayDefault($order, 'order_detail_qrcode'));
         $result['status'] = $status;
         $result['catalogId'] = $this->arrayDefault($order, 'catalog_id');
         $result['giftAt'] = $this->arrayDefault($order, 'ticket_gift_at');
@@ -115,16 +117,18 @@ class TicketResult extends BaseResult
         $now = $this->now->toDateTimeString();
 
         if ($verifiedStatus == '11') {
-            if ($comboStatus === '3') {
+            if ($order['use_type'] === 4) {
+                $useValueAry = explode('~', $order['use_value']);
+                if ($now > $useValueAry[0] && $now < $useValueAry[1]) return '2';
+                if ($now > $useValueAry[1]) return '3';
+            }
+            elseif ($comboStatus === '3') {
                 return '1';
             }
             elseif ($order['use_type'] === 1 && $order['use_value'] > 0) {
                 return '2';
             }
-            elseif ($order['use_type'] === 4) {
-                $useValueAry = explode('~', $order['use_value']);
-                if ($now > $useValueAry[0] && $now < $useValueAry[1]) return '2';
-            }
+            
 
             return '1';
         }

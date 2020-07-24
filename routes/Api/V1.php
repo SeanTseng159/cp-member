@@ -293,6 +293,13 @@ Route::middleware('cors')->namespace('V1')->group(function () {
         Route::get('/', 'OpenApiController@storeId');
     });
 
+    // 票券相關
+    Route::prefix('ticket')->group(function () {
+        // 票券列表
+        Route::get('forKRTTest', 'TicketController@forKRTTest');
+    });
+
+
 });
 
 // 需 token 認證的 route
