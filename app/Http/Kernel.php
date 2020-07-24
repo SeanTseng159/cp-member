@@ -50,7 +50,7 @@ class Kernel extends HttpKernel
         ],
 
         'api' => [
-            'throttle:120,1',
+            'throttle:30,1',
             'bindings',
             \Illuminate\Session\Middleware\StartSession::class,
             \App\Http\Middleware\Api\TraceRequest::class,
