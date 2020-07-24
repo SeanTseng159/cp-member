@@ -376,9 +376,7 @@ class ProductRepository extends BaseRepository
      */
     public function search($keyword)
     {
-        $data = $this->model->with(['specs.specPrices', 'imgs' => function($query) {
-                                return $query->orderBy('img_sort')->first();
-                            }])
+        $data = $this->model->with(['specs.specPrices', 'imgs'])
                             ->notDeleted()
                             ->where('on_search', 1)
                             ->where('prod_onshelf', 1)
