@@ -31,7 +31,7 @@ class GreenPointParameter
         
         $cart->shippingFee=0;
         $cart->discountAmount=0;
-        $cart->payAmount=0;
+        $cart->payAmount=1;
         $cart->type='citypass';
         $cart->quantity=1;        
        
@@ -81,7 +81,7 @@ class GreenPointParameter
         $item->expireStart=Carbon::today();
         $item->expireDue=Carbon::today()->adddays(180);;
         $item->groupExpireType='';
-        
+
         $item->groups=false;
         $item->purchase=false;
         $items[]=$item;

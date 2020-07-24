@@ -26,5 +26,9 @@ class GreenPointService
         return $this->repository->check($code);
     }
 
+    public function update($id,$data){
+        return $this->repository->update($id,$data);
+    }
+
 }
 

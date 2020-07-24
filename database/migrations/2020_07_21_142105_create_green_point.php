@@ -19,6 +19,7 @@ class CreateGreenPoint extends Migration
             $table->string('code')->comment('兌換碼');
             $table->tinyInteger('used')->nullable()->comment('是否兌換');
             $table->integer('member_id')->nullable()->comment('會員ID');
+            $table->integer('prodSpecPriceId')->comment('兌換商品ID');
             $table->timestamps();
             $table->softDeletes();
         });

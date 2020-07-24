@@ -25,4 +25,7 @@ class GreenPointRepository
         return $this->model->where('code',$code)->first();
     }
 
+    public function update($id,$data){
+        return $this->model->where('id',$id)->update($data);
+    }
 }
