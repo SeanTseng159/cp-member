@@ -169,6 +169,12 @@ Route::middleware(['cors', 'auth.jwt'])->namespace('Api')->group(function () {
         Route::get('all', 'NotificationController@allMessage');
     });
 
+    //綠點核銷
+    Route::prefix('greenPoint')->group(function () {
+        // 付款資訊
+        Route::post('check', 'GreenPointController@check');
+    });
+
 });
 
 Route::middleware('cors')->namespace('Api')->group(function () {
@@ -284,4 +290,7 @@ Route::middleware('cors')->namespace('Api')->group(function () {
         // 付款資訊
         Route::post('feedback', 'CheckoutController@feedbackPay');
     });
+
+    
+
 });

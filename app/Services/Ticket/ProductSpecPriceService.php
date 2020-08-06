@@ -31,4 +31,11 @@ class ProductSpecPriceService extends BaseService
     {
         return $this->repository->all();
     }
+
+    public function find($id)
+    {
+        return $this->repository->find($id);
+    }
+
+
 }
