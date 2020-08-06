@@ -98,7 +98,8 @@ class OrderConfig extends BaseConfig
         4 => 'linepay',
         5 => 'taiwanpay',
         6 => 'yushanpay',
-        7 => 'greenEC'
+        7 => 'greenEC',
+        10 =>'greenPoint'
     ];
 
     # 訂單金流方式
@@ -111,7 +112,8 @@ class OrderConfig extends BaseConfig
         711 => 'googlepay',
         811 => 'applepay',
         911 => 'taiwanpay',
-        666 => 'yushanpay'
+        666 => 'yushanpay',
+        999 => 'greenPoint'
     ];
 
     # 銀行名稱

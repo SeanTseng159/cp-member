@@ -29,7 +29,8 @@ return [
     		'ipasspay' => 'iPassPay',
     		'tspg' => '台新',
             'linepay' => 'LINE Pay',
-            'neweb' => '藍新'
+            'neweb' => '藍新',
+            'greenPoint' =>'綠點'
     	],
     	'method' => [
     		'unknown' => '未知',
@@ -39,7 +40,8 @@ return [
             'linepay' => 'LINE Pay',
             'googlepay' => 'Google Pay',
             'applepay' => 'Apple Pay',
-            'taiwanpay' => '台灣Pay'
+            'taiwanpay' => '台灣Pay',
+            'greenPoint' =>'綠點'
     	],
     	'ipasspay' => [
     		'ACCLINK' => '約定連結帳戶付款',
