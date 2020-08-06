@@ -11,9 +11,12 @@ use Exception;
 use Illuminate\Database\QueryException;
 use App\Repositories\BaseRepository;
 use App\Models\Ticket\GuestOrder;
+use App\Traits\ValidatorHelper;
 use App\Core\Logger;
 class GuestOrderRepository extends BaseRepository
 {
+    use ValidatorHelper;
+
     public function __construct(GuestOrder $model)
     {
         $this->model = $model;
@@ -30,12 +33,14 @@ class GuestOrderRepository extends BaseRepository
         try {
             if (!$orderId) throw new Exception('GuestOrder OrderId Not Found');
 
+            $phoneNumber = $this->VerifyPhoneNumber($orderer['country'], $orderer['countryCode'], $orderer['cellphone']);
+
             $model = new GuestOrder;
             $model->order_id = $orderId;
             $model->name = $orderer['name'];
-            $model->countryCode = $orderer['countryCode'];
-            $model->cellphone = $orderer['cellphone'];
-            $model->country = $orderer['country'];
+            $model->countryCode = $phoneNumber['countryCode'];
+            $model->cellphone = $phoneNumber['cellphone'];
+            $model->country = $phoneNumber['country'];
             $model->save();
 
             return $model;
