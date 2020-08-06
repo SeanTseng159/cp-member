@@ -40,17 +40,16 @@ class GreenPointController extends RestLaravelController
         try{
             $memberID = $this->getMemberId();
             $code=$request->input('code');
-            $prodSpecPriceId=$request->input('priceId');
+            
             $data=$this->greenPointService->check($code);
 
-            // if(!$data){
-            //     return $this->failure('E0001', '查無此資料');
-            // }elseif($data->used==1){
-            //     return $this->failure('E0002', '已經領取過');
-            // }elseif($data->prodSpecPriceId!=$prodSpecPriceId){
-            //     return $this->failure('E0003', '錯誤的領取');
-            // }   
-            $prod=$this->productSpecPriceService->find($prodSpecPriceId);
+            if(!$data){
+                return $this->failure('E0001', '查無此資料');
+            }elseif($data->used==1){
+                return $this->failure('E0002', '已經領取過');
+            }
+
+            $prod=$this->productSpecPriceService->find($data->prodSpecPriceId);
             
             $cart=(new GreenPointParameter())->cart($prod);
             $params=(new GreenPointParameter())->params();
