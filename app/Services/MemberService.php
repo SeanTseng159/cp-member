@@ -1,4 +1,5 @@
 <?php
+
 /**
  * User: lee
  * Date: 2017/09/26
@@ -76,12 +77,12 @@ class MemberService
      * @param $id
      * @return mixed
      */
-     public function delete($id)
-     {
-         return $this->repository->delete($id);
-     }
+    public function delete($id)
+    {
+        return $this->repository->delete($id);
+    }
 
-     /**
+    /**
      * 取得所有會員
      * @return mixed
      */
@@ -91,10 +92,10 @@ class MemberService
     }
 
     /**
-    * 會員資料查詢
-    * @param $data
-    * @return mixed
-    */
+     * 會員資料查詢
+     * @param $data
+     * @return mixed
+     */
     public function queryMember($data)
     {
         return $this->repository->query($data);
@@ -141,8 +142,7 @@ class MemberService
         $token = $jwtTokenService->generateToken($member, $platform);
         if ($platform === 'app') {
             $member = $this->update($member->id, ['token' => $token]);
-        }
-        else {
+        } else {
             $member->token = $token;
         }
 
@@ -155,8 +155,8 @@ class MemberService
      * @param $platform
      * @return mixed
      */
-     public function refreshToken($member, $platform)
-     {
+    public function refreshToken($member, $platform)
+    {
         $jwtTokenService = new JWTTokenService;
         $token = $jwtTokenService->refreshToken($member, $platform);
 
@@ -169,7 +169,7 @@ class MemberService
         }
 
         return null;
-     }
+    }
 
     /**
      * 依據帳號跟密碼,查詢唯一使用者認証
@@ -387,10 +387,10 @@ class MemberService
      * @param $parameter
      * @return bool
      */
-    public function findFriendInvitation($member,$parameter)
+    public function findFriendInvitation($member, $parameter)
     {
         if ($member && $member->isRegistered == 1) {
-            $job = (new FindFriendInvitationMail($member,$parameter))->delay(5);
+            $job = (new FindFriendInvitationMail($member, $parameter))->delay(5);
             $this->dispatch($job);
 
             return true;
@@ -405,10 +405,10 @@ class MemberService
      * @param $parameter
      * @return bool
      */
-    public function invitationInput($member,$parameter)
+    public function invitationInput($member, $parameter)
     {
         if ($member && $member->isRegistered == 1) {
-            $job = (new InvitationInputMail($member,$parameter))->delay(5);
+            $job = (new InvitationInputMail($member, $parameter))->delay(5);
             $this->dispatch($job);
 
             return true;
@@ -446,8 +446,7 @@ class MemberService
             $this->dispatch($job);
 
             return true;
-        }
-        elseif ($member->isRegistered == 1 && $member->isValidEmail == 1) {
+        } elseif ($member->isRegistered == 1 && $member->isValidEmail == 1) {
             //寄送優惠券
             $job = (new SendRegisterCompleteMail($member))->delay(5);
             $this->dispatch($job);
@@ -458,7 +457,7 @@ class MemberService
         return false;
     }
 
-     /**
+    /**
      * 寄送Email驗證信
      * @param $id
      * @param $data
@@ -631,35 +630,34 @@ class MemberService
             case 'facebook':
                 return $this->verifyFacebookLogin($token, $inputs['openId']);
                 break;
-            default :
+            default:
                 return false;
         }
     }
-    
+
     private function verifyGoogleLogin($token, $openId)
     {
         try {
             $url = 'https://www.googleapis.com/oauth2/v3/tokeninfo?id_token=%s';
             $client = new Client();
             $response = $client->get(sprintf($url, $token));
-            
+
             $body = json_decode($response->getBody());
             return isset($body->aud) ? (in_array($body->aud, explode(',', config('social.google.web_client_id'))) && $openId == $body->email) : false;
-            
         } catch (\Exception $e) {
             return false;
         }
     }
-    
+
     private function verifyFacebookLogin($input_token, $openId)
     {
-        try{
+        try {
             $url = 'https://graph.facebook.com/v2.6/debug_token?input_token=%s&access_token=%s';
             $access_token = config('social.facebook.app_id') . '|' . config('social.facebook.app_secert');
             $client = new Client();
             $response = $client->get(sprintf($url, $input_token, $access_token));
             $response_array = json_decode($response->getBody(), true);
-            
+
             return isset($response_array['data']['app_id']) ? $response_array['data']['app_id'] == config('social.facebook.app_id') : false;
         } catch (\Exception $ex) {
             return false;
@@ -685,5 +683,16 @@ class MemberService
         return $invite;
     }
 
-
+    /**
+     * 會員登出
+     * @param $id
+     * @param $data
+     * @return mixed
+     */
+    public function logout($member)
+    {
+        return $this->repository->logoutById($member->id, [
+            'token' => null
+        ]);
+    }
 }

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * User: lee
  * Date: 2017/09/26
@@ -55,15 +56,15 @@ class MemberController extends RestLaravelController
         $member = ($member) ? $this->memberService->update($member->id, $data) : $this->memberService->create($data);
 
         //增加邀請碼並且寫入DB
-        $inviteCode=$this->memberService->createInviteCode($member->id);
+        $inviteCode = $this->memberService->createInviteCode($member->id);
 
         //傳送簡訊認證
         $this->memberService->sendRegisterSMS($member);
         return ($member) ? $this->success([
-                                'id' => $member->id,
-                                'validPhoneCode' => $member->validPhoneCode,
-                                'inviteCode' => $inviteCode
-                            ]) : $this->failureCode('E0011');
+            'id' => $member->id,
+            'validPhoneCode' => $member->validPhoneCode,
+            'inviteCode' => $inviteCode
+        ]) : $this->failureCode('E0011');
     }
 
     /**
@@ -114,8 +115,7 @@ class MemberController extends RestLaravelController
                 'address' => $member->address,
                 'openPlateform' => $member->openPlateform
             ]);
-        }
-        else {
+        } else {
             return $this->failure('E0012', '註冊失敗');
         }
     }
@@ -126,8 +126,8 @@ class MemberController extends RestLaravelController
      * @param Int $id
      * @return \Illuminate\Http\JsonResponse
      */
-     public function updateMember(Request $request, $id)
-     {
+    public function updateMember(Request $request, $id)
+    {
         $data = (new MemberParameter)->update($request);
 
         $member = $this->memberService->update($id, $data);
@@ -148,8 +148,7 @@ class MemberController extends RestLaravelController
 
             if ($member->newsletter) {
                 $newsletter = $this->newsletterService->update($member->newsletter->id, $newsletterData);
-            }
-            else {
+            } else {
                 $newsletterData['email'] = $member->email;
                 $newsletter = $this->newsletterService->create($newsletterData);
             }
@@ -158,13 +157,13 @@ class MemberController extends RestLaravelController
         }
 
         return $this->success($member);
-     }
+    }
 
     /**
-    * 刪除會員
-    * @param Int $id
-    * @return \Illuminate\Http\JsonResponse
-    */
+     * 刪除會員
+     * @param Int $id
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function deleteMember($id)
     {
         $member = $this->memberService->delete($id);
@@ -173,10 +172,10 @@ class MemberController extends RestLaravelController
     }
 
     /**
-    * 驗證-手機驗證碼
-    * @paramRequest $request
-    * @return \Illuminate\Http\JsonResponse
-    */
+     * 驗證-手機驗證碼
+     * @paramRequest $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function validateCellphone(Request $request, $id)
     {
         $validPhoneCode = $request->input('validPhoneCode');
@@ -187,10 +186,10 @@ class MemberController extends RestLaravelController
     }
 
     /**
-    * 驗證-手機驗證碼
-    * @paramRequest $request
-    * @return \Illuminate\Http\JsonResponse
-    */
+     * 驗證-手機驗證碼
+     * @paramRequest $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function checkEmail(Request $request)
     {
         $email = $request->input('email');
@@ -201,10 +200,10 @@ class MemberController extends RestLaravelController
     }
 
     /**
-    * 取所有會員
-    * @paramRequest $request
-    * @return \Illuminate\Http\JsonResponse
-    */
+     * 取所有會員
+     * @paramRequest $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function allMember(Request $request)
     {
         $members = $this->memberService->all();
@@ -213,10 +212,10 @@ class MemberController extends RestLaravelController
     }
 
     /**
-    * 單一會員資料查詢
-    * @paramRequest $request
-    * @return \Illuminate\Http\JsonResponse
-    */
+     * 單一會員資料查詢
+     * @paramRequest $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function singleMember(Request $request, $id)
     {
         $member = $this->memberService->find($id);
@@ -238,10 +237,10 @@ class MemberController extends RestLaravelController
     }
 
     /**
-    * 會員資料查詢
-    * @paramRequest $request
-    * @return \Illuminate\Http\JsonResponse
-    */
+     * 會員資料查詢
+     * @paramRequest $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function queryMember(Request $request)
     {
         $data = $request->all();
@@ -251,10 +250,10 @@ class MemberController extends RestLaravelController
     }
 
     /**
-    * 會員密碼修改
-    * @paramRequest $request
-    * @return \Illuminate\Http\JsonResponse
-    */
+     * 會員密碼修改
+     * @paramRequest $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function changePassword(Request $request, $id)
     {
         $data = $request->only([
@@ -268,10 +267,10 @@ class MemberController extends RestLaravelController
     }
 
     /**
-    * 發送忘記密碼信
-    * @paramRequest $request
-    * @return \Illuminate\Http\JsonResponse
-    */
+     * 發送忘記密碼信
+     * @paramRequest $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function sendForgetPassword(Request $request)
     {
         $email = $request->input('email');
@@ -282,10 +281,10 @@ class MemberController extends RestLaravelController
     }
 
     /**
-    * 忘記密碼-修改密碼
-    * @paramRequest $request
-    * @return \Illuminate\Http\JsonResponse
-    */
+     * 忘記密碼-修改密碼
+     * @paramRequest $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function resetPassword(Request $request)
     {
         $key = $request->input('key');
@@ -314,10 +313,10 @@ class MemberController extends RestLaravelController
     }
 
     /**
-    * 發送手機驗證碼
-    * @paramRequest $request
-    * @return \Illuminate\Http\JsonResponse
-    */
+     * 發送手機驗證碼
+     * @paramRequest $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function sendValidPhoneCode(Request $request)
     {
         $id = $request->input('id');
@@ -325,15 +324,14 @@ class MemberController extends RestLaravelController
 
         if ($phoneNumber) {
             $member = $this->memberService->update($id, [
-                    'countryCode' => $phoneNumber['countryCode'],
-                    'cellphone' => $phoneNumber['cellphone'],
-                    'country' => $phoneNumber['country']
-                ]);
-        }
-        else {
+                'countryCode' => $phoneNumber['countryCode'],
+                'cellphone' => $phoneNumber['cellphone'],
+                'country' => $phoneNumber['country']
+            ]);
+        } else {
             $member = $this->memberService->update($id, [
-                    'validPhoneCode' => strval(mt_rand(100000, 999999))
-                ]);
+                'validPhoneCode' => strval(mt_rand(100000, 999999))
+            ]);
         }
 
         //傳送簡訊認證
@@ -342,10 +340,10 @@ class MemberController extends RestLaravelController
     }
 
     /**
-    * 發送Email驗證信
-    * @paramRequest $request
-    * @return \Illuminate\Http\JsonResponse
-    */
+     * 發送Email驗證信
+     * @paramRequest $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function sendValidateEmail(Request $request)
     {
         $id = $request->input('id');
@@ -356,23 +354,21 @@ class MemberController extends RestLaravelController
     }
 
     /**
-    * 驗證-Email驗證碼
-    * @paramRequest $request
-    * @return \Illuminate\Http\JsonResponse
-    */
+     * 驗證-Email驗證碼
+     * @paramRequest $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function validateEmail(Request $request)
     {
         $validEmailCode = $request->input('validEmailCode');
 
         $result = $this->memberService->validateEmail($validEmailCode);
 
-        if($result)
-        {
+        if ($result) {
             // // 發信
             $this->memberService->sendRegisterEmail($result);
             return $this->success();
-        }else
-        {
+        } else {
             return $this->failure('E0014', 'Email驗證碼錯誤');
         }
 
@@ -421,7 +417,7 @@ class MemberController extends RestLaravelController
 
         $member = $this->memberService->find($tokenData->id);
         if (!$member || $member->status == 0 || $member->isRegistered == 0) {
-            return $this->failure('E0021','會員驗證失效');
+            return $this->failure('E0021', '會員驗證失效');
         }
 
         $token = $this->memberService->refreshToken($member, $platform);
@@ -449,12 +445,12 @@ class MemberController extends RestLaravelController
 
         $member = $this->memberService->find($tokenData->id);
         if (!$member || $member->status == 0 || $member->isRegistered == 0) {
-            return $this->failure('E0021','會員驗證失效');
+            return $this->failure('E0021', '會員驗證失效');
         }
 
         $member = $this->memberService->generateToken($member, $platform);
         if (!$member) {
-            return $this->failure('E0025','Token產生失敗');
+            return $this->failure('E0025', 'Token產生失敗');
         }
 
         return $this->success([
@@ -480,11 +476,11 @@ class MemberController extends RestLaravelController
         $isFirstLogin = false;
 
         if (empty($inputs['openId'])) {
-            return $this->failure('E0021','請至第3方設定允許提供email或改用其他方式登入本站');
+            return $this->failure('E0021', '請至第3方設定允許提供email或改用其他方式登入本站');
         }
 
-        if ( ! $this->memberService->verifyThirdPartLoginToken($verifyInfo, $inputs)) {
-            return $this->failure('E0021','會員驗證失效');
+        if (!$this->memberService->verifyThirdPartLoginToken($verifyInfo, $inputs)) {
+            return $this->failure('E0021', '會員驗證失效');
         }
 
         $member = $this->memberService->findByOpenId($inputs['openId'], $inputs['openPlateform']);
@@ -503,16 +499,16 @@ class MemberController extends RestLaravelController
             $this->memberService->sendRegisterEmail($member);
         }
         if (!$member || $member->status == 0 || $member->isRegistered == 0) {
-            return $this->failure('E0021','會員驗證失效');
+            return $this->failure('E0021', '會員驗證失效');
         }
 
         $platform = $request->header('platform');
         $member = $this->memberService->generateToken($member, $platform);
         if (!$member) {
-            return $this->failure('E0025','Token產生失敗');
+            return $this->failure('E0025', 'Token產生失敗');
         }
         //增加邀請碼並且寫入DB
-        $inviteCode=$this->memberService->createInviteCode($member->id);
+        $inviteCode = $this->memberService->createInviteCode($member->id);
 
         return $this->success([
             'id' => $member->id,
@@ -530,5 +526,30 @@ class MemberController extends RestLaravelController
             'address' => $member->address,
             'inviteCode' => $inviteCode
         ]);
+    }
+
+    /**
+     * 會員登出
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function logoutMember(Request $request)
+    {
+        $token = $request->bearerToken();
+        // $platform = $request->header('platform');
+
+        $jwtTokenService = new JWTTokenService;
+        $tokenData = $jwtTokenService->checkToken($token);
+
+        $member = $this->memberService->find($tokenData->id);
+        if (!$member || $member->status == 0 || $member->isRegistered == 0) {
+            return $this->failure('E0021', '會員驗證失效');
+        }
+
+        if (!$this->memberService->logout($member)) {
+            return $this->apiRespFail('E0028', '會員登出失敗');
+        }
+
+        return $this->success();
     }
 }

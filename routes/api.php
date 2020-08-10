@@ -55,7 +55,6 @@ Route::middleware(['cors', 'admin.jwt'])->namespace('Api')->group(function () {
         //發送繳款完成通知信
         Route::post('paymentComplete', 'MailController@paymentComplete');
     });
-
 });
 
 // 需 token 認證的 route
@@ -68,11 +67,13 @@ Route::middleware(['cors', 'auth.jwt'])->namespace('Api')->group(function () {
             ->middleware('verify.member.update.data');
         //會員密碼修改
         Route::post('password/{id}', 'MemberController@changePassword')
-        	->middleware('verify.member.changePassword');
+            ->middleware('verify.member.changePassword');
         //發送-Email驗證信
         Route::post('sendValidateEmail', 'MemberController@sendValidateEmail');
         //更新會員憑證
         Route::post('refreshToken', 'MemberController@refreshToken');
+        // 會員登出
+        Route::get('logout', 'MemberController@logoutMember');
 
         //第三方登入驗證token
         Route::post('oauth/login', 'MemberController@oauthLogin');
@@ -145,7 +146,6 @@ Route::middleware(['cors', 'auth.jwt'])->namespace('Api')->group(function () {
         Route::get('items',   'WishlistController@items');
         Route::post('add', 'WishlistController@add');
         Route::post('delete', 'WishlistController@delete');
-
     });
 
     Route::prefix('checkout')->group(function () {
@@ -174,7 +174,6 @@ Route::middleware(['cors', 'auth.jwt'])->namespace('Api')->group(function () {
         // 付款資訊
         Route::post('check', 'GreenPointController@check');
     });
-
 });
 
 Route::middleware('cors')->namespace('Api')->group(function () {
@@ -240,7 +239,7 @@ Route::middleware('cors')->namespace('Api')->group(function () {
         Route::get('exploration',   'LayoutController@exploration');
         Route::get('customize',   'LayoutController@customize');
         Route::get('banner',   'LayoutController@banner');
-//        Route::get('info',   'LayoutController@info');
+        //        Route::get('info',   'LayoutController@info');
         Route::get('category/{categoryId}', 'LayoutController@category');
         Route::get('menu/{categoryId?}', 'LayoutController@menu');
         Route::get('reload',   'LayoutController@cleanCache');
@@ -282,14 +281,11 @@ Route::middleware('cors')->namespace('Api')->group(function () {
         //退款
         Route::post('payNotify', 'IpassPayController@payNotify');
     });
-    
+
     Route::post('thirdPartyLogin', 'MemberController@thirdPartyLogin');
     // 結帳相關去TPASS
     Route::prefix('checkoutPay')->group(function () {
         // 付款資訊
         Route::post('feedback', 'CheckoutController@feedbackPay');
     });
-
-    
-
 });
