@@ -12,7 +12,7 @@ use Illuminate\Database\QueryException;
 use App\Repositories\BaseRepository;
 use App\Models\Ticket\GuestOrder;
 use App\Traits\ValidatorHelper;
-
+use App\Core\Logger;
 class GuestOrderRepository extends BaseRepository
 {
     use ValidatorHelper;

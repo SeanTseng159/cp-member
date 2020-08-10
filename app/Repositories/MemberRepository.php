@@ -1,4 +1,5 @@
 <?php
+
 /**
  * User: lee
  * Date: 2017/09/26
@@ -130,14 +131,13 @@ class MemberRepository
      * @param $data
      * @return mixed
      */
-     public function query($data)
-     {
+    public function query($data)
+    {
         $query = $this->model->where($data);
         // 如果搜尋email也要連同第三方帳號一起搜尋
         if (isset($data['email'])) {
             $members = $query->orWhere('openId', $data['email'])->get();
-        }
-        else {
+        } else {
             $members = $query->get();
         }
 
@@ -149,26 +149,26 @@ class MemberRepository
         }
 
         return $members;
-     }
+    }
 
-     /**
+    /**
      * 找所有會員
      * @param $email
      * @return mixed
      */
-     public function all()
-     {
-         $members = $this->model->all();
+    public function all()
+    {
+        $members = $this->model->all();
 
-         // 將第三方登入openId對到email
-         if ($members) {
+        // 將第三方登入openId對到email
+        if ($members) {
             foreach ($members as $key => $member) {
                 if ($member['openPlateform'] != 'citypass') $members[$key]['email'] = $member['openId'];
             }
-         }
+        }
 
-         return $members;
-     }
+        return $members;
+    }
 
     /**
      * 依據帳號,查詢使用者認証
@@ -310,24 +310,49 @@ class MemberRepository
         //產生邀請碼
         $hashids = new Hashids('', 6, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'); // all lowercase
         //利用id產生邀請碼
-        $inviteCode =$hashids ->encode($id);
+        $inviteCode = $hashids->encode($id);
 
         //上傳邀請碼回至資料庫
         try {
             $member = $this->model->find($id);
-            if ($member) {   
+            if ($member) {
                 $member->invited_code = $inviteCode;
-                $member->save();                
+                $member->save();
             } else {
                 Log::error('找不到使用者，無法更新');
                 return false;
             }
         } catch (QueryException $e) {
             return false;
-        }        
+        }
 
         return $inviteCode;
     }
 
-    
+    /**
+     * 登出會員 by ID
+     * @param $id
+     * @param $data
+     * @return mixed
+     */
+    public function logoutById($id, $data)
+    {
+        try {
+            $member = $this->model->find($id);
+
+            if ($member) {
+                $member->fill($data);
+                Log::error($member->id);
+                if (isset($data['token'])) $member->token = null;
+                $member->save();
+
+                return true;
+            } else {
+                Log::error('找不到使用者，無法登出');
+                return false;
+            }
+        } catch (QueryException $e) {
+            return false;
+        }
+    }
 }
