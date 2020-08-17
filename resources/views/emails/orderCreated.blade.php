@@ -74,7 +74,7 @@
                             本通知函只是通知您本系統已經收到您的訂購訊息、並供您再次自行核對之用，不代表交易已經確認/完成。
                         </td>
                     </tr>
-                    @if($order->order_payment_method == "211")
+                    @if($order->payment->method == "atm")
                     <tr>
                         <td colspan="2" style="font-size: 14px;">
                             為保留訂購權利，若未繳費，請儘速繳費，ATM繳費資訊如下。
@@ -85,7 +85,7 @@
                             <b>繳費銀行</b>
                         </td>
                         <td>
-                            台新銀行（812）
+                            {{ $order->payment->bankName}}（{{ $order->payment->bankId}}）
                         </td>
                     </tr>
                     <tr>
@@ -93,7 +93,7 @@
                             <b>繳費帳號</b>
                         </td>
                         <td>
-                            {{ $order->order_atm_virtual_account }}
+                            {{ $order->payment->virtualAccount }}
                         </td>
                     </tr>
                     <tr>
@@ -101,7 +101,7 @@
                             <b>繳費期限</b>
                         </td>
                         <td>
-                            {{ $order->order_atm_due_time }}
+                            {{ $order->payment->paymentPeriod }}
                         </td>
                     </tr>
                     @endif
