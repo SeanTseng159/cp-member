@@ -15,7 +15,7 @@ class MemberDiscountResult extends BaseResult
 
     public function listCanUsed($member_discounts,$cartItems,$memberID)
     {
-        
+        $resultArray = [];
         // dd(empty($member_discounts[0]->discountCode));
         foreach($member_discounts as $item){
             $addBo=True;
@@ -149,7 +149,7 @@ class MemberDiscountResult extends BaseResult
             // $result->name=$item->discountCode->discount_code_name;
             // $result->value=$item->discountCode->discount_code_value;
             // $result->endTime=Carbon::parse($item->discountCode->discount_code_endtime)->format('Y-m-d');
-            $resultArray[]=$result;
+            $addBo ? $resultArray['useful'][]=$result : $resultArray['useless'][]=$result;
         }//end foreach
 
         return $resultArray;
