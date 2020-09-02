@@ -104,6 +104,14 @@ class MemberDiscountController extends RestLaravelController
                 $resultObj->id= $itemDiscount->discount_code_id;
                 $resultObj->name= $itemDiscount->discount_code_name;
                 $resultObj->value= $itemDiscount->discount_code_value;
+                $resultObj->desc= $itemDiscount->discount_code_desc;
+                $resultObj->range=Carbon::parse($itemDiscount->discount_code_starttime)->format('Y-m-d').'~'.Carbon::parse($itemDiscount->discount_code_endtime)->format('Y-m-d');
+                $resultObj->imageUrl= $itemDiscount->image_path;
+                $tag='';
+                foreach($itemDiscount->discountCodeTag as $item){
+                    $tag=$tag.$item->tag->tag_name.',';
+                }
+                $resultObj->category=substr($tag,0,-1);
                 $resultObj->ownStatus= $ownStatus;
           
                 $result[]=$resultObj;

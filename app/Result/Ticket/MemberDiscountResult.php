@@ -6,10 +6,11 @@
 
 namespace App\Result\Ticket;
 
+use App\Result\BaseResult;
 use App\Helpers\CommonHelper;
 use Carbon\Carbon;
 
-class MemberDiscountResult
+class MemberDiscountResult extends BaseResult
 {
 
     public function listCanUsed($member_discounts,$cartItems,$memberID)
@@ -201,13 +202,24 @@ class MemberDiscountResult
         $result->status=$func;
         $result->orderNo=$data->order_no;
         $result->endTime=Carbon::parse($data->discountCode->discount_code_endtime)->format('Y-m-d');
-        $result->btwTime=Carbon::parse($data->discountCode->discount_code_starttime)->format('Y-m-d').'~'.Carbon::parse($data->discountCode->discount_code_endtime)->format('Y-m-d');
+        //$result->range=Carbon::parse($data->discountCode->discount_code_starttime)->format('Y-m-d').'~'.Carbon::parse($data->discountCode->discount_code_endtime)->format('Y-m-d');
+        $result->imageUrl=$this->getImg($data->discountCode->image_path);
         $tag='';
         foreach($data->discountCode->discountCodeTag as $item){
             $tag=$tag.$item->tag->tag_name.',';
         }
-        $result->range=substr($tag,0,-1);
+        $result->category=substr($tag,0,-1);
         return $result;
+    }
+
+    /**
+     * 取得圖片
+     * @param $imgs
+     * @return string
+     */
+    private function getImg($imgs)
+    {
+        return isset($imgs) ? $this->backendHost . $imgs : '';
     }
 
 
