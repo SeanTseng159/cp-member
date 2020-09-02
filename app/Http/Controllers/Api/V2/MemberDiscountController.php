@@ -93,31 +93,32 @@ class MemberDiscountController extends RestLaravelController
             $discountCodes=$this->discountCodeService->allEnableDiscountByProd($prodId);
             
             //判斷得程式
-            foreach($discountCodes as $itemDiscount){
-                //是否有這張discount
-                if(collect($member_discounts)->contains('discount_code_id',$itemDiscount->discount_code_id)){
-                    $ownStatus=true;
-                }else{
-                    $ownStatus =false;
-                }
-                $resultObj=new \stdClass;
-                $resultObj->id= $itemDiscount->discount_code_id;
-                $resultObj->name= $itemDiscount->discount_code_name;
-                $resultObj->value= $itemDiscount->discount_code_value;
-                $resultObj->desc= $itemDiscount->discount_code_desc;
-                $resultObj->range=Carbon::parse($itemDiscount->discount_code_starttime)->format('Y-m-d').'~'.Carbon::parse($itemDiscount->discount_code_endtime)->format('Y-m-d');
-                $resultObj->imageUrl= $itemDiscount->image_path;
-                $tag='';
-                foreach($itemDiscount->discountCodeTag as $item){
-                    $tag=$tag.$item->tag->tag_name.',';
-                }
-                $resultObj->category=substr($tag,0,-1);
-                $resultObj->ownStatus= $ownStatus;
+            $result = (new MemberDiscountResult)->listByProd($member_discounts,$discountCodes);
+            // foreach($discountCodes as $itemDiscount){
+            //     //是否有這張discount
+            //     if(collect($member_discounts)->contains('discount_code_id',$itemDiscount->discount_code_id)){
+            //         $ownStatus=true;
+            //     }else{
+            //         $ownStatus =false;
+            //     }
+            //     $resultObj=new \stdClass;
+            //     $resultObj->id= $itemDiscount->discount_code_id;
+            //     $resultObj->name= $itemDiscount->discount_code_name;
+            //     $resultObj->value= $itemDiscount->discount_code_value;
+            //     $resultObj->desc= $itemDiscount->discount_code_desc;
+            //     $resultObj->range=Carbon::parse($itemDiscount->discount_code_starttime)->format('Y-m-d').'~'.Carbon::parse($itemDiscount->discount_code_endtime)->format('Y-m-d');
+            //     $resultObj->imageUrl= $itemDiscount->image_path;
+            //     $tag='';
+            //     foreach($itemDiscount->discountCodeTag as $item){
+            //         $tag=$tag.$item->tag->tag_name.',';
+            //     }
+            //     $resultObj->category=substr($tag,0,-1);
+            //     $resultObj->ownStatus= $ownStatus;
           
-                $result[]=$resultObj;
+            //     $result[]=$resultObj;
 
 
-            }//end foreach
+            // }//end foreach
             
             return $this->success($result);
             
@@ -229,12 +230,4 @@ class MemberDiscountController extends RestLaravelController
         }
 
     }//end
-
-
-
-
-
-
-
-    
 }
