@@ -55,6 +55,10 @@ class MemberController extends RestLaravelController
             return $this->failureCode('A0030');
         }
 
+        if ($data['countryCode'] != '886') {
+            return $this->failureCode('A0039');
+        }
+
         $member = $this->memberService->findByCountryPhone($data['country'], $data['countryCode'], $data['cellphone']);
 
         $member = ($member) ? $this->memberService->update($member->id, $data) : $this->memberService->create($data);
@@ -325,6 +329,12 @@ class MemberController extends RestLaravelController
     {
         $id = $request->input('id');
         $phoneNumber = $request->phoneNumber;
+
+        // 國外號碼不發簡訊
+        $member = $this->memberService->find($id);
+        if ($member->country != '886') {
+            return $this->failureCode('A0039');
+        }
 
         if ($phoneNumber) {
             $member = $this->memberService->update($id, [
