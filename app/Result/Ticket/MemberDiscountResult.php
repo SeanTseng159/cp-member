@@ -217,6 +217,7 @@ class MemberDiscountResult extends BaseResult
             $resultObj->name = $itemDiscount->discount_code_name;
             $resultObj->value = $itemDiscount->discount_code_value;
             $resultObj->desc = $itemDiscount->discount_code_desc;
+            $resultObj->endtime= Carbon::parse($itemDiscount->discount_code_endtime)->format('Y-m-d');
             $resultObj->range = Carbon::parse($itemDiscount->discount_code_starttime)->format('Y-m-d') . '~' . Carbon::parse($itemDiscount->discount_code_endtime)->format('Y-m-d');
             $resultObj->imageUrl = $this->getImg($itemDiscount->image_path);
             $tag = '';
