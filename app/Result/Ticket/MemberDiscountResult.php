@@ -20,6 +20,7 @@ class MemberDiscountResult extends BaseResult
         $resultObj->useful = [];
         $resultObj->useless = [];
         // dd(empty($member_discounts[0]->discountCode));
+        // dd($member_discounts[0]->discountCode);
         foreach ($member_discounts as $item) {
             $addBo = True;
             $message = '';
@@ -204,7 +205,7 @@ class MemberDiscountResult extends BaseResult
 
     public function listByProd($member_discounts, $discountCodes)
     {
-
+        $result = [];
         foreach ($discountCodes as $itemDiscount) {
             //是否有這張discount
             if (collect($member_discounts)->contains('discount_code_id', $itemDiscount->discount_code_id)) {
@@ -229,6 +230,66 @@ class MemberDiscountResult extends BaseResult
 
             $result[] = $resultObj;
         } //end foreach
+        return $result;
+    }
+
+    public function listCanUsedByProd($member_discounts, $discountCodes)
+    {
+        $result = [];
+        // dd(collect($member_discounts));
+        // dd(collect($discountCodes));
+        // 商品優惠券，且已歸戶
+        foreach ($discountCodes as $itemDiscount) {
+            //是否有這張discount
+            if (collect($member_discounts)->contains('discount_code_id', $itemDiscount->discount_code_id)) {
+                // 已歸戶
+                $resultObj = new \stdClass;
+                
+                $resultObj->id       = $itemDiscount->discount_code_id;
+                $resultObj->name     = $itemDiscount->discount_code_name;
+                $resultObj->value    = $itemDiscount->discount_code_value;
+                $resultObj->desc     = $itemDiscount->discount_code_desc;
+                $resultObj->endtime  = Carbon::parse($itemDiscount->discount_code_endtime)->format('Y-m-d');
+                $resultObj->range    = Carbon::parse($itemDiscount->discount_code_starttime)->format('Y-m-d') . '~' . Carbon::parse($itemDiscount->discount_code_endtime)->format('Y-m-d');
+                $resultObj->imageUrl = $this->getImg($itemDiscount->image_path);
+                $tag = '';
+                foreach ($itemDiscount->discountCodeTag as $item) {
+                    $tag = $tag . $item->tag->tag_name . ',';
+                }
+                $resultObj->category = substr($tag, 0, -1);
+                // $resultObj->ownStatus = true;
+                $result['useful'][] = $resultObj;
+            }
+            
+        }
+
+        // 所有已歸戶券裡，排除商品優惠券
+        foreach ($member_discounts as $key => $memberItemDiscount) {
+
+            foreach ($result['useful'] as $key2 => $usefulItemDiscount) {
+
+                if (!collect($memberItemDiscount)->contains('discount_code_id', $usefulItemDiscount->id)) {
+                    $resultObj = new \stdClass;
+                
+                    $resultObj->id       = $memberItemDiscount->discountCode->discount_code_id;
+                    $resultObj->name     = $memberItemDiscount->discountCode->discount_code_name;
+                    $resultObj->value    = $memberItemDiscount->discountCode->discount_code_value;
+                    $resultObj->desc     = $memberItemDiscount->discountCode->discount_code_desc;
+                    $resultObj->endtime  = Carbon::parse($memberItemDiscount->discountCode->discount_code_endtime)->format('Y-m-d');
+                    $resultObj->range    = Carbon::parse($memberItemDiscount->discountCode->discount_code_starttime)->format('Y-m-d') . '~' . Carbon::parse($memberItemDiscount->discountCode->discount_code_endtime)->format('Y-m-d');
+                    $resultObj->imageUrl = $this->getImg($memberItemDiscount->discountCode->image_path);
+                    $tag = '';
+                    foreach ($memberItemDiscount->discountCode->discountCodeTag as $item) {
+                        $tag = $tag . $item->tag->tag_name . ',';
+                    }
+                    $resultObj->category = substr($tag, 0, -1);
+                    // $resultObj->ownStatus = true;
+                    $result['useless'][] = $resultObj;
+                }
+            }
+        }
+
+
         return $result;
     }
 

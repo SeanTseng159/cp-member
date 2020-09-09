@@ -52,6 +52,8 @@ class MemberDiscountController extends RestLaravelController
             $memberID = $this->getMemberId();
             //取出購物車號碼
             $cartNumber = $request->query('cartNumber');
+            //取出購物車號碼
+            $prodId = $request->query('prodID');
             //跑api拿出購物車內的商品送去給CI專案吧
             $cartItems = $this->cartService->mine(['cartNumber' => $cartNumber]);
             //拿出列表優惠倦
@@ -70,6 +72,46 @@ class MemberDiscountController extends RestLaravelController
 
     } //end list
 
+    /**
+     *  //優惠卷列表
+     * @param Request $request prodId
+     * @return JsonResponse
+     */
+    public function listCanUsedByProdId(Request $request)
+    {
+        try {
+            
+            $prodId = $request->query('prodId');
+            
+            //取出會員資訊
+            $memberID = $this->getMemberId();
+            if (empty($memberID)) {
+                $member_discounts = null;
+            } else {
+                //拿出列表優惠倦
+                // $member_discounts = $this->service->listProdDiscount($memberID);
+                //拿出列表優惠倦
+                $member_discounts = $this->service->listCanUsed($memberID);
+            }
+            
+            // dd($member_discounts[0]);
+            //拿出可以用的優惠倦
+            $discountCodes = $this->discountCodeService->allEnableDiscountByProd($prodId);
+            // dd($discountCodes[0]);
+            //判斷得程式
+            $result = (new MemberDiscountResult)->listCanUsedByProd($member_discounts, $discountCodes);
+
+
+            return $this->success($result);
+
+
+            //拿出 dicount_codes
+        } catch (\Exception $e) {
+            // Logger::error('v2/MemberDiscountController/list',$e->getMessage());
+            return $this->failure('E0001', $e->getMessage());
+        } //try
+
+    } //end list
 
     /**
      *  //商品可以領取的優惠卷

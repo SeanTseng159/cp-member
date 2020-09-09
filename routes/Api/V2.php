@@ -53,6 +53,9 @@ Route::middleware(['cors', 'auth.jwt'])->namespace('V2')->group(function () {
     Route::prefix('discount')->group(function () {
         // 可使用禮物數、優惠卷 與 總和
         Route::get('listCanUsed', 'MemberDiscountController@listCanUsed');
+        // 直接購買的優惠券
+        Route::get('listCanUsedByProdId', 'MemberDiscountController@listCanUsedByProdId');
+
         Route::post('getByCode', 'MemberDiscountController@getByCode');
 
         Route::get('list/{func}', 'MemberDiscountController@list');
