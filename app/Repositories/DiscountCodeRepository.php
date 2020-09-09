@@ -54,7 +54,9 @@ class DiscountCodeRepository
                         })
                     ->whereNotExists(
                         function ($query) use ($prodId) {
-                            $query->from('discount_code_block_prods')->where('discount_code_block_prods.prod_id',$prodId);
+                            $query->from('discount_code_block_prods')
+                                ->where('discount_code_block_prods.prod_id',$prodId)
+                                ->where('discount_code_block_prods.deleted_at',0);
                     })
                     ->where('discount_code_status',1)
                     ->where('discount_code_starttime', '<=', $date)
