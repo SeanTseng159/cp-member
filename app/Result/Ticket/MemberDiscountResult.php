@@ -257,18 +257,20 @@ class MemberDiscountResult extends BaseResult
                     $tag = $tag . $item->tag->tag_name . ',';
                 }
                 $resultObj->category = substr($tag, 0, -1);
-                // $resultObj->ownStatus = true;
+                $resultObj->ownStatus = true;
                 $result['useful'][] = $resultObj;
             }
             
         }
-
+        
         // 所有已歸戶券裡，排除商品優惠券
-        foreach ($member_discounts as $key => $memberItemDiscount) {
-
-            foreach ($result['useful'] as $key2 => $usefulItemDiscount) {
-
-                if (!collect($memberItemDiscount)->contains('discount_code_id', $usefulItemDiscount->id)) {
+        $result['useless'] = [];
+        foreach ($result['useful'] as $key2 => $usefulItemDiscount) {
+            foreach ($member_discounts as $key => $memberItemDiscount) {
+                if (
+                    !collect($result['useful'])->contains('id', $memberItemDiscount->discountCode->discount_code_id)
+                    && !collect($result['useless'])->contains('id', $memberItemDiscount->discountCode->discount_code_id)
+                ) {
                     $resultObj = new \stdClass;
                 
                     $resultObj->id       = $memberItemDiscount->discountCode->discount_code_id;
@@ -283,7 +285,7 @@ class MemberDiscountResult extends BaseResult
                         $tag = $tag . $item->tag->tag_name . ',';
                     }
                     $resultObj->category = substr($tag, 0, -1);
-                    // $resultObj->ownStatus = true;
+                    $resultObj->ownStatus = true;
                     $result['useless'][] = $resultObj;
                     break;
                 }
