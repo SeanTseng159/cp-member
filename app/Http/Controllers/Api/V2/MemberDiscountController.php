@@ -89,23 +89,15 @@ class MemberDiscountController extends RestLaravelController
                 $member_discounts = null;
             } else {
                 //拿出列表優惠倦
-                // $member_discounts = $this->service->listProdDiscount($memberID);
-                //拿出列表優惠倦
                 $member_discounts = $this->service->listCanUsed($memberID);
             }
-            
-            // dd($member_discounts[0]);
             //拿出可以用的優惠倦
             $discountCodes = $this->discountCodeService->allEnableDiscountByProd($prodId);
             // dd($discountCodes[0]);
             //判斷得程式
             $result = (new MemberDiscountResult)->listCanUsedByProd($member_discounts, $discountCodes);
 
-
             return $this->success($result);
-
-
-            //拿出 dicount_codes
         } catch (\Exception $e) {
             // Logger::error('v2/MemberDiscountController/list',$e->getMessage());
             return $this->failure('E0001', $e->getMessage());
@@ -136,31 +128,6 @@ class MemberDiscountController extends RestLaravelController
 
             //判斷得程式
             $result = (new MemberDiscountResult)->listByProd($member_discounts, $discountCodes);
-            // foreach($discountCodes as $itemDiscount){
-            //     //是否有這張discount
-            //     if(collect($member_discounts)->contains('discount_code_id',$itemDiscount->discount_code_id)){
-            //         $ownStatus=true;
-            //     }else{
-            //         $ownStatus =false;
-            //     }
-            //     $resultObj=new \stdClass;
-            //     $resultObj->id= $itemDiscount->discount_code_id;
-            //     $resultObj->name= $itemDiscount->discount_code_name;
-            //     $resultObj->value= $itemDiscount->discount_code_value;
-            //     $resultObj->desc= $itemDiscount->discount_code_desc;
-            //     $resultObj->range=Carbon::parse($itemDiscount->discount_code_starttime)->format('Y-m-d').'~'.Carbon::parse($itemDiscount->discount_code_endtime)->format('Y-m-d');
-            //     $resultObj->imageUrl= $itemDiscount->image_path;
-            //     $tag='';
-            //     foreach($itemDiscount->discountCodeTag as $item){
-            //         $tag=$tag.$item->tag->tag_name.',';
-            //     }
-            //     $resultObj->category=substr($tag,0,-1);
-            //     $resultObj->ownStatus= $ownStatus;
-
-            //     $result[]=$resultObj;
-
-
-            // }//end foreach
 
             return $this->success($result);
         } catch (\Exception $e) {
