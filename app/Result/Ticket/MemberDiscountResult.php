@@ -285,6 +285,7 @@ class MemberDiscountResult extends BaseResult
                     $resultObj->category = substr($tag, 0, -1);
                     // $resultObj->ownStatus = true;
                     $result['useless'][] = $resultObj;
+                    break;
                 }
             }
         }

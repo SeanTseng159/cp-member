@@ -68,6 +68,7 @@ class DiscountCodeRepository
             $isBlockProd = $this->discountCodeBlockProd
                 ->where('prod_id',$prodId)
                 ->where('discount_code_id',$value->discount_code_id)
+                ->where('deleted_at',0)
                 ->exists();
             if(!$isBlockProd){
                 $discountCodeArr[] = $value;
