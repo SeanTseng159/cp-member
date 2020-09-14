@@ -70,7 +70,7 @@ class MemberController extends RestLaravelController
         $this->memberService->sendRegisterSMS($member);
         return ($member) ? $this->success([
             'id' => $member->id,
-            'validPhoneCode' => $member->validPhoneCode,
+            // 'validPhoneCode' => $member->validPhoneCode,
             'inviteCode' => $inviteCode
         ]) : $this->failureCode('E0011');
     }
