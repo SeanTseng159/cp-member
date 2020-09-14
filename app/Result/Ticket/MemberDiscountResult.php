@@ -21,7 +21,7 @@ class MemberDiscountResult extends BaseResult
         $resultObj->useless = [];
         // dd(empty($member_discounts[0]->discountCode));
         // dd($member_discounts[0]->discountCode);
-        foreach ($member_discounts as $item) {
+        foreach ($member_discounts as $key => $item) {
             $addBo = True;
             $message = '';
 
@@ -79,33 +79,32 @@ class MemberDiscountResult extends BaseResult
                     $blockProdIdArray[] = $tmp->prod_id;
                 }
 
-                //將優惠倦接受prodId列出來 存在   $allowProdIdArray   
+                //將優惠倦接受prodId列出來 存在   $allowProdIdArray
                 $allowProdIdArray = [];
                 foreach ($item->discountCodeTag as $discountTag) {
                     $tmpProdIdArray = collect(collect($discountTag)->get('tag_prod_id'))->pluck('prod_id')->all();
                     $allowProdIdArray = collect([$allowProdIdArray, $tmpProdIdArray])->collapse()->all();
                 }
-
-
+                
                 //拿出購物車的商品
+                $cartProdsPass = [];
                 foreach ($cartItems[0]->items as $cartItem) {
-
+                    
                     $cartProdsTmp = new \stdClass;
                     //判斷商品是否再拒絕的裏面
                     if (in_array($cartItem->id, $blockProdIdArray)) {
-
+                        
                         //流下沒有背拒絕且接受的商品
-                    } elseif (in_array($cartItem->id, $allowProdIdArray)) {
+                    } elseif (in_array($cartItem->id, $allowProdIdArray)) {   
                         $cartProdsTmp->prodId = $cartItem->id;
                         $cartProdsTmp->price = $cartItem->price;
                         $cartProdsTmp->qty = $cartItem->qty;
                         $cartProdsTmp->specId = $cartItem->additionals['specId'];
                         $cartProdsTmp->priceId = $cartItem->additionals['priceId'];
-                        $cartProdsPass[] = $cartProdsTmp;
+                        $cartProdsPass[] = $cartProdsTmp;                        
                     }
                 }
             } //end  discount_code_block_prods discount_code_tags
-
 
             if ($addBo & empty($cartProdsPass)) {
                 $addBo = false;
