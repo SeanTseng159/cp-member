@@ -332,7 +332,7 @@ class MemberController extends RestLaravelController
 
         // 國外號碼不發簡訊
         $member = $this->memberService->find($id);
-        if ($member->country != '886') {
+        if ($member->countryCode != '886') {
             return $this->failureCode('A0039');
         }
 
