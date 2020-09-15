@@ -21,7 +21,7 @@ class MemberDiscountResult extends BaseResult
         $resultObj->useless = [];
         // dd(empty($member_discounts[0]->discountCode));
         // dd($member_discounts[0]->discountCode);
-        foreach ($member_discounts as $item) {
+        foreach ($member_discounts as $key => $item) {
             $addBo = True;
             $message = '';
 
@@ -79,33 +79,32 @@ class MemberDiscountResult extends BaseResult
                     $blockProdIdArray[] = $tmp->prod_id;
                 }
 
-                //將優惠倦接受prodId列出來 存在   $allowProdIdArray   
+                //將優惠倦接受prodId列出來 存在   $allowProdIdArray
                 $allowProdIdArray = [];
                 foreach ($item->discountCodeTag as $discountTag) {
                     $tmpProdIdArray = collect(collect($discountTag)->get('tag_prod_id'))->pluck('prod_id')->all();
                     $allowProdIdArray = collect([$allowProdIdArray, $tmpProdIdArray])->collapse()->all();
                 }
-
-
+                
                 //拿出購物車的商品
+                $cartProdsPass = [];
                 foreach ($cartItems[0]->items as $cartItem) {
-
+                    
                     $cartProdsTmp = new \stdClass;
                     //判斷商品是否再拒絕的裏面
                     if (in_array($cartItem->id, $blockProdIdArray)) {
-
+                        
                         //流下沒有背拒絕且接受的商品
-                    } elseif (in_array($cartItem->id, $allowProdIdArray)) {
+                    } elseif (in_array($cartItem->id, $allowProdIdArray)) {   
                         $cartProdsTmp->prodId = $cartItem->id;
                         $cartProdsTmp->price = $cartItem->price;
                         $cartProdsTmp->qty = $cartItem->qty;
                         $cartProdsTmp->specId = $cartItem->additionals['specId'];
                         $cartProdsTmp->priceId = $cartItem->additionals['priceId'];
-                        $cartProdsPass[] = $cartProdsTmp;
+                        $cartProdsPass[] = $cartProdsTmp;                        
                     }
                 }
             } //end  discount_code_block_prods discount_code_tags
-
 
             if ($addBo & empty($cartProdsPass)) {
                 $addBo = false;
@@ -218,7 +217,7 @@ class MemberDiscountResult extends BaseResult
             $resultObj->name = $itemDiscount->discount_code_name;
             $resultObj->value = $itemDiscount->discount_code_value;
             $resultObj->desc = $itemDiscount->discount_code_desc;
-            $resultObj->endtime= Carbon::parse($itemDiscount->discount_code_endtime)->format('Y-m-d');
+            $resultObj->endTime= Carbon::parse($itemDiscount->discount_code_endtime)->format('Y-m-d');
             $resultObj->range = Carbon::parse($itemDiscount->discount_code_starttime)->format('Y-m-d') . '~' . Carbon::parse($itemDiscount->discount_code_endtime)->format('Y-m-d');
             $resultObj->imageUrl = $this->getImg($itemDiscount->image_path);
             $tag = '';
@@ -233,64 +232,134 @@ class MemberDiscountResult extends BaseResult
         return $result;
     }
 
-    public function listCanUsedByProd($member_discounts, $discountCodes)
+    public function listCanUsedByProd($member_discounts, $cart,$memberID)
     {
         $result = [];
-        // dd(collect($member_discounts));
-        // dd(collect($discountCodes));
-        // 商品優惠券，且已歸戶
-        foreach ($discountCodes as $itemDiscount) {
-            //是否有這張discount
-            if (collect($member_discounts)->contains('discount_code_id', $itemDiscount->discount_code_id)) {
-                // 已歸戶
-                $resultObj = new \stdClass;
-                
-                $resultObj->id       = $itemDiscount->discount_code_id;
-                $resultObj->name     = $itemDiscount->discount_code_name;
-                $resultObj->value    = $itemDiscount->discount_code_value;
-                $resultObj->desc     = $itemDiscount->discount_code_desc;
-                $resultObj->endtime  = Carbon::parse($itemDiscount->discount_code_endtime)->format('Y-m-d');
-                $resultObj->range    = Carbon::parse($itemDiscount->discount_code_starttime)->format('Y-m-d') . '~' . Carbon::parse($itemDiscount->discount_code_endtime)->format('Y-m-d');
-                $resultObj->imageUrl = $this->getImg($itemDiscount->image_path);
-                $tag = '';
-                foreach ($itemDiscount->discountCodeTag as $item) {
-                    $tag = $tag . $item->tag->tag_name . ',';
+        $resultObj = new \stdClass;
+        $resultObj->useful = [];
+        $resultObj->useless = [];
+        // dd(empty($member_discounts[0]->discountCode));
+        // dd($member_discounts[0]->discountCode);
+        foreach ($member_discounts as $key => $item) {
+            $addBo = True;
+            $message = '';
+
+            //discountCode 判斷　有效數量　　　優惠卷時間
+            if ($addBo) {
+                //如果沒有優惠倦就到下個 loop
+                if (empty($item->discountCode)) {
+                    continue;
+                } elseif ($item->discountCode->discount_code_limit_count <= $item->discountCode->discount_code_used_count) {
+                    $addBo = false;
+                    $message = '優惠卷使用完畢';
                 }
-                $resultObj->category = substr($tag, 0, -1);
-                $resultObj->ownStatus = true;
-                $result['useful'][] = $resultObj;
             }
-            
-        }
-        
-        // 所有已歸戶券裡，排除商品優惠券
-        $result['useless'] = [];
-        foreach ($result['useful'] as $key2 => $usefulItemDiscount) {
-            foreach ($member_discounts as $key => $memberItemDiscount) {
-                if (
-                    !collect($result['useful'])->contains('id', $memberItemDiscount->discountCode->discount_code_id)
-                    && !collect($result['useless'])->contains('id', $memberItemDiscount->discountCode->discount_code_id)
-                ) {
-                    $resultObj = new \stdClass;
-                
-                    $resultObj->id       = $memberItemDiscount->discountCode->discount_code_id;
-                    $resultObj->name     = $memberItemDiscount->discountCode->discount_code_name;
-                    $resultObj->value    = $memberItemDiscount->discountCode->discount_code_value;
-                    $resultObj->desc     = $memberItemDiscount->discountCode->discount_code_desc;
-                    $resultObj->endtime  = Carbon::parse($memberItemDiscount->discountCode->discount_code_endtime)->format('Y-m-d');
-                    $resultObj->range    = Carbon::parse($memberItemDiscount->discountCode->discount_code_starttime)->format('Y-m-d') . '~' . Carbon::parse($memberItemDiscount->discountCode->discount_code_endtime)->format('Y-m-d');
-                    $resultObj->imageUrl = $this->getImg($memberItemDiscount->discountCode->image_path);
-                    $tag = '';
-                    foreach ($memberItemDiscount->discountCode->discountCodeTag as $item) {
-                        $tag = $tag . $item->tag->tag_name . ',';
+
+            //拿出  discountCodeMember  =0 代表無上線
+            if ($addBo) {
+                if ($item->discountCode->discount_code_member_use_count != 0) {
+                    //檢查式否達會員可使用上限 //有效數量
+
+                    //會員可使用上限
+                    $filtered = collect($item->discountCodeMember)->filter(function ($item) use ($memberID) {
+                        return $item->member_id == $memberID;
+                    });
+
+                    if (collect($filtered)->count() >= $item->discountCode->discount_code_member_use_count) {
+                        $addBo = false;
+                        $message = '超過可使用上限';
                     }
-                    $resultObj->category = substr($tag, 0, -1);
-                    $resultObj->ownStatus = true;
-                    $result['useless'][] = $resultObj;
-                    break;
                 }
+
+                //首購
+                if ($item->discountCode->discount_first_type == 1) {
+                    //檢查是否為首物購買
+                    if (collect($item->discountCodeMember)->count() > 0) {
+                        $addBo = false;
+                        $message = '非首購';
+                    }
+                }
+            } //end discountCodeMember
+
+            //取出 discount_code_block_prods  
+            //discount_code_tags with tag_prods 檢查是否可以使用範圍的商品
+            if ($addBo) {
+                //將優惠倦拒絕的prodId列出來 存在   $blockProdIdArray    
+                $blockProdIdArray = [];
+                foreach ($item->discountCodeBlock as $tmp) {
+                    $blockProdIdArray[] = $tmp->prod_id;
+                }
+
+                //將優惠倦接受prodId列出來 存在   $allowProdIdArray
+                $allowProdIdArray = [];
+                foreach ($item->discountCodeTag as $discountTag) {
+                    $tmpProdIdArray = collect(collect($discountTag)->get('tag_prod_id'))->pluck('prod_id')->all();
+                    $allowProdIdArray = collect([$allowProdIdArray, $tmpProdIdArray])->collapse()->all();
+                }
+                
+                //拿出購物車的商品
+                $cartProdsPass = [];
+                //判斷商品是否再拒絕的裏面                
+                foreach ($cart->items as $cartItem) {
+                    // dd($cartItem);
+                    $cartProdsTmp = new \stdClass;
+                    //判斷商品是否再拒絕的裏面
+                    if (in_array($cartItem->id, $blockProdIdArray)) {
+                        
+                        //流下沒有背拒絕且接受的商品
+                    } elseif (in_array($cartItem->id, $allowProdIdArray)) {   
+                        $cartProdsTmp->prodId = $cartItem->id;
+                        $cartProdsTmp->price = $cartItem->price;
+                        $cartProdsTmp->qty = $cartItem->quantity;
+                        $cartProdsTmp->specId = $cartItem->additional->spec->id;
+                        $cartProdsTmp->priceId = $cartItem->additional->type->id;
+                        $cartProdsPass[] = $cartProdsTmp;                        
+                    }
+                }
+            } //end  discount_code_block_prods discount_code_tags
+
+            // dd($cartProdsPass);
+            if ($addBo & empty($cartProdsPass)) {
+                $addBo = false;
+                $message = '商品不符合條件';
             }
-        }
+
+            //dicount_codes 是否符合 discount 條件
+            if ($addBo) {
+                $totalPrice = 0;
+                foreach ($cartProdsPass as $cartTmp) {
+                    $totalPrice += (int)$cartTmp->qty * (int)$cartTmp->price;
+                }
+
+                //滿足最低折扣 //最低限制消費
+                //計算折扣
+                if ($item->discountCode->discount_code_type == 1) {
+                    $totalPriceAfterDiscount = (int)($totalPrice * (float)$item->discountCode->discount_code_price / 100);
+                    //計算折價
+                } elseif ($item->discountCode->discount_code_type == 2) {
+                    $totalPriceAfterDiscount = $totalPrice - (int)$item->discountCode->discount_code_price;
+                }
+
+
+                if ($item->discountCode->discount_code_limit_price > $totalPriceAfterDiscount) {
+                    $addBo = false;
+                    $message = '需要滿足最低消費';
+                }
+            } //end dicount_codes 
+
+            // dd($item->discountCode);
+            $result = $this->getListResult($item, 'null');
+            $result->status = $addBo;
+            $result->message = $message;
+            // $result->id=$item->discountCode->discount_code_id;
+            // $result->name=$item->discountCode->discount_code_name;
+            // $result->value=$item->discountCode->discount_code_value;
+            // $result->endTime=Carbon::parse($item->discountCode->discount_code_endtime)->format('Y-m-d');
+            $addBo ? $resultObj->useful[] = $result : $resultObj->useless[] = $result;
+        } //end foreach
+            // dd($resultObj);
+
+        return $resultObj;
 
 
         return $result;

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\V2;
 
 use App\Cache\Redis;
 use Ksd\Mediation\Services\CartMoreService;
+use App\Services\CartService;
 use App\Core\Logger;
 
 use Carbon\Carbon;
@@ -18,6 +19,7 @@ use App\Traits\CartHelper;
 use App\Result\Ticket\MemberDiscountResult;
 use Illuminate\Support\Facades\Hash;
 use App\Services\DiscountCodeService;
+use App\Services\Ticket\ProductService;
 
 class MemberDiscountController extends RestLaravelController
 {
@@ -25,17 +27,23 @@ class MemberDiscountController extends RestLaravelController
     use MemberHelper;
 
     protected $cartService;
+    protected $cartMoreService;
     protected $service;
     protected $discountCodeService;
+    protected $productService;
 
     public function __construct(
-        CartMoreService $cartService,
+        CartService $cartService,
+        CartMoreService $cartMoreService,
         MemberDiscountService  $service,
-        DiscountCodeService $discountCodeService
+        DiscountCodeService $discountCodeService,
+        ProductService $productService
     ) {
         $this->cartService = $cartService;
+        $this->cartMoreService = $cartMoreService;
         $this->service = $service;
         $this->discountCodeService = $discountCodeService;
+        $this->productService = $productService;
     }
 
 
@@ -55,7 +63,7 @@ class MemberDiscountController extends RestLaravelController
             //取出購物車號碼
             $prodId = $request->query('prodID');
             //跑api拿出購物車內的商品送去給CI專案吧
-            $cartItems = $this->cartService->mine(['cartNumber' => $cartNumber]);
+            $cartItems = $this->cartMoreService->mine(['cartNumber' => $cartNumber]);
             //拿出列表優惠倦
             $member_discounts = $this->service->listCanUsed($memberID);
             //判斷得程式
@@ -82,6 +90,7 @@ class MemberDiscountController extends RestLaravelController
         try {
             
             $prodId = $request->query('prodId');
+            $action = $request->query('action');
             
             //取出會員資訊
             $memberID = $this->getMemberId();
@@ -91,11 +100,13 @@ class MemberDiscountController extends RestLaravelController
                 //拿出列表優惠倦
                 $member_discounts = $this->service->listCanUsed($memberID);
             }
-            //拿出可以用的優惠倦
-            $discountCodes = $this->discountCodeService->allEnableDiscountByProd($prodId);
-            // dd($discountCodes[0]);
+            
+            // 取購物車內容
+            $cart = $this->cartService->find($action, $memberID);
+            $cart = unserialize($cart);
+
             //判斷得程式
-            $result = (new MemberDiscountResult)->listCanUsedByProd($member_discounts, $discountCodes);
+            $result = (new MemberDiscountResult)->listCanUsedByProd($member_discounts,$cart,$memberID);
 
             return $this->success($result);
         } catch (\Exception $e) {
