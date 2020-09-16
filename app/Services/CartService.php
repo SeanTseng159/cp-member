@@ -79,6 +79,16 @@ class CartService
     {
         //整理資料 
         $cart=$this->countDiscount($cart, $discount, $memberId);
+        
+        $discount_code_type = $discount->discount_code_type;
+        $discount_code_price = $discount->discount_code_price;
+        $discount_code_off_max = $discount->discount_code_off_max;
+        // 如果折抵 
+        if(1 == $discount_code_type){
+            $discountPrice = round($cart->totalAmount * (100 - $discount_code_price) / 100);
+            $discountPrice = $discountPrice > $discount_code_off_max && $discount_code_off_max > 0?$discount_code_off_max:$discountPrice;
+        }
+        $cart->DiscountCode->amount = $discountPrice;
 
         //儲存到redis
         //$this->add('buyNow', $memberId, serialize($cart));
