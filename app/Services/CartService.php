@@ -127,9 +127,10 @@ class CartService
         // 如果折抵 
         if(1 == $discount_code_type){
             $discountPrice = round($cart->totalAmount * (100 - $discount_code_price) / 100);
-            $discountPrice = $discountPrice > $discount_code_off_max && $discount_code_off_max > 0?$discount_code_off_max:$discountPrice;
+            $amount = $discountPrice > $discount_code_off_max && $discount_code_off_max > 0?$discount_code_off_max:$discountPrice;
+        }else{
+            $amount = $discount_code_price;
         }
-        // $cart->DiscountCode->amount = $discountPrice;
 
         if ($amount > $cart->totalAmount)
             $amount = $cart->totalAmount;
