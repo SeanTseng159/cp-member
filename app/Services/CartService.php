@@ -80,16 +80,6 @@ class CartService
         //整理資料 
         $cart=$this->countDiscount($cart, $discount, $memberId);
         
-        $discount_code_type = $discount->discount_code_type;
-        $discount_code_price = $discount->discount_code_price;
-        $discount_code_off_max = $discount->discount_code_off_max;
-        // 如果折抵 
-        if(1 == $discount_code_type){
-            $discountPrice = round($cart->totalAmount * (100 - $discount_code_price) / 100);
-            $discountPrice = $discountPrice > $discount_code_off_max && $discount_code_off_max > 0?$discount_code_off_max:$discountPrice;
-        }
-        $cart->DiscountCode->amount = $discountPrice;
-
         //儲存到redis
         //$this->add('buyNow', $memberId, serialize($cart));
 
@@ -99,16 +89,15 @@ class CartService
         $data->discountAmount =  $cart->DiscountCode->amount;
         $data->discountTotalAmount = $cart->totalAmount - $cart->DiscountCode->amount;
         $data->payAmount = $data->discountTotalAmount +  $cart->shippingFee;
-        $data->shippingFee = $cart->shippingFee;
+        $data->shippingFee = $cart->shippingFee;        
+
         return $data;
     }
 
 
     //整理判斷 優惠倦計算
     public function countDiscount($cart, $discount, $memberId)
-    {
-        ;
-        # code...
+    {        
         if (empty($cart)) return false;
         //購物內容是否有達到最低金額
         
@@ -132,16 +121,15 @@ class CartService
 
         // 折扣金額：1.折扣(x) 2.折價(-)  加價購(?)
         $amount = 0;
-        switch ($discount->discount_code_type) {
-            case '1':
-                $amount = round($cart->totalAmount * ((100 - $discount->discount_code_price) / 100));
-                break;
-            case '2':
-                $amount = $discount->discount_code_price;
-                break;
-            default:
-                break;
+        $discount_code_type = $discount->discount_code_type;
+        $discount_code_price = $discount->discount_code_price;
+        $discount_code_off_max = $discount->discount_code_off_max;
+        // 如果折抵 
+        if(1 == $discount_code_type){
+            $discountPrice = round($cart->totalAmount * (100 - $discount_code_price) / 100);
+            $discountPrice = $discountPrice > $discount_code_off_max && $discount_code_off_max > 0?$discount_code_off_max:$discountPrice;
         }
+        // $cart->DiscountCode->amount = $discountPrice;
 
         if ($amount > $cart->totalAmount)
             $amount = $cart->totalAmount;
