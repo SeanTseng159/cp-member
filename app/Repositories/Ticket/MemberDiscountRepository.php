@@ -153,4 +153,21 @@ class MemberDiscountRepository extends BaseRepository
             ->where('created_at', '>=', Carbon::today()->subMonths(12)) //  請求日往回推一年，歸戶日要大於期間
             ->get();
     }
+
+    public function setMemberCodeUsedById($memberID,$discountID)
+    {
+
+        return $this->model->with([
+            'discountCode',
+            'discountCode.discountCodeTag.tag',
+            'discountCode.discountCodeMember' => function ($query) use ($memberID) {
+                    $query->where('member_id', $memberID);
+                }
+            ])
+            ->where('member_id', $memberID)
+            ->where('discount_code_id', $discountID)
+            ->update([
+                'used'  => 1,
+            ]);
+    }
 }

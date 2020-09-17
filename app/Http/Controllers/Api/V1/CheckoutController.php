@@ -18,6 +18,7 @@ use App\Services\CartService;
 use App\Services\Ticket\OrderService;
 use App\Services\PaymentService;
 use App\Services\Ticket\SalesRuleService;
+use App\Services\Ticket\MemberDiscountService;
 
 use App\Jobs\Mail\OrderCreatedMail;
 use App\Jobs\SMS\OrderCreated;
@@ -42,13 +43,15 @@ class CheckoutController extends RestLaravelController
     protected $paymentService;
     protected $blueNewPayService;
     protected $salesRuleservice;
+    protected $memberDiscountService;
 
     public function __construct(CartService $cartService,
                                 MenuOrderService $menuOrderService,
                                 OrderService $orderService,
                                 PaymentService $paymentService,
                                 BlueNewPayService $blueNewPayService,
-                                SalesRuleService $salesRuleservice)
+                                SalesRuleService $salesRuleservice,
+                                MemberDiscountService $memberDiscountService)
     {
         $this->cartService = $cartService;
         $this->orderService = $orderService;
@@ -56,6 +59,8 @@ class CheckoutController extends RestLaravelController
         $this->menuOrderService = $menuOrderService;
         $this->blueNewPayService = $blueNewPayService;
         $this->salesRuleservice = $salesRuleservice;
+        $this->memberDiscountService = $memberDiscountService;
+
     }
 
     /**
@@ -108,12 +113,18 @@ class CheckoutController extends RestLaravelController
             $statusCode = $this->checkCartStatus($cart, $params->memberId);
             if ($statusCode !== '00000') return $this->failureCode($statusCode);
 
-
             // 成立訂單
             $order = $this->orderService->create($params, $cart);
             if (!$order)
                 throw new CustomException('E9001');
 
+            // 核銷優惠券
+            if (!empty($params->code)) {
+                if($discount->discount_code_member_use_count!=0){
+                    $memberDiscount = $this->memberDiscountService->setMemberCodeUsedById($params->memberId,$discount->discount_code_id);
+                }
+            }
+            
             // 寄送訂單成立通知信 (訪客寄送簡訊)
             if ($params->memberId === 0) {
                 dispatch(new OrderCreated($order->order_no))->delay(10);
