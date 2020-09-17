@@ -53,4 +53,9 @@ class MemberDiscountService extends BaseService
         return $this->repository->used($memberID);
     }
 
+    // 取得
+    public function setMemberCodeUsedById($memberID,$discountID){
+        return $this->repository->setMemberCodeUsedById($memberID,$discountID);
+    }
+
 }

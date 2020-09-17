@@ -39,7 +39,7 @@ Route::middleware(['cors', 'auth.jwt'])->namespace('V2')->group(function () {
 
         // 獨立賣場立即購買
         Route::post('buyNow/market', 'CartController@market')->middleware('verify.cart.buyNow.market');
-        
+
         // 取立即購買 (購物車跟付款資訊)
         Route::get('buyNow/info', 'CartController@info')->middleware('verify.cart.buyNow.info');
     });
@@ -47,22 +47,23 @@ Route::middleware(['cors', 'auth.jwt'])->namespace('V2')->group(function () {
     Route::prefix('diningCar')->group(function () {
         // 可使用禮物數、優惠卷 與 總和
         Route::get('tickets', 'DiningCarMemberController@tickets');
-
     });
 
     // 優惠折價倦
     Route::prefix('discount')->group(function () {
         // 可使用禮物數、優惠卷 與 總和
         Route::get('listCanUsed', 'MemberDiscountController@listCanUsed');
+        // 直接購買的優惠券
+        Route::get('listCanUsedByProdId', 'MemberDiscountController@listCanUsedByProdId');
+
         Route::post('getByCode', 'MemberDiscountController@getByCode');
 
         Route::get('list/{func}', 'MemberDiscountController@list');
-        
     });
 });
 
 // 不需 token 認證的 route
-Route::namespace('V2')->group(function () {
+Route::middleware(['cors'])->namespace('V2')->group(function () {
 
     // 優惠折價倦
     Route::prefix('discount')->group(function () {
