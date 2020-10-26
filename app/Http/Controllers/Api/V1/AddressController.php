@@ -28,7 +28,7 @@ class AddressController extends RestLaravelController
         $result = [
             '高雄市',
             '台南市',
-            '屏東縣'
+            '屏東縣',
             // '台北市',
             // '新北市',
             // '基隆市',
@@ -41,8 +41,8 @@ class AddressController extends RestLaravelController
             // '彰化縣',
             // '南投縣',
             // '雲林縣',
-            // '嘉義市',
-            // '嘉義縣',
+            '嘉義市',
+            '嘉義縣',
             // '台東縣',
             // '花蓮縣',
             // '澎湖縣',
