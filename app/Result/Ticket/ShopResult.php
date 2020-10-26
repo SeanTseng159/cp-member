@@ -91,6 +91,7 @@ class ShopResult extends DiningCarResult
 
         $result->longitude = $car->longitude ?? '';
         $result->latitude = $car->latitude ?? '';
+        $result->phone = $car->phone ?? '';
         $result->address = $address;
         $result->distance = ($result->longitude && $result->latitude && $this->lat && $this->lng) ? $this->calcDistance($this->lat, $this->lng, $car->latitude, $car->longitude, 2, 2) . '公里' : '未知';
 
