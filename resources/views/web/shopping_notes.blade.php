@@ -117,7 +117,7 @@
                 <p>· 為節省更換商品的等候時間，本平台全面採用只退不換的方式，若您有換貨需求，請辦理退貨後，重新訂購。</p>
                 <p>· 如發現會員因個人因素退貨次數過多，CityPass都會通將依據服務條款，暫停或終止您全部或部份的購物與服務資格，敬請見諒。</p>
                 <p class="color-blue">退貨申請</p>
-                <p>商品辦理退訂/退貨，請點選《<a class="btn-link" href="https://middleware.citypass.tw/files/citypass_return.docx">退貨申請</a>》填寫欲退貨品項、數量、點選退貨原因，包含訂單編號與電子信箱，並同意代為進行發票折讓後送出完成申請，客服人員於三天內將儘快與您聯繫確認。</p>
+                <p>商品辦理退訂/退貨，請點選《<a class="btn-link" href="https://middleware.citypass.tw/files/citypass_returnV2.docx">退貨申請</a>》填寫欲退貨品項、數量、點選退貨原因，包含訂單編號與電子信箱，並同意代為進行發票折讓後送出完成申請，客服人員於三天內將儘快與您聯繫確認。</p>
                 <p class="color-blue">退貨方式</p>
                 <p>若電子票券完成退貨流程，您的訂單狀態會顯示已退票，且CityPass都會通 APP票匣內將回收該張票券。</p>
                 <p class="color-blue">退款方式</p>
@@ -146,7 +146,7 @@
                 <p>· 為節省更換商品的等候時間，本平台全面採用只退不換的方式，若您有換貨需求，請辦理退貨後，重新訂購。</p>
                 <p>· 如發現會員因個人因素退貨次數過多，CityPass都會通將依據服務條款，暫停或終止您全部或部份的購物與服務資格，敬請見諒。</p>
                 <p class="color-blue">退貨申請</p>
-                <p>· 商品辦理退訂/退貨，請點選《<a class="btn-link" href="https://middleware.citypass.tw/files/citypass_return.docx">退貨申請</a>》填寫欲退貨品項、數量、點選退貨原因，包含訂單編號與電子信箱，並同意代為進行發票折讓後送出完成申請，客服人員於三天內將儘快與您聯繫確認。</p>
+                <p>· 商品辦理退訂/退貨，請點選《<a class="btn-link" href="https://middleware.citypass.tw/files/citypass_returnV2.docx">退貨申請</a>》填寫欲退貨品項、數量、點選退貨原因，包含訂單編號與電子信箱，並同意代為進行發票折讓後送出完成申請，客服人員於三天內將儘快與您聯繫確認。</p>
                 <p>· 申請退貨翌日起算15個工作天，若因無法聯繫、商品未寄回無法完成退貨作業，將自動取消退貨申請，且不可再次申請。</p>
                 <p>· 退貨取件完成後，請保留宅配取貨單據，以方便日後查詢。</p>
                 <p class="color-blue">退貨方式</p>
