@@ -14,6 +14,7 @@ use Ksd\Mediation\Parameter\Checkout\ResultParameter;
 
 use Ksd\Mediation\Services\CheckoutService;
 use Ksd\Mediation\Services\CartService;
+use App\Services\DiscountCodeService;
 use Ksd\Mediation\CityPass\Order;
 use App\Services\Card3dLogService as LogService;
 use App\Services\Ticket\OrderService as TicketOrderService;
@@ -37,12 +38,13 @@ class CheckoutController extends RestLaravelController
     protected $lang;
     protected $service;
     protected $cartService;
+    protected $discountCodeService;
 
-    public function __construct(CheckoutService $service, CartService $cartService)
+    public function __construct(CheckoutService $service, CartService $cartService, DiscountCodeService $discountCodeService)
     {
         $this->service = $service;
         $this->cartService = $cartService;
-
+        $this->discountCodeService = $discountCodeService;
         $this->lang = env('APP_LANG');
     }
 
@@ -83,6 +85,12 @@ class CheckoutController extends RestLaravelController
     {
         $parameters = new ConfirmParameter();
         $parameters->laravelRequest($request);
+
+        $isInvalidDiscountCode = $this->discountCodeService->isInvalidDiscountCode($parameters->code);
+      
+        if (!isset($isInvalidDiscountCode)) {
+            return $this->failureCode('E0073');
+        }
 
         $result = $this->service->confirm($parameters);
 

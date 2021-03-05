@@ -36,6 +36,11 @@ class DiscountCodeService
         return $this->repository->getEnableDiscountCode($code);
     }
 
+    public function isInvalidDiscountCode($code)
+    {
+        return $this->repository->isInvalidDiscountCode($code);
+    }
+
     /**
      * 取得商品可以用折扣
      * @return array
