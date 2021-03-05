@@ -84,11 +84,11 @@ class DiscountCodeRepository
 
         $discountCode = $this->model
                         ->where('discount_code_value', $code)
-                        ->where('discount_code_status',1)
-                        ->where('discount_code_starttime', '<=', $date)
-                        ->where('discount_code_endtime', '>', $date)
-                        ->where('discount_code_member_use_count', '!=', 1)
-                        ->whereColumn('discount_code_limit_count','>','discount_code_used_count')
+                        // ->where('discount_code_status',1)
+                        // ->where('discount_code_starttime', '<=', $date)
+                        // ->where('discount_code_endtime', '>', $date)
+                        // ->where('discount_code_member_use_count', '!=', 1)
+                        // ->whereColumn('discount_code_limit_count','>=','discount_code_used_count')
                         ->first();
 
         return $discountCode;

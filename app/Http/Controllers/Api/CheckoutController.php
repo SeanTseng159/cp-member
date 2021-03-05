@@ -15,6 +15,7 @@ use Ksd\Mediation\Parameter\Checkout\ResultParameter;
 use Ksd\Mediation\Services\CheckoutService;
 use Ksd\Mediation\Services\CartService;
 use App\Services\DiscountCodeService;
+use App\Services\Ticket\MemberDiscountService;
 use Ksd\Mediation\CityPass\Order;
 use App\Services\Card3dLogService as LogService;
 use App\Services\Ticket\OrderService as TicketOrderService;
@@ -29,22 +30,26 @@ use Ksd\Payment\Services\LinePayService;
 use Ksd\Payment\Services\BlueNewPayService;
 use App\Traits\StringHelper;
 use App\Traits\CartHelper;
+use App\Traits\MemberHelper;
 
 class CheckoutController extends RestLaravelController
 {
     use StringHelper;
     use CartHelper;
+    use MemberHelper;
 
     protected $lang;
     protected $service;
     protected $cartService;
     protected $discountCodeService;
+    protected $memberdiscountCodeservice;
 
-    public function __construct(CheckoutService $service, CartService $cartService, DiscountCodeService $discountCodeService)
+    public function __construct(CheckoutService $service, CartService $cartService, DiscountCodeService $discountCodeService, MemberDiscountService  $memberdiscountCodeservice)
     {
         $this->service = $service;
         $this->cartService = $cartService;
         $this->discountCodeService = $discountCodeService;
+        $this->memberdiscountCodeservice = $memberdiscountCodeservice;
         $this->lang = env('APP_LANG');
     }
 
@@ -86,10 +91,27 @@ class CheckoutController extends RestLaravelController
         $parameters = new ConfirmParameter();
         $parameters->laravelRequest($request);
 
+        $date = date('Y-m-d H:i:s');
+        $memberID = $this->getMemberId();
         $isInvalidDiscountCode = $this->discountCodeService->isInvalidDiscountCode($parameters->code);
-      
-        if (!isset($isInvalidDiscountCode)) {
-            return $this->failureCode('E0073');
+        $usedDiscountCode = $this->memberdiscountCodeservice->used($memberID);
+
+        if ($isInvalidDiscountCode != null) {
+            foreach ($usedDiscountCode as $key => $item) {              
+                if ($item->discountCode->discount_code_value == $parameters->code) {
+                    if ($item->discountCode->discount_code_status == 1 && $item->discountCode->discount_code_starttime <= $date && $item->discountCode->discount_code_endtime > $date) {
+                        if ($item->discountCode->discount_code_limit_count > $item->discountCode->discount_code_used_count) {
+                            if ($isInvalidDiscountCode->discount_code_member_use_count != 0) {
+                                return $this->failureCode('E0073');
+                            }   
+                        } else {
+                            return $this->failureCode('E0073');
+                        }
+                    } else {
+                        return $this->failureCode('E0073');
+                    }
+                }
+            }
         }
 
         $result = $this->service->confirm($parameters);
@@ -105,8 +127,6 @@ class CheckoutController extends RestLaravelController
                 return $this->failure($reserveResult['code'], $reserveResult['message']);
             }
         }
-
-
 
         if ($result['code'] === '00000' || $result['code'] === 201) {
             return $this->success($result['data']);
