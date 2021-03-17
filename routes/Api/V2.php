@@ -59,7 +59,17 @@ Route::middleware(['cors', 'auth.jwt'])->namespace('V2')->group(function () {
         Route::post('getByCode', 'MemberDiscountController@getByCode');
 
         Route::get('list/{func}', 'MemberDiscountController@list');
+
     });
+
+    // 優惠折價倦
+    Route::prefix('CouponOnline')->group(function () {
+        // 可使用禮物數、優惠卷 與 總和
+        Route::get('listCouponOnlineCanUsed', 'MemberCouponOnlineController@listCouponOnlineCanUsed');
+
+    });
+
+    
 });
 
 // 不需 token 認證的 route
