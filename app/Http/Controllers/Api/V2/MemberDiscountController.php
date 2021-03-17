@@ -68,6 +68,7 @@ class MemberDiscountController extends RestLaravelController
             $member_discounts = $this->service->listCanUsed($memberID);
             //判斷得程式
             $result = (new MemberDiscountResult)->listCanUsed($member_discounts, $cartItems, $memberID);
+            //return $this->success($cartItems);
 
             return $this->success($result);
 
@@ -79,6 +80,8 @@ class MemberDiscountController extends RestLaravelController
         } //try
 
     } //end list
+
+
 
     /**
      *  //優惠卷列表
