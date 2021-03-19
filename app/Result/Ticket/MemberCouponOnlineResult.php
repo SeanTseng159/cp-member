@@ -111,23 +111,6 @@ class MemberCouponOnlineResult extends BaseResult
         $format->imageUrl = '';//圖片URL 此部分暫時為空，待改
         $format->message= $data->error_message; //若優惠券不可用，會帶error_message解釋不可用原因(ex:逾期、未達折扣門檻...)
         return $format;
-
-        //---used---
-        /*$result->id = $data->discountCode->discount_code_id;
-        $result->name = $data->discountCode->discount_code_name;
-        $result->value = $data->discountCode->discount_code_value;
-        $result->desc = $data->discountCode->discount_code_desc;
-        $result->status = $func;
-        $result->orderNo = $data->order_no;
-        $result->endTime = Carbon::parse($data->discountCode->discount_code_endtime)->format('Y-m-d');
-        //$result->range=Carbon::parse($data->discountCode->discount_code_starttime)->format('Y-m-d').'~'.Carbon::parse($data->discountCode->discount_code_endtime)->format('Y-m-d');
-        $result->imageUrl = $this->getImg($data->discountCode->image_path);
-        $tag = '';
-        foreach ($data->discountCode->discountCodeTag as $item) {
-            $tag = $tag . $item->tag->tag_name . ',';
-        }
-        $result->category = substr($tag, 0, -1);
-        return $result;*/
     }
 
 

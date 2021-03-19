@@ -6,9 +6,10 @@ use App\Traits\MemberHelper;
 
 use App\Services\Ticket\MemberCouponOnlineService;
 use App\Result\Ticket\MemberCouponOnlineResult;
+use Ksd\Mediation\Core\Controller\RestLaravelController;
 use Ksd\Mediation\Services\CartMoreService;//去CI專案的API會需要用到的Service
+use App\Traits\CartHelper;
 
-//----used----
 use App\Cache\Redis;
 use App\Services\CartService;
 use App\Core\Logger;
@@ -16,9 +17,7 @@ use App\Core\Logger;
 use App\Services\Ticket\MemberDiscountService;
 
 use Illuminate\Http\Request;
-use Ksd\Mediation\Core\Controller\RestLaravelController;
 use stdClass;
-use App\Traits\CartHelper;
 use App\Result\Ticket\MemberDiscountResult;
 use Illuminate\Support\Facades\Hash;
 use App\Services\DiscountCodeService;
@@ -52,7 +51,6 @@ class MemberCouponOnlineController extends RestLaravelController
      */
     public function listCouponOnlineCanUsed(Request $request)
     {   
-
         //取出會員資訊
         $memberID = $this->getMemberId();
 
@@ -81,5 +79,6 @@ class MemberCouponOnlineController extends RestLaravelController
 
         return $this->success($result);
     }
+
 
 }

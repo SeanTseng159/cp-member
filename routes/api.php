@@ -140,6 +140,11 @@ Route::middleware(['cors', 'auth.jwt'])->namespace('Api')->group(function () {
     Route::prefix('DiscountCode')->group(function () {
         Route::post('add', 'SalesRuleController@addCoupon');
         Route::post('remove', 'SalesRuleController@deleteCoupon');
+        
+        //結帳選擇優惠券時，若該優惠券為"店家新增的優惠券"，而非站方新增的優惠券，用此function
+        //若為站方新增之優惠券則使用add function
+        //兩api由於功能性質相同歸類在同prefix下，但分別使用不同資料表
+        Route::post('addCouponOnline', 'SalesRuleController@addCouponOnline');
     });
 
     Route::prefix('wishlist')->group(function () {

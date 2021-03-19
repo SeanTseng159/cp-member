@@ -33,7 +33,6 @@ class MemberCouponOnlineRepository extends BaseRepository
     {
         $couponCanUsed = $this->model
         ->join('coupons', 'member_coupon_online.coupons_id' , '=' , 'coupons.id')//把coupons表join進來，查看member擁有的coupon內，有哪些符合資格
-        //->select('member_coupon_online.*','coupons.name','coupons.online_code_type','coupons.price','online_code_limit_price','coupons.start_at','coupons.expire_at','coupons.online_code_limit_price','coupons.qty','coupons.limit_qty')
         ->select('member_coupon_online.*','coupons.*')
         ->where('coupons.start_at' , '<=' , Carbon::now())//現在日期必須包含在優惠券的使用時間內
         ->where('coupons.expire_at', '>' , Carbon::now())
