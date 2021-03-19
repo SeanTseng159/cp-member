@@ -4,7 +4,7 @@ namespace App\Models;
 
 use App\Models\Ticket\BaseModel;
 use App\Traits\BackendSoftDeletes;
-
+use DB;
 
 class OrderDiscount extends BaseModel
 {
@@ -16,4 +16,5 @@ class OrderDiscount extends BaseModel
     {
         return $this->belongsTo('App\Models\Ticket\Order', 'order_no', 'order_no');
     }
+
 }
