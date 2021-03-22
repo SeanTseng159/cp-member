@@ -35,10 +35,12 @@ class MemberCouponOnlineController extends RestLaravelController
 
     public function __construct(
         MemberCouponOnlineService $service,
-        CartMoreService $cartMoreService
+        CartMoreService $cartMoreService,
+        CartService $cartService
     ) {
         $this->service = $service;
         $this->cartMoreService = $cartMoreService;
+        $this->cartService = $cartService;
     }
 
     /**
@@ -53,25 +55,23 @@ class MemberCouponOnlineController extends RestLaravelController
     {   
         //取出會員資訊
         $memberID = $this->getMemberId();
-
-        //取出此購物車是哪間diningCar的購物車，取出該diningCar id
-        //$source_diningCar_id = $request->query('dining_car_id');
-
-        $source_diningCar_id = 1;//此行為測試用，待前端能把diningCar_id傳進來後，將上方程式碼註解移除，刪除此行
         
-
         //取出購物車號碼
         $cartNumber = $request->query('cartNumber');
+
+        //透過購物車號碼，取出該購物車的店車id
+        $source_diningCar_id = $this->cartService->getDingingCarIDByCartNumber($cartNumber);
+        $source_diningCar_id = $source_diningCar_id['dining_car_id'];//原本回傳為物件，將物件中的dining_car_id拿出來
 
         //將cartNumber跑api送去CI(TPASS)專案，拿出購物車內的商品
         $cartItems = $this->cartMoreService->mine(['cartNumber' => $cartNumber]);
 
         //拿出列表優惠倦
         $member_coupon_online = $this->service->listCanUsed($memberID);
-
         //DEBUG
         //return $this->success($member_coupon_online);
         //return $this->success($cartItems);
+
 
 
         //判斷這些優惠券，有哪些是符合使用資格(期限內、仍有使用數量、符合優惠券最低消費金額等判斷)，符合才拿出來

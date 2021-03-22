@@ -9,17 +9,21 @@ namespace App\Services;
 
 use App\Repositories\CartRepository;
 use App\Repositories\OrderDiscountRepository;
+use App\Repositories\EmployeeRepository;
+
 
 class CartService
 {
     private $repository;
     private $orderDiscountRepository;
-
+    private $employeeRepository;
     public function __construct(CartRepository $repository, 
-                                OrderDiscountRepository $orderDiscountRepository)
+                                OrderDiscountRepository $orderDiscountRepository,
+                                EmployeeRepository $employeeRepository)
     {
         $this->repository = $repository;
         $this->orderDiscountRepository = $orderDiscountRepository;
+        $this->employeeRepository = $employeeRepository;
     }
 
     /**
@@ -148,5 +152,22 @@ class CartService
         $cart->payAmount = $cart->discountTotalAmount +  $cart->shippingFee;
 
         return $cart;
+    }
+
+    /**
+     * 透過CartNumber找到該購物車的店舖dining_car_id
+     * @param $cartNumber
+     * @return int $dining_car_id
+     */
+    public function getDingingCarIDByCartNumber($cartNumber)
+    {
+        /*此function主要要透過cartNumber參數，找到這台購物車的產品是哪個店車(dining_car)所有
+          cart_item_type的備註與實際作用不同，此欄位目前看來實際是紀錄此購物車內的產品是由哪個供應商(suppliers)所提供，也就是cart_item_type其實確切是supplier_id
+          而有同時記錄suppiers與dining_car_id兩欄位的資料表其實是employees資料表
+          故此function會到employee資料表內尋找supplier_id = cartNumber的欄位，並抓出其中有的dining_car_id
+        */
+
+        $dining_car_id = $this->employeeRepository->getDiningCarID($cartNumber);
+        return $dining_car_id;
     }
 }
