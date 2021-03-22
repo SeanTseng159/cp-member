@@ -92,10 +92,13 @@ class SalesRuleController extends RestLaravelController
         $cartItems = $this->cartMoreService->mine(['cartNumber' => $parameters->cartNumber]);
         //注意! 此$cartItems是由CI專案傳回來的資料，裡面也會含DiscountCode相關資料，但那並不準，請勿拿來用，優惠資料請拿上方$saluesRule得到的資料
         
+        //$test = $this->cartMoreService->info(['cartNumber' => $parameters->cartNumber]);
+
         //DEBUG
         //return $this->success($parameters);
         //return $this->success($cartItems);
         //return $this->success($salesRule[0]->id);
+        //return $this->success($test);
 
         $return_data = new \stdClass();
         $return_data->totalAmount = $cartItems[0]->totalAmount;//商品金額
