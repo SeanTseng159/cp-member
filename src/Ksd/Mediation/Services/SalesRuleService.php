@@ -62,7 +62,7 @@ class SalesRuleService
         //$canUseCoupon =>  {canUsed:true, error_message:} or {canUsed:false, error_message:"此優惠券已達每名會員可使用上限次數/.../..."}
 
 
-        //此部分功能要將"優惠券資料"與"優惠券能否使用"merge成同一個obj
+        //此部分功能要將"優惠券資料"與"優惠券能否使用"merge成同一個array
         $coupon_data = array($coupon_data);
         //return $coupon_data;
         $coupon_data[0]['canUsed'] = $canUseCoupon['canUsed'];

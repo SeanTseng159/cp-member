@@ -46,13 +46,15 @@ class MemberCouponOnlineController extends RestLaravelController
     /**
      * 原商城折價功能僅有站方發送的DiscountCode可以讓商品在購物車結帳時選擇優惠代碼折價(例如listCanUsed等相關功能)
      * 目前新增商家也能夠發行自己的線上商品折扣碼(此功能請看CITY-PASS-VENDOR內的CounponController)
-     * 由於兩功能都為折價為主，故使用同一個Controller，若日後開發繁複可將此部分功能分離到其他Controller
+     * 此function主要讓顧客在購物車結帳時，除了站方的優惠券以外，亦可選擇商家發行著折扣碼
      * 
      * @param Request $request cartNumber
      * @return JsonResponse
      */
     public function listCouponOnlineCanUsed(Request $request)
     {   
+        //主要流程 : 拿購物車號碼cartNumber，去查是哪家店的商品，再去找user持有的這個店家開立的優惠券，跟商品進行比較，挑出可用與不可用給前端
+
         //取出會員資訊
         $memberID = $this->getMemberId();
         
@@ -64,6 +66,8 @@ class MemberCouponOnlineController extends RestLaravelController
         $source_diningCar_id = $source_diningCar_id['dining_car_id'];//原本回傳為物件，將物件中的dining_car_id拿出來
 
         //將cartNumber跑api送去CI(TPASS)專案，拿出購物車內的商品
+        //note:基本上需要拿購物車資料都是送去CI專案的Cart或CartsAddMoreCarts controller下面的detail_post
+        //直接從程式上看會找不到兩專案之間的mapping關係，建議直接看code去猜
         $cartItems = $this->cartMoreService->mine(['cartNumber' => $cartNumber]);
 
         //拿出列表優惠倦
