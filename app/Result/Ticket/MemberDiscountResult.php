@@ -215,6 +215,7 @@ class MemberDiscountResult extends BaseResult
     {
         $result = new \stdClass;
         $result->id = $data->discountCode->discount_code_id;
+        $result->coupon_source = 'ksd';
         $result->name = $data->discountCode->discount_code_name;
         $result->value = $data->discountCode->discount_code_value;
         $result->desc = $data->discountCode->discount_code_desc;

@@ -104,6 +104,7 @@ class SalesRuleController extends RestLaravelController
         $return_data->totalAmount = $cartItems[0]->totalAmount;//商品金額
         $return_data->totalQuantity = $cartItems[0]->itemTotal;//商品總數量
         $return_data->DiscountCode['id'] = $salesRule[0]->id;//優惠券id
+        $return_data->DiscountCode['code'] = $parameters->code;//優惠券代碼
         $return_data->DiscountCode['name'] = $salesRule[0]->name;//優惠券名稱
         $return_data->DiscountCode['method'] = $salesRule[0]->online_code_type;//優惠方式 1折數(*) 2折扣(-)
         $return_data->DiscountCode['price'] = $salesRule[0]->price;

@@ -103,6 +103,7 @@ class MemberCouponOnlineResult extends BaseResult
         $format = new \stdClass; 
 
         $format->coupon_id = $data->id;//優惠券id
+        $format->coupon_source = 'vendor';//讓前端知道此張優惠券是站方開立的
         $format->coupon_name = $data->name;//優惠券名稱
         $format->value = $data->online_code_value;//優惠券代碼(ex:vip777,xmas1225)
         $format->desc = $data->desc;//優惠券敘述
