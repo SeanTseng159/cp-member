@@ -18,9 +18,10 @@ class CouponRepository extends BaseRepository
     private $limit = 20;
     
     
-    public function __construct(Coupon $model)
+    public function __construct(Coupon $model, MemberCoupon $memberCouponModel)
     {
         $this->model = $model;
+        $this->memberCouponModel = $memberCouponModel;
     }
 
     /**
