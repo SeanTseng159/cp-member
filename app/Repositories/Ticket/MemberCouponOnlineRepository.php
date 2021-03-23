@@ -29,6 +29,7 @@ class MemberCouponOnlineRepository extends BaseRepository
         $this->model = $model;
     }
 
+    //搜尋"member已經領過的優惠券，且優惠券目前在可以使用的狀態"
     public function listCanUsed($memberID)
     {
         $couponCanUsed = $this->model

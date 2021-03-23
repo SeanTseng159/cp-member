@@ -94,13 +94,14 @@ class SalesRuleRepository extends BaseRepository
             $canUsed = false;
             $error_message .= "此優惠券不在使用期限內";
         }
-        //判斷總使用次數是否超過
-        $coupon_be_used_count = $this->order_discount_model
-        ->where('discount_type','4')//4表示為店家開立的線上優惠券
-        ->where('discount_id',$coupon_data->id)
-        ->count();//查詢這張優惠券曾被使用過幾次
 
-        if($coupon_be_used_count >= $coupon_data->qty)//若已被使用次數>=可使用次數，
+        /*//判斷總使用次數是否還有剩餘
+        $coupon_be_used_count = $this->Coupcoupon_modelon
+        ->select('count')
+        ->where('id',$coupon_data->id)
+        ->count();*/
+
+        if($coupon_data->qty==0)//若可使用次數=0
         {
             $canUsed = false;
             $error_message .= "此優惠券已達總使用上限次數";
