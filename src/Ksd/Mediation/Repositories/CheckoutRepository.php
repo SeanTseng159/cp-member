@@ -85,6 +85,8 @@ class CheckoutRepository extends BaseRepository
         $this->redis->delete(sprintf(OrderKey::INFO_KEY, $this->memberId));
         $this->redis->delete(sprintf(OrderKey::MAGENTO_INFO_KEY, $this->memberId));
 
+        //dd($parameters);
+
         if($parameters->checkSource(ProjectConfig::MAGENTO)) {
             $result = $this->magento->userAuthorization($this->memberTokenService->magentoUserToken())->confirm($parameters);
 
