@@ -8,6 +8,7 @@
 namespace App\Repositories\Ticket;
 
 use App\Models\Coupon;
+use App\Models\MemberCoupon;
 use App\Repositories\BaseRepository;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -80,6 +81,112 @@ class CouponRepository extends BaseRepository
         return $result;
     }
     
+    public function memberCurrentCouponlist($memberID) 
+    {
+        // $modelType = 'dining_car';
+
+        //取得該會員的優惠卷
+        $result = $this->model
+        ->join('member_coupon', 'coupons.id', '=', "member_coupon.coupon_id")
+        ->select(
+            // 'dining_cars.id',
+            // 'dining_cars.name',
+            DB::raw('coupons.id'),
+            DB::raw('coupons.name'),
+            DB::raw('coupons.content'),
+            DB::raw('coupons.desc'),
+            DB::raw('coupons.qty'),
+            DB::raw('coupons.limit_qty'),
+            DB::raw("DATE_FORMAT(coupons.expire_at, '%Y-%m-%d') AS endtime"),
+            DB::raw('member_coupon.count')
+        )
+        ->where('member_coupon.member_id', $memberID)
+        // ->where('coupons.model_type', $modelType)
+        ->where('coupons.limit_qty', '>', 'member_coupon.count')
+        ->where('coupons.online_or_offline', 2)
+        ->where('coupons.on_sale_at', '<=', Carbon::now()->toDateTimeString())
+        ->where('coupons.off_sale_at', '>=', Carbon::now()->toDateTimeString())
+        ->where('coupons.status', true)
+        // ->groupBy('coupons.id')
+        ->get();
+
+        return $result;
+    }
+
+    public function memberUsedCouponlist($memberID) 
+    {
+        // $modelType = 'dining_car';
+
+        //取得該會員的優惠卷
+        $result = $this->model
+        ->join('member_coupon', 'coupons.id', '=', "member_coupon.coupon_id")
+        ->select(
+            // 'dining_cars.id',
+            // 'dining_cars.name',
+            DB::raw('coupons.id'),
+            DB::raw('coupons.name'),
+            DB::raw('coupons.content'),
+            DB::raw('coupons.desc'),
+            DB::raw('coupons.qty'),
+            DB::raw('coupons.limit_qty'),
+            DB::raw("DATE_FORMAT(member_coupon.created_at, '%Y-%m-%d') AS endtime"),
+            DB::raw('member_coupon.count')
+
+        )
+        ->where('member_coupon.member_id', $memberID)
+        // ->where('coupons.model_type', $modelType)
+        ->where('member_coupon.count', '!=', 0)
+        ->where('coupons.limit_qty', '>=', 'member_coupon.count')
+        ->where('coupons.online_or_offline', 2)
+        ->where('coupons.on_sale_at', '<=', Carbon::now()->toDateTimeString())
+        ->where('coupons.off_sale_at', '>=', Carbon::now()->toDateTimeString())
+        ->where('coupons.status', true)
+        // ->groupBy('coupons.id')
+        ->get();
+
+        return $result;
+    }
+
+    public function memberDisabledCouponlist($memberID) 
+    {
+        // $modelType = 'dining_car';
+
+        //取得該會員的優惠卷
+        $result = $this->model
+        ->join('member_coupon', 'coupons.id', '=', "member_coupon.coupon_id")
+        ->select(
+            // 'dining_cars.id',
+            // 'dining_cars.name',
+            DB::raw('coupons.id'),
+            DB::raw('coupons.name'),
+            DB::raw('coupons.content'),
+            DB::raw('coupons.desc'),
+            DB::raw('coupons.qty'),
+            DB::raw('coupons.limit_qty'),
+            DB::raw("DATE_FORMAT(coupons.off_sale_at, '%Y-%m-%d') AS endtime"),
+            DB::raw('member_coupon.count')
+        )
+        ->where('member_coupon.member_id', $memberID)
+        // ->where('coupons.model_type', $modelType)
+        ->where('coupons.online_or_offline', 2)
+        ->where(function ($query) {
+            $query->orWhere('coupons.qty', '<=', 'member_coupon.count')
+                  ->where('coupons.expire_at', '>=', Carbon::today()->subMonths(1))
+                  ->where('coupons.expire_at', '<=', Carbon::today())
+                  ->orWhere('coupons.status', 0);
+        })
+        ->where(function ($query) {
+            $query->orWhere('coupons.qty', '<=', 'member_coupon.count')
+                  ->where('coupons.off_sale_at', '>=', Carbon::today()->subMonths(1))
+                  ->where('coupons.off_sale_at', '<=', Carbon::today())
+                  ->orWhere('coupons.status', 0);
+        })
+        // ->groupBy('coupons.id')
+        ->get();
+
+        return $result;
+    }
+
     /**
      * 取優惠卷的明細
      *
@@ -112,6 +219,37 @@ class CouponRepository extends BaseRepository
         
         return $result;
 
+    }
+
+    public function createAndCheck($data)
+    {
+        $check = $this->memberCouponModel->where('coupon_id', $data['coupon_id'])->where('member_id', $data['member_id'])->first();
+        if (empty($check)) {
+            $coupon = new MemberCoupon;
+            $coupon->member_id = $data['member_id'];
+            $coupon->coupon_id = $data['coupon_id'];
+            $coupon->is_collected = $data['is_collected'];
+            $coupon->count = $data['count'];
+            $coupon->save();
+            // $this->memberCouponModel->create($data);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public function getEnableCouponByCode($code)
+    {
+        $date = date('Y-m-d H:i:s');
+        return $this->model
+            ->where('online_code_value', $code)
+            ->where('status',1)
+            ->where('start_at', '<=', $date)
+            ->where('expire_at', '>', $date)
+            ->where('on_sale_at', '<=', $date)
+            ->where('off_sale_at', '>', $date)
+            ->where('qty','!=', 0)
+            ->first();
     }
 
     public function availableCoupons($memberId)

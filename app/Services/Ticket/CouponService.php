@@ -31,6 +31,25 @@ class CouponService extends BaseService
     {
         return $this->repository->list($modelSpecID,$modelType);
     }
+
+    public function memberCurrentCouponlist($memberID) 
+    {
+        return $this->repository->memberCurrentCouponlist($memberID);
+    }
+
+    public function memberUsedCouponlist($memberID) 
+    {
+        return $this->repository->memberUsedCouponlist($memberID);
+    }
+
+    public function memberDisabledCouponlist($memberID) 
+    {
+        return $this->repository->memberDisabledCouponlist($memberID);
+    }
+
+    public function createAndCheck($data){
+        return $this->repository->createAndCheck($data);
+    }
     
     /**
      * 取詳細coupon資料
@@ -42,6 +61,11 @@ class CouponService extends BaseService
     public function find($id = 0)
     {
         return $this->repository->find($id);
+    }
+
+    public function getEnableCouponByCode($code) 
+    {
+        return $this->repository->getEnableCouponByCode($code);
     }
 
     //取得優惠卷倒數過期前7天前資料
