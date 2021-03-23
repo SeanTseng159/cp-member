@@ -179,6 +179,35 @@ class MemberDiscountResult extends BaseResult
                     break;
             }
         }
+        // dd($resultAraray);
+        return $resultAraray;
+    }
+
+    public function memberCouponlist($datas, $func) 
+    {
+        $resultAraray = [];
+
+        foreach ($datas as $key => $item) {
+            switch ($func) {
+                case 'current':
+                    $count = $item->count;
+                    if ($item->qty != 0 && $item->limit_qty <= $count) {
+                        //超過使用上線
+                    } else {
+                        $resultAraray[] = $this->getCouponListResult($item, $func);
+                    }
+                    break;
+                case 'disabled':
+                    $resultAraray[] = $this->getCouponListResult($item, $func);
+
+                    break;
+                case 'used':
+                    $resultAraray[] = $this->getCouponListResult($item, $func);
+
+                    break;
+            }
+        }
+
         return $resultAraray;
     }
 
@@ -199,6 +228,21 @@ class MemberDiscountResult extends BaseResult
             $tag = $tag . $item->tag->tag_name . ',';
         }
         $result->category = substr($tag, 0, -1);
+        return $result;
+    }
+
+    public function getCouponListResult($data, $func)
+    {
+        $result = new \stdClass;
+        $result->id = $data->id;
+        $result->name = $data->name;
+        $result->value = $data->content;
+        $result->desc = $data->desc;
+        $result->status = $func;
+        $result->orderNo = null/*$data->order_no*/;
+        $result->endTime = Carbon::parse($data->endtime)->format('Y-m-d');
+        $result->imageUrl = null/*$this->getImg($data->image_path)*/;
+        $result->category = '餐車';
         return $result;
     }
 

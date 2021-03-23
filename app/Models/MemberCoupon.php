@@ -17,12 +17,11 @@ use App\Models\Ticket\BaseModel;
  * @property boolean  is_collected
  */
 class MemberCoupon extends BaseModel
-{
+{                            
     protected $table = 'member_coupon';
     
     public function __construct(){
     
     }
 
-    
 }

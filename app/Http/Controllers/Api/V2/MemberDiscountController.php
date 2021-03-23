@@ -6,7 +6,7 @@ use App\Cache\Redis;
 use Ksd\Mediation\Services\CartMoreService;
 use App\Services\CartService;
 use App\Core\Logger;
-
+use App\Models\Coupon;
 use Carbon\Carbon;
 
 use App\Services\Ticket\MemberDiscountService;
@@ -19,6 +19,7 @@ use App\Traits\CartHelper;
 use App\Result\Ticket\MemberDiscountResult;
 use Illuminate\Support\Facades\Hash;
 use App\Services\DiscountCodeService;
+use App\Services\Ticket\CouponService;
 use App\Services\Ticket\ProductService;
 
 class MemberDiscountController extends RestLaravelController
@@ -30,6 +31,7 @@ class MemberDiscountController extends RestLaravelController
     protected $cartMoreService;
     protected $service;
     protected $discountCodeService;
+    protected $couponService;
     protected $productService;
 
     public function __construct(
@@ -37,12 +39,14 @@ class MemberDiscountController extends RestLaravelController
         CartMoreService $cartMoreService,
         MemberDiscountService  $service,
         DiscountCodeService $discountCodeService,
+        CouponService $couponService, 
         ProductService $productService
     ) {
         $this->cartService = $cartService;
         $this->cartMoreService = $cartMoreService;
         $this->service = $service;
         $this->discountCodeService = $discountCodeService;
+        $this->couponService = $couponService;
         $this->productService = $productService;
     }
 
@@ -170,9 +174,25 @@ class MemberDiscountController extends RestLaravelController
 
                 //拿出可以用的優惠倦
                 $discountCodes = $this->discountCodeService->getEnableDiscountByCode($discountValue);
+                $couponCodes = $this->couponService->getEnableCouponByCode($discountValue);
+
                 //判斷是否有優惠倦 可是沒了 或者 代碼有錯誤
                 if (empty($discountCodes)) {
-                    $output = $this->failure('E0001', '領取完畢或代碼錯誤');
+                    if (empty($couponCodes)) {
+                        $output = $this->failure('E0001', '領取完畢或代碼錯誤');
+                    } else {
+                        $result = $this->couponService->createAndCheck([
+                            'member_id' =>  $memberID,
+                            'coupon_id' => $couponCodes->id,                            
+                            'is_collected' => 0,
+                            'count' => 0
+                        ]);
+                        if ($result) {
+                            $output = $this->success();
+                        } else {
+                            $output = $this->failure('E0001', '已經領取過');
+                        }
+                    }
                 } else {
 
                     //寫入DB併檢查是否已經領取過
@@ -210,7 +230,6 @@ class MemberDiscountController extends RestLaravelController
     {
         $memberID = $this->getMemberId();
 
-
         switch ($func) {
 
             case 'current':
@@ -228,12 +247,21 @@ class MemberDiscountController extends RestLaravelController
                 break;
             case 'all':
                 $data1 = $this->service->current($memberID);
+                $dataCoupon1 = $this->couponService->memberCurrentCouponlist($memberID);
+
                 $data2 = $this->service->used($memberID);
+                $dataCoupon2 = $this->couponService->memberUsedCouponlist($memberID);
+
                 $data3 = $this->service->disabled($memberID);
+                $dataCoupon3 = $this->couponService->memberDisabledCouponlist($memberID);
+
                 $result1 = (new MemberDiscountResult)->list($data1, 'current');
+                $resultCoupon1 = (new MemberDiscountResult)->memberCouponlist($dataCoupon1, 'current');
                 $result2 = (new MemberDiscountResult)->list($data2, 'used');
+                $resultCoupon2 = (new MemberDiscountResult)->memberCouponlist($dataCoupon2, 'used');
                 $result3 = (new MemberDiscountResult)->list($data3, 'disabled');
-                $result = array_merge($result1, $result2, $result3);
+                $resultCoupon3 = (new MemberDiscountResult)->memberCouponlist($dataCoupon3, 'disabled');
+                $result = array_merge($result1, $resultCoupon1, $result2, $resultCoupon2, $result3, $resultCoupon3);
                 return $this->success($result);
             default:
                 return $this->failure('E0001', '錯誤代碼');
