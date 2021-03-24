@@ -308,6 +308,7 @@ class MemberCouponRepository extends BaseRepository
         $couponCanUsed = $this->model
         ->join('coupons', 'member_coupon.coupon_id' , '=' , 'coupons.id')//把coupons表join進來，查看member擁有的coupon內，有哪些符合資格
         ->select('member_coupon.*','coupons.*')
+        ->where('member_coupon.member_id',$memberID)//從member有領過的券裡面
         ->where('coupons.start_at' , '<=' , Carbon::now())//現在日期必須包含在優惠券的使用時間內
         ->where('coupons.expire_at', '>' , Carbon::now())
         ->where('coupons.status' , '1') //優惠券必須在可以使用的狀態

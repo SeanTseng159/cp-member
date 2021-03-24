@@ -6,7 +6,7 @@ use App\Result\BaseResult;
 use App\Helpers\CommonHelper;
 use Carbon\Carbon;
 
-class MemberCouponOnlineResult extends BaseResult
+class MemberCouponResult extends BaseResult
 {
     //供購物車在準備結帳時，列出所有member目前所持有的"店車的線上優惠券"中，有哪些是符合資格的，return符合資格的優惠
     public function listCanUsed($member_coupon_online, $cartItems, $memberID, $source_diningCar_id)
@@ -22,7 +22,7 @@ class MemberCouponOnlineResult extends BaseResult
         1-判斷購物車是否為空
         2-撇除其他店車的優惠券，僅留下當前商品店車的優惠券
         3-判斷這些coupon有沒有不在使用期限的
-        4-判斷是否符合首購優惠
+        4-判斷優惠券可使用次數是否為0
         5-判斷是否購物車金額>優惠券所需的最低消費金額
         */
         foreach ($member_coupon_online as $key => $coupon_item) {
@@ -58,13 +58,21 @@ class MemberCouponOnlineResult extends BaseResult
                 
             }
 
-            //判斷優惠券使用次數是否為0
+            //判斷優惠券可使用次數是否為0
             if($coupon_can_be_used){
                 if($coupon_item->qty == 0){
                     $coupon_can_be_used = false;
                     $message = '此優惠券總使用次數已達上限';
                 }
             }
+
+            if($coupon_can_be_used){
+                if($coupon_item->count >= $coupon_item->limit_qty){
+                    $coupon_can_be_used = false;
+                    $message = '此優惠券已經超過個人使用上限';
+                }
+            }
+
 
             //判斷是否購物車金額>優惠券所需的最低消費金額
             //此部分邏輯是"先計算原價折扣後的價格"，此價格仍大於消費門檻，才折價

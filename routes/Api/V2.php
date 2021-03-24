@@ -65,7 +65,7 @@ Route::middleware(['cors', 'auth.jwt'])->namespace('V2')->group(function () {
     // 商家新增的"線上優惠折價券"
     Route::prefix('CouponOnline')->group(function () {
         //在結帳可選擇折價券時，列出所有可使用與不可使用之折價券，功能類似discount，差異在使用不同資料表。
-        Route::get('listCouponOnlineCanUsed', 'MemberCouponOnlineController@listCouponOnlineCanUsed');
+        Route::get('listCouponOnlineCanUsed', 'MemberCouponController@listCouponOnlineCanUsed');
 
     });
 

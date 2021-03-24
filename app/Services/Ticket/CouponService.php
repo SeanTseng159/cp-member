@@ -97,6 +97,11 @@ class CouponService extends BaseService
     public function findCouponEndTime()
     {
         return $this->repository->findCouponEndTime();
-    }  
+    } 
+
+    public function checkEnableAndExistByCode($code)
+    {
+        return $this->repository->checkEnableAndExistByCode($code);
+    }
 
 }

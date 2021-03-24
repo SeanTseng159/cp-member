@@ -93,4 +93,19 @@ class DiscountCodeRepository
 
         return $discountCode;
     }
+
+    public function DiscountCodeExist($code)
+    {
+        $discountCode = $this->model
+                        ->where('discount_code_value', $code)
+                        ->first();
+        
+        $exist = false;
+
+        if(!is_null($discountCode))
+        {
+            $exist = true;
+        }
+        return $exist;
+    }
 }

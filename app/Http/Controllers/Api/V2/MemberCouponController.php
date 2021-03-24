@@ -5,7 +5,7 @@ use Carbon\Carbon;
 use App\Traits\MemberHelper;
 
 use App\Services\Ticket\MemberCouponOnlineService;
-use App\Result\Ticket\MemberCouponOnlineResult;
+use App\Result\Ticket\MemberCouponResult;
 use Ksd\Mediation\Core\Controller\RestLaravelController;
 use Ksd\Mediation\Services\CartMoreService;//去CI專案的API會需要用到的Service
 use App\Traits\CartHelper;
@@ -23,7 +23,7 @@ use Illuminate\Support\Facades\Hash;
 use App\Services\DiscountCodeService;
 use App\Services\Ticket\ProductService;
 
-class MemberCouponOnlineController extends RestLaravelController
+class MemberCouponController extends RestLaravelController
 {
     use CartHelper;
     use MemberHelper;
@@ -45,7 +45,7 @@ class MemberCouponOnlineController extends RestLaravelController
 
     /**
      * 原商城折價功能僅有站方發送的DiscountCode可以讓商品在購物車結帳時選擇優惠代碼折價(例如listCanUsed等相關功能)
-     * 目前新增商家也能夠發行自己的線上商品折扣碼(此功能請看CITY-PASS-VENDOR內的CounponController)
+     * 目前新增商家也能夠發行自己的線上商品折扣碼(此功能請看CITY-PASS-VENDOR內的CouponController)
      * 此function主要讓顧客在購物車結帳時，除了站方的優惠券以外，亦可選擇商家發行著折扣碼
      * 
      * @param Request $request cartNumber
@@ -75,11 +75,10 @@ class MemberCouponOnlineController extends RestLaravelController
         //DEBUG
         //return $this->success($member_coupon_online);
         //return $this->success($cartItems);
-
         //return $this->success($member_coupon_online);
 
         //判斷這些優惠券，有哪些是符合使用資格(期限內、仍有使用數量、符合優惠券最低消費金額等判斷)，符合才拿出來
-        $result = (new MemberCouponOnlineResult)->listCanUsed($member_coupon_online, $cartItems, $memberID, $source_diningCar_id);
+        $result = (new MemberCouponResult)->listCanUsed($member_coupon_online, $cartItems, $memberID, $source_diningCar_id);
 
         return $this->success($result);
     }

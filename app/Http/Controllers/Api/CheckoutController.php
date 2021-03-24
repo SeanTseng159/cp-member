@@ -15,6 +15,7 @@ use Ksd\Mediation\Parameter\Checkout\ResultParameter;
 use Ksd\Mediation\Services\CheckoutService;
 use Ksd\Mediation\Services\CartService;
 use App\Services\DiscountCodeService;
+use App\Services\Ticket\CouponService;
 use App\Services\Ticket\MemberDiscountService;
 use Ksd\Mediation\CityPass\Order;
 use App\Services\Card3dLogService as LogService;
@@ -42,13 +43,20 @@ class CheckoutController extends RestLaravelController
     protected $service;
     protected $cartService;
     protected $discountCodeService;
+    protected $couponService;
     protected $memberdiscountCodeservice;
 
-    public function __construct(CheckoutService $service, CartService $cartService, DiscountCodeService $discountCodeService, MemberDiscountService  $memberdiscountCodeservice)
+    public function __construct(
+        CheckoutService $service,
+        CartService $cartService,
+        DiscountCodeService $discountCodeService,
+        MemberDiscountService $memberdiscountCodeservice,
+        CouponService $couponService)
     {
         $this->service = $service;
         $this->cartService = $cartService;
         $this->discountCodeService = $discountCodeService;
+        $this->couponService = $couponService;
         $this->memberdiscountCodeservice = $memberdiscountCodeservice;
         $this->lang = env('APP_LANG');
     }
@@ -90,6 +98,19 @@ class CheckoutController extends RestLaravelController
     {
         $parameters = new ConfirmParameter();
         $parameters->laravelRequest($request);
+
+        //先拿code去判斷這個code是屬於站方優惠碼(discountCode)還是商家線上優惠券(coupons)，因為不管是哪個單位的都會從前端的"code"帶過來
+        if (!empty($parameters->code)) {
+            if (!$this->discountCodeService->DiscountCodeExist($parameters->code)) {//先判斷是不是站方的，如果不是就判斷是不是商家的
+                if ($this->couponService->checkEnableAndExistByCode($parameters->code)) {
+                    //此部分邏輯是，CI專案會判斷member送過去的code欄位跟online_code欄位
+                    //若code有值代表有使用站方優惠，online_code有值代表使用商家優惠，都沒值代表沒使用，此兩欄位不會同時有值
+                    //故若判斷優惠是商家優惠，則把code的值轉移到online_code，讓CI知道是商家優惠
+                    $parameters->online_code = $parameters->code;
+                    $parameters->code = "";
+                }
+            }
+        }
 
         $date = date('Y-m-d H:i:s');
         $memberID = $this->getMemberId();

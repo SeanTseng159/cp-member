@@ -270,6 +270,26 @@ class CouponRepository extends BaseRepository
             ->first();
     }
 
+    /**
+     * 依據優惠卷代碼，確認此優惠券是否存在且可用
+     * @param $code
+     * @return boolean
+     */
+    public function checkEnableAndExistByCode($code)
+    {
+        $exist = false;
+        $data = $this->model
+            ->where('online_code_value', $code)
+            ->where('status',1)
+            //->where('qty','!=', 0)
+            ->count();
+
+        if($data>0){
+            $exist = true;
+        }
+        return $exist;
+    }
+
     public function availableCoupons($memberId)
     {
         return $this->repository->availableCoupons($memberId);

@@ -49,4 +49,9 @@ class DiscountCodeService
     {
         return $this->repository->allEnableDiscountByProd($prodId);
     }
+
+    public function DiscountCodeExist($code)
+    {
+        return $this->repository->DiscountCodeExist($code);
+    }
 }
