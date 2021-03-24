@@ -110,12 +110,12 @@ class MemberCouponOnlineResult extends BaseResult
         //宣告一個新物件format，format內存需要回傳的值
         $format = new \stdClass; 
 
-        $format->coupon_id = $data->id;//優惠券id
+        $format->id = $data->id;//優惠券id
         $format->coupon_source = 'vendor';//讓前端知道此張優惠券是站方開立的
-        $format->coupon_name = $data->name;//優惠券名稱
+        $format->name = $data->name;//優惠券名稱
         $format->value = $data->online_code_value;//優惠券代碼(ex:vip777,xmas1225)
         $format->desc = $data->desc;//優惠券敘述
-        $format->can_use = $data->can_use;//listCanUsed()判斷後是否可使用 true/false
+        $format->status = $data->can_use;//listCanUsed()判斷後是否可使用 true/false
         $format->endtime = Carbon::parse($data->expire_at)->format('Y-m-d');//優惠券到期日期 精確到到日期就好
         $format->imageUrl = '';//圖片URL 此部分暫時為空，待改
         $format->message= $data->error_message; //若優惠券不可用，會帶error_message解釋不可用原因(ex:逾期、未達折扣門檻...)
