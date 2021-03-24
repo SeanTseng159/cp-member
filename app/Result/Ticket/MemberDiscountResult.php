@@ -215,7 +215,7 @@ class MemberDiscountResult extends BaseResult
     {
         $result = new \stdClass;
         $result->id = $data->discountCode->discount_code_id;
-        $result->coupon_source = 'ksd';
+        $result->isOfficial = true;//讓前端知道此張優惠券是站方開立，而非店家所建立的線上商品優惠券
         $result->name = $data->discountCode->discount_code_name;
         $result->value = $data->discountCode->discount_code_value;
         $result->desc = $data->discountCode->discount_code_desc;
