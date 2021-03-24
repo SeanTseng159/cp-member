@@ -38,7 +38,7 @@ class MemberCouponOnlineResult extends BaseResult
             //撇除其他店車的優惠券，僅留下當前商品店車的優惠券
             if($coupon_can_be_used){
                 $cartNum = $cartItems[0]->id;//cartItem的id即為餐車號碼
-                if($coupon_item->dining_car_id != $source_diningCar_id){//若此張優惠券的店車id與目前購物車的所屬店車id不符(EX:咖啡廳的優惠券不能用在炸雞店的商品上)
+                if($coupon_item->model_spec_id != $source_diningCar_id){//若此張優惠券的店車id與目前購物車的所屬店車id不符(EX:咖啡廳的優惠券不能用在炸雞店的商品上)
                     $coupon_can_be_used = false;
                     $message = '此為其他店的優惠券';
                     //$message = $coupon_item->dining_car_id.'--'.$source_diningCar_id;
