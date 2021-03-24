@@ -58,6 +58,14 @@ class MemberCouponOnlineResult extends BaseResult
                 
             }
 
+            //判斷這些coupon有沒有使用次數為0的
+            if($coupon_can_be_used){
+                if($coupon_item->qty == 0){
+                    $coupon_can_be_used = false;
+                    $message = '此優惠券總使用次數已達上限';
+                }
+            }
+
             //判斷是否符合首購優惠
 
             //判斷是否購物車金額>優惠券所需的最低消費金額
