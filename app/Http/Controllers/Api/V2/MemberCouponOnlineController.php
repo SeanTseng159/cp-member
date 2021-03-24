@@ -76,7 +76,7 @@ class MemberCouponOnlineController extends RestLaravelController
         //return $this->success($member_coupon_online);
         //return $this->success($cartItems);
 
-
+        //return $this->success($member_coupon_online);
 
         //判斷這些優惠券，有哪些是符合使用資格(期限內、仍有使用數量、符合優惠券最低消費金額等判斷)，符合才拿出來
         $result = (new MemberCouponOnlineResult)->listCanUsed($member_coupon_online, $cartItems, $memberID, $source_diningCar_id);
