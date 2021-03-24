@@ -58,15 +58,13 @@ class MemberCouponOnlineResult extends BaseResult
                 
             }
 
-            //判斷這些coupon有沒有使用次數為0的
+            //判斷優惠券使用次數是否為0
             if($coupon_can_be_used){
                 if($coupon_item->qty == 0){
                     $coupon_can_be_used = false;
                     $message = '此優惠券總使用次數已達上限';
                 }
             }
-
-            //判斷是否符合首購優惠
 
             //判斷是否購物車金額>優惠券所需的最低消費金額
             //此部分邏輯是"先計算原價折扣後的價格"，此價格仍大於消費門檻，才折價
