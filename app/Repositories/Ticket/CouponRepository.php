@@ -110,8 +110,6 @@ class CouponRepository extends BaseRepository
         // ->where('coupons.model_type', $modelType)
         ->where('coupons.limit_qty', '>', 'member_coupon.count')
         ->where('coupons.online_or_offline', 2)
-        ->where('coupons.on_sale_at', '<=', Carbon::now()->toDateTimeString())
-        ->where('coupons.off_sale_at', '>=', Carbon::now()->toDateTimeString())
         ->where('coupons.status', true)
         // ->groupBy('coupons.id')
         ->get();
@@ -149,8 +147,6 @@ class CouponRepository extends BaseRepository
         ->where('member_coupon.count', '!=', 0)
         ->where('coupons.limit_qty', '>=', 'member_coupon.count')
         ->where('coupons.online_or_offline', 2)
-        ->where('coupons.on_sale_at', '<=', Carbon::now()->toDateTimeString())
-        ->where('coupons.off_sale_at', '>=', Carbon::now()->toDateTimeString())
         ->where('coupons.status', true)
         // ->groupBy('coupons.id')
         ->get();
@@ -193,8 +189,6 @@ class CouponRepository extends BaseRepository
         })
         ->where(function ($query) {
             $query->orWhere('coupons.qty', '<=', 'member_coupon.count')
-                  ->where('coupons.off_sale_at', '>=', Carbon::today()->subMonths(1))
-                  ->where('coupons.off_sale_at', '<=', Carbon::today())
                   ->orWhere('coupons.status', 0);
         })
         // ->groupBy('coupons.id')
