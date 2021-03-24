@@ -247,8 +247,6 @@ class CouponRepository extends BaseRepository
             ->where('status',1)
             ->where('start_at', '<=', $date)
             ->where('expire_at', '>', $date)
-            ->where('on_sale_at', '<=', $date)
-            ->where('off_sale_at', '>', $date)
             ->where('qty','!=', 0)
             ->first();
     }
