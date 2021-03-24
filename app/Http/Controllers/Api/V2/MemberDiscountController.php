@@ -235,15 +235,17 @@ class MemberDiscountController extends RestLaravelController
             case 'current':
                 //可使用 valid
                 $data = $this->service->current($memberID);
+                $dataCoupon = $this->couponService->memberCurrentCouponlist($memberID);
                 break;
                 //已經使用 used 
             case 'used':
                 $data = $this->service->used($memberID);
+                $dataCoupon = $this->couponService->memberUsedCouponlist($memberID);
                 break;
                 //以失效 disabled
             case 'disabled':
                 $data = $this->service->disabled($memberID);
-
+                $dataCoupon = $this->couponService->memberDisabledCouponlist($memberID);
                 break;
             case 'all':
                 $data1 = $this->service->current($memberID);
@@ -271,6 +273,8 @@ class MemberDiscountController extends RestLaravelController
             return $this->success([]);
         } else {
             $result = (new MemberDiscountResult)->list($data, $func);
+            $resultCoupon = (new MemberDiscountResult)->memberCouponlist($dataCoupon, $func);
+            $result = array_merge($result, $resultCoupon);
             return $this->success($result);
         }
     } //end

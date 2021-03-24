@@ -82,6 +82,11 @@ class CouponRepository extends BaseRepository
         return $result;
     }
     
+    /**
+     * 取得會員領取店家優惠 可使用
+     * @param $memberID
+     * @return mixed
+     */
     public function memberCurrentCouponlist($memberID) 
     {
         // $modelType = 'dining_car';
@@ -114,6 +119,11 @@ class CouponRepository extends BaseRepository
         return $result;
     }
 
+    /**
+     * 取得會員領取店家優惠 已使用
+     * @param $memberID
+     * @return mixed
+     */
     public function memberUsedCouponlist($memberID) 
     {
         // $modelType = 'dining_car';
@@ -148,6 +158,11 @@ class CouponRepository extends BaseRepository
         return $result;
     }
 
+    /**
+     * 取得會員領取店家優惠 已失效
+     * @param $memberID
+     * @return mixed
+     */
     public function memberDisabledCouponlist($memberID) 
     {
         // $modelType = 'dining_car';
@@ -222,6 +237,11 @@ class CouponRepository extends BaseRepository
 
     }
 
+    /**
+     * 會員領取店家優惠券
+     * @param $data
+     * @return mixed
+     */
     public function createAndCheck($data)
     {
         $check = $this->memberCouponModel->where('coupon_id', $data['coupon_id'])->where('member_id', $data['member_id'])->first();
@@ -239,6 +259,11 @@ class CouponRepository extends BaseRepository
         }
     }
 
+    /**
+     * 依據優惠卷編號，查詢coupon資料
+     * @param $code
+     * @return mixed
+     */
     public function getEnableCouponByCode($code)
     {
         $date = date('Y-m-d H:i:s');

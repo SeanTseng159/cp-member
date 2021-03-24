@@ -32,21 +32,41 @@ class CouponService extends BaseService
         return $this->repository->list($modelSpecID,$modelType);
     }
 
+    /**
+     * 取得會員領取店家優惠 可使用
+     * @param $memberID
+     * @return mixed
+     */
     public function memberCurrentCouponlist($memberID) 
     {
         return $this->repository->memberCurrentCouponlist($memberID);
     }
 
+    /**
+     * 取得會員領取店家優惠 已使用
+     * @param $memberID
+     * @return mixed
+     */
     public function memberUsedCouponlist($memberID) 
     {
         return $this->repository->memberUsedCouponlist($memberID);
     }
 
+    /**
+     * 取得會員領取店家優惠 已失效
+     * @param $memberID
+     * @return mixed
+     */
     public function memberDisabledCouponlist($memberID) 
     {
         return $this->repository->memberDisabledCouponlist($memberID);
     }
 
+    /**
+     * 會員領取店家優惠券
+     * @param $data
+     * @return mixed
+     */
     public function createAndCheck($data){
         return $this->repository->createAndCheck($data);
     }
@@ -63,6 +83,11 @@ class CouponService extends BaseService
         return $this->repository->find($id);
     }
 
+    /**
+     * 依據優惠卷編號，查詢coupon資料
+     * @param $code
+     * @return mixed
+     */
     public function getEnableCouponByCode($code) 
     {
         return $this->repository->getEnableCouponByCode($code);
