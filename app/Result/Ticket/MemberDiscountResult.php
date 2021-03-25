@@ -10,6 +10,8 @@ namespace App\Result\Ticket;
 use App\Result\BaseResult;
 use App\Helpers\CommonHelper;
 use Carbon\Carbon;
+use App\Services\ImageService;
+
 
 class MemberDiscountResult extends BaseResult
 {
@@ -234,6 +236,7 @@ class MemberDiscountResult extends BaseResult
 
     public function getCouponListResult($data, $func)
     {
+
         $result = new \stdClass;
         $result->id = $data->id;
         $result->name = $data->name;
@@ -242,7 +245,7 @@ class MemberDiscountResult extends BaseResult
         $result->status = $func;
         $result->orderNo = null/*$data->order_no*/;
         $result->endTime = Carbon::parse($data->endtime)->format('Y-m-d');
-        $result->imageUrl = null/*$this->getImg($data->image_path)*/;
+        $result->imageUrl = $this->getImg($data->imgUrl);
         $result->category = '餐車';
         return $result;
     }

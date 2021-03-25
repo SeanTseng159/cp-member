@@ -10,15 +10,16 @@ namespace App\Services\Ticket;
 
 use App\Repositories\Ticket\CouponRepository;
 use App\Services\BaseService;
-
+use App\Services\ImageService;
 
 class CouponService extends BaseService
 {
     protected $repository;
     
-    public function __construct(CouponRepository $repository)
+    public function __construct(CouponRepository $repository, ImageService $imgService)
     {
         $this->repository = $repository;
+        $this->imgService = $imgService;
     }
 
     /**
@@ -32,6 +33,20 @@ class CouponService extends BaseService
         return $this->repository->list($modelSpecID,$modelType);
     }
 
+    //把從repository拿到的優惠券資料，去ImageService內取得圖片路徑，再把路徑補進優惠券object裡面
+    public function getCouponImgUrl($ImgObj)
+    {
+        $data = $ImgObj;
+        //將優惠券資料obj轉成array以方便新增屬性imgUrl，並將優惠券的圖片路徑存在imgUrl屬性內
+        $data = array($data);
+        $get_img_array = $data[0];
+        foreach($get_img_array as $key=>$value){
+            $img_obj = $this->imgService->path('coupon',$value->id,'1');
+            $value->imgUrl = $img_obj[0]->folder.$img_obj[0]->filename.'.'.$img_obj[0]->ext;
+        }
+        return (object)$get_img_array;
+    }
+
     /**
      * 取得會員領取店家優惠 可使用
      * @param $memberID
@@ -39,7 +54,8 @@ class CouponService extends BaseService
      */
     public function memberCurrentCouponlist($memberID) 
     {
-        return $this->repository->memberCurrentCouponlist($memberID);
+        $data = $this->repository->memberCurrentCouponlist($memberID);//取出優惠券資料
+        return $this->getCouponImgUrl($data);
     }
 
     /**
@@ -49,7 +65,8 @@ class CouponService extends BaseService
      */
     public function memberUsedCouponlist($memberID) 
     {
-        return $this->repository->memberUsedCouponlist($memberID);
+        $data = $this->repository->memberUsedCouponlist($memberID);
+        return $this->getCouponImgUrl($data);
     }
 
     /**
@@ -59,7 +76,8 @@ class CouponService extends BaseService
      */
     public function memberDisabledCouponlist($memberID) 
     {
-        return $this->repository->memberDisabledCouponlist($memberID);
+        $data = $this->repository->memberDisabledCouponlist($memberID);
+        return $this->getCouponImgUrl($data);
     }
 
     /**
