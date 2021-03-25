@@ -116,9 +116,13 @@ class SalesRuleController extends RestLaravelController
         else if($return_data->DiscountCode['method'] == 2){
             $return_data->DiscountCode['amount'] = $return_data->DiscountCode['price']; //若為折價，折扣總金額就是折價
         }
-        if($salesRule[0]->online_code_off_max < $return_data->DiscountCode['amount']){//如果算出折價金額比最高折抵還多，以最高折抵額為主
-            $return_data->DiscountCode['amount'] = $salesRule[0]->online_code_off_max;
+        if($salesRule[0]->online_code_off_max>0)//優惠最高折抵為0或沒輸入值，不判斷，不然會直接讓優惠=0
+        {
+            if($salesRule[0]->online_code_off_max < $return_data->DiscountCode['amount']){//如果算出折價金額比最高折抵還多，以最高折抵額為主
+                $return_data->DiscountCode['amount'] = $salesRule[0]->online_code_off_max;
+            }
         }
+
 
         $return_data->DiscountCode['amount'] = round($return_data->DiscountCode['amount']);//如果打折金額
         //此部分請示過會計，四捨五入必須寫在"折價總金額"上，若折109.6元則折110元，折109.4元則折109元，折價金額就不要有小數點了。
