@@ -96,12 +96,11 @@ class DiscountCodeRepository
 
     public function DiscountCodeExist($code)
     {
+        $exist = false;
         $discountCode = $this->model
                         ->where('discount_code_value', $code)
                         ->first();
-        
-        $exist = false;
-
+                        
         if(!is_null($discountCode))
         {
             $exist = true;

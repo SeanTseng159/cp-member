@@ -90,14 +90,14 @@ class SalesRuleController extends RestLaravelController
 
         //透過CI專案去取得購物車的資料，來得知購物車內有多少商品與價值
         $cartItems = $this->cartMoreService->mine(['cartNumber' => $parameters->cartNumber]);
-        //注意! 此$cartItems是由CI專案傳回來的資料，裡面也會含DiscountCode相關資料，但那並不準，請勿拿來用，優惠資料請拿上方$saluesRule得到的資料
+        //注意! 此$cartItems是由CI專案傳回來的資料，裡面也會含一份DiscountCode相關資料，但那並不準，請勿拿來用，優惠資料請拿上方$salesRule得到的資料
         
         //$test = $this->cartMoreService->info(['cartNumber' => $parameters->cartNumber]);
 
         //DEBUG
         //return $this->success($parameters);
         //return $this->success($cartItems);
-        //return $this->success($salesRule[0]->id);
+        //return $this->success($salesRule[0]);
         //return $this->success($test);
 
         $return_data = new \stdClass();
@@ -108,14 +108,24 @@ class SalesRuleController extends RestLaravelController
         $return_data->DiscountCode['name'] = $salesRule[0]->name;//優惠券名稱
         $return_data->DiscountCode['method'] = $salesRule[0]->online_code_type;//優惠方式 1折數(*) 2折扣(-)
         $return_data->DiscountCode['price'] = $salesRule[0]->price;
+
+        //===計算折扣總金額===
         if($return_data->DiscountCode['method'] == 1){
-            $return_data->DiscountCode['amount'] = $return_data->totalAmount*$return_data->DiscountCode['price']/100; //若折抵為折數，最後商品總額 = 原價*折數
+            $return_data->DiscountCode['amount'] = $return_data->totalAmount - ($return_data->totalAmount*$return_data->DiscountCode['price']/100); //若折抵為折數，折扣總金額 = 原價-打折後價格
         }
         else if($return_data->DiscountCode['method'] == 2){
-            $return_data->DiscountCode['amount'] = $return_data->DiscountCode['price']; //若為折價，折扣金額就是折價
+            $return_data->DiscountCode['amount'] = $return_data->DiscountCode['price']; //若為折價，折扣總金額就是折價
         }
-        $return_data->discountAmount = $return_data->DiscountCode['amount'];//折扣總金額
-        $return_data->discountTotalAmount = $return_data->totalAmount - $return_data->discountAmount; //商品最後金額 = 原價 - 折價
+        if($salesRule[0]->online_code_off_max < $return_data->DiscountCode['amount']){//如果算出折價金額比最高折抵還多，以最高折抵額為主
+            $return_data->DiscountCode['amount'] = $salesRule[0]->online_code_off_max;
+        }
+
+        $return_data->DiscountCode['amount'] = round($return_data->DiscountCode['amount']);//如果打折金額
+        //此部分請示過會計，四捨五入必須寫在"折價總金額"上，若折109.6元則折110元，折109.4元則折109元，折價金額就不要有小數點了。
+        //===計算折扣總金額===
+
+        $return_data->discountAmount = $return_data->DiscountCode['amount'];//折扣總金額(買一千打九折 折扣總金額=100)
+        $return_data->discountTotalAmount = $return_data->totalAmount - $return_data->discountAmount; //商品最後金額 = 原價 - 折扣總金額
         $return_data->shipmentAmount = $cartItems[0]->shipmentAmount;//運費
         $return_data->shippingFee = $cartItems[0]->shipmentAmount;//運費(拿來加回總額用)
         $return_data->shipmentFree = $cartItems[0]->shipmentFree;//滿多少免運門檻
