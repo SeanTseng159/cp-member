@@ -21,6 +21,7 @@ use Validator;
 use Crypt;
 use Log;
 use App\Traits\CryptHelper;
+use App\Traits\MemberHelper;
 use Illuminate\Contracts\Encryption\DecryptException;
 use App\Services\Line\MemberService as LineMemberService;
 use App\Parameter\Line\MemberParameter as LineMemberParameter;
@@ -28,7 +29,7 @@ use App\Parameter\Line\MemberParameter as LineMemberParameter;
 class MemberController extends RestLaravelController
 {
     use CryptHelper;
-
+    use MemberHelper;
     protected $memberService;
     protected $newsletterService;
     protected $lineMemberService;
@@ -226,6 +227,10 @@ class MemberController extends RestLaravelController
      */
     public function singleMember(Request $request, $id)
     {
+        if($id != $this->getMemberId()){//禁止A會員去查B會員的資料
+            return $this->failure('E0021','會員驗證失效');
+        }
+
         $member = $this->memberService->find($id);
 
         if ($member) {
