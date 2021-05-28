@@ -137,6 +137,18 @@ class CheckoutController extends RestLaravelController
 
         $result = $this->service->confirm($parameters);
 
+        /*
+        補充金流流程，前人寫的金流有點不太統一，整理一下
+        LinePay的部分是在執行$this->service->confirm(也就是到CI專案建立完orderID)後，直接將user轉址到LinePay頁面交易，也就是$linePayService->reserve(...)
+        等整個交易結束才再把user導到前端頁面
+
+        綠界的部分，是CI專案建立完orderID回到這裡後，直接將在這return $result['data'](在下方)，而前端收到return的資料後
+        若裡面的paymentType欄位是'credit_card'，再call後端的綠界API(v1/greenECPay/reserve)，把user導到綠界付款
+
+        這也是為什麼在CI專案內的models/services/API/Checkout.php內的setCreateOrder()中，case LibCommon::ORDER_PAYMENT_GATEWAY_GREENECPAY:是直接break的原因
+        因為在那邊綠界不做事，而是回到member專案後return給前端，前端判斷是信用卡後再call綠界API
+        */
+
         if ($parameters->payment->type === 'linepay' && $result['code'] === 201) {
             $linePayService = app()->build(LinePayService::class);
             $reserveResult = $linePayService->reserve($result['data'], $parameters);
