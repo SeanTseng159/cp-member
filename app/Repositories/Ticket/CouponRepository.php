@@ -319,6 +319,7 @@ class CouponRepository extends BaseRepository
         ->where('qty','>','0')
         ->where('status',1)
         ->where('online_or_offline',2)
+        ->where('model_spec_id',$dining_car_id)
         ->get();
 
         return $coupon;
