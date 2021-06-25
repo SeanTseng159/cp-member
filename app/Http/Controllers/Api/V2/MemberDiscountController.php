@@ -146,7 +146,6 @@ class MemberDiscountController extends RestLaravelController
             //目前系統上會同時有站方發的優惠券及店家發送的優惠券，由於是不同表不同邏輯，
             //故同一支API需拿兩邊的資料，各取出可用的優惠券，最後合併成一筆資料回給前端
             $memberID = $this->getMemberId();
-            $memberID = 10310;
             // ===== 站方優惠券開始 =====
             //拿出自己優惠倦
             if (empty($memberID)) {
