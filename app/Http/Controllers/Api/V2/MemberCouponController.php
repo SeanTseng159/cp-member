@@ -36,11 +36,13 @@ class MemberCouponController extends RestLaravelController
     public function __construct(
         MemberCouponOnlineService $service,
         CartMoreService $cartMoreService,
-        CartService $cartService
+        CartService $cartService,
+        MemberCouponResult $memberCouponResult
     ) {
         $this->service = $service;
         $this->cartMoreService = $cartMoreService;
         $this->cartService = $cartService;
+        $this->memberCouponResult = $memberCouponResult;
     }
 
     /**
@@ -78,7 +80,7 @@ class MemberCouponController extends RestLaravelController
         //return $this->success($member_coupon_online);
 
         //判斷這些優惠券，有哪些是符合使用資格(期限內、仍有使用數量、符合優惠券最低消費金額等判斷)，符合才拿出來
-        $result = (new MemberCouponResult)->listCanUsed($member_coupon_online, $cartItems, $memberID, $source_diningCar_id);
+        $result = $this->memberCouponResult->listCanUsed($member_coupon_online, $cartItems, $memberID, $source_diningCar_id);
 
         return $this->success($result);
     }

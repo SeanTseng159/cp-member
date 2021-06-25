@@ -121,5 +121,16 @@ class CouponService extends BaseService
     {
         return $this->repository->checkEnableAndExistByCode($code);
     }
+    
+    /**
+     * 根據 店車id 取得目前此時所有可以使用的線上優惠券
+     *
+     * @param  mixed $dining_car_id
+     * @return void
+     */
+    public function listCanUsedByDiningCarId($dining_car_id)
+    {
+        return $this->repository->listCanUsedByDiningCarId($dining_car_id);
+    }
 
 }

@@ -5,9 +5,17 @@ namespace App\Result\Ticket;
 use App\Result\BaseResult;
 use App\Helpers\CommonHelper;
 use Carbon\Carbon;
+use App\Services\ImageService;
+
 
 class MemberCouponResult extends BaseResult
 {
+    protected $imgService;
+    public function __construct(ImageService $imgService)
+    {
+        $this->imgService = $imgService;
+    }
+
     //供購物車在準備結帳時，列出所有member目前所持有的"店車的線上優惠券"中，有哪些是符合資格的，return符合資格的優惠
     public function listCanUsed($member_coupon_online, $cartItems, $memberID, $source_diningCar_id)
     {
@@ -128,5 +136,34 @@ class MemberCouponResult extends BaseResult
         return $format;
     }
 
+    public function listByProd($member_coupon, $coupon,$diningCar_name = null)
+    {
+        $result = [];
+        foreach ($coupon as $itemCoupon) {
+            //coupon是否已領
+            if (collect($member_coupon)->contains('coupon_id', $itemCoupon->id)) {
+                $ownStatus = true;
+            } else {
+                $ownStatus = false;
+            }
+            //dd($itemCoupon);
+            //dd($ownStatus);
+            $resultObj = new \stdClass;
+            $resultObj->id = $itemCoupon->id;
+            $resultObj->name = $itemCoupon->name;
+            $resultObj->value = $itemCoupon->online_code_value;
+            $resultObj->desc = $itemCoupon->desc;
+            $resultObj->endTime= Carbon::parse($itemCoupon->expire_at)->format('Y-m-d');
+            $resultObj->range = Carbon::parse($itemCoupon->start_at)->format('Y-m-d') . '~' . Carbon::parse($itemCoupon->expire_at)->format('Y-m-d');
+            $img_data = $this->imgService->path('coupon',$itemCoupon->id,'1');
+            $resultObj->imageUrl = $img_data[0]->folder.$img_data[0]->filename.'.'.$img_data[0]->ext;
+            $resultObj->imageUrl = CommonHelper::getBackendHost($resultObj->imageUrl);//將img_url加上backend domain
+            $resultObj->category = $diningCar_name;//店車優惠券沒有商品分類，直接給店名就好
+            $resultObj->ownStatus = $ownStatus;
+
+            $result[] = $resultObj;
+        }
+        return $result;
+    }
 
 }

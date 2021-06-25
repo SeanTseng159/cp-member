@@ -7,10 +7,12 @@ use Ksd\Mediation\Services\CartMoreService;
 use App\Services\CartService;
 use App\Core\Logger;
 use App\Models\Coupon;
+use App\Models\MemberCoupon;
+use App\Result\Ticket\MemberCouponResult;
 use Carbon\Carbon;
 
 use App\Services\Ticket\MemberDiscountService;
-
+use App\Services\Ticket\MemberCouponService;
 use Illuminate\Http\Request;
 use Ksd\Mediation\Core\Controller\RestLaravelController;
 use stdClass;
@@ -21,6 +23,8 @@ use Illuminate\Support\Facades\Hash;
 use App\Services\DiscountCodeService;
 use App\Services\Ticket\CouponService;
 use App\Services\Ticket\ProductService;
+use App\Services\Ticket\DiningCarService;
+
 
 class MemberDiscountController extends RestLaravelController
 {
@@ -33,6 +37,8 @@ class MemberDiscountController extends RestLaravelController
     protected $discountCodeService;
     protected $couponService;
     protected $productService;
+    protected $diningCarService;
+    protected $memberCouponService;
 
     public function __construct(
         CartService $cartService,
@@ -40,7 +46,10 @@ class MemberDiscountController extends RestLaravelController
         MemberDiscountService  $service,
         DiscountCodeService $discountCodeService,
         CouponService $couponService, 
-        ProductService $productService
+        ProductService $productService,
+        DiningCarService $diningCarService,
+        MemberCouponService $memberCouponService,
+        MemberCouponResult $memberCouponResult
     ) {
         $this->cartService = $cartService;
         $this->cartMoreService = $cartMoreService;
@@ -48,6 +57,9 @@ class MemberDiscountController extends RestLaravelController
         $this->discountCodeService = $discountCodeService;
         $this->couponService = $couponService;
         $this->productService = $productService;
+        $this->diningCarService = $diningCarService;
+        $this->memberCouponService = $memberCouponService;
+        $this->memberCouponResult = $memberCouponResult;
     }
 
 
@@ -124,17 +136,19 @@ class MemberDiscountController extends RestLaravelController
     } //end list
 
     /**
-     *  //商品可以領取的優惠卷
+     *  商品可以領取的優惠券
      * @param Request $request 　prodId
      * @return JsonResponse
      */
     public function listByProd(Request $request, $prodId)
     {
         try {
-
+            //目前系統上會同時有站方發的優惠券及店家發送的優惠券，由於是不同表不同邏輯，
+            //故同一支API需拿兩邊的資料，各取出可用的優惠券，最後合併成一筆資料回給前端
             $memberID = $this->getMemberId();
-
-            // //拿出自己優惠倦
+            $memberID = 10310;
+            // ===== 站方優惠券開始 =====
+            //拿出自己優惠倦
             if (empty($memberID)) {
                 $member_discounts = null;
             } else {
@@ -147,6 +161,25 @@ class MemberDiscountController extends RestLaravelController
             //判斷得程式
             $result = (new MemberDiscountResult)->listByProd($member_discounts, $discountCodes);
 
+
+            // ===== 店家優惠券開始 =====
+            $prod_data = $this->productService->findById($prodId);
+            $diningCar_data = $this->diningCarService->findByName($prod_data->prod_store);
+            $diningCar_id = $diningCar_data->id;
+            $diningCar_name = $diningCar_data->name;
+
+            //取出該店家所有目前可用的線上優惠券
+            $coupon = $this->couponService->listCanUsedByDiningCarId($diningCar_id);
+            //取出該會員目前已領的優惠券
+            $member_coupon = $this->memberCouponService->list($memberID);
+            //將優惠券資料轉成回給前端的格式
+            $coupon_result = $this->memberCouponResult->listByProd($member_coupon,$coupon,$diningCar_name);
+
+            //將兩種result合併
+            foreach($coupon_result as $value){
+                array_push($result,$value);
+            }
+            
             return $this->success($result);
         } catch (\Exception $e) {
             // Logger::error('v2/MemberDiscountController/list',$e->getMessage());

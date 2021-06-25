@@ -175,4 +175,9 @@ class DiningCarRepository extends BaseRepository
             ->where('status', 1)
             ->get();
     }
+
+    public function findByName($name)
+    {
+        return $this->model->where('name',$name)->first();
+    }
 }

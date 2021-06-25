@@ -40,6 +40,18 @@ class ProductRepository extends BaseRepository
         $this->productGroupRepository = $productGroupRepository;
         $this->tagProdRepository = $tagProdRepository;
     }
+    
+    /**
+     * 根據 商品 id 取得商品基本資料
+     *
+     * @param  mixed $id
+     * @return void
+     */
+    public function findById($id)
+    {
+        $prod = $this->model->find($id);
+        return $prod;
+    }
 
     /**
      * 根據 商品 id 取得商品明細

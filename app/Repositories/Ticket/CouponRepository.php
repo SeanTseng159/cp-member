@@ -309,4 +309,18 @@ class CouponRepository extends BaseRepository
         ->where('qty','>',0)->get();        
       return $data;     
     } 
+
+    public function listCanUsedByDiningCarId($dining_car_id)
+    {
+        $time = Carbon::now();
+        $coupon = $this->model
+        ->where('start_at','<',$time)
+        ->where('expire_at','>',$time)
+        ->where('qty','>','0')
+        ->where('status',1)
+        ->where('online_or_offline',2)
+        ->get();
+
+        return $coupon;
+    }
 }

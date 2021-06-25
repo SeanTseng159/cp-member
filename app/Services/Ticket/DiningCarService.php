@@ -96,4 +96,9 @@ class DiningCarService extends BaseService
             return false;
         }
     }
+
+    public function findByName($name)
+    {
+        return $this->repository->findByName($name);
+    }
 }

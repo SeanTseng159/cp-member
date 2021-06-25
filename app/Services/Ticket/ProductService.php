@@ -21,7 +21,15 @@ class ProductService extends BaseService
     {
         $this->repository = $repository;
     }
-
+    /**
+     * 根據 商品 id 取得商品基本資料
+     * @param $id
+     * @return mixed
+     */
+    public function findById($id)
+    {
+        return $this->repository->findById($id);
+    }
     /**
      * 根據 商品 id 取得商品明細
      * @param $id
