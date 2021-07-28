@@ -40,6 +40,15 @@ class DiningCarMenuController extends RestLaravelController
             $data = $this->menuCategoryService->list($params);
             $result = (new DiningCarMenuResult)->list($data);
 
+            //針對menu中可能存在的html字元(ex:&nbsp; &amp;)進行轉換
+            //值存在$result[$index]->menus[0]->content
+            if($result){
+                foreach ($result as $key => $value){
+                    $value->menus[0]->content = str_replace('&amp;','&',$value->menus[0]->content);//將&amp; 轉換成 &
+                    $value->menus[0]->content = str_replace('&nbsp;',' ',$value->menus[0]->content);//將&nbsp; 轉換成 空白字元
+                }
+            }
+
             return $this->success($result);
         } catch (Exception $e) {
             return $this->failureCode('E0007');
