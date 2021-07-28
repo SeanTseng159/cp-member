@@ -45,8 +45,8 @@ class DiningCarMenuController extends RestLaravelController
             if($result){
                 foreach ($result as $key => $value){
                     foreach($value->menus as $k => $v){
-                        $v->content = str_replace('&amp;','&',$value->menus[0]->content);//將&amp; 轉換成 &
-                        $v->content = str_replace('&nbsp;',' ',$value->menus[0]->content);//將&nbsp; 轉換成 空白字元
+                        $v->content = str_replace('&amp;','&',$v->content);//將&amp; 轉換成 &
+                        $v->content = str_replace('&nbsp;',' ',$v->content);//將&nbsp; 轉換成 空白字元
                         }
                 }
             }
